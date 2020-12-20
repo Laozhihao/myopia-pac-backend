@@ -1,34 +1,48 @@
 package com.wupol.myopia.gateway.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
+ * 通用JSON序列化对象
+ *
  * @Author HaoHao
- * @Date 2020/12/14
- **/
+ * @Date 2020/12/20
+ */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ApiResult {
-    private Integer code;
+@Accessors(chain = true)
+public class ApiResult<T> implements Serializable {
+
+    /**
+     * 状态码
+     */
+    private int code;
+
+    /**
+     * 错误信息
+     */
     private String message;
-    private Object data;
 
-    public static ApiResult success(String msg) {
-        return new ApiResult(ResultStatus.SUCCESS.getCode(), msg, null);
+    /**
+     * 响应数据
+     */
+    private T data;
+
+    public static <T> ApiResult<T> success() {
+        return new ApiResult<T>().setCode(ResultCode.SUCCESS.getCode()).setMessage(ResultCode.SUCCESS.getMessage());
     }
 
-    public static ApiResult success(Object data) {
-        return new ApiResult(ResultStatus.SUCCESS.getCode(), "success", data);
+    public static <T> ApiResult<T> success(T data) {
+        return new ApiResult<T>().setCode(ResultCode.SUCCESS.getCode()).setData(data).setMessage(ResultCode.SUCCESS.getMessage());
     }
 
-    public static ApiResult failure(String msg) {
-        return new ApiResult(ResultStatus.BAD_REQUEST.getCode(), msg, null);
+    public static <T> ApiResult<T> failure(int code, String message) {
+        return new ApiResult<T>().setCode(code).setMessage(message);
     }
 
-    public static ApiResult failure(Integer code, String msg) {
-        return new ApiResult(code, msg, null);
+    public static <T> ApiResult<T> failure(String message) {
+        return failure(ResultCode.BAD_REQUEST.getCode(), message);
     }
 }

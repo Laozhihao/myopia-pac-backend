@@ -29,7 +29,6 @@ public class SentinelStatusFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        // TODO Auto-generated method stub
         // 小于 -1
         return -2;
     }
@@ -57,7 +56,6 @@ public class SentinelStatusFilter implements GlobalFilter, Ordered {
                         entry = SphU.entry(path, EntryType.OUT, 0);
                         Tracer.trace(new Exception("error"));
                     } catch (BlockException e) {
-                        // TODO Auto-generated catch block
                         log.error("记录异常数失败", e);
                     } finally {
                         if (entry != null) {
