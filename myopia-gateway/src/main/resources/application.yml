@@ -1,0 +1,63 @@
+# 服务端口号
+server:
+  port: 8000
+
+spring:
+  cloud:
+    # 网关路由配置
+    gateway:
+      routes:
+      - id: route_oauth # 授权中心微服务路由规则
+        uri: lb://myopia-oauth # 负载均衡，将请求转发到注册中心注册的myopia-oauth服务
+        predicates: # 断言
+        - Path=/api/oauth/** # 如果前端请求路径包含 api/oauth，则应用这条路由规则
+        filters: #过滤器
+        - RewritePath=/api/oauth/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/oauth替换成空
+
+      - id: route_business # 核心业务微服务路由规则
+        uri: lb://myopia-business # 负载均衡，将请求转发到注册中心注册的myopia-business服务
+        predicates: # 断言
+        - Path=/api/business/** # 如果前端请求路径包含 api/business，则应用这条路由规则
+        filters: #过滤器
+        - RewritePath=/api/(?<segment>.*),/$\{segment} # 将跳转路径中包含的api替换成空
+
+      - id: route_device # 数据采集微服务路由规则
+        uri: lb://myopia-device # 负载均衡，myopia-device服务
+        predicates: # 断言
+        - Path=/api/** # 如果前端请求路径包含 api，则应用这条路由规则
+        filters: #过滤器
+        - RewritePath=/api/(?<segment>.*),/myopia-device/$\{segment} # 将跳转路径中包含的api替换成renren-fast，但是替换的url不会在前端显示，还是网关的访问路径。这里不是跳转到新的路径，而是转发请求。
+
+    # 注册中心地址
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8849
+    # sentinel dashboard
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+      # 取消Sentinel控制台懒加载
+      eager: true
+
+  # 为true设置的是web开启sleuth功能
+  sleuth:
+    web:
+      client:
+        enabled: true
+    # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
+    sampler:
+      probability: 1.0
+
+  # 指定 Zipkin 服务器的地址
+  zipkin:
+    base-url: http://127.0.0.1:9411
+
+
+# 指定远程调用oauth服务的负载均衡策略
+myopia-oauth:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+# 指定远程调用business服务的负载均衡策略
+myopia-business:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule

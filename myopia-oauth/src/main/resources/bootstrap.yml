@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: myopia-oauth
+
+  # 即使指定了配置中心，本地还是要在application.properties中定义配置参数，否则启动不了
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
+        namespace: myopia-oauth
+        #group: prod
+        #file-extension: yaml

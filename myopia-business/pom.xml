@@ -18,7 +18,16 @@
         <module>screening</module>
         <module>parent</module>
         <module>common</module>
+        <module>bootstrap</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>base-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 
 </project>
