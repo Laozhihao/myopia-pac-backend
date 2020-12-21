@@ -10,9 +10,4 @@ spring:
         # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
         namespace: myopia-business
         #group: prod
-        #file-extension: yaml
-        # 拓展配置，同时加载多个配置文件
-        extension-configs:
-          - data-id: myopia-business.yml
-            #group: dev
-            refresh: true
+        file-extension: yaml

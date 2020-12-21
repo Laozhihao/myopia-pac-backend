@@ -13,14 +13,14 @@ logging:
 
 ### 配置Mybatis-plus的xml路径，多个用逗号隔开 ###
 mybatis-plus:
-  mapper-locations: classpath*:/mapping/**/*.xml
+  mapper-locations: classpath*:/mapping/*.xml
 
 spring:
   cloud:
     ### 注册中心地址
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8849
+        server-addr: 127.0.0.1:8848
 
     ### sentinel dashboard
     sentinel:

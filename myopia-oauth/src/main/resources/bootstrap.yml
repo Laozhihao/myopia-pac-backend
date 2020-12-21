@@ -10,4 +10,4 @@ spring:
         # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
         namespace: myopia-oauth
         #group: prod
-        #file-extension: yaml
+        file-extension: yaml

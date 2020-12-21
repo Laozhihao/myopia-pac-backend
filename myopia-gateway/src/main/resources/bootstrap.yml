@@ -9,10 +9,5 @@ spring:
         server-addr: 127.0.0.1:8848
         # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
         namespace: myopia-gateway
-#       group: prod
-#       file-extension: yaml
-        # 拓展配置，同时加载多个配置文件
-        extension-configs:
-          - data-id: myopia-gateway.yml
-#           group: dev
-            refresh: true
+        #group: prod
+        file-extension: yaml
