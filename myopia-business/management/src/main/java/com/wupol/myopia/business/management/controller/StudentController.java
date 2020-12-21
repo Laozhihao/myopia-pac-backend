@@ -21,7 +21,7 @@ import java.util.Map;
 @Log4j2
 @RefreshScope
 @RestController
-@RequestMapping("business/sample")
+@RequestMapping("/student")
 public class StudentController {
 
     @Value("${business.nickname}")

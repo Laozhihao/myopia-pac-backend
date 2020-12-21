@@ -14,19 +14,19 @@ spring:
         filters: #过滤器
         - RewritePath=/api/oauth/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/oauth替换成空
 
-      - id: route_business # 核心业务微服务路由规则
-        uri: lb://myopia-business # 负载均衡，将请求转发到注册中心注册的myopia-business服务
-        predicates: # 断言
-        - Path=/api/business/** # 如果前端请求路径包含 api/business，则应用这条路由规则
-        filters: #过滤器
-        - RewritePath=/api/(?<segment>.*),/$\{segment} # 将跳转路径中包含的api替换成空
+      - id: route_business
+        uri: lb://myopia-business
+        predicates:
+        - Path=/api/business/**
+        filters:
+        - RewritePath=/api/business/(?<segment>.*),/$\{segment}
 
-      - id: route_device # 数据采集微服务路由规则
-        uri: lb://myopia-device # 负载均衡，myopia-device服务
-        predicates: # 断言
-        - Path=/api/** # 如果前端请求路径包含 api，则应用这条路由规则
-        filters: #过滤器
-        - RewritePath=/api/(?<segment>.*),/myopia-device/$\{segment} # 将跳转路径中包含的api替换成renren-fast，但是替换的url不会在前端显示，还是网关的访问路径。这里不是跳转到新的路径，而是转发请求。
+      - id: route_device
+        uri: lb://myopia-device
+        predicates:
+        - Path=/api/device/**
+        filters:
+        - RewritePath=/api/device/(?<segment>.*),/$\{segment}
 
     # 注册中心地址
     nacos:
