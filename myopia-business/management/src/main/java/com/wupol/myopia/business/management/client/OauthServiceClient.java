@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.client;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @Date 2020/12/11
  **/
 @FeignClient(name ="myopia-oauth", fallback = OauthServiceFallback.class)
-//@FeignClient(name ="myopia-oauth")
 public interface OauthServiceClient {
 
     @GetMapping("login")

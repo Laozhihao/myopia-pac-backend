@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.client;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 

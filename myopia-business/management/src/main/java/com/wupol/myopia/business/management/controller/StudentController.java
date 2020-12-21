@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import lombok.extern.log4j.Log4j2;
