@@ -22,9 +22,10 @@
 ## 项目目录结构说明
 
 - myopia-pac-backend  --- 根目录，聚合所有微服务
+    - base-service    --- 服务公共模块
     - myopia-business --- 核心业务服务
         - bootstrap   --- 启动模块
-        - common      --- 公共模块
+        - common      --- 底层公共模块，各个端共用的业务功能
         - hospital    --- 医院端模块
         - management  --- 管理端模块
         - parent      --- 家长端模块
