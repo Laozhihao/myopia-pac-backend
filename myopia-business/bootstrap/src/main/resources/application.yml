@@ -45,10 +45,10 @@ spring:
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://localhost:3306/myopia-business?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://localhost:3306/myopia?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: 123456
+      password: laozh0111
       ### 连接池配置
       initial-size: 2
       min-idle: 1

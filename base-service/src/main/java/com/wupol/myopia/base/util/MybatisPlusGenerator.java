@@ -28,21 +28,15 @@ import java.util.Scanner;
  * @Date 2020/12/20
  */
 public class MybatisPlusGenerator {
-	
-	/**
-     * 读取控制台内容
-     */
-	private static String scanner(String tip) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("请输入" + tip + "：");
-        if (scanner.hasNext()) {
-            String ipt = scanner.next();
-            if (StringUtils.isNotBlank(ipt)) {
-                return ipt;
-            }
-        }
-        throw new MybatisPlusException("请输入正确的" + tip + "！");
-    }
+
+    /** 服务名 */
+    private static String serviceAliasName;
+    /** 模块名 */
+    private static String moduleName;
+    /** 类基础包路径 */
+    private static String classBasePackage;
+    /** 资源基础包路径 */
+    private static String resourcesBasePackage;
 
     public static void main(String[] args) {
         AutoGenerator mpg = new AutoGenerator();
@@ -69,7 +63,7 @@ public class MybatisPlusGenerator {
         // 2、service、mapper、serviceImpl没有指定base类，则会继承自带的base类
         mpg.setStrategy(getStrategyConfig());
         //自定义配置(例如指定xml的模板和保存路径，这里暂时不需要，需要的时候再重新运行main即可，已有的不会覆盖)
-//        mpg.setCfg(getInjectionConfig(mpg.getPackageInfo()));
+        mpg.setCfg(getInjectionConfig(mpg.getPackageInfo()));
         //选择 freemarker 引擎，默认 Veloctiy
         mpg.setTemplateEngine(new FreemarkerTemplateEngine());
         //执行生成
@@ -79,11 +73,13 @@ public class MybatisPlusGenerator {
     }
 
     private static GlobalConfig getGlobalConfig() {
+        //获取根包名
+        getBasePackagePath();
         //全局配置
         GlobalConfig gc = new GlobalConfig();
         gc.setAuthor("HaoHao")
-                // 文件输出的根路径，和后面指定的包路径组成文件的最终保存路径
-                .setOutputDir("F:/IdeaProjects/sen-ying/src/main/java")
+                // 文件输出的根路径，和后面指定的包路径组成文件的最终保存路径 "F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java"
+                .setOutputDir(classBasePackage)
                 // 是否覆盖同名文件，默认是false
                 .setFileOverride(false)
                 // 是否支持AR模式【即MP自带封装好的crud方法】，不需要ActiveRecord特性的请改为false
@@ -98,7 +94,7 @@ public class MybatisPlusGenerator {
                 .setIdType(IdType.AUTO)
                 // 生成文件后是否打开文件夹
                 .setOpen(false)
-                //指定数据库表字段为date的时候的转换方式【ONLY_DATE表示始终转为date类型】
+                // 指定数据库表字段为date的时候的转换方式【ONLY_DATE表示始终转为date类型】
                 .setDateType(DateType.ONLY_DATE)
                 // 实体类的名称，以这里输入的为准，没有指定，则根据表名驼峰法表示
                 .setEntityName(scanner("实体名（首字母大写）"))
@@ -128,7 +124,7 @@ public class MybatisPlusGenerator {
 //        });
         // Mysql
         dsc.setDbType(DbType.MYSQL)
-                .setUrl("jdbc:mysql://localhost:3306/syb?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+                .setUrl("jdbc:mysql://localhost:3306/myopia?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("root")
                 .setPassword("laozh0111");
@@ -141,14 +137,14 @@ public class MybatisPlusGenerator {
         // 2、优先以InjectionConfig自定义配置中指定的保存路径为准，若没有则以这里的为准
         // 3、如果设置了路径，即使TemplateConfig中配置了不生成该模块，依然会生成一个空文件夹
         PackageConfig pc = new PackageConfig();
-        pc.setParent("com.syb.senying")
+        pc.setParent("com.wupol.myopia." + serviceAliasName)
                 .setEntity("domain.model")
                 .setMapper("domain.mapper")
-                //.setService("service") //不生成service接口模块
+                //.setService("service") //不生成service接口模块，不需要生成的模块则不需要设置包名
                 .setServiceImpl("service")
                 .setController("controller")
-                //.setXml("mapping") //不需要生成的模块则不需要设置包名
-                .setModuleName(scanner("模块名（小写）"));
+                //.setXml("mapping") //会在Parent+ModuleName+Xml的目录下生成，并不是在resources
+                .setModuleName(moduleName);
                 //.setPathInfo(null);
         return pc;
     }
@@ -187,16 +183,16 @@ public class MybatisPlusGenerator {
                 .setNaming(NamingStrategy.underline_to_camel)
                 // 列名规则下划线转驼峰法
                 .setColumnNaming(NamingStrategy.underline_to_camel)
-                // 需要生成的表
-                .setInclude(scanner("表名（Oracle要大写），多个英文逗号分割").split(","))
+                // 需要生成的表，多个英文逗号分割
+                .setInclude(scanner("表名").split(","))
                 // 此处可以修改为您的表前缀
-                // strategy.setTablePrefix(new String[] { "branch_" });
+                .setTablePrefix("m_")
                 // 排除生成的表
                 // strategy.setExclude(new String[]{"test"});
                 // 自定义实体，公共字段
                 // strategy.setSuperEntityColumns(new String[] { "test_id", "age" });
                 // 自定义 serviceImpl类父类
-                .setSuperServiceImplClass("com.syb.senying.base.service.BaseService")
+                .setSuperServiceImplClass("com.wupol.myopia.base.service.BaseService")
                 // 自定义 entity父类
 //                .setSuperEntityClass("com.syb.senying.base.domain.BaseEntity")
                 // 自定义 mapper父类
@@ -204,7 +200,7 @@ public class MybatisPlusGenerator {
                 // 自定义 service父类
 //                .setSuperServiceClass("com.syb.senying.base.service.BaseService")
                 // 自定义 controller父类
-                .setSuperControllerClass("com.syb.senying.base.controller.BaseController")
+                .setSuperControllerClass("com.wupol.myopia.base.controller.BaseController")
                 .setRestControllerStyle(true)
                 //实体类是否使用Lombok注解，true则没有get/set方法
                 .setEntityLombokModel(true)
@@ -238,8 +234,7 @@ public class MybatisPlusGenerator {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输入文件名称
-                return "F:/IdeaProjects/sen-ying/src/main/resources/mapping/" + pc.getModuleName()
-                        + "/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+                return resourcesBasePackage + "/mapping/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
             }
         });
         cfg.setFileOutConfigList(focList);
@@ -278,5 +273,34 @@ public class MybatisPlusGenerator {
 //        cfg.setFileOutConfigList(focList);
 //        mpg.setCfg(cfg);
         return cfg;
+    }
+
+    /**
+     * 读取控制台内容
+     */
+    private static String scanner(String tip) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请输入" + tip + "：");
+        if (scanner.hasNext()) {
+            String ipt = scanner.next();
+            if (StringUtils.isNotBlank(ipt)) {
+                return ipt;
+            }
+        }
+        throw new MybatisPlusException("请输入正确的" + tip + "！");
+    }
+
+    /**
+     * 获取基础包路径
+     **/
+    private static void getBasePackagePath() {
+        String serviceAndModuleName = scanner("微服务名（为多module的服务则输入“服务名/模块名”）");
+        String[] nameArray =  serviceAndModuleName.split("/");
+        moduleName = nameArray.length >= 2 ? nameArray[1] : "";
+        String[] array = nameArray[0].split("-");
+        serviceAliasName = array.length >= 2 ? array[1] : array[0];
+        // 根包名，如 F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java
+        classBasePackage = System.getProperty("user.dir")+ "/" + serviceAndModuleName + "/src/main/java";
+        resourcesBasePackage = System.getProperty("user.dir")+ "/" + serviceAndModuleName + "/src/main/resources";
     }
 }

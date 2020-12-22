@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.service.StudentService;
+import com.wupol.myopia.business.management.domain.model.SchoolClass;
+import com.wupol.myopia.business.management.service.SchoolClassService;
 
 /**
  * @Author HaoHao
@@ -15,7 +15,7 @@ import com.wupol.myopia.business.management.service.StudentService;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/student")
-public class StudentController extends BaseController<StudentService, Student> {
+@RequestMapping("/management/schoolClass")
+public class SchoolClassController extends BaseController<SchoolClassService, SchoolClass> {
 
 }
