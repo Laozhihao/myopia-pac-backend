@@ -4,16 +4,17 @@
 
 ## 技术栈
 
-- 基础工程：Spring Boot + Maven
-- 数据层：Mybatis Plus + MySQL
+- 基础工程：Spring Boot 2.2.11.RELEASE + Maven + JDK 1.8
+- 数据层：Mybatis Plus + MySQL 5.6
 - 日志：Log4j2
-- 缓存：Redis
+- 缓存：Redis 3.2.1
 - 消息队列：Kafka
-- 注册中心与配置中心：Nacos
+- 注册中心与配置中心：Nacos 2.0.0-ALPHA.1
 - 网关：Spring cloud gateway
 - 服务熔断降级与限流：Sentinel
 - 服务远程调用：Openfeign
 - 服务负载均衡：Ribbon
+- 依赖：spring-cloud Hoxton.SR9、spring-cloud-alibaba 2.2.1.RELEASE
 
 ## 系统架构
 
