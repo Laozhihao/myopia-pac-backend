@@ -8,10 +8,8 @@ import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -33,5 +31,12 @@ public class StudentController extends BaseController<StudentService, Student> {
     public ApiResult getHospitalExportData(StudentQuery query) throws IOException {
         //TODO 待检验日期范围
         return ApiResult.success(excelFacade.generateStudent(query));
+    }
+
+    @PostMapping("/import")
+    public ApiResult importStudent(MultipartFile file) throws IOException {
+        Long schoolId = 12L;
+        excelFacade.importStudent(schoolId, file);
+        return ApiResult.success();
     }
 }

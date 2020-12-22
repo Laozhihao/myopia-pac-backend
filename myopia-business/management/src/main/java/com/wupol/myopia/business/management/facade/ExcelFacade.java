@@ -4,6 +4,8 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.management.constant.ScreeningOrganizationEnum;
 import com.wupol.myopia.business.management.domain.model.BillRecord;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.*;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +13,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -154,12 +158,33 @@ public class ExcelFacade {
 //        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billStatList, BillStat.class);
     }
 
-//    /**
-//     * 导入学生
-//     */
-//    public void importStudent() {
-//
-//    }
+    /**
+     * 导入学生
+     */
+    public void importStudent(Long schoolId, MultipartFile file) {
+        //TODO 解析文件数据
+        List<Student> list = new ArrayList<>();
+        list.forEach(item-> {
+            //TODO 设置学校,年级,班级信息
+        });
+
+        studentService.saveBatch(list);
+        // throw new Exception();
+    }
+
+    /**
+     * 导入机构人员
+     */
+    public void importScreeningOrganizationStaff(Long orgId, MultipartFile file) {
+        //TODO 解析文件数据
+        List<ScreeningOrganizationStaff> list = new ArrayList<>();
+        list.forEach(item-> {
+            //TODO 设置机构信息
+        });
+
+        screeningOrganizationStaffService.saveBatch(list);
+        // throw new Exception();
+    }
 
 
     /**

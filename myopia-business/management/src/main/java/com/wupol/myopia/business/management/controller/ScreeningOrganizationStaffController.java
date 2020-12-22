@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -56,8 +57,14 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/export")
-    public ApiResult getOrganizationExportData(ScreeningOrganizationStaffQuery query) throws IOException {
+    public ApiResult getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateScreeningOrganizationStaff(query));
+    }
+    @GetMapping("/import")
+    public ApiResult importOrganizationStaff(MultipartFile file) throws IOException {
+        Long orgId = 123L;
+        excelFacade.importScreeningOrganizationStaff(orgId, file);
+        return ApiResult.success();
     }
 
 }
