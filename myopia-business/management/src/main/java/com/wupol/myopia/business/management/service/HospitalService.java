@@ -18,6 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
+    /**
+     * 保存医院
+     *
+     * @param hospital 医院实体类
+     * @return 新增数量
+     */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveHospital(Hospital hospital) {
         generateAccountAndPassword(hospital);
@@ -25,6 +31,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return baseMapper.insert(hospital);
     }
 
+    /**
+     * 获取医院列表
+     *
+     * @param request 请求入参
+     * @return Page<Hospital> {@link com.baomidou.mybatisplus.core.metadata.IPage}
+     */
     public Page<Hospital> getHospitalList(HospitalListRequest request) {
 
         Page<Hospital> page = new Page<>(request.getPage(), request.getLimit());
