@@ -8,4 +8,8 @@ package com.wupol.myopia.business.management.constant;
 public class Const {
 
     public static final Integer IS_DELETED = 2;
+
+    public static final Integer CREATE_USER_ID = 1;
+
+    public static final Integer GOV_DEPT_ID = 1;
 }

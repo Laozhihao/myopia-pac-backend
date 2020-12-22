@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrganizationListRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
@@ -30,15 +31,15 @@ public class ScreeningOrganizationController {
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setCreateUserId(1);
-        screeningOrganization.setGovDeptId(1);
+        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
+        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
     }
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setCreateUserId(1);
-        screeningOrganization.setGovDeptId(1);
+        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
+        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
         return saveScreeningOrganization.updateById(screeningOrganization);
     }
 
@@ -54,7 +55,7 @@ public class ScreeningOrganizationController {
 
     @GetMapping("list")
     public Object getScreeningOrganizationList(ScreeningOrganizationListRequest request) {
-        return saveScreeningOrganization.getScreeningOrganizationList(request, 1);
+        return saveScreeningOrganization.getScreeningOrganizationList(request, Const.GOV_DEPT_ID);
     }
 
     @GetMapping("/export")

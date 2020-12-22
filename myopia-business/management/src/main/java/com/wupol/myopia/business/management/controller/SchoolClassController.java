@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.service.SchoolClassService;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class SchoolClassController {
 
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolClass schoolClass) {
-        schoolClass.setCreateUserId(1);
+        schoolClass.setCreateUserId(Const.CREATE_USER_ID);
         return schoolClassService.save(schoolClass);
     }
 
