@@ -2,9 +2,9 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
@@ -51,7 +51,7 @@ public class ScreeningOrganizationStaffController {
 
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
-        screeningOrganizationStaff.setCreateUserId(1);
+        screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
         return screeningOrganizationStaffService.updateById(screeningOrganizationStaff);
     }
 

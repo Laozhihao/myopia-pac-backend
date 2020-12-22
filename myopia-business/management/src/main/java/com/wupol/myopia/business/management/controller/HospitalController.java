@@ -6,7 +6,6 @@ import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +31,16 @@ public class HospitalController {
     @PostMapping
     public Object saveHospital(@RequestBody Hospital hospital) {
         // TODO: 获取登陆用户id, 部门id
-        hospital.setCreateUserId(1);
-        hospital.setGovDeptId(2);
+        hospital.setCreateUserId(Const.CREATE_USER_ID);
+        hospital.setGovDeptId(Const.GOV_DEPT_ID);
         return hospitalService.saveHospital(hospital);
     }
 
     @PutMapping
     public Object updateHospital(@RequestBody Hospital hospital) {
         // TODO: 获取登陆用户id, 部门id
-        hospital.setCreateUserId(1);
-        hospital.setGovDeptId(2);
+        hospital.setCreateUserId(Const.CREATE_USER_ID);
+        hospital.setGovDeptId(Const.GOV_DEPT_ID);
         return hospitalService.updateById(hospital);
     }
 
@@ -50,8 +49,8 @@ public class HospitalController {
         Hospital hospital = new Hospital();
         // TODO: 获取登陆用户id, 部门id
         hospital.setId(id);
-        hospital.setCreateUserId(1);
-        hospital.setGovDeptId(2);
+        hospital.setCreateUserId(Const.CREATE_USER_ID);
+        hospital.setGovDeptId(Const.GOV_DEPT_ID);
         hospital.setStatus(Const.IS_DELETED);
         return hospitalService.updateById(hospital);
     }
@@ -63,8 +62,7 @@ public class HospitalController {
 
     @GetMapping("list")
     public Object getHospitalList(HospitalListRequest request) {
-
-        return hospitalService.getHospitalList(request, 1);
+        return hospitalService.getHospitalList(request, Const.GOV_DEPT_ID);
     }
 
     @GetMapping("/export")
