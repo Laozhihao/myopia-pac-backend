@@ -1,11 +1,17 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * @Author HaoHao
@@ -19,6 +25,9 @@ public class SchoolController {
 
     @Autowired
     private SchoolService schoolService;
+
+    @Autowired
+    private ExcelFacade excelFacade;
 
     @PostMapping()
     public Object saveSchool(@RequestBody School school) {
@@ -49,4 +58,8 @@ public class SchoolController {
         return schoolService.getSchoolList(request, 1);
     }
 
+    @GetMapping("/export")
+    public ApiResult getSchoolExportData(SchoolQuery query) throws IOException {
+        return ApiResult.success(excelFacade.generateSchool(query));
+    }
 }

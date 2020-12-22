@@ -4,10 +4,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.management.constant.ScreeningOrganizationEnum;
 import com.wupol.myopia.business.management.domain.model.BillRecord;
-import com.wupol.myopia.business.management.domain.query.HospitalQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.query.*;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -34,6 +31,7 @@ public class ExcelFacade {
     private static final String SCREENING_ORGANIZATION = "筛查机构%s.xlsx";
     private static final String SCREENING_ORGANIZATION_STAFF = "筛查机构人员%s.xlsx";
     private static final String HOSPITAL = "医院%s.xlsx";
+    private static final String SCHOOL = "学校%s.xlsx";
     private static final String STUDENT = "学生%s.xlsx";
 
     @Autowired
@@ -110,6 +108,27 @@ public class ExcelFacade {
 
 
     /**
+     * 生成学校Excel
+     * @param query    查询条件
+     **/
+    public String generateSchool(SchoolQuery query) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        if (StringUtils.isNotBlank(query.getIdLike())) builder.append("_").append(query.getIdLike());
+        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("_").append(query.getNameLike());
+        //TODO 待转中文
+        if (Objects.nonNull(query.getType())) builder.append("_").append(query.getType());
+        if (Objects.nonNull(query.getCode())) builder.append("_").append(query.getCode());
+        String fileName = String.format(SCHOOL, builder.toString());
+        //TODO 待写模糊搜索
+//        List<School> list = hospitalService.findByList(query);
+        log.info("导出文件: {}", fileName);
+//        File file = ExcelUtil.exportListToExcel(fileName, list, Hospital.class);
+
+        //TODO 待上传文件
+        return "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png";
+//        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billStatList, BillStat.class);
+    }
+    /**
      * 生成学生Excel
      * @param query    查询条件
      **/
@@ -135,7 +154,12 @@ public class ExcelFacade {
 //        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billStatList, BillStat.class);
     }
 
-
+//    /**
+//     * 导入学生
+//     */
+//    public void importStudent() {
+//
+//    }
 
 
     /**
