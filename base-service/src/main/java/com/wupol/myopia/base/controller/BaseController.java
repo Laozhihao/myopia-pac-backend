@@ -2,6 +2,7 @@ package com.wupol.myopia.base.controller;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +78,9 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * @return Object
 	 */
 	@PostMapping()
-	public void createInfo(@RequestBody T entity) throws Exception {
+	public void createInfo(@RequestBody T entity) {
 		if (!baseService.save(entity)) {
-            throw new Exception("创建失败");
+            throw new BusinessException("创建失败");
         }
 	}
 	
@@ -89,9 +90,9 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * @return Object
 	 */
 	@PutMapping()
-	public void updateInfo(@RequestBody T entity) throws Exception {
+	public void updateInfo(@RequestBody T entity) {
 		if (!baseService.updateById(entity)) {
-            throw new Exception("修改失败");
+            throw new BusinessException("修改失败");
         }
 	}
 	

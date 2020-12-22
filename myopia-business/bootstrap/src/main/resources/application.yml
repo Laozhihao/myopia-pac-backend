@@ -2,11 +2,6 @@
 server:
   port: 8020
 
-### 业务参数
-business:
-  nickname: "核心业务"
-  age: 15
-
 ### log4j2配置 ###
 logging:
   config: classpath:log4j2.xml

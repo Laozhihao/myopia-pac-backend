@@ -36,6 +36,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult handleBusinessError(BusinessException ex) {
+        logger.error("【业务异常】{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getCode(), ex.getMessage());
     }
 
@@ -46,7 +47,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResult handleTypeMismatchException(NullPointerException ex) {
-        logger.error("空指针异常", ex);
+        logger.error("空指针异常，{}", ex.getMessage(), ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
@@ -57,7 +58,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult handleHttpMessageNotReadableException(MissingServletRequestParameterException ex) {
-        logger.error("缺少请求参数，{}", ex.getMessage());
+        logger.error("缺少请求参数，{}", ex.getMessage(), ex);
         return ApiResult.failure("缺少必要的请求参数");
     }
 
@@ -68,7 +69,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
-        logger.error("请求参数不正确，{}", ex.getMessage());
+        logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
 
@@ -79,7 +80,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult handleConstraintViolationException(ConstraintViolationException ex){
-        logger.error("请求参数不正确，{}", ex.getMessage());
+        logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
         StringBuilder strBuilder = new StringBuilder();
         for (ConstraintViolation<?> violation : violations) {
@@ -96,7 +97,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public ApiResult accessDeniedExceptionHandler(AccessDeniedException ex) {
-        logger.error("没有访问权限，{}", ex.getMessage());
+        logger.error("没有访问权限，{}", ex.getMessage(), ex);
         return ApiResult.failure(HttpStatus.UNAUTHORIZED.value(), "没有访问权限");
     }
 
@@ -107,7 +108,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
-        logger.error("传输数据格式有误，{}", ex.getMessage());
+        logger.error("传输数据格式有误，{}", ex.getMessage(), ex);
         return ApiResult.failure("传输数据格式有误");
     }
 
@@ -129,7 +130,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResult handleUnexpectedServer(Exception ex) {
-        logger.error("系统异常：", ex);
+        logger.error("【系统异常】{}", ex.getMessage(), ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
