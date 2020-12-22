@@ -1,12 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.service.SchoolService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author HaoHao
@@ -16,6 +15,38 @@ import com.wupol.myopia.business.management.service.SchoolService;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/school")
-public class SchoolController extends BaseController<SchoolService, School> {
+public class SchoolController {
+
+    @Autowired
+    private SchoolService schoolService;
+
+    @PostMapping()
+    public Object saveSchool(@RequestBody School school) {
+        school.setCreateUserId(1);
+        school.setGovDeptId(1);
+        return schoolService.saveSchool(school);
+    }
+
+    @PutMapping()
+    public Object updateSchool(@RequestBody School school) {
+        school.setCreateUserId(1);
+        school.setGovDeptId(1);
+        return schoolService.updateById(school);
+    }
+
+    @GetMapping("{id}")
+    public Object saveSchool(@PathVariable("id") Integer id) {
+        return schoolService.getById(id);
+    }
+
+    @DeleteMapping("{id}")
+    public Object deletedSchool(@PathVariable("id") Integer id) {
+        return schoolService.deletedSchool(id);
+    }
+
+    @GetMapping("list")
+    public Object getSchoolList(SchoolListRequest request) {
+        return schoolService.getSchoolList(request, 1);
+    }
 
 }

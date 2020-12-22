@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationM
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -29,6 +30,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param screeningOrganization 筛查机构
      * @return 更新个数
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
         screeningOrganization.setOrgNo(generateOrgNo());
         generateAccountAndPassword();
@@ -41,6 +43,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param id 筛查机构ID
      * @return 更新个数
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer deletedById(Integer id) {
         ScreeningOrganization screeningOrganization = new ScreeningOrganization();
         screeningOrganization.setId(id);
