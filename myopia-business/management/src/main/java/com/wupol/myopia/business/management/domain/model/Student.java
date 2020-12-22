@@ -46,12 +46,12 @@ public class Student implements Serializable {
     private Integer sno;
 
     /**
-     * 班级id
+     * 年级ID
      */
     private Integer gradeId;
 
     /**
-     * 年级ID
+     * 班级id
      */
     private Integer classId;
 

@@ -1,12 +1,18 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
+import com.wupol.myopia.business.management.domain.query.HospitalQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * @Author HaoHao
@@ -20,6 +26,8 @@ public class HospitalController {
 
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private ExcelFacade excelFacade;
 
     @PostMapping
     public Object saveHospital(@RequestBody Hospital hospital) {
@@ -59,5 +67,9 @@ public class HospitalController {
         return hospitalService.getHospitalList(request, 1);
     }
 
+    @GetMapping("/export")
+    public ApiResult getHospitalExportData(HospitalQuery query) throws IOException {
+        return ApiResult.success(excelFacade.generateHospital(query));
+    }
 
 }
