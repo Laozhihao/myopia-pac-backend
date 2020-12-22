@@ -47,7 +47,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         QueryWrapper<Hospital> hospitalWrapper = new QueryWrapper<>();
 
         hospitalWrapper.in("gov_dept_id", getAllDeptId(govDeptId));
-        hospitalWrapper.ne("status", Const.IS_DELETED);
+        hospitalWrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (StringUtils.isNotBlank(request.getName())) {
             hospitalWrapper.like("name", request.getName());

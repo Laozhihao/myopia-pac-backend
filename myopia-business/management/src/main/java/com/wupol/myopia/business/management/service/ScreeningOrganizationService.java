@@ -47,7 +47,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public Integer deletedById(Integer id) {
         ScreeningOrganization screeningOrganization = new ScreeningOrganization();
         screeningOrganization.setId(id);
-        screeningOrganization.setStatus(Const.IS_DELETED);
+        screeningOrganization.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(screeningOrganization);
     }
 
@@ -63,7 +63,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
 
         wrapper.in("gov_dept_id", hospitalService.getAllDeptId(govDeptId));
-        wrapper.ne("status", Const.IS_DELETED);
+        wrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (null != request.getOrgNo()) {
             wrapper.like("org_no", request.getOrgNo());

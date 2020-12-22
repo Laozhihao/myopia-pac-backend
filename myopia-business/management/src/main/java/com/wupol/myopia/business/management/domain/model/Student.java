@@ -31,6 +31,11 @@ public class Student implements Serializable {
     private Integer id;
 
     /**
+     * 学校id
+     */
+    private Integer schoolId;
+
+    /**
      * 根据规则创建ID
      */
     private Long studentNo;

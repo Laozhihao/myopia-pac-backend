@@ -6,6 +6,7 @@ import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.Student;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        studentQueryWrapper.eq("grade_id", gradeId).ne("status", Const.IS_DELETED);
+        studentQueryWrapper.eq("grade_id", gradeId).ne("status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -36,8 +37,36 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getStudentsByClassId(Integer classId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        studentQueryWrapper.eq("class_id", classId).ne("status", Const.IS_DELETED);
+        studentQueryWrapper.eq("class_id", classId).ne("status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveStudent(Student student) {
+        student.setStudentNo(generateStudentNo());
+        return baseMapper.insert(student);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStudent(Student student) {
+        return baseMapper.updateById(student);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer deletedStudent(Integer id) {
+        Student student = new Student();
+        student.setId(id);
+        student.setStatus(Const.STATUS_IS_DELETED);
+        return baseMapper.updateById(student);
+    }
+
+    /**
+     * 生成编号
+     *
+     * @return Long
+     */
+    private Long generateStudentNo() {
+        return 123L;
     }
 
 }

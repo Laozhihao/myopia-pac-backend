@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.management.controller;
 
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -21,11 +21,36 @@ import java.io.IOException;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/student")
-public class StudentController extends BaseController<StudentService, Student> {
+public class StudentController {
 
     @Autowired
     private ExcelFacade excelFacade;
 
+    @Autowired
+    private StudentService studentService;
+
+
+    @PostMapping()
+    public Object saveStudent(@RequestBody Student student) {
+        student.setCreateUserId(Const.CREATE_USER_ID);
+        return studentService.saveStudent(student);
+    }
+
+    @PutMapping()
+    public Object updateStudent(@RequestBody Student student) {
+        student.setCreateUserId(Const.CREATE_USER_ID);
+        return studentService.updateStudent(student);
+    }
+
+    @DeleteMapping("{id}")
+    public Object deletedStudent(@PathVariable("id") Integer id) {
+        return studentService.deletedStudent(id);
+    }
+
+    @GetMapping("{id}")
+    public Object getStudent(@PathVariable("id") Integer id) {
+        return studentService.getById(id);
+    }
 
     @GetMapping("/export")
     public ApiResult getHospitalExportData(StudentQuery query) throws IOException {

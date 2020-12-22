@@ -48,7 +48,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setId(id);
         schoolGrade.setCreateUserId(1);
-        schoolGrade.setStatus(Const.IS_DELETED);
+        schoolGrade.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolGrade);
     }
 
@@ -58,7 +58,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         List<SchoolGradeItems> schoolGradeItems = new ArrayList<>();
 
         QueryWrapper<SchoolGrade> schoolGradeWrapper = new QueryWrapper<>();
-        schoolGradeWrapper.eq("school_id", schoolId).ne("status", Const.IS_DELETED);
+        schoolGradeWrapper.eq("school_id", schoolId).ne("status", Const.STATUS_IS_DELETED);
 
         // 获取年级
         List<SchoolGrade> schoolGrades = baseMapper.selectList(schoolGradeWrapper);

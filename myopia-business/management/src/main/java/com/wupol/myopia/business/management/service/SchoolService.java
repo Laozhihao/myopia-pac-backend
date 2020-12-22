@@ -46,7 +46,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public Integer deletedSchool(Integer id) {
         School school = new School();
         school.setId(id);
-        school.setStatus(Const.IS_DELETED);
+        school.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(school);
     }
 
@@ -63,7 +63,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         QueryWrapper<School> schoolWrapper = new QueryWrapper<>();
 
         schoolWrapper.in("gov_dept_id", hospitalService.getAllDeptId(govDeptId));
-        schoolWrapper.ne("status", Const.IS_DELETED);
+        schoolWrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (null != request.getSchoolNo()) {
             schoolWrapper.like("school_no", request.getSchoolNo());

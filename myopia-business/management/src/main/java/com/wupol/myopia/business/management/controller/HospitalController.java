@@ -51,7 +51,7 @@ public class HospitalController {
         hospital.setId(id);
         hospital.setCreateUserId(Const.CREATE_USER_ID);
         hospital.setGovDeptId(Const.GOV_DEPT_ID);
-        hospital.setStatus(Const.IS_DELETED);
+        hospital.setStatus(Const.STATUS_IS_DELETED);
         return hospitalService.updateById(hospital);
     }
 
