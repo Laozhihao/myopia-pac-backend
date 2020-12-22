@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.HospitalConst;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.service.HospitalService;
@@ -44,7 +44,7 @@ public class HospitalController {
         hospital.setId(id);
         hospital.setCreateUserId(1);
         hospital.setGovDeptId(2);
-        hospital.setStatus(HospitalConst.IS_DELETED);
+        hospital.setStatus(Const.IS_DELETED);
         return hospitalService.updateById(hospital);
     }
 
@@ -55,7 +55,8 @@ public class HospitalController {
 
     @GetMapping("list")
     public Object getHospitalList(HospitalListRequest request) {
-        return hospitalService.getHospitalList(request);
+
+        return hospitalService.getHospitalList(request, 1);
     }
 
 

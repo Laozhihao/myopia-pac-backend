@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.management.constant;
 
 /**
- * TODO:
+ * 常量类
  *
  * @author Simple4H
  */
-public class HospitalConst {
+public class Const {
 
     public static final Integer IS_DELETED = 2;
 }
