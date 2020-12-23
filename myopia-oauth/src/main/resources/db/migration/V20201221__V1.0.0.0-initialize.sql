@@ -1,0 +1,71 @@
+
+DROP TABLE IF EXISTS `o_district_permission`;
+CREATE TABLE `o_district_permission`  (
+  `district_level` tinyint(1) NOT NULL COMMENT '行政区级别：0-省、1-市、2-区/县、3-镇',
+  `permission_id` int(11) NOT NULL COMMENT '权限资源ID',
+  PRIMARY KEY (`district_level`, `permission_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '行政区权限表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `o_permission`;
+CREATE TABLE `o_permission`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限资源ID',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '权限资源名称',
+  `menu_btn_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '对应页面或按钮的name（权限资源为页面时，该值不能为空）',
+  `api_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '功能接口地址（权限资源为功能时，该值不能为空）',
+  `is_menu` tinyint(1) NOT NULL COMMENT '是否为菜单：0-否、1-是',
+  `is_page` tinyint(1) NOT NULL COMMENT '是否为页面：0-页面、1-功能',
+  `order` tinyint(3) NOT NULL COMMENT '顺序',
+  `pid` int(11) NOT NULL COMMENT '上级权限资源ID',
+  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限资源表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `o_role`;
+CREATE TABLE `o_role`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
+  `org_id` int(11) NOT NULL COMMENT '机构组织ID（如政府部门ID、学校ID、医院ID）',
+  `en_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '英文名',
+  `ch_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '中文名',
+  `role_type` tinyint(1) DEFAULT 0 COMMENT '角色类型：0-admin、1-机构管理员、2-普通用户',
+  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-启用 1-禁止 2-删除',
+  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `o_role_permission`;
+CREATE TABLE `o_role_permission`  (
+  `role_id` int(11) NOT NULL COMMENT '角色ID',
+  `permission_id` int(11) NOT NULL COMMENT '权限资源ID',
+  PRIMARY KEY (`role_id`, `permission_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色权限表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `o_user`;
+CREATE TABLE `o_user`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `org_id` int(11) NOT NULL COMMENT '机构组织ID（如政府部门ID、学校ID、医院ID）',
+  `real_name` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '真实姓名',
+  `gender` tinyint(1) NOT NULL COMMENT '性别：0-男、1-女',
+  `phone` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号码',
+  `id_card` varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '身份证号码',
+  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名（账号）',
+  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
+  `is_leader` tinyint(1) DEFAULT 0 COMMENT '是否领导：0-否、1-是',
+  `system_code` tinyint(1) NOT NULL COMMENT '系统编号',
+  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-启用 1-禁止 2-删除',
+  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `o_user_role`;
+CREATE TABLE `o_user_role`  (
+  `user_id` int(11) NOT NULL COMMENT '用户ID',
+  `role_id` int(11) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (`user_id`, `role_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户角色表' ROW_FORMAT = Dynamic;

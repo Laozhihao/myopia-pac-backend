@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.oauth.domain.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.oauth.domain.model.User">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(realName)">and `real_name` = #{realName}</if>
+                <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
+                <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
+                <if test="@Ognl@isNotEmpty(username)">and `username` = #{username}</if>
+                <if test="@Ognl@isNotEmpty(password)">and `password` = #{password}</if>
+                <if test="@Ognl@isNotEmpty(isLeader)">and `is_leader` = #{isLeader}</if>
+                <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, org_id, real_name, gender, phone, id_card, username, password, is_leader, system_code, create_user_id, status, remark, create_time, update_time
+    </sql>
+
+</mapper>
