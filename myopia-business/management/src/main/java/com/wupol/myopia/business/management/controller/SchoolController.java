@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -56,6 +57,11 @@ public class SchoolController {
     @GetMapping("list")
     public Object getSchoolList(SchoolListRequest request) {
         return schoolService.getSchoolList(request, 1);
+    }
+
+    @PutMapping("status")
+    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+        return null;
     }
 
     @GetMapping("/export")
