@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
@@ -76,22 +77,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         Page<School> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<School> schoolWrapper = new QueryWrapper<>();
 
-        schoolWrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
-        schoolWrapper.ne("status", Const.STATUS_IS_DELETED);
+        InQueryAppend(schoolWrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
+        notEqualsQueryAppend(schoolWrapper, "status", Const.STATUS_IS_DELETED);
 
         if (null != request.getSchoolNo()) {
-            schoolWrapper.like("school_no", request.getSchoolNo());
+            likeQueryAppend(schoolWrapper, "school_no", request.getSchoolNo());
         }
         if (StringUtils.isNotBlank(request.getName())) {
-            schoolWrapper.like("name", request.getName());
+            equalsQueryAppend(schoolWrapper, "name", request.getName());
         }
         if (null != request.getType()) {
-            schoolWrapper.like("type", request.getType());
+            equalsQueryAppend(schoolWrapper, "type", request.getType());
         }
         if (null != request.getCode()) {
-            schoolWrapper.like("city_code", request.getCode())
-                    .or()
-                    .like("area_code", request.getCode());
+            orLikeQueryAppend(schoolWrapper,
+                    Lists.newArrayList("city_code", "area_code"),
+                    request.getCode());
         }
         return baseMapper.selectPage(page, schoolWrapper);
 

@@ -35,8 +35,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         Page<ScreeningOrganizationStaff> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
 
-        wrapper.like("screening_org_id", request.getScreeningOrgId())
-                .in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
+        likeQueryAppend(wrapper, "screening_org_id", request.getScreeningOrgId());
+        InQueryAppend(wrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
 
         if (StringUtils.isNotBlank(request.getName())) {
 

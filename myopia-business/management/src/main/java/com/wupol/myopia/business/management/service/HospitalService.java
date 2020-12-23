@@ -80,25 +80,25 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         Page<Hospital> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<Hospital> hospitalWrapper = new QueryWrapper<>();
 
-        hospitalWrapper.in("gov_dept_id", getAllByDeptId(govDeptId));
-        hospitalWrapper.ne("status", Const.STATUS_IS_DELETED);
+        InQueryAppend(hospitalWrapper, "gov_dept_id", getAllByDeptId(govDeptId));
+        notEqualsQueryAppend(hospitalWrapper, "status", Const.STATUS_IS_DELETED);
 
         if (StringUtils.isNotBlank(request.getName())) {
-            hospitalWrapper.like("name", request.getName());
+            likeQueryAppend(hospitalWrapper, "name", request.getName());
         }
         if (null != request.getType()) {
-            hospitalWrapper.eq("type", request.getType());
+            equalsQueryAppend(hospitalWrapper, "type", request.getType());
         }
         if (null != request.getKind()) {
-            hospitalWrapper.eq("kind", request.getKind());
+            equalsQueryAppend(hospitalWrapper, "kind", request.getKind());
         }
         if (null != request.getLevel()) {
-            hospitalWrapper.eq("level", request.getLevel());
+            equalsQueryAppend(hospitalWrapper, "level", request.getLevel());
         }
         if (null != request.getCode()) {
-            hospitalWrapper.like("city_code", request.getCode())
-                    .or()
-                    .like("area_code", request.getCode());
+            orLikeQueryAppend(hospitalWrapper,
+                    Lists.newArrayList("city_code", "area_code"),
+                    request.getCode());
         }
         return baseMapper.selectPage(page, hospitalWrapper);
     }

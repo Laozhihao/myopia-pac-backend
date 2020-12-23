@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,8 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     /**
      * 分页查询
      *
-     * @param entity 查询实体参数
-     * @param pageNum 页码
+     * @param entity   查询实体参数
+     * @param pageNum  页码
      * @param pageSize 页数
      * @return com.baomidou.mybatisplus.core.metadata.IPage<T>
      **/
@@ -77,14 +78,15 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     public QueryWrapper<T> getQueryWrapper(T entity) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE);
-        Map<String, Object> params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>() {
+        });
         return new QueryWrapper<T>().allEq((k, v) -> !StringUtils.isEmpty(v), params);
     }
 
     /**
      * 根据实体更新
      *
-     * @param data 更新的数据
+     * @param data  更新的数据
      * @param query 更新查询条件
      * @return java.lang.Boolean
      **/
@@ -110,5 +112,76 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      **/
     public int count(T entity) throws IOException {
         return count(getQueryWrapper(entity));
+    }
+
+    /**
+     * in拼接
+     *
+     * @param queryWrapper wrapper
+     * @param column       字段名
+     * @param coll         集合
+     */
+    public void InQueryAppend(QueryWrapper<T> queryWrapper, String column, Collection<?> coll) {
+        queryWrapper.in(column, coll);
+    }
+
+    /**
+     * 等于拼接
+     *
+     * @param queryWrapper wrapper
+     * @param column       字段名字
+     * @param val          值
+     */
+    public void equalsQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
+        queryWrapper.eq(column, val);
+    }
+
+    /**
+     * 不等于拼接
+     *
+     * @param queryWrapper wrapper
+     * @param column       字段名字
+     * @param val          值
+     */
+    public void notEqualsQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
+        queryWrapper.ne(column, val);
+    }
+
+    /**
+     * like拼接
+     *
+     * @param queryWrapper wrapper
+     * @param column       字段名字
+     * @param val          值
+     */
+    public void likeQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
+        queryWrapper.like(column, val);
+    }
+
+    /**
+     * or-like拼接
+     *
+     * @param queryWrapper wrapper
+     * @param columns      字段名字
+     * @param val          值
+     */
+    public void orLikeQueryAppend(QueryWrapper<T> queryWrapper, List<String> columns, Object val) {
+        queryWrapper.and(Wrapper -> {
+            for (String column : columns) {
+                Wrapper.like(column, val).or();
+            }
+        });
+    }
+
+    /**
+     * between拼接
+     *
+     * @param queryWrapper wrapper
+     * @param columns      字段名字
+     * @param val1         值1
+     * @param val2         值2
+     */
+    public void betweenQueryAppend(QueryWrapper<T> queryWrapper, String columns, Object val1, Object val2) {
+        queryWrapper.between(columns, val1, val2);
     }
 }

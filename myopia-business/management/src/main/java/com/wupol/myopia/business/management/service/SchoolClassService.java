@@ -62,8 +62,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClass> getSchoolClassByGradeId(Integer gradeId) {
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
-        schoolClassWrapper.eq("grade_id", gradeId)
-                .ne("status", Const.STATUS_IS_DELETED);
+        equalsQueryAppend(schoolClassWrapper, "grade_id", gradeId);
+        notEqualsQueryAppend(schoolClassWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
     }
 
@@ -76,9 +76,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClass> getSchoolClassByGradeIds(List<Integer> gradeIds, Integer schoolId) {
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
-        schoolClassWrapper.in("grade_id", gradeIds)
-                .eq("school_id", schoolId)
-                .ne("status", Const.STATUS_IS_DELETED);
+        InQueryAppend(schoolClassWrapper, "grade_id", gradeIds);
+        equalsQueryAppend(schoolClassWrapper, "school_id", schoolId);
+        notEqualsQueryAppend(schoolClassWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
     }
 

@@ -81,7 +81,8 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         List<SchoolGradeItems> schoolGradeItems = new ArrayList<>();
 
         QueryWrapper<SchoolGrade> schoolGradeWrapper = new QueryWrapper<>();
-        schoolGradeWrapper.eq("school_id", schoolId).ne("status", Const.STATUS_IS_DELETED);
+        equalsQueryAppend(schoolGradeWrapper, "school_id", schoolId);
+        notEqualsQueryAppend(schoolGradeWrapper, "status", Const.STATUS_IS_DELETED);
 
         // 获取年级
         List<SchoolGrade> schoolGrades = baseMapper.selectList(schoolGradeWrapper);

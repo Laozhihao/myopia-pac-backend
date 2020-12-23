@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrganizationListRequest;
@@ -73,25 +74,25 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Page<ScreeningOrganization> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
 
-        wrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
-        wrapper.ne("status", Const.STATUS_IS_DELETED);
+        InQueryAppend(wrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
+        notEqualsQueryAppend(wrapper, "status", Const.STATUS_IS_DELETED);
 
         if (null != request.getOrgNo()) {
-            wrapper.like("org_no", request.getOrgNo());
+            likeQueryAppend(wrapper, "org_no", request.getOrgNo());
         }
 
         if (StringUtils.isNotBlank(request.getName())) {
-            wrapper.like("name", request.getName());
+            likeQueryAppend(wrapper, "name", request.getName());
         }
 
         if (null != request.getType()) {
-            wrapper.eq("type", request.getType());
+            equalsQueryAppend(wrapper, "type", request.getType());
         }
 
         if (null != request.getCode()) {
-            wrapper.like("city_code", request.getCode())
-                    .or()
-                    .like("area_code", request.getCode());
+            orLikeQueryAppend(wrapper,
+                    Lists.newArrayList("city_code", "area_code"),
+                    request.getCode());
         }
         return baseMapper.selectPage(page, wrapper);
     }

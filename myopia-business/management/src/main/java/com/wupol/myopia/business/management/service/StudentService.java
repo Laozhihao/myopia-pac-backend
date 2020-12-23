@@ -32,7 +32,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        studentQueryWrapper.eq("grade_id", gradeId).ne("status", Const.STATUS_IS_DELETED);
+        equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
+        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -44,7 +45,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getStudentsByClassId(Integer classId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        studentQueryWrapper.eq("class_id", classId).ne("status", Const.STATUS_IS_DELETED);
+        equalsQueryAppend(studentQueryWrapper, "class_id", classId);
+        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -96,36 +98,37 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Page<Student> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<Student> studentWrapper = new QueryWrapper<>();
 
-        studentWrapper.eq("school_id", request.getSchoolId())
-                .ne("status", Const.STATUS_IS_DELETED);
+        equalsQueryAppend(studentWrapper, "school_id", request.getSchoolId());
+        notEqualsQueryAppend(studentWrapper, "status", Const.STATUS_IS_DELETED);
 
         if (null != request.getSno()) {
-            studentWrapper.like("sno", request.getSno());
+            likeQueryAppend(studentWrapper, "sno", request.getSno());
         }
         if (StringUtils.isNotBlank(request.getIdCard())) {
-            studentWrapper.like("id_card", request.getIdCard());
+            likeQueryAppend(studentWrapper, "id_card", request.getIdCard());
         }
         if (StringUtils.isNotBlank(request.getName())) {
-            studentWrapper.like("name", request.getName());
+            likeQueryAppend(studentWrapper, "name", request.getName());
         }
         if (StringUtils.isNotBlank(request.getParentPhone())) {
-            studentWrapper.like("parent_phone", request.getParentPhone());
+            likeQueryAppend(studentWrapper, "parent_phone", request.getParentPhone());
         }
         if (null != request.getGender()) {
-            studentWrapper.eq("gender", request.getGender());
+            equalsQueryAppend(studentWrapper, "gender", request.getGender());
         }
         if (null != request.getGradeId()) {
-            studentWrapper.eq("grade_id", request.getGradeId());
+            equalsQueryAppend(studentWrapper, "grade_id", request.getGradeId());
         }
         if (null != request.getClassId()) {
-            studentWrapper.eq("class_id", request.getClassId());
+            equalsQueryAppend(studentWrapper, "class_id", request.getClassId());
         }
         if (StringUtils.isNotBlank(request.getLabels())) {
-            studentWrapper.like("labels", request.getLabels());
+            likeQueryAppend(studentWrapper, "labels", request.getLabels());
         }
         if (null != request.getStartScreeningTime() && null != request.getEndScreeningTime()) {
-            studentWrapper.ge("last_screening_time", DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME))
-                    .lt("last_screening_time", DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
+            betweenQueryAppend(studentWrapper,"last_screening_time",DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME),DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
+//            studentWrapper.ge("last_screening_time", DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME))
+//                    .lt("last_screening_time", DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
         }
         return baseMapper.selectPage(page, studentWrapper);
     }
