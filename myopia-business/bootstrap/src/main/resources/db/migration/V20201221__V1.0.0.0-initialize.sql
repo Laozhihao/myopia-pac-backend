@@ -24,6 +24,7 @@ create table m_screening_organization_staff
 (
     id               int auto_increment comment 'id'
         primary key,
+    gov_dept_id      int                                 not null comment '部门id',
     screening_org_id int                                 not null comment '筛查机构表id',
     staff_no         bigint                              not null comment '根据规则创建ID',
     user_id          int                                 not null comment '用户id',

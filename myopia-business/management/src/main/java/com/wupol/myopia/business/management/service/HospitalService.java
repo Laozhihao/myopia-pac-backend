@@ -73,7 +73,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * 生成账号密码
      */
     private void generateAccountAndPassword() {
-
+        // TODO: 创建对应的staff
     }
 
     /**

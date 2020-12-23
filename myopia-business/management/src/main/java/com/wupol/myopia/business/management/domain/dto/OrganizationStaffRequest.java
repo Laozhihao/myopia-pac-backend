@@ -3,6 +3,8 @@ package com.wupol.myopia.business.management.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 筛查人员列表请求体
  *
@@ -15,6 +17,7 @@ public class OrganizationStaffRequest {
     /**
      * 筛查机构表id
      */
+    @NotNull
     private Integer screeningOrgId;
 
     /**
@@ -30,8 +33,7 @@ public class OrganizationStaffRequest {
     /**
      * 手机号码
      */
-    private Integer mobile;
-
+    private String mobile;
 
     /**
      * 页数

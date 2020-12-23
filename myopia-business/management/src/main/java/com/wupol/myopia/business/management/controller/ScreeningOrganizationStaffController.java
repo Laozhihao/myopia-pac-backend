@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 /**
@@ -31,8 +32,8 @@ public class ScreeningOrganizationStaffController {
     private ExcelFacade excelFacade;
 
     @GetMapping("list")
-    public Object getOrganizationStaffList(OrganizationStaffRequest request) {
-        return screeningOrganizationStaffService.getOrganizationStaffList(request);
+    public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
+        return screeningOrganizationStaffService.getOrganizationStaffList(request, Const.GOV_DEPT_ID);
     }
 
     @GetMapping("{id}")
@@ -41,25 +42,28 @@ public class ScreeningOrganizationStaffController {
     }
 
     @DeleteMapping("{id}")
-    public Object deletedOrganizationStaffList(@PathVariable("id") Integer id) {
-        return null;
+    public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
+        return screeningOrganizationStaffService.deletedOrganizationStaff(id, Const.CREATE_USER_ID);
     }
 
     @PostMapping()
-    public Object insertOrganizationStaffList(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
-        return null;
+    public Object insertOrganizationStaff(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
+        screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
+        screeningOrganizationStaff.setGovDeptId(Const.GOV_DEPT_ID);
+        return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
     }
 
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
         screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
-        return screeningOrganizationStaffService.updateById(screeningOrganizationStaff);
+        return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
 
     @GetMapping("/export")
     public ApiResult getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateScreeningOrganizationStaff(query));
     }
+
     @GetMapping("/import")
     public ApiResult importOrganizationStaff(MultipartFile file) throws IOException {
         Long orgId = 123L;

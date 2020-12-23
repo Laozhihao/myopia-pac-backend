@@ -30,6 +30,8 @@ public class ScreeningOrganizationStaff implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    private Integer govDeptId;
+
     /**
      * 筛查机构表id
      */
@@ -49,11 +51,6 @@ public class ScreeningOrganizationStaff implements Serializable {
      * 创建人ID
      */
     private Integer createUserId;
-
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 说明
