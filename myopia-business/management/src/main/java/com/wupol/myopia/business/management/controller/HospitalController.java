@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -57,6 +58,11 @@ public class HospitalController {
     @GetMapping("list")
     public Object getHospitalList(HospitalListRequest request) {
         return hospitalService.getHospitalList(request, Const.GOV_DEPT_ID);
+    }
+
+    @PutMapping("status")
+    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+        return null;
     }
 
     @GetMapping("/export")

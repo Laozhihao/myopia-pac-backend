@@ -126,9 +126,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             likeQueryAppend(studentWrapper, "labels", request.getLabels());
         }
         if (null != request.getStartScreeningTime() && null != request.getEndScreeningTime()) {
-            betweenQueryAppend(studentWrapper,"last_screening_time",DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME),DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
-//            studentWrapper.ge("last_screening_time", DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME))
-//                    .lt("last_screening_time", DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
+            betweenQueryAppend(studentWrapper, "last_screening_time",
+                    DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME),
+                    DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
         }
         return baseMapper.selectPage(page, studentWrapper);
     }

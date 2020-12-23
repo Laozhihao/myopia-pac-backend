@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrganizationListRequest;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -56,6 +57,11 @@ public class ScreeningOrganizationController {
     @GetMapping("list")
     public Object getScreeningOrganizationList(ScreeningOrganizationListRequest request) {
         return saveScreeningOrganization.getScreeningOrganizationList(request, Const.GOV_DEPT_ID);
+    }
+
+    @PutMapping("status")
+    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+        return null;
     }
 
     @GetMapping("/export")

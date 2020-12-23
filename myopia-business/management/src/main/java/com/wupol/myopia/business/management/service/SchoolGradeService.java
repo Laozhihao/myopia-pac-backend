@@ -73,7 +73,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 年级列表
      *
      * @param schoolId 学校id
-     * @return SchoolGradeResponseDto re
+     * @return SchoolGradeResponseDto 返回体
      */
     public SchoolGradeResponseDto getGradeList(Integer schoolId) {
 

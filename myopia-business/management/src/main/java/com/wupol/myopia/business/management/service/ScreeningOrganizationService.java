@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -68,9 +67,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param request   筛查机构列表请求体
      * @param govDeptId 机构id
-     * @return IPage<ScreeningOrganization> {@link IPage}
+     * @return Page<ScreeningOrganization> {@link Page}
      */
-    public IPage<ScreeningOrganization> getScreeningOrganizationList(ScreeningOrganizationListRequest request, Integer govDeptId) {
+    public Page<ScreeningOrganization> getScreeningOrganizationList(ScreeningOrganizationListRequest request, Integer govDeptId) {
         Page<ScreeningOrganization> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
 
