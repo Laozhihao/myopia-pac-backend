@@ -2,18 +2,13 @@
 server:
   port: 8010
 
-# 业务参数
-oauth:
-  nickname: "授权中心服务"
-  age: 22
-
 ### log4j2配置 ###
 logging:
   config: classpath:log4j2.xml
 
 ### 配置Mybatis-plus的xml路径，多个用逗号隔开 ###
 mybatis-plus:
-  mapper-locations: classpath*:/mapping/**/*.xml
+  mapper-locations: classpath*:/mapping/*.xml
 
 spring:
   cloud:
