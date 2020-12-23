@@ -28,7 +28,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      *
      * @param request   请求入参
      * @param govDeptId 部门id
-     * @return IPage<ScreeningOrganizationStaff> {@link Page}
+     * @return Page<ScreeningOrganizationStaff> {@link Page}
      */
     public Page<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
 
