@@ -12,12 +12,6 @@
     <name>myopia-gateway</name>
     <description>网关服务</description>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <spring-cloud-alibaba.version>2.2.1.RELEASE</spring-cloud-alibaba.version>
-        <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
-    </properties>
-
     <dependencies>
         <!-- Nacos 配置中心 -->
         <dependency>
