@@ -30,7 +30,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
 
         wrapper.like("screening_org_id", request.getScreeningOrgId())
-                .in("gov_dept_id", hospitalService.getAllDeptId(govDeptId));
+                .in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
 
         if (StringUtils.isNotBlank(request.getName())) {
 

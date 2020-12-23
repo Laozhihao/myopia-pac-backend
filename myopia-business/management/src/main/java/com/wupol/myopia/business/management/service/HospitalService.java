@@ -46,7 +46,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         Page<Hospital> page = new Page<>(request.getPage(), request.getLimit());
         QueryWrapper<Hospital> hospitalWrapper = new QueryWrapper<>();
 
-        hospitalWrapper.in("gov_dept_id", getAllDeptId(govDeptId));
+        hospitalWrapper.in("gov_dept_id", getAllByDeptId(govDeptId));
         hospitalWrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (StringUtils.isNotBlank(request.getName())) {
@@ -91,7 +91,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param id 部门id
      * @return List<Integer>
      */
-    public List<Integer> getAllDeptId(Integer id) {
+    public List<Integer> getAllByDeptId(Integer id) {
         return Lists.newArrayList(id);
     }
 

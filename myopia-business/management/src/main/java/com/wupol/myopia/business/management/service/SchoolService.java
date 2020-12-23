@@ -62,7 +62,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         Page<School> page = new Page<>(request.getPage(), request.getLimit());
         QueryWrapper<School> schoolWrapper = new QueryWrapper<>();
 
-        schoolWrapper.in("gov_dept_id", hospitalService.getAllDeptId(govDeptId));
+        schoolWrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
         schoolWrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (null != request.getSchoolNo()) {

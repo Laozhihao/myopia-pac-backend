@@ -62,7 +62,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Page<ScreeningOrganization> page = new Page<>(request.getPage(), request.getLimit());
         QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
 
-        wrapper.in("gov_dept_id", hospitalService.getAllDeptId(govDeptId));
+        wrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
         wrapper.ne("status", Const.STATUS_IS_DELETED);
 
         if (null != request.getOrgNo()) {
