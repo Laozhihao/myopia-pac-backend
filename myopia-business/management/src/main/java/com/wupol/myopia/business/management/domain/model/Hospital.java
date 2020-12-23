@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("hospital")
+@TableName("m_hospital")
 public class Hospital extends BaseEntity<Hospital> implements Serializable {
 
     private static final long serialVersionUID = 1L;

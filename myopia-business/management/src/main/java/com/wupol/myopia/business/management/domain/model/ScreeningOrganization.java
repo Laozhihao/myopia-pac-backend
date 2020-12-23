@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("screening_organization")
+@TableName("m_screening_organization")
 public class ScreeningOrganization implements Serializable {
 
     private static final long serialVersionUID = 1L;

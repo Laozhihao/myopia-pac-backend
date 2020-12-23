@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("school_grade")
+@TableName("m_school_grade")
 public class SchoolGrade implements Serializable {
 
     private static final long serialVersionUID = 1L;
