@@ -56,8 +56,8 @@ public class HospitalController {
     }
 
     @GetMapping("list")
-    public Object getHospitalList(HospitalListRequest request) {
-        return hospitalService.getHospitalList(request, Const.GOV_DEPT_ID);
+    public Object getHospitalList(HospitalQuery query) {
+        return hospitalService.getHospitalList(query, Const.GOV_DEPT_ID);
     }
 
     @PutMapping("status")
