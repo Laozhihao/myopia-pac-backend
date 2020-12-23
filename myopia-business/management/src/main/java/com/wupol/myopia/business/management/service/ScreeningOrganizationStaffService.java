@@ -26,7 +26,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
     public IPage<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
 
-        Page<ScreeningOrganizationStaff> page = new Page<>(request.getPage(), request.getLimit());
+        Page<ScreeningOrganizationStaff> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
 
         wrapper.like("screening_org_id", request.getScreeningOrgId())

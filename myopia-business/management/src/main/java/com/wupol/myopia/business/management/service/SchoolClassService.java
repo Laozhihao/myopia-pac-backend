@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -20,6 +21,17 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
 
     @Resource
     private StudentService studentService;
+
+    /**
+     * 新增教室
+     *
+     * @param schoolClass 教室实体类
+     * @return 新增数量
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveClass(SchoolClass schoolClass) {
+        return baseMapper.insert(schoolClass);
+    }
 
     /**
      * 删除年级

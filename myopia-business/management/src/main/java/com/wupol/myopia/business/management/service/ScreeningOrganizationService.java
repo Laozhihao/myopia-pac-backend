@@ -38,6 +38,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
+     * 更新筛查机构
+     *
+     * @param screeningOrganization 筛查机构实体咧
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+        return baseMapper.updateById(screeningOrganization);
+    }
+
+    /**
      * 删除筛查机构
      *
      * @param id 筛查机构ID
@@ -59,7 +70,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return IPage<ScreeningOrganization> {@link IPage}
      */
     public IPage<ScreeningOrganization> getScreeningOrganizationList(ScreeningOrganizationListRequest request, Integer govDeptId) {
-        Page<ScreeningOrganization> page = new Page<>(request.getPage(), request.getLimit());
+        Page<ScreeningOrganization> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
 
         wrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));

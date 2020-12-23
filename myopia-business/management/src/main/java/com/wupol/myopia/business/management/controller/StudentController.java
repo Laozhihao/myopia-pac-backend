@@ -59,6 +59,7 @@ public class StudentController {
     public Object getStudentsList(@Valid StudentListRequest request) throws ParseException {
         return studentService.getStudentLists(request);
     }
+
     @GetMapping("/export")
     public ApiResult getHospitalExportData(StudentQuery query) throws IOException {
         //TODO 待检验日期范围

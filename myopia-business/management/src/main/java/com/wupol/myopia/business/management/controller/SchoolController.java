@@ -6,7 +6,6 @@ import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class SchoolController {
     public Object updateSchool(@RequestBody School school) {
         school.setCreateUserId(Const.CREATE_USER_ID);
         school.setGovDeptId(Const.GOV_DEPT_ID);
-        return schoolService.updateById(school);
+        return schoolService.updateSchool(school);
     }
 
     @GetMapping("{id}")

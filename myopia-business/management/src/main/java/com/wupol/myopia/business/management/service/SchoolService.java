@@ -37,6 +37,17 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 更新学校
+     *
+     * @param school 学校实体类
+     * @return 更新数量
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateSchool(School school) {
+        return baseMapper.updateById(school);
+    }
+
+    /**
      * 删除学校
      *
      * @param id 学校id
@@ -59,7 +70,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public Page<School> getSchoolList(SchoolListRequest request, Integer govDeptId) {
 
-        Page<School> page = new Page<>(request.getPage(), request.getLimit());
+        Page<School> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<School> schoolWrapper = new QueryWrapper<>();
 
         schoolWrapper.in("gov_dept_id", hospitalService.getAllByDeptId(govDeptId));

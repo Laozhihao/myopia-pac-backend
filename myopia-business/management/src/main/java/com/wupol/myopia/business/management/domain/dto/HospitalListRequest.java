@@ -40,10 +40,10 @@ public class HospitalListRequest {
     /**
      * 页数
      */
-    private Integer page;
+    private Integer current;
 
     /**
      * 页码
      */
-    private Integer limit;
+    private Integer size;
 }

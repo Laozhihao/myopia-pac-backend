@@ -94,7 +94,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @throws ParseException 转换异常
      */
     public IPage<Student> getStudentLists(StudentListRequest request) throws ParseException {
-        Page<Student> page = new Page<>(request.getPage(), request.getLimit());
+        Page<Student> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<Student> studentWrapper = new QueryWrapper<>();
 
         studentWrapper.eq("school_id", request.getSchoolId())

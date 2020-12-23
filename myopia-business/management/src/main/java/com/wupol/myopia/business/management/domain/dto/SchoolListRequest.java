@@ -33,12 +33,12 @@ public class SchoolListRequest {
     private Integer code;
 
     /**
-     * 页数
-     */
-    private Integer page;
-
-    /**
      * 页码
      */
-    private Integer limit;
+    private Integer current;
+
+    /**
+     * 页数
+     */
+    private Integer size;
 }

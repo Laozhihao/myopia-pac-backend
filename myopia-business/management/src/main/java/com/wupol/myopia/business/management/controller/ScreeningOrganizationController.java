@@ -40,7 +40,7 @@ public class ScreeningOrganizationController {
     public Object updateScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
         screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
         screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
-        return saveScreeningOrganization.updateById(screeningOrganization);
+        return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
     }
 
     @GetMapping("{id}")

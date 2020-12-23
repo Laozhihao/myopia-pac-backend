@@ -23,11 +23,10 @@ public class SchoolGradeController {
     @Resource
     private SchoolGradeService schoolGradeService;
 
-
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolGrade schoolGrade) {
         schoolGrade.setCreateUserId(Const.CREATE_USER_ID);
-        return schoolGradeService.save(schoolGrade);
+        return schoolGradeService.saveGrade(schoolGrade);
     }
 
     @DeleteMapping("{id}")

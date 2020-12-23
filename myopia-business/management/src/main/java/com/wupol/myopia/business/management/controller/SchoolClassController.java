@@ -26,7 +26,7 @@ public class SchoolClassController {
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolClass schoolClass) {
         schoolClass.setCreateUserId(Const.CREATE_USER_ID);
-        return schoolClassService.save(schoolClass);
+        return schoolClassService.saveClass(schoolClass);
     }
 
     @DeleteMapping("{id}")

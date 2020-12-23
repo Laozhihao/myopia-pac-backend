@@ -31,6 +31,23 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     @Resource
     private StudentService studentService;
 
+
+    /**
+     * 新增年级
+     *
+     * @param schoolGrade 年级实体类
+     * @return 新增个数
+     */
+    public Integer saveGrade(SchoolGrade schoolGrade) {
+        return baseMapper.insert(schoolGrade);
+    }
+
+    /**
+     * 删除年级
+     *
+     * @param id 年级id
+     * @return 更新个数
+     */
     @Transactional(rollbackFor = Exception.class)
     public Integer deletedGrade(Integer id) {
 
@@ -52,7 +69,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return baseMapper.updateById(schoolGrade);
     }
 
-    public Object getGradeList(Integer schoolId) {
+    /**
+     * 年级列表
+     *
+     * @param schoolId 学校id
+     * @return SchoolGradeResponseDto re
+     */
+    public SchoolGradeResponseDto getGradeList(Integer schoolId) {
 
         SchoolGradeResponseDto responseDto = new SchoolGradeResponseDto();
         List<SchoolGradeItems> schoolGradeItems = new ArrayList<>();

@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -21,6 +22,9 @@ import java.util.List;
 @Service
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
+    @Resource
+    private HospitalStaffService hospitalStaffService;
+
     /**
      * 保存医院
      *
@@ -29,9 +33,39 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveHospital(Hospital hospital) {
-        generateAccountAndPassword();
         hospital.setHospitalNo(generateHospitalNo());
-        return baseMapper.insert(hospital);
+        baseMapper.insert(hospital);
+        return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());
+    }
+
+    /**
+     * 更新医院信息
+     *
+     * @param hospital 医院实体类
+     * @return 更新数量
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateHospital(Hospital hospital) {
+        return baseMapper.updateById(hospital);
+    }
+
+    /**
+     * 删除医院
+     *
+     * @param id           医院id
+     * @param createUserId 创建用户
+     * @param govDeptId    部门id
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer deletedHospital(Integer id, Integer createUserId, Integer govDeptId) {
+        Hospital hospital = new Hospital();
+        // TODO: 获取登陆用户id, 部门id
+        hospital.setId(id);
+        hospital.setCreateUserId(Const.CREATE_USER_ID);
+        hospital.setGovDeptId(Const.GOV_DEPT_ID);
+        hospital.setStatus(Const.STATUS_IS_DELETED);
+        return baseMapper.updateById(hospital);
     }
 
     /**
@@ -43,7 +77,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public Page<Hospital> getHospitalList(HospitalListRequest request, Integer govDeptId) {
 
-        Page<Hospital> page = new Page<>(request.getPage(), request.getLimit());
+        Page<Hospital> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<Hospital> hospitalWrapper = new QueryWrapper<>();
 
         hospitalWrapper.in("gov_dept_id", getAllByDeptId(govDeptId));
@@ -72,8 +106,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     /**
      * 生成账号密码
      */
-    private void generateAccountAndPassword() {
+    private Integer generateAccountAndPassword(Integer createUserId, Integer hospitalId) {
         // TODO: 创建对应的staff
+        return hospitalStaffService.saveStaff(createUserId, hospitalId, Const.STAFF_USER_ID);
     }
 
     /**

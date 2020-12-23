@@ -41,18 +41,12 @@ public class HospitalController {
         // TODO: 获取登陆用户id, 部门id
         hospital.setCreateUserId(Const.CREATE_USER_ID);
         hospital.setGovDeptId(Const.GOV_DEPT_ID);
-        return hospitalService.updateById(hospital);
+        return hospitalService.updateHospital(hospital);
     }
 
     @DeleteMapping("{id}")
     public Object deletedHospital(@PathVariable("id") Integer id) {
-        Hospital hospital = new Hospital();
-        // TODO: 获取登陆用户id, 部门id
-        hospital.setId(id);
-        hospital.setCreateUserId(Const.CREATE_USER_ID);
-        hospital.setGovDeptId(Const.GOV_DEPT_ID);
-        hospital.setStatus(Const.STATUS_IS_DELETED);
-        return hospitalService.updateById(hospital);
+        return hospitalService.deletedHospital(id, Const.CREATE_USER_ID, Const.GOV_DEPT_ID);
     }
 
     @GetMapping("{id}")
