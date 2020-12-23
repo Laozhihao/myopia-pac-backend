@@ -68,8 +68,9 @@ public class StudentController {
 
     @PostMapping("/import")
     public ApiResult importStudent(MultipartFile file) throws IOException {
-        Long schoolId = 12L;
-        excelFacade.importStudent(schoolId, file);
+        Integer schoolId = 12;
+        Integer createUserId = 12;
+        excelFacade.importStudent(schoolId, createUserId, file);
         return ApiResult.success();
     }
 }

@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.domain.vo;
 
-import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.HeadFontStyle;
 import com.alibaba.excel.annotation.write.style.HeadRowHeight;
@@ -13,10 +11,9 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 筛查机构导出数据
+ * 筛查机构人员导出数据
  * @Author Chikong
  * @Date 2020/12/22
  **/
@@ -26,25 +23,21 @@ import java.util.Date;
 @ColumnWidth(20)
 @Data
 @Accessors(chain = true)
-public class ScreeningOrganizationExportVo implements Serializable {
+public class ScreeningOrganizationStaffExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "筛查机构表";
+    public static final String TOP_HEADER = "筛查人员表";
     @ExcelProperty({TOP_HEADER, "ID"})
-    private Integer id;
-    @ExcelProperty({TOP_HEADER, "筛查机构名称"})
+    private String staffNo;
+    @ExcelProperty({TOP_HEADER, "姓名"})
     private String name;
-    @ExcelProperty({TOP_HEADER, "详细地址"})
-    private String address;
-    @ExcelProperty({TOP_HEADER, "类型"})
-    private String type;
-    @ExcelProperty({TOP_HEADER, "说明"})
-    private String remark;
-    @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
-    private Integer personCount;
-    @ExcelProperty({TOP_HEADER, "人员名单"})
-    private String personNames;
-    @ExcelProperty({TOP_HEADER, "筛查次数"})
-    private Integer screeningCount;
+    @ExcelProperty({TOP_HEADER, "性别"})
+    private String gender;
+    @ExcelProperty({TOP_HEADER, "身份证号"})
+    private String idCard;
+    @ExcelProperty({TOP_HEADER, "手机号码"})
+    private String phone;
+    @ExcelProperty({TOP_HEADER, "筛查机构"})
+    private String organization;
 
 }

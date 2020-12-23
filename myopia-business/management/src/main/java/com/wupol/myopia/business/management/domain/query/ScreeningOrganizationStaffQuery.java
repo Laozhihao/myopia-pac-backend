@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.query;
 
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import lombok.Data;
 
 /**
@@ -12,7 +13,7 @@ import lombok.Data;
  * @Date 2020-12-22
  */
 @Data
-public class ScreeningOrganizationStaffQuery extends ScreeningOrganizationStaff {
+public class ScreeningOrganizationStaffQuery extends ScreeningOrganizationStaffVo {
     /** 身份证 */
     private String idCardLike;
     /** 姓名 */

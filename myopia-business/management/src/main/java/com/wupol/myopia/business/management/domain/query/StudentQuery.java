@@ -4,6 +4,7 @@ package com.wupol.myopia.business.management.domain.query;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -16,7 +17,7 @@ import java.util.Date;
  * @Date 2020-12-22
  */
 @Data
-public class StudentQuery extends Student {
+public class StudentQuery extends StudentVo {
     /** 名称 */
     private String nameLike;
     /** 身份证 */

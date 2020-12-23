@@ -64,10 +64,12 @@ public class ScreeningOrganizationStaffController {
         return ApiResult.success(excelFacade.generateScreeningOrganizationStaff(query));
     }
 
-    @GetMapping("/import")
+
+    @PostMapping("/import")
     public ApiResult importOrganizationStaff(MultipartFile file) throws IOException {
-        Long orgId = 123L;
-        excelFacade.importScreeningOrganizationStaff(orgId, file);
+        Integer orgId = 123;
+        Integer createUserId = 3;
+        excelFacade.importScreeningOrganizationStaff(orgId, createUserId, file);
         return ApiResult.success();
     }
 

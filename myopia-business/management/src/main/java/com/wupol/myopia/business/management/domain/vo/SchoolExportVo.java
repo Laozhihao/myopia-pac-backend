@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.domain.vo;
 
-import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.HeadFontStyle;
 import com.alibaba.excel.annotation.write.style.HeadRowHeight;
@@ -13,10 +11,9 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 筛查机构导出数据
+ * 学校导出数据
  * @Author Chikong
  * @Date 2020/12/22
  **/
@@ -26,24 +23,40 @@ import java.util.Date;
 @ColumnWidth(20)
 @Data
 @Accessors(chain = true)
-public class ScreeningOrganizationExportVo implements Serializable {
+public class SchoolExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "筛查机构表";
+    public static final String TOP_HEADER = "学校表";
+    public static final String HEADER2 = "在线学生";
+    public static final String HEADER3 = "住校学生";
     @ExcelProperty({TOP_HEADER, "ID"})
-    private Integer id;
-    @ExcelProperty({TOP_HEADER, "筛查机构名称"})
+    private Integer no;
+    @ExcelProperty({TOP_HEADER, "名称"})
     private String name;
-    @ExcelProperty({TOP_HEADER, "详细地址"})
-    private String address;
+    @ExcelProperty({TOP_HEADER, "性质"})
+    private Integer kind;
+    @ExcelProperty({TOP_HEADER, "是否寄宿"})
+    private String lodgeStatus;
     @ExcelProperty({TOP_HEADER, "类型"})
     private String type;
+    @ExcelProperty({TOP_HEADER, HEADER2, "总数"})
+    private Integer onlineCount;
+    @ExcelProperty({TOP_HEADER, HEADER2, "男生数"})
+    private Integer onlineMaleCount;
+    @ExcelProperty({TOP_HEADER, HEADER2, "女生数"})
+    private Integer onlineFemaleCount;
+    @ExcelProperty({TOP_HEADER, HEADER3, "总数"})
+    private Integer lodgeCount;
+    @ExcelProperty({TOP_HEADER, HEADER3, "男生数"})
+    private Integer lodgeMaleCount;
+    @ExcelProperty({TOP_HEADER, HEADER3, "女生数"})
+    private Integer lodgeFemaleCount;
+    @ExcelProperty({TOP_HEADER, "地址"})
+    private String address;
+    @ExcelProperty({TOP_HEADER, "年级班级"})
+    private String className;
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
-    @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
-    private Integer personCount;
-    @ExcelProperty({TOP_HEADER, "人员名单"})
-    private String personNames;
     @ExcelProperty({TOP_HEADER, "筛查次数"})
     private Integer screeningCount;
 

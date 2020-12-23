@@ -68,7 +68,7 @@ public class Student implements Serializable {
     /**
      * 性别 1-男 2-女
      */
-    private Boolean gender;
+    private Integer gender;
 
     /**
      * 出生日期
