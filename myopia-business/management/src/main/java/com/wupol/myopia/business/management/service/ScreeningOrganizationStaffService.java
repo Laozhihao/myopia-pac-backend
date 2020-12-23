@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
@@ -24,7 +23,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Resource
     private HospitalService hospitalService;
 
-    public IPage<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
+    /**
+     * 获取机构人员列表
+     *
+     * @param request   请求入参
+     * @param govDeptId 部门id
+     * @return IPage<ScreeningOrganizationStaff> {@link Page}
+     */
+    public Page<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
 
         Page<ScreeningOrganizationStaff> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
@@ -47,12 +53,25 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return baseMapper.selectPage(page, wrapper);
     }
 
+    /**
+     * 删除用户
+     *
+     * @param id           id
+     * @param createUserId 创建人
+     * @return 删除个数
+     */
     @Transactional(rollbackFor = Exception.class)
     public Integer deletedOrganizationStaff(Integer id, Integer createUserId) {
         // TODO: 删除用户
         return 1;
     }
 
+    /**
+     * 新增员工
+     *
+     * @param screeningOrganizationStaff 员工实体类
+     * @return 新增个数
+     */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
         screeningOrganizationStaff.setStaffNo(generateStaffNo());
@@ -61,6 +80,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return baseMapper.insert(screeningOrganizationStaff);
     }
 
+    /**
+     * 更新员工
+     *
+     * @param screeningOrganizationStaff 员工实体类
+     * @return 更新个数
+     */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
         return baseMapper.updateById(screeningOrganizationStaff);

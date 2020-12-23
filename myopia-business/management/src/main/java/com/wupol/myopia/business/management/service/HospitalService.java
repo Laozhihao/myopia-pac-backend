@@ -73,7 +73,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @param request   请求入参
      * @param govDeptId 部门id
-     * @return Page<Hospital> {@link com.baomidou.mybatisplus.core.metadata.IPage}
+     * @return Page<Hospital> {@link Page}
      */
     public Page<Hospital> getHospitalList(HospitalListRequest request, Integer govDeptId) {
 

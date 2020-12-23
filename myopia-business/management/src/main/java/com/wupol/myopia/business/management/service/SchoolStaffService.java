@@ -12,4 +12,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolStaff> {
 
+    /**
+     * 创建员工
+     *
+     * @param schoolId     学校id
+     * @param createUserId 创建人
+     * @param govDeptId    部门id
+     * @param userId       用户id
+     * @return 创建个数
+     */
+    public Integer insertStaff(Integer schoolId, Integer createUserId, Integer govDeptId, Integer userId) {
+        SchoolStaff schoolStaff = new SchoolStaff();
+        schoolStaff.setSchoolId(schoolId);
+        schoolStaff.setUserId(userId);
+        schoolStaff.setCreateUserId(createUserId);
+        schoolStaff.setGovDeptId(govDeptId);
+        return baseMapper.insert(schoolStaff);
+    }
+
 }

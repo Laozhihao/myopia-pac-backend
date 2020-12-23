@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -90,10 +89,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 获取学生列表
      *
      * @param request 请求体
-     * @return IPage<Student> {@link Page}
+     * @return Page<Student> {@link Page}
      * @throws ParseException 转换异常
      */
-    public IPage<Student> getStudentLists(StudentListRequest request) throws ParseException {
+    public Page<Student> getStudentLists(StudentListRequest request) throws ParseException {
         Page<Student> page = new Page<>(request.getCurrent(), request.getSize());
         QueryWrapper<Student> studentWrapper = new QueryWrapper<>();
 

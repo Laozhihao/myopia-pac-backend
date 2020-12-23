@@ -21,6 +21,9 @@ import javax.annotation.Resource;
 public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
+    private SchoolStaffService SchoolStaffService;
+
+    @Resource
     private HospitalService hospitalService;
 
     /**
@@ -31,9 +34,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveSchool(School school) {
-        generateAccountAndPassword();
         school.setSchoolNo(generateSchoolNo());
-        return baseMapper.insert(school);
+        baseMapper.insert(school);
+        return generateAccountAndPassword(school.getId(), school.getCreateUserId(), school.getGovDeptId());
     }
 
     /**
@@ -98,8 +101,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 生成账号密码
      */
-    private void generateAccountAndPassword() {
-
+    private Integer generateAccountAndPassword(Integer schoolId, Integer createUserId, Integer govDeptId) {
+        // TODO: 生成账号密码，userId
+        return SchoolStaffService.insertStaff(schoolId, createUserId, govDeptId, Const.CREATE_USER_ID);
     }
 
     /**

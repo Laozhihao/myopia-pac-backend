@@ -107,7 +107,8 @@ create table m_school_staff
 (
     id             int auto_increment comment 'id'
         primary key,
-    school_id      bigint                              not null comment '学校id',
+    school_id      int                                 not null comment '学校id',
+    user_id        int                                 not null comment '用户表id',
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门id',
     remark         varchar(128)                        null comment '说明',
