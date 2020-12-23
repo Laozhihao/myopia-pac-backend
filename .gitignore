@@ -11,6 +11,7 @@ target/
 *.ipr
 pom.xml
 .settings/
+.vscode/
 .project
 .classpath
 .factorypath
