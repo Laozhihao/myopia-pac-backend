@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.StudentListRequest;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * @Author HaoHao
@@ -52,6 +55,10 @@ public class StudentController {
         return studentService.getById(id);
     }
 
+    @GetMapping("list")
+    public Object getStudentsList(@Valid StudentListRequest request) throws ParseException {
+        return studentService.getStudentLists(request);
+    }
     @GetMapping("/export")
     public ApiResult getHospitalExportData(StudentQuery query) throws IOException {
         //TODO 待检验日期范围
