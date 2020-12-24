@@ -1,21 +1,18 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.StudentListRequest;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.Student;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
+import javax.annotation.Resource;
 import java.util.List;
-
-import static com.wupol.myopia.base.util.DateFormatUtil.FORMAT_DETAIL_TIME;
 
 /**
  * @Author HaoHao
@@ -23,6 +20,9 @@ import static com.wupol.myopia.base.util.DateFormatUtil.FORMAT_DETAIL_TIME;
  */
 @Service
 public class StudentService extends BaseService<StudentMapper, Student> {
+
+    @Resource
+    private StudentMapper studentMapper;
 
     /**
      * 通过年级id查找学生
@@ -90,47 +90,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 获取学生列表
      *
-     * @param request 请求体
-     * @return Page<Student> {@link Page}
-     * @throws ParseException 转换异常
+     * @param pageRequest  分页
+     * @param studentQuery 请求体
+     * @return IPage<Student> {@link IPage}
      */
-    public Page<Student> getStudentLists(StudentListRequest request) throws ParseException {
-        Page<Student> page = new Page<>(request.getCurrent(), request.getSize());
-        QueryWrapper<Student> studentWrapper = new QueryWrapper<>();
-
-        equalsQueryAppend(studentWrapper, "school_id", request.getSchoolId());
-        notEqualsQueryAppend(studentWrapper, "status", Const.STATUS_IS_DELETED);
-
-        if (null != request.getSno()) {
-            likeQueryAppend(studentWrapper, "sno", request.getSno());
-        }
-        if (StringUtils.isNotBlank(request.getIdCard())) {
-            likeQueryAppend(studentWrapper, "id_card", request.getIdCard());
-        }
-        if (StringUtils.isNotBlank(request.getName())) {
-            likeQueryAppend(studentWrapper, "name", request.getName());
-        }
-        if (StringUtils.isNotBlank(request.getParentPhone())) {
-            likeQueryAppend(studentWrapper, "parent_phone", request.getParentPhone());
-        }
-        if (null != request.getGender()) {
-            equalsQueryAppend(studentWrapper, "gender", request.getGender());
-        }
-        if (null != request.getGradeId()) {
-            equalsQueryAppend(studentWrapper, "grade_id", request.getGradeId());
-        }
-        if (null != request.getClassId()) {
-            equalsQueryAppend(studentWrapper, "class_id", request.getClassId());
-        }
-        if (StringUtils.isNotBlank(request.getLabels())) {
-            likeQueryAppend(studentWrapper, "labels", request.getLabels());
-        }
-        if (null != request.getStartScreeningTime() && null != request.getEndScreeningTime()) {
-            betweenQueryAppend(studentWrapper, "last_screening_time",
-                    DateFormatUtil.parseDate(request.getStartScreeningTime(), FORMAT_DETAIL_TIME),
-                    DateFormatUtil.parseDate(request.getEndScreeningTime(), FORMAT_DETAIL_TIME));
-        }
-        return baseMapper.selectPage(page, studentWrapper);
+    public IPage<Student> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
+        return studentMapper.getStudentListByCondition(pageRequest.toPage(), studentQuery.getSchoolId(),
+                studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
+                studentQuery.getParentPhone(), studentQuery.getGender(),
+                studentQuery.getGradeId(), studentQuery.getClassId(), studentQuery.getLabels(),
+                studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
     }
 
     /**

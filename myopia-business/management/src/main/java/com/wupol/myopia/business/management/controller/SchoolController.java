@@ -3,10 +3,11 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,8 @@ public class SchoolController {
     }
 
     @GetMapping("list")
-    public Object getSchoolList(SchoolListRequest request) {
-        return schoolService.getSchoolList(request, 1);
+    public Object getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
+        return schoolService.getSchoolList(pageRequest, schoolQuery, 1);
     }
 
     @PutMapping("status")

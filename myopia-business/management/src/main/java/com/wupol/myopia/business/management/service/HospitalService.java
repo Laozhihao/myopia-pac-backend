@@ -79,9 +79,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return IPage<Hospital> {@link IPage}
      */
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(query.getPage(pageRequest.getCurrent(), pageRequest.getSize()),
-                getAllByDeptId(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getCode());
+        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), getAllByDeptId(govDeptId),
+                query.getName(), query.getType(), query.getKind(), query.getLevel(), query.getCode());
     }
 
     /**

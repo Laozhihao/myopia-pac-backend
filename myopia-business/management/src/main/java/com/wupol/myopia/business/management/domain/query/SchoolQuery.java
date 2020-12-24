@@ -1,13 +1,9 @@
 package com.wupol.myopia.business.management.domain.query;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
+import lombok.EqualsAndHashCode;
 
 /**
  * 学校查询
@@ -15,6 +11,7 @@ import java.util.Date;
  * @Author Chikong
  * @Date 2020-12-22
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class SchoolQuery extends School {
     /** id */
