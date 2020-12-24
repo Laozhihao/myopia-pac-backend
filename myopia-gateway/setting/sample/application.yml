@@ -7,26 +7,26 @@ spring:
     # 网关路由配置
     gateway:
       routes:
-      - id: route_oauth # 授权中心微服务路由规则
-        uri: lb://myopia-oauth # 负载均衡，将请求转发到注册中心注册的myopia-oauth服务
-        predicates: # 断言
-        - Path=/oauth/** # 如果前端请求路径包含 api/oauth，则应用这条路由规则
-        filters: #过滤器
+      - id: route_oauth
+        uri: lb://myopia-oauth
+        predicates:
+        - Path=/oauth/**
+        filters:
         - StripPrefix=1
 
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/api/business/**
+        - Path=/business/**
         filters:
-        - RewritePath=/api/business/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/business
+        - StripPrefix=1
 
       - id: route_device
         uri: lb://myopia-device
         predicates:
-        - Path=/api/device/**
+        - Path=/device/**
         filters:
-        - RewritePath=/api/device/(?<segment>.*),/$\{segment}
+        - StripPrefix=1
 
     # 注册中心地址
     nacos:
