@@ -35,4 +35,26 @@
         id, org_no, create_user_id, gov_dept_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
+    <select id="getScreeningOrganizationListByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization mso
+                where mso.gov_dept_id in
+        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and mso.status != 2
+        <if test="name != null and name != ''">
+            and mso.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="type != null">
+            and mso.type = #{type}
+        </if>
+        <if test="orgNo != null">
+            and mso.org_no like CONCAT('%', #{orgNo}, '%')
+        </if>
+        <if test="code != null and code != ''">
+            and (mso.city_code like CONCAT('%', #{code}, '%') or mso.area_code like CONCAT('%', #{code}, '%'))
+        </if>
+    </select>
 </mapper>

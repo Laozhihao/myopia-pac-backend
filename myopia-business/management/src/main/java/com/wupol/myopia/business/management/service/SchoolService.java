@@ -1,14 +1,12 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.SchoolListRequest;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +23,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private SchoolStaffService SchoolStaffService;
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
+
+    @Resource
+    private SchoolMapper schoolMapper;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 新增学校
@@ -35,7 +39,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveSchool(School school) {
-        school.setSchoolNo(generateSchoolNo());
+        school.setSchoolNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCHOOL));
         baseMapper.insert(school);
         return generateAccountAndPassword(school.getId(), school.getCreateUserId(), school.getGovDeptId());
     }
@@ -68,34 +72,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 获取学校列表
      *
-     * @param request   请求体
-     * @param govDeptId 部门ID
-     * @return Page<School> {@link Page}
+     * @param pageRequest 分页
+     * @param schoolQuery 请求体
+     * @param govDeptId   部门ID
+     * @return IPage<School> {@link IPage}
      */
-    public Page<School> getSchoolList(SchoolListRequest request, Integer govDeptId) {
-
-        Page<School> page = new Page<>(request.getCurrent(), request.getSize());
-        QueryWrapper<School> schoolWrapper = new QueryWrapper<>();
-
-        InQueryAppend(schoolWrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
-        notEqualsQueryAppend(schoolWrapper, "status", Const.STATUS_IS_DELETED);
-
-        if (null != request.getSchoolNo()) {
-            likeQueryAppend(schoolWrapper, "school_no", request.getSchoolNo());
-        }
-        if (StringUtils.isNotBlank(request.getName())) {
-            equalsQueryAppend(schoolWrapper, "name", request.getName());
-        }
-        if (null != request.getType()) {
-            equalsQueryAppend(schoolWrapper, "type", request.getType());
-        }
-        if (null != request.getCode()) {
-            orLikeQueryAppend(schoolWrapper,
-                    Lists.newArrayList("city_code", "area_code"),
-                    request.getCode());
-        }
-        return baseMapper.selectPage(page, schoolWrapper);
-
+    public IPage<School> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
+        return schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
+                govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
+                schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
     }
 
 
@@ -104,15 +89,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     private Integer generateAccountAndPassword(Integer schoolId, Integer createUserId, Integer govDeptId) {
         // TODO: 生成账号密码，userId
+        // TODO: 创建对应的staff
         return SchoolStaffService.insertStaff(schoolId, createUserId, govDeptId, Const.CREATE_USER_ID);
-    }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateSchoolNo() {
-        return 123L;
     }
 }

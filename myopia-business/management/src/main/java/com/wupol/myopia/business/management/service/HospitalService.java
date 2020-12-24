@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @Author HaoHao
@@ -27,6 +25,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private HospitalMapper hospitalMapper;
 
+    @Resource
+    private GovDeptService govDeptService;
+
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 保存医院
      *
@@ -35,7 +39,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveHospital(Hospital hospital) {
-        hospital.setHospitalNo(generateHospitalNo());
+        hospital.setHospitalNo(districtService.generateSn(Const.MANAGEMENT_TYPE.HOSPITAL));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());
     }
@@ -79,9 +83,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return IPage<Hospital> {@link IPage}
      */
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(query.getPage(pageRequest.getCurrent(), pageRequest.getSize()),
-                getAllByDeptId(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getCode());
+        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
+                query.getName(), query.getHospitalNo(), query.getType(), query.getKind(), query.getLevel(), query.getCode());
     }
 
     /**
@@ -91,24 +94,4 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         // TODO: 创建对应的staff
         return hospitalStaffService.saveStaff(createUserId, hospitalId, Const.STAFF_USER_ID);
     }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateHospitalNo() {
-        return 123L;
-    }
-
-    /**
-     * 获取下级所有部门
-     *
-     * @param id 部门id
-     * @return List<Integer>
-     */
-    public List<Integer> getAllByDeptId(Integer id) {
-        return Lists.newArrayList(id);
-    }
-
 }

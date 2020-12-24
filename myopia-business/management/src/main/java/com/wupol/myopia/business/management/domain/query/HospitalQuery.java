@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.query;
 
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,8 +18,4 @@ public class HospitalQuery extends Hospital {
     private String nameLike;
     /** 地区编码 */
     private String code;
-
-    public Page<Hospital> getPage(Integer current, Integer size) {
-        return new Page<>(current, size);
-    }
 }

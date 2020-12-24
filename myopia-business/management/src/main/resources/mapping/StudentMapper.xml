@@ -46,4 +46,38 @@
         id, school_id, student_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, labels, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
     </sql>
 
+    <select id="getStudentListByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student ms
+                where ms.school_id = #{schoolId}
+                  and ms.status != 2
+        <if test="sno != null">
+            and ms.sno like CONCAT('%', #{sno}, '%')
+        </if>
+        <if test="idCard != null and idCard != ''">
+            and ms.id_card like CONCAT('%', #{idCard}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and ms.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="parentPhone != null and parentPhone != ''">
+            and ms.parent_phone like CONCAT('%', #{parentPhone}, '%')
+        </if>
+        <if test="gender != null">
+            and ms.gender = #{gender}
+        </if>
+        <if test="gradeId != null">
+            and ms.grade_id = #{gradeId}
+        </if>
+        <if test="classId != null">
+            and ms.class_id = #{classId}
+        </if>
+        <if test="labels != null and labels != ''">
+            and ms.labels like CONCAT('%', #{labels}, '%')
+        </if>
+        <if test="startScreeningTime != null">
+            and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
+        </if>
+    </select>
 </mapper>

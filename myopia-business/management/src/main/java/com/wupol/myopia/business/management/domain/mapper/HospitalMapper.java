@@ -17,7 +17,7 @@ import java.util.List;
 public interface HospitalMapper extends BaseMapper<Hospital> {
 
     IPage<Hospital> getHospitalListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
-                                               @Param("name") String name, @Param("type") Integer type, @Param("kind") Integer kind,
+                                               @Param("name") String name, @Param("hospitalNo") Long hospitalNo, @Param("type") Integer type, @Param("kind") Integer kind,
                                                @Param("level") Integer level, @Param("code") String code);
 
 }

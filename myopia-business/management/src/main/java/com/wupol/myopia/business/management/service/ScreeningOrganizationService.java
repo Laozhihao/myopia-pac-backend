@@ -1,14 +1,12 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrganizationListRequest;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +20,13 @@ import javax.annotation.Resource;
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
+
+    @Resource
+    private ScreeningOrganizationMapper screeningOrganizationMapper;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 保存筛查机构
@@ -32,7 +36,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setOrgNo(generateOrgNo());
+        screeningOrganization.setOrgNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION));
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);
     }
@@ -65,35 +69,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 获取筛查机构列表
      *
-     * @param request   筛查机构列表请求体
-     * @param govDeptId 机构id
-     * @return Page<ScreeningOrganization> {@link Page}
+     * @param pageRequest 分页
+     * @param query       筛查机构列表请求体
+     * @param govDeptId   机构id
+     * @return IPage<ScreeningOrganization> {@link IPage}
      */
-    public Page<ScreeningOrganization> getScreeningOrganizationList(ScreeningOrganizationListRequest request, Integer govDeptId) {
-        Page<ScreeningOrganization> page = new Page<>(request.getCurrent(), request.getSize());
-        QueryWrapper<ScreeningOrganization> wrapper = new QueryWrapper<>();
-
-        InQueryAppend(wrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
-        notEqualsQueryAppend(wrapper, "status", Const.STATUS_IS_DELETED);
-
-        if (null != request.getOrgNo()) {
-            likeQueryAppend(wrapper, "org_no", request.getOrgNo());
-        }
-
-        if (StringUtils.isNotBlank(request.getName())) {
-            likeQueryAppend(wrapper, "name", request.getName());
-        }
-
-        if (null != request.getType()) {
-            equalsQueryAppend(wrapper, "type", request.getType());
-        }
-
-        if (null != request.getCode()) {
-            orLikeQueryAppend(wrapper,
-                    Lists.newArrayList("city_code", "area_code"),
-                    request.getCode());
-        }
-        return baseMapper.selectPage(page, wrapper);
+    public IPage<ScreeningOrganization> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query, Integer govDeptId) {
+        return screeningOrganizationMapper.getScreeningOrganizationListByCondition(
+                pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
+                query.getName(), query.getType(), query.getOrgNo(), query.getCode());
     }
 
 
@@ -102,14 +86,5 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     private void generateAccountAndPassword() {
 
-    }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateOrgNo() {
-        return 345L;
     }
 }

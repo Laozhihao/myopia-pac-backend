@@ -21,7 +21,10 @@ import javax.annotation.Resource;
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 获取机构人员列表
@@ -36,7 +39,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
 
         likeQueryAppend(wrapper, "screening_org_id", request.getScreeningOrgId());
-        InQueryAppend(wrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
+        InQueryAppend(wrapper, "gov_dept_id", govDeptService.getAllSubordinate(govDeptId));
 
         if (StringUtils.isNotBlank(request.getName())) {
 
@@ -74,7 +77,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
-        screeningOrganizationStaff.setStaffNo(generateStaffNo());
+        screeningOrganizationStaff.setStaffNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION_STAFF));
         screeningOrganizationStaff.setUserId(Const.STAFF_USER_ID);
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganizationStaff);
@@ -97,15 +100,4 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private void generateAccountAndPassword() {
 
     }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateStaffNo() {
-        return 123L;
-    }
-
-
 }
