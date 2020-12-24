@@ -184,6 +184,8 @@ CREATE TABLE `m_district`  (
   `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行政区名称',
   `code` bigint(12) NOT NULL COMMENT '行政区代码',
   `parent_code` bigint(12) NOT NULL COMMENT '上级行政区代码（省级统一为100000000000）',
+  `area_code` tinyint NULL COMMENT '片区代码:每个省、自治区﹑直辖市按照社会经济发展不同水平进行片区编码，片区代码按照经济水平，省会〈好片)=1，中片=2，差片=3',
+  `monitor_code` tinyint NULL COMMENT '监测点代码:每个省、自治区、直辖市按照城区﹑郊县/区进行编码，城区=1，郊县/区=2',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '行政区域表' ROW_FORMAT = Dynamic;
 
