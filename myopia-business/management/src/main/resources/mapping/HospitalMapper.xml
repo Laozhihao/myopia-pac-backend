@@ -49,6 +49,9 @@
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
         </if>
+        <if test="hospitalNo != null">
+            and h.hospital_no like CONCAT('%', #{hospitalNo}, '%')
+        </if>
         <if test="type != null">
             and h.type = #{type}
         </if>
