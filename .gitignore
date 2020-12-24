@@ -9,7 +9,6 @@ target/
 *.iws
 *.iml
 *.ipr
-pom.xml
 .settings/
 .vscode/
 .project

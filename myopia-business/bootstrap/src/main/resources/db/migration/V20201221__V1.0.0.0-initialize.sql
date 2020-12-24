@@ -144,7 +144,6 @@ create table m_school_class
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment '学校-班级表';
 
--- auto-generated definition
 create table m_student
 (
     id                  int auto_increment comment 'id'
@@ -177,3 +176,27 @@ create table m_student
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '学校-学生表';
+
+
+DROP TABLE IF EXISTS `m_district`;
+CREATE TABLE `m_district`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '行政区ID',
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行政区名称',
+  `code` bigint(12) NOT NULL COMMENT '行政区代码',
+  `parent_code` bigint(12) NOT NULL COMMENT '上级行政区代码（省级统一为100000000000）',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '行政区域表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `m_government_department`;
+CREATE TABLE `m_government_department`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '部门ID',
+  `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '部门名称',
+  `pid` int(11) NOT NULL COMMENT '上级部门ID',
+  `district_id` int(11) NOT NULL COMMENT '所属行政区ID',
+  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-启用 1-禁止 2-删除',
+  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '政府部门表' ROW_FORMAT = Dynamic;

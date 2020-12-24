@@ -137,7 +137,7 @@ public class MybatisPlusGenerator {
         // 2、优先以InjectionConfig自定义配置中指定的保存路径为准，若没有则以这里的为准
         // 3、如果设置了路径，即使TemplateConfig中配置了不生成该模块，依然会生成一个空文件夹
         PackageConfig pc = new PackageConfig();
-        pc.setParent("com.wupol.myopia." + serviceAliasName)
+        pc.setParent("com.wupol.myopia" + (StringUtils.isNotBlank(serviceAliasName) ? "." + serviceAliasName : ""))
                 .setEntity("domain.model")
                 .setMapper("domain.mapper")
                 //.setService("service") //不生成service接口模块，不需要生成的模块则不需要设置包名
@@ -186,7 +186,7 @@ public class MybatisPlusGenerator {
                 // 需要生成的表，多个英文逗号分割
                 .setInclude(scanner("表名").split(","))
                 // 此处可以修改为您的表前缀
-                .setTablePrefix("m_")
+                .setTablePrefix("o_")
                 // 排除生成的表
                 // strategy.setExclude(new String[]{"test"});
                 // 自定义实体，公共字段
@@ -296,10 +296,16 @@ public class MybatisPlusGenerator {
     private static void getBasePackagePath() {
         String serviceAndModuleName = scanner("微服务名（为多module的服务则输入“服务名/模块名”）");
         String[] nameArray =  serviceAndModuleName.split("/");
-        moduleName = nameArray.length >= 2 ? nameArray[1] : "";
         String[] array = nameArray[0].split("-");
-        serviceAliasName = array.length >= 2 ? array[1] : array[0];
-        // 根包名，如 F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java
+        String name = array.length >= 2 ? array[1] : array[0];
+        if (nameArray.length >= 2) {
+            moduleName = nameArray[1];
+            serviceAliasName = name;
+        } else {
+            moduleName = name;
+            serviceAliasName = null;
+        }
+        // 根包名，如 F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java  myopia-oauth
         classBasePackage = System.getProperty("user.dir")+ "/" + serviceAndModuleName + "/src/main/java";
         resourcesBasePackage = System.getProperty("user.dir")+ "/" + serviceAndModuleName + "/src/main/resources";
     }
