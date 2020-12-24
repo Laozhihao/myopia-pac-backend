@@ -81,6 +81,4 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         notEqualsQueryAppend(schoolClassWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
     }
-
-
 }

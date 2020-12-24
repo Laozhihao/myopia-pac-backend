@@ -24,6 +24,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private StudentMapper studentMapper;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 通过年级id查找学生
      *
@@ -58,7 +61,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
-        student.setStudentNo(generateStudentNo());
+        student.setStudentNo(districtService.generateSn(Const.MANAGEMENT_TYPE.STUDENT));
         return baseMapper.insert(student);
     }
 
@@ -101,14 +104,4 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQuery.getGradeId(), studentQuery.getClassId(), studentQuery.getLabels(),
                 studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
     }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateStudentNo() {
-        return 123L;
-    }
-
 }

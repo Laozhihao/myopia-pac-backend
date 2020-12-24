@@ -25,6 +25,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningOrganizationMapper screeningOrganizationMapper;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 保存筛查机构
      *
@@ -33,7 +36,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setOrgNo(generateOrgNo());
+        screeningOrganization.setOrgNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION));
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);
     }
@@ -83,14 +86,5 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     private void generateAccountAndPassword() {
 
-    }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateOrgNo() {
-        return 345L;
     }
 }

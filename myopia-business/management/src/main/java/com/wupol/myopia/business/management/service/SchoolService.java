@@ -28,6 +28,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private SchoolMapper schoolMapper;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 新增学校
      *
@@ -36,7 +39,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveSchool(School school) {
-        school.setSchoolNo(generateSchoolNo());
+        school.setSchoolNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCHOOL));
         baseMapper.insert(school);
         return generateAccountAndPassword(school.getId(), school.getCreateUserId(), school.getGovDeptId());
     }
@@ -88,14 +91,5 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // TODO: 生成账号密码，userId
         // TODO: 创建对应的staff
         return SchoolStaffService.insertStaff(schoolId, createUserId, govDeptId, Const.CREATE_USER_ID);
-    }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateSchoolNo() {
-        return 123L;
     }
 }

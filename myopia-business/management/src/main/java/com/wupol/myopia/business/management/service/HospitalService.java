@@ -28,6 +28,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private GovDeptService govDeptService;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 保存医院
      *
@@ -36,7 +39,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveHospital(Hospital hospital) {
-        hospital.setHospitalNo(generateHospitalNo());
+        hospital.setHospitalNo(districtService.generateSn(Const.MANAGEMENT_TYPE.HOSPITAL));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());
     }
@@ -90,14 +93,5 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private Integer generateAccountAndPassword(Integer createUserId, Integer hospitalId) {
         // TODO: 创建对应的staff
         return hospitalStaffService.saveStaff(createUserId, hospitalId, Const.STAFF_USER_ID);
-    }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateHospitalNo() {
-        return 123L;
     }
 }

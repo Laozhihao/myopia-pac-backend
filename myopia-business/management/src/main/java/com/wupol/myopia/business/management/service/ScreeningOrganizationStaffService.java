@@ -23,6 +23,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Resource
     private GovDeptService govDeptService;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 获取机构人员列表
      *
@@ -74,7 +77,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
-        screeningOrganizationStaff.setStaffNo(generateStaffNo());
+        screeningOrganizationStaff.setStaffNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION_STAFF));
         screeningOrganizationStaff.setUserId(Const.STAFF_USER_ID);
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganizationStaff);
@@ -97,15 +100,4 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private void generateAccountAndPassword() {
 
     }
-
-    /**
-     * 生成编号
-     *
-     * @return Long
-     */
-    private Long generateStaffNo() {
-        return 123L;
-    }
-
-
 }
