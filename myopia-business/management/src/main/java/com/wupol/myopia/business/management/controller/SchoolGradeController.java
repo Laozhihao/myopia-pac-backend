@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import org.springframework.web.bind.annotation.*;
@@ -39,4 +40,8 @@ public class SchoolGradeController {
         return schoolGradeService.getGradeList(schoolId);
     }
 
+    @GetMapping("getGradeCode")
+    public Object getGradeCode() {
+        return GradeCodeEnum.getValuesInOrder();
+    }
 }
