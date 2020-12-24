@@ -43,7 +43,7 @@ public class User implements Serializable {
     /**
      * 性别：0-男、1-女
      */
-    private Boolean gender;
+    private Integer gender;
 
     /**
      * 手机号码
@@ -68,12 +68,12 @@ public class User implements Serializable {
     /**
      * 是否领导：0-否、1-是
      */
-    private Boolean isLeader;
+    private Integer isLeader;
 
     /**
      * 系统编号
      */
-    private Boolean systemCode;
+    private Integer systemCode;
 
     /**
      * 创建人
@@ -83,7 +83,7 @@ public class User implements Serializable {
     /**
      * 状态：0-启用 1-禁止 2-删除
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 备注

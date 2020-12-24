@@ -53,7 +53,7 @@ public class GovDept implements Serializable {
     /**
      * 状态：0-启用 1-禁止 2-删除
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 备注

@@ -10,16 +10,16 @@ spring:
       - id: route_oauth # 授权中心微服务路由规则
         uri: lb://myopia-oauth # 负载均衡，将请求转发到注册中心注册的myopia-oauth服务
         predicates: # 断言
-        - Path=/api/oauth/** # 如果前端请求路径包含 api/oauth，则应用这条路由规则
+        - Path=/oauth/** # 如果前端请求路径包含 api/oauth，则应用这条路由规则
         filters: #过滤器
-        - RewritePath=/api/oauth/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/oauth替换成空
+        - StripPrefix=1
 
       - id: route_business
         uri: lb://myopia-business
         predicates:
         - Path=/api/business/**
         filters:
-        - RewritePath=/api/business/(?<segment>.*),/$\{segment}
+        - RewritePath=/api/business/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/business
 
       - id: route_device
         uri: lb://myopia-device
@@ -61,3 +61,9 @@ myopia-oauth:
 myopia-business:
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+# 配置白名单路径
+white-list:
+  urls:
+  - "/oauth/oauth/token"
+  - "/oauth/rsa/publicKey"

@@ -48,7 +48,7 @@ public class Role implements Serializable {
     /**
      * 角色类型：0-admin、1-机构管理员、2-普通用户
      */
-    private Boolean roleType;
+    private Integer roleType;
 
     /**
      * 创建人
@@ -58,7 +58,7 @@ public class Role implements Serializable {
     /**
      * 状态：0-启用 1-禁止 2-删除
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 备注
