@@ -86,6 +86,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     private Integer generateAccountAndPassword(Integer schoolId, Integer createUserId, Integer govDeptId) {
         // TODO: 生成账号密码，userId
+        // TODO: 创建对应的staff
         return SchoolStaffService.insertStaff(schoolId, createUserId, govDeptId, Const.CREATE_USER_ID);
     }
 
