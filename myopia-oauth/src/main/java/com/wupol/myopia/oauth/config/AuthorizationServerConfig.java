@@ -65,24 +65,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         jdbcClientDetailsService.setFindClientDetailsSql(AuthConstants.FIND_CLIENT_DETAILS_SQL);
         jdbcClientDetailsService.setSelectClientDetailsSql(AuthConstants.SELECT_CLIENT_DETAILS_SQL);
         clients.withClientDetails(jdbcClientDetailsService);
-
-        /*// password 持多种编码，通过密码的前缀区分编码方式
-        String finalSecret = "{bcrypt}" + new BCryptPasswordEncoder().encode("123456");
-
-        clients.inMemory().withClient("client_1")
-                .resourceIds(DEMO_RESOURCE_ID)
-                .authorizedGrantTypes("client_credentials", "refresh_token")
-                .scopes("select")
-                .authorities("ROLE_ADMIN")
-                .secret(finalSecret)
-
-                //password模式，自己本身有一套用户体系，在认证时需要带上自己的用户名和密码，以及客户端的client_id,client_secret
-                // 此时，accessToken所包含的权限是用户本身的权限，而不是客户端的权限
-                .and().withClient("client_2")
-                .resourceIds(DEMO_RESOURCE_ID)
-                .authorizedGrantTypes("password", "refresh_token")
-                .scopes("select")
-                .secret(finalSecret);*/
     }
 
     /**

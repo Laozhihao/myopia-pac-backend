@@ -52,6 +52,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             return Mono.just(new AuthorizationDecision(false));
         }
 
+        //TODO: 改成获取个人的权限资源
         // 从缓存取资源权限角色关系列表
         Map<Object, Object> resourceRolesMap = redisTemplate.opsForHash().entries(AuthConstants.RESOURCE_ROLES_KEY);
         Iterator<Object> iterator = resourceRolesMap.keySet().iterator();

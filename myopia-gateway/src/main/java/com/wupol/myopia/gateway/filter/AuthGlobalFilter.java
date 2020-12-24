@@ -56,7 +56,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String jti = jsonObject.getStr("jti");
 
         Boolean isBlack = redisTemplate.hasKey(AuthConstants.TOKEN_BLACKLIST_PREFIX + jti);
-        if (isBlack) {
+        if (isBlack != null && isBlack) {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.OK);
             response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);

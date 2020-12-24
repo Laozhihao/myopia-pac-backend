@@ -1,10 +1,10 @@
 package com.wupol.myopia.oauth.service;
 
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.oauth.constant.AuthConstants;
-import com.wupol.myopia.oauth.domain.dto.MemberDTO;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
+import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.model.UserDetail;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.DisabledException;
@@ -32,33 +32,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String clientId = request.getParameter(AuthConstants.JWT_CLIENT_ID_KEY);
-        UserDetail user;
-        switch (clientId) {
-            // 后台用户
-            case AuthConstants.ADMIN_CLIENT_ID:
-                //根据用户名获取对应系统用户
-                UserDTO userDTO = (UserDTO) userService.getByUsername(username, 2);
-                userDTO.setClientId(clientId);
-                user = new UserDetail(userDTO);
-                break;
-            // 小程序会员
-            case AuthConstants.WEAPP_CLIENT_ID:
-                //根据用户名获取对应系统用户
-                MemberDTO memberDTO = (MemberDTO) userService.getByUsername(username, 1);
-                memberDTO.setClientId(clientId);
-                user = new UserDetail(memberDTO);
-                break;
-            default:
-                throw new BusinessException("访问客户端非法");
-        }
-        if (!user.isEnabled()) {
+        // TODO: 根据clientId获取对应的SystemCode
+        // 根据用户名获取对应系统用户
+        User user = userService.getByUsername(username, 1);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        userDTO.setClientId(clientId);
+        UserDetail userDetail = new UserDetail(userDTO);
+        if (!userDetail.isEnabled()) {
             throw new DisabledException("该账户已被禁用!");
-        } else if (!user.isAccountNonLocked()) {
+        } else if (!userDetail.isAccountNonLocked()) {
             throw new LockedException("该账号已被锁定!");
-        } else if (!user.isAccountNonExpired()) {
+        } else if (!userDetail.isAccountNonExpired()) {
             throw new AccountExpiredException("该账号已过期!");
         }
-        return user;
+        return userDetail;
     }
 
 }

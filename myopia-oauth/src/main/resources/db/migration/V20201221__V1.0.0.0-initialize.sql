@@ -52,7 +52,7 @@ CREATE TABLE `o_user`  (
   `phone` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号码',
   `id_card` varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '身份证号码',
   `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名（账号）',
-  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
+  `password` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
   `is_leader` tinyint(1) DEFAULT 0 COMMENT '是否领导：0-否、1-是',
   `system_code` tinyint(1) NOT NULL COMMENT '系统编号',
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建人',

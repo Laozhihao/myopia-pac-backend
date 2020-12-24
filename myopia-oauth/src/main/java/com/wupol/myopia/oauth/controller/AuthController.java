@@ -36,34 +36,6 @@ public class AuthController {
     @PostMapping("/token")
     public ApiResult postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         String clientId = parameters.get("client_id");
-        switch (clientId) {
-            // 微信认证
-            case AuthConstants.WEAPP_CLIENT_ID:
-                return this.handleForWxAuth(principal, parameters);
-            default:
-                OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
-                Oauth2Token oauth2Token = Oauth2Token.builder()
-                        .token(oAuth2AccessToken.getValue())
-                        .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
-                        .expiresIn(oAuth2AccessToken.getExpiresIn())
-                        .build();
-                return ApiResult.success(oauth2Token);
-        }
-    }
-
-
-    public ApiResult handleForWxAuth(Principal principal, Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
-        String code = parameters.get("code");
-        if (StringUtils.isBlank(code)) {
-            throw new BusinessException("code不能为空");
-        }
-        // 根据code获取openId，再根据openId获取用户信息
-        String username = "";
-
-        // oauth2认证参数对应授权登录时注册会员的username、password信息，模拟通过oauth2的密码模式认证
-        parameters.put("username", username);
-        parameters.put("password", username);
-
         OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         Oauth2Token oauth2Token = Oauth2Token.builder()
                 .token(oAuth2AccessToken.getValue())
@@ -72,6 +44,5 @@ public class AuthController {
                 .build();
         return ApiResult.success(oauth2Token);
     }
-
 
 }
