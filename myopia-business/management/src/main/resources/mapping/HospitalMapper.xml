@@ -37,4 +37,29 @@
         id, hospital_no, create_user_id, gov_dept_id, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
+    <select id="getHospitalListByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital h
+                where h.gov_dept_id in
+        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and h.status != 2
+        <if test="name != null and name != ''">
+            and h.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="type != null">
+            and h.type = #{type}
+        </if>
+        <if test="kind != null">
+            and h.kind = #{kind}
+        </if>
+        <if test="level != null">
+            and h.level = #{level}
+        </if>
+        <if test="code != null and code != ''">
+            and (h.city_code like CONCAT('%', #{code}, '%') or h.area_code like CONCAT('%', #{code}, '%'))
+        </if>
+    </select>
 </mapper>

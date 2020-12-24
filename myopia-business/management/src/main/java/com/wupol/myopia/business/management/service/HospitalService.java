@@ -1,15 +1,13 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +23,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     private HospitalStaffService hospitalStaffService;
+
+    @Resource
+    private HospitalMapper hospitalMapper;
 
     /**
      * 保存医院
@@ -72,35 +73,15 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     /**
      * 获取医院列表
      *
-     * @param query   请求入参
-     * @param govDeptId 部门id
-     * @return Page<Hospital> {@link Page}
+     * @param pageRequest 分页
+     * @param query       请求入参
+     * @param govDeptId   部门id
+     * @return IPage<Hospital> {@link IPage}
      */
-    public Page<Hospital> getHospitalList(HospitalQuery query, Integer govDeptId) {
-
-        QueryWrapper<Hospital> hospitalWrapper = new QueryWrapper<>();
-
-        InQueryAppend(hospitalWrapper, "gov_dept_id", getAllByDeptId(govDeptId));
-        notEqualsQueryAppend(hospitalWrapper, "status", Const.STATUS_IS_DELETED);
-
-        if (StringUtils.isNotBlank(query.getName())) {
-            likeQueryAppend(hospitalWrapper, "name", query.getName());
-        }
-        if (null != query.getType()) {
-            equalsQueryAppend(hospitalWrapper, "type", query.getType());
-        }
-        if (null != query.getKind()) {
-            equalsQueryAppend(hospitalWrapper, "kind", query.getKind());
-        }
-        if (null != query.getLevel()) {
-            equalsQueryAppend(hospitalWrapper, "level", query.getLevel());
-        }
-        if (null != query.getCode()) {
-            orLikeQueryAppend(hospitalWrapper,
-                    Lists.newArrayList("city_code", "area_code"),
-                    query.getCode());
-        }
-        return baseMapper.selectPage(query.getQueryPage(), hospitalWrapper);
+    public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
+        return hospitalMapper.getHospitalListByCondition(query.getPage(pageRequest.getCurrent(), pageRequest.getSize()),
+                getAllByDeptId(govDeptId), query.getName(), query.getType(),
+                query.getKind(), query.getLevel(), query.getCode());
     }
 
     /**

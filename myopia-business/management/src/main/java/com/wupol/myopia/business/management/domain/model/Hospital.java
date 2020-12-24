@@ -1,16 +1,15 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
-import com.wupol.myopia.business.management.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 医院表
@@ -22,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_hospital")
-public class Hospital extends BaseEntity<Hospital> implements Serializable {
+public class Hospital implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

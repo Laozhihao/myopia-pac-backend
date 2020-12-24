@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.dto.HospitalListRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class HospitalController {
     }
 
     @GetMapping("list")
-    public Object getHospitalList(HospitalQuery query) {
-        return hospitalService.getHospitalList(query, Const.GOV_DEPT_ID);
+    public Object getHospitalList(PageRequest pageRequest, HospitalQuery query) {
+        return hospitalService.getHospitalList(pageRequest, query, Const.GOV_DEPT_ID);
     }
 
     @PutMapping("status")

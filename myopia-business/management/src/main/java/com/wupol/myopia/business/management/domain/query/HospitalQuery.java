@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.management.domain.query;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.model.Hospital;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 医院查询
@@ -11,10 +12,15 @@ import lombok.Data;
  * @Author Chikong
  * @Date 2020-12-22
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class HospitalQuery extends Hospital {
     /** 名称 */
     private String nameLike;
     /** 地区编码 */
     private String code;
+
+    public Page<Hospital> getPage(Integer current, Integer size) {
+        return new Page<>(current, size);
+    }
 }
