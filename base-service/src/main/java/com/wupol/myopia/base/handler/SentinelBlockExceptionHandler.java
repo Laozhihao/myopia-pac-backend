@@ -8,7 +8,7 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowException;
 import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowException;
 import com.alibaba.csp.sentinel.slots.system.SystemBlockException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.fastinfoset.Encoder;
+import com.sun.xml.internal.fastinfoset.Encoder;
 import com.wupol.myopia.base.domain.ApiResult;
 import org.springframework.stereotype.Component;
 
