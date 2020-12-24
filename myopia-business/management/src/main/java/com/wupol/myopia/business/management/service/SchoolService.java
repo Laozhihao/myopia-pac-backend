@@ -23,7 +23,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private SchoolStaffService SchoolStaffService;
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
 
     @Resource
     private SchoolMapper schoolMapper;
@@ -76,7 +76,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public IPage<School> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
         return schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
-                hospitalService.getAllByDeptId(govDeptId), schoolQuery.getName(),
+                govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
                 schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
     }
 

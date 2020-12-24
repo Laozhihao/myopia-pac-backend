@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @Author HaoHao
@@ -26,6 +24,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     private HospitalMapper hospitalMapper;
+
+    @Resource
+    private GovDeptService govDeptService;
 
     /**
      * 保存医院
@@ -79,7 +80,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return IPage<Hospital> {@link IPage}
      */
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), getAllByDeptId(govDeptId),
+        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getType(), query.getKind(), query.getLevel(), query.getCode());
     }
 
@@ -99,15 +100,4 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private Long generateHospitalNo() {
         return 123L;
     }
-
-    /**
-     * 获取下级所有部门
-     *
-     * @param id 部门id
-     * @return List<Integer>
-     */
-    public List<Integer> getAllByDeptId(Integer id) {
-        return Lists.newArrayList(id);
-    }
-
 }

@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
 
     /**
      * 获取机构人员列表
@@ -36,7 +36,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
 
         likeQueryAppend(wrapper, "screening_org_id", request.getScreeningOrgId());
-        InQueryAppend(wrapper, "gov_dept_id", hospitalService.getAllByDeptId(govDeptId));
+        InQueryAppend(wrapper, "gov_dept_id", govDeptService.getAllSubordinate(govDeptId));
 
         if (StringUtils.isNotBlank(request.getName())) {
 

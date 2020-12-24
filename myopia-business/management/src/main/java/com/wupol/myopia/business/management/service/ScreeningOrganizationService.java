@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
 
     @Resource
-    private HospitalService hospitalService;
+    private GovDeptService govDeptService;
 
     @Resource
     private ScreeningOrganizationMapper screeningOrganizationMapper;
@@ -73,7 +73,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public IPage<ScreeningOrganization> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query, Integer govDeptId) {
         return screeningOrganizationMapper.getScreeningOrganizationListByCondition(
-                pageRequest.toPage(), hospitalService.getAllByDeptId(govDeptId),
+                pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getType(), query.getOrgNo(), query.getCode());
     }
 
