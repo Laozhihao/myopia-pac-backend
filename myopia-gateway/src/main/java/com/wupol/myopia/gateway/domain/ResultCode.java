@@ -20,7 +20,7 @@ public enum ResultCode {
 
     USER_ACCESS_UNAUTHORIZED (401, "访问未授权"),
 
-    TOKEN_INVALID_OR_EXPIRED(403, "token失效");
+    TOKEN_INVALID_OR_EXPIRED(403, "token无效或已过期");
 
     /** 业务异常码 */
     private Integer code;

@@ -46,11 +46,6 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             return Mono.just(new AuthorizationDecision(true));
         }
 
-        // 非管理端路径无需鉴权直接放行
-        if (!pathMatcher.match(AuthConstants.ADMIN_URL_PATTERN, path)) {
-            return Mono.just(new AuthorizationDecision(true));
-        }
-
         // token为空拒绝访问
         String token = request.getHeaders().getFirst(AuthConstants.JWT_TOKEN_HEADER);
         if (StrUtil.isBlank(token)) {
