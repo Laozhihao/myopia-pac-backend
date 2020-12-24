@@ -39,7 +39,7 @@ public class Student implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long studentNo;
+    private String studentNo;
 
     /**
      * 创建人ID

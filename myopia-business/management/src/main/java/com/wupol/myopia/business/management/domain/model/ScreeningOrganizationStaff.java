@@ -40,7 +40,7 @@ public class ScreeningOrganizationStaff implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long staffNo;
+    private String staffNo;
 
     /**
      * 用户id

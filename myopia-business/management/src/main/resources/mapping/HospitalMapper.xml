@@ -49,7 +49,7 @@
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
         </if>
-        <if test="hospitalNo != null">
+        <if test="hospitalNo != null and hospitalNo != ''">
             and h.hospital_no like CONCAT('%', #{hospitalNo}, '%')
         </if>
         <if test="type != null">
@@ -64,5 +64,14 @@
         <if test="code != null and code != ''">
             and (h.city_code like CONCAT('%', #{code}, '%') or h.area_code like CONCAT('%', #{code}, '%'))
         </if>
+    </select>
+
+    <select id="getLastHospitalByNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital h
+        where h.hospital_no like CONCAT('%', #{code}, '%')
+        order by h.hospital_no + 0 desc
+        limit 1
     </select>
 </mapper>

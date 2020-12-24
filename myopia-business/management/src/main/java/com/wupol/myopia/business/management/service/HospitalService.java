@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private GovDeptService govDeptService;
 
-    @Resource
-    private DistrictService districtService;
-
     /**
      * 保存医院
      *
@@ -39,7 +37,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveHospital(Hospital hospital) {
-        hospital.setHospitalNo(districtService.generateSn(Const.MANAGEMENT_TYPE.HOSPITAL));
+        hospital.setHospitalNo(generateHospitalNo(hospital.getAreaCode()));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());
     }
@@ -93,5 +91,13 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private Integer generateAccountAndPassword(Integer createUserId, Integer hospitalId) {
         // TODO: 创建对应的staff
         return hospitalStaffService.saveStaff(createUserId, hospitalId, Const.STAFF_USER_ID);
+    }
+
+    private String generateHospitalNo(Integer code) {
+        Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
+        if (null == hospital) {
+            return StringUtils.join(code, "101");
+        }
+        return String.valueOf(Long.parseLong(hospital.getHospitalNo()) + 1);
     }
 }

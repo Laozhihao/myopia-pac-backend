@@ -71,7 +71,7 @@ public class ExcelFacade {
         List<ScreeningOrganization> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             list.add(new ScreeningOrganization()
-                    .setOrgNo((long) i)
+                    .setOrgNo(String.valueOf((long) i))
                     .setName("机构"+i)
                     .setType( i % 6)
                     .setRemark("说明"+i)
@@ -80,14 +80,14 @@ public class ExcelFacade {
         List<ScreeningOrganizationExportVo> exportList = list.stream()
                 .map(item -> {
                     return new ScreeningOrganizationExportVo()
-                            .setId(Math.toIntExact(item.getOrgNo()))
+                            .setId(Math.toIntExact(Long.parseLong(item.getOrgNo())))
                             .setName(item.getName())
                             .setType(ScreeningOrganizationEnum.getNameByType(item.getType()))
                             .setRemark(item.getRemark())
                             .setAddress("地址")
                             .setPersonNames(Arrays.asList("刘一","刘二").toString().replaceFirst("\\[","").replaceFirst("]",""))
-                            .setScreeningCount(Math.toIntExact(item.getOrgNo()))
-                            .setPersonCount(Math.toIntExact(item.getOrgNo()));
+                            .setScreeningCount(Math.toIntExact(Long.parseLong(item.getOrgNo())))
+                            .setPersonCount(Math.toIntExact(Long.parseLong(item.getOrgNo())));
                 }).collect(Collectors.toList());
 
         log.info("导出文件: {}", fileName);
@@ -259,7 +259,7 @@ public class ExcelFacade {
 //                                .setAddress(item.get("9"))
                                 .setGender(1)
                                 .setParentPhone("24398454")
-                                .setStudentNo(24123L)
+                                .setStudentNo(String.valueOf(24123L))
                                 .setSno(3324)
                                 .setNation(2)
                                 .setIdCard("4098245")
@@ -314,7 +314,7 @@ public class ExcelFacade {
                                 .setPhone("112312311312")
                                 .setIdCard("123424125431534534");
                         staff.setUserId(2)
-                                .setStaffNo(1L)
+                                .setStaffNo(String.valueOf(1L))
                                 .setGovDeptId(12)
                                 .setRemark(item.get(5))
                                 .setScreeningOrgId(orgId)

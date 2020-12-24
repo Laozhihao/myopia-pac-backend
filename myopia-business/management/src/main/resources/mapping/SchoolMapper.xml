@@ -55,7 +55,7 @@
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
         </if>
-        <if test="schoolNo != null">
+        <if test="schoolNo != null and schoolNo != ''">
             and ms.school_no like CONCAT('%', #{schoolNo}, '%')
         </if>
         <if test="type != null">
@@ -64,5 +64,14 @@
         <if test="code != null and code != ''">
             and (ms.city_code like CONCAT('%', #{code}, '%') or ms.area_code like CONCAT('%', #{code}, '%'))
         </if>
+    </select>
+
+    <select id="getLastSchoolByNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school m
+        where m.school_no like CONCAT('%', #{code}, '%')
+        order by m.school_no + 0 desc
+        limit 1
     </select>
 </mapper>

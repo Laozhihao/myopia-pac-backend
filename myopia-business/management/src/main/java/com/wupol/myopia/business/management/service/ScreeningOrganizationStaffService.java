@@ -6,6 +6,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private GovDeptService govDeptService;
 
     @Resource
-    private DistrictService districtService;
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 获取机构人员列表
@@ -77,7 +78,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
-        screeningOrganizationStaff.setStaffNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION_STAFF));
+        // 通过screeningOrgId获取机构
+        ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganizationStaff.getScreeningOrgId());
+        screeningOrganizationStaff.setStaffNo(generateOrgNo(organization.getOrgNo(), Const.STAFF_ID_CARD));
         screeningOrganizationStaff.setUserId(Const.STAFF_USER_ID);
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganizationStaff);
@@ -99,5 +102,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     private void generateAccountAndPassword() {
 
+    }
+
+    private String generateOrgNo(String orgNo, String idCard) {
+        return StringUtils.join(orgNo, StringUtils.right(idCard, 6));
     }
 }

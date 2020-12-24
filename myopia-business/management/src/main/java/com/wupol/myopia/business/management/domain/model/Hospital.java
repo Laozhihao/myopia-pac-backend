@@ -34,7 +34,7 @@ public class Hospital implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long hospitalNo;
+    private String hospitalNo;
 
     /**
      * 创建人ID

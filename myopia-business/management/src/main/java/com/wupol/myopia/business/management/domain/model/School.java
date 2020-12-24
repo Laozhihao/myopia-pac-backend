@@ -33,7 +33,7 @@ public class School implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long schoolNo;
+    private String schoolNo;
 
     /**
      * 创建人ID

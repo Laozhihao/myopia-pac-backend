@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
+import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private StudentMapper studentMapper;
 
     @Resource
-    private DistrictService districtService;
+    private SchoolService schoolService;
 
     /**
      * 通过年级id查找学生
@@ -61,7 +63,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
-        student.setStudentNo(districtService.generateSn(Const.MANAGEMENT_TYPE.STUDENT));
+        // 获取学校编码
+        School school = schoolService.getById(student.getSchoolId());
+        student.setStudentNo(generateOrgNo(school.getSchoolNo(), Const.GRADE_NO, student.getIdCard()));
         return baseMapper.insert(student);
     }
 
@@ -103,5 +107,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQuery.getParentPhone(), studentQuery.getGender(),
                 studentQuery.getGradeId(), studentQuery.getClassId(), studentQuery.getLabels(),
                 studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
+    }
+
+    private String generateOrgNo(String schoolNo, Integer gradeNo, String idCard) {
+        return StringUtils.join(schoolNo, gradeNo, StringUtils.right(idCard, 6));
     }
 }

@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private SchoolMapper schoolMapper;
 
-    @Resource
-    private DistrictService districtService;
-
     /**
      * 新增学校
      *
@@ -38,8 +36,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 新增个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveSchool(School school) {
-        school.setSchoolNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCHOOL));
+    public synchronized Integer saveSchool(School school) {
+        school.setSchoolNo(generateSchoolNo(school.getAreaCode()));
         baseMapper.insert(school);
         return generateAccountAndPassword(school.getId(), school.getCreateUserId(), school.getGovDeptId());
     }
@@ -91,5 +89,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // TODO: 生成账号密码，userId
         // TODO: 创建对应的staff
         return SchoolStaffService.insertStaff(schoolId, createUserId, govDeptId, Const.CREATE_USER_ID);
+    }
+
+    private String generateSchoolNo(Integer code) {
+        School school = schoolMapper.getLastSchoolByNo(code);
+        if (null == school) {
+            return StringUtils.join(code, "001");
+        }
+        return String.valueOf(Long.parseLong(school.getSchoolNo()) + 1);
     }
 }

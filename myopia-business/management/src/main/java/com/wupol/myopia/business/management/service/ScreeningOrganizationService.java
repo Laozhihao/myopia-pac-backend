@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationM
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setOrgNo(districtService.generateSn(Const.MANAGEMENT_TYPE.SCREENING_ORGANIZATION));
+        screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getAreaCode()));
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);
     }
@@ -86,5 +87,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     private void generateAccountAndPassword() {
 
+    }
+
+    private String generateOrgNo(Integer code) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationMapper.getLastOrgByNo(code);
+        if (null == screeningOrganization) {
+            return StringUtils.join(code, "201");
+        }
+        return String.valueOf(Long.parseLong(screeningOrganization.getOrgNo()) + 1);
     }
 }

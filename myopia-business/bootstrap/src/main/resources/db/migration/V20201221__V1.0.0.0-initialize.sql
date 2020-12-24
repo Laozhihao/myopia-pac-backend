@@ -2,7 +2,7 @@ create table m_screening_organization
 (
     id             int auto_increment comment 'id'
         primary key,
-    org_no         bigint                              not null comment '根据规则创建ID',
+    org_no         varchar(64)                              not null comment '根据规则创建ID',
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门id',
     name           varchar(32)                         not null comment '筛查机构名称',
@@ -26,7 +26,7 @@ create table m_screening_organization_staff
         primary key,
     gov_dept_id      int                                 not null comment '部门id',
     screening_org_id int                                 not null comment '筛查机构表id',
-    staff_no         bigint                              not null comment '根据规则创建ID',
+    staff_no         varchar(64)                              not null comment '根据规则创建ID',
     user_id          int                                 not null comment '用户id',
     create_user_id   int                                 null comment '创建人ID',
     remark           varchar(128)                        null comment '说明',
@@ -40,7 +40,7 @@ create table m_hospital
 (
     id             int auto_increment comment 'id'
         primary key,
-    hospital_no    bigint                              not null comment '根据规则创建ID',
+    hospital_no    varchar(64)                              not null comment '根据规则创建ID',
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门id',
     name           varchar(32)                         not null comment '医院名称',
@@ -77,7 +77,7 @@ create table m_school
 (
     id                  int auto_increment comment 'id'
         primary key,
-    school_no           bigint       not null comment '根据规则创建ID',
+    school_no           varchar(64)       not null comment '根据规则创建ID',
     create_user_id      int          null comment '创建人ID',
     gov_dept_id         int          not null comment '部门id',
     name                varchar(32)  not null comment '学校名称',
@@ -149,7 +149,7 @@ create table m_student
     id                  int auto_increment comment 'id'
         primary key,
     school_id           int                                 not null comment '学校ID',
-    student_no          bigint                              not null comment '根据规则创建ID',
+    student_no          varchar(64)                              not null comment '根据规则创建ID',
     create_user_id      int                                 null comment '创建人ID',
     sno                 int                                 not null comment '学号',
     grade_id            int                                 not null comment '班级id',

@@ -17,7 +17,8 @@ import java.util.List;
 public interface SchoolMapper extends BaseMapper<School> {
 
     IPage<School> getSchoolListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
-                                           @Param("name") String name, @Param("schoolNo") Long schoolNo,
+                                           @Param("name") String name, @Param("schoolNo") String schoolNo,
                                            @Param("type") Integer type, @Param("code") String code);
 
+    School getLastSchoolByNo(@Param("code") Integer code);
 }

@@ -33,7 +33,7 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long orgNo;
+    private String orgNo;
 
     /**
      * 创建人ID
