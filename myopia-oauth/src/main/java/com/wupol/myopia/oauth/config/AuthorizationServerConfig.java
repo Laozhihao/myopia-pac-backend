@@ -17,7 +17,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -40,6 +39,7 @@ import java.util.Map;
 
 /**
  * 授权服务配置
+ *
  * @Author HaoHao
  * @Date 2020/12/24
  **/
@@ -52,8 +52,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-
-    private static final String DEMO_RESOURCE_ID = "order";
 
     /**
      * 配置客户端详情(数据库)
@@ -98,14 +96,15 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         security.addTokenEndpointAuthenticationFilter(endpointFilter);
 
         security.authenticationEntryPoint(authenticationEntryPoint())
+                // 开启/oauth/token_key端口认证权限访问
                 .tokenKeyAccess("isAuthenticated()")
+                // 开启/oauth/check_token端口无权限访问
                 .checkTokenAccess("permitAll()");
     }
 
 
     /**
      * 自定义认证异常响应数据
-     * @return
      */
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
@@ -133,6 +132,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     /**
      * 从classpath下的密钥库中获取密钥对(公钥+私钥)
+     * TODO：密码从配置文件读
      */
     @Bean
     public KeyPair keyPair() {
@@ -148,6 +148,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public TokenEnhancer tokenEnhancer() {
         return (accessToken, authentication) -> {
+            //TODO: 根据实际情况调整JWT填充内容
             Map<String, Object> map = new HashMap<>(2);
             UserDetail user = (UserDetail) authentication.getUserAuthentication().getPrincipal();
             map.put(AuthConstants.JWT_USER_ID_KEY, user.getId());

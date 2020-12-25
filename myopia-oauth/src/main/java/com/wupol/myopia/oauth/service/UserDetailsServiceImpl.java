@@ -31,10 +31,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // clientId与systemCode保持一致，不一致需要在SystemCode.java的加上clientId，维持两者的map关系
         String clientId = request.getParameter(AuthConstants.JWT_CLIENT_ID_KEY);
-        // TODO: 根据clientId获取对应的SystemCode
         // 根据用户名获取对应系统用户
-        User user = userService.getByUsername(username, 1);
+        User user = userService.getByUsername(username, Integer.parseInt(clientId));
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
         userDTO.setClientId(clientId);

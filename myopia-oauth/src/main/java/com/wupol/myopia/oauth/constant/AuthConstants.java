@@ -58,15 +58,4 @@ public interface AuthConstants {
     String JWT_USER_ID_KEY = "id";
 
     String JWT_CLIENT_ID_KEY = "client_id";
-
-    /**
-     * 业务服务端ID
-     */
-    String BUSINESS_SERVICE_CLIENT_ID = "myopia-business";
-
-    /**
-     * 设备数据采集服务ID
-     */
-    String DEVICE_SERVICE_CLIENT_ID = "myopia-device";
-
 }
