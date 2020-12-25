@@ -27,7 +27,7 @@ public class DistrictPermission implements Serializable {
      * 行政区级别：0-省、1-市、2-区/县、3-镇
      */
     @TableId(value = "district_level", type = IdType.AUTO)
-    private Boolean districtLevel;
+    private Integer districtLevel;
 
     /**
      * 权限资源ID

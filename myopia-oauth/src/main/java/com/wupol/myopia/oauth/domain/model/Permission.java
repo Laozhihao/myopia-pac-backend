@@ -48,12 +48,12 @@ public class Permission implements Serializable {
     /**
      * 是否为菜单：0-否、1-是
      */
-    private Boolean isMenu;
+    private Integer isMenu;
 
     /**
      * 是否为页面：0-页面、1-功能
      */
-    private Boolean isPage;
+    private Integer isPage;
 
     /**
      * 顺序

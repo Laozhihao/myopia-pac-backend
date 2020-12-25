@@ -7,26 +7,26 @@ spring:
     # 网关路由配置
     gateway:
       routes:
-      - id: route_oauth # 授权中心微服务路由规则
-        uri: lb://myopia-oauth # 负载均衡，将请求转发到注册中心注册的myopia-oauth服务
-        predicates: # 断言
-        - Path=/api/oauth/** # 如果前端请求路径包含 api/oauth，则应用这条路由规则
-        filters: #过滤器
-        - RewritePath=/api/oauth/(?<segment>.*),/$\{segment} # 将跳转路径中包含的/api/oauth替换成空
+      - id: route_oauth
+        uri: lb://myopia-oauth
+        predicates:
+        - Path=/oauth/**
+        filters:
+        - StripPrefix=1
 
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/api/business/**
+        - Path=/business/**
         filters:
-        - RewritePath=/api/business/(?<segment>.*),/$\{segment}
+        - StripPrefix=1
 
       - id: route_device
         uri: lb://myopia-device
         predicates:
-        - Path=/api/device/**
+        - Path=/device/**
         filters:
-        - RewritePath=/api/device/(?<segment>.*),/$\{segment}
+        - StripPrefix=1
 
     # 注册中心地址
     nacos:
@@ -52,6 +52,33 @@ spring:
   zipkin:
     base-url: http://127.0.0.1:9411
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # 获取JWT验签公钥请求路径
+          jwk-set-uri: 'http://localhost:8000/auth/rsa/publicKey'
+
+  ### Redis配置
+  redis:
+    # 数据库索引（默认为0）
+    database: 1
+    host: localhost
+    port: 6379
+    password:
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池中的最小空闲连接
+        min-idle: 0
+    # 连接超时时间（毫秒）
+    timeout: 5000ms
+
 
 # 指定远程调用oauth服务的负载均衡策略
 myopia-oauth:
@@ -61,3 +88,9 @@ myopia-oauth:
 myopia-business:
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+# 配置白名单路径
+white-list:
+  urls:
+  - "/oauth/oauth/token"
+  - "/oauth/rsa/publicKey"

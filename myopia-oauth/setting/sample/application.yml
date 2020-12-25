@@ -1,6 +1,6 @@
-### 服务端口号
+# 服务端口号
 server:
-  port: 8020
+  port: 8010
 
 ### log4j2配置 ###
 logging:
@@ -16,14 +16,12 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
-
     ### sentinel dashboard
     sentinel:
       transport:
         dashboard: localhost:8080
       # 取消Sentinel控制台懒加载
       eager: true
-
   ### 为true设置的是web开启sleuth功能
   sleuth:
     web:
@@ -32,7 +30,6 @@ spring:
     # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
     sampler:
       probability: 1.0
-
   ### 指定了 Zipkin 服务器的地址
   zipkin:
     base-url: http://127.0.0.1:9411
@@ -40,10 +37,10 @@ spring:
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://localhost:3306/myopia?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://localhost:3306/myopia_oauth?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: laozh0111
+      password: 123456
       ### 连接池配置
       initial-size: 2
       min-idle: 1
@@ -97,20 +94,3 @@ spring:
         min-idle: 0
     # 连接超时时间（毫秒）
     timeout: 5000ms
-
-### 远程调用oauth服务的负载均衡策略
-myopia-oauth:
-  ribbon:
-    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
-
-### feign 配置
-feign:
-  # 打开 Sentinel 对 Feign 的支持
-  sentinel:
-    enabled: true
-  # 超时时间（毫秒）
-  client:
-    config:
-      default:
-        connectTimeout: 60000
-        readTimeout: 60000

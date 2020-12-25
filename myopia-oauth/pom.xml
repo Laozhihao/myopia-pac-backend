@@ -12,10 +12,21 @@
     <description>授权中心服务</description>
 
     <dependencies>
+        <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>base-service</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- oauth2 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+        <!-- oauth2-jose RSA秘钥相关处理 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
     </dependencies>
 
