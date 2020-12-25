@@ -1,11 +1,12 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
@@ -48,14 +49,16 @@ public class ScreeningOrganizationStaffController {
     }
 
     @PostMapping()
-    public Object insertOrganizationStaff(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
+    public Object insertOrganizationStaff(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+        checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
         screeningOrganizationStaff.setGovDeptId(Const.GOV_DEPT_ID);
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
     }
 
     @PutMapping()
-    public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaff screeningOrganizationStaff) {
+    public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+        checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
@@ -79,4 +82,19 @@ public class ScreeningOrganizationStaffController {
         return ApiResult.success();
     }
 
+    /**
+     * 数据校验
+     *
+     * @param query 员工实体类
+     */
+    private void checkStaffIsLegal(ScreeningOrganizationStaffQuery query) {
+        // 检查身份证
+        if (!RegularUtils.isIdCard(query.getIdCard())) {
+            throw new BusinessException("身份证不正确");
+        }
+        // 检查手机号码
+        if (!RegularUtils.isMobile(query.getPhone())) {
+            throw new BusinessException("手机号不正确");
+        }
+    }
 }

@@ -37,14 +37,14 @@ public class StudentController {
 
     @PostMapping()
     public Object saveStudent(@RequestBody Student student) {
-        checkIsLegal(student);
+        checkStudentIsLegal(student);
         student.setCreateUserId(Const.CREATE_USER_ID);
         return studentService.saveStudent(student);
     }
 
     @PutMapping()
     public Object updateStudent(@RequestBody Student student) {
-        checkIsLegal(student);
+        checkStudentIsLegal(student);
         student.setCreateUserId(Const.CREATE_USER_ID);
         return studentService.updateStudent(student);
     }
@@ -83,8 +83,12 @@ public class StudentController {
         return VisionLabelsEnum.getVisionLabels();
     }
 
-    private void checkIsLegal(Student student) {
-
+    /**
+     * 数据校验
+     *
+     * @param student 学生实体类
+     */
+    private void checkStudentIsLegal(Student student) {
         // 检查身份证
         if (!RegularUtils.isIdCard(student.getIdCard())) {
             throw new BusinessException("身份证不正确");
@@ -92,7 +96,6 @@ public class StudentController {
         // 检查手机号码
         if (!RegularUtils.isMobile(student.getParentPhone())) {
             throw new BusinessException("手机号不正确");
-
         }
     }
 }

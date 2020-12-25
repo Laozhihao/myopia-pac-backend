@@ -22,4 +22,24 @@ public class ScreeningOrganizationStaffQuery extends ScreeningOrganizationStaffV
     private String phoneLike;
     /** 机构名 */
     private String orgNameLike;
+
+    /**
+     * 姓名
+     */
+    private String name;
+
+    /**
+     * 性别 1-男 2-女
+     */
+    private Integer gender;
+
+    /**
+     * 手机号码
+     */
+    private String phone;
+
+    /**
+     * 身份证
+     */
+    private String idCard;
 }
