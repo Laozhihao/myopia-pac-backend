@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -35,12 +37,14 @@ public class StudentController {
 
     @PostMapping()
     public Object saveStudent(@RequestBody Student student) {
+        checkIsLegal(student);
         student.setCreateUserId(Const.CREATE_USER_ID);
         return studentService.saveStudent(student);
     }
 
     @PutMapping()
     public Object updateStudent(@RequestBody Student student) {
+        checkIsLegal(student);
         student.setCreateUserId(Const.CREATE_USER_ID);
         return studentService.updateStudent(student);
     }
@@ -77,5 +81,18 @@ public class StudentController {
     @GetMapping("labels")
     public Object getVisionLabels() {
         return VisionLabelsEnum.getVisionLabels();
+    }
+
+    private void checkIsLegal(Student student) {
+
+        // 检查身份证
+        if (!RegularUtils.isIdCard(student.getIdCard())) {
+            throw new BusinessException("身份证不正确");
+        }
+        // 检查手机号码
+        if (!RegularUtils.isMobile(student.getParentPhone())) {
+            throw new BusinessException("手机号不正确");
+
+        }
     }
 }
