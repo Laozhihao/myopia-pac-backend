@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 新增个数
      */
     public Integer saveGrade(SchoolGrade schoolGrade) {
+        if (null == schoolGrade.getSchoolId() || StringUtils.isBlank(schoolGrade.getGradeCode())) {
+            throw new BusinessException("数据异常");
+        }
         return baseMapper.insert(schoolGrade);
     }
 
@@ -54,13 +59,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         // 判断年级是否班级使用
         List<SchoolClass> schoolClasses = schoolClassService.getSchoolClassByGradeId(id);
         if (!schoolClasses.isEmpty()) {
-            throw new RuntimeException("当前年级被班级依赖，不能删除");
+            throw new BusinessException("当前年级被班级依赖，不能删除");
         }
 
         // 判断是否给学生使用
         List<Student> students = studentService.getStudentsByGradeId(id);
         if (!students.isEmpty()) {
-            throw new RuntimeException("当前年级被学生依赖，不能删除");
+            throw new BusinessException("当前年级被学生依赖，不能删除");
         }
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setId(id);

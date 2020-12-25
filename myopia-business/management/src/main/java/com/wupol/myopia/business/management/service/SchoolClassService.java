@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
@@ -44,7 +45,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         // 判断是否给学生使用
         List<Student> students = studentService.getStudentsByClassId(classId);
         if (!students.isEmpty()) {
-            throw new RuntimeException("当前年级被学生依赖，不能删除");
+            throw new BusinessException("当前年级被学生依赖，不能删除");
         }
 
         SchoolClass schoolClass = new SchoolClass();

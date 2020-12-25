@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
@@ -37,7 +38,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized Integer saveSchool(School school) {
-        school.setSchoolNo(generateSchoolNo(school.getAreaCode()));
+        if (null == school.getTownCode()) {
+            throw new BusinessException("数据异常");
+        }
+        school.setSchoolNo(generateSchoolNo(school.getTownCode()));
         baseMapper.insert(school);
         return generateAccountAndPassword(school.getId(), school.getCreateUserId(), school.getGovDeptId());
     }

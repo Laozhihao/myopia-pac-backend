@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
@@ -26,9 +27,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningOrganizationMapper screeningOrganizationMapper;
 
-    @Resource
-    private DistrictService districtService;
-
     /**
      * 保存筛查机构
      *
@@ -37,7 +35,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getAreaCode()));
+        if (null == screeningOrganization.getTownCode()) {
+            throw new BusinessException("数据异常");
+        }
+        screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getTownCode()));
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);
     }
