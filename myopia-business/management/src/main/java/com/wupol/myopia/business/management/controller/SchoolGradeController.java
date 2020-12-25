@@ -42,6 +42,6 @@ public class SchoolGradeController {
 
     @GetMapping("getGradeCode")
     public Object getGradeCode() {
-        return GradeCodeEnum.getValuesInOrder();
+        return GradeCodeEnum.getGradeCodeList();
     }
 }

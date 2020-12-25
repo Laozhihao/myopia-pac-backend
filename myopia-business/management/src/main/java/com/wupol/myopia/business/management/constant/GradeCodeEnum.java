@@ -50,7 +50,7 @@ public enum GradeCodeEnum {
         this.code = code;
     }
 
-    public static List<GradeCode> getValuesInOrder() {
+    public static List<GradeCode> getGradeCodeList() {
         List<GradeCode> gradeCodeList = new ArrayList<>();
         for (GradeCodeEnum value : values()) {
             GradeCode gradeCode = new GradeCode();

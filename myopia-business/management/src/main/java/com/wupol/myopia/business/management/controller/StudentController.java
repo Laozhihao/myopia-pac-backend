@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
@@ -71,5 +72,10 @@ public class StudentController {
         Integer createUserId = 12;
         excelFacade.importStudent(schoolId, createUserId, file);
         return ApiResult.success();
+    }
+
+    @GetMapping("labels")
+    public Object getVisionLabels() {
+        return VisionLabelsEnum.getVisionLabels();
     }
 }
