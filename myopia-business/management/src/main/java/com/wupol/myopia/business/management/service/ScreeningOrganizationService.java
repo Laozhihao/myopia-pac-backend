@@ -36,7 +36,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 更新个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public synchronized Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
         screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getAreaCode()));
         generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);

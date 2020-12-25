@@ -19,6 +19,8 @@ public class SchoolGradeItems {
 
     private Integer schoolId;
 
+    private String gradeCode;
+
     private String name;
 
     private List<SchoolClass> classes;

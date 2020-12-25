@@ -41,6 +41,11 @@ public class SchoolGrade implements Serializable {
     private Integer schoolId;
 
     /**
+     * 年级code
+     */
+    private String gradeCode;
+
+    /**
      * 年级名称
      */
     private String name;

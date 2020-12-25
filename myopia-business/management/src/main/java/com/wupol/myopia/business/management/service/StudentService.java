@@ -6,6 +6,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
@@ -28,6 +29,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolService schoolService;
+
+    @Resource
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 通过年级id查找学生
@@ -62,10 +66,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 新增数量
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(Student student) {
+    public synchronized Integer saveStudent(Student student) {
         // 获取学校编码
         School school = schoolService.getById(student.getSchoolId());
-        student.setStudentNo(generateOrgNo(school.getSchoolNo(), Const.GRADE_NO, student.getIdCard()));
+        // 获取年级编码
+        SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+        student.setStudentNo(generateOrgNo(school.getSchoolNo(), grade.getGradeCode(), student.getIdCard()));
         return baseMapper.insert(student);
     }
 
@@ -109,7 +115,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
     }
 
-    private String generateOrgNo(String schoolNo, Integer gradeNo, String idCard) {
+    private String generateOrgNo(String schoolNo, String gradeNo, String idCard) {
         return StringUtils.join(schoolNo, gradeNo, StringUtils.right(idCard, 6));
     }
 }

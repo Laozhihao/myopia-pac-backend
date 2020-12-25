@@ -77,7 +77,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 新增个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
+    public synchronized Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganizationStaff.getScreeningOrgId());
         screeningOrganizationStaff.setStaffNo(generateOrgNo(organization.getOrgNo(), Const.STAFF_ID_CARD));

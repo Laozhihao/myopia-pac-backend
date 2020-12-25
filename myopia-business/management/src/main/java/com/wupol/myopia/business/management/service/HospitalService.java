@@ -36,7 +36,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 新增数量
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveHospital(Hospital hospital) {
+    public synchronized Integer saveHospital(Hospital hospital) {
         hospital.setHospitalNo(generateHospitalNo(hospital.getAreaCode()));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());

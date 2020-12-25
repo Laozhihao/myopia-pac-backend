@@ -96,6 +96,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             SchoolGradeItems items = new SchoolGradeItems();
             items.setId(g.getId());
             items.setSchoolId(g.getSchoolId());
+            items.setGradeCode(g.getGradeCode());
             items.setName(g.getName());
             items.setClasses(classMaps.get(g.getId()));
             schoolGradeItems.add(items);
