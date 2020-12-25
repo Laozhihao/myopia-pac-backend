@@ -70,8 +70,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         Hospital hospital = new Hospital();
         // TODO: 获取登陆用户id, 部门id
         hospital.setId(id);
-        hospital.setCreateUserId(Const.CREATE_USER_ID);
-        hospital.setGovDeptId(Const.GOV_DEPT_ID);
+        hospital.setCreateUserId(createUserId);
+        hospital.setGovDeptId(govDeptId);
         hospital.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(hospital);
     }
