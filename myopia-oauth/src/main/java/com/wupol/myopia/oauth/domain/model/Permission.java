@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -51,19 +52,25 @@ public class Permission implements Serializable {
     private Integer isMenu;
 
     /**
-     * 是否为页面：0-页面、1-功能
+     * 是否为页面：0-功能、1-页面
      */
     private Integer isPage;
 
     /**
      * 顺序
      */
+    @TableField(value = "`order`")
     private Integer order;
 
     /**
      * 上级权限资源ID
      */
     private Integer pid;
+
+    /**
+     * 系统编号
+     */
+    private Integer systemCode;
 
     /**
      * 创建时间

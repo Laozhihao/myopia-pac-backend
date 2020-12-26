@@ -2,7 +2,7 @@ package com.wupol.myopia.oauth.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.oauth.constant.SystemCode;
-import com.wupol.myopia.oauth.domain.model.Oauth2Token;
+import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
@@ -38,12 +38,12 @@ public class AuthController {
             return ApiResult.failure("client_id错误");
         }
         OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
-        Oauth2Token oauth2Token = Oauth2Token.builder()
+        Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder()
                 .token(oAuth2AccessToken.getValue())
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
                 .expiresIn(oAuth2AccessToken.getExpiresIn())
                 .build();
-        // TODO; 如果没有把用户的基本信息放在JWT，则需要把token和用户信息放到Redis缓存，其他端可以解密JWT或者到缓存拿到用户信息
+        // TODO: 返回用户的权限菜单树
         return ApiResult.success(oauth2Token);
     }
 

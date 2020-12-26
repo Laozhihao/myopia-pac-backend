@@ -18,8 +18,8 @@ public class UserService extends BaseService<UserMapper, User> {
     /**
      * 根据用户名查询
      *
-     * @param username
-     * @param systemCode
+     * @param username   用户名
+     * @param systemCode 系统编号
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     public User getByUsername(String username, Integer systemCode) {

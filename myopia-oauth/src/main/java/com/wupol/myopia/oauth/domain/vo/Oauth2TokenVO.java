@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.oauth.domain.vo;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  **/
 @Data
 @Builder
-public class Oauth2Token {
+public class Oauth2TokenVO {
     /**
      * 访问令牌
      **/

@@ -5,7 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.oauth.constant.AuthConstants;
-import com.wupol.myopia.oauth.domain.model.UserDetail;
+import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.filter.CustomClientCredentialsTokenEndpointFilter;
 import com.wupol.myopia.oauth.service.JdbcClientDetailsServiceImpl;
 import com.wupol.myopia.oauth.service.UserDetailsServiceImpl;
@@ -148,11 +148,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public TokenEnhancer tokenEnhancer() {
         return (accessToken, authentication) -> {
-            //TODO: 根据实际情况调整JWT填充内容
             Map<String, Object> map = new HashMap<>(2);
-            UserDetail user = (UserDetail) authentication.getUserAuthentication().getPrincipal();
-            map.put(AuthConstants.JWT_USER_ID_KEY, user.getId());
+            SecurityUserDetails user = (SecurityUserDetails) authentication.getUserAuthentication().getPrincipal();
+            map.put(AuthConstants.JWT_USER_KEY, user.getUserBaseInfo());
             map.put(AuthConstants.JWT_CLIENT_ID_KEY, user.getClientId());
+            map.put(AuthConstants.JWT_PERMISSION_KEY, user.getPermissions());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(map);
             return accessToken;
         };

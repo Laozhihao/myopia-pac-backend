@@ -29,4 +29,17 @@
         id, name, menu_btn_name, api_url, is_menu, is_page, order, pid, create_time, update_time
     </sql>
 
+    <select id="getUserPermissionByUserId" resultMap="BaseResultMap">
+        SELECT
+               p.*
+        FROM
+             o_permission p,
+             o_role_permission rp,
+             o_user_role ur
+        WHERE
+                ur.role_id = rp.role_id
+          AND rp.permission_id = p.id
+          AND ur.user_id = #{userId};
+    </select>
+
 </mapper>
