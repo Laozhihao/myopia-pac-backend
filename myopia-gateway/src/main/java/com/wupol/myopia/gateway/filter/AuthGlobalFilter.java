@@ -8,7 +8,6 @@ import com.wupol.myopia.gateway.constant.AuthConstants;
 import com.wupol.myopia.gateway.domain.ApiResult;
 import com.wupol.myopia.gateway.domain.ResultCode;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -28,12 +27,14 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.Charset;
 
 /**
- * 黑名单token过滤器
+ * 全局过滤器
+ *  1.黑名单token过滤
+ *  2.解析JWT把用户信息设置到header，方便其他服务获取用户信息
+ *
  * @Author HaoHao
  * @Date 2020/12/15
  **/
 @Component
-@Slf4j
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Autowired
@@ -46,15 +47,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (StrUtil.isBlank(token)) {
             return chain.filter(exchange);
         }
+        // 解析token
         token = token.replace(AuthConstants.JWT_TOKEN_PREFIX, Strings.EMPTY);
         JWSObject jwsObject = JWSObject.parse(token);
         String payload = jwsObject.getPayload().toString();
-
-        // 黑名单token(登出、修改密码)校验
-        JSONObject jsonObject = JSONUtil.parseObj(payload);
+        JSONObject payloadJson = JSONUtil.parseObj(payload);
         // JWT唯一标识
-        String jti = jsonObject.getStr("jti");
-
+        String jti = payloadJson.getStr("jti");
+        // 黑名单token校验
         Boolean isBlack = redisTemplate.hasKey(AuthConstants.TOKEN_BLACKLIST_PREFIX + jti);
         if (isBlack != null && isBlack) {
             ServerHttpResponse response = exchange.getResponse();
@@ -66,7 +66,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
             return response.writeWith(Mono.just(buffer));
         }
-
+        // 把用户信息并设置到Header中去
         ServerHttpRequest request = exchange.getRequest().mutate()
                 .header(AuthConstants.JWT_PAYLOAD_KEY, payload)
                 .build();

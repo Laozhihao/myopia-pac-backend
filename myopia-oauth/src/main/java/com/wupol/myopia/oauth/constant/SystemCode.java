@@ -1,8 +1,10 @@
 package com.wupol.myopia.oauth.constant;
 
+import cn.hutool.core.util.EnumUtil;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 各个端系统编号
@@ -41,5 +43,14 @@ public enum SystemCode {
      **/
     public static SystemCode getByCode(Integer code) {
         return Arrays.stream(values()).filter(systemCode -> systemCode.getCode().equals(code)).findFirst().orElse(null);
+    }
+
+    /**
+     * 获取所有code
+     *
+     * @return java.util.List<java.lang.Object>
+     **/
+    public static List<Object> getAllCode() {
+        return EnumUtil.getFieldValues(SystemCode.class, "code");
     }
 }

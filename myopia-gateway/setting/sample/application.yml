@@ -10,7 +10,7 @@ spring:
       - id: route_oauth
         uri: lb://myopia-oauth
         predicates:
-        - Path=/oauth/**
+        - Path=/auth/**
         filters:
         - StripPrefix=1
 
@@ -92,5 +92,5 @@ myopia-business:
 # 配置白名单路径
 white-list:
   urls:
-  - "/oauth/oauth/token"
-  - "/oauth/rsa/publicKey"
+  - "/auth/oauth/token"
+  - "/auth/rsa/publicKey"

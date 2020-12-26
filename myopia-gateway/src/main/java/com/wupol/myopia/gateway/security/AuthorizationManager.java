@@ -3,8 +3,9 @@ package com.wupol.myopia.gateway.security;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.gateway.constant.AuthConstants;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -29,14 +30,15 @@ import java.util.Set;
  * @Date 2020/12/24
  **/
 @Component
-@AllArgsConstructor
-@Slf4j
 public class AuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+    private static Logger logger = LoggerFactory.getLogger(AuthorizationManager.class);
 
+    @Autowired
     private RedisTemplate redisTemplate;
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
+
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
         String path = request.getURI().getPath();
         PathMatcher pathMatcher = new AntPathMatcher();
@@ -66,15 +68,17 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             }
         }
 
+        // 认证通过且角色匹配的用户可访问当前路径
         Mono<AuthorizationDecision> authorizationDecisionMono = mono
                 .filter(Authentication::isAuthenticated)
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
+                //.any(authorities::contains)
                 .any(roleId -> {
                     // roleId是请求用户的角色(格式:ROLE_{roleId})，authorities是请求资源所需要角色的集合
-                    log.info("访问路径：{}", path);
-                    log.info("用户角色信息：{}", roleId);
-                    log.info("资源需要权限authorities：{}", authorities);
+                    logger.info("访问路径：{}", path);
+                    logger.info("用户角色信息：{}", roleId);
+                    logger.info("资源需要权限authorities：{}", authorities);
                     return authorities.contains(roleId);
                 })
                 .map(AuthorizationDecision::new)
