@@ -1,6 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
-import com.wupol.myopia.oauth.constant.AuthConstants;
+import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -8,13 +8,12 @@ import com.wupol.myopia.oauth.domain.model.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,19 +45,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String clientId = request.getParameter(AuthConstants.JWT_CLIENT_ID_KEY);
         // 获取用户相关信息
         User user = userService.getByUsername(username, Integer.parseInt(clientId));
-        List<UserRole> roles;
+        // 判断是否分配角色
         try {
-            roles = userRoleService.findByList(new UserRole().setUserId(user.getId()));
+            List<UserRole> roles = userRoleService.findByList(new UserRole().setUserId(user.getId()));
+            if (CollectionUtils.isEmpty(roles)) {
+                throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
+            }
         } catch (IOException e) {
             logger.error("获取用户角色异常", e);
-            throw new DisabledException("该账号未分配角色!");
+            throw new AuthenticationServiceException("该账号未分配角色!");
         }
+        // 获取权限
         List<Permission> permissions = permissionService.getUserPermissionByUserId(user.getId());
         List<String> permissionPaths = permissions.stream()
                 .filter(x -> x.getIsPage().equals(AuthConstants.IS_API_PERMISSION) && !StringUtils.isEmpty(x.getApiUrl()))
                 .map(Permission::getApiUrl)
                 .distinct().collect(Collectors.toList());
-        SecurityUserDetails userDetail = new SecurityUserDetails(user, roles, permissionPaths, clientId);
+        SecurityUserDetails userDetail = new SecurityUserDetails(user, permissionPaths, clientId);
         if (!userDetail.isEnabled()) {
             throw new DisabledException("该账户已被禁用!");
         } else if (!userDetail.isAccountNonLocked()) {

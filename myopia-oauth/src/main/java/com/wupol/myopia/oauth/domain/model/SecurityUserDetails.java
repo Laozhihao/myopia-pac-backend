@@ -1,7 +1,7 @@
 package com.wupol.myopia.oauth.domain.model;
 
-import com.wupol.myopia.oauth.constant.AuthConstants;
-import com.wupol.myopia.oauth.domain.vo.UserVO;
+import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.domain.CurrentUser;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,21 +30,18 @@ public class SecurityUserDetails implements UserDetails {
 
     private Collection<SimpleGrantedAuthority> authorities;
 
-    private List<String> permissions;
+    private CurrentUser userBaseInfo;
 
-    private UserVO userBaseInfo;
-
-    public SecurityUserDetails(User user, List<UserRole> roles, List<String> permissions, String clientId) {
+    public SecurityUserDetails(User user, List<String> permissions, String clientId) {
         this.setUsername(user.getUsername());
         this.setPassword(AuthConstants.BCRYPT + user.getPassword());
         this.setEnabled(Integer.valueOf(0).equals(user.getStatus()));
         this.setClientId(clientId);
-        this.setPermissions(permissions);
-        this.userBaseInfo = new UserVO();
+        this.userBaseInfo = new CurrentUser();
         BeanUtils.copyProperties(user, this.userBaseInfo);
-        if (!CollectionUtils.isEmpty(roles)) {
+        if (!CollectionUtils.isEmpty(permissions)) {
             authorities = new ArrayList<>();
-            roles.forEach(userRole -> authorities.add(new SimpleGrantedAuthority(String.valueOf(userRole.getRoleId()))));
+            permissions.forEach(apiPath -> authorities.add(new SimpleGrantedAuthority(String.valueOf(apiPath))));
         }
     }
 

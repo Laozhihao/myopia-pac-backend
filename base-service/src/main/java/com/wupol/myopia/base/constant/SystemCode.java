@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.constant;
+package com.wupol.myopia.base.constant;
 
 import cn.hutool.core.util.EnumUtil;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public enum SystemCode {
      * 根据编号获取对应SystemCode
      *
      * @param code 编号
-     * @return com.wupol.myopia.oauth.constant.SystemCode
+     * @return com.wupol.myopia.base.constan.SystemCode
      **/
     public static SystemCode getByCode(Integer code) {
         return Arrays.stream(values()).filter(systemCode -> systemCode.getCode().equals(code)).findFirst().orElse(null);

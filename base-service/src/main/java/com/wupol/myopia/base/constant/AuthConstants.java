@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.constant;
+package com.wupol.myopia.base.constant;
 
 /**
  * @Author HaoHao
@@ -60,7 +60,6 @@ public interface AuthConstants {
      */
     String JWT_CLIENT_ID_KEY = "client_id";
     String JWT_USER_KEY = "user_base_info";
-    String JWT_PERMISSION_KEY = "permission";
 
     /**
      * 是否为菜单权限

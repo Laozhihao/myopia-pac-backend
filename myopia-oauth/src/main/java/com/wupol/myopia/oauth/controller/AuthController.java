@@ -1,7 +1,8 @@
 package com.wupol.myopia.oauth.controller;
 
+import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.oauth.constant.SystemCode;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/oauth")
 public class AuthController {
+
     @Autowired
     private TokenEndpoint tokenEndpoint;
 
@@ -33,7 +35,7 @@ public class AuthController {
      **/
     @PostMapping("/token")
     public ApiResult postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
-        String clientId = parameters.get("client_id");
+        String clientId = parameters.get(AuthConstants.JWT_CLIENT_ID_KEY);
         if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
             return ApiResult.failure("client_id错误");
         }
@@ -43,7 +45,7 @@ public class AuthController {
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
                 .expiresIn(oAuth2AccessToken.getExpiresIn())
                 .build();
-        // TODO: 返回用户的权限菜单树
+        // TODO: 方案一：这里同时返回用户的权限菜单树，前端动态渲染菜单；方案二：提供获取权限菜单树接口，前端拿到token后再次请求获取
         return ApiResult.success(oauth2Token);
     }
 

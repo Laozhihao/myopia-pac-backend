@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.domain.vo;
+package com.wupol.myopia.base.domain;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @Date 2020/12/26
  **/
 @Data
-public class UserVO {
+public class CurrentUser {
 
     /**
      * 用户ID

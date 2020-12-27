@@ -4,7 +4,7 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.oauth.constant.AuthConstants;
+import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.filter.CustomClientCredentialsTokenEndpointFilter;
 import com.wupol.myopia.oauth.service.JdbcClientDetailsServiceImpl;
@@ -152,7 +152,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
             SecurityUserDetails user = (SecurityUserDetails) authentication.getUserAuthentication().getPrincipal();
             map.put(AuthConstants.JWT_USER_KEY, user.getUserBaseInfo());
             map.put(AuthConstants.JWT_CLIENT_ID_KEY, user.getClientId());
-            map.put(AuthConstants.JWT_PERMISSION_KEY, user.getPermissions());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(map);
             return accessToken;
         };
