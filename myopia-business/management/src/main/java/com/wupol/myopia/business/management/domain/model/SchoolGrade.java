@@ -43,7 +43,7 @@ public class SchoolGrade implements Serializable {
     /**
      * 年级code
      */
-    private String gradeCode;
+    private Integer gradeCode;
 
     /**
      * 年级名称

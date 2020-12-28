@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.service.SchoolClassService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,6 +27,12 @@ public class SchoolClassController {
 
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolClass schoolClass) {
+        if (null == schoolClass.getSchoolId()
+                || StringUtils.isBlank(schoolClass.getName())
+                || null == schoolClass.getGradeId()
+                || null == schoolClass.getSeatCount()) {
+            throw new BusinessException("数据异常");
+        }
         schoolClass.setCreateUserId(Const.CREATE_USER_ID);
         return schoolClassService.saveClass(schoolClass);
     }
