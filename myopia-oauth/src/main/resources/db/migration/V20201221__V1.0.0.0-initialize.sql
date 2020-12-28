@@ -13,9 +13,10 @@ CREATE TABLE `o_permission`  (
   `menu_btn_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '对应页面或按钮的name（权限资源为页面时，该值不能为空）',
   `api_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '功能接口地址（权限资源为功能时，该值不能为空）',
   `is_menu` tinyint(1) NOT NULL COMMENT '是否为菜单：0-否、1-是',
-  `is_page` tinyint(1) NOT NULL COMMENT '是否为页面：0-页面、1-功能',
+  `is_page` tinyint(1) NOT NULL COMMENT '是否为页面：0-功能、1-页面',
   `order` tinyint(3) NOT NULL COMMENT '顺序',
   `pid` int(11) NOT NULL COMMENT '上级权限资源ID',
+  `system_code` tinyint(1) NOT NULL COMMENT '系统编号',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE

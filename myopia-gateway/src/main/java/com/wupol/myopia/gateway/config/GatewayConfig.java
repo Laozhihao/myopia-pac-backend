@@ -32,13 +32,13 @@ import java.util.List;
  * @Date 2020/12/15
  **/
 @Configuration
-public class GatewayConfiguration {
+public class GatewayConfig {
 
     private final List<ViewResolver> viewResolvers;
     private final ServerCodecConfigurer serverCodecConfigurer;
 
-    public GatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
-                                ServerCodecConfigurer serverCodecConfigurer) {
+    public GatewayConfig(ObjectProvider<List<ViewResolver>> viewResolversProvider,
+                         ServerCodecConfigurer serverCodecConfigurer) {
         this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
         this.serverCodecConfigurer = serverCodecConfigurer;
     }

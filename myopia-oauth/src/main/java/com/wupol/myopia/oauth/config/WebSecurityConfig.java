@@ -26,7 +26,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                 .and()
-                .authorizeRequests().antMatchers("/rsa/publicKey").permitAll().anyRequest().authenticated()
+                // 配置不需要拦截的请求
+                .authorizeRequests().antMatchers("/rsa/publicKey", "/oauth/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .csrf().disable();
     }

@@ -55,17 +55,25 @@ public interface AuthConstants {
      */
     String BCRYPT = "{bcrypt}";
 
-    String JWT_USER_ID_KEY = "id";
-
+    /**
+     * JWT增强内容的键
+     */
     String JWT_CLIENT_ID_KEY = "client_id";
+    String JWT_USER_KEY = "user_base_info";
+    String JWT_PERMISSION_KEY = "permission";
 
     /**
-     * 业务服务端ID
+     * 所有系统权限
      */
-    String BUSINESS_SERVICE_CLIENT_ID = "myopia-business";
+    String ALL_PERMISSION_KEY = "auth:permission:all";
 
     /**
-     * 设备数据采集服务ID
+     * 单个系统权限
      */
-    String DEVICE_SERVICE_CLIENT_ID = "myopia-device";
+    String SINGLE_SYSTEM_PERMISSION_KEY_PREFIX = "auth:single:permission:";
+
+    /**
+     * 带有请求方法的请求路径，如 post:/management/role
+     */
+    String REQUEST_PATH_WITH_METHOD = "%s:%s";
 }

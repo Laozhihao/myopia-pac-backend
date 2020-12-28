@@ -1,24 +1,24 @@
 package com.wupol.myopia.oauth.domain.model;
 
-import com.wupol.myopia.oauth.constant.AuthConstants;
-import com.wupol.myopia.oauth.domain.dto.MemberDTO;
-import com.wupol.myopia.oauth.domain.dto.UserDTO;
+import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.domain.CurrentUser;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @Author HaoHao
  * @Date 2020/12/24
  **/
 @Data
-public class UserDetail implements UserDetails {
-
-    private Integer id;
+public class SecurityUserDetails implements UserDetails {
 
     private String username;
 
@@ -30,26 +30,20 @@ public class UserDetail implements UserDetails {
 
     private Collection<SimpleGrantedAuthority> authorities;
 
-    public UserDetail(UserDTO user) {
-        this.setId(user.getId());
+    private CurrentUser userBaseInfo;
+
+    public SecurityUserDetails(User user, List<String> permissions, String clientId) {
         this.setUsername(user.getUsername());
         this.setPassword(AuthConstants.BCRYPT + user.getPassword());
-        this.setEnabled(Integer.valueOf(1).equals(user.getStatus()));
-        this.setClientId(user.getClientId());
-        if (user.getRoles() != null) {
+        this.setEnabled(Integer.valueOf(0).equals(user.getStatus()));
+        this.setClientId(clientId);
+        this.userBaseInfo = new CurrentUser();
+        BeanUtils.copyProperties(user, this.userBaseInfo);
+        if (!CollectionUtils.isEmpty(permissions)) {
             authorities = new ArrayList<>();
-            user.getRoles().forEach(roleId -> authorities.add(new SimpleGrantedAuthority(String.valueOf(roleId))));
+            permissions.forEach(apiPath -> authorities.add(new SimpleGrantedAuthority(String.valueOf(apiPath))));
         }
     }
-
-    public UserDetail(MemberDTO member){
-        this.setId(member.getId());
-        this.setUsername(member.getUsername());
-        this.setPassword(AuthConstants.BCRYPT + member.getPassword());
-        this.setEnabled( Integer.valueOf(1).equals(member.getStatus()));
-        this.setClientId(member.getClientId());
-    }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
