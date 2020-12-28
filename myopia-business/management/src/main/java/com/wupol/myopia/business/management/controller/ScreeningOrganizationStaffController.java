@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,6 +89,10 @@ public class ScreeningOrganizationStaffController {
      * @param query 员工实体类
      */
     private void checkStaffIsLegal(ScreeningOrganizationStaffQuery query) {
+        if (null == query.getScreeningOrgId() || StringUtils.isBlank(query.getName())
+                || null == query.getGender()) {
+            throw new BusinessException("数据异常");
+        }
         // 检查身份证
         if (!RegularUtils.isIdCard(query.getIdCard())) {
             throw new BusinessException("身份证不正确");

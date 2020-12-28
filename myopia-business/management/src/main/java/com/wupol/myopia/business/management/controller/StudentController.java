@@ -12,6 +12,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.StudentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,6 +96,16 @@ public class StudentController {
      * @param student 学生实体类
      */
     private void checkStudentIsLegal(Student student) {
+
+        if (null == student.getSchoolId() || null == student.getSno()
+                || null == student.getGradeId() || null == student.getClassId()
+                || StringUtils.isBlank(student.getName()) || null == student.getGender()
+                || null == student.getBirthday() || null == student.getNation()
+                || null == student.getCityCode() || null == student.getProvinceCode()
+                || null == student.getAreaCode() || null == student.getTownCode()
+                || StringUtils.isBlank(student.getAddress())) {
+            throw new BusinessException("数据异常");
+        }
         // 检查身份证
         if (!RegularUtils.isIdCard(student.getIdCard())) {
             throw new BusinessException("身份证不正确");
