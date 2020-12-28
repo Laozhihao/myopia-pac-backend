@@ -1,8 +1,8 @@
 package com.wupol.myopia.oauth.service;
 
-import com.wupol.myopia.oauth.domain.model.RolePermission;
-import com.wupol.myopia.oauth.domain.mapper.RolePermissionMapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.oauth.domain.mapper.RolePermissionMapper;
+import com.wupol.myopia.oauth.domain.model.RolePermission;
 import org.springframework.stereotype.Service;
 
 /**
