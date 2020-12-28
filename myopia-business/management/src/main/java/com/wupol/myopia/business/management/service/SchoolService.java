@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.SchoolDto;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -77,12 +78,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param pageRequest 分页
      * @param schoolQuery 请求体
      * @param govDeptId   部门ID
-     * @return IPage<School> {@link IPage}
+     * @return IPage<SchoolDto> {@link IPage}
      */
-    public IPage<School> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
-        return schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
+    public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
+        IPage<SchoolDto> schoolDtoLists = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
                 schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
+        schoolDtoLists.getRecords().forEach(s -> s.setAccountNo("abc"));
+        return schoolDtoLists;
     }
 
 
