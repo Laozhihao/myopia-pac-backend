@@ -30,7 +30,7 @@ public class SchoolGradeController {
     public Object saveGrade(@RequestBody SchoolGrade schoolGrade) {
         if (null == schoolGrade.getSchoolId()
                 || StringUtils.isBlank(schoolGrade.getName())
-                || null == schoolGrade.getGradeCode()) {
+                || StringUtils.isBlank(schoolGrade.getGradeCode())) {
             throw new BusinessException("数据异常");
         }
         schoolGrade.setCreateUserId(Const.CREATE_USER_ID);
