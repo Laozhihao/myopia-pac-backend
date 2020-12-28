@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -81,6 +82,11 @@ public class StudentController {
     @GetMapping("labels")
     public Object getVisionLabels() {
         return VisionLabelsEnum.getVisionLabels();
+    }
+
+    @GetMapping("nation")
+    public Object getNationLists() {
+        return NationEnum.getNationList();
     }
 
     /**
