@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,7 @@ public class HospitalController {
     @PostMapping
     public Object saveHospital(@RequestBody Hospital hospital) {
         // TODO: 获取登陆用户id, 部门id
+        checkParam(hospital);
         hospital.setCreateUserId(Const.CREATE_USER_ID);
         hospital.setGovDeptId(Const.GOV_DEPT_ID);
         return hospitalService.saveHospital(hospital);
@@ -40,6 +43,7 @@ public class HospitalController {
     @PutMapping
     public Object updateHospital(@RequestBody Hospital hospital) {
         // TODO: 获取登陆用户id, 部门id
+        checkParam(hospital);
         hospital.setCreateUserId(Const.CREATE_USER_ID);
         hospital.setGovDeptId(Const.GOV_DEPT_ID);
         return hospitalService.updateHospital(hospital);
@@ -68,6 +72,22 @@ public class HospitalController {
     @GetMapping("/export")
     public ApiResult getHospitalExportData(HospitalQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateHospital(query));
+    }
+
+    /**
+     * 数据校验
+     *
+     * @param hospital 医院入参
+     */
+    private void checkParam(Hospital hospital) {
+        if (StringUtils.isBlank(hospital.getName()) || hospital.getLevel() == null
+                || StringUtils.isBlank(hospital.getLevelDesc())
+                || hospital.getType() == null || hospital.getKind() == null
+                || hospital.getProvinceCode() == null || hospital.getCityCode() == null
+                || hospital.getAreaCode() == null || hospital.getTownCode() == null
+                || StringUtils.isBlank(hospital.getAddress())) {
+            throw new BusinessException("数据异常");
+        }
     }
 
 }
