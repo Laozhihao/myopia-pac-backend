@@ -61,6 +61,7 @@ CREATE TABLE `o_user`  (
   `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
@@ -87,3 +88,10 @@ CREATE TABLE `oauth_client_details`  (
   `autoapprove` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   PRIMARY KEY (`client_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '客户端信息配置' ROW_FORMAT = Dynamic;
+
+-- 初始化client表
+INSERT INTO `oauth_client_details` VALUES ('1', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 3600, 7200, NULL, NULL);
+INSERT INTO `oauth_client_details` VALUES ('2', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 3600, 7200, NULL, NULL);
+
+-- 初始化用户表（密码加密算法Bcrypt）
+INSERT INTO `o_user`(`org_id`, `real_name`, `gender`, `phone`, `id_card`, `username`, `password`, `is_leader`, `system_code`, `create_user_id`,) VALUES (1, '管理员', 1, '18814182374', '56363', 'admin', '$2a$10$XiLyxJhjcGEkMKG7KVY/XuGu2cHxPp5S89AuyKh50.Gyl1OHUWQlq', 0, 1, 1);
