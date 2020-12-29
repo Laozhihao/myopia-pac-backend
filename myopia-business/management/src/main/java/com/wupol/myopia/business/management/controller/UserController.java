@@ -41,13 +41,12 @@ public class UserController {
 
     /**
      * 新增用户
-     *
+     * TODO: 参数判空校验
      * @param user 用户数据
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PostMapping()
     public UserDTO addUser(@RequestBody UserDTO user) {
-        // TODO: 参数判空校验
         return userService.addUser(user);
     }
 

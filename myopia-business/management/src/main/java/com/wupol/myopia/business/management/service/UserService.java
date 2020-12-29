@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,8 +7,8 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.constant.PwdConstant;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +64,11 @@ public class UserService {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     public UserDTO addUser(UserDTO userDTO) {
-        // TODO: 判断手机号码不能重复
-        // 手机为账号，密码为随机生成（字母+数字），默认开头字母j+7个随机字母或数字
-        userDTO.setPassword(PwdConstant.MANAGEMENT_USER_PWD_PREFIX + RandomUtil.randomNumbers(7))
+        List<Integer> orgIds = govDeptService.getCurrentUserAllSubordinateDepartmentId();
+        if (!orgIds.contains(userDTO.getOrgId())) {
+            throw new BusinessException("无效部门ID");
+        }
+        userDTO.setPassword(PasswordGenerator.getManagementUserPwd())
                 .setUsername(userDTO.getPhone())
                 .setCreateUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());

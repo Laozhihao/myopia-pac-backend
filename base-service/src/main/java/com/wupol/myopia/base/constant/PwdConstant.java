@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.management.constant;
+package com.wupol.myopia.base.constant;
 
 /**
  * 密码相关常量
