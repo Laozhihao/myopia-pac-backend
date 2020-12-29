@@ -95,7 +95,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         // 生成账号密码
         TwoTuple<UsernameAndPasswordDto, Integer> tuple = generateAccountAndPassword(staffQuery);
-
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
         staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
