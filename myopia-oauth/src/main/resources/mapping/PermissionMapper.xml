@@ -42,4 +42,21 @@
           AND ur.user_id = #{userId};
     </select>
 
+    <resultMap id="treeVoMap" type="com.wupol.myopia.oauth.domain.model.Permission">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="pid" property="pid" jdbcType="INTEGER" />
+        <collection property="child" ofType="com.wupol.myopia.oauth.domain.model.Permission" column="id" select="findTreeByPid"/>
+    </resultMap>
+
+    <!--级联查询父菜单-->
+    <select id="selectAllTree" resultMap="treeVoMap" >
+        select * from o_permission where pid = #{pid}
+    </select>
+
+    <!--级联查询子菜单-->
+    <select id="findTreeByPid" resultMap="treeVoMap" >
+        select * from o_permission where pid = #{id}
+    </select>
+
 </mapper>

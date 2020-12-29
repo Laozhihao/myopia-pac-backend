@@ -1,14 +1,12 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.business.management.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 角色表
@@ -19,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("o_role")
 public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,7 +24,6 @@ public class Role implements Serializable {
     /**
      * 角色ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -54,11 +50,6 @@ public class Role implements Serializable {
      * 创建人
      */
     private Integer createUserId;
-
-    /**
-     * 系统编号
-     */
-    private Integer systemCode;
 
     /**
      * 状态：0-启用 1-禁止 2-删除

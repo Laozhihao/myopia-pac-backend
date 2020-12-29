@@ -55,7 +55,7 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * @param entity 查询参数
 	 * @return Object
 	 */
-	@GetMapping()
+	@GetMapping("/list")
     public Object getList(T entity) throws IOException {
         return baseService.findByList(entity);
     }

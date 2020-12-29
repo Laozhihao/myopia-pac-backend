@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.management.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -44,5 +47,16 @@ public class District implements Serializable {
      */
     private Long parentCode;
 
+    /**
+     * 片区代码
+     */
+    private Integer areaCode;
 
+    /**
+     * 监测点代码
+     */
+    private Integer monitorCode;
+
+    @TableField(exist = false)
+    private List<GovDept> child;
 }

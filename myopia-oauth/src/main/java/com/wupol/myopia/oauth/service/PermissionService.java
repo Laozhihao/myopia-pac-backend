@@ -31,4 +31,9 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
         }
         return baseMapper.getUserPermissionByUserId(userId);
     }
+
+    public List<Permission> selectAllTree(Integer pid) {
+        // TODO：pid改成动态、联o_district_permission表查询、
+        return baseMapper.selectAllTree(0);
+    }
 }

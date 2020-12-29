@@ -19,4 +19,6 @@ public interface PermissionMapper extends BaseMapper<Permission> {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     List<Permission> getUserPermissionByUserId(Integer userId);
+
+    List<Permission> selectAllTree(Integer pid);
 }

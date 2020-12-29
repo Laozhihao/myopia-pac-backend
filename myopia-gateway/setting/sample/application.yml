@@ -17,9 +17,7 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/business/**
-        filters:
-        - StripPrefix=1
+        - Path=/management/**
 
       - id: route_device
         uri: lb://myopia-device
@@ -35,7 +33,7 @@ spring:
     # sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8080
+        dashboard: localhost:8858
       # 取消Sentinel控制台懒加载
       eager: true
 
