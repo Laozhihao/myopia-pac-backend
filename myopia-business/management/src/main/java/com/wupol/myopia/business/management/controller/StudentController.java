@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.constant.NationEnum;
@@ -39,15 +41,17 @@ public class StudentController {
 
     @PostMapping()
     public Object saveStudent(@RequestBody Student student) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStudentIsLegal(student);
-        student.setCreateUserId(Const.CREATE_USER_ID);
+        student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
     }
 
     @PutMapping()
     public Object updateStudent(@RequestBody Student student) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStudentIsLegal(student);
-        student.setCreateUserId(Const.CREATE_USER_ID);
+        student.setCreateUserId(user.getId());
         return studentService.updateStudent(student);
     }
 

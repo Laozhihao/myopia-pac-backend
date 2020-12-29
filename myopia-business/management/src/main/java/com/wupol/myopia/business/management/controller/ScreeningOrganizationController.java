@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -34,17 +36,19 @@ public class ScreeningOrganizationController {
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkParam(screeningOrganization);
-        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
-        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
+        screeningOrganization.setCreateUserId(user.getId());
+        screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
     }
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkParam(screeningOrganization);
-        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
-        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
+        screeningOrganization.setCreateUserId(user.getId());
+        screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
     }
 
@@ -60,7 +64,8 @@ public class ScreeningOrganizationController {
 
     @GetMapping("list")
     public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
-        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user.getOrgId());
     }
 
     @PutMapping("status")

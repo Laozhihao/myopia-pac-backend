@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
@@ -36,7 +38,8 @@ public class ScreeningOrganizationStaffController {
 
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
-        return screeningOrganizationStaffService.getOrganizationStaffList(request, Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return screeningOrganizationStaffService.getOrganizationStaffList(request, user.getOrgId());
     }
 
     @GetMapping("{id}")
@@ -46,21 +49,24 @@ public class ScreeningOrganizationStaffController {
 
     @DeleteMapping("{id}")
     public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
-        return screeningOrganizationStaffService.deletedOrganizationStaff(id, Const.CREATE_USER_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return screeningOrganizationStaffService.deletedOrganizationStaff(id, user.getId());
     }
 
     @PostMapping()
     public Object insertOrganizationStaff(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStaffIsLegal(screeningOrganizationStaff);
-        screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
-        screeningOrganizationStaff.setGovDeptId(Const.GOV_DEPT_ID);
+        screeningOrganizationStaff.setCreateUserId(user.getId());
+        screeningOrganizationStaff.setGovDeptId(user.getOrgId());
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
     }
 
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStaffIsLegal(screeningOrganizationStaff);
-        screeningOrganizationStaff.setCreateUserId(Const.CREATE_USER_ID);
+        screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
 

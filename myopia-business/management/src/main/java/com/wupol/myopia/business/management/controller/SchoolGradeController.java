@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
@@ -28,12 +30,13 @@ public class SchoolGradeController {
 
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolGrade schoolGrade) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         if (null == schoolGrade.getSchoolId()
                 || StringUtils.isBlank(schoolGrade.getName())
                 || StringUtils.isBlank(schoolGrade.getGradeCode())) {
             throw new BusinessException("数据异常");
         }
-        schoolGrade.setCreateUserId(Const.CREATE_USER_ID);
+        schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.saveGrade(schoolGrade);
     }
 

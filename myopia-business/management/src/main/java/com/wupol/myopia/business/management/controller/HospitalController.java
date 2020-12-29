@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -33,25 +34,26 @@ public class HospitalController {
 
     @PostMapping
     public Object saveHospital(@RequestBody Hospital hospital) {
-        // TODO: 获取登陆用户id, 部门id
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkParam(hospital);
-        hospital.setCreateUserId(Const.CREATE_USER_ID);
-        hospital.setGovDeptId(Const.GOV_DEPT_ID);
+        hospital.setCreateUserId(user.getId());
+        hospital.setGovDeptId(user.getOrgId());
         return hospitalService.saveHospital(hospital);
     }
 
     @PutMapping
     public Object updateHospital(@RequestBody Hospital hospital) {
-        // TODO: 获取登陆用户id, 部门id
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkParam(hospital);
-        hospital.setCreateUserId(Const.CREATE_USER_ID);
-        hospital.setGovDeptId(Const.GOV_DEPT_ID);
+        hospital.setCreateUserId(user.getId());
+        hospital.setGovDeptId(user.getOrgId());
         return hospitalService.updateHospital(hospital);
     }
 
     @DeleteMapping("{id}")
     public Object deletedHospital(@PathVariable("id") Integer id) {
-        return hospitalService.deletedHospital(id, Const.CREATE_USER_ID, Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return hospitalService.deletedHospital(id, user.getId(), user.getOrgId());
     }
 
     @GetMapping("{id}")
@@ -61,7 +63,8 @@ public class HospitalController {
 
     @GetMapping("list")
     public Object getHospitalList(PageRequest pageRequest, HospitalQuery query) {
-        return hospitalService.getHospitalList(pageRequest, query, Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return hospitalService.getHospitalList(pageRequest, query, user.getOrgId());
     }
 
     @PutMapping("status")
