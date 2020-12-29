@@ -1,9 +1,5 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.business.management.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +7,6 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 权限资源表
@@ -22,7 +17,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("o_permission")
 public class Permission implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,7 +24,6 @@ public class Permission implements Serializable {
     /**
      * 权限资源ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -61,7 +54,6 @@ public class Permission implements Serializable {
     /**
      * 顺序
      */
-    @TableField(value = "`order`")
     private Integer order;
 
     /**
@@ -86,6 +78,5 @@ public class Permission implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-    @TableField(exist = false)
-    private List<Permission> child;
+
 }

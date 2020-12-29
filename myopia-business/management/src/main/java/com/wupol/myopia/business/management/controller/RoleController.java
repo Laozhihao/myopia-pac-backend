@@ -1,12 +1,10 @@
-package com.wupol.myopia.oauth.controller;
+package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.oauth.domain.model.Role;
-import com.wupol.myopia.oauth.service.RoleService;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.domain.dto.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 /**
  * @Author HaoHao
@@ -15,34 +13,36 @@ import java.io.IOException;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/oauth/role")
+@RequestMapping("/management/role")
 public class RoleController {
 
     @Autowired
-    private RoleService roleService;
+    private OauthServiceClient oauthServiceClient;
 
     @GetMapping("/list")
-    public Object getRoleList(Role param) throws IOException {
-        return roleService.findByList(param);
+    public Object getRoleList(Role param) {
+        // TODO：联表查询获取创建人姓名
+        return oauthServiceClient.getRoleList(param);
     }
 
     @PostMapping()
     public Object addRole(@RequestBody Role param) {
-        return roleService.save(param);
+        return oauthServiceClient.addRole(param);
     }
 
     @PutMapping()
     public Object modifyRole(@RequestBody Role param) {
-        return roleService.updateById(param);
+        return oauthServiceClient.modifyRole(param);
     }
 
     @PostMapping("/permission/{roleId}")
     public Object assignRolePermission(@PathVariable("roleId") Integer roleId) {
-        return roleService.assignRolePermission(roleId);
+        return oauthServiceClient.assignRolePermission(roleId);
     }
 
     @GetMapping("/permission/structure/{roleId}")
     public Object getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
-        return roleService.getRolePermissionTree(roleId);
+        return oauthServiceClient.getRolePermissionTree(roleId);
     }
+
 }

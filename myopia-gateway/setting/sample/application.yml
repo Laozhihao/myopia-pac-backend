@@ -17,9 +17,7 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/business/**
-        filters:
-        - StripPrefix=1
+        - Path=/management/**
 
       - id: route_device
         uri: lb://myopia-device

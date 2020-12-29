@@ -45,4 +45,8 @@ public class ApiResult<T> implements Serializable {
     public static <T> ApiResult<T> failure(String message) {
         return failure(ResultCode.BAD_REQUEST.getCode(), message);
     }
+
+    public Boolean isSuccess() {
+        return ResultCode.SUCCESS.getCode() == this.getCode();
+    }
 }

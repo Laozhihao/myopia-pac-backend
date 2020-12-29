@@ -1,15 +1,14 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.business.management.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户表
@@ -20,15 +19,13 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("o_user")
-public class User implements Serializable {
+public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 用户ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -104,9 +101,37 @@ public class User implements Serializable {
     private Date updateTime;
 
     /**
-     * 最后登录时间
-     */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date lastLoginTime;
+     * 创建人真实姓名
+     **/
+    private String createUserName;
 
+    /**
+     * 用户拥有的所有角色
+     **/
+    private ArrayList<Role> roles;
+
+    /**
+     * 机构名称
+     **/
+    private String orgName;
+
+    /**
+     * 所属部门ID集
+     **/
+    private List<Integer> orgIds;
+
+    /**
+     * 当前页码
+     **/
+    private Integer current;
+
+    /**
+     * 每页条数
+     **/
+    private Integer size;
+
+    /**
+     * 角色ID集
+     **/
+    private List<Integer> roleIds;
 }
