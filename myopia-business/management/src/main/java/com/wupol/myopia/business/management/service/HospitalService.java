@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @Author HaoHao
@@ -110,20 +112,19 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
         String username = hospital.getName();
 
-//        UserDTO userDTO = new UserDTO();
-//        userDTO.setOrgId(hospital.getGovDeptId());
-//        userDTO.setUsername(username);
-//        userDTO.setPassword(password);
-//        userDTO.setCreateUserId(hospital.getCreateUserId());
-//        userDTO.setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
-//
-//        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
-//        if (!apiResult.isSuccess()) {
-//            throw new BusinessException("创建管理员信息异常");
-//        }
-//        UserDTO data = (UserDTO) apiResult.getData();
-//        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), data.getId());
+        UserDTO userDTO = new UserDTO()
+                .setOrgId(hospital.getGovDeptId())
+                .setUsername(username)
+                .setPassword(password)
+                .setCreateUserId(hospital.getCreateUserId())
+                .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
+        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("创建管理员信息异常");
+        }
+        LinkedHashMap data = (LinkedHashMap) apiResult.getData();
+        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), (Integer) data.get("id"));
         return new UsernameAndPasswordDto(username, password);
     }
 
