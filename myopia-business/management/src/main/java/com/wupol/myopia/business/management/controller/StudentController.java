@@ -6,7 +6,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -57,16 +56,19 @@ public class StudentController {
 
     @DeleteMapping("{id}")
     public Object deletedStudent(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.deletedStudent(id);
     }
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getById(id);
     }
 
     @GetMapping("list")
     public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) throws ParseException {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getStudentLists(pageRequest, studentQuery);
     }
 
@@ -86,11 +88,13 @@ public class StudentController {
 
     @GetMapping("labels")
     public Object getVisionLabels() {
+        CurrentUserUtil.getLegalCurrentUser();
         return VisionLabelsEnum.getVisionLabels();
     }
 
     @GetMapping("nation")
     public Object getNationLists() {
+        CurrentUserUtil.getLegalCurrentUser();
         return NationEnum.getNationList();
     }
 

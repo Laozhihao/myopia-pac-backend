@@ -5,7 +5,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -54,11 +53,13 @@ public class ScreeningOrganizationController {
 
     @GetMapping("{id}")
     public Object getScreeningOrganization(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.getById(id);
     }
 
     @DeleteMapping("{id}")
     public Object deletedScreeningOrganization(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.deletedById(id);
     }
 

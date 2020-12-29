@@ -42,6 +42,7 @@ public class SchoolClassController {
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return schoolClassService.deletedClass(id);
     }
 }

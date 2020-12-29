@@ -42,16 +42,19 @@ public class SchoolGradeController {
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return schoolGradeService.deletedGrade(id);
     }
 
     @GetMapping("list")
     public Object getGradeList(Integer schoolId) {
+        CurrentUserUtil.getLegalCurrentUser();
         return schoolGradeService.getGradeList(schoolId);
     }
 
     @GetMapping("getGradeCode")
     public Object getGradeCode() {
+        CurrentUserUtil.getLegalCurrentUser();
         return GradeCodeEnum.getGradeCodeList();
     }
 }
