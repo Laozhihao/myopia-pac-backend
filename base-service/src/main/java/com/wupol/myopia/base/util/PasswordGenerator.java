@@ -20,7 +20,7 @@ public class PasswordGenerator {
     /** 学校管理员密码截取长度 */
     private static final int SCHOOL_ADMIN_PWD_SUB_LENGTH = 6;
     /** 筛查人员密码截取长度 */
-    private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 6;
+    private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
 
     /**
      * 管理端用户密码
