@@ -23,8 +23,14 @@ public class OauthServiceFallback implements OauthServiceClient {
 
     @Override
     public ApiResult addUser(UserDTO param) {
-        log.error("【远程调用oauth】获取用户列表异常");
+        log.error("【远程调用oauth】新增用户异常");
         return ApiResult.failure("新增用户失败");
+    }
+
+    @Override
+    public ApiResult addAdminUser(UserDTO param) {
+        log.error("【远程调用oauth】新增用户异常");
+        return ApiResult.failure("新增管理员用户失败");
     }
 
     @Override

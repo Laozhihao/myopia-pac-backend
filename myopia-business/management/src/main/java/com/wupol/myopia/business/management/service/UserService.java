@@ -76,6 +76,6 @@ public class UserService {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建用户失败");
         }
-        return userDTO;
+        return JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
     }
 }
