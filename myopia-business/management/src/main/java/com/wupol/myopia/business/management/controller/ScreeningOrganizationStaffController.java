@@ -6,7 +6,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
@@ -38,8 +37,8 @@ public class ScreeningOrganizationStaffController {
 
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        return screeningOrganizationStaffService.getOrganizationStaffList(request, user.getOrgId());
+        CurrentUserUtil.getLegalCurrentUser();
+        return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
     @GetMapping("{id}")

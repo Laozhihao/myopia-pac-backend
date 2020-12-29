@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolDto;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -47,7 +51,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDto saveSchool(School school) {
+    public synchronized UsernameAndPasswordDTO saveSchool(School school) {
         if (null == school.getTownCode()) {
             throw new BusinessException("数据异常");
         }
@@ -103,24 +107,24 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    private UsernameAndPasswordDto generateAccountAndPassword(School school) {
+    private UsernameAndPasswordDTO generateAccountAndPassword(School school) {
         String password = PasswordGenerator.getSchoolAdminPwd(school.getSchoolNo());
         String username = school.getName();
-//        UserDTO userDTO = new UserDTO();
-//        userDTO.setOrgId(school.getGovDeptId());
-//        userDTO.setUsername(username);
-//        userDTO.setPassword(password);
-//        userDTO.setCreateUserId(school.getCreateUserId());
-//        userDTO.setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
-//
-//        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
-//        if (!apiResult.isSuccess()) {
-//            throw new BusinessException("创建管理员信息异常");
-//        }
-//        UserDTO data = (UserDTO) apiResult.getData();
-//
-//        SchoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), data.getId());
-        return new UsernameAndPasswordDto(username, password);
+
+        UserDTO userDTO = new UserDTO()
+                .setOrgId(school.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setCreateUserId(school.getCreateUserId())
+                .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
+
+        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("创建管理员信息异常");
+        }
+        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
+        SchoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
+        return new UsernameAndPasswordDTO(username, password);
     }
 
     private String generateSchoolNo(Integer code) {

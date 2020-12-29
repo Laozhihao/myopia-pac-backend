@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -10,7 +11,8 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
+import com.wupol.myopia.business.management.domain.dto.UserExtDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
@@ -21,8 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -30,9 +36,6 @@ import javax.annotation.Resource;
  */
 @Service
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
-
-    @Resource
-    private GovDeptService govDeptService;
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
@@ -44,31 +47,37 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 获取机构人员列表
      *
-     * @param request   请求入参
-     * @param govDeptId 部门id
-     * @return Page<ScreeningOrganizationStaff> {@link Page}
+     * @param request 请求入参
+     * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
+    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
 
-        Page<ScreeningOrganizationStaff> page = new Page<>(request.getCurrent(), request.getSize());
-        QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
-
-        likeQueryAppend(wrapper, "screening_org_id", request.getScreeningOrgId());
-        InQueryAppend(wrapper, "gov_dept_id", govDeptService.getAllSubordinate(govDeptId));
-
-        if (StringUtils.isNotBlank(request.getName())) {
-
+        ApiResult apiResult = oauthServiceClient.getUserListPage(
+                new UserDTO()
+                        .setCurrent(request.getCurrent())
+                        .setSize(request.getSize())
+                        .setOrgId(request.getScreeningOrgId())
+                        .setRealName(request.getName())
+                        .setIdCard(request.getIdCard())
+                        .setPhone(request.getMobile()));
+        if (apiResult.isSuccess()) {
+            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), Page.class);
+            List<UserExtDTO> records = page.getRecords();
+            if (!CollectionUtils.isEmpty(records)) {
+                List<Integer> userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
+                Map<Integer, String> staffSnMaps = baseMapper
+                        .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                                .in("user_id", userIds))
+                        .stream()
+                        .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
+                                ScreeningOrganizationStaff::getStaffNo));
+                records.forEach(s -> {
+                    s.setSn(staffSnMaps.get(s.getId()));
+                });
+                return page;
+            }
         }
-        if (null != request.getIdCard()) {
-
-        }
-        if (null != request.getIdCard()) {
-
-        }
-        if (StringUtils.isNotBlank(request.getMobile())) {
-
-        }
-        return baseMapper.selectPage(page, wrapper);
+        return null;
     }
 
     /**
@@ -91,10 +100,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDto saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
+    public synchronized UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
 
         // 生成账号密码
-        TwoTuple<UsernameAndPasswordDto, Integer> tuple = generateAccountAndPassword(staffQuery);
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
         staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
@@ -120,26 +129,31 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      *
      * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private TwoTuple<UsernameAndPasswordDto, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQuery staff) {
-        TwoTuple<UsernameAndPasswordDto, Integer> tuple = new TwoTuple<>();
+    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQuery staff) {
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
 
         String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
         String username = staff.getPhone();
-        tuple.setFirst(new UsernameAndPasswordDto(username, password));
+        tuple.setFirst(new UsernameAndPasswordDTO(username, password));
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setOrgId(staff.getGovDeptId());
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        userDTO.setCreateUserId(staff.getCreateUserId());
-        userDTO.setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+        UserDTO userDTO = new UserDTO()
+                .setOrgId(staff.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setCreateUserId(staff.getCreateUserId())
+                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
+                .setRealName(staff.getName())
+                .setGender(staff.getGender())
+                .setPhone(staff.getPhone())
+                .setIdCard(staff.getIdCard())
+                .setRemark(staff.getRemark());
 
-        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
+        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        UserDTO data = (UserDTO) apiResult.getData();
-        tuple.setSecond(data.getId());
+        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
+        tuple.setSecond(user.getId());
         return tuple;
     }
 

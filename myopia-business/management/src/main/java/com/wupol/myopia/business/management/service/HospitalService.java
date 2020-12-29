@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -9,7 +10,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -21,8 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @Author HaoHao
@@ -51,7 +50,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDto saveHospital(Hospital hospital) {
+    public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
         if (null == hospital.getTownCode()) {
             throw new BusinessException("数据异常");
         }
@@ -108,12 +107,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      *
      * @return UsernameAndPasswordDto 账号密码
      */
-    private UsernameAndPasswordDto generateAccountAndPassword(Hospital hospital) {
+    private UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital) {
         String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
         String username = hospital.getName();
 
         UserDTO userDTO = new UserDTO()
-                .setOrgId(hospital.getGovDeptId())
+                .setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(hospital.getCreateUserId())
@@ -123,9 +122,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        LinkedHashMap data = (LinkedHashMap) apiResult.getData();
-        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), (Integer) data.get("id"));
-        return new UsernameAndPasswordDto(username, password);
+        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
+        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), user.getId());
+        return new UsernameAndPasswordDTO(username, password);
     }
 
     private String generateHospitalNo(Integer code) {

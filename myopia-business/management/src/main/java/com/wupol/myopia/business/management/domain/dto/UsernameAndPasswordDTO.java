@@ -8,13 +8,13 @@ import lombok.Data;
  * @author Simple4H
  */
 @Data
-public class UsernameAndPasswordDto {
+public class UsernameAndPasswordDTO {
 
     private String username;
 
     private String password;
 
-    public UsernameAndPasswordDto(String username, String password) {
+    public UsernameAndPasswordDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }
