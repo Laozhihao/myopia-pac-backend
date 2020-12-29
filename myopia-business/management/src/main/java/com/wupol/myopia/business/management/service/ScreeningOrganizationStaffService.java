@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -19,6 +20,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationSt
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,25 +59,39 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 new UserDTO()
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
-                        .setOrgId(request.getScreeningOrgId())
+//                        .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
         if (apiResult.isSuccess()) {
-            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), Page.class);
-            List<UserExtDTO> records = page.getRecords();
-            if (!CollectionUtils.isEmpty(records)) {
-                List<Integer> userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
+            Page<UserDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserDTO>>(){});
+
+            List<UserDTO> sourceLists = page.getRecords();
+            List<UserExtDTO> resultLists = new ArrayList<>();
+
+            sourceLists.forEach(s -> {
+                UserExtDTO extDTO = new UserExtDTO();
+                BeanUtils.copyProperties(s, extDTO);
+                resultLists.add(extDTO);
+            });
+
+
+            if (!CollectionUtils.isEmpty(resultLists)) {
+                List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
                 Map<Integer, String> staffSnMaps = baseMapper
                         .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
                                 .in("user_id", userIds))
                         .stream()
                         .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
                                 ScreeningOrganizationStaff::getStaffNo));
-                records.forEach(s -> {
+
+                resultLists.forEach(s -> {
                     s.setSn(staffSnMaps.get(s.getId()));
                 });
-                return page;
+                Page<UserExtDTO> result = new Page<>();
+                BeanUtils.copyProperties(page, result);
+                result.setRecords(resultLists);
+                return result;
             }
         }
         return null;
