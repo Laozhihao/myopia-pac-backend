@@ -11,11 +11,7 @@ public class Const {
 
     public static final Integer CREATE_USER_ID = 1;
 
-    public static final Integer GOV_DEPT_ID = 1;
-
     public static final Integer STAFF_USER_ID = 1;
 
     public static final String STAFF_ID_CARD = "aaaaaa";
-
-    public static final Integer GRADE_NO = 10;
 }

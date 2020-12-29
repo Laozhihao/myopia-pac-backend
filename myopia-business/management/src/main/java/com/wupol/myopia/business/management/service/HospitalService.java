@@ -1,14 +1,22 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,20 +38,24 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private GovDeptService govDeptService;
 
+    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
+
     /**
      * 保存医院
      *
      * @param hospital 医院实体类
-     * @return 新增数量
+     * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveHospital(Hospital hospital) {
+    public synchronized UsernameAndPasswordDto saveHospital(Hospital hospital) {
         if (null == hospital.getTownCode()) {
             throw new BusinessException("数据异常");
         }
         hospital.setHospitalNo(generateHospitalNo(hospital.getTownCode()));
         baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital.getCreateUserId(), hospital.getId());
+        return generateAccountAndPassword(hospital);
     }
 
     /**
@@ -91,10 +103,28 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     /**
      * 生成账号密码
+     *
+     * @return UsernameAndPasswordDto 账号密码
      */
-    private Integer generateAccountAndPassword(Integer createUserId, Integer hospitalId) {
-        // TODO: 创建对应的staff
-        return hospitalStaffService.saveStaff(createUserId, hospitalId, Const.STAFF_USER_ID);
+    private UsernameAndPasswordDto generateAccountAndPassword(Hospital hospital) {
+        String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
+        String username = hospital.getName();
+
+//        UserDTO userDTO = new UserDTO();
+//        userDTO.setOrgId(hospital.getGovDeptId());
+//        userDTO.setUsername(username);
+//        userDTO.setPassword(password);
+//        userDTO.setCreateUserId(hospital.getCreateUserId());
+//        userDTO.setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
+//
+//        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
+//        if (!apiResult.isSuccess()) {
+//            throw new BusinessException("创建管理员信息异常");
+//        }
+//        UserDTO data = (UserDTO) apiResult.getData();
+//        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), data.getId());
+
+        return new UsernameAndPasswordDto(username, password);
     }
 
     private String generateHospitalNo(Integer code) {

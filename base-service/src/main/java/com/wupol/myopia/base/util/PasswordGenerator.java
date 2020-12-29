@@ -21,6 +21,8 @@ public class PasswordGenerator {
     private static final int SCHOOL_ADMIN_PWD_SUB_LENGTH = 6;
     /** 筛查人员密码截取长度 */
     private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
+    /** 筛查机构管理员密码截取长度 */
+    private static final int ORG_ADMIN_PWD_SUB_LENGTH = 6;
 
     /**
      * 管理端用户密码
@@ -57,6 +59,20 @@ public class PasswordGenerator {
         }
         // 开头字母y + 医院ID后6位
         return PwdConstant.HOSPITAL_USER_PWD_PREFIX + StrUtil.subSuf(hospitalNo, -HOSPITAL_ADMIN_PWD_SUB_LENGTH);
+    }
+
+    /**
+     * 筛查机构管理员用户密码
+     *
+     * @param orgNo 医院编号
+     * @return java.lang.String
+     **/
+    public static String getScreeningOrgAdminPwd(String orgNo) {
+        if (StringUtils.isEmpty(orgNo) || orgNo.length() < ORG_ADMIN_PWD_SUB_LENGTH) {
+            throw new ValidationException("筛查机构编号长度不够");
+        }
+        // 开头字母s + 筛查ID后6位
+        return PwdConstant.ORG_USER_PWD_PREFIX + StrUtil.subSuf(orgNo, -ORG_ADMIN_PWD_SUB_LENGTH);
     }
 
     /**

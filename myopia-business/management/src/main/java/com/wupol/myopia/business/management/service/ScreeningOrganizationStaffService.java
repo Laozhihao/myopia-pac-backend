@@ -2,13 +2,23 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +36,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取机构人员列表
@@ -73,17 +87,22 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 新增员工
      *
-     * @param screeningOrganizationStaff 员工实体类
-     * @return 新增个数
+     * @param staffQuery 员工实体类
+     * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
+    public synchronized UsernameAndPasswordDto saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
+
+        // 生成账号密码
+        TwoTuple<UsernameAndPasswordDto, Integer> tuple = generateAccountAndPassword(staffQuery);
+
         // 通过screeningOrgId获取机构
-        ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganizationStaff.getScreeningOrgId());
-        screeningOrganizationStaff.setStaffNo(generateOrgNo(organization.getOrgNo(), Const.STAFF_ID_CARD));
-        screeningOrganizationStaff.setUserId(Const.STAFF_USER_ID);
-        generateAccountAndPassword();
-        return baseMapper.insert(screeningOrganizationStaff);
+        ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
+        staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
+        staffQuery.setUserId(tuple.getSecond());
+
+        baseMapper.insert(staffQuery);
+        return tuple.getFirst();
     }
 
     /**
@@ -99,11 +118,39 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
     /**
      * 生成账号密码
+     *
+     * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private void generateAccountAndPassword() {
+    private TwoTuple<UsernameAndPasswordDto, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQuery staff) {
+        TwoTuple<UsernameAndPasswordDto, Integer> tuple = new TwoTuple<>();
 
+        String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
+        String username = staff.getPhone();
+        tuple.setFirst(new UsernameAndPasswordDto(username, password));
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setOrgId(staff.getGovDeptId());
+        userDTO.setUsername(username);
+        userDTO.setPassword(password);
+        userDTO.setCreateUserId(staff.getCreateUserId());
+        userDTO.setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+
+        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("创建管理员信息异常");
+        }
+        UserDTO data = (UserDTO) apiResult.getData();
+        tuple.setSecond(data.getId());
+        return tuple;
     }
 
+    /**
+     * 生成人员编号
+     *
+     * @param orgNo  筛查机构编号
+     * @param idCard 身份证
+     * @return String 编号
+     */
     private String generateOrgNo(String orgNo, String idCard) {
         return StringUtils.join(orgNo, StringUtils.right(idCard, 6));
     }

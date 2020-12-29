@@ -1,14 +1,22 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDto;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,20 +35,24 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningOrganizationMapper screeningOrganizationMapper;
 
+    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
+
     /**
      * 保存筛查机构
      *
      * @param screeningOrganization 筛查机构
-     * @return 更新个数
+     * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public synchronized UsernameAndPasswordDto saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
         if (null == screeningOrganization.getTownCode()) {
             throw new BusinessException("数据异常");
         }
         screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getTownCode()));
-        generateAccountAndPassword();
-        return baseMapper.insert(screeningOrganization);
+        baseMapper.insert(screeningOrganization);
+        return generateAccountAndPassword(screeningOrganization);
     }
 
     /**
@@ -85,9 +97,27 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 生成账号密码
+     *
+     * @return UsernameAndPasswordDto 账号密码
      */
-    private void generateAccountAndPassword() {
+    private UsernameAndPasswordDto generateAccountAndPassword(ScreeningOrganization screeningOrganization) {
+        String password = PasswordGenerator.getScreeningOrgAdminPwd(screeningOrganization.getOrgNo());
+        String username = screeningOrganization.getName();
 
+//        UserDTO userDTO = new UserDTO();
+//        userDTO.setOrgId(screeningOrganization.getGovDeptId());
+//        userDTO.setUsername(username);
+//        userDTO.setPassword(password);
+//        userDTO.setCreateUserId(screeningOrganization.getCreateUserId());
+//        userDTO.setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+//
+//        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
+//        if (!apiResult.isSuccess()) {
+//            throw new BusinessException("创建管理员信息异常");
+//        }
+//        UserDTO data = (UserDTO) apiResult.getData();
+
+        return new UsernameAndPasswordDto(username, password);
     }
 
     private String generateOrgNo(Integer code) {
