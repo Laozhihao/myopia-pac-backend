@@ -34,6 +34,15 @@ public interface OauthServiceClient {
     ApiResult addUser(@RequestBody UserDTO param);
 
     /**
+     * 新增管理员用户
+     *
+     * @param param 用户数据
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @PostMapping("/oauth/user/admin")
+    ApiResult addAdminUser(@RequestBody UserDTO param);
+
+    /**
      * 更新用户
      *
      * @param param 用户数据

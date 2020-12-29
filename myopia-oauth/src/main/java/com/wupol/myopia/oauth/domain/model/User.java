@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -34,6 +37,7 @@ public class User implements Serializable {
     /**
      * 机构组织ID（如政府部门ID、学校ID、医院ID）
      */
+    @NotNull(message = "机构ID不能为空", groups = UserValidatorGroup.class)
     private Integer orgId;
 
     /**
@@ -59,11 +63,13 @@ public class User implements Serializable {
     /**
      * 用户名（账号）
      */
+    @NotBlank(message = "用户名不能为空", groups = UserValidatorGroup.class)
     private String username;
 
     /**
      * 密码
      */
+    @NotBlank(message = "密码不能为空", groups = UserValidatorGroup.class)
     private String password;
 
     /**
@@ -74,11 +80,13 @@ public class User implements Serializable {
     /**
      * 系统编号
      */
+    @NotNull(message = "系统编号不能为空", groups = UserValidatorGroup.class)
     private Integer systemCode;
 
     /**
      * 创建人
      */
+    @NotNull(message = "创建人ID不能为空", groups = UserValidatorGroup.class)
     private Integer createUserId;
 
     /**
