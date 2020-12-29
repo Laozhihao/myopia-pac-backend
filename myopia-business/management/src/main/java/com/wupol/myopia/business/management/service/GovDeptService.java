@@ -46,9 +46,18 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      **/
     public List<Integer> getCurrentUserAllSubordinateDepartmentId() {
         Integer currentUserOrgId = CurrentUserUtil.getCurrentUser().getOrgId();
-        List<GovDept> govDeptTree = baseMapper.selectIdTreeByPid(currentUserOrgId);
+        return getAllSubordinateDepartmentIdByPid(currentUserOrgId);
+    }
+
+    /**
+     * 获取指定部门及其下面的所有部门的ID集合
+     *
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getAllSubordinateDepartmentIdByPid(Integer pid) {
+        List<GovDept> govDeptTree = baseMapper.selectIdTreeByPid(pid);
         List<Integer> ids = treeListToSingleLayerList(govDeptTree);
-        ids.add(currentUserOrgId);
+        ids.add(pid);
         return ids;
     }
 
@@ -58,7 +67,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * @param idTree 部门ID树
      * @return java.util.List<java.lang.Integer>
      **/
-    public List<Integer> treeListToSingleLayerList(List<GovDept> idTree) {
+    private List<Integer> treeListToSingleLayerList(List<GovDept> idTree) {
         ArrayList<Integer> ids = new ArrayList<>();
         if (CollectionUtils.isEmpty(idTree)) {
             return ids;

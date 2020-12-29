@@ -11,8 +11,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-//import cn.hutool.json.JSONObject;
-
 /**
  * 当前登录用户信息处理工具
  *
