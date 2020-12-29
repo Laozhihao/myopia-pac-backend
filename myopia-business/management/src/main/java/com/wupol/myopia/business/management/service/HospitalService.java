@@ -118,12 +118,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
-        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
-        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), user.getId());
+        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId());
         return new UsernameAndPasswordDTO(username, password);
     }
 

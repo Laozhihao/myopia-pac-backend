@@ -20,7 +20,6 @@ import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationSt
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,7 +62,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
         if (apiResult.isSuccess()) {
-            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>(){});
+            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+            });
             List<UserExtDTO> resultLists = page.getRecords();
 
             if (!CollectionUtils.isEmpty(resultLists)) {
@@ -126,6 +125,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
+
         return baseMapper.updateById(screeningOrganizationStaff);
     }
 
@@ -153,12 +153,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
 
-        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
-        tuple.setSecond(user.getId());
+        tuple.setSecond(apiResult.getData().getId());
         return tuple;
     }
 

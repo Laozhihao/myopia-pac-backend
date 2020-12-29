@@ -118,12 +118,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 
-        ApiResult apiResult = oauthServiceClient.addAdminUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        UserDTO user = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
-        SchoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
+        SchoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
         return new UsernameAndPasswordDTO(username, password);
     }
 

@@ -41,11 +41,6 @@ public class ScreeningOrganizationStaffController {
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
-    @GetMapping("{id}")
-    public Object getOrganizationStaffList(@PathVariable("id") Integer id) {
-        return screeningOrganizationStaffService.getById(id);
-    }
-
     @DeleteMapping("{id}")
     public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
