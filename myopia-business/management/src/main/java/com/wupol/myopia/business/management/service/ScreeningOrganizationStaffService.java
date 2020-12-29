@@ -10,10 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UserExtDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
@@ -137,6 +134,25 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             throw new BusinessException("OAuth2 异常");
         }
         return baseMapper.updateById(staff);
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param request 入参
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStatus(StatusRequest request) {
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(request.getId())
+                .setStatus(request.getStatus());
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        return 1;
     }
 
     /**

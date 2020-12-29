@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -10,6 +9,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolDto;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
@@ -83,6 +83,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         school.setId(id);
         school.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(school);
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param request 入参
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStatus(StatusRequest request) {
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(request.getId())
+                .setStatus(request.getStatus());
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        School school = new School().setId(request.getId()).setStatus(request.getStatus());
+        return schoolMapper.updateById(school);
     }
 
     /**

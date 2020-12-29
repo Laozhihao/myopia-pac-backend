@@ -69,7 +69,7 @@ public class HospitalController {
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
-        return null;
+        return hospitalService.updateStatus(statusRequest);
     }
 
     @GetMapping("/export")

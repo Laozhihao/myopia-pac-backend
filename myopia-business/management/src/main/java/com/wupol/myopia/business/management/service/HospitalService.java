@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -9,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
@@ -100,6 +100,26 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
         return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getHospitalNo(), query.getType(), query.getKind(), query.getLevel(), query.getCode());
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param request 入参
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStatus(StatusRequest request) {
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(request.getId())
+                .setStatus(request.getStatus());
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        Hospital hospital = new Hospital().setId(request.getId()).setStatus(request.getStatus());
+        return hospitalMapper.updateById(hospital);
     }
 
     /**

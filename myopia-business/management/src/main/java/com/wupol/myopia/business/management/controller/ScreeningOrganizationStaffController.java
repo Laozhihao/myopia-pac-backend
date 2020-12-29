@@ -66,7 +66,7 @@ public class ScreeningOrganizationStaffController {
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
-        return null;
+        return screeningOrganizationStaffService.updateStatus(statusRequest);
     }
 
     @GetMapping("/export")
