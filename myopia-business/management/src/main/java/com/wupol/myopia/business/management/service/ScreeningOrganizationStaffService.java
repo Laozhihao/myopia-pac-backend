@@ -64,17 +64,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
         if (apiResult.isSuccess()) {
-            Page<UserDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserDTO>>(){});
-
-            List<UserDTO> sourceLists = page.getRecords();
-            List<UserExtDTO> resultLists = new ArrayList<>();
-
-            sourceLists.forEach(s -> {
-                UserExtDTO extDTO = new UserExtDTO();
-                BeanUtils.copyProperties(s, extDTO);
-                resultLists.add(extDTO);
-            });
-
+            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>(){});
+            List<UserExtDTO> resultLists = page.getRecords();
 
             if (!CollectionUtils.isEmpty(resultLists)) {
                 List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
@@ -88,10 +79,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 resultLists.forEach(s -> {
                     s.setSn(staffSnMaps.get(s.getId()));
                 });
-                Page<UserExtDTO> result = new Page<>();
-                BeanUtils.copyProperties(page, result);
-                result.setRecords(resultLists);
-                return result;
+                return page;
             }
         }
         return null;
