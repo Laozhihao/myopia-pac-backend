@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.validation.ValidationException;
 import java.io.IOException;
@@ -96,7 +95,7 @@ public class UserService extends BaseService<UserMapper, User> {
         return user;
     }
     /**
-     * 新增各个系统的管理员
+     * 管理端创建医院端、学校端管理员，创建筛查端的筛查人员
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -117,6 +116,27 @@ public class UserService extends BaseService<UserMapper, User> {
         // 绑定角色
 
         return user;
+    }
+
+    /**
+     * 批量新增筛查人员
+     *
+     * @param userList 用户列表集合
+     * @return java.util.List<java.lang.Integer>
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public List<Integer> addScreeningUserBatch(List<UserDTO> userList) {
+        long size = userList.stream().filter(x  -> SystemCode.SCREENING_CLIENT.getCode().equals(x.getSystemCode())).count();
+        if (size != userList.size()) {
+            throw new ValidationException("存在无效系统编号");
+        }
+        List<User> users = userList.stream().map(x -> {
+            User user = new User();
+            BeanUtils.copyProperties(x, user);
+            return user.setPassword(PasswordGenerator.getScreeningUserPwd(x.getPhone(), x.getIdCard())).setUsername(x.getPhone());
+        }).collect(Collectors.toList());
+        saveBatch(users);
+        return users.stream().map(User::getId).collect(Collectors.toList());
     }
 
     /**

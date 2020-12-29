@@ -16,6 +16,7 @@ import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import java.nio.file.AccessDeniedException;
 import java.util.Set;
 
@@ -38,6 +39,17 @@ public class ControllerExceptionHandler {
     public ApiResult handleBusinessError(BusinessException ex) {
         logger.error("【业务异常】{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 数据校验异常
+     * @param ex ValidationException
+     */
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiResult handleTypeMismatchException(ValidationException ex) {
+        logger.error("数据校验异常，{}", ex.getMessage(), ex);
+        return ApiResult.failure(ex.getMessage());
     }
 
     /**

@@ -7,6 +7,8 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020/12/14
@@ -22,7 +24,7 @@ public class OauthServiceFallback implements OauthServiceClient {
     }
 
     @Override
-    public ApiResult addUser(UserDTO param) {
+    public ApiResult<UserDTO> addUser(UserDTO param) {
         log.error("【远程调用oauth】新增用户异常");
         return ApiResult.failure("新增用户失败");
     }
@@ -31,6 +33,12 @@ public class OauthServiceFallback implements OauthServiceClient {
     public ApiResult addAdminUser(UserDTO param) {
         log.error("【远程调用oauth】新增用户异常");
         return ApiResult.failure("新增管理员用户失败");
+    }
+
+    @Override
+    public ApiResult<List<Integer>> addScreeningUserBatch(List<UserDTO> param) {
+        log.error("【远程调用oauth】批量新增筛查人员失败");
+        return ApiResult.failure("批量新增筛查人员失败");
     }
 
     @Override

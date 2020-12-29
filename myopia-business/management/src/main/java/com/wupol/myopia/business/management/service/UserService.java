@@ -72,10 +72,10 @@ public class UserService {
                 .setUsername(userDTO.getPhone())
                 .setCreateUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        ApiResult apiResult = oauthServiceClient.addUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建用户失败");
         }
-        return JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), UserDTO.class);
+        return apiResult.getData();
     }
 }
