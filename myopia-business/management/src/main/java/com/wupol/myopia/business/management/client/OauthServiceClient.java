@@ -8,6 +8,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020/12/11
@@ -31,16 +33,25 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/oauth/user")
-    ApiResult addUser(@RequestBody UserDTO param);
+    ApiResult<UserDTO> addUser(@RequestBody UserDTO param);
 
     /**
-     * 新增管理员用户
+     * 管理端创建医院端、学校端、筛查端的管理员
      *
      * @param param 用户数据
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/oauth/user/admin")
-    ApiResult addAdminUser(@RequestBody UserDTO param);
+    ApiResult<UserDTO> addAdminUser(@RequestBody UserDTO param);
+
+    /**
+     * 批量新增筛查人员
+     *
+     * @param param 用户数据
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @PostMapping("/oauth/user/screening/batch")
+    ApiResult<List<Integer>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
      * 更新用户

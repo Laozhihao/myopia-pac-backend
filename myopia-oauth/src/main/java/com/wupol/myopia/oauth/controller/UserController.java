@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020-12-25
@@ -75,7 +77,7 @@ public class UserController {
     }
 
     /**
-     * 新增各个系统的管理员
+     * 管理端创建医院端、学校端、筛查端的管理员
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -83,5 +85,16 @@ public class UserController {
     @PostMapping("/admin")
     public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) {
         return userService.addAdminUser(userDTO);
+    }
+
+    /**
+     * 批量新增筛查人员
+     *
+     * @param userList 用户数据集合
+     * @return java.util.List<java.lang.Integer>
+     **/
+    @PostMapping("/screening/batch")
+    public List<Integer> addScreeningUserBatch(@RequestBody List<UserDTO> userList) {
+        return userService.addScreeningUserBatch(userList);
     }
 }
