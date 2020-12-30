@@ -5,14 +5,16 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.model.UserWithRole;
-import com.wupol.myopia.oauth.service.RoleService;
-import com.wupol.myopia.oauth.service.UserRoleService;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,10 +29,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private UserRoleService userRoleService;
 
     /**
      * 获取用户列表
@@ -61,8 +59,15 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object modifyUser(@RequestBody UserDTO user) {
-        return userService.updateById(user);
+    public User modifyUser(@RequestBody UserDTO user) {
+        String pwd = user.getPassword();
+        if (!StringUtils.isEmpty(pwd)) {
+            user.setPassword(new BCryptPasswordEncoder().encode(pwd));
+        }
+        // TODO: 手机号不为空，则判断是否唯一
+        userService.updateById(user);
+        // TODO: 角色不为空，则更新角色
+        return user.setPassword(pwd);
     }
 
     /**
@@ -96,5 +101,19 @@ public class UserController {
     @PostMapping("/screening/batch")
     public List<Integer> addScreeningUserBatch(@RequestBody List<UserDTO> userList) {
         return userService.addScreeningUserBatch(userList);
+    }
+
+    /**
+     * 根据用户ID集批量获取用户
+     *
+     * @param userIds 用户ID集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch")
+    public List<User> getUserBatchByIds(@RequestBody List<Integer> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>();
+        }
+        return userService.listByIds(userIds);
     }
 }

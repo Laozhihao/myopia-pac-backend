@@ -27,6 +27,15 @@ public interface OauthServiceClient {
     ApiResult getUserListPage(@SpringQueryMap UserDTO param);
 
     /**
+     * 根据用户ID集批量获取用户
+     *
+     * @param userIds 用户ID集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch")
+    ApiResult<List<UserDTO>> getUserBatchByIds(@RequestBody List<Integer> userIds);
+
+    /**
      * 新增用户
      *
      * @param param 用户数据
@@ -60,15 +69,15 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PutMapping("/oauth/user")
-    ApiResult modifyUser(@RequestBody UserDTO param);
+    ApiResult<UserDTO> modifyUser(@RequestBody UserDTO param);
 
     /**
-     * 重置密码
+     * 重置管理端用户的密码【其他端用户的不适合】
      *
      * @param userId 用户ID
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @PutMapping("/oauth/password/{userId}")
+    @PutMapping("/oauth/user/password/{userId}")
     ApiResult resetPwd(@PathVariable("userId") Integer userId);
 
     /**
