@@ -69,11 +69,13 @@ public class HospitalController {
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+        CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestParam("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.resetPassword(id);
     }
 

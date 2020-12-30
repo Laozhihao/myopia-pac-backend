@@ -67,11 +67,13 @@ public class ScreeningOrganizationStaffController {
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
-        return screeningOrganizationStaffService.updateStatus(statusRequest);
+        CurrentUserUtil.getLegalCurrentUser();
+        return ApiResult.success(screeningOrganizationStaffService.updateStatus(statusRequest));
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestBody StaffResetPasswordRequest request) {
+        CurrentUserUtil.getLegalCurrentUser();
         return screeningOrganizationStaffService.resetPassword(request);
     }
 

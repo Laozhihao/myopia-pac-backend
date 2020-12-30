@@ -14,7 +14,5 @@ public class StatusRequest {
 
     private Integer id;
 
-    private Integer userId;
-
     private Integer status;
 }

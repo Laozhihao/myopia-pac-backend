@@ -82,7 +82,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public Integer deletedHospital(Integer id, Integer createUserId, Integer govDeptId) {
         Hospital hospital = new Hospital();
-        // TODO: 获取登陆用户id, 部门id
         hospital.setId(id);
         hospital.setCreateUserId(createUserId);
         hospital.setGovDeptId(govDeptId);
@@ -111,9 +110,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
+
+        HospitalStaff staff = hospitalStaffService.getByHospitalId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
-                .setId(request.getId())
+                .setId(staff.getUserId())
                 .setStatus(request.getStatus());
         ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {

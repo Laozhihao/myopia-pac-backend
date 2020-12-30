@@ -94,11 +94,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
+
+        SchoolStaff staff = schoolStaffService.getBySchoolId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
-                .setId(request.getId())
+                .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
