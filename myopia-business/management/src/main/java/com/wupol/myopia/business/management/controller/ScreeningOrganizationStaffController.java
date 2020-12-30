@@ -7,6 +7,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
+import com.wupol.myopia.business.management.domain.dto.StaffResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -67,6 +68,11 @@ public class ScreeningOrganizationStaffController {
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
         return screeningOrganizationStaffService.updateStatus(statusRequest);
+    }
+
+    @PostMapping("reset")
+    public Object resetPassword(@RequestBody StaffResetPasswordRequest request) {
+        return screeningOrganizationStaffService.resetPassword(request);
     }
 
     @GetMapping("/export")

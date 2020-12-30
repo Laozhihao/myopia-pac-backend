@@ -156,6 +156,28 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     }
 
     /**
+     * 重置密码
+     *
+     * @param request 入参
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequest request) {
+        ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
+        String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
+        String username = request.getPhone();
+        UserDTO userDTO = new UserDTO()
+                .setId(staff.getId())
+                .setUsername(username)
+                .setPassword(password);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        return new UsernameAndPasswordDTO(username, password);
+    }
+
+    /**
      * 生成账号密码
      *
      * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id

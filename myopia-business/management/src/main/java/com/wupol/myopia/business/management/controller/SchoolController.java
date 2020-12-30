@@ -68,6 +68,11 @@ public class SchoolController {
         return schoolService.updateStatus(statusRequest);
     }
 
+    @PostMapping("reset")
+    public Object resetPassword(@RequestParam("id") Integer id) {
+        return schoolService.resetPassword(id);
+    }
+
     @GetMapping("/export")
     public ApiResult getSchoolExportData(SchoolQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateSchool(query));

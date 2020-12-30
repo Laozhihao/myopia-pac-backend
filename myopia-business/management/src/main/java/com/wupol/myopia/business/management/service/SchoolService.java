@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.SchoolStaff;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ import javax.annotation.Resource;
 public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
-    private SchoolStaffService SchoolStaffService;
+    private SchoolStaffService schoolStaffService;
 
     @Resource
     private GovDeptService govDeptService;
@@ -121,6 +122,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return schoolDtoLists;
     }
 
+    /**
+     * 重置密码
+     *
+     * @param id 医院id
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(Integer id) {
+        School school = schoolMapper.selectById(id);
+        if (null == school) {
+            throw new BusinessException("数据异常");
+        }
+        SchoolStaff staff = schoolStaffService.getBySchoolId(id);
+        return resetOAuthPassword(school, staff.getUserId());
+    }
+
 
     /**
      * 生成账号密码
@@ -142,10 +159,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        SchoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
+        schoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
+    /**
+     * 生成学校编号
+     *
+     * @param code 行政区代码
+     * @return 编号
+     */
     private String generateSchoolNo(Integer code) {
         School school = schoolMapper.getLastSchoolByNo(code);
         if (null == school) {
@@ -153,4 +176,27 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         return String.valueOf(Long.parseLong(school.getSchoolNo()) + 1);
     }
+
+    /**
+     * 重置密码
+     *
+     * @param school 学校
+     * @param userId OAuth2 的userId
+     * @return 账号密码
+     */
+    private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
+        String password = PasswordGenerator.getSchoolAdminPwd(school.getSchoolNo());
+        String username = school.getName();
+
+        UserDTO userDTO = new UserDTO()
+                .setId(userId)
+                .setUsername(username)
+                .setPassword(password);
+        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("远程调用异常");
+        }
+        return new UsernameAndPasswordDTO(username, password);
+    }
+
 }

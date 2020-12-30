@@ -72,6 +72,11 @@ public class HospitalController {
         return hospitalService.updateStatus(statusRequest);
     }
 
+    @PostMapping("reset")
+    public Object resetPassword(@RequestParam("id") Integer id) {
+        return hospitalService.resetPassword(id);
+    }
+
     @GetMapping("/export")
     public ApiResult getHospitalExportData(HospitalQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateHospital(query));

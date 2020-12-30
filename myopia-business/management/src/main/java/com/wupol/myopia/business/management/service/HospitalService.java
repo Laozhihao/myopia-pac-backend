@@ -13,6 +13,7 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
+import com.wupol.myopia.business.management.domain.model.HospitalStaff;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -114,12 +115,28 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         UserDTO userDTO = new UserDTO()
                 .setId(request.getId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
         Hospital hospital = new Hospital().setId(request.getId()).setStatus(request.getStatus());
         return hospitalMapper.updateById(hospital);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param id 医院id
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(Integer id) {
+        Hospital hospital = hospitalMapper.selectById(id);
+        if (null == hospital) {
+            throw new BusinessException("数据异常");
+        }
+        HospitalStaff staff = hospitalStaffService.getByHospitalId(id);
+        return resetAuthPassword(hospital, staff.getUserId());
     }
 
     /**
@@ -146,11 +163,39 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return new UsernameAndPasswordDTO(username, password);
     }
 
+    /**
+     * 生成医院编号
+     *
+     * @param code 地域代码
+     * @return 编号
+     */
     private String generateHospitalNo(Integer code) {
         Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
         if (null == hospital) {
             return StringUtils.join(code, "101");
         }
         return String.valueOf(Long.parseLong(hospital.getHospitalNo()) + 1);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param hospital 医院
+     * @param userId   用户id
+     * @return 账号密码
+     */
+    private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
+        String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
+        String username = hospital.getName();
+
+        UserDTO userDTO = new UserDTO()
+                .setId(userId)
+                .setUsername(username)
+                .setPassword(password);
+        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("远程调用异常");
+        }
+        return new UsernameAndPasswordDTO(username, password);
     }
 }
