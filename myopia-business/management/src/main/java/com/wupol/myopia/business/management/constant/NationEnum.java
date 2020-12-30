@@ -4,7 +4,9 @@ import com.wupol.myopia.business.management.domain.model.Nation;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 民族枚举类
@@ -90,5 +92,11 @@ public enum NationEnum {
             nationLists.add(nation);
         }
         return nationLists;
+    }
+
+    /** 根据类型获取描述 */
+    public static String getName(Integer nation) {
+        NationEnum h = Arrays.stream(NationEnum.values()).filter(item -> item.code.equals(nation)).findFirst().orElse(null);
+        return Objects.nonNull(h) ? h.name : null;
     }
 }

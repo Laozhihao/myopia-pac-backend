@@ -30,11 +30,11 @@ public class SchoolExportVo implements Serializable {
     public static final String HEADER2 = "在线学生";
     public static final String HEADER3 = "住校学生";
     @ExcelProperty({TOP_HEADER, "ID"})
-    private Integer no;
+    private String no;
     @ExcelProperty({TOP_HEADER, "名称"})
     private String name;
     @ExcelProperty({TOP_HEADER, "性质"})
-    private Integer kind;
+    private String kind;
     @ExcelProperty({TOP_HEADER, "是否寄宿"})
     private String lodgeStatus;
     @ExcelProperty({TOP_HEADER, "类型"})

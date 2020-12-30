@@ -18,5 +18,6 @@ public interface DistrictMapper extends BaseMapper<District> {
      * @param code 根节点code
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
-    List<District> selectDistrictTree(Long code);
+    List<District> selectDistrictTree(Integer code);
+    List<District> findByCodeList(Integer provinceCode, Integer cityCode, Integer areaCode, Integer townCode);
 }

@@ -40,12 +40,12 @@ public class District implements Serializable {
     /**
      * 行政区代码
      */
-    private Long code;
+    private Integer code;
 
     /**
      * 上级行政区代码（省级统一为100000000000）
      */
-    private Long parentCode;
+    private Integer parentCode;
 
     /**
      * 片区代码

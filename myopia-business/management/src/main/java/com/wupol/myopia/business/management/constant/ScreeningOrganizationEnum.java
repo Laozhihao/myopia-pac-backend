@@ -30,7 +30,7 @@ public enum ScreeningOrganizationEnum {
     }
 
     /** 根据类型获取描述 */
-    public static String getNameByType(Integer type) {
+    public static String getTypeName(Integer type) {
         ScreeningOrganizationEnum h = Arrays.stream(ScreeningOrganizationEnum.values()).filter(item -> item.type.equals(type)).findFirst().orElse(null);
         return Objects.nonNull(h) ? h.name : null;
     }

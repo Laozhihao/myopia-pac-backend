@@ -1,15 +1,16 @@
 package com.wupol.myopia.business.management.facade;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.metadata.CellExtra;
-import com.alibaba.excel.read.listener.ReadListener;
-import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.IOUtils;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.constant.HospitalEnum;
+import com.wupol.myopia.business.management.constant.NationEnum;
+import com.wupol.myopia.business.management.constant.SchoolEnum;
 import com.wupol.myopia.business.management.constant.ScreeningOrganizationEnum;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.*;
 import com.wupol.myopia.business.management.domain.vo.*;
@@ -18,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +53,13 @@ public class ExcelFacade {
     @Autowired
     private HospitalService hospitalService;
     @Autowired
+    private SchoolService schoolService;
+    @Autowired
     private StudentService studentService;
+    @Autowired
+    private DistrictService districtService;
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 生成筛查机构Excel
@@ -62,32 +69,35 @@ public class ExcelFacade {
         StringBuilder builder = new StringBuilder();
         if (StringUtils.isNotBlank(query.getIdLike())) builder.append("_").append(query.getIdLike());
         if (StringUtils.isNotBlank(query.getNameLike())) builder.append("_").append(query.getNameLike());
-        if (Objects.nonNull(query.getType())) builder.append("_").append(ScreeningOrganizationEnum.getNameByType(query.getType()));
+        if (Objects.nonNull(query.getType())) builder.append("_").append(ScreeningOrganizationEnum.getTypeName(query.getType()));
         if (StringUtils.isNotBlank(query.getCode())) builder.append("_").append(query.getCode());
         builder.append("_").append(DateFormatUtil.formatNow(DateFormatUtil.FORMAT_DATE_AND_TIME_WITHOUT_SEPERATOR));
         String fileName = String.format(SCREENING_ORGANIZATION, builder.toString());
+
         //TODO 待写模糊搜索
-//        List<ScreeningOrganization> list = screeningOrganizationService.findByList(query);
-        List<ScreeningOrganization> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            list.add(new ScreeningOrganization()
-                    .setOrgNo(String.valueOf((long) i))
-                    .setName("机构"+i)
-                    .setType( i % 6)
-                    .setRemark("说明"+i)
-            );
-        }
+        List<ScreeningOrganization> list = screeningOrganizationService.findByList(query);
         List<ScreeningOrganizationExportVo> exportList = list.stream()
                 .map(item -> {
+                    List<String> staffNameList = new ArrayList<>();
+                    try {
+                        List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
+                                .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
+                        ApiResult<List<UserDTO>> result = oauthServiceClient.getUserBatchByIds(staffIdList);
+                        if (result.isSuccess()) {
+                            staffNameList = result.getData().stream().map(UserDTO::getRealName).collect(Collectors.toList());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return new ScreeningOrganizationExportVo()
-                            .setId(Math.toIntExact(Long.parseLong(item.getOrgNo())))
+                            .setId(item.getOrgNo())
                             .setName(item.getName())
-                            .setType(ScreeningOrganizationEnum.getNameByType(item.getType()))
+                            .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                             .setRemark(item.getRemark())
-                            .setAddress("地址")
-                            .setPersonNames(Arrays.asList("刘一","刘二").toString().replaceFirst("\\[","").replaceFirst("]",""))
-                            .setScreeningCount(Math.toIntExact(Long.parseLong(item.getOrgNo())))
-                            .setPersonCount(Math.toIntExact(Long.parseLong(item.getOrgNo())));
+                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                            .setPersonNames(staffNameList.toString().replaceFirst("\\[","").replaceFirst("]",""))
+                            .setScreeningCount(1)
+                            .setPersonCount(staffNameList.size());
                 }).collect(Collectors.toList());
 
         log.info("导出文件: {}", fileName);
@@ -144,13 +154,22 @@ public class ExcelFacade {
         builder.append("_").append(DateFormatUtil.formatNow(DateFormatUtil.FORMAT_DATE_AND_TIME_WITHOUT_SEPERATOR));
         String fileName = String.format(HOSPITAL, builder.toString());
         //TODO 待写模糊搜索
-//        List<Hospital> list = hospitalService.findByList(query);
-        log.info("导出文件: {}", fileName);
-//        File file = ExcelUtil.exportListToExcel(fileName, list, Hospital.class);
+        List<Hospital> list = hospitalService.findByList(query);
+        List<HospitalExportVo> exportList = list.stream()
+                .map(item -> {
+                    return new HospitalExportVo()
+                            .setNo(item.getHospitalNo())
+                            .setName(item.getName())
+                            .setLevel(item.getLevelDesc())
+                            .setType(HospitalEnum.getTypeName(item.getType()))
+                            .setKind(HospitalEnum.getKineName(item.getKind()))
+                            .setRemark(item.getRemark())
+                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
+                }).collect(Collectors.toList());
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
 
         //TODO 待上传文件
         return "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png";
-//        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billStatList, BillStat.class);
     }
 
 
@@ -168,27 +187,27 @@ public class ExcelFacade {
         builder.append("_").append(DateFormatUtil.formatNow(DateFormatUtil.FORMAT_DATE_AND_TIME_WITHOUT_SEPERATOR));
         String fileName = String.format(SCHOOL, builder.toString());
         //TODO 待写模糊搜索
-//        List<School> list = hospitalService.findByList(query);
-        List<SchoolExportVo> exportList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            exportList.add(new SchoolExportVo()
-                    .setNo(1)
-                    .setName("32423r")
-                    .setKind(21)
-                    .setLodgeStatus("324323")
-                    .setType("123")
-                    .setOnlineCount(213)
-                    .setOnlineMaleCount(213)
-                    .setOnlineFemaleCount(213)
-                    .setLodgeCount(213)
-                    .setLodgeMaleCount(213)
-                    .setLodgeFemaleCount(213)
-                    .setAddress("1324321432")
-                    .setClassName("42342")
-                    .setRemark("41234")
-                    .setScreeningCount(2121)
-            );
-        }
+        List<School> list = schoolService.findByList(query);
+
+        List<SchoolExportVo> exportList = list.stream()
+                .map(item -> {
+                    return new SchoolExportVo()
+                            .setNo(item.getSchoolNo())
+                            .setName(item.getName())
+                            .setKind(item.getKindDesc())
+                            .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
+                            .setType(SchoolEnum.getTypeName(item.getType()))
+                            .setOnlineCount(item.getTotalOnline())
+                            .setOnlineMaleCount(item.getTotalOnlineMale())
+                            .setOnlineFemaleCount(item.getTotalOnlineFemale())
+                            .setLodgeCount(item.getTotalLodge())
+                            .setLodgeMaleCount(item.getTotalLodgeMale())
+                            .setLodgeFemaleCount(item.getTotalLodgeFemale())
+                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                            .setClassName("年级")
+                            .setRemark(item.getRemark())
+                            .setScreeningCount(2121);
+                }).collect(Collectors.toList());
 
 
         log.info("导出文件: {}", fileName);
@@ -216,14 +235,27 @@ public class ExcelFacade {
         builder.append("_").append(DateFormatUtil.formatNow(DateFormatUtil.FORMAT_DATE_AND_TIME_WITHOUT_SEPERATOR));
         String fileName = String.format(STUDENT, builder.toString());
         //TODO 待写模糊搜索
-        List<Student> studentList = studentService.findByList(new Student());
-        //TODO 批量查用户信息, 并转成导出类
-        log.info("导出文件: {}", fileName);
-//        File file = ExcelUtil.exportListToExcel(fileName, list, Hospital.class);
-
+        List<Student> list = studentService.getStudentsBySchoolId(query.getSchoolId());
+        String schoolName = schoolService.getById(query.getSchoolId()).getName();
+        List<StudentExportVo> exportVoList = list.stream()
+                .map(item -> {
+                    return new StudentExportVo()
+                            .setNo(item.getSno())
+                            .setName(item.getName())
+                            //TODO 待转中文
+                            .setGender(item.getGender()+"")
+                            .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
+                            .setNation(NationEnum.getName(item.getNation()))
+                            .setSchool(schoolName)
+                            .setGrade("年级名")
+                            .setClassName("班级名")
+                            .setIdCard(item.getIdCard())
+                            .setPhone(item.getParentPhone())
+                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
+                }).collect(Collectors.toList());
+        File file = ExcelUtil.exportListToExcel(fileName, exportVoList, StudentExportVo.class);
         //TODO 待上传文件
         return "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png";
-//        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billStatList, BillStat.class);
     }
 
     /**
@@ -333,20 +365,14 @@ public class ExcelFacade {
         }
     }
 
-
-    /**
-     * 生成日账单明细Excel
-     *
-     * @param billRecordList    账单数据
-     * @param timezone          时区
-     * @param date              日期
-     * @return java.io.File
-     **/
-    public File generateBillExcelOfDay(List<BillRecord> billRecordList, String timezone, String date) throws IOException {
-        String fileName = String.format(BILL_EXCEL_FILE_NAME_OF_DAY, date, timezone);
-        return ExcelUtil.exportListToExcel(getFilePathName(fileName), billRecordList, BillRecord.class);
+    private String getAddress(Integer provinceCode, Integer cityCode, Integer areaCode, Integer townCode, String address) {
+        try {
+            return districtService.getAddressPrefix(provinceCode, cityCode, areaCode, townCode) + address;
+        } catch (ValidationException e) {
+            log.error("获取地址失败", e);
+        }
+        return "";
     }
-
 
     /**
      * 获取文件路径
