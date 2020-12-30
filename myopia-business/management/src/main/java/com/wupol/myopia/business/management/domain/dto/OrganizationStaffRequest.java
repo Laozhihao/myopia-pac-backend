@@ -17,7 +17,7 @@ public class OrganizationStaffRequest {
     /**
      * 筛查机构表id
      */
-    @NotNull
+    @NotNull(message = "机构ID不能为空")
     private Integer screeningOrgId;
 
     /**

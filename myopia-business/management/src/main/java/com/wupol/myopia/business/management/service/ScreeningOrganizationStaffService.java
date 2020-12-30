@@ -56,7 +56,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
                         // TODO: 放开
-//                        .setOrgId(request.getScreeningOrgId())
+                        .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
@@ -112,7 +112,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
         staffQuery.setUserId(tuple.getSecond());
 
-        baseMapper.insert(staffQuery);
+        save(staffQuery);
         return tuple.getFirst();
     }
 
@@ -194,7 +194,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         tuple.setFirst(new UsernameAndPasswordDTO(username, password));
 
         UserDTO userDTO = new UserDTO()
-                .setOrgId(staff.getId())
+                .setOrgId(staff.getScreeningOrgId())
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(staff.getCreateUserId())
