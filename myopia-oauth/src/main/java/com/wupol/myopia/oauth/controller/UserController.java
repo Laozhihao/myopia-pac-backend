@@ -110,7 +110,7 @@ public class UserController {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/batch")
-    public List<User> getUserBatchByIds(@RequestBody List<Integer> userIds) {
+    public List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
             return new ArrayList<>();
         }
