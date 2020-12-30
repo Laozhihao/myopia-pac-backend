@@ -23,4 +23,22 @@
         id, name, code, parent_code
     </sql>
 
+    <resultMap id="treeVoMap" type="com.wupol.myopia.business.management.domain.model.District">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="code" property="code" jdbcType="VARCHAR" />
+        <result column="parent_code" property="parentCode" jdbcType="INTEGER" />
+        <collection property="child" ofType="com.wupol.myopia.business.management.domain.model.District" column="code" select="findTreeByPid"/>
+    </resultMap>
+
+    <!--级联查询父菜单-->
+    <select id="selectAllTree" resultMap="treeVoMap" >
+        select * from m_district where parent_code = #{parentCode}
+    </select>
+
+    <!--级联查询子菜单-->
+    <select id="findTreeByPid" resultMap="treeVoMap" >
+        select * from m_district where parent_code = #{code}
+    </select>
+
 </mapper>

@@ -31,7 +31,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 保存筛查机构
      *
      * @param screeningOrganization 筛查机构
-     * @return 更新个数
+     * @return Integer 插入个数
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
@@ -39,7 +39,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             throw new BusinessException("数据异常");
         }
         screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getTownCode()));
-        generateAccountAndPassword();
         return baseMapper.insert(screeningOrganization);
     }
 
@@ -80,14 +79,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return screeningOrganizationMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getType(), query.getOrgNo(), query.getCode());
-    }
-
-
-    /**
-     * 生成账号密码
-     */
-    private void generateAccountAndPassword() {
-
     }
 
     private String generateOrgNo(Integer code) {

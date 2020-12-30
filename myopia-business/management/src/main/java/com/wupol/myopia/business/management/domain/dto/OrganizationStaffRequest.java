@@ -28,7 +28,7 @@ public class OrganizationStaffRequest {
     /**
      * 身份证
      */
-    private Integer idCard;
+    private String idCard;
 
     /**
      * 手机号码

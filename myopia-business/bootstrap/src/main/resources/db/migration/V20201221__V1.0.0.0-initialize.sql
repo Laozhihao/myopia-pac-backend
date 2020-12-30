@@ -124,7 +124,7 @@ create table m_school_grade
         primary key,
     create_user_id int                                 null comment '创建人ID',
     school_id      int                                 not null comment '学校ID',
-    grade_code     varchar(16)                         not null comment '年级编码',
+    grade_code     int                                 not null comment '年级编码',
     name           varchar(32)                         not null comment '年级名称',
     status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',

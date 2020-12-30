@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.HospitalStaffMapper;
 import com.wupol.myopia.business.management.domain.model.HospitalStaff;
@@ -26,6 +27,17 @@ public class HospitalStaffService extends BaseService<HospitalStaffMapper, Hospi
         hospitalStaff.setHospitalId(hospitalId);
         hospitalStaff.setUserId(userId);
         return baseMapper.insert(hospitalStaff);
+    }
+
+    /**
+     * 通过医院ID获取医院ADMIN
+     *
+     * @param hospitalId 医院id
+     * @return admin
+     */
+    public HospitalStaff getByHospitalId(Integer hospitalId) {
+        return baseMapper.selectOne(new QueryWrapper<HospitalStaff>().eq("hospital_id", hospitalId));
+
     }
 
 }

@@ -24,11 +24,11 @@ public enum SystemCode {
     /**
      * 系统编号
      **/
-    private Integer code;
+    private final Integer code;
     /**
      * 描述
      **/
-    private String msg;
+    private final String msg;
 
     SystemCode(Integer code, String descr) {
         this.code = code;

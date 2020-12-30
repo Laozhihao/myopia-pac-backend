@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Setter
 @Getter
-public class SchoolGradeResponseDto {
+public class SchoolGradeResponseDTO {
 
     private List<SchoolGradeItems> items;
 }

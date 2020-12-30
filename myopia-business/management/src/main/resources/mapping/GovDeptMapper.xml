@@ -28,4 +28,36 @@
         id, name, pid, district_id, create_user_id, status, remark, create_time, update_time
     </sql>
 
+    <resultMap id="treeVoMap" type="com.wupol.myopia.business.management.domain.model.GovDept">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="pid" property="pid" jdbcType="INTEGER" />
+        <collection property="child" ofType="com.wupol.myopia.business.management.domain.model.GovDept" column="id" select="findTreeByPid"/>
+    </resultMap>
+
+    <!--级联查询父菜单-->
+    <select id="selectGovDeptTreeByPid" resultMap="treeVoMap" >
+        select * from m_government_department where pid = #{pid}
+    </select>
+
+     <!--级联查询子菜单-->
+    <select id="findTreeByPid" resultMap="treeVoMap" >
+        select * from m_government_department where pid = #{id}
+    </select>
+
+    <resultMap id="idTreeMap" type="com.wupol.myopia.business.management.domain.model.GovDept">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <collection property="child" ofType="com.wupol.myopia.business.management.domain.model.GovDept" column="id" select="findTreeByPid"/>
+    </resultMap>
+
+    <!--级联查询父菜单-->
+    <select id="selectIdTreeByPid" resultMap="idTreeMap" >
+        select id from m_government_department where pid = #{pid}
+    </select>
+
+    <!--级联查询子菜单-->
+    <select id="findTreeByPid" resultMap="treeVoMap" >
+        select id from m_government_department where pid = #{id}
+    </select>
+
 </mapper>

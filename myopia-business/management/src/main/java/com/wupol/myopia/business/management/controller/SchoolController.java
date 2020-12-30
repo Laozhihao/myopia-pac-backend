@@ -1,13 +1,13 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +33,17 @@ public class SchoolController {
 
     @PostMapping()
     public Object saveSchool(@RequestBody School school) {
-        school.setCreateUserId(Const.CREATE_USER_ID);
-        school.setGovDeptId(Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        school.setCreateUserId(user.getId());
+        school.setGovDeptId(user.getOrgId());
         return schoolService.saveSchool(school);
     }
 
     @PutMapping()
     public Object updateSchool(@RequestBody School school) {
-        school.setCreateUserId(Const.CREATE_USER_ID);
-        school.setGovDeptId(Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        school.setCreateUserId(user.getId());
+        school.setGovDeptId(user.getOrgId());
         return schoolService.updateSchool(school);
     }
 
@@ -57,12 +59,18 @@ public class SchoolController {
 
     @GetMapping("list")
     public Object getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
-        return schoolService.getSchoolList(pageRequest, schoolQuery, 1);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return schoolService.getSchoolList(pageRequest, schoolQuery, user.getOrgId());
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
-        return null;
+        return schoolService.updateStatus(statusRequest);
+    }
+
+    @PostMapping("reset")
+    public Object resetPassword(@RequestParam("id") Integer id) {
+        return schoolService.resetPassword(id);
     }
 
     @GetMapping("/export")

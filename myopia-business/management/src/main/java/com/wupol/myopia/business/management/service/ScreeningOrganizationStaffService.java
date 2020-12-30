@@ -1,18 +1,32 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
+import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -22,39 +36,49 @@ import javax.annotation.Resource;
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
-    private GovDeptService govDeptService;
-
-    @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取机构人员列表
      *
-     * @param request   请求入参
-     * @param govDeptId 部门id
-     * @return Page<ScreeningOrganizationStaff> {@link Page}
+     * @param request 请求入参
+     * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<ScreeningOrganizationStaff> getOrganizationStaffList(OrganizationStaffRequest request, Integer govDeptId) {
+    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
 
-        Page<ScreeningOrganizationStaff> page = new Page<>(request.getCurrent(), request.getSize());
-        QueryWrapper<ScreeningOrganizationStaff> wrapper = new QueryWrapper<>();
+        ApiResult apiResult = oauthServiceClient.getUserListPage(
+                new UserDTO()
+                        .setCurrent(request.getCurrent())
+                        .setSize(request.getSize())
+//                        .setOrgId(request.getScreeningOrgId())
+                        .setRealName(request.getName())
+                        .setIdCard(request.getIdCard())
+                        .setPhone(request.getMobile()));
+        if (apiResult.isSuccess()) {
+            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+            });
+            List<UserExtDTO> resultLists = page.getRecords();
 
-        likeQueryAppend(wrapper, "screening_org_id", request.getScreeningOrgId());
-        InQueryAppend(wrapper, "gov_dept_id", govDeptService.getAllSubordinate(govDeptId));
+            if (!CollectionUtils.isEmpty(resultLists)) {
+                List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
+                Map<Integer, String> staffSnMaps = baseMapper
+                        .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                                .in("user_id", userIds))
+                        .stream()
+                        .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
+                                ScreeningOrganizationStaff::getStaffNo));
 
-        if (StringUtils.isNotBlank(request.getName())) {
-
+                resultLists.forEach(s -> {
+                    s.setSn(staffSnMaps.get(s.getId()));
+                });
+                return page;
+            }
         }
-        if (null != request.getIdCard()) {
-
-        }
-        if (null != request.getIdCard()) {
-
-        }
-        if (StringUtils.isNotBlank(request.getMobile())) {
-
-        }
-        return baseMapper.selectPage(page, wrapper);
+        return null;
     }
 
     /**
@@ -73,37 +97,125 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 新增员工
      *
-     * @param screeningOrganizationStaff 员工实体类
-     * @return 新增个数
+     * @param staffQuery 员工实体类
+     * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
+    public synchronized UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
+
+        // 生成账号密码
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
         // 通过screeningOrgId获取机构
-        ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrganizationStaff.getScreeningOrgId());
-        screeningOrganizationStaff.setStaffNo(generateOrgNo(organization.getOrgNo(), Const.STAFF_ID_CARD));
-        screeningOrganizationStaff.setUserId(Const.STAFF_USER_ID);
-        generateAccountAndPassword();
-        return baseMapper.insert(screeningOrganizationStaff);
+        ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
+        staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
+        staffQuery.setUserId(tuple.getSecond());
+
+        baseMapper.insert(staffQuery);
+        return tuple.getFirst();
     }
 
     /**
      * 更新员工
      *
-     * @param screeningOrganizationStaff 员工实体类
+     * @param staff 员工实体类
      * @return 更新个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateOrganizationStaff(ScreeningOrganizationStaff screeningOrganizationStaff) {
-        return baseMapper.updateById(screeningOrganizationStaff);
+    public Integer updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
+        UserDTO userDTO = new UserDTO()
+                .setId(staff.getUserId())
+                .setRealName(staff.getName())
+                .setGender(staff.getGender())
+                .setPhone(staff.getPhone())
+                .setIdCard(staff.getIdCard())
+                .setRemark(staff.getRemark());
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        return baseMapper.updateById(staff);
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param request 入参
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStatus(StatusRequest request) {
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(request.getId())
+                .setStatus(request.getStatus());
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        return 1;
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param request 入参
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequest request) {
+        ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
+        String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
+        String username = request.getPhone();
+        UserDTO userDTO = new UserDTO()
+                .setId(staff.getId())
+                .setUsername(username)
+                .setPassword(password);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("OAuth2 异常");
+        }
+        return new UsernameAndPasswordDTO(username, password);
     }
 
     /**
      * 生成账号密码
+     *
+     * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private void generateAccountAndPassword() {
+    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQuery staff) {
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
 
+        String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
+        String username = staff.getPhone();
+        tuple.setFirst(new UsernameAndPasswordDTO(username, password));
+
+        UserDTO userDTO = new UserDTO()
+                .setOrgId(staff.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setCreateUserId(staff.getCreateUserId())
+                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
+                .setRealName(staff.getName())
+                .setGender(staff.getGender())
+                .setPhone(staff.getPhone())
+                .setIdCard(staff.getIdCard())
+                .setRemark(staff.getRemark());
+
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("创建管理员信息异常");
+        }
+        tuple.setSecond(apiResult.getData().getId());
+        return tuple;
     }
 
+    /**
+     * 生成人员编号
+     *
+     * @param orgNo  筛查机构编号
+     * @param idCard 身份证
+     * @return String 编号
+     */
     private String generateOrgNo(String orgNo, String idCard) {
         return StringUtils.join(orgNo, StringUtils.right(idCard, 6));
     }

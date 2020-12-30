@@ -5,7 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeResponseDto;
+import com.wupol.myopia.business.management.domain.dto.SchoolGradeResponseDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
@@ -80,9 +80,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param schoolId 学校id
      * @return SchoolGradeResponseDto 返回体
      */
-    public SchoolGradeResponseDto getGradeList(Integer schoolId) {
+    public SchoolGradeResponseDTO getGradeList(Integer schoolId) {
 
-        SchoolGradeResponseDto responseDto = new SchoolGradeResponseDto();
+        SchoolGradeResponseDTO responseDto = new SchoolGradeResponseDTO();
         List<SchoolGradeItems> schoolGradeItems = new ArrayList<>();
 
         QueryWrapper<SchoolGrade> schoolGradeWrapper = new QueryWrapper<>();

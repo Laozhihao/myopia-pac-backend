@@ -56,6 +56,11 @@ public class Role implements Serializable {
     private Integer createUserId;
 
     /**
+     * 系统编号
+     */
+    private Integer systemCode;
+
+    /**
      * 状态：0-启用 1-禁止 2-删除
      */
     private Integer status;

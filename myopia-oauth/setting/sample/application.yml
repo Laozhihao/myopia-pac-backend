@@ -19,7 +19,7 @@ spring:
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: localhost:8080
+        dashboard: localhost:8858
       # 取消Sentinel控制台懒加载
       eager: true
   ### 为true设置的是web开启sleuth功能
@@ -59,7 +59,7 @@ spring:
       ### 在线监控面板账号密码
       stat-view-servlet:
         enabled: true
-        url-pattern: "/druid/*"
+        url-pattern: '/druid/*'
         reset-enable: false
         login-username: admin
         login-password: 123456

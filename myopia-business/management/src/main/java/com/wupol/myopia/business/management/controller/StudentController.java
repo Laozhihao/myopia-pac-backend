@@ -1,16 +1,19 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.StudentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,30 +40,35 @@ public class StudentController {
 
     @PostMapping()
     public Object saveStudent(@RequestBody Student student) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStudentIsLegal(student);
-        student.setCreateUserId(Const.CREATE_USER_ID);
+        student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
     }
 
     @PutMapping()
     public Object updateStudent(@RequestBody Student student) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStudentIsLegal(student);
-        student.setCreateUserId(Const.CREATE_USER_ID);
+        student.setCreateUserId(user.getId());
         return studentService.updateStudent(student);
     }
 
     @DeleteMapping("{id}")
     public Object deletedStudent(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.deletedStudent(id);
     }
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getById(id);
     }
 
     @GetMapping("list")
     public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) throws ParseException {
+        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getStudentLists(pageRequest, studentQuery);
     }
 
@@ -80,7 +88,14 @@ public class StudentController {
 
     @GetMapping("labels")
     public Object getVisionLabels() {
+        CurrentUserUtil.getLegalCurrentUser();
         return VisionLabelsEnum.getVisionLabels();
+    }
+
+    @GetMapping("nation")
+    public Object getNationLists() {
+        CurrentUserUtil.getLegalCurrentUser();
+        return NationEnum.getNationList();
     }
 
     /**
@@ -89,6 +104,16 @@ public class StudentController {
      * @param student 学生实体类
      */
     private void checkStudentIsLegal(Student student) {
+
+        if (null == student.getSchoolId() || null == student.getSno()
+                || null == student.getGradeId() || null == student.getClassId()
+                || StringUtils.isBlank(student.getName()) || null == student.getGender()
+                || null == student.getBirthday() || null == student.getNation()
+                || null == student.getCityCode() || null == student.getProvinceCode()
+                || null == student.getAreaCode() || null == student.getTownCode()
+                || StringUtils.isBlank(student.getAddress())) {
+            throw new BusinessException("数据异常");
+        }
         // 检查身份证
         if (!RegularUtils.isIdCard(student.getIdCard())) {
             throw new BusinessException("身份证不正确");

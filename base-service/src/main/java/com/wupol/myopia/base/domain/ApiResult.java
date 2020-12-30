@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -44,5 +45,10 @@ public class ApiResult<T> implements Serializable {
 
     public static <T> ApiResult<T> failure(String message) {
         return failure(ResultCode.BAD_REQUEST.getCode(), message);
+    }
+
+    @JsonIgnore
+    public Boolean isSuccess() {
+        return ResultCode.SUCCESS.getCode() == this.getCode();
     }
 }

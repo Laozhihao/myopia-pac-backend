@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolStaffMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolStaff;
@@ -28,6 +29,10 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
         schoolStaff.setCreateUserId(createUserId);
         schoolStaff.setGovDeptId(govDeptId);
         return baseMapper.insert(schoolStaff);
+    }
+
+    public SchoolStaff getBySchoolId(Integer id) {
+        return baseMapper.selectOne(new QueryWrapper<SchoolStaff>().eq("school_id",id));
     }
 
 }

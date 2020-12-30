@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,31 +35,38 @@ public class ScreeningOrganizationController {
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
-        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        checkParam(screeningOrganization);
+        screeningOrganization.setCreateUserId(user.getId());
+        screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
     }
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody ScreeningOrganization screeningOrganization) {
-        screeningOrganization.setCreateUserId(Const.CREATE_USER_ID);
-        screeningOrganization.setGovDeptId(Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        checkParam(screeningOrganization);
+        screeningOrganization.setCreateUserId(user.getId());
+        screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
     }
 
     @GetMapping("{id}")
     public Object getScreeningOrganization(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.getById(id);
     }
 
     @DeleteMapping("{id}")
     public Object deletedScreeningOrganization(@PathVariable("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.deletedById(id);
     }
 
     @GetMapping("list")
     public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
-        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, Const.GOV_DEPT_ID);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user.getOrgId());
     }
 
     @PutMapping("status")
@@ -67,6 +77,21 @@ public class ScreeningOrganizationController {
     @GetMapping("/export")
     public ApiResult getOrganizationExportData(ScreeningOrganizationQuery query) throws IOException {
         return ApiResult.success(excelFacade.generateScreeningOrganization(query));
+    }
+
+    /**
+     * 数据校验
+     *
+     * @param org 入参
+     */
+    public void checkParam(ScreeningOrganization org) {
+        if (StringUtils.isBlank(org.getName()) || null == org.getType()
+                || StringUtils.isBlank(org.getTypeDesc()) || null == org.getProvinceCode()
+                || null == org.getCityCode() || null == org.getAreaCode()
+                || null == org.getTownCode() || StringUtils.isBlank(org.getAddress())) {
+            throw new BusinessException("数据异常");
+        }
+
     }
 
 }
