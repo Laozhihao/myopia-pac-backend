@@ -97,10 +97,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     private String generateOrgNo(Integer code) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationMapper.getLastOrgByNo(code);
-        if (null == screeningOrganization) {
+        ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
+        if (null == org) {
             return StringUtils.join(code, "201");
         }
-        return String.valueOf(Long.parseLong(screeningOrganization.getOrgNo()) + 1);
+        return String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
     }
 }

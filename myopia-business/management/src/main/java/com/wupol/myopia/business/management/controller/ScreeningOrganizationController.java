@@ -92,7 +92,5 @@ public class ScreeningOrganizationController {
                 || null == org.getTownCode() || StringUtils.isBlank(org.getAddress())) {
             throw new BusinessException("数据异常");
         }
-
     }
-
 }

@@ -95,7 +95,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
 
-        SchoolStaff staff = schoolStaffService.getBySchoolId(request.getId());
+        SchoolStaff staff = schoolStaffService.getStaffBySchoolId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
@@ -117,11 +117,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return IPage<SchoolDto> {@link IPage}
      */
     public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
-        IPage<SchoolDto> schoolDtoLists = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
+        return schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
                 schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
-        schoolDtoLists.getRecords().forEach(s -> s.setAccountNo("abc"));
-        return schoolDtoLists;
     }
 
     /**
@@ -136,7 +134,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (null == school) {
             throw new BusinessException("数据异常");
         }
-        SchoolStaff staff = schoolStaffService.getBySchoolId(id);
+        SchoolStaff staff = schoolStaffService.getStaffBySchoolId(id);
         return resetOAuthPassword(school, staff.getUserId());
     }
 

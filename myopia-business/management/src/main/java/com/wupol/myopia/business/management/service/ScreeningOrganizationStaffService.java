@@ -54,7 +54,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 new UserDTO()
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
-//                        .setOrgId(request.getScreeningOrgId())
+                        .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));

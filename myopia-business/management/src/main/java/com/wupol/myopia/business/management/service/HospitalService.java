@@ -98,8 +98,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return IPage<Hospital> {@link IPage}
      */
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
-                query.getName(), query.getHospitalNo(), query.getType(), query.getKind(), query.getLevel(), query.getCode());
+        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(),
+                govDeptService.getAllSubordinate(govDeptId),
+                query.getName(), query.getHospitalNo(), query.getType(),
+                query.getKind(), query.getLevel(), query.getCode());
     }
 
     /**
@@ -111,6 +113,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
 
+        // 获取医院管理员信息
         HospitalStaff staff = hospitalStaffService.getByHospitalId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
@@ -120,7 +123,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
-        Hospital hospital = new Hospital().setId(request.getId()).setStatus(request.getStatus());
+        Hospital hospital = new Hospital()
+                .setId(request.getId())
+                .setStatus(request.getStatus());
         return hospitalMapper.updateById(hospital);
     }
 
