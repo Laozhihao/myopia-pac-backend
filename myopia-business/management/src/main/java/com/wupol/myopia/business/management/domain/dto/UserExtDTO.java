@@ -17,4 +17,9 @@ public class UserExtDTO extends UserDTO{
      */
     private String sn;
 
+    /**
+     * 筛查机构人员表id
+     */
+    private Integer staffId;
+
 }

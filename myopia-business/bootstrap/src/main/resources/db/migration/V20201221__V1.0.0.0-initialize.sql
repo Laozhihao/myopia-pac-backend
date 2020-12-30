@@ -150,7 +150,7 @@ create table m_student
     id                  int auto_increment comment 'id'
         primary key,
     school_id           int                                 not null comment '学校ID',
-    student_no          varchar(64)                              not null comment '根据规则创建ID',
+    student_no          varchar(64)                         not null comment '根据规则创建ID',
     create_user_id      int                                 null comment '创建人ID',
     sno                 int                                 not null comment '学号',
     grade_id            int                                 not null comment '班级id',
