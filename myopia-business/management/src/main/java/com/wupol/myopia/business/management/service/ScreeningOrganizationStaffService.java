@@ -58,25 +58,25 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
-        if (apiResult.isSuccess()) {
-            Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException(apiResult.getMessage());
+        }
+        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+        });
+        List<UserExtDTO> resultLists = page.getRecords();
+        if (!CollectionUtils.isEmpty(resultLists)) {
+            List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
+            Map<Integer, String> staffSnMaps = baseMapper
+                    .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                            .in("user_id", userIds))
+                    .stream()
+                    .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
+                            ScreeningOrganizationStaff::getStaffNo));
+
+            resultLists.forEach(s -> {
+                s.setSn(staffSnMaps.get(s.getId()));
             });
-            List<UserExtDTO> resultLists = page.getRecords();
-
-            if (!CollectionUtils.isEmpty(resultLists)) {
-                List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
-                Map<Integer, String> staffSnMaps = baseMapper
-                        .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                                .in("user_id", userIds))
-                        .stream()
-                        .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
-                                ScreeningOrganizationStaff::getStaffNo));
-
-                resultLists.forEach(s -> {
-                    s.setSn(staffSnMaps.get(s.getId()));
-                });
-                return page;
-            }
+            return page;
         }
         return null;
     }
