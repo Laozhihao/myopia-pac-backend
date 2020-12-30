@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +55,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 new UserDTO()
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
-                        .setOrgId(request.getScreeningOrgId())
+                        // TODO: 放开
+//                        .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
                         .setPhone(request.getMobile()));
@@ -66,15 +68,15 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         List<UserExtDTO> resultLists = page.getRecords();
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
-            Map<Integer, String> staffSnMaps = baseMapper
-                    .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                            .in("user_id", userIds))
-                    .stream()
-                    .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId,
-                            ScreeningOrganizationStaff::getStaffNo));
+            Map<Integer, ScreeningOrganizationStaff> staffSnMaps = baseMapper
+                    .selectList(new QueryWrapper<ScreeningOrganizationStaff>().
+                            in("user_id", userIds))
+                    .stream().collect(Collectors.
+                            toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
 
             resultLists.forEach(s -> {
-                s.setSn(staffSnMaps.get(s.getId()));
+                s.setSn(staffSnMaps.get(s.getId()).getStaffNo());
+                s.setStaffId(staffSnMaps.get(s.getId()).getId());
             });
             return page;
         }
