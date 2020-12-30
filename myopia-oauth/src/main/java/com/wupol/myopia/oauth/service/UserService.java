@@ -147,10 +147,12 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public User resetPwd(Integer userId) {
+        User user = getById(userId);
+        if (Objects.isNull(user)) {
+            throw new ValidationException("用户不存在");
+        }
         String pwd = PasswordGenerator.getManagementUserPwd();
-        User user = new User().setId(userId).setPassword(new BCryptPasswordEncoder().encode(pwd));
-        updateById(user);
-        user = getById(userId);
+        updateById(user.setPassword(new BCryptPasswordEncoder().encode(pwd)));
         return user.setPassword(pwd);
     }
 }
