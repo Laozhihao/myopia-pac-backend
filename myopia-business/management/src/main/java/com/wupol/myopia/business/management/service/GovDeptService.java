@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
@@ -15,8 +13,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +74,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         });
         return ids;
     }
+
     /**
      * 获取当前id下的所属部门id
      *

@@ -32,7 +32,7 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
     }
 
     public SchoolStaff getStaffBySchoolId(Integer id) {
-        return baseMapper.selectOne(new QueryWrapper<SchoolStaff>().eq("school_id",id));
+        return baseMapper.selectOne(new QueryWrapper<SchoolStaff>().eq("school_id", id));
     }
 
 }

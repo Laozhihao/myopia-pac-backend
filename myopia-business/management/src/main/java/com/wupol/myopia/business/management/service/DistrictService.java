@@ -34,26 +34,4 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         District district = getById(govDept.getDistrictId());
         return baseMapper.selectDistrictTree(district.getCode());
     }
-
-    /**
-     * 生成业务ID
-     * @param type 类型 {@link Const.MANAGEMENT_TYPE}
-     * @return 业务ID
-     */
-    public String generateSn(Integer type) {
-        // TODO: 实现业务逻辑
-        switch (type) {
-            case 1:
-                return "1L";
-            case 2:
-                return "2L";
-            case 3:
-                return "3L";
-            case 4:
-                return "4L";
-            case 5:
-                return "5L";
-        }
-        return null;
-    }
 }
