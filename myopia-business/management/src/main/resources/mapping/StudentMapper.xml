@@ -67,11 +67,11 @@
         <if test="gender != null">
             and ms.gender = #{gender}
         </if>
-        <if test="gradeId != null">
-            and ms.grade_id = #{gradeId}
-        </if>
-        <if test="classId != null">
-            and ms.class_id = #{classId}
+        <if test="gradeIds != null and gradeIds.size() != 0">
+            and ms.grade_id in
+            <foreach collection="gradeIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
         </if>
         <if test="labels != null and labels != ''">
             and ms.labels like CONCAT('%', #{labels}, '%')

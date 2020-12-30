@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -108,11 +111,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return IPage<Student> {@link IPage}
      */
     public IPage<Student> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
+        List<Integer> gradeIds = new ArrayList<>();
+        if (StringUtils.isNotBlank(studentQuery.getGradeIds())) {
+            gradeIds = Arrays.stream(studentQuery.getGradeIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
+        }
         return studentMapper.getStudentListByCondition(pageRequest.toPage(), studentQuery.getSchoolId(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(),
-                studentQuery.getGradeId(), studentQuery.getClassId(), studentQuery.getLabels(),
-                studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
+                gradeIds, studentQuery.getLabels(), studentQuery.getStartScreeningTime(),
+                studentQuery.getEndScreeningTime());
     }
 
     private String generateOrgNo(String schoolNo, String gradeNo, String idCard) {

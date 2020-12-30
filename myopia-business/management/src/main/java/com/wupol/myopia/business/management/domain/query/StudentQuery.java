@@ -42,4 +42,9 @@ public class StudentQuery extends StudentVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date endScreeningTime;
+
+    /**
+     * 年级ids 逗号隔开
+     */
+    private String gradeIds;
 }
