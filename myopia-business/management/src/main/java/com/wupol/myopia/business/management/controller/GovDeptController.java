@@ -6,7 +6,9 @@ import com.wupol.myopia.business.management.service.GovDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ValidationException;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -22,14 +24,17 @@ public class GovDeptController {
     private GovDeptService govDeptService;
 
     /**
-     * 获取行政架构树
+     * 获取部门列表
      *
-     * @param govDept
+     * @param queryParam 查询参数
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public Object getGovDeptList(GovDept govDept) throws IOException {
-        return govDeptService.findByList(govDept);
+    public Object getGovDeptList(GovDept queryParam) throws IOException {
+        if (Objects.isNull(queryParam.getDistrictId())) {
+            throw new ValidationException("行政区ID为空");
+        }
+        return govDeptService.findByList(queryParam);
     }
 
     @PostMapping()

@@ -1,8 +1,7 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.District;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.District;
 
 import java.util.List;
 
@@ -13,5 +12,11 @@ import java.util.List;
  * @Date 2020-12-23
  */
 public interface DistrictMapper extends BaseMapper<District> {
-    List<GovDept> selectAllTree(Integer parentCode);
+    /**
+     * 获取行政区树
+     *
+     * @param code 根节点code
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    List<District> selectDistrictTree(Long code);
 }

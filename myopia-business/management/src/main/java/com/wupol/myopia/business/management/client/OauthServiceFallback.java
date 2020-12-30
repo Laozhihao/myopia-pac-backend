@@ -24,25 +24,31 @@ public class OauthServiceFallback implements OauthServiceClient {
     }
 
     @Override
+    public ApiResult<List<UserDTO>> getUserBatchByIds(List<Integer> userIds) {
+        log.error("【远程调用oauth】批量获取用户异常");
+        return ApiResult.failure("批量获取用户失败");
+    }
+
+    @Override
     public ApiResult<UserDTO> addUser(UserDTO param) {
         log.error("【远程调用oauth】新增用户异常");
         return ApiResult.failure("新增用户失败");
     }
 
     @Override
-    public ApiResult addAdminUser(UserDTO param) {
+    public ApiResult<UserDTO> addAdminUser(UserDTO param) {
         log.error("【远程调用oauth】新增用户异常");
         return ApiResult.failure("新增管理员用户失败");
     }
 
     @Override
     public ApiResult<List<Integer>> addScreeningUserBatch(List<UserDTO> param) {
-        log.error("【远程调用oauth】批量新增筛查人员失败");
+        log.error("【远程调用oauth】批量新增筛查人员异常");
         return ApiResult.failure("批量新增筛查人员失败");
     }
 
     @Override
-    public ApiResult modifyUser(UserDTO param) {
+    public ApiResult<UserDTO> modifyUser(UserDTO param) {
         return null;
     }
 
