@@ -73,7 +73,7 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ApiResult getHospitalExportData(StudentQuery query) throws IOException {
+    public ApiResult getStudentExportData(StudentQuery query) throws IOException {
         //TODO 待检验日期范围
         return ApiResult.success(excelFacade.generateStudent(query));
     }

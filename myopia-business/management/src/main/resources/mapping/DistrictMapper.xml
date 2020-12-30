@@ -41,4 +41,10 @@
         select * from m_district where parent_code = #{code}
     </select>
 
+    <select id="findByCodeList" resultMap="BaseResultMap">
+        select *
+        from m_district
+        where code = #{provinceCode} or code = #{cityCode} or code = #{areaCode} or code = #{townCode}
+    </select>
+
 </mapper>

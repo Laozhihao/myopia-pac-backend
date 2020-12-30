@@ -43,7 +43,7 @@ public class StudentExportVo implements Serializable {
     @ExcelProperty({TOP_HEADER, "班级"})
     private String className;
     @ExcelProperty({TOP_HEADER, "学号"})
-    private Integer studentNo;
+    private Integer no;
     @ExcelProperty({TOP_HEADER, "身份证号"})
     private String idCard;
     @ExcelProperty({TOP_HEADER, "手机号码"})
