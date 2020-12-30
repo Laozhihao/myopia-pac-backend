@@ -203,3 +203,15 @@ CREATE TABLE `m_government_department`  (
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '政府部门表' ROW_FORMAT = Dynamic;
+
+create unique index m_hospital_hospital_no_uindex
+    on m_hospital (hospital_no);
+
+create unique index m_school_school_no_uindex
+    on m_school (school_no);
+
+create unique index m_screening_organization_org_no_uindex
+    on m_screening_organization (org_no);
+
+create unique index m_screening_organization_staff_staff_no_uindex
+    on m_screening_organization_staff (staff_no);
