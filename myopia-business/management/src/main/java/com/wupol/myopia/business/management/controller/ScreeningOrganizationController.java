@@ -70,8 +70,9 @@ public class ScreeningOrganizationController {
     }
 
     @PutMapping("status")
-    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
-        return null;
+    public Object updateStatus(@RequestBody StatusRequest request) {
+        CurrentUserUtil.getLegalCurrentUser();
+        return saveScreeningOrganization.updateStatus(request);
     }
 
     @GetMapping("/export")
@@ -91,7 +92,5 @@ public class ScreeningOrganizationController {
                 || null == org.getTownCode() || StringUtils.isBlank(org.getAddress())) {
             throw new BusinessException("数据异常");
         }
-
     }
-
 }

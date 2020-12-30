@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -81,11 +82,25 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 query.getName(), query.getType(), query.getOrgNo(), query.getCode());
     }
 
+    /**
+     * 更新机构状态
+     *
+     * @param request 入参
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateStatus(StatusRequest request) {
+        ScreeningOrganization org = new ScreeningOrganization();
+        org.setId(request.getId());
+        org.setStatus(request.getStatus());
+        return baseMapper.updateById(org);
+    }
+
     private String generateOrgNo(Integer code) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationMapper.getLastOrgByNo(code);
-        if (null == screeningOrganization) {
+        ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
+        if (null == org) {
             return StringUtils.join(code, "201");
         }
-        return String.valueOf(Long.parseLong(screeningOrganization.getOrgNo()) + 1);
+        return String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
     }
 }

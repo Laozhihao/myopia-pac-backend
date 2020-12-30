@@ -65,11 +65,13 @@ public class SchoolController {
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+        CurrentUserUtil.getLegalCurrentUser();
         return schoolService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestParam("id") Integer id) {
+        CurrentUserUtil.getLegalCurrentUser();
         return schoolService.resetPassword(id);
     }
 

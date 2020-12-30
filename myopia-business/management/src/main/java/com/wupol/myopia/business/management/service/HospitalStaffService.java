@@ -37,7 +37,5 @@ public class HospitalStaffService extends BaseService<HospitalStaffMapper, Hospi
      */
     public HospitalStaff getByHospitalId(Integer hospitalId) {
         return baseMapper.selectOne(new QueryWrapper<HospitalStaff>().eq("hospital_id", hospitalId));
-
     }
-
 }
