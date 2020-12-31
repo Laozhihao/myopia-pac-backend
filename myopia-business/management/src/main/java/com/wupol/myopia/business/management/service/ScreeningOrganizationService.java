@@ -151,22 +151,23 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private String generateOrgNoByRedis(Long code) {
         // 查询redis是否存在
         String key = Const.GENERATE_ORG_SN + code;
-        Long queueCount = (Long) redisUtil.get(key);
-        if (null == queueCount) {
+        Object check = redisUtil.get(key);
+        if (check == null) {
             ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
             // 数据库不存在
             if (null == org) {
                 // 数据库不存在，初始化
-                redisUtil.set(key, Const.GENERATE_ORG_INIT_SN);
-                return StringUtils.join(code, Const.GENERATE_ORG_INIT_SN);
+                long resultCode = code * 1000 + 201;
+                redisUtil.set(key, resultCode);
+                return String.valueOf(resultCode);
             }
             // 获取当前数据库中最新的编号并且加一
-            String resultCode = String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
-            // 获取后三位,并缓存到redis中
-            redisUtil.set(key, StringUtils.right(resultCode, 3));
-            return resultCode;
+            long resultCode = Long.parseLong(org.getOrgNo()) + 1;
+            // 缓存到redis中
+            redisUtil.set(key, resultCode);
+            return String.valueOf(resultCode);
         }
         // 自增一,并且返回
-        return StringUtils.join(code, redisUtil.incr(key, 1));
+        return String.valueOf(redisUtil.incr(key, 1));
     }
 }

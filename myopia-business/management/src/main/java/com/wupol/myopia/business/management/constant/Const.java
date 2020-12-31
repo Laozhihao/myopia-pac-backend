@@ -9,17 +9,17 @@ public class Const {
 
     public static final Integer STATUS_IS_DELETED = 2;
 
-    public static final String GENERATE_ORG_SN = "org:generate.org.sn:integer";
-
-    public static final String GENERATE_ORG_INIT_SN = "201";
-
-    public static final String GENERATE_SCHOOL_SN = "org:generate.school.sn:integer";
-
-    public static final String GENERATE_HOSPITAL_SN = "org:generate.hospital.sn:integer";
 
     public static final String LOCK_ORG_REDIS = "org:lock.org:string";
 
     public static final String LOCK_ORG_STAFF_REDIS = "org:lock.org.staff:string";
 
     public static final String LOCK_SCHOOL_REDIS = "org:lock.school:string";
+
+    public static final String GENERATE_ORG_SN = "org:generate.org.sn:long";
+
+    public static final String GENERATE_SCHOOL_SN = "org:generate.school.sn:long";
+
+    public static final String GENERATE_HOSPITAL_SN = "org:generate.hospital.sn:long";
+
 }

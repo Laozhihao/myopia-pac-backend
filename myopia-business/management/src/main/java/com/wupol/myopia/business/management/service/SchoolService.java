@@ -65,16 +65,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveSchool(School school) {
+
         Integer createUserId = school.getCreateUserId();
         Long townCode = school.getTownCode();
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
+
         RLock rLock = redissonClient.getLock(Const.LOCK_SCHOOL_REDIS + townCode);
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                school.setSchoolNo(generateSchoolNo(townCode));
+                school.setSchoolNo(generateSchoolNoByRedis(townCode));
                 baseMapper.insert(school);
                 return generateAccountAndPassword(school);
             }
@@ -230,27 +232,25 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param code 行政区代码
      * @return 编号
      */
-//    private String generateSchoolNoByRedis(Integer code) {
-//        // 查询redis是否存在
-//        String key = Const.GENERATE_SCHOOL_SN + code;
-//        Long queueCount = (Long) redisUtil.get(key);
-//        if (null == queueCount) {
-//            School school = schoolMapper.getLastSchoolByNo(code);
-//            // 数据库不存在
-//            if (null == school) {
-//                // 数据库不存在，初始化
-//                int value = code * 1000 + 1;
-//                redisUtil.set(key, value);
-//                return StringUtils.join(code, Const.GENERATE_SCHOOL_INIT_SN);
-//            }
-//            // 获取当前数据库中最新的编号并且加一
-//            String resultCode = String.valueOf(Long.parseLong(school.getSchoolNo()) + 1);
-//            // 获取后三位,并缓存到redis中
-//            redisUtil.set(key, Integer.valueOf(StringUtils.right(resultCode, 3)));
-//            return resultCode;
-//        }
-//        // 自增一,并且返回
-//        return StringUtils.join(code, redisUtil.incr(key, 1));
-//    }
-
+    private String generateSchoolNoByRedis(Long code) {
+        // 查询redis是否存在
+        String key = Const.GENERATE_SCHOOL_SN + code;
+        Object check = redisUtil.get(key);
+        if (null == check) {
+            School school = schoolMapper.getLastSchoolByNo(code);
+            if (null == school) {
+                // 数据库不存在，初始化Redis
+                long resultCode = code * 1000 + 1;
+                redisUtil.set(key, resultCode);
+                return String.valueOf(resultCode);
+            }
+            // 获取当前数据库中最新的编号并且加一
+            long resultCode = Long.parseLong(school.getSchoolNo()) + 1;
+            // 获取后三位,并缓存到redis中
+            redisUtil.set(key, resultCode);
+            return String.valueOf(resultCode);
+        }
+        // 自增一,并且返回
+        return String.valueOf(redisUtil.incr(key, 1));
+    }
 }
