@@ -31,11 +31,6 @@ public class SchoolGradeController {
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        if (null == schoolGrade.getSchoolId()
-                || StringUtils.isBlank(schoolGrade.getName())
-                || StringUtils.isBlank(schoolGrade.getGradeCode())) {
-            throw new BusinessException("数据异常");
-        }
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.saveGrade(schoolGrade);
     }
@@ -56,5 +51,12 @@ public class SchoolGradeController {
     public Object getGradeCode() {
         CurrentUserUtil.getLegalCurrentUser();
         return GradeCodeEnum.getGradeCodeList();
+    }
+
+    @PutMapping("")
+    public Object updateGrade(@RequestBody SchoolGrade schoolGrade) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        schoolGrade.setCreateUserId(user.getId());
+        return schoolGradeService.updateGrade(schoolGrade);
     }
 }

@@ -30,12 +30,6 @@ public class SchoolClassController {
     @PostMapping()
     public Object saveGrade(@RequestBody SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        if (null == schoolClass.getSchoolId()
-                || StringUtils.isBlank(schoolClass.getName())
-                || null == schoolClass.getGradeId()
-                || null == schoolClass.getSeatCount()) {
-            throw new BusinessException("数据异常");
-        }
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.saveClass(schoolClass);
     }
@@ -44,5 +38,12 @@ public class SchoolClassController {
     public Object deletedGrade(@PathVariable("id") Integer id) {
         CurrentUserUtil.getLegalCurrentUser();
         return schoolClassService.deletedClass(id);
+    }
+
+    @PutMapping()
+    public Object updateClass(@RequestBody SchoolClass schoolClass) {
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        schoolClass.setCreateUserId(user.getId());
+        return schoolClassService.updateClass(schoolClass);
     }
 }

@@ -10,7 +10,6 @@ import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +42,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 新增个数
      */
     public Integer saveGrade(SchoolGrade schoolGrade) {
-        if (null == schoolGrade.getSchoolId() || StringUtils.isBlank(schoolGrade.getGradeCode())) {
-            throw new BusinessException("数据异常");
-        }
         return baseMapper.insert(schoolGrade);
     }
 
@@ -103,5 +99,16 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             g.setClasses(classMaps.get(g.getId()));
         });
         return schoolGrades;
+    }
+
+    /**
+     * 更新年级
+     *
+     * @param schoolGrade 年级实体类
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateGrade(SchoolGrade schoolGrade) {
+        return baseMapper.updateById(schoolGrade);
     }
 }

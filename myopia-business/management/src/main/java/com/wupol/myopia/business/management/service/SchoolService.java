@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -17,19 +18,24 @@ import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolStaff;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author HaoHao
  * @Date 2020-12-22
  */
 @Service
+@Log4j2
 public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
@@ -45,6 +51,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Autowired
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private RedissonClient redissonClient;
+
+    @Resource
+    private RedisUtil redisUtil;
+
     /**
      * 新增学校
      *
@@ -52,13 +64,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDTO saveSchool(School school) {
-        if (null == school.getTownCode()) {
+    public UsernameAndPasswordDTO saveSchool(School school) {
+        Integer createUserId = school.getCreateUserId();
+        Integer townCode = school.getTownCode();
+        if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        school.setSchoolNo(generateSchoolNo(school.getTownCode()));
-        baseMapper.insert(school);
-        return generateAccountAndPassword(school);
+        RLock rLock = redissonClient.getLock(Const.LOCK_SCHOOL_REDIS + townCode);
+        try {
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
+            if (tryLock) {
+                school.setSchoolNo(generateSchoolNo(townCode));
+                baseMapper.insert(school);
+                return generateAccountAndPassword(school);
+            }
+        } catch (InterruptedException e) {
+            log.error("用户id:{}获取锁异常,e:{}", createUserId, e);
+            throw new BusinessException("系统繁忙，请稍后再试");
+        }
+        log.warn("用户id:{}新增学校获取不到锁，区域代码:{}", createUserId, townCode);
+        throw new BusinessException("请重试");
     }
 
     /**
@@ -198,5 +223,34 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         return new UsernameAndPasswordDTO(username, password);
     }
+
+    /**
+     * 生成学校编号
+     *
+     * @param code 行政区代码
+     * @return 编号
+     */
+//    private String generateSchoolNoByRedis(Integer code) {
+//        // 查询redis是否存在
+//        String key = Const.GENERATE_SCHOOL_SN + code;
+//        Long queueCount = (Long) redisUtil.get(key);
+//        if (null == queueCount) {
+//            School school = schoolMapper.getLastSchoolByNo(code);
+//            // 数据库不存在
+//            if (null == school) {
+//                // 数据库不存在，初始化
+//                int value = code * 1000 + 1;
+//                redisUtil.set(key, value);
+//                return StringUtils.join(code, Const.GENERATE_SCHOOL_INIT_SN);
+//            }
+//            // 获取当前数据库中最新的编号并且加一
+//            String resultCode = String.valueOf(Long.parseLong(school.getSchoolNo()) + 1);
+//            // 获取后三位,并缓存到redis中
+//            redisUtil.set(key, Integer.valueOf(StringUtils.right(resultCode, 3)));
+//            return resultCode;
+//        }
+//        // 自增一,并且返回
+//        return StringUtils.join(code, redisUtil.incr(key, 1));
+//    }
 
 }

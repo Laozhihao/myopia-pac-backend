@@ -61,10 +61,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
                 screeningOrganization.setOrgNo(generateOrgNoByRedis(townCode));
-                baseMapper.insert(screeningOrganization);
+                return baseMapper.insert(screeningOrganization);
             }
         } catch (InterruptedException e) {
-            log.error("用户id:{}获取锁异常", createUserId);
+            log.error("用户id:{}获取锁异常:{}", createUserId, e);
             throw new BusinessException("系统繁忙，请稍后再试");
         } finally {
             if (rLock.isLocked()) {
@@ -157,13 +157,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             // 数据库不存在
             if (null == org) {
                 // 数据库不存在，初始化
-                redisUtil.set(key, 201);
-                return StringUtils.join(code, "201");
+                redisUtil.set(key, Const.GENERATE_ORG_INIT_SN);
+                return StringUtils.join(code, Const.GENERATE_ORG_INIT_SN);
             }
             // 获取当前数据库中最新的编号并且加一
             String resultCode = String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
             // 获取后三位,并缓存到redis中
-            redisUtil.set(key, Integer.valueOf(StringUtils.right(resultCode, 3)));
+            redisUtil.set(key, StringUtils.right(resultCode, 3));
             return resultCode;
         }
         // 自增一,并且返回

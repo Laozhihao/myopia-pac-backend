@@ -119,7 +119,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
         try {
-            boolean tryLock = rLock.tryLock(2,4, TimeUnit.SECONDS);
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
 
                 // 生成账号密码
@@ -133,7 +133,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 return tuple.getFirst();
             }
         } catch (InterruptedException e) {
-            log.error("用户:{}创建机构人员获取锁异常", createUserId);
+            log.error("用户:{}创建机构人员获取锁异常,e:{}", createUserId, e);
             throw new BusinessException("系统繁忙，请稍后再试");
         } finally {
             if (rLock.isLocked()) {
