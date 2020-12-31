@@ -55,8 +55,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        String lockKey = Const.LOCK_ORG_REDIS + townCode;
-        RLock rLock = redissonClient.getLock(lockKey);
+        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_REDIS + townCode);
         try {
             boolean tryLock = rLock.tryLock(4, TimeUnit.SECONDS);
             if (tryLock) {
