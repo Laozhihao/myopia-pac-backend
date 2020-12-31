@@ -114,9 +114,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
 
-        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + staffQuery.getPhone());
+        Integer createUserId = staffQuery.getCreateUserId();
+        String phone = staffQuery.getPhone();
+
+        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
         try {
-            boolean tryLock = rLock.tryLock(4, TimeUnit.SECONDS);
+            boolean tryLock = rLock.tryLock(2,4, TimeUnit.SECONDS);
             if (tryLock) {
 
                 // 生成账号密码
@@ -130,14 +133,15 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 return tuple.getFirst();
             }
         } catch (InterruptedException e) {
-            log.error("用户:{}创建机构人员获取锁异常", staffQuery.getCreateUserId());
+            log.error("用户:{}创建机构人员获取锁异常", createUserId);
             throw new BusinessException("系统繁忙，请稍后再试");
         } finally {
             if (rLock.isLocked()) {
                 rLock.unlock();
             }
         }
-        return null;
+        log.warn("用户id:{}新增机构获取不到锁，新增人员手机号码:{}", createUserId, phone);
+        throw new BusinessException("请重试");
     }
 
     /**

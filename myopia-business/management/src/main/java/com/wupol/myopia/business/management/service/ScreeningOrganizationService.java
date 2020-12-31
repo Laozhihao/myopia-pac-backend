@@ -50,27 +50,29 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
         Integer townCode = screeningOrganization.getTownCode();
-        Integer result = null;
+        Integer createUserId = screeningOrganization.getCreateUserId();
 
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
         RLock rLock = redissonClient.getLock(Const.LOCK_ORG_REDIS + townCode);
+
         try {
-            boolean tryLock = rLock.tryLock(4, TimeUnit.SECONDS);
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
                 screeningOrganization.setOrgNo(generateOrgNoByRedis(townCode));
-                result = baseMapper.insert(screeningOrganization);
+                baseMapper.insert(screeningOrganization);
             }
         } catch (InterruptedException e) {
-            log.error("用户id:{}获取锁异常", screeningOrganization.getCreateUserId());
+            log.error("用户id:{}获取锁异常", createUserId);
             throw new BusinessException("系统繁忙，请稍后再试");
         } finally {
             if (rLock.isLocked()) {
                 rLock.unlock();
             }
         }
-        return result;
+        log.warn("用户id:{}新增机构获取不到锁，区域代码:{}", createUserId, townCode);
+        throw new BusinessException("请重试");
     }
 
     /**
