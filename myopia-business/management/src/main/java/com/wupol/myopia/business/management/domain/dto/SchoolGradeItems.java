@@ -23,5 +23,5 @@ public class SchoolGradeItems {
 
     private String name;
 
-    private List<SchoolClass> classes;
+    private List<SchoolClass> child;
 }

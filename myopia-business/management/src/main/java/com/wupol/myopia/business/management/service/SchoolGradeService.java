@@ -96,7 +96,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .collect(Collectors.groupingBy(SchoolClass::getGradeId));
 
         schoolGrades.getRecords().forEach(g -> {
-            g.setClasses(classMaps.get(g.getId()));
+            g.setChild(classMaps.get(g.getId()));
         });
         return schoolGrades;
     }
