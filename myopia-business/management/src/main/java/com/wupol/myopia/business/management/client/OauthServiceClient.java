@@ -14,7 +14,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/11
  **/
-@FeignClient(name ="myopia-oauth", fallback = OauthServiceFallback.class)
+@FeignClient(name ="myopia-oauth", fallbackFactory = OauthServiceFallbackFactory.class)
 public interface OauthServiceClient {
 
     /**
@@ -32,8 +32,8 @@ public interface OauthServiceClient {
      * @param userIds 用户ID集合
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/batch")
-    ApiResult<List<UserDTO>> getUserBatchByIds(@RequestBody List<Integer> userIds);
+    @GetMapping("/oauth/user/batch")
+    ApiResult<List<UserDTO>> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
 
     /**
      * 新增用户
