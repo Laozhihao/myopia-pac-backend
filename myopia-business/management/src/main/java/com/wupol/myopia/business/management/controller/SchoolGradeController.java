@@ -4,9 +4,9 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +47,9 @@ public class SchoolGradeController {
     }
 
     @GetMapping("list")
-    public Object getGradeList(Integer schoolId) {
+    public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
         CurrentUserUtil.getLegalCurrentUser();
-        return schoolGradeService.getGradeList(schoolId);
+        return schoolGradeService.getGradeList(pageRequest, schoolId);
     }
 
     @GetMapping("getGradeCode")

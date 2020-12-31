@@ -1,21 +1,20 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeResponseDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +31,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
     @Resource
     private StudentService studentService;
+
+    @Resource
+    private SchoolGradeMapper schoolGradeMapper;
 
 
     /**
@@ -77,36 +79,29 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 年级列表
      *
-     * @param schoolId 学校id
-     * @return SchoolGradeResponseDto 返回体
+     * @param pageRequest 分页请求
+     * @param schoolId    学校id
+     * @return IPage<SchoolGradeItems> 返回体
      */
-    public SchoolGradeResponseDTO getGradeList(Integer schoolId) {
-
-        SchoolGradeResponseDTO responseDto = new SchoolGradeResponseDTO();
-        List<SchoolGradeItems> schoolGradeItems = new ArrayList<>();
-
-        QueryWrapper<SchoolGrade> schoolGradeWrapper = new QueryWrapper<>();
-        equalsQueryAppend(schoolGradeWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(schoolGradeWrapper, "status", Const.STATUS_IS_DELETED);
+    public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        List<SchoolGrade> schoolGrades = baseMapper.selectList(schoolGradeWrapper);
-        if (schoolGrades.isEmpty()) {
-            responseDto.setItems(schoolGradeItems);
-            return responseDto;
+        IPage<SchoolGradeItems> schoolGrades = schoolGradeMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
+        if (schoolGrades.getRecords().isEmpty()) {
+            return schoolGrades;
         }
-        Map<Integer, List<SchoolClass>> classMaps = schoolClassService.getSchoolClassByGradeIds(schoolGrades.stream().map(SchoolGrade::getId).collect(Collectors.toList()), schoolId).stream().collect(Collectors.groupingBy(SchoolClass::getGradeId));
+        // 获取班级，并且封装成Map
+        Map<Integer, List<SchoolClass>> classMaps = schoolClassService
+                .getSchoolClassByGradeIds(schoolGrades
+                        .getRecords()
+                        .stream()
+                        .map(SchoolGradeItems::getId)
+                        .collect(Collectors.toList()), schoolId).stream()
+                .collect(Collectors.groupingBy(SchoolClass::getGradeId));
 
-        schoolGrades.forEach(g -> {
-            SchoolGradeItems items = new SchoolGradeItems();
-            items.setId(g.getId());
-            items.setSchoolId(g.getSchoolId());
-            items.setGradeCode(g.getGradeCode());
-            items.setName(g.getName());
-            items.setClasses(classMaps.get(g.getId()));
-            schoolGradeItems.add(items);
+        schoolGrades.getRecords().forEach(g -> {
+            g.setClasses(classMaps.get(g.getId()));
         });
-        responseDto.setItems(schoolGradeItems);
-        return responseDto;
+        return schoolGrades;
     }
 }
