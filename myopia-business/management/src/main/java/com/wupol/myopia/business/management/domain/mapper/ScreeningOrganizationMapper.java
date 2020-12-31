@@ -21,5 +21,5 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
                                                                          @Param("name") String name, @Param("type") Integer type,
                                                                          @Param("orgNo") String orgNo, @Param("code") String code);
 
-    ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
+    ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 }

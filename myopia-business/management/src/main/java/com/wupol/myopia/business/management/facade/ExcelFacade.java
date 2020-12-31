@@ -297,10 +297,10 @@ public class ExcelFacade {
                                 .setIdCard("4098245")
                                 //TODO 地址待转为code
                                 .setAddress("432o5u73weoijf")
-                                .setProvinceCode(21312)
-                                .setCityCode(21312)
-                                .setAreaCode(21312)
-                                .setTownCode(21312)
+                                .setProvinceCode(21312L)
+                                .setCityCode(21312L)
+                                .setAreaCode(21312L)
+                                .setTownCode(21312L)
                                 .setSchoolId(schoolId)
                                 .setGradeId(12)
                                 .setClassId(324)
@@ -365,7 +365,7 @@ public class ExcelFacade {
         }
     }
 
-    private String getAddress(Integer provinceCode, Integer cityCode, Integer areaCode, Integer townCode, String address) {
+    private String getAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
         try {
             return districtService.getAddressPrefix(provinceCode, cityCode, areaCode, townCode) + address;
         } catch (ValidationException e) {

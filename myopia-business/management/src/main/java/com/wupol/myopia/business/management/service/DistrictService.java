@@ -28,7 +28,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     private GovDeptService govDeptService;
 
     /** 获取地址的前缀,省市区镇 */
-    public String getAddressPrefix(Integer provinceCode, Integer cityCode, Integer areaCode, Integer townCode) throws ValidationException {
+    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
 //        List<District> districtList = baseMapper.selectBatchIds(Arrays.asList(""));

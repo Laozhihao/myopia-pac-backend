@@ -175,7 +175,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param code 地域代码
      * @return 编号
      */
-    private String generateHospitalNo(Integer code) {
+    private String generateHospitalNo(Long code) {
         Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
         if (null == hospital) {
             return StringUtils.join(code, "101");

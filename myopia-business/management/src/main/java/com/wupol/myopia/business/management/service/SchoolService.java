@@ -66,7 +66,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveSchool(School school) {
         Integer createUserId = school.getCreateUserId();
-        Integer townCode = school.getTownCode();
+        Long townCode = school.getTownCode();
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
@@ -194,7 +194,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param code 行政区代码
      * @return 编号
      */
-    private String generateSchoolNo(Integer code) {
+    private String generateSchoolNo(Long code) {
         School school = schoolMapper.getLastSchoolByNo(code);
         if (null == school) {
             return StringUtils.join(code, "001");

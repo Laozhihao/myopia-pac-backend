@@ -49,7 +49,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Transactional(rollbackFor = Exception.class)
     public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
-        Integer townCode = screeningOrganization.getTownCode();
+        Long townCode = screeningOrganization.getTownCode();
         Integer createUserId = screeningOrganization.getCreateUserId();
 
         if (null == townCode) {
@@ -134,7 +134,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param code 镇代码
      * @return 代码
      */
-    private String generateOrgNo(Integer code) {
+    private String generateOrgNo(Long code) {
         ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
         if (null == org) {
             return StringUtils.join(code, "201");
@@ -148,10 +148,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param code 镇代码
      * @return 编号
      */
-    private String generateOrgNoByRedis(Integer code) {
+    private String generateOrgNoByRedis(Long code) {
         // 查询redis是否存在
         String key = Const.GENERATE_ORG_SN + code;
-        Integer queueCount = (Integer) redisUtil.get(key);
+        Long queueCount = (Long) redisUtil.get(key);
         if (null == queueCount) {
             ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
             // 数据库不存在
