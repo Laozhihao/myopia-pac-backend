@@ -59,13 +59,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         try {
             boolean tryLock = rLock.tryLock(4, TimeUnit.SECONDS);
             if (tryLock) {
-                log.info("用户:{}获取锁成功,code:{}", screeningOrganization.getCreateUserId(), townCode);
                 screeningOrganization.setOrgNo(generateOrgNoByRedis(townCode));
                 result = baseMapper.insert(screeningOrganization);
             }
         } catch (InterruptedException e) {
-            log.info("用户id:{}获取锁异常", screeningOrganization.getCreateUserId());
-            throw new BusinessException("业务异常");
+            log.error("用户id:{}获取锁异常", screeningOrganization.getCreateUserId());
+            throw new BusinessException("系统繁忙，请稍后再试");
         } finally {
             if (rLock.isLocked()) {
                 rLock.unlock();
