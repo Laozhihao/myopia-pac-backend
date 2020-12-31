@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -16,33 +17,39 @@ import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.model.HospitalStaff;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author HaoHao
  * @Date 2020-12-21
  */
 @Service
+@Log4j2
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
+    public RedissonClient redissonClient;
+    @Resource
     private HospitalStaffService hospitalStaffService;
-
     @Resource
     private HospitalMapper hospitalMapper;
-
     @Resource
     private GovDeptService govDeptService;
-
     @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 保存医院
@@ -52,12 +59,30 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
-        if (null == hospital.getTownCode()) {
+        Integer createUserId = hospital.getCreateUserId();
+        Long townCode = hospital.getTownCode();
+
+        if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        hospital.setHospitalNo(generateHospitalNo(hospital.getTownCode()));
-        baseMapper.insert(hospital);
-        return generateAccountAndPassword(hospital);
+        RLock rLock = redissonClient.getLock(Const.LOCK_HOSPITAL_REDIS + hospital.getName());
+        try {
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
+            if (tryLock) {
+                hospital.setHospitalNo(generateHospitalNoByRedis(townCode));
+                baseMapper.insert(hospital);
+                return generateAccountAndPassword(hospital);
+            }
+        } catch (InterruptedException e) {
+            log.error("用户id:{}获取锁异常:{}", createUserId, e);
+            throw new BusinessException("系统繁忙，请稍后再试");
+        } finally {
+            if (rLock.isLocked()) {
+                rLock.unlock();
+            }
+        }
+        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, townCode);
+        throw new BusinessException("请重试");
     }
 
     /**
@@ -203,5 +228,33 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
             throw new BusinessException("远程调用异常");
         }
         return new UsernameAndPasswordDTO(username, password);
+    }
+
+    /**
+     * 通过Redis生成医院编号
+     *
+     * @param code 地域代码
+     * @return 编号
+     */
+    private String generateHospitalNoByRedis(Long code) {
+        // 查询redis是否存在
+        String key = Const.GENERATE_HOSPITAL_SN + code;
+        Object check = redisUtil.get(key);
+        if (null == check) {
+            Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
+            if (null == hospital) {
+                // 数据库不存在，初始化Redis
+                long resultCode = code * 1000 + 101;
+                redisUtil.set(key, resultCode);
+                return String.valueOf(resultCode);
+            }
+            // 获取当前数据库中最新的编号并且加一
+            long resultCode = Long.parseLong(hospital.getHospitalNo()) + 1;
+            // 缓存到redis中
+            redisUtil.set(key, resultCode);
+            return String.valueOf(resultCode);
+        }
+        // 自增一,并且返回
+        return String.valueOf(redisUtil.incr(key, 1));
     }
 }

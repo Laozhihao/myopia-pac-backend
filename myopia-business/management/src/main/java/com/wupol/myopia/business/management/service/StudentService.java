@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
@@ -10,7 +11,10 @@ import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +22,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +30,7 @@ import java.util.stream.Collectors;
  * @Date 2020-12-22
  */
 @Service
+@Log4j2
 public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
@@ -35,6 +41,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolGradeService schoolGradeService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 通过学校id查找学生
@@ -48,6 +57,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
+
     /**
      * 通过年级id查找学生
      *
@@ -81,13 +91,33 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 新增数量
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveStudent(Student student) {
+    public Integer saveStudent(Student student) {
+
+        Integer createUserId = student.getCreateUserId();
+        String idCard = student.getIdCard();
+
         // 获取学校编码
         School school = schoolService.getById(student.getSchoolId());
         // 获取年级编码
         SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
-        student.setStudentNo(generateOrgNo(school.getSchoolNo(), grade.getGradeCode(), student.getIdCard()));
-        return baseMapper.insert(student);
+
+        RLock rLock = redissonClient.getLock(Const.LOCK_STUDENT_REDIS + idCard);
+        try {
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
+            if (tryLock) {
+                student.setStudentNo(generateOrgNo(school.getSchoolNo(), grade.getGradeCode(), idCard));
+                return baseMapper.insert(student);
+            }
+        } catch (InterruptedException e) {
+            log.error("用户:{}创建学生获取锁异常,e:{}", createUserId, e);
+            throw new BusinessException("系统繁忙，请稍后再试");
+        } finally {
+            if (rLock.isLocked()) {
+                rLock.unlock();
+            }
+        }
+        log.warn("用户id:{}新增学生获取不到锁，新增学生身份证:{}", createUserId, idCard);
+        throw new BusinessException("请重试");
     }
 
     /**

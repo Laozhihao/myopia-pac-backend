@@ -14,12 +14,16 @@ public class Const {
 
     public static final String LOCK_ORG_STAFF_REDIS = "org:lock.org.staff:string";
 
-    public static final String LOCK_SCHOOL_REDIS = "org:lock.school:string";
+    public static final String LOCK_SCHOOL_REDIS = "school:lock.school:string";
+
+    public static final String LOCK_STUDENT_REDIS = "student:lock.student:string";
+
+    public static final String LOCK_HOSPITAL_REDIS = "hospital:lock.student:String";
 
     public static final String GENERATE_ORG_SN = "org:generate.org.sn:long";
 
-    public static final String GENERATE_SCHOOL_SN = "org:generate.school.sn:long";
+    public static final String GENERATE_SCHOOL_SN = "school:generate.school.sn:long";
 
-    public static final String GENERATE_HOSPITAL_SN = "org:generate.hospital.sn:long";
+    public static final String GENERATE_HOSPITAL_SN = "hospital:generate.hospital.sn:long";
 
 }

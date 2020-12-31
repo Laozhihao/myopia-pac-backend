@@ -246,7 +246,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             }
             // 获取当前数据库中最新的编号并且加一
             long resultCode = Long.parseLong(school.getSchoolNo()) + 1;
-            // 获取后三位,并缓存到redis中
+            // 缓存到redis中
             redisUtil.set(key, resultCode);
             return String.valueOf(resultCode);
         }

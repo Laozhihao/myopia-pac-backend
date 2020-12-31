@@ -64,7 +64,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 new UserDTO()
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
-                        // TODO: 放开
                         .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
