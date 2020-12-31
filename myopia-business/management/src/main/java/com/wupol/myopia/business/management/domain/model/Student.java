@@ -4,10 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -49,47 +53,58 @@ public class Student implements Serializable {
     /**
      * 学号
      */
+    @NotNull(message = "学号不能为空")
     private Integer sno;
 
     /**
      * 年级ID
      */
+    @NotNull(message = "年级ID不能为空")
     private Integer gradeId;
 
     /**
      * 班级id
      */
+    @NotNull(message = "班级id不能为空")
     private Integer classId;
 
     /**
      * 学生姓名
      */
+    @NotBlank(message = "学生姓名不能为空")
     private String name;
 
     /**
      * 性别 1-男 2-女
      */
+    @NotNull(message = "性别不能为空")
     private Integer gender;
 
     /**
      * 出生日期
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "出生日期不能为空")
     private Date birthday;
 
     /**
      * 民族 0-汉族
      */
+    @NotNull(message = "学号不能为空")
     private Integer nation;
 
     /**
      * 身份证号码
      */
+    @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
+    @NotNull(message = "学号不能为空")
     private String idCard;
 
     /**
      * 家长手机号码
      */
+    @Pattern(regexp = RegularUtils.REGULAR_MOBILE, message = "手机号码格式错误")
+    @NotNull(message = "学号不能为空")
     private String parentPhone;
 
     /**
@@ -100,26 +115,31 @@ public class Student implements Serializable {
     /**
      * 省代码
      */
+    @NotNull(message = "省代码不能为空")
     private Integer provinceCode;
 
     /**
      * 市代码
      */
+    @NotNull(message = "市代码不能为空")
     private Integer cityCode;
 
     /**
      * 区代码
      */
+    @NotNull(message = "区代码不能为空")
     private Integer areaCode;
 
     /**
      * 镇/乡代码
      */
+    @NotNull(message = "镇/乡代码不能为空")
     private Integer townCode;
 
     /**
      * 详细地址
      */
+    @NotBlank(message = "详细地址不能为空")
     private String address;
 
     /**
