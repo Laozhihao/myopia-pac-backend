@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 public class RegularUtils {
 
     // 手机正则
-    private static final String REGULAR_MOBILE = "^(1[3-9]([0-9]{9}))$";
+    public static final String REGULAR_MOBILE = "^(1[3-9]([0-9]{9}))$";
 
     // 身份证正则
-    private static final String REGULAR_ID_CARD = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}$)";
+    public static final String REGULAR_ID_CARD = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}$)";
 
 //    private static final String REGULAR_ID_CARD = "^[1-9][0-9]{5}(18|19|20)[0-9]{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)[0-9]{3}([0-9]|([Xx]))";
 

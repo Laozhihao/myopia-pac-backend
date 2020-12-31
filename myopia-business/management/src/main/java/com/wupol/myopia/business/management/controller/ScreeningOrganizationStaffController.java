@@ -49,7 +49,7 @@ public class ScreeningOrganizationStaffController {
     }
 
     @PostMapping()
-    public Object insertOrganizationStaff(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public Object insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(user.getId());
@@ -58,7 +58,7 @@ public class ScreeningOrganizationStaffController {
     }
 
     @PutMapping()
-    public Object updateOrganizationStaffList(@RequestBody ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public Object updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(user.getId());
