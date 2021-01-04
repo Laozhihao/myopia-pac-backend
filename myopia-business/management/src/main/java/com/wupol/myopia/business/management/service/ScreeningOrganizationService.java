@@ -88,11 +88,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 更新筛查机构
      *
      * @param screeningOrganization 筛查机构实体咧
-     * @return 更新个数
+     * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public int updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        return baseMapper.updateById(screeningOrganization);
+    public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+        baseMapper.updateById(screeningOrganization);
+        return screeningOrganization;
     }
 
     /**

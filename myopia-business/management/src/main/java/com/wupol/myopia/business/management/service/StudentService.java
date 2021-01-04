@@ -10,7 +10,6 @@ import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -125,11 +124,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 更新学生
      *
      * @param student 学生实体类
-     * @return 更新个数
+     * @return 学生实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateStudent(Student student) {
-        return baseMapper.updateById(student);
+    public Student updateStudent(Student student) {
+        baseMapper.updateById(student);
+        return student;
     }
 
     /**
@@ -169,7 +169,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return StringUtils.join(schoolNo, gradeNo, StringUtils.right(idCard, 6));
     }
 
-    /** 获取导出数据 */
+    /**
+     * 获取导出数据
+     */
     public List<Student> getExportData(StudentQuery query) {
         return baseMapper.getExportData(query);
     }

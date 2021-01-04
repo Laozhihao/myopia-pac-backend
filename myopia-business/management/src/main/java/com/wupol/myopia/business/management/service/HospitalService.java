@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author HaoHao
@@ -90,11 +90,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * 更新医院信息
      *
      * @param hospital 医院实体类
-     * @return 更新数量
+     * @return 医院实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateHospital(Hospital hospital) {
-        return baseMapper.updateById(hospital);
+    public Hospital updateHospital(Hospital hospital) {
+        baseMapper.updateById(hospital);
+        return hospital;
     }
 
     /**
@@ -259,7 +260,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return String.valueOf(redisUtil.incr(key, 1));
     }
 
-    /** 获取导出数据 */
+    /**
+     * 获取导出数据
+     */
     public List<Hospital> getExportData(HospitalQuery query) {
         return baseMapper.getExportData(query);
     }

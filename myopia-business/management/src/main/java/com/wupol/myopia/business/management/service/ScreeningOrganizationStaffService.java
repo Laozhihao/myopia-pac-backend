@@ -146,10 +146,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 更新员工
      *
      * @param staff 员工实体类
-     * @return 更新个数
+     * @return 员工实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
+    public ScreeningOrganizationStaffQuery updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
+
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setRealName(staff.getName())
@@ -161,7 +162,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
-        return baseMapper.updateById(staff);
+        baseMapper.updateById(staff);
+        return staff;
     }
 
     /**

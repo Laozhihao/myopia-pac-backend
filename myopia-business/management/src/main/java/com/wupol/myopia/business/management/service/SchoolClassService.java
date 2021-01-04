@@ -6,7 +6,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,11 +60,12 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * 更新班级
      *
      * @param schoolClass 班级实体类
-     * @return 更新个数
+     * @return 班级实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateClass(SchoolClass schoolClass) {
-        return baseMapper.updateById(schoolClass);
+    public SchoolClass updateClass(SchoolClass schoolClass) {
+        baseMapper.updateById(schoolClass);
+        return schoolClass;
     }
 
     /**
@@ -96,7 +96,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         return baseMapper.selectList(schoolClassWrapper);
     }
 
-    /** 根据id列表查询 */
+    /**
+     * 根据id列表查询
+     */
     public List<SchoolClass> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
     }
