@@ -250,4 +250,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     private String generateOrgNo(String orgNo, String idCard) {
         return StringUtils.join(orgNo, StringUtils.right(idCard, 6));
     }
+
+    /**
+     * 通过组织Id获取员工
+     *
+     * @param orgIds 组织id
+     * @return List<ScreeningOrganizationStaff>
+     */
+    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
+        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>().in("screening_org_id", orgIds));
+    }
 }

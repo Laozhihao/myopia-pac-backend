@@ -6,6 +6,9 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningOrganization">
     </resultMap>
 
+    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -35,7 +38,7 @@
         id, org_no, create_user_id, gov_dept_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
-    <select id="getScreeningOrganizationListByCondition" resultMap="BaseResultMap">
+    <select id="getScreeningOrganizationListByCondition" resultMap="BaseResponseMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization mso

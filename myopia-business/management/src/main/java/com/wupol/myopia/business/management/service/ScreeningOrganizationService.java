@@ -5,9 +5,11 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
@@ -16,9 +18,13 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -39,6 +45,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     /**
      * 保存筛查机构
@@ -106,12 +115,36 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param pageRequest 分页
      * @param query       筛查机构列表请求体
      * @param govDeptId   机构id
-     * @return IPage<ScreeningOrganization> {@link IPage}
+     * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
-    public IPage<ScreeningOrganization> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query, Integer govDeptId) {
-        return screeningOrganizationMapper.getScreeningOrganizationListByCondition(
+    public IPage<ScreeningOrgResponse> getScreeningOrganizationList(PageRequest pageRequest,
+                                                                    ScreeningOrganizationQuery query,
+                                                                    Integer govDeptId) {
+        IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getType(), query.getOrgNo(), query.getCode());
+        List<ScreeningOrgResponse> records = orgLists.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return orgLists;
+        }
+        List<ScreeningOrganizationStaff> staffs = screeningOrganizationStaffService.getStaffListsByOrgIds(records
+                .stream()
+                .map(ScreeningOrganization::getId)
+                .collect(Collectors.toList()));
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = staffs
+                .stream()
+                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        records.forEach(r -> {
+            List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
+            if (null != staffLists) {
+                r.setStaffCount(staffLists.size());
+            } else {
+                CollectionUtils.isEmpty(staffLists);
+                r.setStaffCount(0);
+            }
+            r.setScreeningTime(Const.SCREENING_TIME);
+        });
+        return orgLists;
     }
 
     /**

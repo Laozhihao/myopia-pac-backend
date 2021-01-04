@@ -26,4 +26,6 @@ public class Const {
 
     public static final String GENERATE_HOSPITAL_SN = "hospital:generate.hospital.sn:long";
 
+    public static final Integer SCREENING_TIME = 0;
+
 }
