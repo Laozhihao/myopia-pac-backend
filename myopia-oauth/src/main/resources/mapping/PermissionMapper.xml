@@ -59,4 +59,31 @@
         select * from o_permission where pid = #{id}
     </select>
 
+    <resultMap id="treeVoMap2" type="com.wupol.myopia.oauth.domain.model.Permission">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="pid" property="pid" jdbcType="INTEGER" />
+        <result column="role_id" property="roleId" jdbcType="INTEGER" />
+        <result column="district_level" property="districtLevel" jdbcType="INTEGER" />
+        <result column="is_have" property="isHave" jdbcType="INTEGER" />
+        <collection property="child"
+                    ofType="com.wupol.myopia.oauth.domain.model.Permission"
+                    column="{pid = id, districtLevel= district_level, roleId = role_id}"
+                    select="selectRolePermissionTree"/>
+    </resultMap>
+
+    <select id="selectRolePermissionTree" resultMap="treeVoMap2">
+        SELECT
+            p.*,
+            CASE WHEN rp.role_id IS NULL THEN 0 ELSE 1 END AS is_have,
+            #{roleId} as role_id,
+            #{districtLevel} as district_level
+        FROM
+            o_district_permission dp
+            LEFT JOIN o_permission p ON dp.permission_id = p.id
+            LEFT JOIN o_role_permission rp ON dp.permission_id = rp.permission_id AND rp.role_id = #{roleId}
+        WHERE
+           dp.district_level = #{districtLevel} AND p.pid = #{pid}
+    </select>
+
 </mapper>

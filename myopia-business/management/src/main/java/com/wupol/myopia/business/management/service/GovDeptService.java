@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import org.springframework.stereotype.Service;
@@ -29,16 +28,6 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
             return new ArrayList<>();
         }
         return baseMapper.selectGovDeptTreeByPid(pid);
-    }
-
-    /**
-     * 获取当前登录用户所属部门及其下面的所有部门的ID集合
-     *
-     * @return java.util.List<java.lang.Integer>
-     **/
-    public List<Integer> getCurrentUserAllSubordinateDepartmentId() {
-        Integer currentUserOrgId = CurrentUserUtil.getCurrentUser().getOrgId();
-        return getAllSubordinateDepartmentIdByPid(currentUserOrgId);
     }
 
     /**

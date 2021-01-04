@@ -6,5 +6,5 @@ package com.wupol.myopia.business.management.validator;
  * @Author HaoHao
  * @Date 2020/12/29
  **/
-public interface GovDeptValidatorGroup {
+public interface GovDeptAddValidatorGroup {
 }

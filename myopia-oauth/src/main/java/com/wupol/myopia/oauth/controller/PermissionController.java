@@ -4,9 +4,10 @@ import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.service.PermissionService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * @Author HaoHao
@@ -16,14 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RestController
 @RequestMapping("/oauth/permission")
-public class PermissionController extends BaseController<PermissionService, Permission> {
+public class PermissionController{
 
-    /*@Autowired
+    @Autowired
     private PermissionService permissionService;
 
     @GetMapping("/list")
-    public Object getPermissionList(Permission param) throws IOException {
-        return permissionService.findByList(param);
+    public Object getPermissionList() {
+        return permissionService.selectAllTree(0);
     }
 
     @PostMapping()
@@ -39,5 +40,5 @@ public class PermissionController extends BaseController<PermissionService, Perm
     @DeleteMapping("/{permissionId}")
     public Object deletePermission(@PathVariable("permissionId") Integer permissionId) {
         return permissionService.removeById(permissionId);
-    }*/
+    }
 }

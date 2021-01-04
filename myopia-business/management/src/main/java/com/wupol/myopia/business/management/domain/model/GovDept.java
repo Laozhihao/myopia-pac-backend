@@ -5,7 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.management.validator.GovDeptValidatorGroup;
+import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -32,13 +33,14 @@ public class GovDept implements Serializable {
     /**
      * 部门ID
      */
+    @NotNull(message = "ID不能为空", groups = GovDeptUpdateValidatorGroup.class)
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
      * 部门名称
      */
-    @NotNull(message = "部门名称为空", groups = GovDeptValidatorGroup.class)
+    @NotNull(message = "部门名称不能为空", groups = {GovDeptAddValidatorGroup.class, GovDeptUpdateValidatorGroup.class})
     private String name;
 
     /**
@@ -49,7 +51,7 @@ public class GovDept implements Serializable {
     /**
      * 所属行政区ID
      */
-    @NotNull(message = "所属行政区ID为空", groups = GovDeptValidatorGroup.class)
+    @NotNull(message = "所属行政区ID不能为空", groups = GovDeptAddValidatorGroup.class)
     private Integer districtId;
 
     /**

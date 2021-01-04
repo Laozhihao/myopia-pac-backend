@@ -201,3 +201,6 @@ CREATE TABLE `m_government_department`  (
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '政府部门表' ROW_FORMAT = Dynamic;
+
+-- 初始化部门表
+INSERT INTO `m_government_department`(`name`, `pid`, `district_id`, `create_user_id`) VALUES ('运行中心', -1, -1, -1);
