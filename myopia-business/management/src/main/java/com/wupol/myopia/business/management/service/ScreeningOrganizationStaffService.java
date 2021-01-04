@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -210,7 +209,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return new UsernameAndPasswordDTO(username, password);
     }
 
-    /** 根据用户id列表查询 */
+    /**
+     * 根据用户id列表查询
+     */
     public List<ScreeningOrganizationStaff> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
     }
@@ -247,7 +248,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return tuple;
     }
 
-    /** 批量新增, 自动生成编号 */
+    /**
+     * 批量新增, 自动生成编号
+     */
     public Boolean saveBatch(List<ScreeningOrganizationStaffVo> list) {
         if (CollectionUtils.isEmpty(list)) return false;
         // 通过screeningOrgId获取机构
@@ -255,7 +258,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         for (ScreeningOrganizationStaffVo item : list) {
             item.setStaffNo(generateOrgNo(organization.getOrgNo(), item.getIdCard()));
         }
-        return super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff)item).collect(Collectors.toList()));
+        return super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff) item).collect(Collectors.toList()));
     }
 
     /**
