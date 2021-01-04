@@ -34,4 +34,9 @@
         where msg.status != 2
           and msg.school_id = #{schoolId}
     </select>
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_school_grade
+        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 </mapper>

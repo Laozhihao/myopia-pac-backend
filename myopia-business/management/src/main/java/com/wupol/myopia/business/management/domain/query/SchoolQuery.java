@@ -15,9 +15,9 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SchoolQuery extends School {
     /** id */
-    private String idLike;
+    private String noLike;
     /** 名称 */
     private String nameLike;
     /** 地区编码 */
-    private String code;
+    private Long code;
 }

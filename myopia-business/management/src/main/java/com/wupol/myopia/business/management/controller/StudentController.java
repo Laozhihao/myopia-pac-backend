@@ -8,10 +8,14 @@ import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.StudentService;
+import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,16 +73,15 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ApiResult getStudentExportData(StudentQuery query) throws IOException {
+    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException {
         //TODO 待检验日期范围
-        return ApiResult.success(excelFacade.generateStudent(query));
+        return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
     }
 
     @PostMapping("/import")
     public ApiResult importStudent(MultipartFile file) throws IOException {
-        Integer schoolId = 12;
-        Integer createUserId = 12;
-        excelFacade.importStudent(schoolId, createUserId, file);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.importStudent(currentUser.getOrgId(), currentUser.getId(), file);
         return ApiResult.success();
     }
 

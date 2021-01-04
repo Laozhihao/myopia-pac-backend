@@ -6,11 +6,15 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -73,7 +77,7 @@ public class ScreeningOrganizationController {
     }
 
     @GetMapping("/export")
-    public ApiResult getOrganizationExportData(ScreeningOrganizationQuery query) throws IOException {
-        return ApiResult.success(excelFacade.generateScreeningOrganization(query));
+    public ResponseEntity<FileSystemResource> getOrganizationExportData(ScreeningOrganizationQuery query) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganization(query));
     }
 }

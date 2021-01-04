@@ -4,7 +4,9 @@ import com.wupol.myopia.business.management.domain.model.GradeCode;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 年级编码枚举类
@@ -60,5 +62,11 @@ public enum GradeCodeEnum {
             gradeCodeList.add(gradeCode);
         }
         return gradeCodeList;
+    }
+
+    /** 根据类型获取描述 */
+    public static String getName(String code) {
+        GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values()).filter(item -> item.code.equals(code)).findFirst().orElse(null);
+        return Objects.nonNull(h) ? h.name : null;
     }
 }

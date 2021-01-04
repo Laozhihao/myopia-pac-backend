@@ -14,11 +14,13 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -112,6 +114,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return screeningOrganizationMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
                 query.getName(), query.getType(), query.getOrgNo(), query.getCode());
+    }
+
+    /**
+     * 获取导出数据
+     * @return
+     */
+    public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
+        return screeningOrganizationMapper.getExportData(query);
     }
 
     /**

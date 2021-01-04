@@ -20,6 +20,4 @@ public class ScreeningOrganizationStaffQuery extends ScreeningOrganizationStaffV
     private String nameLike;
     /** 手机号码 */
     private String phoneLike;
-    /** 机构名 */
-    private String orgNameLike;
 }

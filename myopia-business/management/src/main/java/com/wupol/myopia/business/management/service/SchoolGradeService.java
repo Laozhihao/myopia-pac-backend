@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.springframework.stereotype.Service;
@@ -110,5 +111,10 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     @Transactional(rollbackFor = Exception.class)
     public Integer updateGrade(SchoolGrade schoolGrade) {
         return baseMapper.updateById(schoolGrade);
+    }
+
+    /** 根据id列表查询 */
+    public List<SchoolGrade> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
     }
 }
