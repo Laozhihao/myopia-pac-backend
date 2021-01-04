@@ -108,7 +108,7 @@ public class UserDTO implements Serializable {
     /**
      * 用户拥有的所有角色
      **/
-    private ArrayList<Role> roles;
+    private ArrayList<RoleDTO> roles;
 
     /**
      * 机构名称

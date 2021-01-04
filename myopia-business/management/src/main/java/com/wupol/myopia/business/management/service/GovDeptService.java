@@ -36,16 +36,6 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
     }
 
     /**
-     * 获取当前登录用户所属部门及其下面的所有部门的ID集合
-     *
-     * @return java.util.List<java.lang.Integer>
-     **/
-    public List<Integer> getCurrentUserAllSubordinateDepartmentId() {
-        Integer currentUserOrgId = CurrentUserUtil.getCurrentUser().getOrgId();
-        return getAllSubordinateDepartmentIdByPid(currentUserOrgId);
-    }
-
-    /**
      * 获取指定部门及其下面的所有部门的ID集合
      *
      * @return java.util.List<java.lang.Integer>

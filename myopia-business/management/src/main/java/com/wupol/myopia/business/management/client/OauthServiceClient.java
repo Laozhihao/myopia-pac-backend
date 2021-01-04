@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.management.client;
 
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.business.management.domain.dto.Permission;
-import com.wupol.myopia.business.management.domain.dto.Role;
+import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
+import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -87,33 +87,40 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/role/list")
-    ApiResult getRoleList(@SpringQueryMap Role param);
+    ApiResult getRoleList(@SpringQueryMap RoleDTO param);
 
     @PostMapping("/oauth/role")
-    ApiResult addRole(@RequestBody Role param);
+    ApiResult addRole(@RequestBody RoleDTO param);
 
     @PutMapping("/oauth/role")
-    ApiResult modifyRole(@RequestBody Role param);
+    ApiResult updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
     ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId);
 
-    @GetMapping("/oauth/role/permission/structure/{roleId}")
-    ApiResult getRolePermissionTree(@PathVariable("roleId") Integer roleId);
+    /**
+     * 获取指定行政区下的角色权限树
+     *
+     * @param roleId 角色ID
+     * @param districtLevel 行政区等级
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @GetMapping("/oauth/role/permission/structure/{roleId}/{districtLevel}")
+    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("districtLevel") Integer districtLevel);
 
     /**
-     * 获取角色列表
+     * 获取权限列表
      * @param param
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/permission/list")
-    ApiResult getPermissionList(@SpringQueryMap Permission param);
+    ApiResult<List<PermissionDTO>> getPermissionList(@SpringQueryMap PermissionDTO param);
 
     @PostMapping("/oauth/permission")
-    ApiResult addPermission(@RequestBody Permission param);
+    ApiResult addPermission(@RequestBody PermissionDTO param);
 
     @PutMapping("/oauth/permission")
-    ApiResult modifyPermission(@RequestBody Permission param);
+    ApiResult modifyPermission(@RequestBody PermissionDTO param);
 
     @DeleteMapping("/oauth/permission/{permissionId}")
     ApiResult deletePermission(@PathVariable("permissionId") Integer permissionId);

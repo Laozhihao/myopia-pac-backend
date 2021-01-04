@@ -29,4 +29,19 @@
         id, org_id, en_name, ch_name, role_type, create_user_id, status, remark, create_time, update_time
     </sql>
 
+    <select id="selectRoleList" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+           r.*,
+           u.real_name as create_user_name
+        FROM
+           o_role r LEFT JOIN o_user u ON r.create_user_id = u.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="orgId != null">and r.org_id = #{orgId}</if>
+                <if test="status != null">and r.status = #{status}</if>
+                <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
+            </trim>
+        </where>
+    </select>
+
 </mapper>

@@ -2,9 +2,12 @@ package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
+import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -16,11 +19,28 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     @Autowired
     private PermissionService permissionService;
 
+    /**
+     * 获取角色列表
+     *
+     * @param query 查询参数
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
+    public List<Role> selectRoleList(Role query) {
+        return baseMapper.selectRoleList(query);
+    }
+
     public Boolean assignRolePermission(Integer roleId) {
         return true;
     }
 
-    public Object getRolePermissionTree(Integer roleId) {
-        return permissionService.selectAllTree(0);
+    /**
+     * 获取指定行政区下的角色权限树
+     *
+     * @param roleId 角色ID
+     * @param districtLevel 行政区等级
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    public List<Permission> getRolePermissionTree(Integer roleId, Integer districtLevel) {
+        return permissionService.selectRoleAllTree(0, roleId, districtLevel);
     }
 }
