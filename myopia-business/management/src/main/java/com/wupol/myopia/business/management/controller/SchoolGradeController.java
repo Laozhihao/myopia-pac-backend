@@ -8,7 +8,6 @@ import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -44,6 +43,9 @@ public class SchoolGradeController {
     @GetMapping("list")
     public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
         CurrentUserUtil.getLegalCurrentUser();
+        if (null == schoolId) {
+            throw new BusinessException("学校ID不能为空");
+        }
         return schoolGradeService.getGradeList(pageRequest, schoolId);
     }
 
