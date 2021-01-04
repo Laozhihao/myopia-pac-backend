@@ -240,7 +240,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             School school = schoolMapper.getLastSchoolByNo(code);
             if (null == school) {
                 // 数据库不存在，初始化Redis
-                long resultCode = code * 1000 + 1;
+                long resultCode = code * 100 + 1;
                 redisUtil.set(key, resultCode);
                 return String.valueOf(resultCode);
             }
