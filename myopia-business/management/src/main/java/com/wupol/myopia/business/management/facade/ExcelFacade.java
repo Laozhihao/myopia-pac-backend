@@ -385,6 +385,18 @@ public class ExcelFacade {
         }
     }
 
+    /** 获取学生的导入模版 */
+    public File getStudentImportDemo() {
+        //TODO 待完成文件系统再修改
+        return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
+    }
+
+    /** 获取筛查机构人员的导入模版 */
+    public File getScreeningOrganizationStaffImportDemo() {
+        //TODO 待完成文件系统再修改
+        return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
+    }
+
     private String getAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
         try {
             return districtService.getAddressPrefix(provinceCode, cityCode, areaCode, townCode) + address;

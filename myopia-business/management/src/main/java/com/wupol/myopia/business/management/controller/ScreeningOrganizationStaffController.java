@@ -93,6 +93,10 @@ public class ScreeningOrganizationStaffController {
         excelFacade.importScreeningOrganizationStaff(currentUser.getOrgId(), currentUser.getId(), file);
         return ApiResult.success();
     }
+    @GetMapping("/import/demo")
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
+    }
 
     /**
      * 数据校验

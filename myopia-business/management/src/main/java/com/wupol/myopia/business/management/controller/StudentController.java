@@ -85,6 +85,11 @@ public class StudentController {
         return ApiResult.success();
     }
 
+    @GetMapping("/import/demo")
+    public ResponseEntity<FileSystemResource> getImportDemo() {
+        return FileUtils.getResponseEntity(excelFacade.getStudentImportDemo());
+    }
+
     @GetMapping("labels")
     public Object getVisionLabels() {
         CurrentUserUtil.getLegalCurrentUser();

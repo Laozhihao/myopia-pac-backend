@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
@@ -26,6 +27,7 @@ public class PermissionController {
 
     @PostMapping()
     public Object addPermission(@RequestBody PermissionDTO param) {
+        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         return oauthServiceClient.addPermission(param);
     }
 

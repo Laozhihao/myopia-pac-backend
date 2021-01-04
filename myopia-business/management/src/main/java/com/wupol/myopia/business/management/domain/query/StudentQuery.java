@@ -49,5 +49,5 @@ public class StudentQuery extends StudentVo {
      */
     private String gradeIds;
     /** 年级ids */
-    private List<String> gradeList;
+    private List<Integer> gradeList;
 }
