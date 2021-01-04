@@ -115,7 +115,6 @@ public class Student implements Serializable {
     /**
      * 省代码
      */
-    @NotNull(message = "省代码不能为空")
     private Long provinceCode;
 
     /**

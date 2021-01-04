@@ -77,12 +77,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         List<UserExtDTO> resultLists = page.getRecords();
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
-            Map<Integer, ScreeningOrganizationStaff> staffSnMaps = baseMapper
-                    .selectList(new QueryWrapper<ScreeningOrganizationStaff>().
-                            in("user_id", userIds))
-                    .stream().collect(Collectors.
+            Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
+                    .stream()
+                    .collect(Collectors.
                             toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-
             resultLists.forEach(s -> {
                 s.setSn(staffSnMaps.get(s.getId()).getStaffNo());
                 s.setStaffId(staffSnMaps.get(s.getId()).getId());
@@ -180,7 +178,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
@@ -280,5 +278,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
         return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>().in("screening_org_id", orgIds));
+    }
+
+    /**
+     * 获取员工通过userIds
+     *
+     * @param userIds 用户id
+     * @return 员工
+     */
+    public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
+        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                .in("user_id", userIds));
     }
 }
