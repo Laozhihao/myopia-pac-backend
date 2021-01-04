@@ -15,9 +15,9 @@ import lombok.EqualsAndHashCode;
 @Data
 public class ScreeningOrganizationQuery extends ScreeningOrganization {
     /** 机构id */
-    private String idLike;
+    private String orgIdLike;
     /** 机构名 */
     private String nameLike;
     /** 地区编码 */
-    private String code;
+    private Long code;
 }

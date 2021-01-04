@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,7 +20,9 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     IPage<ScreeningOrgResponse> getScreeningOrganizationListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
                                                                         @Param("name") String name, @Param("type") Integer type,
-                                                                        @Param("orgNo") String orgNo, @Param("code") String code);
+                                                                        @Param("orgNo") String orgNo, @Param("code") Long code);
+    ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
 
+    List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query);
     ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 }

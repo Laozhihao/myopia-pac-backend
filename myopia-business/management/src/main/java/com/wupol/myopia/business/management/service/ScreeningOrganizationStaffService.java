@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationS
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -208,6 +210,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return new UsernameAndPasswordDTO(username, password);
     }
 
+    /** 根据用户id列表查询 */
+    public List<ScreeningOrganizationStaff> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
+    }
+
     /**
      * 生成账号密码
      *
@@ -238,6 +245,17 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         }
         tuple.setSecond(apiResult.getData().getId());
         return tuple;
+    }
+
+    /** 批量新增, 自动生成编号 */
+    public Boolean saveBatch(List<ScreeningOrganizationStaffVo> list) {
+        if (CollectionUtils.isEmpty(list)) return false;
+        // 通过screeningOrgId获取机构
+        ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
+        for (ScreeningOrganizationStaffVo item : list) {
+            item.setStaffNo(generateOrgNo(organization.getOrgNo(), item.getIdCard()));
+        }
+        return super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff)item).collect(Collectors.toList()));
     }
 
     /**

@@ -16,6 +16,8 @@ import lombok.EqualsAndHashCode;
 public class HospitalQuery extends Hospital {
     /** 名称 */
     private String nameLike;
+    /** 编号 */
+    private String noLike;
     /** 地区编码 */
-    private String code;
+    private Long code;
 }

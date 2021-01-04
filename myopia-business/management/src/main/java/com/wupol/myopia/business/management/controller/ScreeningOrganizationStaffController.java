@@ -9,11 +9,15 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.dto.StaffResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
+import com.wupol.myopia.business.management.util.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,16 +82,15 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/export")
-    public ApiResult getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
-        return ApiResult.success(excelFacade.generateScreeningOrganizationStaff(query));
+    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(query));
     }
 
 
     @PostMapping("/import")
     public ApiResult importOrganizationStaff(MultipartFile file) throws IOException {
-        Integer orgId = 123;
-        Integer createUserId = 3;
-        excelFacade.importScreeningOrganizationStaff(orgId, createUserId, file);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.importScreeningOrganizationStaff(currentUser.getOrgId(), currentUser.getId(), file);
         return ApiResult.success();
     }
 

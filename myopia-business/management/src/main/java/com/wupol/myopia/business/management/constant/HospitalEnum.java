@@ -37,7 +37,7 @@ public enum HospitalEnum {
     }
 
     /** 根据性质获取描述 */
-    public static String getKineName(Integer kind) {
+    public static String getKindName(Integer kind) {
         if (kind.equals(KIND_PUBLIC.type)) {
             return KIND_PUBLIC.name;
         } else if (kind.equals(KIND_PRIVATE.type)) {

@@ -14,8 +14,10 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
+import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolStaff;
+import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -252,5 +255,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         // 自增一,并且返回
         return String.valueOf(redisUtil.incr(key, 1));
+    }
+    /** 获取导出数据 */
+    public List<School> getExportData(SchoolQuery query) {
+        return baseMapper.getExportData(query);
     }
 }

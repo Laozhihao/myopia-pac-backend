@@ -1,14 +1,17 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.business.management.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.validator.RoleAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.RoleQueryValidatorGroup;
+import com.wupol.myopia.business.management.validator.RoleUpdateValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 角色表
@@ -19,20 +22,20 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("o_role")
-public class Role implements Serializable {
+public class RoleDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 角色ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @NotNull(message = "角色ID不能为空", groups = { RoleUpdateValidatorGroup.class })
     private Integer id;
 
     /**
      * 机构组织ID（如政府部门ID、学校ID、医院ID）
      */
+    @NotNull(message = "部门ID不能为空", groups = { RoleQueryValidatorGroup.class, RoleAddValidatorGroup.class })
     private Integer orgId;
 
     /**
@@ -43,11 +46,13 @@ public class Role implements Serializable {
     /**
      * 中文名
      */
+    @NotBlank(message = "角色名称不能为空", groups = { RoleAddValidatorGroup.class })
     private String chName;
 
     /**
      * 角色类型：0-admin、1-机构管理员、2-普通用户
      */
+    @NotNull(message = "角色类型不能为空", groups = { RoleAddValidatorGroup.class })
     private Integer roleType;
 
     /**
@@ -56,13 +61,9 @@ public class Role implements Serializable {
     private Integer createUserId;
 
     /**
-     * 系统编号
-     */
-    private Integer systemCode;
-
-    /**
      * 状态：0-启用 1-禁止 2-删除
      */
+    @NotNull(message = "状态不能为空", groups = { RoleAddValidatorGroup.class })
     private Integer status;
 
     /**
@@ -82,8 +83,5 @@ public class Role implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-    /**
-     * 创建用户名
-     */
-    private String createUserName;
+
 }

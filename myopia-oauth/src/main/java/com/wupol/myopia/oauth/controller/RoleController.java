@@ -1,12 +1,13 @@
 package com.wupol.myopia.oauth.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -21,9 +22,15 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
+    /**
+     * 获取角色列表
+     *
+     * @param param 查询参数
+     * @return java.lang.Object
+     **/
     @GetMapping("/list")
-    public Object getRoleList(Role param) throws IOException {
-        return roleService.findByList(param);
+    public Object getRoleList(Role param) {
+        return roleService.selectRoleList(param);
     }
 
     @PostMapping()
@@ -41,8 +48,15 @@ public class RoleController {
         return roleService.assignRolePermission(roleId);
     }
 
-    @GetMapping("/permission/structure/{roleId}")
-    public Object getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
-        return roleService.getRolePermissionTree(roleId);
+    /**
+     * 获取指定行政区下的角色权限树
+     *
+     * @param roleId 角色ID
+     * @param districtLevel 行政区等级
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    @GetMapping("/permission/structure/{roleId}/{districtLevel}")
+    public List<Permission> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("districtLevel") Integer districtLevel) {
+        return roleService.getRolePermissionTree(roleId, districtLevel);
     }
 }

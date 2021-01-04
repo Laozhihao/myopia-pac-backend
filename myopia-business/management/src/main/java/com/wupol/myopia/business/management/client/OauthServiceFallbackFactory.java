@@ -2,8 +2,8 @@ package com.wupol.myopia.business.management.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.business.management.domain.dto.Permission;
-import com.wupol.myopia.business.management.domain.dto.Role;
+import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
+import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import feign.FeignException;
 import feign.hystrix.FallbackFactory;
@@ -70,17 +70,17 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult getRoleList(Role param) {
+            public ApiResult getRoleList(RoleDTO param) {
                 return respData;
             }
 
             @Override
-            public ApiResult addRole(Role param) {
+            public ApiResult addRole(RoleDTO param) {
                 return respData;
             }
 
             @Override
-            public ApiResult modifyRole(Role param) {
+            public ApiResult updateRole(RoleDTO param) {
                 return respData;
             }
 
@@ -90,22 +90,22 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult getRolePermissionTree(Integer roleId) {
+            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId, Integer districtLevel) {
                 return respData;
             }
 
             @Override
-            public ApiResult getPermissionList(Permission param) {
+            public ApiResult<List<PermissionDTO>> getPermissionList(PermissionDTO param) {
                 return respData;
             }
 
             @Override
-            public ApiResult addPermission(Permission param) {
+            public ApiResult addPermission(PermissionDTO param) {
                 return respData;
             }
 
             @Override
-            public ApiResult modifyPermission(Permission param) {
+            public ApiResult modifyPermission(PermissionDTO param) {
                 return respData;
             }
 

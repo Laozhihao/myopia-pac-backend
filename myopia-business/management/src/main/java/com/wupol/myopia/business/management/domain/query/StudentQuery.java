@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 学生查询
@@ -47,4 +48,6 @@ public class StudentQuery extends StudentVo {
      * 年级ids 逗号隔开
      */
     private String gradeIds;
+    /** 年级ids */
+    private List<String> gradeList;
 }

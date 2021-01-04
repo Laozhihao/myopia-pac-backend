@@ -33,7 +33,18 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
     }
 
     public List<Permission> selectAllTree(Integer pid) {
-        // TODO：pid改成动态、联o_district_permission表查询、
-        return baseMapper.selectAllTree(0);
+        return baseMapper.selectAllTree(pid);
+    }
+
+    /**
+     * 获取指定行政区下的角色权限树
+     *
+     * @param pid 父权限ID
+     * @param roleId 角色ID
+     * @param districtLevel 行政区ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    public List<Permission> selectRoleAllTree(Integer pid, Integer roleId, Integer districtLevel) {
+        return baseMapper.selectRolePermissionTree(pid, roleId, districtLevel);
     }
 }

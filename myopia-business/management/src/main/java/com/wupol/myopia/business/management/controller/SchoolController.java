@@ -10,7 +10,10 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
+import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -76,7 +79,7 @@ public class SchoolController {
     }
 
     @GetMapping("/export")
-    public ApiResult getSchoolExportData(SchoolQuery query) throws IOException {
-        return ApiResult.success(excelFacade.generateSchool(query));
+    public ResponseEntity<FileSystemResource> getSchoolExportData(SchoolQuery query) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateSchool(query));
     }
 }

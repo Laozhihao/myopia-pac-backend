@@ -8,9 +8,13 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
+import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -77,7 +81,7 @@ public class HospitalController {
     }
 
     @GetMapping("/export")
-    public ApiResult getHospitalExportData(HospitalQuery query) throws IOException {
-        return ApiResult.success(excelFacade.generateHospital(query));
+    public ResponseEntity<FileSystemResource> getHospitalExportData(HospitalQuery query) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateHospital(query));
     }
 }

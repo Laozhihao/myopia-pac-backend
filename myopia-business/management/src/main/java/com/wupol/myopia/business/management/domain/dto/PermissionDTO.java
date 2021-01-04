@@ -7,9 +7,10 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 角色表
+ * 权限资源表
  *
  * @Author HaoHao
  * @Date 2020-12-23
@@ -17,49 +18,54 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class Role implements Serializable {
+public class PermissionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 角色ID
+     * 权限资源ID
      */
     private Integer id;
 
     /**
-     * 机构组织ID（如政府部门ID、学校ID、医院ID）
+     * 权限资源名称
      */
-    private Integer orgId;
+    private String name;
 
     /**
-     * 英文名
+     * 对应页面或按钮的name（权限资源为页面时，该值不能为空）
      */
-    private String enName;
+    private String menuBtnName;
 
     /**
-     * 中文名
+     * 功能接口地址（权限资源为功能时，该值不能为空）
      */
-    private String chName;
+    private String apiUrl;
 
     /**
-     * 角色类型：0-admin、1-机构管理员、2-普通用户
+     * 是否为菜单：0-否、1-是
      */
-    private Integer roleType;
+    private Integer isMenu;
 
     /**
-     * 创建人
+     * 是否为页面：0-功能、1-页面
      */
-    private Integer createUserId;
+    private Integer isPage;
 
     /**
-     * 状态：0-启用 1-禁止 2-删除
+     * 顺序
      */
-    private Integer status;
+    private Integer order;
 
     /**
-     * 备注
+     * 上级权限资源ID
      */
-    private String remark;
+    private Integer pid;
+
+    /**
+     * 系统编号
+     */
+    private Integer systemCode;
 
     /**
      * 创建时间
@@ -73,5 +79,14 @@ public class Role implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 是否拥有该权限
+     */
+    private Integer isHave;
+
+    /**
+     * 子权限
+     */
+    private List<PermissionDTO> child;
 
 }

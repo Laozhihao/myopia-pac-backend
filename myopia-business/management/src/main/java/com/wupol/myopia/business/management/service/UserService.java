@@ -17,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -37,11 +38,16 @@ public class UserService {
      * @param param     查询参数
      * @param current   当前页码
      * @param size      每页条数
+     * @param currentUserOrgId  当前用户所属部门ID
      * @return java.util.ArrayList<com.wupol.myopia.business.management.domain.dto.User>
      **/
-    public IPage<UserDTO> getUserListPage(UserDTO param, Integer current, Integer size) {
-        List<Integer> orgIds = govDeptService.getCurrentUserAllSubordinateDepartmentId();
-        param.setCurrent(current).setSize(size).setOrgIds(orgIds);
+    public IPage<UserDTO> getUserListPage(UserDTO param, Integer current, Integer size, Integer currentUserOrgId) {
+        // 默认获取自己所属部门及其下面所有部门的用户，如果搜索条件中部门ID不为空，则优先获取指定部门的用户
+        if (Objects.isNull(param.getOrgId())) {
+            List<Integer> orgIds = govDeptService.getAllSubordinateDepartmentIdByPid(currentUserOrgId);
+            param.setOrgIds(orgIds);
+        }
+        param.setCurrent(current).setSize(size);
         ApiResult result = oauthServiceClient.getUserListPage(param);
         if (!result.isSuccess()) {
             throw new BusinessException("获取用户列表异常");
@@ -61,10 +67,11 @@ public class UserService {
      * 新增用户
      *
      * @param userDTO 用户数据
+     * @param currentUserOrgId  当前用户所属部门ID
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
-    public UserDTO addUser(UserDTO userDTO) {
-        List<Integer> orgIds = govDeptService.getCurrentUserAllSubordinateDepartmentId();
+    public UserDTO addUser(UserDTO userDTO, Integer currentUserOrgId) {
+        List<Integer> orgIds = govDeptService.getAllSubordinateDepartmentIdByPid(currentUserOrgId);
         if (!orgIds.contains(userDTO.getOrgId())) {
             throw new BusinessException("无效部门ID");
         }

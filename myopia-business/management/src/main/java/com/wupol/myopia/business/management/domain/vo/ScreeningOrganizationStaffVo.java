@@ -49,6 +49,6 @@ public class ScreeningOrganizationStaffVo extends ScreeningOrganizationStaff {
     /**
      * 组织名
      */
-    private Integer organizationName;
+    private String organizationName;
 
 }

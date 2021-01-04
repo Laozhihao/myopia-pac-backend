@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -256,5 +257,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         // 自增一,并且返回
         return String.valueOf(redisUtil.incr(key, 1));
+    }
+
+    /** 获取导出数据 */
+    public List<Hospital> getExportData(HospitalQuery query) {
+        return baseMapper.getExportData(query);
     }
 }

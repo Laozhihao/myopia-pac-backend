@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -145,6 +147,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             r.setScreeningTime(Const.SCREENING_TIME);
         });
         return orgLists;
+    }
+
+    /**
+     * 获取导出数据
+     * @return
+     */
+    public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
+        return screeningOrganizationMapper.getExportData(query);
     }
 
     /**

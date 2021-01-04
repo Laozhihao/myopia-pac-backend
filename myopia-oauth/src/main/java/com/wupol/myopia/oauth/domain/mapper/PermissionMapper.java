@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.domain.mapper;
 
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface PermissionMapper extends BaseMapper<Permission> {
     List<Permission> getUserPermissionByUserId(Integer userId);
 
     List<Permission> selectAllTree(Integer pid);
+
+    List<Permission> selectRolePermissionTree(@Param("pid")Integer pid, @Param("roleId")Integer roleId, @Param("districtLevel")Integer districtLevel);
 }

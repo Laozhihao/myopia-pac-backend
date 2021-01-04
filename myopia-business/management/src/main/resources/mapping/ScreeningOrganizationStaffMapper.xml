@@ -19,6 +19,13 @@
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+<!--                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+<!--                <if test="idCardLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+<!--                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+
+
             </trim>
         </where>
     </sql>
@@ -27,5 +34,10 @@
     <sql id="Base_Column_List">
         id, gov_dept_id, screening_org_id, staff_no, user_id, create_user_id, remark, create_time, update_time
     </sql>
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_screening_organization_staff
+        where user_id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 
 </mapper>
