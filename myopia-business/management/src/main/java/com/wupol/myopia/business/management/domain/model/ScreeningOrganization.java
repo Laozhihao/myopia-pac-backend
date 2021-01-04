@@ -69,25 +69,25 @@ public class ScreeningOrganization implements Serializable {
      * 省代码
      */
     @NotNull(message = "省代码不能为空")
-    private Integer provinceCode;
+    private Long provinceCode;
 
     /**
      * 市代码
      */
     @NotNull(message = "市代码不能为空")
-    private Integer cityCode;
+    private Long cityCode;
 
     /**
      * 区代码
      */
     @NotNull(message = "区代码不能为空")
-    private Integer areaCode;
+    private Long areaCode;
 
     /**
      * 镇/乡代码
      */
     @NotNull(message = "镇/乡代码不能为空")
-    private Integer townCode;
+    private Long townCode;
 
     /**
      * 详细地址

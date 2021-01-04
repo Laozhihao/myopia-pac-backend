@@ -40,6 +40,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param classId 年级id
      * @return 成功数
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer deletedClass(Integer classId) {
 
         // 判断是否给学生使用
@@ -52,6 +53,17 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         schoolClass.setId(classId);
         schoolClass.setCreateUserId(1);
         schoolClass.setStatus(Const.STATUS_IS_DELETED);
+        return baseMapper.updateById(schoolClass);
+    }
+
+    /**
+     * 更新班级
+     *
+     * @param schoolClass 班级实体类
+     * @return 更新个数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateClass(SchoolClass schoolClass) {
         return baseMapper.updateById(schoolClass);
     }
 

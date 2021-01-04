@@ -21,5 +21,5 @@ public interface SchoolMapper extends BaseMapper<School> {
                                               @Param("name") String name, @Param("schoolNo") String schoolNo,
                                               @Param("type") Integer type, @Param("code") String code);
 
-    School getLastSchoolByNo(@Param("code") Integer code);
+    School getLastSchoolByNo(@Param("code") Long code);
 }

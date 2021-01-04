@@ -10,6 +10,9 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * 学校-班级表
  *
@@ -33,6 +36,7 @@ public class SchoolClass implements Serializable {
     /**
      * 年级ID
      */
+    @NotNull(message = "年级id不能为空")
     private Integer gradeId;
 
     /**
@@ -43,16 +47,19 @@ public class SchoolClass implements Serializable {
     /**
      * 学校ID
      */
+    @NotNull(message = "学校ID不能为空")
     private Integer schoolId;
 
     /**
      * 班级名称
      */
+    @NotBlank(message = "班级名称不能为空")
     private String name;
 
     /**
      * 座位数
      */
+    @NotNull(message = "座位数不能为空")
     private Integer seatCount;
 
     /**

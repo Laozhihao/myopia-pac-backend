@@ -20,5 +20,5 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
                                                @Param("name") String name, @Param("hospitalNo") String hospitalNo, @Param("type") Integer type, @Param("kind") Integer kind,
                                                @Param("level") Integer level, @Param("code") String code);
 
-    Hospital getLastHospitalByNo(@Param("code") Integer code);
+    Hospital getLastHospitalByNo(@Param("code") Long code);
 }

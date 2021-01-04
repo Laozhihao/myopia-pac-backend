@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
@@ -9,17 +10,22 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationM
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author HaoHao
  * @Date 2020-12-22
  */
 @Service
+@Log4j2
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
 
     @Resource
@@ -28,6 +34,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningOrganizationMapper screeningOrganizationMapper;
 
+    @Resource
+    private RedisUtil redisUtil;
+
+    @Resource
+    private RedissonClient redissonClient;
+
     /**
      * 保存筛查机构
      *
@@ -35,12 +47,32 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return Integer 插入个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        if (null == screeningOrganization.getTownCode()) {
+    public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+
+        Long townCode = screeningOrganization.getTownCode();
+        Integer createUserId = screeningOrganization.getCreateUserId();
+
+        if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        screeningOrganization.setOrgNo(generateOrgNo(screeningOrganization.getTownCode()));
-        return baseMapper.insert(screeningOrganization);
+        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_REDIS + townCode);
+
+        try {
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
+            if (tryLock) {
+                screeningOrganization.setOrgNo(generateOrgNoByRedis(townCode));
+                return baseMapper.insert(screeningOrganization);
+            }
+        } catch (InterruptedException e) {
+            log.error("用户id:{}获取锁异常:{}", createUserId, e);
+            throw new BusinessException("系统繁忙，请稍后再试");
+        } finally {
+            if (rLock.isLocked()) {
+                rLock.unlock();
+            }
+        }
+        log.warn("用户id:{}新增机构获取不到锁，区域代码:{}", createUserId, townCode);
+        throw new BusinessException("请重试");
     }
 
     /**
@@ -96,11 +128,46 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return baseMapper.updateById(org);
     }
 
-    private String generateOrgNo(Integer code) {
+    /**
+     * 生成编号
+     *
+     * @param code 镇代码
+     * @return 代码
+     */
+    private String generateOrgNo(Long code) {
         ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
         if (null == org) {
             return StringUtils.join(code, "201");
         }
         return String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
+    }
+
+    /**
+     * 生成编号通过Redis
+     *
+     * @param code 镇代码
+     * @return 编号
+     */
+    private String generateOrgNoByRedis(Long code) {
+        // 查询redis是否存在
+        String key = Const.GENERATE_ORG_SN + code;
+        Object check = redisUtil.get(key);
+        if (check == null) {
+            ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
+            // 数据库不存在
+            if (null == org) {
+                // 数据库不存在，初始化
+                long resultCode = code * 1000 + 201;
+                redisUtil.set(key, resultCode);
+                return String.valueOf(resultCode);
+            }
+            // 获取当前数据库中最新的编号并且加一
+            long resultCode = Long.parseLong(org.getOrgNo()) + 1;
+            // 缓存到redis中
+            redisUtil.set(key, resultCode);
+            return String.valueOf(resultCode);
+        }
+        // 自增一,并且返回
+        return String.valueOf(redisUtil.incr(key, 1));
     }
 }

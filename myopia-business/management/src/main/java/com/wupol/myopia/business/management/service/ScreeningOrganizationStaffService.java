@@ -10,13 +10,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
  * @Date 2020-12-22
  */
 @Service
+@Log4j2
 public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrganizationStaffMapper, ScreeningOrganizationStaff> {
 
     @Resource
@@ -42,6 +48,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
     @Autowired
     private OauthServiceClient oauthServiceClient;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 获取机构人员列表
@@ -55,7 +64,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 new UserDTO()
                         .setCurrent(request.getCurrent())
                         .setSize(request.getSize())
-                        // TODO: 放开
                         .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
@@ -103,17 +111,36 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
+    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
 
-        // 生成账号密码
-        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
-        // 通过screeningOrgId获取机构
-        ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
-        staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
-        staffQuery.setUserId(tuple.getSecond());
+        Integer createUserId = staffQuery.getCreateUserId();
+        String phone = staffQuery.getPhone();
 
-        save(staffQuery);
-        return tuple.getFirst();
+        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
+        try {
+            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
+            if (tryLock) {
+
+                // 生成账号密码
+                TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
+                // 通过screeningOrgId获取机构
+                ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
+                staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
+                staffQuery.setUserId(tuple.getSecond());
+
+                save(staffQuery);
+                return tuple.getFirst();
+            }
+        } catch (InterruptedException e) {
+            log.error("用户:{}创建机构人员获取锁异常,e:{}", createUserId, e);
+            throw new BusinessException("系统繁忙，请稍后再试");
+        } finally {
+            if (rLock.isLocked()) {
+                rLock.unlock();
+            }
+        }
+        log.warn("用户id:{}新增机构获取不到锁，新增人员手机号码:{}", createUserId, phone);
+        throw new BusinessException("请重试");
     }
 
     /**
