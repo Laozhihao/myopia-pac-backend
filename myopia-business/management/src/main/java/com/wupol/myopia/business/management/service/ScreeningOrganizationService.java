@@ -93,7 +93,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
         baseMapper.updateById(screeningOrganization);
-        return screeningOrganization;
+        return baseMapper.selectById(screeningOrganization.getId());
     }
 
     /**
