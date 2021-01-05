@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -17,12 +19,15 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +49,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private SchoolClassService schoolClassService;
 
     /**
      * 通过学校id查找学生
@@ -153,16 +161,41 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentQuery 请求体
      * @return IPage<Student> {@link IPage}
      */
-    public IPage<Student> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
+    public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
         List<Integer> gradeIds = new ArrayList<>();
         if (StringUtils.isNotBlank(studentQuery.getGradeIds())) {
             gradeIds = Arrays.stream(studentQuery.getGradeIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
-        return studentMapper.getStudentListByCondition(pageRequest.toPage(), studentQuery.getSchoolId(),
+        IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(), studentQuery.getSchoolId(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(),
                 gradeIds, studentQuery.getLabels(), studentQuery.getStartScreeningTime(),
                 studentQuery.getEndScreeningTime());
+        List<StudentDTO> students = pageStudents.getRecords();
+        if (CollectionUtils.isEmpty(students)) {
+            return pageStudents;
+        }
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService
+                .getByIds(students
+                        .stream()
+                        .map(Student::getGradeId)
+                        .collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors
+                        .toMap(SchoolGrade::getId, Function.identity()));
+        Map<Integer, SchoolClass> classMaps = schoolClassService
+                .getByIds(students
+                        .stream()
+                        .map(Student::getClassId)
+                        .collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors
+                        .toMap(SchoolClass::getId, Function.identity()));
+        students.forEach(s -> {
+            s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+            s.setClassName(classMaps.get(s.getClassId()).getName());
+        });
+        return pageStudents;
     }
 
     private String generateOrgNo(String schoolNo, String gradeNo, String idCard) {

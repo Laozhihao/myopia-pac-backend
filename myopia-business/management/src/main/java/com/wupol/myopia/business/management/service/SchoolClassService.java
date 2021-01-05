@@ -83,7 +83,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     }
 
     /**
-     * 批量通过年级获取班级
+     * 批量通过年级id获取班级
      *
      * @param gradeIds 年级idLists
      * @param schoolId 学校id

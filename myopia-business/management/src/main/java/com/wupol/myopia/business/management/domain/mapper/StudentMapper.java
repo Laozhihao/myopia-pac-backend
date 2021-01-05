@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
@@ -20,12 +21,12 @@ import java.util.List;
  */
 public interface StudentMapper extends BaseMapper<Student> {
 
-    IPage<Student> getStudentListByCondition(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId,
-                                             @Param("sno") Integer sno, @Param("idCard") String idCard,
-                                             @Param("name") String name, @Param("parentPhone") String parentPhone,
-                                             @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
-                                             @Param("labels") String labels, @Param("startScreeningTime") Date startScreeningTime,
-                                             @Param("endScreeningTime") Date endScreeningTime);
+    IPage<StudentDTO> getStudentListByCondition(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId,
+                                                @Param("sno") Integer sno, @Param("idCard") String idCard,
+                                                @Param("name") String name, @Param("parentPhone") String parentPhone,
+                                                @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
+                                                @Param("labels") String labels, @Param("startScreeningTime") Date startScreeningTime,
+                                                @Param("endScreeningTime") Date endScreeningTime);
 
     List<Student> getExportData(StudentQuery query);
 }

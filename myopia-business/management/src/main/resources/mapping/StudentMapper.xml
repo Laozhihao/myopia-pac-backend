@@ -6,6 +6,9 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Student">
     </resultMap>
 
+    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -55,7 +58,7 @@
         id, school_id, student_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, labels, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
     </sql>
 
-    <select id="getStudentListByCondition" resultMap="BaseResultMap">
+    <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
         select
         <include refid="Base_Column_List"/>
         from m_student ms
