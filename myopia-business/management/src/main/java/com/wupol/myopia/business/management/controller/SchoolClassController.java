@@ -1,13 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.service.SchoolClassService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -36,8 +33,8 @@ public class SchoolClassController {
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
-        return schoolClassService.deletedClass(id);
+        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        return schoolClassService.deletedClass(id, user.getId());
     }
 
     @PutMapping()

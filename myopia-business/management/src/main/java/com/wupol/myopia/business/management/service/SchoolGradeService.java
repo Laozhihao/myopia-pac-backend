@@ -44,7 +44,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public Integer saveGrade(SchoolGrade schoolGrade) {
         // 查询code是否存在
-        if (countGradeByCode(schoolGrade.getGradeCode()) > 0) {
+        if (countGradeByCode(schoolGrade.getSchoolId(), schoolGrade.getGradeCode()) > 0) {
             throw new BusinessException("该年级已经存在，请确认");
         }
         return baseMapper.insert(schoolGrade);
@@ -110,11 +110,12 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 更新年级
      *
      * @param schoolGrade 年级实体类
-     * @return 更新个数
+     * @return SchoolGrade 年级实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateGrade(SchoolGrade schoolGrade) {
-        return baseMapper.updateById(schoolGrade);
+    public SchoolGrade updateGrade(SchoolGrade schoolGrade) {
+        baseMapper.updateById(schoolGrade);
+        return schoolGrade;
     }
 
     /**
@@ -127,11 +128,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 通过
      *
-     * @param code 年级code
+     * @param schoolId 学校ID
+     * @param code     年级code
      * @return 统计
      */
-    public Integer countGradeByCode(String code) {
+    public Integer countGradeByCode(Integer schoolId, String code) {
         return baseMapper.selectCount(new QueryWrapper<SchoolGrade>()
+                .eq("school_id", schoolId)
                 .eq("grade_code", code)
                 .eq("status", Const.STATUS_NOT_DELETED));
     }

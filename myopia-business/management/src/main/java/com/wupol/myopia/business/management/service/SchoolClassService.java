@@ -37,11 +37,12 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     /**
      * 删除年级
      *
-     * @param classId 年级id
+     * @param classId      年级id
+     * @param createUserId 创建人id
      * @return 成功数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer deletedClass(Integer classId) {
+    public Integer deletedClass(Integer classId, Integer createUserId) {
 
         // 判断是否给学生使用
         List<Student> students = studentService.getStudentsByClassId(classId);
@@ -51,7 +52,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
 
         SchoolClass schoolClass = new SchoolClass();
         schoolClass.setId(classId);
-        schoolClass.setCreateUserId(1);
+        schoolClass.setCreateUserId(createUserId);
         schoolClass.setStatus(Const.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolClass);
     }
