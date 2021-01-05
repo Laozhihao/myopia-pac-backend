@@ -114,8 +114,12 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolGrade updateGrade(SchoolGrade schoolGrade) {
+        // 查询code是否存在
+        if (countGradeByCode(schoolGrade.getSchoolId(), schoolGrade.getGradeCode()) > 0) {
+            throw new BusinessException("该年级已经存在，请确认");
+        }
         baseMapper.updateById(schoolGrade);
-        return schoolGrade;
+        return baseMapper.selectById(schoolGrade.getId());
     }
 
     /**
@@ -126,7 +130,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
-     * 通过
+     * 通过code统计
      *
      * @param schoolId 学校ID
      * @param code     年级code

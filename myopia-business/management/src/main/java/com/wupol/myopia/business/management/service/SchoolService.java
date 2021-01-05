@@ -98,7 +98,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Transactional(rollbackFor = Exception.class)
     public School updateSchool(School school) {
         baseMapper.updateById(school);
-        return school;
+        return baseMapper.selectById(school.getId());
     }
 
     /**
