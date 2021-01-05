@@ -66,6 +66,7 @@
         <if test="code != null and code != ''">
             and (mso.city_code like CONCAT('%', #{code}, '%') or mso.area_code like CONCAT('%', #{code}, '%'))
         </if>
+        order by mso.create_time desc
     </select>
 
     <select id="getLastOrgByNo" resultMap="BaseResultMap">
