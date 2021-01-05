@@ -72,8 +72,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
         }
-        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
-        });
+        Page<UserExtDTO> page = JSONObject
+                .parseObject(JSONObject.toJSONString(
+                        apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+                });
         List<UserExtDTO> resultLists = page.getRecords();
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
@@ -87,7 +89,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             });
             return page;
         }
-        return null;
+        return page;
     }
 
     /**
