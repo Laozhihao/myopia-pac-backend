@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -146,9 +147,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return IPage<SchoolDto> {@link IPage}
      */
     public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
-        return schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
+        IPage<SchoolDto> schoolDtoIPage = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
                 schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
+        List<SchoolDto> schools = schoolDtoIPage.getRecords();
+        if (CollectionUtils.isEmpty(schools)) {
+            return schoolDtoIPage;
+        }
+        schools.forEach(s -> s.setScreeningTime(0));
+        return schoolDtoIPage;
     }
 
     /**

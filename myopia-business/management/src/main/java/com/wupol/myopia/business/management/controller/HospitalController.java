@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -75,9 +76,9 @@ public class HospitalController {
     }
 
     @PostMapping("reset")
-    public Object resetPassword(@RequestParam("id") Integer id) {
+    public Object resetPassword(@RequestBody ResetPasswordRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
-        return hospitalService.resetPassword(id);
+        return hospitalService.resetPassword(request.getId());
     }
 
     @GetMapping("/export")

@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -73,9 +75,9 @@ public class SchoolController {
     }
 
     @PostMapping("reset")
-    public Object resetPassword(@RequestParam("id") Integer id) {
+    public Object resetPassword(@RequestBody ResetPasswordRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
-        return schoolService.resetPassword(id);
+        return schoolService.resetPassword(request.getId());
     }
 
     @GetMapping("/export")
