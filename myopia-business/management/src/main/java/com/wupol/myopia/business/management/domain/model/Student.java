@@ -83,7 +83,7 @@ public class Student implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @NotNull(message = "出生日期不能为空")
     private Date birthday;
 

@@ -84,7 +84,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                     .collect(Collectors.
                             toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
             resultLists.forEach(s -> {
-                s.setSn(staffSnMaps.get(s.getId()).getStaffNo());
+                s.setStaffNo(staffSnMaps.get(s.getId()).getStaffNo());
                 s.setStaffId(staffSnMaps.get(s.getId()).getId());
             });
             return page;
