@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public interface GovDeptMapper extends BaseMapper<GovDept> {
      * @param pid 部门ID
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
-    List<GovDept> selectGovDeptTreeByPid(Integer pid);
+    List<GovDeptVo> selectGovDeptTreeByPid(Integer pid);
 
     /**
      * 获取指定部门及其下面的所有部门的ID数据树

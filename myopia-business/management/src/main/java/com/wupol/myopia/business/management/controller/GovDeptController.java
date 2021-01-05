@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import com.wupol.myopia.business.management.service.DistrictService;
 import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
@@ -91,7 +92,7 @@ public class GovDeptController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     @GetMapping("/structure")
-    public List<GovDept> getGovDeptTree() {
+    public List<GovDeptVo> getGovDeptTree() {
         return govDeptService.selectGovDeptTreeByPid(CurrentUserUtil.getCurrentUser().getOrgId());
     }
 

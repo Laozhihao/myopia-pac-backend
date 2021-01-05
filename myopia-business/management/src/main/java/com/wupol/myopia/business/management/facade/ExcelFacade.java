@@ -307,10 +307,10 @@ public class ExcelFacade {
                                     .setParentPhone(item.get(9))
                                     //TODO 待分拆地址,转code
                                     .setAddress(item.get(9))
-                                    //                                .setProvinceCode(21312)
-                                    //                                .setCityCode(21312)
-                                    //                                .setAreaCode(21312)
-                                    //                                .setTownCode(21312)
+                                    .setProvinceCode(140000000L)
+                                    .setCityCode(140100000L)
+                                    .setAreaCode(140105000L)
+                                    .setTownCode(140105001L)
                                     .setSchoolId(schoolId)
                                     //TODO 年级班级名转id
                                     .setGradeId(12)

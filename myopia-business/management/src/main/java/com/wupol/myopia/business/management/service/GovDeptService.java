@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -28,7 +29,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * @param pid 部门ID
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
-    public List<GovDept> selectGovDeptTreeByPid(Integer pid) {
+    public List<GovDeptVo> selectGovDeptTreeByPid(Integer pid) {
         if (Objects.isNull(pid)) {
             return new ArrayList<>();
         }

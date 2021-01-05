@@ -7,6 +7,7 @@ import com.wupol.myopia.oauth.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 /**
@@ -28,12 +29,12 @@ public class PermissionController{
     }
 
     @PostMapping()
-    public Object addPermission(@RequestBody Permission param) {
+    public Object addPermission(@RequestBody @Valid Permission param) {
         return permissionService.save(param);
     }
 
     @PutMapping()
-    public Object modifyPermission(@RequestBody Permission param) {
+    public Object modifyPermission(@RequestBody @Valid Permission param) {
         return permissionService.updateById(param);
     }
 

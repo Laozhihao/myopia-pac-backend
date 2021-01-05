@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.GovDept">
     </resultMap>
+    <resultMap id="GovDeptVo" type="com.wupol.myopia.business.management.domain.vo.GovDeptVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -36,8 +38,11 @@
     </resultMap>
 
     <!--级联查询父菜单-->
-    <select id="selectGovDeptTreeByPid" resultMap="treeVoMap" >
-        select * from m_government_department where pid = #{pid}
+    <select id="selectGovDeptTreeByPid" resultMap="GovDeptVo" >
+        select gd.*, d.name as districtName
+        from m_government_department gd
+        left join m_district d ON gd.district_id = d.id
+        where pid = #{pid}
     </select>
 
      <!--级联查询子菜单-->
