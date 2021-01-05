@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.service.SchoolClassService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * 班级控制层
@@ -25,7 +26,7 @@ public class SchoolClassController {
     private SchoolClassService schoolClassService;
 
     @PostMapping()
-    public Object saveGrade(@RequestBody SchoolClass schoolClass) {
+    public Object saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.saveClass(schoolClass);
@@ -38,7 +39,7 @@ public class SchoolClassController {
     }
 
     @PutMapping()
-    public Object updateClass(@RequestBody SchoolClass schoolClass) {
+    public Object updateClass(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.updateClass(schoolClass);

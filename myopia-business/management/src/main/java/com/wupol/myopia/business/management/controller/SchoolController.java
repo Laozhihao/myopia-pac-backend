@@ -18,6 +18,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 /**
@@ -37,7 +38,7 @@ public class SchoolController {
     private ExcelFacade excelFacade;
 
     @PostMapping()
-    public Object saveSchool(@RequestBody School school) {
+    public Object saveSchool(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
@@ -45,7 +46,7 @@ public class SchoolController {
     }
 
     @PutMapping()
-    public Object updateSchool(@RequestBody School school) {
+    public Object updateSchool(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
@@ -69,13 +70,13 @@ public class SchoolController {
     }
 
     @PutMapping("status")
-    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+    public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getLegalCurrentUser();
         return schoolService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
-    public Object resetPassword(@RequestBody ResetPasswordRequest request) {
+    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
         return schoolService.resetPassword(request.getId());
     }

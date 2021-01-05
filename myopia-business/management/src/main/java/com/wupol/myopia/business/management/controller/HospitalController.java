@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.controller;
 
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -9,7 +8,6 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.management.util.FileUtils;
@@ -70,13 +68,13 @@ public class HospitalController {
     }
 
     @PutMapping("status")
-    public Object updateStatus(@RequestBody StatusRequest statusRequest) {
+    public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
-    public Object resetPassword(@RequestBody ResetPasswordRequest request) {
+    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.resetPassword(request.getId());
     }

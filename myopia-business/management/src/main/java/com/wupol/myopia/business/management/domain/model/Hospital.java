@@ -63,7 +63,6 @@ public class Hospital implements Serializable {
     /**
      * 等级描述
      */
-    @NotBlank(message = "医院等级描述不能为空")
     private String levelDesc;
 
     /**

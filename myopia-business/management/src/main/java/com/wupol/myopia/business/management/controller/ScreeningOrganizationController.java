@@ -65,13 +65,13 @@ public class ScreeningOrganizationController {
     }
 
     @GetMapping("list")
-    public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
+    public Object getScreeningOrganizationList(PageRequest pageRequest, @Valid ScreeningOrganizationQuery query) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user.getOrgId());
     }
 
     @PutMapping("status")
-    public Object updateStatus(@RequestBody StatusRequest request) {
+    public Object updateStatus(@RequestBody @Valid StatusRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.updateStatus(request);
     }
