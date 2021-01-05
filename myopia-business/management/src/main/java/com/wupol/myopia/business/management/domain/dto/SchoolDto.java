@@ -16,4 +16,9 @@ import lombok.Setter;
 public class SchoolDto extends School {
 
     private String accountNo;
+
+    /**
+     * 筛查次数
+     */
+    private Integer screeningTime;
 }

@@ -71,7 +71,7 @@ public class ScreeningOrganizationController {
     }
 
     @PutMapping("status")
-    public Object updateStatus(@RequestBody StatusRequest request) {
+    public Object updateStatus(@RequestBody @Valid StatusRequest request) {
         CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.updateStatus(request);
     }

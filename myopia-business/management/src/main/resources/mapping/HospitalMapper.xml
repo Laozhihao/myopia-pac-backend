@@ -71,6 +71,7 @@
         <if test="code != null and code != ''">
             and (h.city_code like CONCAT('%', #{code}, '%') or h.area_code like CONCAT('%', #{code}, '%'))
         </if>
+        order by h.create_time desc
     </select>
 
     <select id="getLastHospitalByNo" resultMap="BaseResultMap">

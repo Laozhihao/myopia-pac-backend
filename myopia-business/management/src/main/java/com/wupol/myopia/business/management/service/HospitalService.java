@@ -95,7 +95,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public Hospital updateHospital(Hospital hospital) {
         baseMapper.updateById(hospital);
-        return hospital;
+        return baseMapper.selectById(hospital.getId());
     }
 
     /**

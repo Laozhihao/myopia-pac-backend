@@ -8,10 +8,10 @@ import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * 年级控制层
@@ -29,7 +29,7 @@ public class SchoolGradeController {
     private SchoolGradeService schoolGradeService;
 
     @PostMapping()
-    public Object saveGrade(@RequestBody SchoolGrade schoolGrade) {
+    public Object saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.saveGrade(schoolGrade);
@@ -44,6 +44,9 @@ public class SchoolGradeController {
     @GetMapping("list")
     public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
         CurrentUserUtil.getLegalCurrentUser();
+        if (null == schoolId) {
+            throw new BusinessException("学校ID不能为空");
+        }
         return schoolGradeService.getGradeList(pageRequest, schoolId);
     }
 
@@ -54,7 +57,7 @@ public class SchoolGradeController {
     }
 
     @PutMapping("")
-    public Object updateGrade(@RequestBody SchoolGrade schoolGrade) {
+    public Object updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.updateGrade(schoolGrade);

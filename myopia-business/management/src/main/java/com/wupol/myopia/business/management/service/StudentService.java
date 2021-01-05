@@ -129,7 +129,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Student updateStudent(Student student) {
         baseMapper.updateById(student);
-        return student;
+        return baseMapper.selectById(student.getId());
     }
 
     /**

@@ -163,6 +163,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             throw new BusinessException("OAuth2 异常");
         }
         baseMapper.updateById(staff);
+        ScreeningOrganizationStaff resultStaff = baseMapper.selectById(staff.getId());
+        staff.setStaffNo(resultStaff.getStaffNo());
         return staff;
     }
 

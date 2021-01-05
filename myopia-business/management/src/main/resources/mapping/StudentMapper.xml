@@ -88,6 +88,7 @@
         <if test="startScreeningTime != null">
             and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
         </if>
+        order by ms.create_time desc
     </select>
 
     <select id="getExportData" resultMap="BaseResultMap">

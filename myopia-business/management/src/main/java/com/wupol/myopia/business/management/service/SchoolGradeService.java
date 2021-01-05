@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -8,7 +9,6 @@ import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.springframework.stereotype.Service;
@@ -43,6 +43,10 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 新增个数
      */
     public Integer saveGrade(SchoolGrade schoolGrade) {
+        // 查询code是否存在
+        if (countGradeByCode(schoolGrade.getSchoolId(), schoolGrade.getGradeCode()) > 0) {
+            throw new BusinessException("该年级已经存在，请确认");
+        }
         return baseMapper.insert(schoolGrade);
     }
 
@@ -106,15 +110,36 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 更新年级
      *
      * @param schoolGrade 年级实体类
-     * @return 更新个数
+     * @return SchoolGrade 年级实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateGrade(SchoolGrade schoolGrade) {
-        return baseMapper.updateById(schoolGrade);
+    public SchoolGrade updateGrade(SchoolGrade schoolGrade) {
+        // 查询code是否存在
+        if (countGradeByCode(schoolGrade.getSchoolId(), schoolGrade.getGradeCode()) > 0) {
+            throw new BusinessException("该年级已经存在，请确认");
+        }
+        baseMapper.updateById(schoolGrade);
+        return baseMapper.selectById(schoolGrade.getId());
     }
 
-    /** 根据id列表查询 */
+    /**
+     * 根据id列表查询
+     */
     public List<SchoolGrade> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 通过code统计
+     *
+     * @param schoolId 学校ID
+     * @param code     年级code
+     * @return 统计
+     */
+    public Integer countGradeByCode(Integer schoolId, String code) {
+        return baseMapper.selectCount(new QueryWrapper<SchoolGrade>()
+                .eq("school_id", schoolId)
+                .eq("grade_code", code)
+                .eq("status", Const.STATUS_NOT_DELETED));
     }
 }
