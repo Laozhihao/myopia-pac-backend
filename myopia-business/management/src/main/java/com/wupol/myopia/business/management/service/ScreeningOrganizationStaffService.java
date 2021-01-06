@@ -166,7 +166,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
