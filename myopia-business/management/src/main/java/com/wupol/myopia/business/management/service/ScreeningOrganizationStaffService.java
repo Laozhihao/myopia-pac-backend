@@ -68,7 +68,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
-                        .setPhone(request.getMobile()));
+                        .setPhone(request.getMobile())
+                        .setSystemCode(SystemCode.SCREENING_CLIENT.getCode()));
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
         }
@@ -117,6 +118,13 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         Integer createUserId = staffQuery.getCreateUserId();
         String phone = staffQuery.getPhone();
 
+        // 通过screeningOrgId获取机构
+        ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
+        String staffNo = generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard());
+        if (countStaffNo(staffNo) > 0) {
+            throw new BusinessException("编号已经存在");
+        }
+
         RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -124,9 +132,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
                 // 生成账号密码
                 TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
-                // 通过screeningOrgId获取机构
-                ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
-                staffQuery.setStaffNo(generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard()));
+                staffQuery.setStaffNo(staffNo);
                 staffQuery.setUserId(tuple.getSecond());
 
                 save(staffQuery);
@@ -295,5 +301,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
         return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>()
                 .in("user_id", userIds));
+    }
+
+    /**
+     * 统计员工编号
+     *
+     * @param staffNo 编号
+     * @return 数量
+     */
+    public Integer countStaffNo(String staffNo) {
+        return baseMapper.selectCount(new QueryWrapper<ScreeningOrganizationStaff>()
+                .eq("staff_no", staffNo));
     }
 }
