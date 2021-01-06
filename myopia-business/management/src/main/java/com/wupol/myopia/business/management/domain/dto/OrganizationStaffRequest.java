@@ -33,7 +33,7 @@ public class OrganizationStaffRequest {
     /**
      * 手机号码
      */
-    private String mobile;
+    private String phone;
 
     /**
      * 页数

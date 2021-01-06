@@ -68,7 +68,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                         .setOrgId(request.getScreeningOrgId())
                         .setRealName(request.getName())
                         .setIdCard(request.getIdCard())
-                        .setPhone(request.getMobile())
+                        .setPhone(request.getPhone())
                         .setSystemCode(SystemCode.SCREENING_CLIENT.getCode()));
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
