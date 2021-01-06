@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * 学生DTO
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class StudentDTO extends Student {
 
     /**

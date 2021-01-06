@@ -17,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -135,9 +136,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Student updateStudent(Student student) {
+    public StudentDTO updateStudent(Student student) {
         baseMapper.updateById(student);
-        return baseMapper.selectById(student.getId());
+        Student resultStudent = baseMapper.selectById(student.getId());
+        StudentDTO studentDTO = new StudentDTO();
+        BeanUtils.copyProperties(resultStudent, studentDTO);
+        // 查询年级和班级
+        SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+        return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
     }
 
     /**
