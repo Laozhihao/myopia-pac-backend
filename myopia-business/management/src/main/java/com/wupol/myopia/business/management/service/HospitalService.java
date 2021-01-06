@@ -44,15 +44,20 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     public RedissonClient redissonClient;
+
     @Resource
     private HospitalStaffService hospitalStaffService;
+
     @Resource
     private HospitalMapper hospitalMapper;
+
     @Resource
     private GovDeptService govDeptService;
+
     @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
+    @Resource
     private OauthServiceClient oauthServiceClient;
+
     @Resource
     private RedisUtil redisUtil;
 
