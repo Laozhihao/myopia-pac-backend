@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -49,6 +50,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
+
     /**
      * 保存筛查机构
      *
@@ -60,6 +64,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         Long townCode = screeningOrganization.getTownCode();
         Integer createUserId = screeningOrganization.getCreateUserId();
+
+        // 初始化省代码
+        screeningOrganization.setProvinceCode(provinceCode);
 
         if (null == townCode) {
             throw new BusinessException("数据异常");

@@ -24,6 +24,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -59,6 +60,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private RedisUtil redisUtil;
 
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
+
     /**
      * 新增学校
      *
@@ -73,6 +77,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
+
+        // 初始化省代码
+        school.setProvinceCode(provinceCode);
 
         RLock rLock = redissonClient.getLock(Const.LOCK_SCHOOL_REDIS + townCode);
         try {
