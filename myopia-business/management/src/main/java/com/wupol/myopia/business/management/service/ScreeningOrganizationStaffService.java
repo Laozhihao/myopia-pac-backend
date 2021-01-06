@@ -161,12 +161,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
-                .setRealName(staff.getName())
+                .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
@@ -244,7 +244,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPassword(password)
                 .setCreateUserId(staff.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
-                .setRealName(staff.getName())
+                .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())

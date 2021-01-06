@@ -24,7 +24,7 @@ public class ScreeningOrganizationStaffVo extends ScreeningOrganizationStaff {
      * 姓名
      */
     @NotBlank(message = "姓名不能为空")
-    private String name;
+    private String realName;
 
     /**
      * 性别

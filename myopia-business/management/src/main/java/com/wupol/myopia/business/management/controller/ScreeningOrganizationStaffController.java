@@ -55,7 +55,6 @@ public class ScreeningOrganizationStaffController {
     @PostMapping()
     public Object insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
@@ -64,7 +63,6 @@ public class ScreeningOrganizationStaffController {
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        checkStaffIsLegal(screeningOrganizationStaff);
         screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
@@ -96,25 +94,5 @@ public class ScreeningOrganizationStaffController {
     @GetMapping("/import/demo")
     public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
-    }
-
-    /**
-     * 数据校验
-     *
-     * @param query 员工实体类
-     */
-    private void checkStaffIsLegal(ScreeningOrganizationStaffQuery query) {
-        if (null == query.getScreeningOrgId() || StringUtils.isBlank(query.getName())
-                || null == query.getGender()) {
-            throw new BusinessException("数据异常");
-        }
-        // 检查身份证
-        if (!RegularUtils.isIdCard(query.getIdCard())) {
-            throw new BusinessException("身份证不正确");
-        }
-        // 检查手机号码
-        if (!RegularUtils.isMobile(query.getPhone())) {
-            throw new BusinessException("手机号不正确");
-        }
     }
 }
