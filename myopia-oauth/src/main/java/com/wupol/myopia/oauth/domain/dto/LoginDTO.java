@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Bain
@@ -15,7 +16,7 @@ public class LoginDTO {
     private String username;
     @NotEmpty(message = "credentials is required")
     private String password;
-    @NotEmpty(message = "system is required")
+    @NotNull(message = "system is required")
     private Integer system;
     private Boolean isDebug;
 }

@@ -23,18 +23,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      **/
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
-                .and()
+        http.authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll().and()
                 // 配置不需要拦截的请求
-                .authorizeRequests().antMatchers("/rsa/publicKey", "/oauth/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .csrf().disable();
+                .authorizeRequests().antMatchers("/rsa/publicKey", "/oauth/**", "/login").permitAll().anyRequest()
+                .authenticated().and().csrf().disable();
     }
 
     /**
-     *  定义认证管理器，如果不配置SpringBoot会自动配置一个AuthenticationManager,覆盖掉内存中的用户
+     * 定义认证管理器，如果不配置SpringBoot会自动配置一个AuthenticationManager,覆盖掉内存中的用户
      */
     @Bean
     @Override
@@ -43,10 +39,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     *  密码加密配置
+     * 密码加密配置
      */
     @Bean
-    public PasswordEncoder passwordEncoder()  {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
