@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -58,6 +59,7 @@ public class Role implements Serializable {
     /**
      * 系统编号
      */
+    @TableField(exist = false)
     private Integer systemCode;
 
     /**
@@ -85,5 +87,6 @@ public class Role implements Serializable {
     /**
      * 创建用户名
      */
+    @TableField(exist = false)
     private String createUserName;
 }

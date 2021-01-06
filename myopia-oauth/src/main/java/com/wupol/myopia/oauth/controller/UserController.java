@@ -1,14 +1,17 @@
 package com.wupol.myopia.oauth.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.model.UserWithRole;
+import com.wupol.myopia.oauth.service.UserRoleService;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -24,11 +27,14 @@ import java.util.List;
 @ResponseResultBody
 @CrossOrigin
 @RestController
+@Transactional(rollbackFor = Exception.class)
 @RequestMapping("/oauth/user")
 public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRoleService userRoleService;
 
     /**
      * 获取用户列表
@@ -59,14 +65,18 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public User modifyUser(@RequestBody UserDTO user) {
+    public User modifyUser(@RequestBody UserDTO user) throws Exception {
         String pwd = user.getPassword();
         if (!StringUtils.isEmpty(pwd)) {
             user.setPassword(new BCryptPasswordEncoder().encode(pwd));
         }
         // TODO: 手机号不为空，则判断是否唯一
-        userService.updateById(user);
-        // TODO: 角色不为空，则更新角色
+        if (!userService.updateById(user)) {
+            throw new Exception("更新用户信息失败");
+        }
+        if (!userRoleService.updateByRoleIds(user.getId(), user.getRoleIds())) {
+            throw new Exception("更新用户角色失败");
+        }
         return user.setPassword(pwd);
     }
 

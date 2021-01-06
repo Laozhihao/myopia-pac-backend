@@ -86,8 +86,9 @@
                 <if test="param.idCard != null ">
                     and u.id_card like CONCAT('%', #{param.idCard}, '%')
                 </if>
-
-                <!-- TODO：按时间查询 -->
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and DATE(u.create_time) between DATE(#{param.startCreateTime}) and DATE(#{param.endCreateTime})
+                </if>
             </trim>
         </where>
     </select>

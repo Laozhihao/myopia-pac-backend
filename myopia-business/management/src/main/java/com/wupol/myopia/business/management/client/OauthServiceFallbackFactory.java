@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import feign.FeignException;
 import feign.hystrix.FallbackFactory;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
         return new OauthServiceClient() {
             @Override
-            public ApiResult getUserListPage(UserDTO param) {
+            public ApiResult getUserListPage(UserDTOQuery param) {
                 return respData;
             }
 

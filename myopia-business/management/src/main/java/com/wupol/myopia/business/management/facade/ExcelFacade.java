@@ -117,14 +117,15 @@ public class ExcelFacade {
         if (Objects.isNull(query.getScreeningOrgId())) {
             throw new BusinessException("筛查机构id不能为空");
         }
-        ApiResult apiResult = oauthServiceClient.getUserListPage(new UserDTO()
-                //TODO 待改成批量
-                .setSize(11)
+        UserDTOQuery userQuery = new UserDTOQuery();
+        //TODO 待改成批量
+        userQuery.setSize(11)
                 .setCurrent(1)
                 .setOrgId(query.getScreeningOrgId())
                 .setRealName(query.getNameLike())
                 .setIdCard(query.getIdCardLike())
-                .setPhone(query.getPhoneLike()));
+                .setPhone(query.getPhoneLike());
+        ApiResult apiResult = oauthServiceClient.getUserListPage(userQuery);
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
         }

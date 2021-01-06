@@ -91,7 +91,7 @@ public class GovDeptController {
     public GovDept modifyGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
         // TODO: 非管理员用户，不允许修改pid
         govDeptService.updateById(govDept);
-        return govDept;
+        return govDeptService.getById(govDept);
     }
 
     /**
@@ -130,6 +130,9 @@ public class GovDeptController {
         // 默认省级部门的父部门为运营中心，其行政区ID为-1 TODO：抽为常量，统一维护 -1 的数据
         Long parentCode = district.getCode().equals(oemProvinceCode) ? -1L : district.getParentCode();
         District parentDistrict = districtService.findOne(new District().setCode(parentCode));
+        if (Objects.isNull(parentDistrict)) {
+            throw new ValidationException("不存在该行政区的上级行政区");
+        }
         return govDeptService.findByList(new GovDept().setDistrictId(parentDistrict.getId()));
     }
 

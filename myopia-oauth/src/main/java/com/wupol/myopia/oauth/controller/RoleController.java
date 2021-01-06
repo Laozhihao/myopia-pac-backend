@@ -40,7 +40,8 @@ public class RoleController {
 
     @PutMapping()
     public Object modifyRole(@RequestBody Role param) {
-        return roleService.updateById(param);
+        if (!roleService.updateById(param)) return false;
+        return roleService.getById(param.getId());
     }
 
     @PostMapping("/permission/{roleId}")

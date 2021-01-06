@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/user/list")
-    ApiResult getUserListPage(@SpringQueryMap UserDTO param);
+    ApiResult getUserListPage(@SpringQueryMap UserDTOQuery param);
 
     /**
      * 根据用户ID集批量获取用户
