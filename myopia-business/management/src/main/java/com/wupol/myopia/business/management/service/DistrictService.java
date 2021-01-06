@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.ValidationException;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 @Service
 public class DistrictService extends BaseService<DistrictMapper, District> {
 
+    @Value(value = "${oem.province.code}")
+    private Long oemProvinceCode;
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
@@ -66,9 +69,15 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public List<District> getCurrentUserDistrictTree() {
         Integer orgId = CurrentUserUtil.getCurrentUser().getOrgId();
         GovDept govDept = govDeptService.getById(orgId);
-        District district = getById(govDept.getDistrictId());
+        Long code;
+        if (govDept.getDistrictId() == -1) {
+            code = oemProvinceCode;
+        } else {
+            District district = getById(govDept.getDistrictId());
+            code = district.getCode();
+        }
         // 前端级联控件需要数组返回
-        return Arrays.asList(getDistrictWithChildByCode(district.getCode()));
+        return Arrays.asList(getDistrictWithChildByCode(code));
     }
 
     /**

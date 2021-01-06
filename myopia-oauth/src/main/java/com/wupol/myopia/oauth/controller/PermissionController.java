@@ -23,9 +23,14 @@ public class PermissionController{
     @Autowired
     private PermissionService permissionService;
 
+    /**
+     * 获取全量权限资源
+     *
+     * @return java.lang.Object
+     **/
     @GetMapping("/list")
     public Object getPermissionList() {
-        return permissionService.selectAllTree(0);
+        return permissionService.getAllPermissionTree();
     }
 
     @PostMapping()

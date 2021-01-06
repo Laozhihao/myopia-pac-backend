@@ -59,14 +59,14 @@
     <select id="selectUserListWithRole" resultMap="UserWithRoleResultMap" parameterType="java.util.Map">
         SELECT
             <include refid="Base_Column_List"/>,
-            ou.username AS create_user_name,
+            ou.real_name AS create_user_name,
             r.id AS role_id,
             r.ch_name
         FROM
             o_user u
             LEFT JOIN o_user_role ur ON u.id = ur.user_id
             LEFT JOIN o_role r ON ur.role_id = r.id
-            LEFT JOIN o_user ou ON u.create_time = ou.id
+            LEFT JOIN o_user ou ON u.create_user_id = ou.id
         <where>
             <trim prefixOverrides="and">
                 <if test="param.orgId != null">and u.`org_id` = #{param.orgId}</if>

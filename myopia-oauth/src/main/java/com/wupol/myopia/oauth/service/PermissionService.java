@@ -32,8 +32,13 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
         return baseMapper.getUserPermissionByUserId(userId);
     }
 
-    public List<Permission> selectAllTree(Integer pid) {
-        return baseMapper.selectAllTree(pid);
+    /**
+     * 获取整棵权限资源树
+     *
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    public List<Permission> getAllPermissionTree() {
+        return baseMapper.selectPermissionTree(0);
     }
 
     /**

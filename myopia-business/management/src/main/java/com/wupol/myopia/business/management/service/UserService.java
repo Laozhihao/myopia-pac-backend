@@ -40,6 +40,7 @@ public class UserService {
      * @param size      每页条数
      * @param currentUserOrgId  当前用户所属部门ID
      * @return java.util.ArrayList<com.wupol.myopia.business.management.domain.dto.User>
+     *
      **/
     public IPage<UserDTO> getUserListPage(UserDTO param, Integer current, Integer size, Integer currentUserOrgId) {
         // 默认获取自己所属部门及其下面所有部门的用户，如果搜索条件中部门ID不为空，则优先获取指定部门的用户
@@ -60,7 +61,7 @@ public class UserService {
         List<Integer> ids = users.stream().map(UserDTO::getOrgId).collect(Collectors.toList());
         Map<Integer, String> nameMap = govDeptService.listByIds(ids).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         users.forEach(x -> x.setOrgName(nameMap.get(x.getOrgId())));
-        return userPage;
+        return userPage.setRecords(users);
     }
 
     /**
