@@ -17,3 +17,4 @@ target/
 **/resources/application.yml
 **/resources/bootstrap.yml
 **/resources/log4j2.xml
+**/resources/redisson.yaml

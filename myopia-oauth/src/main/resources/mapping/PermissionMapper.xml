@@ -42,24 +42,19 @@
           AND ur.user_id = #{userId};
     </select>
 
-    <resultMap id="treeVoMap" type="com.wupol.myopia.oauth.domain.model.Permission">
+    <resultMap id="PermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="pid" property="pid" jdbcType="INTEGER" />
-        <collection property="child" ofType="com.wupol.myopia.oauth.domain.model.Permission" column="id" select="findTreeByPid"/>
+        <collection property="child" ofType="com.wupol.myopia.oauth.domain.model.Permission" column="{pid = id}" select="selectPermissionTree"/>
     </resultMap>
 
-    <!--级联查询父菜单-->
-    <select id="selectAllTree" resultMap="treeVoMap" >
-        select * from o_permission where pid = #{pid}
+    <!-- 获取权限资源树 -->
+    <select id="selectPermissionTree" resultMap="PermissionTreeMap" >
+        select * from o_permission where pid = #{pid} order by `order` ASC, update_time DESC
     </select>
 
-    <!--级联查询子菜单-->
-    <select id="findTreeByPid" resultMap="treeVoMap" >
-        select * from o_permission where pid = #{id}
-    </select>
-
-    <resultMap id="treeVoMap2" type="com.wupol.myopia.oauth.domain.model.Permission">
+    <resultMap id="RolePermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="pid" property="pid" jdbcType="INTEGER" />
@@ -72,7 +67,8 @@
                     select="selectRolePermissionTree"/>
     </resultMap>
 
-    <select id="selectRolePermissionTree" resultMap="treeVoMap2">
+    <!-- 获取指定角色的权限树（基于指定行政区等级权限） -->
+    <select id="selectRolePermissionTree" resultMap="RolePermissionTreeMap">
         SELECT
             p.*,
             CASE WHEN rp.role_id IS NULL THEN 0 ELSE 1 END AS is_have,
@@ -84,6 +80,7 @@
             LEFT JOIN o_role_permission rp ON dp.permission_id = rp.permission_id AND rp.role_id = #{roleId}
         WHERE
            dp.district_level = #{districtLevel} AND p.pid = #{pid}
+        order by p.`order` ASC, p.update_time DESC
     </select>
 
 </mapper>

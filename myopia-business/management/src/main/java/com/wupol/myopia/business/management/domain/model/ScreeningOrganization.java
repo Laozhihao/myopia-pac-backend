@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 筛查机构表
  *
@@ -33,7 +35,7 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long orgNo;
+    private String orgNo;
 
     /**
      * 创建人ID
@@ -48,41 +50,48 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 筛查机构名称
      */
+    @NotNull(message = "筛查机构名称不能为空")
     private String name;
 
     /**
      * 筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他
      */
+    @NotNull(message = "筛查机构类型不能为空")
     private Integer type;
 
     /**
      * 机构类型描述
      */
+    @NotNull(message = "机构类型描述不能为空")
     private String typeDesc;
 
     /**
      * 省代码
      */
-    private Integer provinceCode;
+    private Long provinceCode;
 
     /**
      * 市代码
      */
-    private Integer cityCode;
+    @NotNull(message = "市代码不能为空")
+    private Long cityCode;
 
     /**
      * 区代码
      */
-    private Integer areaCode;
+    @NotNull(message = "区代码不能为空")
+    private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    private Integer townCode;
+    @NotNull(message = "镇/乡代码不能为空")
+    private Long townCode;
 
     /**
      * 详细地址
      */
+    @NotNull(message = "详细地址不能为空")
     private String address;
 
     /**

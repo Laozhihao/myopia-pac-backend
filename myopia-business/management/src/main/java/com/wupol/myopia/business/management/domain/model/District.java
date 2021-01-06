@@ -26,37 +26,25 @@ public class District implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 行政区ID
-     */
+    /** 行政区ID */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 行政区名称
-     */
+    /** 行政区名称 */
     private String name;
 
-    /**
-     * 行政区代码
-     */
+    /** 行政区代码 */
     private Long code;
 
-    /**
-     * 上级行政区代码（省级统一为100000000000）
-     */
+    /** 上级行政区代码（省级统一为100000000） */
     private Long parentCode;
 
-    /**
-     * 片区代码
-     */
+    /** 片区代码 */
     private Integer areaCode;
 
-    /**
-     * 监测点代码
-     */
+    /** 监测点代码 */
     private Integer monitorCode;
 
     @TableField(exist = false)
-    private List<GovDept> child;
+    private List<District> child;
 }

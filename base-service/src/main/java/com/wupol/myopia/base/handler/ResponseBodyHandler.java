@@ -4,7 +4,9 @@ import com.wupol.myopia.base.domain.ApiResult;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -50,7 +52,7 @@ public class ResponseBodyHandler implements ResponseBodyAdvice<Object> {
      **/
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        if (body instanceof ApiResult) {
+        if (body instanceof ApiResult || body instanceof FileSystemResource) {
             return body;
         }
         return ApiResult.success(body);

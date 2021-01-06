@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import com.wupol.myopia.business.management.service.DistrictService;
 import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
@@ -59,15 +60,23 @@ public class GovDeptController {
      **/
     @PostMapping()
     public GovDept addGovDept(@RequestBody @Validated(value = GovDeptAddValidatorGroup.class) GovDept govDept) {
-        District district = districtService.getById(govDept.getDistrictId());
-        GovDept currentUserDept = govDeptService.getById(CurrentUserUtil.getCurrentUser().getOrgId());
-        District parentDistrict = districtService.getById(currentUserDept.getDistrictId());
-        if (Objects.isNull(district) || Objects.isNull(parentDistrict) || !parentDistrict.getCode().equals(district.getParentCode())) {
-            throw new ValidationException("行政区ID无效，只能为下一级行政区创建部门");
+        // TODO：管理员的判断根据角色类型来、部门对应上行政区
+        if ("admin".equals(CurrentUserUtil.getCurrentUser().getUsername())) {
+            // 如果是管理员的话，需要选择部门，pid不能为空；行政区可以为任意
+            if (Objects.isNull(govDept.getPid())) {
+                throw new ValidationException("上级部门不能为空");
+            }
+        } else {
+            District district = districtService.getById(govDept.getDistrictId());
+            GovDept currentUserDept = govDeptService.getById(CurrentUserUtil.getCurrentUser().getOrgId());
+            District parentDistrict = districtService.getById(currentUserDept.getDistrictId());
+            if (Objects.isNull(district) || Objects.isNull(parentDistrict) || !parentDistrict.getCode().equals(district.getParentCode())) {
+                throw new ValidationException("行政区ID无效，只能为下一级行政区创建部门");
+            }
+            // 非管理员用户，获取当前用户的部门作为上级部门
+            govDept.setPid(CurrentUserUtil.getCurrentUser().getOrgId());
         }
-        // 非管理员用户，获取当前用户的部门作为上级部门
-        govDept.setPid(CurrentUserUtil.getCurrentUser().getOrgId());
-        // TODO：如果是管理员的话，需要选择部门，pid不能为空；行政区可以为任意
+
         govDeptService.save(govDept);
         return govDept;
     }
@@ -91,7 +100,7 @@ public class GovDeptController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     @GetMapping("/structure")
-    public List<GovDept> getGovDeptTree() {
+    public List<GovDeptVo> getGovDeptTree() {
         return govDeptService.selectGovDeptTreeByPid(CurrentUserUtil.getCurrentUser().getOrgId());
     }
 

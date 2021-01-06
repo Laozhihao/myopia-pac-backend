@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +43,7 @@ public class Permission implements Serializable {
     /**
      * 对应页面或按钮的name（权限资源为页面时，该值不能为空）
      */
+    @Pattern(regexp = "^[a-zA-Z]+$", message = "页面或按钮的name只能是英文")
     private String menuBtnName;
 
     /**

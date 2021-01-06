@@ -33,7 +33,12 @@ public class SchoolStaff implements Serializable {
     /**
      * 学校id
      */
-    private Long schoolId;
+    private Integer schoolId;
+
+    /**
+     * 用户表id
+     */
+    private Integer userId;
 
     /**
      * 创建人ID

@@ -15,6 +15,7 @@ import java.util.Date;
  */
 public final class DateFormatUtil {
     public static final String FORMAT_ONLY_DATE = "yyyy-MM-dd";
+    public static final String FORMAT_ONLY_DATE2 = "yyyy/MM/dd";
     public static final String FORMAT_ONLY_TIME = "HH:mm:ss";
     public static final String FORMAT_TIME_WITHOUT_SECOND = "yyyy-MM-dd HH:mm";
     public static final String FORMAT_ONLY_HOUR_MINUTE = "HH:mm";

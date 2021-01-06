@@ -33,7 +33,7 @@ public class School implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long schoolNo;
+    private String schoolNo;
 
     /**
      * 创建人ID
@@ -103,22 +103,22 @@ public class School implements Serializable {
     /**
      * 省代码
      */
-    private Integer provinceCode;
+    private Long provinceCode;
 
     /**
      * 市代码
      */
-    private Integer cityCode;
+    private Long cityCode;
 
     /**
      * 区代码
      */
-    private Integer areaCode;
+    private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    private Integer townCode;
+    private Long townCode;
 
     /**
      * 详细地址

@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 医院表
@@ -33,7 +36,7 @@ public class Hospital implements Serializable {
     /**
      * 根据规则创建ID
      */
-    private Long hospitalNo;
+    private String hospitalNo;
 
     /**
      * 创建人ID
@@ -48,11 +51,13 @@ public class Hospital implements Serializable {
     /**
      * 医院名称
      */
+    @NotBlank(message = "医院名称不能为空")
     private String name;
 
     /**
      * 等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他
      */
+    @NotNull(message = "医院等级不能为空")
     private Integer level;
 
     /**
@@ -63,36 +68,42 @@ public class Hospital implements Serializable {
     /**
      * 医院类型 0-定点医院 1-非定点医院
      */
+    @NotNull(message = "医院医院类型不能为空")
     private Integer type;
 
     /**
      * 医院性质 0-公立 1-私立
      */
+    @NotNull(message = "医院医院性质不能为空")
     private Integer kind;
 
     /**
      * 省代码
      */
-    private Integer provinceCode;
+    private Long provinceCode;
 
     /**
      * 市代码
      */
-    private Integer cityCode;
+    @NotNull(message = "市代码不能为空")
+    private Long cityCode;
 
     /**
      * 区代码
      */
-    private Integer areaCode;
+    @NotNull(message = "区代码不能为空")
+    private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    private Integer townCode;
+    @NotNull(message = "镇/乡代码不能为空")
+    private Long townCode;
 
     /**
      * 详细地址
      */
+    @NotBlank(message = "详细地址不能为空")
     private String address;
 
     /**

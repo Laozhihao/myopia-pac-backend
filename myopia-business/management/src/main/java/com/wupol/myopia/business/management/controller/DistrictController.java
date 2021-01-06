@@ -24,7 +24,7 @@ public class DistrictController extends BaseController<DistrictService, District
     /**
      * 获取当前登录用户所在部门的行政区树
      *
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/structure")
     public List<District> getCurrentUserDistrictTree() {

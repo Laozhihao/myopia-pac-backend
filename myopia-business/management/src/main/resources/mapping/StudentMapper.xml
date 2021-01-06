@@ -6,11 +6,15 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Student">
     </resultMap>
 
+    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(sno)">and `sno` = #{sno}</if>
@@ -36,13 +40,63 @@
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
+                <if test="idCardLike != null">and id_card like CONCAT("%",#{idCardLike},"%")</if>
+                <if test="snoLike != null">and sno like CONCAT("%",#{snoLike},"%")</if>
+                <if test="phoneLike != null">and parent_phone like CONCAT("%",#{phoneLike},"%")</if>
+                <if test="gradeList != null">and grade_id in
+                    <foreach collection="gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, student_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, labels, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
+        id, school_id, student_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, labels, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
     </sql>
 
+    <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student ms
+                where ms.school_id = #{schoolId}
+                  and ms.status != 2
+        <if test="sno != null">
+            and ms.sno like CONCAT('%', #{sno}, '%')
+        </if>
+        <if test="idCard != null and idCard != ''">
+            and ms.id_card like CONCAT('%', #{idCard}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and ms.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="parentPhone != null and parentPhone != ''">
+            and ms.parent_phone like CONCAT('%', #{parentPhone}, '%')
+        </if>
+        <if test="gender != null">
+            and ms.gender = #{gender}
+        </if>
+        <if test="gradeIds != null and gradeIds.size() != 0">
+            and ms.grade_id in
+            <foreach collection="gradeIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="labels != null and labels != ''">
+            and ms.labels like CONCAT('%', #{labels}, '%')
+        </if>
+        <if test="startScreeningTime != null">
+            and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
+        </if>
+        order by ms.create_time desc
+    </select>
+
+    <select id="getExportData" resultMap="BaseResultMap">
+        select *
+        from m_student
+        <include refid="Base_Where_Clause" />
+    </select>
 </mapper>

@@ -11,21 +11,33 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(staffNo)">and `staff_no` = #{staffNo}</if>
                 <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
-                <if test="@Ognl@isNotEmpty(password)">and `password` = #{password}</if>
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+<!--                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+<!--                <if test="idCardLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+<!--                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>-->
+
+
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_org_id, staff_no, user_id, create_user_id, password, remark, create_time, update_time
+        id, gov_dept_id, screening_org_id, staff_no, user_id, create_user_id, remark, create_time, update_time
     </sql>
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_screening_organization_staff
+        where user_id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 
 </mapper>

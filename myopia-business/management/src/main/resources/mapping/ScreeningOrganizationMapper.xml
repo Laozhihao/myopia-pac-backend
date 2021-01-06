@@ -6,6 +6,9 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningOrganization">
     </resultMap>
 
+    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -26,6 +29,13 @@
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
+                <if test="orgIdLike != null">and cast(gov_dept_id as char) like CONCAT("%",#{orgIdLike},"%")</if>
+                <if test="code != null">
+                    and (city_code = #{code} or area_code = #{code} or town_code = #{code})
+                </if>
             </trim>
         </where>
     </sql>
@@ -34,5 +44,44 @@
     <sql id="Base_Column_List">
         id, org_no, create_user_id, gov_dept_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
+
+    <select id="getScreeningOrganizationListByCondition" resultMap="BaseResponseMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization mso
+                where mso.gov_dept_id in
+        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and mso.status != 2
+        <if test="name != null and name != ''">
+            and mso.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="type != null">
+            and mso.type = #{type}
+        </if>
+        <if test="orgNo != null and orgNo != ''">
+            and mso.org_no like CONCAT('%', #{orgNo}, '%')
+        </if>
+        <if test="code != null and code != ''">
+            and (mso.city_code like CONCAT('%', #{code}, '%') or mso.area_code like CONCAT('%', #{code}, '%'))
+        </if>
+        order by mso.create_time desc
+    </select>
+
+    <select id="getLastOrgByNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization mso
+        where mso.org_no like CONCAT('%', #{code}, '%')
+        order by mso.org_no + 0 desc
+        limit 1
+    </select>
+
+    <select id="getExportData" resultMap="BaseResultMap">
+        select *
+        from m_screening_organization
+        <include refid="Base_Where_Clause" />
+    </select>
 
 </mapper>

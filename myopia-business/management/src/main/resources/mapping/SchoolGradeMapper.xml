@@ -13,6 +13,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(gradeCode)">and `grade_code` = #{gradeCode}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -23,7 +24,19 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, school_id, name, status, create_time, update_time
+        id, create_user_id, school_id, grade_code, name, status, create_time, update_time
     </sql>
 
+    <select id="getGradeBySchool" resultType="com.wupol.myopia.business.management.domain.dto.SchoolGradeItems">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade msg
+        where msg.status != 2
+          and msg.school_id = #{schoolId}
+    </select>
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_school_grade
+        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 </mapper>

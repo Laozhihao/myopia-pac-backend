@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -32,7 +33,18 @@ public class CurrentUserUtil {
         }
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String payload = request.getHeader(AuthConstants.JWT_PAYLOAD_KEY);
+        if (StringUtils.isBlank(payload)) {
+            throw new BusinessException("请登录");
+        }
         String user = JSONObject.parseObject(payload).getString(AuthConstants.JWT_USER_KEY);
         return JSONObject.parseObject(user, CurrentUser.class);
+    }
+
+    public static CurrentUser getLegalCurrentUser() {
+        CurrentUser currentUser = getCurrentUser();
+        if (null == currentUser || null == currentUser.getOrgId() || null == currentUser.getId()) {
+            throw new BusinessException("请登录");
+        }
+        return currentUser;
     }
 }
