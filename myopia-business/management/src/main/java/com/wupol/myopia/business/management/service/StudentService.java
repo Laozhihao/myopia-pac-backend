@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -53,6 +54,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
 
     /**
      * 通过学校id查找学生
@@ -104,6 +108,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         Integer createUserId = student.getCreateUserId();
         String idCard = student.getIdCard();
+
+        // 初始化省代码
+        student.setProvinceCode(provinceCode);
 
         // 获取学校编码
         School school = schoolService.getById(student.getSchoolId());
