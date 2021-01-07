@@ -25,7 +25,7 @@
         INSERT INTO o_user_role (user_id, role_id)
         VALUES
         <foreach collection ="userRoles" item="item" separator =",">
-            (#{item.userId}, #{item.role_id})
+            (#{item.userId}, #{item.roleId})
         </foreach >
     </insert>
 

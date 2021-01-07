@@ -39,11 +39,12 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
         // 获取需要删除的
         existRoleList.removeAll(sameRoleList);
         // 获取需要增加的
-        newRoleIds.removeAll(sameRoleList);
+        List<Integer> addRoleIds = BeanCopyUtil.deepCopyListProperties(newRoleIds, Integer.class);
+        addRoleIds.removeAll(sameRoleList);
         if (!CollectionUtils.isEmpty(existRoleList) && !baseMapper.deleteByRoleIds(userId, existRoleList)) {
             throw new Exception("删除该用户的角色失败");
         }
-        if (!CollectionUtils.isEmpty(newRoleIds)) {
+        if (!CollectionUtils.isEmpty(addRoleIds)) {
             List<UserRole> userRoleList = newRoleIds.stream().map(item -> new UserRole(userId, item)).collect(Collectors.toList());
             if (!baseMapper.insertBatch(userRoleList))
             throw new Exception("增加该用户的角色失败");

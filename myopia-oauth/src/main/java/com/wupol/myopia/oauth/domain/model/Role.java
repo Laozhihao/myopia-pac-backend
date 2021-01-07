@@ -59,7 +59,6 @@ public class Role implements Serializable {
     /**
      * 系统编号
      */
-    @TableField(exist = false)
     private Integer systemCode;
 
     /**

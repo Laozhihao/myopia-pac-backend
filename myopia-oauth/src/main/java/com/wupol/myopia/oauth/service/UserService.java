@@ -76,8 +76,6 @@ public class UserService extends BaseService<UserMapper, User> {
     public User addUser(UserDTO userDTO) {
         // TODO：手机号码不能重复
 
-        //TODO 筛查人员的新增,界面上没人性别选项,暂时写默认
-        if (Objects.isNull(userDTO.getGender())) userDTO.setGender(1);
        // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
