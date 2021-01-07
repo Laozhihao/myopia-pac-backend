@@ -33,7 +33,7 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
      */
     public Boolean updateByRoleIds(Integer userId, List<Integer> newRoleIds) throws Exception {
         if (Objects.isNull(newRoleIds)) {
-            return false;
+            return true;
         }
         // 获取已存在的角色
         List<Integer> existRoleList = baseMapper.selectList(new QueryWrapper<UserRole>().eq("user_id", userId))
