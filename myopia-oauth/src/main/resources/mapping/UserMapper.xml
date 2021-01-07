@@ -53,7 +53,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        u.id, u.org_id, u.real_name, u.gender, u.phone, u.id_card, u.username, u.is_leader, u.system_code, u.create_user_id, u.status, u.remark, u.create_time, u.update_time
+        u.id, u.org_id, u.real_name, u.gender, u.phone, u.id_card, u.username, u.is_leader, u.system_code, u.create_user_id, u.status, u.remark, u.create_time, u.update_time, u.last_login_time
     </sql>
 
     <select id="selectUserListWithRole" resultMap="UserWithRoleResultMap" parameterType="java.util.Map">
@@ -86,8 +86,12 @@
                 <if test="param.idCard != null ">
                     and u.id_card like CONCAT('%', #{param.idCard}, '%')
                 </if>
-
-                <!-- TODO：按时间查询 -->
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and DATE(u.create_time) between DATE(#{param.startCreateTime}) and DATE(#{param.endCreateTime})
+                </if>
+                <if test="param.startLastLoginTime != null and param.endLastLoginTime != null">
+                    and DATE(u.last_login_time) between DATE(#{param.startLastLoginTime}) and DATE(#{param.endLastLoginTime})
+                </if>
             </trim>
         </where>
     </select>

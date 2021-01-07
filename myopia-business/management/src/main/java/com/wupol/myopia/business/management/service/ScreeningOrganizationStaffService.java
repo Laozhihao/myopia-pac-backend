@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationS
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -60,23 +61,19 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return Page<UserExtDTO> {@link Page}
      */
     public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
-
-        ApiResult apiResult = oauthServiceClient.getUserListPage(
-                new UserDTO()
-                        .setCurrent(request.getCurrent())
-                        .setSize(request.getSize())
-                        .setOrgId(request.getScreeningOrgId())
-                        .setRealName(request.getName())
-                        .setIdCard(request.getIdCard())
-                        .setPhone(request.getPhone())
-                        .setSystemCode(SystemCode.SCREENING_CLIENT.getCode()));
+        UserDTOQuery userQuery = new UserDTOQuery();
+        userQuery.setCurrent(request.getCurrent())
+                .setSize(request.getSize())
+                .setOrgId(request.getScreeningOrgId())
+                .setRealName(request.getName())
+                .setIdCard(request.getIdCard())
+                .setPhone(request.getPhone())
+                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+        ApiResult apiResult = oauthServiceClient.getUserListPage(userQuery);
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
         }
-        Page<UserExtDTO> page = JSONObject
-                .parseObject(JSONObject.toJSONString(
-                        apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
-                });
+        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {});
         List<UserExtDTO> resultLists = page.getRecords();
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());

@@ -26,7 +26,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, org_id, en_name, ch_name, role_type, create_user_id, status, remark, create_time, update_time
+        id, org_id, en_name, ch_name, role_type, create_user_id, system_code, status, remark, create_time, update_time
     </sql>
 
     <select id="selectRoleList" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -42,6 +42,12 @@
                 <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
             </trim>
         </where>
+    </select>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from o_role
+        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
 </mapper>

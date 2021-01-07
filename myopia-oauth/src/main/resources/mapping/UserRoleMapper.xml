@@ -21,4 +21,21 @@
         user_id, role_id
     </sql>
 
+    <insert id="insertBatch">
+        INSERT INTO o_user_role (user_id, role_id)
+        VALUES
+        <foreach collection ="userRoles" item="item" separator =",">
+            (#{item.userId}, #{item.roleId})
+        </foreach >
+    </insert>
+
+    <delete id="deleteByRoleIds">
+        delete
+        from o_user_role
+        where user_id = #{userId} and role_id in
+        <foreach collection="roleIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>

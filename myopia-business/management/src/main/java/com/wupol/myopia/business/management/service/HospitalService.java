@@ -23,6 +23,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,17 +39,25 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
+
     @Resource
     public RedissonClient redissonClient;
+
     @Resource
     private HospitalStaffService hospitalStaffService;
+
     @Resource
     private HospitalMapper hospitalMapper;
+
     @Resource
     private GovDeptService govDeptService;
+
     @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
+    @Resource
     private OauthServiceClient oauthServiceClient;
+
     @Resource
     private RedisUtil redisUtil;
 
@@ -62,6 +71,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
         Integer createUserId = hospital.getCreateUserId();
         Long townCode = hospital.getTownCode();
+
+        // 初始化省代码
+        hospital.setProvinceCode(provinceCode);
 
         if (null == townCode) {
             throw new BusinessException("数据异常");

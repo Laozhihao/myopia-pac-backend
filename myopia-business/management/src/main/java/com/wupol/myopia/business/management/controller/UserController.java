@@ -5,6 +5,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public IPage<UserDTO> getUserListPage(UserDTO queryParam,
+    public IPage<UserDTO> getUserListPage(UserDTOQuery queryParam,
                                           @RequestParam(defaultValue = "1") Integer current,
                                           @RequestParam(defaultValue = "10") Integer size) {
         return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser().getOrgId());
