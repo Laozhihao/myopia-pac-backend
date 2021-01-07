@@ -173,9 +173,9 @@ public class UserService extends BaseService<UserMapper, User> {
             if (!userRoleService.updateByRoleIds(user.getId(), user.getRoleIds())) {
                 throw new Exception("更新用户角色失败");
             }
+            // 设置对应角色的详情
+            user.setRoles(roleService.getByIds(user.getRoleIds()));
         }
-        // 设置对应角色的详情
-        user.setRoles(roleService.getByIds(user.getRoleIds()));
         return user;
 
     }
