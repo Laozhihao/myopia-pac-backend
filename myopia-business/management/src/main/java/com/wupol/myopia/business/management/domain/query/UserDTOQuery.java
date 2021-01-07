@@ -25,6 +25,12 @@ public class UserDTOQuery extends UserDTO {
     /** 结束创建时间 */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endCreateTime;
+    /** 开始创建时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startLastLoginTime;
+    /** 结束创建时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endLastLoginTime;
     /** 角色名 */
     private String roleName;
 }
