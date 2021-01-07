@@ -65,19 +65,8 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public User modifyUser(@RequestBody UserDTO user) throws Exception {
-        String pwd = user.getPassword();
-        if (!StringUtils.isEmpty(pwd)) {
-            user.setPassword(new BCryptPasswordEncoder().encode(pwd));
-        }
-        // TODO: 手机号不为空，则判断是否唯一
-        if (!userService.updateById(user)) {
-            throw new Exception("更新用户信息失败");
-        }
-        if (!userRoleService.updateByRoleIds(user.getId(), user.getRoleIds())) {
-            throw new Exception("更新用户角色失败");
-        }
-        return user.setPassword(pwd);
+    public UserDTO modifyUser(@RequestBody UserDTO user) throws Exception {
+        return userService.modifyUser(user);
     }
 
     /**

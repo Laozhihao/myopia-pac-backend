@@ -2,12 +2,15 @@ package com.wupol.myopia.oauth.domain.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +21,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class UserDTO extends User {
     /**
      * 开始创建时间（不为空时，endCreateTime也不能为空，且不能比endCreateTime大）
@@ -68,5 +72,7 @@ public class UserDTO extends User {
      **/
     @TableField(exist = false)
     private List<Integer> roleIds;
+    /** 用户拥有的所有角色 **/
+    private List<Role> roles;
 
 }

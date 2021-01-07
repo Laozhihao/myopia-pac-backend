@@ -58,4 +58,9 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     public List<Permission> getRolePermissionTree(Integer roleId, Integer districtLevel) {
         return permissionService.selectRoleAllTree(0, roleId, districtLevel);
     }
+
+    List<Role> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
+    }
+
 }

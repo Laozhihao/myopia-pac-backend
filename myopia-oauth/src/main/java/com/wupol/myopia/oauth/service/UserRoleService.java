@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +32,9 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
      * @return  是否成功
      */
     public Boolean updateByRoleIds(Integer userId, List<Integer> newRoleIds) throws Exception {
+        if (Objects.isNull(newRoleIds)) {
+            return false;
+        }
         // 获取已存在的角色
         List<Integer> existRoleList = baseMapper.selectList(new QueryWrapper<UserRole>().eq("user_id", userId))
                 .stream().map(UserRole::getRoleId).collect(Collectors.toList());
@@ -45,7 +49,7 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
             throw new Exception("删除该用户的角色失败");
         }
         if (!CollectionUtils.isEmpty(addRoleIds)) {
-            List<UserRole> userRoleList = newRoleIds.stream().map(item -> new UserRole(userId, item)).collect(Collectors.toList());
+            List<UserRole> userRoleList = addRoleIds.stream().map(item -> new UserRole(userId, item)).collect(Collectors.toList());
             if (!baseMapper.insertBatch(userRoleList))
             throw new Exception("增加该用户的角色失败");
         }

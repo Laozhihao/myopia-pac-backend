@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.ValidationException;
 import java.io.IOException;
@@ -76,7 +78,7 @@ public class UserService extends BaseService<UserMapper, User> {
     public User addUser(UserDTO userDTO) {
         // TODO：手机号码不能重复
 
-       // 创建用户
+        // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
@@ -94,6 +96,7 @@ public class UserService extends BaseService<UserMapper, User> {
         userRoleService.saveBatch(userRoles);
         return user;
     }
+
     /**
      * 管理端创建医院端、学校端管理员，创建筛查端的筛查人员
      *
@@ -126,7 +129,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public List<Integer> addScreeningUserBatch(List<UserDTO> userList) {
-        long size = userList.stream().filter(x  -> SystemCode.SCREENING_CLIENT.getCode().equals(x.getSystemCode())).count();
+        long size = userList.stream().filter(x -> SystemCode.SCREENING_CLIENT.getCode().equals(x.getSystemCode())).count();
         if (size != userList.size()) {
             throw new ValidationException("存在无效系统编号");
         }
@@ -154,5 +157,24 @@ public class UserService extends BaseService<UserMapper, User> {
         String pwd = PasswordGenerator.getManagementUserPwd();
         updateById(user.setPassword(new BCryptPasswordEncoder().encode(pwd)));
         return user.setPassword(pwd);
+    }
+
+    /** 修改用户信息 */
+    public UserDTO modifyUser(UserDTO user) throws Exception {
+        String pwd = user.getPassword();
+        if (!StringUtils.isEmpty(pwd)) {
+            user.setPassword(new BCryptPasswordEncoder().encode(pwd));
+        }
+        // TODO: 手机号不为空，则判断是否唯一
+        if (!updateById(user)) {
+            throw new Exception("更新用户信息失败");
+        }
+        if (!userRoleService.updateByRoleIds(user.getId(), user.getRoleIds())) {
+            throw new Exception("更新用户角色失败");
+        }
+        // 设置对应角色的详情
+        user.setRoles(roleService.getByIds(user.getRoleIds()));
+        return user;
+
     }
 }
