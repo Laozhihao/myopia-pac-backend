@@ -86,7 +86,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult assignRolePermission(Integer roleId) {
+            public ApiResult assignRolePermission(Integer roleId, List<Integer> permissionIds) {
                 return respData;
             }
 

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020-12-23
@@ -60,8 +62,8 @@ public class RoleController {
     }
 
     @PostMapping("/permission/{roleId}")
-    public Object assignRolePermission(@PathVariable("roleId") Integer roleId) {
-        return oauthServiceClient.assignRolePermission(roleId);
+    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestParam("permissionId") List<Integer> permissionIds) {
+        return oauthServiceClient.assignRolePermission(roleId, permissionIds);
     }
 
     /**

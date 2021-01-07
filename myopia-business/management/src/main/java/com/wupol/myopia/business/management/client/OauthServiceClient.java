@@ -97,7 +97,7 @@ public interface OauthServiceClient {
     ApiResult updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
-    ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId);
+    ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestParam("permissionId") List<Integer> permissionIds);
 
     /**
      * 获取指定行政区下的角色权限树
