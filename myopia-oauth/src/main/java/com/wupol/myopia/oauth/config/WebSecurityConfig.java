@@ -25,7 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll().and()
                 // 配置不需要拦截的请求
-                .authorizeRequests().antMatchers("/rsa/publicKey", "/oauth/**", "/login").permitAll().anyRequest()
+                .authorizeRequests().antMatchers("/rsa/publicKey", "/rsa/privateKey", "/oauth/**", "/login").permitAll().anyRequest()
                 .authenticated().and().csrf().disable();
     }
 

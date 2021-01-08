@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.KeyPair;
 import java.security.Principal;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 
@@ -75,9 +76,22 @@ public class AuthController {
      * @return java.util.Map<java.lang.String,java.lang.Object>
      **/
     @GetMapping("/rsa/publicKey")
-    public Map<String, Object> getKey() {
+    public Map<String, Object> getPublicKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAKey key = new RSAKey.Builder(publicKey).build();
+        return new JWKSet(key).toJSONObject();
+    }
+
+    /**
+     * 获取rsa私钥 TODO：测试用，上线前关闭该接口
+     *
+     * @return java.util.Map<java.lang.String,java.lang.Object>
+     **/
+    @GetMapping("/rsa/privateKey")
+    public Map<String, Object> getPrivateKey() {
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        RSAKey key = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         return new JWKSet(key).toJSONObject();
     }
 
