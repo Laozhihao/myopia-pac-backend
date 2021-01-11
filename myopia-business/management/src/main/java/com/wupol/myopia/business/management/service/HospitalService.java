@@ -21,7 +21,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,11 +38,11 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
-
     @Resource
     public RedissonClient redissonClient;
+
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
 
     @Resource
     private HospitalStaffService hospitalStaffService;
@@ -237,7 +236,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("远程调用异常");
         }

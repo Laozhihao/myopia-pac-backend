@@ -5,6 +5,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.HospitalStaffMapper;
 import com.wupol.myopia.business.management.domain.model.HospitalStaff;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author HaoHao
@@ -21,12 +22,13 @@ public class HospitalStaffService extends BaseService<HospitalStaffMapper, Hospi
      * @param userId       用户ID
      * @return 新增个数
      */
-    public Integer saveStaff(Integer createUserId, Integer hospitalId, Integer userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void saveStaff(Integer createUserId, Integer hospitalId, Integer userId) {
         HospitalStaff hospitalStaff = new HospitalStaff();
         hospitalStaff.setCreateUserId(createUserId);
         hospitalStaff.setHospitalId(hospitalId);
         hospitalStaff.setUserId(userId);
-        return baseMapper.insert(hospitalStaff);
+        baseMapper.insert(hospitalStaff);
     }
 
     /**

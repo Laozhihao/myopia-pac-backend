@@ -42,6 +42,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param schoolGrade 年级实体类
      * @return 新增个数
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer saveGrade(SchoolGrade schoolGrade) {
         // 查询code是否存在
         if (countGradeByCode(schoolGrade.getSchoolId(), schoolGrade.getGradeCode()) > 0) {

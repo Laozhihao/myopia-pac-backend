@@ -5,6 +5,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolStaffMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolStaff;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author HaoHao
@@ -20,15 +21,15 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
      * @param createUserId 创建人
      * @param govDeptId    部门id
      * @param userId       用户id
-     * @return 创建个数
      */
-    public Integer insertStaff(Integer schoolId, Integer createUserId, Integer govDeptId, Integer userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void insertStaff(Integer schoolId, Integer createUserId, Integer govDeptId, Integer userId) {
         SchoolStaff schoolStaff = new SchoolStaff();
         schoolStaff.setSchoolId(schoolId);
         schoolStaff.setUserId(userId);
         schoolStaff.setCreateUserId(createUserId);
         schoolStaff.setGovDeptId(govDeptId);
-        return baseMapper.insert(schoolStaff);
+        baseMapper.insert(schoolStaff);
     }
 
     public SchoolStaff getStaffBySchoolId(Integer id) {

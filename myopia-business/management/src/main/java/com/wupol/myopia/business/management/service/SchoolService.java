@@ -235,7 +235,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("远程调用异常");
         }
