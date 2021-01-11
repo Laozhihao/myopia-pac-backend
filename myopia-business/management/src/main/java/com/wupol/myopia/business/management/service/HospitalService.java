@@ -201,7 +201,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
         ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
         if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常");
+            throw new BusinessException("创建管理员信息异常" + apiResult.getMessage());
         }
         hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId());
         return new UsernameAndPasswordDTO(username, password);
