@@ -91,7 +91,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId, Integer districtLevel) {
+            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId) {
                 return respData;
             }
 

@@ -52,4 +52,8 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
     public List<Permission> selectRoleAllTree(Integer pid, Integer roleId, Integer districtLevel) {
         return baseMapper.selectRolePermissionTree(pid, roleId, districtLevel);
     }
+
+    public List<Permission> getAdminRolePermissionTree(Integer pid, Integer roleId) {
+        return baseMapper.selectAdminRolePermissionTree(pid, roleId);
+    }
 }

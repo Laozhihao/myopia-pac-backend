@@ -83,4 +83,29 @@
         order by p.`order` ASC, p.update_time DESC
     </select>
 
+    <resultMap id="AdminRolePermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="pid" property="pid" jdbcType="INTEGER" />
+        <result column="role_id" property="roleId" jdbcType="INTEGER" />
+        <result column="is_have" property="isHave" jdbcType="INTEGER" />
+        <collection property="child"
+                    ofType="com.wupol.myopia.oauth.domain.model.Permission"
+                    column="{pid = id, roleId = role_id}"
+                    select="selectRolePermissionTree"/>
+    </resultMap>
+
+    <select id="selectAdminRolePermissionTree" resultMap="AdminRolePermissionTreeMap">
+        SELECT
+            p.*,
+            CASE WHEN rp.role_id IS NULL THEN 0 ELSE 1 END AS is_have,
+            #{roleId} as role_id
+        FROM
+            o_permission p
+            LEFT JOIN o_role_permission rp ON p.id = rp.permission_id AND rp.role_id = #{roleId}
+        WHERE
+            p.pid = #{pid}
+        order by p.`order` ASC, p.update_time DESC
+    </select>
+
 </mapper>

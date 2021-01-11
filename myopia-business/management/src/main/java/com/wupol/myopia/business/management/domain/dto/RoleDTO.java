@@ -67,6 +67,11 @@ public class RoleDTO implements Serializable {
     private Integer status;
 
     /**
+     * 系统编号
+     */
+    private Integer systemCode;
+
+    /**
      * 备注
      */
     private String remark;

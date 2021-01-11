@@ -121,7 +121,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
 
     /**
-     * 使用非对称加密算法对token签名
+     * 使用非对称SHA256withRSA(简称RS256)加密算法对token签名，默认为HMACSHA256(简称HS256)
      */
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
@@ -131,8 +131,17 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     }
 
     /**
-     * 从classpath下的密钥库中获取密钥对(公钥+私钥)
-     * TODO：密码从配置文件读
+     * 从classpath下的密钥库中获取密钥对(公钥+私钥) TODO：密码从配置文件读、秘钥库从外部读取
+     *
+     *   1. 使用 keytool 生成 RSA 证书 myopia.jks
+     *   2. 生成命令：keytool -genkey -alias myopia -keyalg RSA -keypass 123456 -keystore myopia.jks -storepass 123456
+     *
+     *      -genkey 生成密钥
+     *      -alias 别名
+     *      -keyalg 密钥算法
+     *      -keypass 密钥口令
+     *      -keystore 生成密钥库的存储路径和名称
+     *      -storepass 密钥库口令
      */
     @Bean
     public KeyPair keyPair() {

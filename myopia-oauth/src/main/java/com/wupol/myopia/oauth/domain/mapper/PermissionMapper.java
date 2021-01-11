@@ -31,12 +31,13 @@ public interface PermissionMapper extends BaseMapper<Permission> {
 
     /**
      * 获取指定角色的权限树（基于指定行政区等级权限）
-     * @Author HaoHao
-     * @Date 2021/1/4
+     *
      * @param pid
      * @param roleId
      * @param districtLevel
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     List<Permission> selectRolePermissionTree(@Param("pid")Integer pid, @Param("roleId")Integer roleId, @Param("districtLevel")Integer districtLevel);
+
+    List<Permission> selectAdminRolePermissionTree(@Param("pid")Integer pid, @Param("roleId")Integer roleId);
 }

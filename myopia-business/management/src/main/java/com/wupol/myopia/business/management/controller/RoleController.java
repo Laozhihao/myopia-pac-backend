@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.validator.RoleAddValidatorGroup;
@@ -46,6 +47,7 @@ public class RoleController {
     public Object addRole(@Validated(value = RoleAddValidatorGroup.class) @RequestBody RoleDTO param) {
         // TODO: 同部门角色名称不能重复、非admin用户不能创建admin用户、orgID不能为空且有效（需为登录用户名下的部门）
         // TODO: 非管理员或者admin用户不能创建角色、管理员不能修改自己所属部门的管理员类型的角色
+        param.setSystemCode(CurrentUserUtil.getCurrentUser().getSystemCode());
         return oauthServiceClient.addRole(param);
     }
 
@@ -61,8 +63,15 @@ public class RoleController {
         return oauthServiceClient.updateRole(param);
     }
 
+    /**
+     * 给角色分配权限
+     *
+     * @param roleId 角色ID
+     * @param permissionIds 权限集
+     * @return java.lang.Object
+     **/
     @PostMapping("/permission/{roleId}")
-    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestParam("permissionId") List<Integer> permissionIds) {
+    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
         return oauthServiceClient.assignRolePermission(roleId, permissionIds);
     }
 
@@ -74,8 +83,7 @@ public class RoleController {
      **/
     @GetMapping("/permission/structure/{roleId}")
     public Object getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
-        // TODO: 根据角色所属的部门所在的行政区获取行政区等级
-        return oauthServiceClient.getRolePermissionTree(roleId, 1);
+        return oauthServiceClient.getRolePermissionTree(roleId);
     }
 
 }

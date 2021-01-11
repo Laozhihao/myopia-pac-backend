@@ -10,15 +10,13 @@ import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +24,7 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -83,16 +82,20 @@ public class AuthController {
     }
 
     /**
-     * 获取rsa私钥 TODO：测试用，上线前关闭该接口
+     * 获取rsa公私钥 TODO：测试用，上线前关闭该接口
      *
      * @return java.util.Map<java.lang.String,java.lang.Object>
      **/
-    @GetMapping("/rsa/privateKey")
-    public Map<String, Object> getPrivateKey() {
+    @GetMapping("/rsa/key")
+    public ApiResult getPrivateKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded())) + "-----END PUBLIC KEY-----";
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        RSAKey key = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
-        return new JWKSet(key).toJSONObject();
+        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded())) + "-----END RSA PRIVATE KEY-----";
+        HashMap<String, String> keyMap = new HashMap<>(3);
+        keyMap.put("publicKey", pubKey);
+        keyMap.put("privateKey", priKey);
+        return ApiResult.success(keyMap);
     }
 
 }

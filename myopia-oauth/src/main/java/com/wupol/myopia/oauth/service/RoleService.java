@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
+import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
 import com.wupol.myopia.oauth.domain.model.Permission;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.ValidationException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -52,11 +55,18 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * 获取指定行政区下的角色权限树
      *
      * @param roleId        角色ID
-     * @param districtLevel 行政区等级
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> getRolePermissionTree(Integer roleId, Integer districtLevel) {
-        return permissionService.selectRoleAllTree(0, roleId, districtLevel);
+    public List<Permission> getRolePermissionTree(Integer roleId) {
+        Role role = getById(roleId);
+        if (Objects.isNull(role)) {
+            throw new ValidationException("不存在该角色");
+        }
+        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+            return permissionService.getAdminRolePermissionTree(0, roleId);
+        }
+        // TODO: 根据角色所属的部门所在的行政区获取行政区等级
+        return permissionService.selectRoleAllTree(0, roleId, 1);
     }
 
     List<Role> getByIds(List<Integer> ids) {

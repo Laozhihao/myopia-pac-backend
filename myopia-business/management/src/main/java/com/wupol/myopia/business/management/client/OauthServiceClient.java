@@ -97,17 +97,16 @@ public interface OauthServiceClient {
     ApiResult updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
-    ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestParam("permissionId") List<Integer> permissionIds);
+    ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
 
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
-     * @param districtLevel 行政区等级
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @GetMapping("/oauth/role/permission/structure/{roleId}/{districtLevel}")
-    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("districtLevel") Integer districtLevel);
+    @GetMapping("/oauth/role/permission/structure/{roleId}")
+    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId);
 
     /**
      * 获取权限列表

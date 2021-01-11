@@ -45,7 +45,7 @@ public class RoleController {
     }
 
     @PostMapping("/permission/{roleId}")
-    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestParam("permissionId") List<Integer> permissionId) {
+    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionId) {
         return roleService.assignRolePermission(roleId, permissionId);
     }
 
@@ -53,11 +53,10 @@ public class RoleController {
      * 获取指定行政区下的角色权限树
      *
      * @param roleId        角色ID
-     * @param districtLevel 行政区等级
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    @GetMapping("/permission/structure/{roleId}/{districtLevel}")
-    public List<Permission> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("districtLevel") Integer districtLevel) {
-        return roleService.getRolePermissionTree(roleId, districtLevel);
+    @GetMapping("/permission/structure/{roleId}")
+    public List<Permission> getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
+        return roleService.getRolePermissionTree(roleId);
     }
 }
