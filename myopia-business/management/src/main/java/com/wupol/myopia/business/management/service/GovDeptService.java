@@ -3,7 +3,6 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
