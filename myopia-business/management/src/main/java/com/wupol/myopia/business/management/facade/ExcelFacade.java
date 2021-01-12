@@ -327,8 +327,8 @@ public class ExcelFacade {
                                     .setTownCode(140105001L)
                                     .setSchoolId(schoolId)
                                     //TODO 年级班级名转id
-                                    .setGradeId(12)
-                                    .setClassId(324)
+                                    .setGradeId(23)
+                                    .setClassId(18)
                                     .setCreateUserId(createUserId)
                                     // TODO: hardcode
                                     .setStudentNo("1234444444")
