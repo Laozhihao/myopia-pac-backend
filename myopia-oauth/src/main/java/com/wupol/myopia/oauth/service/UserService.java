@@ -1,8 +1,10 @@
 package com.wupol.myopia.oauth.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.ValidationException;
 import java.io.IOException;
@@ -178,5 +179,17 @@ public class UserService extends BaseService<UserMapper, User> {
         }
         return user;
 
+    }
+
+    /**
+     * 通过身份证查找用户
+     *
+     * @param request   请求体
+     * @return 用户列表
+     */
+    public List<User> getUserByIdCard(UserRequest request) {
+        return baseMapper.selectList(new QueryWrapper<User>()
+                .eq("org_id", request.getOrgId())
+                .in("id_card", request.getIdCards()));
     }
 }

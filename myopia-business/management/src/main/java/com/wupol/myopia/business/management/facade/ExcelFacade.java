@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -357,55 +358,61 @@ public class ExcelFacade {
     // TODO 管理端做还是筛查端做?
     public void importScreeningOrganizationStaff(Integer createUserId, MultipartFile multipartFile,
                                                  Integer screeningOrgId) throws IOException {
-
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
         }
 
-        String fileName = IOUtils.getTempPath() +multipartFile.getName()+"_"+System.currentTimeMillis()+".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        try {
-            // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
-            if (listMap.size() != 0) { // 去头部
-                listMap.remove(0);
-            }
-            List<UserDTO> userList = listMap.stream()
-                    .map(item -> new UserDTO()
-                            .setRealName(item.get(1))
-                            .setGender(GenderEnum.getType(item.get(2)))
-                            .setIdCard(item.get(3))
-                            .setPhone(item.get(4))
-                            .setRemark(item.get(5))
-                            .setCreateUserId(createUserId)
-                            .setIsLeader(0)
-                            .setOrgId(screeningOrgId)
-                            .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
-            // 批量新增, 并设置返回的userId
-            ApiResult<List<Integer>> apiResult = oauthServiceClient.addScreeningUserBatch(userList);
-            if (!apiResult.isSuccess()) {
-                throw new BusinessException(apiResult.getMessage());
-            }
-            List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
-                ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
-                        .setIdCard(item.getIdCard());
-                staff.setScreeningOrgId(item.getOrgId())
-                        .setCreateUserId(item.getCreateUserId())
-                        .setRemark(item.getRemark())
-                        //TODO 设置哪个?
-                        .setGovDeptId(1);
-                return staff;
-            }).collect(Collectors.toList());
-            // 设置返回的userId
-            for (int i = 0; i < importList.size(); i++) {
-                importList.get(i).setUserId(apiResult.getData().get(i));
-            }
-            screeningOrganizationStaffService.saveBatch(importList);
-        }catch (Exception e) {
-            log.error("解析机构人员excel数据失败",e);
-            throw new BusinessException("解析机构人员excel数据失败");
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        if (listMap.size() != 0) { // 去头部
+            listMap.remove(0);
         }
+        List<UserDTO> userList = listMap.stream()
+                .map(item -> new UserDTO()
+                        .setRealName(item.get(1))
+                        .setGender(GenderEnum.getType(item.get(2)))
+                        .setIdCard(item.get(3))
+                        .setPhone(item.get(4))
+                        .setRemark(item.get(5))
+                        .setCreateUserId(createUserId)
+                        .setIsLeader(0)
+                        .setOrgId(screeningOrgId)
+                        .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
+
+        // 查询身份证是否重复
+        ApiResult<List<UserDTO>> checkUser = oauthServiceClient.getUserByIdCard(new UserRequest(screeningOrgId,
+                userList.stream().map(UserDTO::getIdCard).collect(Collectors.toList())));
+        if (!checkUser.isSuccess()) {
+            throw new BusinessException("调用Oauth服务异常");
+        } else {
+            if (!CollectionUtils.isEmpty(checkUser.getData())) {
+                throw new BusinessException("身份证号码重复，请确认");
+            }
+        }
+
+        // 批量新增, 并设置返回的userId
+        ApiResult<List<Integer>> apiResult = oauthServiceClient.addScreeningUserBatch(userList);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException(apiResult.getMessage());
+        }
+        List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
+            ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
+                    .setIdCard(item.getIdCard());
+            staff.setScreeningOrgId(item.getOrgId())
+                    .setCreateUserId(item.getCreateUserId())
+                    .setRemark(item.getRemark())
+                    //TODO 设置哪个?
+                    .setGovDeptId(1);
+            return staff;
+        }).collect(Collectors.toList());
+        // 设置返回的userId
+        for (int i = 0; i < importList.size(); i++) {
+            importList.get(i).setUserId(apiResult.getData().get(i));
+        }
+        screeningOrganizationStaffService.saveBatch(importList);
     }
 
     /** 获取学生的导入模版 */

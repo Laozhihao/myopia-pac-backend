@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.client;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -15,7 +16,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/11
  **/
-@FeignClient(name ="myopia-oauth", fallbackFactory = OauthServiceFallbackFactory.class)
+@FeignClient(name = "myopia-oauth", fallbackFactory = OauthServiceFallbackFactory.class)
 public interface OauthServiceClient {
 
     /**
@@ -110,6 +111,7 @@ public interface OauthServiceClient {
 
     /**
      * 获取权限列表
+     *
      * @param param
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
@@ -124,4 +126,7 @@ public interface OauthServiceClient {
 
     @DeleteMapping("/oauth/permission/{permissionId}")
     ApiResult deletePermission(@PathVariable("permissionId") Integer permissionId);
+
+    @GetMapping("/oauth/user/getByIdCard")
+    ApiResult<List<UserDTO>> getUserByIdCard(@SpringQueryMap UserRequest request);
 }
