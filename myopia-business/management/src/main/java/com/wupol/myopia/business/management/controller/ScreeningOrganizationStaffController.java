@@ -2,19 +2,15 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
 import com.wupol.myopia.business.management.domain.dto.StaffResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.management.util.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -85,12 +81,13 @@ public class ScreeningOrganizationStaffController {
     }
 
 
-    @PostMapping("/import")
-    public ApiResult importOrganizationStaff(MultipartFile file) throws IOException {
+    @PostMapping("/import/{screeningOrgId}")
+    public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importScreeningOrganizationStaff(currentUser.getOrgId(), currentUser.getId(), file);
+        excelFacade.importScreeningOrganizationStaff(currentUser.getId(), file, screeningOrgId);
         return ApiResult.success();
     }
+
     @GetMapping("/import/demo")
     public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
