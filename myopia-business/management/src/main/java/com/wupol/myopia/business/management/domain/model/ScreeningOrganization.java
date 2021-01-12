@@ -62,7 +62,6 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 机构类型描述
      */
-    @NotNull(message = "机构类型描述不能为空")
     private String typeDesc;
 
     /**
