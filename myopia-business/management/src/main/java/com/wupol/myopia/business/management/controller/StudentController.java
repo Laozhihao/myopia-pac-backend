@@ -78,10 +78,10 @@ public class StudentController {
         return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
     }
 
-    @PostMapping("/import")
-    public ApiResult importStudent(MultipartFile file) throws IOException {
+    @PostMapping("/import/{schoolId}")
+    public ApiResult importStudent(MultipartFile file,@PathVariable("schoolId") Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importStudent(currentUser.getOrgId(), currentUser.getId(), file);
+        excelFacade.importStudent(schoolId, currentUser.getId(), file);
         return ApiResult.success();
     }
 
