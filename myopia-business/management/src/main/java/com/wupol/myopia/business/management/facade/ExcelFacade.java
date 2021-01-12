@@ -29,7 +29,10 @@ import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -303,7 +306,7 @@ public class ExcelFacade {
                             student.setName(item.get(1))
                                     .setGender(GenderEnum.getType(item.get(2)))
                                     .setNation(Integer.valueOf(item.get(4)))
-                                    .setStudentNo(item.get(7))
+                                    .setSno(Integer.valueOf(item.get(7)))
                                     .setIdCard(item.get(8))
                                     .setParentPhone(item.get(9))
                                     //TODO 待分拆地址,转code
@@ -317,6 +320,8 @@ public class ExcelFacade {
                                     .setGradeId(12)
                                     .setClassId(324)
                                     .setCreateUserId(createUserId)
+                                    // TODO: hardcode
+                                    .setStudentNo("1234444444")
                                     .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
                             ;
                         } catch (ParseException e) {
@@ -332,11 +337,23 @@ public class ExcelFacade {
         }
     }
 
+
     /**
      * 导入机构人员
+     *
+     * @param createUserId   创建人id
+     * @param multipartFile  导入文件
+     * @param screeningOrgId 筛查机构id
+     * @throws IOException io异常
      */
     // TODO 管理端做还是筛查端做?
-    public void importScreeningOrganizationStaff(Integer orgId, Integer createUserId, MultipartFile multipartFile) throws IOException {
+    public void importScreeningOrganizationStaff(Integer createUserId, MultipartFile multipartFile,
+                                                 Integer screeningOrgId) throws IOException {
+
+        if (null == screeningOrgId) {
+            throw new BusinessException("机构ID不能为空");
+        }
+
         String fileName = IOUtils.getTempPath() +multipartFile.getName()+"_"+System.currentTimeMillis()+".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -347,19 +364,16 @@ public class ExcelFacade {
                 listMap.remove(0);
             }
             List<UserDTO> userList = listMap.stream()
-                    .map(item -> {
-                        UserDTO user = new UserDTO()
-                                .setRealName(item.get(1))
-                                .setGender(GenderEnum.getType(item.get(2)))
-                                .setIdCard(item.get(3))
-                                .setPhone(item.get(4))
-                                .setRemark(item.get(5))
-                                .setCreateUserId(createUserId)
-                                .setIsLeader(0)
-                                .setOrgId(orgId)
-                                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-                        return user;
-                    }).collect(Collectors.toList());
+                    .map(item -> new UserDTO()
+                            .setRealName(item.get(1))
+                            .setGender(GenderEnum.getType(item.get(2)))
+                            .setIdCard(item.get(3))
+                            .setPhone(item.get(4))
+                            .setRemark(item.get(5))
+                            .setCreateUserId(createUserId)
+                            .setIsLeader(0)
+                            .setOrgId(screeningOrgId)
+                            .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
             // 批量新增, 并设置返回的userId
             ApiResult<List<Integer>> apiResult = oauthServiceClient.addScreeningUserBatch(userList);
             if (!apiResult.isSuccess()) {

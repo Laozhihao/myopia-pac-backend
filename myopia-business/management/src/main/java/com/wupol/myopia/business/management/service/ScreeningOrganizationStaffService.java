@@ -263,6 +263,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (CollectionUtils.isEmpty(list)) return false;
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
+        if (null == organization) {
+            throw new BusinessException("数据异常,找不到筛查机构id为:{}的数据", list.get(0).getScreeningOrgId());
+        }
         for (ScreeningOrganizationStaffVo item : list) {
             item.setStaffNo(generateOrgNo(organization.getOrgNo(), item.getIdCard()));
         }
