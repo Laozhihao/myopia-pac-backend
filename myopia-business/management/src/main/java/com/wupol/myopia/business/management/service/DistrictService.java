@@ -38,8 +38,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private RedisUtil redisUtil;
 
+    /** 根据地址名查code */
+    public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException{
+        Long provinceCode = null, cityCode = null, areaCode = null, townCode = null;
+        List<District> districtList = getAllDistrict();
+        for (District item : districtList) {
+            if (item.getName().equals(provinceName)) {
+                provinceCode = item.getCode();
+            } else if (item.getName().equals(cityName)) {
+                cityCode = item.getCode();
+            } else if (item.getName().equals(areaName)) {
+                areaCode = item.getCode();
+            } else if (item.getName().equals(townName)) {
+                townCode = item.getCode();
+            }
+        }
+        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
+            throw new BusinessException("未匹配到地址");
+        }
+        return Arrays.asList(provinceCode, cityCode, areaCode, townCode);
+    }
 
-    /** 获取地址的前缀,省市区镇 */
+    /** 根据code获取对应的地址 */
     public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);

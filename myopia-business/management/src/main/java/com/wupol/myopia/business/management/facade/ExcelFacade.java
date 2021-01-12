@@ -313,18 +313,18 @@ public class ExcelFacade {
                     .map(item -> {
                         Student student = new Student();
                         try {
+                            List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
                             student.setName(item.get(1))
                                     .setGender(GenderEnum.getType(item.get(2)))
                                     .setNation(Integer.valueOf(item.get(4)))
                                     .setSno(Integer.valueOf(item.get(7)))
                                     .setIdCard(item.get(8))
                                     .setParentPhone(item.get(9))
-                                    //TODO 待分拆地址,转code
-                                    .setAddress(item.get(9))
-                                    .setProvinceCode(140000000L)
-                                    .setCityCode(140100000L)
-                                    .setAreaCode(140105000L)
-                                    .setTownCode(140105001L)
+                                    .setAddress(item.get(14))
+                                    .setProvinceCode(addressCodeList.get(0))
+                                    .setCityCode(addressCodeList.get(1))
+                                    .setAreaCode(addressCodeList.get(2))
+                                    .setTownCode(addressCodeList.get(3))
                                     .setSchoolId(schoolId)
                                     //TODO 年级班级名转id
                                     .setGradeId(12)
@@ -342,7 +342,7 @@ public class ExcelFacade {
             studentService.saveBatch(importList);
         }catch (Exception e) {
             log.error("解析学生excel数据失败",e);
-            throw new BusinessException("解析学生excel数据失败");
+            throw new BusinessException("解析学生excel数据失败", e);
         }
     }
 
