@@ -6,12 +6,20 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
+import com.wupol.myopia.oauth.domain.dto.LoginInfoDTO;
+import com.wupol.myopia.oauth.domain.model.Permission;
+import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
+import com.wupol.myopia.oauth.service.PermissionService;
+import com.wupol.myopia.oauth.service.UserService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.util.OAuth2Utils;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,6 +48,12 @@ public class AuthController {
     @Autowired
     private KeyPair keyPair;
 
+    @Autowired
+    private PermissionService permissionService;
+
+    @Autowired
+    private UserService userService;
+
     /**
      * 认证生成token，OAuth2默认支持为该接口提供客户端参数校验，不用自己去判断来的客户端是否合法
      *
@@ -64,9 +78,36 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResult getResource(@Validated LoginDTO loginDTO) {
-        // TODO: return JWT
-        return ApiResult.success();
+    public ApiResult getResource(LoginDTO loginDTO) {
+        String clientId = loginDTO.getClientId();
+        if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
+            return ApiResult.failure("system错误");
+        }
+        Map<String, String> parameters = new HashMap();
+        parameters.put(OAuth2Utils.CLIENT_ID, clientId);
+        parameters.put(OAuth2Utils.GRANT_TYPE, AuthorizationGrantType.PASSWORD.getValue());
+
+        OAuth2AccessToken oAuth2AccessToken;
+        Oauth2TokenVO oauth2Token;
+        try {
+            oAuth2AccessToken = tokenEndpoint.postAccessToken(loginDTO, parameters).getBody();
+            oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
+                    .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
+                    .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
+        } catch (HttpRequestMethodNotSupportedException e) {
+            logger.error("Failed to get access token", e);
+            return ApiResult.failure("内部错误");
+        }
+
+        // User user = userService.getByUsername(loginDTO.getUsername(), clientId);
+        // LoginInfoDTO.UserInfo userInfo =
+        // LoginInfoDTO.UserInfo.builder().userId(user.getId()).roleType(user.get);
+        // List<Permission> permissions =
+        // permissionService.getUserPermissionByUserId(user.getId());
+        // LoginInfoDTO loginInfo =
+        // LoginInfoDTO.builder().accessToken(oauth2Token.getToken()).userInfo(userInfo).build();
+
+        return ApiResult.success(oauth2Token);
     }
 
     /**
@@ -89,9 +130,11 @@ public class AuthController {
     @GetMapping("/rsa/key")
     public ApiResult getPrivateKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded())) + "-----END PUBLIC KEY-----";
+        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded()))
+                + "-----END PUBLIC KEY-----";
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded())) + "-----END RSA PRIVATE KEY-----";
+        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded()))
+                + "-----END RSA PRIVATE KEY-----";
         HashMap<String, String> keyMap = new HashMap<>(3);
         keyMap.put("publicKey", pubKey);
         keyMap.put("privateKey", priKey);

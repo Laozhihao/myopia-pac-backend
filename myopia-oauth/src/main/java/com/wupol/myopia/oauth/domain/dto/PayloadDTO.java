@@ -1,9 +1,11 @@
-package com.wupol.myopia.oauth.domain.model;
+package com.wupol.myopia.oauth.domain.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class Payload {
+@Builder
+public class PayloadDTO {
 
     /**
      * 用户ID
@@ -13,8 +15,4 @@ public class Payload {
      * 用户属于哪个平台的角色类型
      */
     private Integer roleType;
-    /**
-     * 是否管理员
-     */
-    private Boolean isAdmin;
 }

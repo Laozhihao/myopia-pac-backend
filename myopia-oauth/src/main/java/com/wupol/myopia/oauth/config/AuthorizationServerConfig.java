@@ -92,6 +92,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         /*security.allowFormAuthenticationForClients();*/
         CustomClientCredentialsTokenEndpointFilter endpointFilter = new CustomClientCredentialsTokenEndpointFilter(security);
         endpointFilter.afterPropertiesSet();
+        endpointFilter.setFilterProcessesUrl("/login");
         endpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint());
         security.addTokenEndpointAuthenticationFilter(endpointFilter);
 
