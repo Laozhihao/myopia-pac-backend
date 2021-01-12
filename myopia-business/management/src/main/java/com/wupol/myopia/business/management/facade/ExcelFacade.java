@@ -357,7 +357,7 @@ public class ExcelFacade {
                                 .setCreateUserId(createUserId)
                                 .setIsLeader(0)
                                 .setOrgId(orgId)
-                                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+                                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
                         return user;
                     }).collect(Collectors.toList());
             // 批量新增, 并设置返回的userId
