@@ -1,7 +1,7 @@
 package com.wupol.myopia.oauth.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -10,10 +10,8 @@ import com.wupol.myopia.oauth.service.UserRoleService;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -114,5 +112,10 @@ public class UserController {
             return new ArrayList<>();
         }
         return userService.listByIds(userIds);
+    }
+
+    @GetMapping("/getByIdCard")
+    public List<User> getUserByIdCard(UserRequest request) {
+        return userService.getUserByIdCard(request);
     }
 }
