@@ -16,7 +16,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.*;
 import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2020/12/21
  **/
-@Slf4j
+@Log4j2
 @Service
 public class ExcelFacade {
     @Autowired
@@ -286,10 +286,19 @@ public class ExcelFacade {
         return ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
     }
 
+
     /**
      * 导入学生
+     *
+     * @param schoolId      学校id
+     * @param createUserId  创建人userID
+     * @param multipartFile 导入文件
+     * @throws BusinessException 异常
      */
     public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException {
+        if (null == schoolId) {
+            throw new BusinessException("学校ID不能为空");
+        }
         String fileName = IOUtils.getTempPath() +multipartFile.getName()+"_"+System.currentTimeMillis()+".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -322,8 +331,7 @@ public class ExcelFacade {
                                     .setCreateUserId(createUserId)
                                     // TODO: hardcode
                                     .setStudentNo("1234444444")
-                                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
-                            ;
+                                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2));
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -333,7 +341,7 @@ public class ExcelFacade {
             studentService.saveBatch(importList);
         }catch (Exception e) {
             log.error("解析学生excel数据失败",e);
-            throw new IOException("解析学生excel数据失败");
+            throw new BusinessException("解析学生excel数据失败");
         }
     }
 
@@ -344,7 +352,7 @@ public class ExcelFacade {
      * @param createUserId   创建人id
      * @param multipartFile  导入文件
      * @param screeningOrgId 筛查机构id
-     * @throws IOException io异常
+     * @throws BusinessException io异常
      */
     // TODO 管理端做还是筛查端做?
     public void importScreeningOrganizationStaff(Integer createUserId, MultipartFile multipartFile,
@@ -396,7 +404,7 @@ public class ExcelFacade {
             screeningOrganizationStaffService.saveBatch(importList);
         }catch (Exception e) {
             log.error("解析机构人员excel数据失败",e);
-            throw new IOException("解析机构人员excel数据失败");
+            throw new BusinessException("解析机构人员excel数据失败");
         }
     }
 
