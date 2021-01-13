@@ -52,6 +52,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             } else if (item.getName().equals(townName)) {
                 townCode = item.getCode();
             }
+            // 已成功匹配地址
+            if (Objects.nonNull(provinceCode) && Objects.nonNull(cityCode) & Objects.nonNull(areaCode) && Objects.nonNull(townCode)) {
+                break;
+            }
         }
         if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
             throw new BusinessException("未匹配到地址");
