@@ -1,22 +1,27 @@
 package com.wupol.myopia.oauth.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author Bain
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
 public class LoginDTO {
 
     private String username;
-    @NotEmpty(message = "credentials is required")
+
     private String password;
-    @NotNull(message = "system is required")
-    private Integer system;
-    private Boolean isDebug;
+
+    private String client_id;
+
+    private String client_secret;
+
+    private String grant_type;
+
+    private String refresh_token;
+
 }

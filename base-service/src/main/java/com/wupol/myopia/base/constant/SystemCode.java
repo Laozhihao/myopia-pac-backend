@@ -19,7 +19,8 @@ public enum SystemCode {
     SCHOOL_CLIENT(2, "学校端"),
     SCREENING_CLIENT(3, "筛查端"),
     HOSPITAL_CLIENT(4, "医院端"),
-    PATENT_CLIENT(5, "家长端");
+    PATENT_CLIENT(5, "家长端"),
+    SCREENING_MANAGEMENT_CLIENT(6, "筛查管理端");
 
     /**
      * 系统编号

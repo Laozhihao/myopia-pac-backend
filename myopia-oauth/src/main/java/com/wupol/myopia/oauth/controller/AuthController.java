@@ -1,8 +1,9 @@
 package com.wupol.myopia.oauth.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
@@ -13,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.KeyPair;
@@ -44,16 +43,16 @@ public class AuthController {
      * 认证生成token，OAuth2默认支持为该接口提供客户端参数校验，不用自己去判断来的客户端是否合法
      *
      * @param principal
-     * @param parameters
+     * @param loginDTO
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @PostMapping("/oauth/token")
-    public ApiResult postAccessToken(Principal principal, @RequestParam Map<String, String> parameters)
-            throws HttpRequestMethodNotSupportedException {
-        String clientId = parameters.get(AuthConstants.JWT_CLIENT_ID_KEY);
+    @PostMapping("/login")
+    public ApiResult login(Principal principal, LoginDTO loginDTO) throws HttpRequestMethodNotSupportedException {
+        String clientId = loginDTO.getClient_id();
         if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
             return ApiResult.failure("client_id错误");
         }
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>() {});
         OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
@@ -63,10 +62,25 @@ public class AuthController {
         return ApiResult.success(oauth2Token);
     }
 
-    @PostMapping("/login")
-    public ApiResult getResource(@Validated LoginDTO loginDTO) {
-        // TODO: return JWT
-        return ApiResult.success();
+    /**
+     * 刷新token
+     *
+     * @param principal
+     * @param loginDTO
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @PostMapping("/refresh/token")
+    public ApiResult refreshAccessToken(Principal principal, LoginDTO loginDTO) throws HttpRequestMethodNotSupportedException {
+        String clientId = loginDTO.getClient_id();
+        if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
+            return ApiResult.failure("client_id错误");
+        }
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>() {});
+        OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
+        Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
+                .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
+                .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
+        return ApiResult.success(oauth2Token);
     }
 
     /**

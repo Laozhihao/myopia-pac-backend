@@ -2,11 +2,11 @@ package com.wupol.myopia.oauth.config;
 
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
+import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
-import com.wupol.myopia.oauth.filter.CustomClientCredentialsTokenEndpointFilter;
+import com.wupol.myopia.oauth.filter.ClientCredentialsAccessTokenEndpointFilter;
 import com.wupol.myopia.oauth.service.JdbcClientDetailsServiceImpl;
 import com.wupol.myopia.oauth.service.UserDetailsServiceImpl;
 import lombok.SneakyThrows;
@@ -54,15 +54,23 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private UserDetailsServiceImpl userDetailsService;
 
     /**
-     * 配置客户端详情(数据库)
+     * 配置从数据库获取客户端详情
      */
     @Override
     @SneakyThrows
     public void configure(ClientDetailsServiceConfigurer clients) {
+        clients.withClientDetails(jdbcClientDetailsService());
+    }
+
+    /**
+     * 配置获取客户端详情执行类
+     */
+    @Bean
+    public JdbcClientDetailsServiceImpl jdbcClientDetailsService() {
         JdbcClientDetailsServiceImpl jdbcClientDetailsService = new JdbcClientDetailsServiceImpl(dataSource);
         jdbcClientDetailsService.setFindClientDetailsSql(AuthConstants.FIND_CLIENT_DETAILS_SQL);
         jdbcClientDetailsService.setSelectClientDetailsSql(AuthConstants.SELECT_CLIENT_DETAILS_SQL);
-        clients.withClientDetails(jdbcClientDetailsService);
+        return jdbcClientDetailsService;
     }
 
     /**
@@ -80,6 +88,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .accessTokenConverter(jwtAccessTokenConverter())
                 .tokenEnhancer(tokenEnhancerChain)
                 .userDetailsService(userDetailsService)
+                // 替换默认获取token的入口
+                .pathMapping("/oauth/token", "/login")
                 // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
                 //      1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
                 //      2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
@@ -89,8 +99,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
-        /*security.allowFormAuthenticationForClients();*/
-        CustomClientCredentialsTokenEndpointFilter endpointFilter = new CustomClientCredentialsTokenEndpointFilter(security);
+        ClientCredentialsAccessTokenEndpointFilter endpointFilter = new ClientCredentialsAccessTokenEndpointFilter(security);
         endpointFilter.afterPropertiesSet();
         endpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint());
         security.addTokenEndpointAuthenticationFilter(endpointFilter);
@@ -118,7 +127,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
             response.getWriter().flush();
         };
     }
-
 
     /**
      * 使用非对称SHA256withRSA(简称RS256)加密算法对token签名，默认为HMACSHA256(简称HS256)

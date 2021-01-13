@@ -15,14 +15,13 @@ import java.util.List;
 @Getter
 public enum RoleType {
     /** 超级管理员 */
-    SUPER_ADMIN(0, "平台管理员"),
-    GOVERNMENT_DEPARTMENT_ADMIN(1, "政府部门管理员"),
-    GOVERNMENT_DEPARTMENT_NORMAL_USER(2, "政府部门人员"),
-    SCREENING_ORGANIZATION_ADMIN(3, "筛查机构管理员"),
-    SCREENING_ORGANIZATION_NORMAL_USER(4, "筛查人员");
+    SUPER_ADMIN_ROLE(0, "平台管理员类型角色"),
+    GOVERNMENT_DEPARTMENT_ROLE(1, "政府部门类型角色"),
+    SCREENING_ORGANIZATION_ROLE(2, "筛查人员类型角色");
+
 
     /**
-     * 系统编号
+     * 类型
      **/
     private final Integer type;
     /**
