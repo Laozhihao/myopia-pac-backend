@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.facade;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -366,7 +367,16 @@ public class ExcelFacade {
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        List<Map<Integer, String>> listMap;
+        try {
+            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        } catch (ExcelAnalysisException excelAnalysisException) {
+            log.error("导入机构人员异常", excelAnalysisException);
+            throw new BusinessException("解析文件格式异常");
+        } catch (Exception e) {
+            log.error("导入机构人员异常", e);
+            throw new BusinessException("解析Excel文件异常");
+        }
         if (listMap.size() != 0) { // 去头部
             listMap.remove(0);
         }
