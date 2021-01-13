@@ -103,9 +103,11 @@ public class AuthController {
     @GetMapping("/rsa/key")
     public ApiResult getPrivateKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded())) + "-----END PUBLIC KEY-----";
+        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded()))
+                + "-----END PUBLIC KEY-----";
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded())) + "-----END RSA PRIVATE KEY-----";
+        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded()))
+                + "-----END RSA PRIVATE KEY-----";
         HashMap<String, String> keyMap = new HashMap<>(3);
         keyMap.put("publicKey", pubKey);
         keyMap.put("privateKey", priKey);

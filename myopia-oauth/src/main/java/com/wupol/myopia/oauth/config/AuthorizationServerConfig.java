@@ -101,6 +101,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public void configure(AuthorizationServerSecurityConfigurer security) {
         ClientCredentialsAccessTokenEndpointFilter endpointFilter = new ClientCredentialsAccessTokenEndpointFilter(security);
         endpointFilter.afterPropertiesSet();
+        endpointFilter.setFilterProcessesUrl("/login");
         endpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint());
         security.addTokenEndpointAuthenticationFilter(endpointFilter);
 
