@@ -15,9 +15,9 @@ import java.util.List;
 @Getter
 public enum RoleType {
     /** 超级管理员 */
-    SUPER_ADMIN(0, "平台管理员类型角色"), GOVERNMENT_DEPARTMENT(1, "政府部门类型角色"), SCREENING_ORGANIZATION(2,
-            "筛查人员类型角色");
-
+    SUPER_ADMIN(0, "平台管理员类型角色"),
+    GOVERNMENT_DEPARTMENT(1, "政府部门类型角色"),
+    SCREENING_ORGANIZATION(2, "筛查人员类型角色");
 
     /**
      * 类型
