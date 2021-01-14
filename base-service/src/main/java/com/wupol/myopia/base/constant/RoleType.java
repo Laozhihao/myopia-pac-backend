@@ -15,9 +15,8 @@ import java.util.List;
 @Getter
 public enum RoleType {
     /** 超级管理员 */
-    SUPER_ADMIN_ROLE(0, "平台管理员类型角色"),
-    GOVERNMENT_DEPARTMENT_ROLE(1, "政府部门类型角色"),
-    SCREENING_ORGANIZATION_ROLE(2, "筛查人员类型角色");
+    SUPER_ADMIN(0, "平台管理员类型角色"), GOVERNMENT_DEPARTMENT(1, "政府部门类型角色"), SCREENING_ORGANIZATION(2,
+            "筛查人员类型角色");
 
 
     /**
@@ -41,7 +40,8 @@ public enum RoleType {
      * @return com.wupol.myopia.base.constan.RoleType
      **/
     public static RoleType getByType(Integer type) {
-        return Arrays.stream(values()).filter(roleType -> roleType.getType().equals(type)).findFirst().orElse(null);
+        return Arrays.stream(values()).filter(roleType -> roleType.getType().equals(type))
+                .findFirst().orElse(null);
     }
 
     /**

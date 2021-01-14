@@ -54,7 +54,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     /**
      * 获取指定行政区下的角色权限树
      *
-     * @param roleId        角色ID
+     * @param roleId 角色ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     public List<Permission> getRolePermissionTree(Integer roleId) {
