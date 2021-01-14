@@ -20,6 +20,8 @@
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(typeDesc)">and `type_desc` = #{typeDesc}</if>
+                <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
                 <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
                 <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
                 <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
@@ -42,7 +44,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, org_no, create_user_id, gov_dept_id, district_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, org_no, create_user_id, gov_dept_id, district_id, name, type, type_desc,config_type, phone, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getScreeningOrganizationListByCondition" resultMap="BaseResponseMap">

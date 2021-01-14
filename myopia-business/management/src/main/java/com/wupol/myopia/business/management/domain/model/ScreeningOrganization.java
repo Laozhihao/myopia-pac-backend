@@ -65,6 +65,17 @@ public class ScreeningOrganization implements Serializable {
     private String typeDesc;
 
     /**
+     * 配置 0-省级配置 1-单点配置
+     */
+    @NotNull(message = "配置不能为空")
+    private Integer configType;
+
+    /**
+     * 联系方式
+     */
+    private String phone;
+
+    /**
      * 省代码
      */
     private Long provinceCode;
@@ -90,7 +101,6 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 详细地址
      */
-    @NotNull(message = "详细地址不能为空")
     private String address;
 
     /**
