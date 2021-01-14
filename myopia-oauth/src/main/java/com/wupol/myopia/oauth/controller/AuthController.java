@@ -11,7 +11,7 @@ import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Base64;
+// import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -23,8 +23,10 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * @Author HaoHao
@@ -47,13 +49,17 @@ public class AuthController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/login")
-    public ApiResult login(Principal principal, LoginDTO loginDTO) throws HttpRequestMethodNotSupportedException {
+    public ApiResult login(Principal principal, LoginDTO loginDTO)
+            throws HttpRequestMethodNotSupportedException {
         String clientId = loginDTO.getClient_id();
         if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
             return ApiResult.failure("client_id错误");
         }
-        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>() {});
-        OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO),
+                new TypeReference<Map<String, String>>() {
+                });
+        OAuth2AccessToken oAuth2AccessToken =
+                tokenEndpoint.postAccessToken(principal, parameters).getBody();
         Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
                 .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
@@ -70,13 +76,17 @@ public class AuthController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/refresh/token")
-    public ApiResult refreshAccessToken(Principal principal, LoginDTO loginDTO) throws HttpRequestMethodNotSupportedException {
+    public ApiResult refreshAccessToken(Principal principal, LoginDTO loginDTO)
+            throws HttpRequestMethodNotSupportedException {
         String clientId = loginDTO.getClient_id();
         if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
             return ApiResult.failure("client_id错误");
         }
-        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>() {});
-        OAuth2AccessToken oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO),
+                new TypeReference<Map<String, String>>() {
+                });
+        OAuth2AccessToken oAuth2AccessToken =
+                tokenEndpoint.postAccessToken(principal, parameters).getBody();
         Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
                 .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
@@ -103,10 +113,12 @@ public class AuthController {
     @GetMapping("/rsa/key")
     public ApiResult getPrivateKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        String pubKey = "-----BEGIN PUBLIC KEY-----" + new String(Base64.encode(publicKey.getEncoded()))
+        String pubKey = "-----BEGIN PUBLIC KEY-----"
+                + new String(Base64.getEncoder().encode(publicKey.getEncoded()))
                 + "-----END PUBLIC KEY-----";
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        String priKey = "-----BEGIN RSA PRIVATE KEY-----" + new String(Base64.encode(privateKey.getEncoded()))
+        String priKey = "-----BEGIN RSA PRIVATE KEY-----"
+                + new String(Base64.getEncoder().encode(privateKey.getEncoded()))
                 + "-----END RSA PRIVATE KEY-----";
         HashMap<String, String> keyMap = new HashMap<>(3);
         keyMap.put("publicKey", pubKey);
