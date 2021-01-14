@@ -188,7 +188,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return UsernameAndPasswordDto 账号密码
      */
     private UsernameAndPasswordDTO generateAccountAndPassword(Hospital hospital) {
-        String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
+        String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
 
         UserDTO userDTO = new UserDTO()
@@ -214,7 +214,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
-        String password = PasswordGenerator.getHospitalAdminPwd(hospital.getHospitalNo());
+        String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
 
         UserDTO userDTO = new UserDTO()

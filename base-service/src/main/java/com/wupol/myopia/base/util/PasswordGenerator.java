@@ -2,7 +2,6 @@ package com.wupol.myopia.base.util;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wupol.myopia.base.constant.PwdConstant;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ValidationException;
@@ -15,15 +14,19 @@ import javax.validation.ValidationException;
  **/
 public class PasswordGenerator {
 
-    /** 医院管理员密码截取长度 */
-    private static final int HOSPITAL_ADMIN_PWD_SUB_LENGTH = 6;
-    /** 学校管理员密码截取长度 */
-    private static final int SCHOOL_ADMIN_PWD_SUB_LENGTH = 6;
-
-    private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
-
     /** 筛查人员密码截取长度 */
-    private static final int SCREENING_STAFF_PWD_SUB_LENGTH = 4;
+    private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
+    /** 密码后缀随机数长度 */
+    private static final int PASSWORD_SUFFIX_RANDOM_LENGTH = 11;
+
+    /** 管理端用户密码前缀 */
+    private static final String MANAGEMENT_USER_PWD_PREFIX = "g";
+    /** 学校端管理员用户密码前缀 */
+    private static final String SCHOOL_ADMIN_PWD_PREFIX = "x";
+    /** 医院端管理员用户密码前缀 */
+    private static final String HOSPITAL_ADMIN_PWD_PREFIX = "y";
+    /** 筛查机构管理端的管理员用户密码前缀 */
+    private static final String SCREENING_ORG_ADMIN_PWD_PREFIX = "s";
 
     /**
      * 管理端用户密码
@@ -31,42 +34,38 @@ public class PasswordGenerator {
      * @return java.lang.String
      **/
     public static String getManagementUserPwd() {
-        // 开头字母j + 7个随机字母或数字
-        return PwdConstant.MANAGEMENT_USER_PWD_PREFIX + RandomUtil.randomNumbers(7);
+        // 开头字母j + 11位字母或数字
+        return MANAGEMENT_USER_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
      * 学校端管理员密码
      *
-     * @param schoolNo 学校编号
      * @return java.lang.String
      **/
-    public static String getSchoolAdminPwd(String schoolNo) {
-        // 开头字母x + 学校ID后6位
-        return PwdConstant.SCHOOL_USER_PWD_PREFIX + StrUtil.subSuf(schoolNo, -SCHOOL_ADMIN_PWD_SUB_LENGTH);
-    }
-
-    /**
-     * 筛查端管理员密码
-     *
-     * @return java.lang.String
-     **/
-    public static String getScreeningOrgAdminPwd() {
-        // 开头字母x + 学校ID后6位
-        return PwdConstant.SCREENING_ADMIN_PWD_PREFIX + StrUtil.subSuf(schoolNo, -SCREENING_ADMIN_PWD_SUB_LENGTH);
+    public static String getSchoolAdminPwd() {
+        // 开头字母x + 11位字母或数字
+        return SCHOOL_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
      * 医院端管理员用户密码
-     * @param hospitalNo 医院编号
+     *
      * @return java.lang.String
      **/
-    public static String getHospitalAdminPwd(String hospitalNo) {
-        if (StringUtils.isEmpty(hospitalNo) || hospitalNo.length() < HOSPITAL_ADMIN_PWD_SUB_LENGTH) {
-            throw new ValidationException("医院编号长度不够");
-        }
-        // 开头字母y + 医院ID后6位
-        return PwdConstant.HOSPITAL_USER_PWD_PREFIX + StrUtil.subSuf(hospitalNo, -HOSPITAL_ADMIN_PWD_SUB_LENGTH);
+    public static String getHospitalAdminPwd() {
+        // 开头字母y + 11位字母或数字
+        return HOSPITAL_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
+    }
+
+    /**
+     * 筛查机构管理端的管理员用户密码
+     *
+     * @return java.lang.String
+     **/
+    public static String getScreeningAdminPwd() {
+        // 开头字母y + 11位字母或数字
+        return SCREENING_ORG_ADMIN_PWD_PREFIX + RandomUtil.randomString(PASSWORD_SUFFIX_RANDOM_LENGTH);
     }
 
     /**
@@ -77,10 +76,10 @@ public class PasswordGenerator {
      * @return java.lang.String
      **/
     public static String getScreeningUserPwd(String phone, String idCard) {
-        if (StringUtils.isEmpty(phone) || phone.length() < SCREENING_STAFF_PWD_SUB_LENGTH || StringUtils.isEmpty(idCard) || idCard.length() < SCREENING_STAFF_PWD_SUB_LENGTH) {
+        if (StringUtils.isEmpty(phone) || phone.length() < SCREENING_ADMIN_PWD_SUB_LENGTH || StringUtils.isEmpty(idCard) || idCard.length() < SCREENING_ADMIN_PWD_SUB_LENGTH) {
             throw new ValidationException("筛查人员编号长度不够");
         }
         // 手机号码后四位+身份证号后四位，共8位
-        return StrUtil.subSuf(phone, -SCREENING_STAFF_PWD_SUB_LENGTH) + StrUtil.subSuf(phone, -SCREENING_STAFF_PWD_SUB_LENGTH);
+        return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH);
     }
 }
