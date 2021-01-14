@@ -11,9 +11,9 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(hospitalNo)">and `hospital_no` = #{hospitalNo}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(level)">and `level` = #{level}</if>
                 <if test="@Ognl@isNotEmpty(levelDesc)">and `level_desc` = #{levelDesc}</if>
@@ -41,7 +41,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, hospital_no, create_user_id, gov_dept_id, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, create_user_id, gov_dept_id, district_id, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getHospitalListByCondition" resultMap="BaseResultMap">
@@ -55,9 +55,6 @@
         and h.status != 2
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
-        </if>
-        <if test="hospitalNo != null and hospitalNo != ''">
-            and h.hospital_no like CONCAT('%', #{hospitalNo}, '%')
         </if>
         <if test="type != null">
             and h.type = #{type}
@@ -78,8 +75,8 @@
         select
         <include refid="Base_Column_List"/>
         from m_hospital h
-        where h.hospital_no like CONCAT('%', #{code}, '%')
-        order by h.hospital_no + 0 desc
+<!--        where h.hospital_no like CONCAT('%', #{code}, '%')-->
+<!--        order by h.hospital_no + 0 desc-->
         limit 1
     </select>
 

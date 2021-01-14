@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.SchoolStaff;
+import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,6 +9,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Author HaoHao
  * @Date 2020-12-22
  */
-public interface SchoolStaffMapper extends BaseMapper<SchoolStaff> {
+public interface SchoolAdminMapper extends BaseMapper<SchoolAdmin> {
 
 }

@@ -1,21 +1,27 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +48,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private ScreeningOrganizationMapper screeningOrganizationMapper;
 
     @Resource
-    private RedisUtil redisUtil;
-
-    @Resource
     private RedissonClient redissonClient;
 
     @Resource
@@ -53,14 +56,21 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
 
+    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
+
+    @Resource
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
+
     /**
      * 保存筛查机构
      *
      * @param screeningOrganization 筛查机构
-     * @return Integer 插入个数
+     * @return UsernameAndPasswordDTO 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
         Long townCode = screeningOrganization.getTownCode();
         Integer createUserId = screeningOrganization.getCreateUserId();
@@ -76,8 +86,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                screeningOrganization.setOrgNo(generateOrgNoByRedis(townCode));
-                return baseMapper.insert(screeningOrganization);
+                baseMapper.insert(screeningOrganization);
+                return generateAccountAndPassword(screeningOrganization);
             }
         } catch (InterruptedException e) {
             log.error("用户id:{}获取锁异常:{}", createUserId, e);
@@ -89,6 +99,33 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
         log.warn("用户id:{}新增机构获取不到锁，区域代码:{}", createUserId, townCode);
         throw new BusinessException("请重试");
+    }
+
+    /**
+     * 生成账号密码
+     *
+     * @param org 筛查机构
+     * @return 账号密码
+     */
+    private UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org) {
+        String password = PasswordGenerator.getScreeningOrgAdminPwd();
+        String username = org.getName();
+
+        UserDTO userDTO = new UserDTO()
+                .setOrgId(org.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setCreateUserId(org.getCreateUserId())
+                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+
+        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("创建管理员信息异常");
+        }
+        screeningOrganizationAdminService
+                .insertAdmin(org.getCreateUserId(), org.getId(),
+                        apiResult.getData().getId(), org.getGovDeptId());
+        return new UsernameAndPasswordDTO(username, password);
     }
 
     /**
@@ -130,7 +167,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                                                                     Integer govDeptId) {
         IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
-                query.getName(), query.getType(), query.getOrgNo(), query.getCode());
+                query.getName(), query.getType(), query.getCode());
         List<ScreeningOrgResponse> records = orgLists.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
@@ -157,7 +194,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 获取导出数据
      *
-     * @return
+     * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
         return screeningOrganizationMapper.getExportData(query);
@@ -175,48 +212,5 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         org.setId(request.getId());
         org.setStatus(request.getStatus());
         return baseMapper.updateById(org);
-    }
-
-    /**
-     * 生成编号
-     *
-     * @param code 镇代码
-     * @return 代码
-     */
-    private String generateOrgNo(Long code) {
-        ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
-        if (null == org) {
-            return StringUtils.join(code, "201");
-        }
-        return String.valueOf(Long.parseLong(org.getOrgNo()) + 1);
-    }
-
-    /**
-     * 生成编号通过Redis
-     *
-     * @param code 镇代码
-     * @return 编号
-     */
-    private String generateOrgNoByRedis(Long code) {
-        // 查询redis是否存在
-        String key = Const.GENERATE_ORG_SN + code;
-        Object check = redisUtil.get(key);
-        if (check == null) {
-            ScreeningOrganization org = screeningOrganizationMapper.getLastOrgByNo(code);
-            // 数据库不存在
-            if (null == org) {
-                // 数据库不存在，初始化
-                long resultCode = code * 1000 + 201;
-                redisUtil.set(key, resultCode);
-                return String.valueOf(resultCode);
-            }
-            // 获取当前数据库中最新的编号并且加一
-            long resultCode = Long.parseLong(org.getOrgNo()) + 1;
-            // 缓存到redis中
-            redisUtil.set(key, resultCode);
-            return String.valueOf(resultCode);
-        }
-        // 自增一,并且返回
-        return String.valueOf(redisUtil.incr(key, 1));
     }
 }

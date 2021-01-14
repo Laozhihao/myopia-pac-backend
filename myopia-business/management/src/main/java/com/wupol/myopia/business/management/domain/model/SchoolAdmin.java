@@ -1,17 +1,18 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * 医院-员工表
+ * 学校-管理员表
  *
  * @Author HaoHao
  * @Date 2020-12-22
@@ -19,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_hospital_staff")
-public class HospitalStaff implements Serializable {
+@TableName("m_school_admin")
+public class SchoolAdmin implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * id
+     * ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -36,14 +37,19 @@ public class HospitalStaff implements Serializable {
     private Integer createUserId;
 
     /**
-     * 医院id
+     * 学校ID
      */
-    private Integer hospitalId;
+    private Integer schoolId;
 
     /**
-     * 用户id
+     * 用户表ID
      */
     private Integer userId;
+
+    /**
+     * 部门ID
+     */
+    private Integer govDeptId;
 
     /**
      * 创建时间
@@ -56,6 +62,4 @@ public class HospitalStaff implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
-
-
 }

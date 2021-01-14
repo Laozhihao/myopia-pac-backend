@@ -100,7 +100,7 @@ public class ExcelFacade {
                         e.printStackTrace();
                     }
                     return new ScreeningOrganizationExportVo()
-                            .setId(item.getOrgNo())
+                            .setId(item.getId())
                             .setName(item.getName())
                             .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                             .setRemark(item.getRemark())
@@ -188,7 +188,7 @@ public class ExcelFacade {
         List<HospitalExportVo> exportList = list.stream()
                 .map(item -> {
                     return new HospitalExportVo()
-                            .setNo(item.getHospitalNo())
+                            .setId(item.getId())
                             .setName(item.getName())
                             .setLevel(item.getLevelDesc())
                             .setType(HospitalEnum.getTypeName(item.getType()))
@@ -226,12 +226,6 @@ public class ExcelFacade {
                             .setKind(item.getKindDesc())
                             .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
                             .setType(SchoolEnum.getTypeName(item.getType()))
-                            .setOnlineCount(item.getTotalOnline())
-                            .setOnlineMaleCount(item.getTotalOnlineMale())
-                            .setOnlineFemaleCount(item.getTotalOnlineFemale())
-                            .setLodgeCount(item.getTotalLodge())
-                            .setLodgeMaleCount(item.getTotalLodgeMale())
-                            .setLodgeFemaleCount(item.getTotalLodgeFemale())
                             .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
                             .setClassName("年级")
                             .setRemark(item.getRemark())

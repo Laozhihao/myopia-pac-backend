@@ -34,11 +34,6 @@ public class Hospital implements Serializable {
     private Integer id;
 
     /**
-     * 根据规则创建ID
-     */
-    private String hospitalNo;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;
@@ -47,6 +42,11 @@ public class Hospital implements Serializable {
      * 部门id
      */
     private Integer govDeptId;
+
+    /**
+     * 行政区域ID
+     */
+    private Integer districtId;
 
     /**
      * 医院名称

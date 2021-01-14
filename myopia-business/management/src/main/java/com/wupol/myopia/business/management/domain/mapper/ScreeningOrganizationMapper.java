@@ -20,9 +20,11 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     IPage<ScreeningOrgResponse> getScreeningOrganizationListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
                                                                         @Param("name") String name, @Param("type") Integer type,
-                                                                        @Param("orgNo") String orgNo, @Param("code") Long code);
+                                                                        @Param("code") Long code);
+
     ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
 
     List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query);
+
     ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 }

@@ -17,17 +17,12 @@
                 <if test="@Ognl@isNotEmpty(schoolNo)">and `school_no` = #{schoolNo}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>
                 <if test="@Ognl@isNotEmpty(kindDesc)">and `kind_desc` = #{kindDesc}</if>
                 <if test="@Ognl@isNotEmpty(lodgeStatus)">and `lodge_status` = #{lodgeStatus}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
-                <if test="@Ognl@isNotEmpty(totalOnline)">and `total_online` = #{totalOnline}</if>
-                <if test="@Ognl@isNotEmpty(totalOnlineMale)">and `total_online_male` = #{totalOnlineMale}</if>
-                <if test="@Ognl@isNotEmpty(totalOnlineFemale)">and `total_online_female` = #{totalOnlineFemale}</if>
-                <if test="@Ognl@isNotEmpty(totalLodge)">and `total_lodge` = #{totalLodge}</if>
-                <if test="@Ognl@isNotEmpty(totalLodgeMale)">and `total_lodge_male` = #{totalLodgeMale}</if>
-                <if test="@Ognl@isNotEmpty(totalLodgeFemale)">and `total_lodge_female` = #{totalLodgeFemale}</if>
                 <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
                 <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
                 <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
@@ -50,7 +45,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, gov_dept_id, name, kind, kind_desc, lodge_status, type, total_online, total_online_male, total_online_female, total_lodge, total_lodge_male, total_lodge_female, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, school_no, create_user_id, gov_dept_id, district_id, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">

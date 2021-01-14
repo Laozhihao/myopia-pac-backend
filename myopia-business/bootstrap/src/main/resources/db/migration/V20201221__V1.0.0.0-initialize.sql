@@ -1,13 +1,15 @@
+DROP TABLE IF EXISTS m_screening_organization;
 create table m_screening_organization
 (
     id             int auto_increment comment 'id'
         primary key,
-    org_no         varchar(64)                         not null comment '根据规则创建ID',
     create_user_id int                                 null comment '创建人ID',
-    gov_dept_id    int                                 not null comment '部门id',
+    gov_dept_id    int                                 not null comment '部门ID',
+    district_id    int                                 not null comment '行政区域ID',
     name           varchar(32)                         not null comment '筛查机构名称',
     type           tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
     type_desc      varchar(128)                        null default '' comment '机构类型描述',
+    configuration  tinyint                             not null comment '配置 0-省级配置 1-单点配置',
     province_code  bigint                              null comment '省代码',
     city_code      bigint                              not null comment '市代码',
     area_code      bigint                              not null comment '区代码',
@@ -20,14 +22,28 @@ create table m_screening_organization
 )
     comment '筛查机构表';
 
+DROP TABLE IF EXISTS m_screening_organization_admin;
+create table m_screening_organization_admin
+(
+    id               int auto_increment comment 'id'
+        primary key,
+    create_user_id   int                                 null comment '创建人ID',
+    screening_org_id int                                 not null comment '筛查机构表ID',
+    user_id          int                                 not null comment '用户ID',
+    gov_dept_id      int                                 not null comment '部门ID',
+    create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+)
+    comment '机构-管理员表';
+
+DROP TABLE IF EXISTS m_screening_organization_staff;
 create table m_screening_organization_staff
 (
     id               int auto_increment comment 'id'
         primary key,
-    gov_dept_id      int                                 not null comment '部门id',
-    screening_org_id int                                 not null comment '筛查机构表id',
-    staff_no         varchar(64)                              not null comment '根据规则创建ID',
-    user_id          int                                 not null comment '用户id',
+    gov_dept_id      int                                 not null comment '部门ID',
+    screening_org_id int                                 not null comment '筛查机构表ID',
+    user_id          int                                 not null comment '用户ID',
     create_user_id   int                                 null comment '创建人ID',
     remark           varchar(128)                        null comment '说明',
     create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -35,14 +51,14 @@ create table m_screening_organization_staff
 )
     comment '机构-人员表';
 
-
+DROP TABLE IF EXISTS m_hospital;
 create table m_hospital
 (
     id             int auto_increment comment 'id'
         primary key,
-    hospital_no    varchar(64)                         not null comment '根据规则创建ID',
     create_user_id int                                 null comment '创建人ID',
-    gov_dept_id    int                                 not null comment '部门id',
+    gov_dept_id    int                                 not null comment '部门ID',
+    district_id    int                                 not null comment '行政区域ID',
     name           varchar(32)                         not null comment '医院名称',
     level          tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
     level_desc     varchar(32)                         null comment '等级描述',
@@ -57,67 +73,66 @@ create table m_hospital
     status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-) comment '医院表';
+)
+    comment '医院表';
 
-
-create table m_hospital_staff
+DROP TABLE IF EXISTS m_hospital_admin;
+create table m_hospital_admin
 (
     id             int auto_increment comment 'id'
         primary key,
     create_user_id int                                 null comment '创建人ID',
     hospital_id    int                                 not null comment '医院id',
     user_id        int                                 not null comment '用户id',
+    gov_dept_id    int                                 not null comment '部门ID',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-) comment '医院-员工表';
+)
+    comment '医院-管理员表';
 
-
-
+DROP TABLE IF EXISTS m_school;
 create table m_school
-(
-    id                  int auto_increment comment 'id'
-        primary key,
-    school_no           varchar(64)  not null comment '根据规则创建ID',
-    create_user_id      int          null comment '创建人ID',
-    gov_dept_id         int          not null comment '部门id',
-    name                varchar(32)  not null comment '学校名称',
-    kind                tinyint      not null comment '学校性质 0-公办 1-私办 2-其他',
-    kind_desc           varchar(32)  not null comment '学校性质描述 0-公办 1-私办 2-其他',
-    lodge_status        tinyint      not null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
-    type                tinyint      not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
-    total_online        int          not null default 0 comment '在校总人数',
-    total_online_male   int          not null default 0 comment '在校-男生人数',
-    total_online_female int          not null default 0 comment '在校-女生人数',
-    total_lodge         int          not null default 0 comment '住校总人数',
-    total_lodge_male    int          not null default 0 comment '住校-男生人数',
-    total_lodge_female  int          not null default 0 comment '住校-女生人数',
-    province_code       bigint       null comment '省代码',
-    city_code           bigint       not null comment '市代码',
-    area_code           bigint       not null comment '区代码',
-    town_code           bigint       not null comment '镇/乡代码',
-    address             varchar(128) null comment '详细地址',
-    remark              varchar(128) null comment '说明',
-    status              tinyint               default 0 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time         timestamp             default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time         timestamp             default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-
-) comment '学校表';
-
-create table m_school_staff
 (
     id             int auto_increment comment 'id'
         primary key,
-    school_id      int                                 not null comment '学校id',
-    user_id        int                                 not null comment '用户表id',
+    school_no      varchar(64)                         not null comment '学校编号',
     create_user_id int                                 null comment '创建人ID',
-    gov_dept_id    int                                 not null comment '部门id',
+    gov_dept_id    int                                 not null comment '部门ID',
+    district_id    int                                 not null comment '行政区域ID',
+    name           varchar(32)                         not null comment '学校名称',
+    kind           tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
+    kind_desc      varchar(32)                         not null comment '学校性质描述 0-公办 1-私办 2-其他',
+    lodge_status   tinyint                             not null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
+    type           tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
+    province_code  bigint                              null comment '省代码',
+    city_code      bigint                              not null comment '市代码',
+    area_code      bigint                              not null comment '区代码',
+    town_code      bigint                              not null comment '镇/乡代码',
+    address        varchar(128)                        null comment '详细地址',
     remark         varchar(128)                        null comment '说明',
+    status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 
-) comment '学校-员工表';
+)
+    comment '学校表';
 
+DROP TABLE IF EXISTS m_school_admin;
+create table m_school_admin
+(
+    id             int auto_increment comment 'id'
+        primary key,
+    create_user_id int                                 null comment '创建人ID',
+    school_id      int                                 not null comment '学校ID',
+    user_id        int                                 not null comment '用户表ID',
+    gov_dept_id    int                                 not null comment '部门ID',
+    create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 
+)
+    comment '学校-员工表';
+
+DROP TABLE IF EXISTS m_school_grade;
 create table m_school_grade
 (
     id             int auto_increment comment 'id'
@@ -129,8 +144,10 @@ create table m_school_grade
     status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-) comment '学校-年级表';
+)
+    comment '学校-年级表';
 
+DROP TABLE IF EXISTS m_school_class;
 create table m_school_class
 (
     id             int auto_increment comment 'id'
@@ -143,18 +160,19 @@ create table m_school_class
     status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-) comment '学校-班级表';
+)
+    comment '学校-班级表';
 
+DROP TABLE IF EXISTS m_student;
 create table m_student
 (
     id                  int auto_increment comment 'id'
         primary key,
-    school_id           int                                 not null comment '学校ID',
-    student_no          varchar(64)                         not null comment '根据规则创建ID',
+    school_no           varchar(64)                         not null comment '学校编号',
     create_user_id      int                                 null comment '创建人ID',
     sno                 int                                 not null comment '学号',
-    grade_id            int                                 not null comment '班级id',
-    class_id            int                                 not null comment '年级ID',
+    grade_id            int                                 null comment '班级ID',
+    class_id            int                                 null comment '年级ID',
     name                varchar(8)                          not null comment '学生姓名',
     gender              tinyint(1)                          not null comment '性别 1-男 2-女',
     birthday            timestamp                           null comment '出生日期',
@@ -178,6 +196,8 @@ create table m_student
 )
     comment '学校-学生表';
 
+create unique index m_school_school_no_uindex
+    on m_school (school_no);
 
 DROP TABLE IF EXISTS `m_district`;
 CREATE TABLE `m_district`  (
@@ -203,18 +223,6 @@ CREATE TABLE `m_government_department`  (
                                             `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
                                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '政府部门表' ROW_FORMAT = Dynamic;
-
-create unique index m_hospital_hospital_no_uindex
-    on m_hospital (hospital_no);
-
-create unique index m_school_school_no_uindex
-    on m_school (school_no);
-
-create unique index m_screening_organization_org_no_uindex
-    on m_screening_organization (org_no);
-
-create unique index m_screening_organization_staff_staff_no_uindex
-    on m_screening_organization_staff (staff_no);
 
 -- 初始化部门表
 INSERT INTO `m_government_department`(`name`, `pid`, `district_id`, `create_user_id`) VALUES ('运行中心', -1, -1, -1);

@@ -28,7 +28,7 @@ public class HospitalExportVo implements Serializable {
 
     public static final String TOP_HEADER = "医院表";
     @ExcelProperty({TOP_HEADER, "ID"})
-    private String no;
+    private Integer id;
     @ExcelProperty({TOP_HEADER, "医院名称"})
     private String name;
     @ExcelProperty({TOP_HEADER, "详细地址"})

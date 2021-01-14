@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -15,11 +14,10 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolStaff;
+import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
-    private SchoolStaffService schoolStaffService;
+    private SchoolAdminService schoolAdminService;
 
     @Resource
     private GovDeptService govDeptService;
@@ -56,9 +54,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private RedissonClient redissonClient;
-
-    @Resource
-    private RedisUtil redisUtil;
 
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
@@ -85,7 +80,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                school.setSchoolNo(generateSchoolNoByRedis(townCode));
                 baseMapper.insert(school);
                 return generateAccountAndPassword(school);
             }
@@ -132,12 +126,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
 
-        SchoolStaff staff = schoolStaffService.getStaffBySchoolId(request.getId());
+        SchoolAdmin staff = schoolAdminService.getAdminBySchoolId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult apiResult = oauthServiceClient.modifyUser(userDTO);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
         if (!apiResult.isSuccess()) {
             throw new BusinessException("OAuth2 异常");
         }
@@ -177,8 +171,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (null == school) {
             throw new BusinessException("数据异常");
         }
-        SchoolStaff staff = schoolStaffService.getStaffBySchoolId(id);
-        return resetOAuthPassword(school, staff.getUserId());
+        SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(id);
+        return resetOAuthPassword(school, admin.getUserId());
     }
 
 
@@ -202,22 +196,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常");
         }
-        schoolStaffService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
+        schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
         return new UsernameAndPasswordDTO(username, password);
-    }
-
-    /**
-     * 生成学校编号
-     *
-     * @param code 行政区代码
-     * @return 编号
-     */
-    private String generateSchoolNo(Long code) {
-        School school = schoolMapper.getLastSchoolByNo(code);
-        if (null == school) {
-            return StringUtils.join(code, "001");
-        }
-        return String.valueOf(Long.parseLong(school.getSchoolNo()) + 1);
     }
 
     /**
@@ -240,34 +220,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             throw new BusinessException("远程调用异常");
         }
         return new UsernameAndPasswordDTO(username, password);
-    }
-
-    /**
-     * 生成学校编号
-     *
-     * @param code 行政区代码
-     * @return 编号
-     */
-    private String generateSchoolNoByRedis(Long code) {
-        // 查询redis是否存在
-        String key = Const.GENERATE_SCHOOL_SN + code;
-        Object check = redisUtil.get(key);
-        if (null == check) {
-            School school = schoolMapper.getLastSchoolByNo(code);
-            if (null == school) {
-                // 数据库不存在，初始化Redis
-                long resultCode = code * 100 + 1;
-                redisUtil.set(key, resultCode);
-                return String.valueOf(resultCode);
-            }
-            // 获取当前数据库中最新的编号并且加一
-            long resultCode = Long.parseLong(school.getSchoolNo()) + 1;
-            // 缓存到redis中
-            redisUtil.set(key, resultCode);
-            return String.valueOf(resultCode);
-        }
-        // 自增一,并且返回
-        return String.valueOf(redisUtil.incr(key, 1));
     }
 
     /**

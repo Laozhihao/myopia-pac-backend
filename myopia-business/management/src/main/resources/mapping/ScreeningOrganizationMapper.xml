@@ -14,9 +14,9 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(orgNo)">and `org_no` = #{orgNo}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(typeDesc)">and `type_desc` = #{typeDesc}</if>
@@ -42,7 +42,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, org_no, create_user_id, gov_dept_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, org_no, create_user_id, gov_dept_id, district_id, name, type, type_desc, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getScreeningOrganizationListByCondition" resultMap="BaseResponseMap">
@@ -59,9 +59,6 @@
         </if>
         <if test="type != null">
             and mso.type = #{type}
-        </if>
-        <if test="orgNo != null and orgNo != ''">
-            and mso.org_no like CONCAT('%', #{orgNo}, '%')
         </if>
         <if test="code != null and code != ''">
             and (mso.city_code like CONCAT('%', #{code}, '%') or mso.area_code like CONCAT('%', #{code}, '%'))

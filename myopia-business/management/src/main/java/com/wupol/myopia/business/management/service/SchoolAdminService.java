@@ -2,8 +2,8 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.SchoolStaffMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolStaff;
+import com.wupol.myopia.business.management.domain.mapper.SchoolAdminMapper;
+import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @Date 2020-12-22
  */
 @Service
-public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolStaff> {
+public class SchoolAdminService extends BaseService<SchoolAdminMapper, SchoolAdmin> {
 
     /**
      * 创建员工
@@ -24,16 +24,18 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
      */
     @Transactional(rollbackFor = Exception.class)
     public void insertStaff(Integer schoolId, Integer createUserId, Integer govDeptId, Integer userId) {
-        SchoolStaff schoolStaff = new SchoolStaff();
-        schoolStaff.setSchoolId(schoolId);
-        schoolStaff.setUserId(userId);
-        schoolStaff.setCreateUserId(createUserId);
-        schoolStaff.setGovDeptId(govDeptId);
-        baseMapper.insert(schoolStaff);
+        SchoolAdmin schoolAdmin = new SchoolAdmin();
+        schoolAdmin.setSchoolId(schoolId);
+        schoolAdmin.setUserId(userId);
+        schoolAdmin.setCreateUserId(createUserId);
+        schoolAdmin.setGovDeptId(govDeptId);
+        baseMapper.insert(schoolAdmin);
     }
 
-    public SchoolStaff getStaffBySchoolId(Integer id) {
-        return baseMapper.selectOne(new QueryWrapper<SchoolStaff>().eq("school_id", id));
+    public SchoolAdmin getAdminBySchoolId(Integer id) {
+        return baseMapper
+                .selectOne(new QueryWrapper<SchoolAdmin>()
+                        .eq("school_id", id));
     }
 
 }

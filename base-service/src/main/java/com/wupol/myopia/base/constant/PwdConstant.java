@@ -23,6 +23,11 @@ public interface PwdConstant {
     String HOSPITAL_USER_PWD_PREFIX = "y";
 
     /**
+     * 筛查机构管理员密码前缀
+     */
+    String SCREENING_ADMIN_PWD_PREFIX = "s";
+
+    /**
      * 筛查机构端用户密码前缀
      **/
     String ORG_USER_PWD_PREFIX = "y";

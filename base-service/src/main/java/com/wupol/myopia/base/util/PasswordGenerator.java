@@ -19,8 +19,11 @@ public class PasswordGenerator {
     private static final int HOSPITAL_ADMIN_PWD_SUB_LENGTH = 6;
     /** 学校管理员密码截取长度 */
     private static final int SCHOOL_ADMIN_PWD_SUB_LENGTH = 6;
-    /** 筛查人员密码截取长度 */
+
     private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
+
+    /** 筛查人员密码截取长度 */
+    private static final int SCREENING_STAFF_PWD_SUB_LENGTH = 4;
 
     /**
      * 管理端用户密码
@@ -39,11 +42,18 @@ public class PasswordGenerator {
      * @return java.lang.String
      **/
     public static String getSchoolAdminPwd(String schoolNo) {
-        if (StringUtils.isEmpty(schoolNo) || schoolNo.length() < SCHOOL_ADMIN_PWD_SUB_LENGTH) {
-            throw new ValidationException("学校编号长度不够");
-        }
         // 开头字母x + 学校ID后6位
         return PwdConstant.SCHOOL_USER_PWD_PREFIX + StrUtil.subSuf(schoolNo, -SCHOOL_ADMIN_PWD_SUB_LENGTH);
+    }
+
+    /**
+     * 筛查端管理员密码
+     *
+     * @return java.lang.String
+     **/
+    public static String getScreeningOrgAdminPwd() {
+        // 开头字母x + 学校ID后6位
+        return PwdConstant.SCREENING_ADMIN_PWD_PREFIX + StrUtil.subSuf(schoolNo, -SCREENING_ADMIN_PWD_SUB_LENGTH);
     }
 
     /**
@@ -67,10 +77,10 @@ public class PasswordGenerator {
      * @return java.lang.String
      **/
     public static String getScreeningUserPwd(String phone, String idCard) {
-        if (StringUtils.isEmpty(phone) || phone.length() < SCREENING_ADMIN_PWD_SUB_LENGTH || StringUtils.isEmpty(idCard) || idCard.length() < SCREENING_ADMIN_PWD_SUB_LENGTH) {
+        if (StringUtils.isEmpty(phone) || phone.length() < SCREENING_STAFF_PWD_SUB_LENGTH || StringUtils.isEmpty(idCard) || idCard.length() < SCREENING_STAFF_PWD_SUB_LENGTH) {
             throw new ValidationException("筛查人员编号长度不够");
         }
         // 手机号码后四位+身份证号后四位，共8位
-        return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH);
+        return StrUtil.subSuf(phone, -SCREENING_STAFF_PWD_SUB_LENGTH) + StrUtil.subSuf(phone, -SCREENING_STAFF_PWD_SUB_LENGTH);
     }
 }

@@ -1,14 +1,15 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 学校表
@@ -46,6 +47,11 @@ public class School implements Serializable {
     private Integer govDeptId;
 
     /**
+     * 行政区域ID
+     */
+    private Integer districtId;
+
+    /**
      * 学校名称
      */
     private String name;
@@ -69,36 +75,6 @@ public class School implements Serializable {
      * 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他
      */
     private Integer type;
-
-    /**
-     * 在校总人数
-     */
-    private Integer totalOnline;
-
-    /**
-     * 在校-男生人数
-     */
-    private Integer totalOnlineMale;
-
-    /**
-     * 在校-女生人数
-     */
-    private Integer totalOnlineFemale;
-
-    /**
-     * 住校总人数
-     */
-    private Integer totalLodge;
-
-    /**
-     * 住校-男生人数
-     */
-    private Integer totalLodgeMale;
-
-    /**
-     * 住校-女生人数
-     */
-    private Integer totalLodgeFemale;
 
     /**
      * 省代码
@@ -146,6 +122,4 @@ public class School implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
-
-
 }

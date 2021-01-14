@@ -14,7 +14,7 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.management.domain.model.Hospital;
-import com.wupol.myopia.business.management.domain.model.HospitalStaff;
+import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
@@ -45,7 +45,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private Long provinceCode;
 
     @Resource
-    private HospitalStaffService hospitalStaffService;
+    private HospitalAdminService hospitalAdminService;
 
     @Resource
     private HospitalMapper hospitalMapper;
@@ -81,7 +81,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                hospital.setHospitalNo(generateHospitalNoByRedis(townCode));
                 baseMapper.insert(hospital);
                 return generateAccountAndPassword(hospital);
             }
@@ -138,8 +137,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
         return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId),
-                query.getName(), query.getHospitalNo(), query.getType(),
-                query.getKind(), query.getLevel(), query.getCode());
+                query.getName(), query.getType(), query.getKind(),
+                query.getLevel(), query.getCode());
     }
 
     /**
@@ -152,7 +151,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public Integer updateStatus(StatusRequest request) {
 
         // 获取医院管理员信息
-        HospitalStaff staff = hospitalStaffService.getByHospitalId(request.getId());
+        HospitalAdmin staff = hospitalAdminService.getByHospitalId(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
@@ -179,7 +178,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (null == hospital) {
             throw new BusinessException("数据异常");
         }
-        HospitalStaff staff = hospitalStaffService.getByHospitalId(id);
+        HospitalAdmin staff = hospitalAdminService.getByHospitalId(id);
         return resetAuthPassword(hospital, staff.getUserId());
     }
 
@@ -203,22 +202,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (!apiResult.isSuccess()) {
             throw new BusinessException("创建管理员信息异常" + apiResult.getMessage());
         }
-        hospitalStaffService.saveStaff(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId());
+        hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
-    }
-
-    /**
-     * 生成医院编号
-     *
-     * @param code 地域代码
-     * @return 编号
-     */
-    private String generateHospitalNo(Long code) {
-        Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
-        if (null == hospital) {
-            return StringUtils.join(code, "101");
-        }
-        return String.valueOf(Long.parseLong(hospital.getHospitalNo()) + 1);
     }
 
     /**
@@ -243,33 +228,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         return new UsernameAndPasswordDTO(username, password);
     }
 
-    /**
-     * 通过Redis生成医院编号
-     *
-     * @param code 地域代码
-     * @return 编号
-     */
-    private String generateHospitalNoByRedis(Long code) {
-        // 查询redis是否存在
-        String key = Const.GENERATE_HOSPITAL_SN + code;
-        Object check = redisUtil.get(key);
-        if (null == check) {
-            Hospital hospital = hospitalMapper.getLastHospitalByNo(code);
-            if (null == hospital) {
-                // 数据库不存在，初始化Redis
-                long resultCode = code * 1000 + 101;
-                redisUtil.set(key, resultCode);
-                return String.valueOf(resultCode);
-            }
-            // 获取当前数据库中最新的编号并且加一
-            long resultCode = Long.parseLong(hospital.getHospitalNo()) + 1;
-            // 缓存到redis中
-            redisUtil.set(key, resultCode);
-            return String.valueOf(resultCode);
-        }
-        // 自增一,并且返回
-        return String.valueOf(redisUtil.incr(key, 1));
-    }
 
     /**
      * 获取导出数据

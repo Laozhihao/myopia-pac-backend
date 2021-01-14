@@ -1,17 +1,18 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * 学校-员工表
+ * 医院-员工表
  *
  * @Author HaoHao
  * @Date 2020-12-22
@@ -19,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_school_staff")
-public class SchoolStaff implements Serializable {
+@TableName("m_hospital_admin")
+public class HospitalAdmin implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,29 +32,24 @@ public class SchoolStaff implements Serializable {
     private Integer id;
 
     /**
-     * 学校id
-     */
-    private Integer schoolId;
-
-    /**
-     * 用户表id
-     */
-    private Integer userId;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;
 
     /**
-     * 部门id
+     * 医院id
      */
-    private Integer govDeptId;
+    private Integer hospitalId;
 
     /**
-     * 说明
+     * 用户id
      */
-    private String remark;
+    private Integer userId;
+
+    /**
+     * 部门ID
+     */
+    private Integer govDeptId;
 
     /**
      * 创建时间
@@ -66,6 +62,4 @@ public class SchoolStaff implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
-
-
 }

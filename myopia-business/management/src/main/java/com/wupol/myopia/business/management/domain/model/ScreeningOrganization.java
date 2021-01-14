@@ -33,11 +33,6 @@ public class ScreeningOrganization implements Serializable {
     private Integer id;
 
     /**
-     * 根据规则创建ID
-     */
-    private String orgNo;
-
-    /**
      * 创建人ID
      */
     private Integer createUserId;
@@ -46,6 +41,11 @@ public class ScreeningOrganization implements Serializable {
      * 部门id
      */
     private Integer govDeptId;
+
+    /**
+     * 行政区域ID
+     */
+    private Integer districtId;
 
     /**
      * 筛查机构名称

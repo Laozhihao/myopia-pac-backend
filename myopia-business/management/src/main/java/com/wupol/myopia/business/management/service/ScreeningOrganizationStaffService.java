@@ -118,7 +118,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
-        String staffNo = generateOrgNo(organization.getOrgNo(), staffQuery.getIdCard());
+        String staffNo = generateOrgNo(String.valueOf(organization.getId()), staffQuery.getIdCard());
         if (countStaffNo(staffNo) > 0) {
             throw new BusinessException("编号已经存在");
         }

@@ -62,7 +62,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         if (Objects.isNull(role)) {
             throw new ValidationException("不存在该角色");
         }
-        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+        if (RoleType.SUPER_ADMIN_ROLE.getType().equals(role.getRoleType())) {
             return permissionService.getAdminRolePermissionTree(0, roleId);
         }
         // TODO: 根据角色所属的部门所在的行政区获取行政区等级

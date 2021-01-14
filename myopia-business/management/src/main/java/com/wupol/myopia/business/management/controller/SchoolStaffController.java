@@ -2,8 +2,8 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.domain.model.SchoolStaff;
-import com.wupol.myopia.business.management.service.SchoolStaffService;
+import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.management.service.SchoolAdminService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/schoolStaff")
-public class SchoolStaffController extends BaseController<SchoolStaffService, SchoolStaff> {
+public class SchoolStaffController extends BaseController<SchoolAdminService, SchoolAdmin> {
 
 }
