@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -79,5 +80,11 @@ public class ScreeningOrganizationController {
     @GetMapping("/export")
     public ResponseEntity<FileSystemResource> getOrganizationExportData(ScreeningOrganizationQuery query) throws IOException {
         return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganization(query));
+    }
+
+    @PostMapping("/reset")
+    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        CurrentUserUtil.getLegalCurrentUser();
+        return saveScreeningOrganization.resetPassword(request.getId());
     }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationAdminMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
@@ -32,5 +33,17 @@ public class ScreeningOrganizationAdminService extends BaseService<ScreeningOrga
         organizationAdmin.setUserId(userId);
         organizationAdmin.setGovDeptId(govDeptId);
         baseMapper.insert(organizationAdmin);
+    }
+
+    /**
+     * 通过筛查ID获取筛查ADMIN
+     *
+     * @param orgId 筛查机构ID
+     * @return admin
+     */
+    public ScreeningOrganizationAdmin getByOrgId(Integer orgId) {
+        return baseMapper
+                .selectOne(new QueryWrapper<ScreeningOrganizationAdmin>()
+                        .eq("hospital_id", orgId));
     }
 }

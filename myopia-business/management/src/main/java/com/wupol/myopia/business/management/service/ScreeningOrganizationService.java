@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
@@ -212,5 +213,43 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         org.setId(request.getId());
         org.setStatus(request.getStatus());
         return baseMapper.updateById(org);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param id 筛查机构id
+     * @return 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO resetPassword(Integer id) {
+        ScreeningOrganization screeningOrg = screeningOrganizationMapper.selectById(id);
+        if (null == screeningOrg) {
+            throw new BusinessException("数据异常");
+        }
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(id);
+        return resetOAuthPassword(screeningOrg, admin.getUserId());
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param screeningOrg 筛查机构
+     * @param userId       用户id
+     * @return 账号密码
+     */
+    private UsernameAndPasswordDTO resetOAuthPassword(ScreeningOrganization screeningOrg, Integer userId) {
+        String password = PasswordGenerator.getScreeningAdminPwd();
+        String username = screeningOrg.getName();
+
+        UserDTO userDTO = new UserDTO()
+                .setId(userId)
+                .setUsername(username)
+                .setPassword(password);
+        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
+        if (!apiResult.isSuccess()) {
+            throw new BusinessException("远程调用异常");
+        }
+        return new UsernameAndPasswordDTO(username, password);
     }
 }
