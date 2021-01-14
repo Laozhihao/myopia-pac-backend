@@ -116,13 +116,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         Integer createUserId = staffQuery.getCreateUserId();
         String phone = staffQuery.getPhone();
 
-        // 通过screeningOrgId获取机构
-        ScreeningOrganization organization = screeningOrganizationService.getById(staffQuery.getScreeningOrgId());
-        String staffNo = generateOrgNo(String.valueOf(organization.getId()), staffQuery.getIdCard());
-        if (countStaffNo(staffNo) > 0) {
-            throw new BusinessException("编号已经存在");
-        }
-
         RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -130,9 +123,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
                 // 生成账号密码
                 TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
-                staffQuery.setStaffNo(staffNo);
                 staffQuery.setUserId(tuple.getSecond());
-
                 save(staffQuery);
                 return tuple.getFirst();
             }
@@ -266,21 +257,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (null == organization) {
             throw new BusinessException("数据异常,找不到筛查机构的数据,id为:" + list.get(0).getScreeningOrgId());
         }
-        for (ScreeningOrganizationStaffVo item : list) {
-            item.setStaffNo(generateOrgNo(organization.getOrgNo(), item.getIdCard()));
-        }
         return super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff) item).collect(Collectors.toList()));
-    }
-
-    /**
-     * 生成人员编号
-     *
-     * @param orgNo  筛查机构编号
-     * @param idCard 身份证
-     * @return String 编号
-     */
-    private String generateOrgNo(String orgNo, String idCard) {
-        return StringUtils.join(orgNo, StringUtils.right(idCard, 6));
     }
 
     /**
