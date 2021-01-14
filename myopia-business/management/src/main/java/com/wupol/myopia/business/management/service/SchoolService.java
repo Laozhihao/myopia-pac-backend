@@ -188,7 +188,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return UsernameAndPasswordDto 账号密码
      */
     private UsernameAndPasswordDTO generateAccountAndPassword(School school) {
-        String password = PasswordGenerator.getSchoolAdminPwd(school.getSchoolNo());
+        String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
 
         UserDTO userDTO = new UserDTO()
@@ -228,7 +228,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 账号密码
      */
     private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
-        String password = PasswordGenerator.getSchoolAdminPwd(school.getSchoolNo());
+        String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
 
         UserDTO userDTO = new UserDTO()

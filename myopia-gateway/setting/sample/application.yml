@@ -90,5 +90,6 @@ myopia-business:
 # 配置白名单路径
 white-list:
   urls:
-  - "/auth/oauth/token"
+  - "/auth/login"
+  - "/auth/refresh/token"
   - "/auth/rsa/publicKey"
