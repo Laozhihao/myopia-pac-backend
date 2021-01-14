@@ -1,15 +1,8 @@
 package com.wupol.myopia.oauth.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.security.Principal;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Bain
@@ -17,26 +10,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true)
-public class LoginDTO implements Principal {
+public class LoginDTO {
 
-    @NotEmpty(message = "username is required")
     private String username;
 
-    @NotEmpty(message = "credentials is required")
     private String password;
 
-    @NotNull(message = "client_id is required")
-    @JsonProperty("client_id")
-    private String clientId;
+    private String client_id;
 
-    @NotNull(message = "client_secret is required")
-    @JsonProperty("client_secret")
-    private String clientSecret;
+    private String client_secret;
 
-    private Boolean isDebug;
+    private String grant_type;
 
-    @Override
-    public String getName() {
-        return this.username;
-    }
+    private String refresh_token;
+
 }

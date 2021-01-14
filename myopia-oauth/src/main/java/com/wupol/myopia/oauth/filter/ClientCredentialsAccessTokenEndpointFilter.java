@@ -6,17 +6,18 @@ import org.springframework.security.oauth2.provider.client.ClientCredentialsToke
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
- * 重写filter实现客户端自定义异常处理
+ * 自定义客户端获取token时权限校验过滤器
  *
  * @Author HaoHao
  * @Date 2020/12/24
  **/
-public class CustomClientCredentialsTokenEndpointFilter extends ClientCredentialsTokenEndpointFilter {
+public class ClientCredentialsAccessTokenEndpointFilter extends ClientCredentialsTokenEndpointFilter {
 
     private AuthorizationServerSecurityConfigurer configurer;
     private AuthenticationEntryPoint authenticationEntryPoint;
 
-    public CustomClientCredentialsTokenEndpointFilter(AuthorizationServerSecurityConfigurer configurer) {
+    public ClientCredentialsAccessTokenEndpointFilter(AuthorizationServerSecurityConfigurer configurer) {
+        super("/login");
         this.configurer = configurer;
     }
 
@@ -31,6 +32,9 @@ public class CustomClientCredentialsTokenEndpointFilter extends ClientCredential
         return configurer.and().getSharedObject(AuthenticationManager.class);
     }
 
+    /**
+     * 失败时返回自定义格式异常
+     **/
     @Override
     public void afterPropertiesSet() {
         setAuthenticationFailureHandler((request, response, e) -> authenticationEntryPoint.commence(request, response, e));
