@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.client;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
@@ -26,7 +27,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/user/list")
-    ApiResult getUserListPage(@SpringQueryMap UserDTOQuery param);
+    ApiResult<IPage<UserDTO>> getUserListPage(@SpringQueryMap UserDTOQuery param);
 
     /**
      * 根据用户ID集批量获取用户

@@ -66,8 +66,14 @@
         <if test="type != null">
             and ms.type = #{type}
         </if>
-        <if test="code != null and code != ''">
-            and (ms.city_code like CONCAT('%', #{code}, '%') or ms.area_code like CONCAT('%', #{code}, '%'))
+        <if test="districtId != null">
+            and ms.district_id = #{districtId}
+        </if>
+        <if test="userIds != null and userIds.size() != 0">
+            and ms.create_time in
+            <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
         </if>
         order by ms.create_time desc
     </select>

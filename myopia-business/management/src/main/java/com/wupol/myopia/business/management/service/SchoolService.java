@@ -17,7 +17,9 @@ import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -148,9 +152,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return IPage<SchoolDto> {@link IPage}
      */
     public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
+
+        String createUser = schoolQuery.getCreateUser();
+        List<Integer> userIds = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(createUser)) {
+            UserDTOQuery query = new UserDTOQuery();
+            query.setRealName(createUser);
+            ApiResult<IPage<UserDTO>> userListPage = oauthServiceClient.getUserListPage(query);
+            if (userListPage.isSuccess()) {
+                List<UserDTO> records = userListPage.getData().getRecords();
+                if (!CollectionUtils.isEmpty(userListPage.getData().getRecords())) {
+                    userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
+                }
+            } else {
+                throw new BusinessException("OAuth异常");
+            }
+        }
         IPage<SchoolDto> schoolDtoIPage = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
-                schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getCode());
+                schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getDistrictId(), userIds);
         List<SchoolDto> schools = schoolDtoIPage.getRecords();
         if (CollectionUtils.isEmpty(schools)) {
             return schoolDtoIPage;

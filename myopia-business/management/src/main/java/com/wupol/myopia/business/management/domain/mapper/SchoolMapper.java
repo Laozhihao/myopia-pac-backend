@@ -22,7 +22,8 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     IPage<SchoolDto> getSchoolListByCondition(@Param("page") Page<?> page, @Param("govDeptId") List<Integer> govDeptId,
                                               @Param("name") String name, @Param("schoolNo") String schoolNo,
-                                              @Param("type") Integer type, @Param("code") Long code);
+                                              @Param("type") Integer type, @Param("districtId") Integer districtId,
+                                              @Param("userIds") List<Integer> userIds);
 
     School getLastSchoolByNo(@Param("code") Integer code);
     List<School> getExportData(SchoolQuery query);

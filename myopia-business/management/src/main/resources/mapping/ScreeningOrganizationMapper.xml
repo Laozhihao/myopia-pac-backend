@@ -62,8 +62,17 @@
         <if test="type != null">
             and mso.type = #{type}
         </if>
-        <if test="code != null and code != ''">
-            and (mso.city_code like CONCAT('%', #{code}, '%') or mso.area_code like CONCAT('%', #{code}, '%'))
+        <if test="configType != null">
+            and mso.config_type = #{configType}
+        </if>
+        <if test="districtId != null">
+            and mso.district_id = #{districtId}
+        </if>
+        <if test="phone != null and phone != ''">
+            and mso.phone like CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="status != null">
+            and mso.status = #{status}
         </if>
         order by mso.create_time desc
     </select>

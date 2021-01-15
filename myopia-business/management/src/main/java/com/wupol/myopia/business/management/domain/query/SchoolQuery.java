@@ -20,4 +20,9 @@ public class SchoolQuery extends School {
     private String nameLike;
     /** 地区编码 */
     private Long code;
+
+    /**
+     * 创建人
+     */
+    private String createUser;
 }

@@ -167,8 +167,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                                                                     ScreeningOrganizationQuery query,
                                                                     Integer govDeptId) {
         IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
-                pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId),
-                query.getName(), query.getType(), query.getCode());
+                pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId), query.getName(),
+                query.getType(), query.getConfigType(), query.getDistrictId(), query.getPhone(),
+                query.getStatus());
         List<ScreeningOrgResponse> records = orgLists.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
