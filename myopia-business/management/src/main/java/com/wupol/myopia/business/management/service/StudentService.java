@@ -112,8 +112,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 初始化省代码
         student.setProvinceCode(provinceCode);
 
-        // 获取学校编码
-        School school = schoolService.getById(student.getSchoolId());
         // 获取年级编码
         SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
 
@@ -121,7 +119,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                student.setStudentNo(generateOrgNo(school.getSchoolNo(), grade.getGradeCode(), idCard));
                 return baseMapper.insert(student);
             }
         } catch (InterruptedException e) {
@@ -178,9 +175,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
         List<Integer> gradeIds = new ArrayList<>();
         if (StringUtils.isNotBlank(studentQuery.getGradeIds())) {
-            gradeIds = Arrays.stream(studentQuery.getGradeIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            gradeIds = Arrays.stream(studentQuery.getGradeIds().split(","))
+                    .map(Integer::valueOf).collect(Collectors.toList());
         }
-        IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(), studentQuery.getSchoolId(),
+        IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(),
                 gradeIds, studentQuery.getLabels(), studentQuery.getStartScreeningTime(),

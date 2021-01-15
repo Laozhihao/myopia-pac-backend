@@ -240,9 +240,9 @@ public class ExcelFacade {
      * @param query    查询条件
      **/
     public File generateStudent(StudentQuery query) throws IOException {
-        if (Objects.isNull(query.getSchoolId())) {
-            throw new BusinessException("学校id不能为空");
-        }
+//        if (Objects.isNull(query.getSchoolId())) {
+//            throw new BusinessException("学校id不能为空");
+//        }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
         if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
@@ -255,7 +255,7 @@ public class ExcelFacade {
         if (Objects.nonNull(query.getEndDate())) builder.append("-").append(query.getEndDate());
         String fileName = builder.toString();
         // 构建数据
-        String schoolName = schoolService.getById(query.getSchoolId()).getName();
+//        String schoolName = schoolService.getById(query.getSchoolId()).getName();
         List<Student> list = studentService.getExportData(query);
         // 获取年级班级信息
         List<Integer> gradeIdList = list.stream().map(Student::getGradeId).collect(Collectors.toList());
@@ -271,7 +271,7 @@ public class ExcelFacade {
                             .setGender(GenderEnum.getName(query.getGender()))
                             .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                             .setNation(NationEnum.getName(item.getNation()))
-                            .setSchool(schoolName)
+//                            .setSchool(schoolName)
                             .setGrade(gradeMap.get(item.getGradeId()).getName())
                             .setClassName(classMap.get(item.getClassId()).getName())
                             .setIdCard(item.getIdCard())
@@ -319,13 +319,13 @@ public class ExcelFacade {
                                     .setCityCode(addressCodeList.get(1))
                                     .setAreaCode(addressCodeList.get(2))
                                     .setTownCode(addressCodeList.get(3))
-                                    .setSchoolId(schoolId)
+//                                    .setSchoolId(schoolId)
                                     //TODO 年级班级名转id
                                     .setGradeId(23)
                                     .setClassId(18)
                                     .setCreateUserId(createUserId)
                                     // TODO: hardcode
-                                    .setStudentNo("1234444444")
+//                                    .setStudentNo("1234444444")
                                     .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2));
                         } catch (ParseException e) {
                             e.printStackTrace();

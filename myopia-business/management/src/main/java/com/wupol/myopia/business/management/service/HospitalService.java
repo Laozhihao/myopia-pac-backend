@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -18,7 +17,6 @@ import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,9 +54,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
     @Resource
     private OauthServiceClient oauthServiceClient;
-
-    @Resource
-    private RedisUtil redisUtil;
 
     /**
      * 保存医院
@@ -137,7 +132,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
         return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getDistrictId(),query.getStatus());
+                query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
     }
 
     /**

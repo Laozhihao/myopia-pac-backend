@@ -36,14 +36,9 @@ public class Student implements Serializable {
     private Integer id;
 
     /**
-     * 学校id
+     * 学校编码
      */
-    private Integer schoolId;
-
-    /**
-     * 根据规则创建ID
-     */
-    private String studentNo;
+    private String schoolNo;
 
     /**
      * 创建人ID
@@ -59,13 +54,11 @@ public class Student implements Serializable {
     /**
      * 年级ID
      */
-    @NotNull(message = "年级ID不能为空")
     private Integer gradeId;
 
     /**
      * 班级id
      */
-    @NotNull(message = "班级id不能为空")
     private Integer classId;
 
     /**
