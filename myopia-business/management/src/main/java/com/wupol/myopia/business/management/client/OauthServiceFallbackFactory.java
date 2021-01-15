@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.client;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
@@ -37,7 +38,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
         return new OauthServiceClient() {
             @Override
-            public ApiResult getUserListPage(UserDTOQuery param) {
+            public ApiResult<Page<UserDTO>> getUserListPage(UserDTOQuery param) {
                 return respData;
             }
 

@@ -13,7 +13,6 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
-                <if test="@Ognl@isNotEmpty(staffNo)">and `staff_no` = #{staffNo}</if>
                 <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
@@ -26,7 +25,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, gov_dept_id, screening_org_id, staff_no, user_id, create_user_id, remark, create_time, update_time
+        id, gov_dept_id, screening_org_id, user_id, create_user_id, remark, create_time, update_time
     </sql>
     <select id="getByIds" resultMap="BaseResultMap">
         select *

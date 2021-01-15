@@ -154,7 +154,6 @@ public class ExcelFacade {
                 .map(item -> {
                     return new ScreeningOrganizationStaffExportVo()
                             // 如果未找到对应的机构员工,新建默认的
-                            .setStaffNo(staffMap.getOrDefault(item.getId(), new ScreeningOrganizationStaff()).getStaffNo())
                             .setName(item.getRealName())
                             .setGender(GenderEnum.getName(item.getGender()))
                             .setPhone(item.getPhone())

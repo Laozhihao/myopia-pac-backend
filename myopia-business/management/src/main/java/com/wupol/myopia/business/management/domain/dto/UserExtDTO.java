@@ -13,11 +13,6 @@ import lombok.EqualsAndHashCode;
 public class UserExtDTO extends UserDTO{
 
     /**
-     * 编号
-     */
-    private String staffNo;
-
-    /**
      * 筛查机构人员表id
      */
     private Integer staffId;

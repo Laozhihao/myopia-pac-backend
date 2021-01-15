@@ -38,11 +38,6 @@ public class ScreeningOrganizationStaff implements Serializable {
     private Integer screeningOrgId;
 
     /**
-     * 根据规则创建ID
-     */
-    private String staffNo;
-
-    /**
      * 用户id
      */
     private Integer userId;

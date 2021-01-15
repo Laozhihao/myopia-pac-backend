@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -159,7 +160,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
-            ApiResult<IPage<UserDTO>> userListPage = oauthServiceClient.getUserListPage(query);
+            ApiResult<Page<UserDTO>> userListPage = oauthServiceClient.getUserListPage(query);
             if (userListPage.isSuccess()) {
                 List<UserDTO> records = userListPage.getData().getRecords();
                 if (!CollectionUtils.isEmpty(userListPage.getData().getRecords())) {

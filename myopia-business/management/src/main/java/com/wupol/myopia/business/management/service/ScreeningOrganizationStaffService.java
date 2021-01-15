@@ -20,7 +20,6 @@ import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +68,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(request.getIdCard())
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-        ApiResult apiResult = oauthServiceClient.getUserListPage(userQuery);
+        ApiResult<Page<UserDTO>> apiResult = oauthServiceClient.getUserListPage(userQuery);
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
         }
@@ -82,10 +81,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                     .stream()
                     .collect(Collectors.
                             toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-            resultLists.forEach(s -> {
-                s.setStaffNo(staffSnMaps.get(s.getId()).getStaffNo());
-                s.setStaffId(staffSnMaps.get(s.getId()).getId());
-            });
+            resultLists.forEach(s -> s.setStaffId(staffSnMaps.get(s.getId()).getId()));
             return page;
         }
         return page;
@@ -160,8 +156,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             throw new BusinessException("OAuth2 异常");
         }
         baseMapper.updateById(staff);
-        ScreeningOrganizationStaff resultStaff = baseMapper.selectById(staff.getId());
-        staff.setStaffNo(resultStaff.getStaffNo());
         return staff;
     }
 
