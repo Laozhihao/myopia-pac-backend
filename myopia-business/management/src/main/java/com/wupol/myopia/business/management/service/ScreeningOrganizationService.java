@@ -169,13 +169,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                                                                     ScreeningOrganizationQuery query,
                                                                     CurrentUser currentUser) {
         Integer orgId = currentUser.getOrgId();
-        Integer districtId = null;
+        Integer districtId;
 
-        // 如果非平台管理员，只能看见与自己同行政区域的数据
-        if (!currentUser.isPlatformAdminUser()) {
-
-            // 获取行政ID
+        if (currentUser.isPlatformAdminUser()) {
+            // 平台管理判断是否有条件
+            districtId = query.getDistrictId();
+        } else {
+            // 如果非平台管理员，只能看见与自己同行政区域的数据
             GovDept govDept = govDeptService.getGovDeptById(orgId);
+            // 获取行政ID
             if (null == govDept) {
                 log.error("查找机构数据异常，机构ID:{}", orgId);
                 throw new BusinessException("数据异常");
