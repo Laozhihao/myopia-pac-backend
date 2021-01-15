@@ -52,11 +52,7 @@
         select
         <include refid="Base_Column_List"/>
         from m_school ms
-                where ms.gov_dept_id in
-        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        and ms.status != 2
+                where ms.status != 2
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
         </if>

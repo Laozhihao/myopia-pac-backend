@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -44,11 +45,11 @@ import java.util.stream.Collectors;
 @Log4j2
 public class SchoolService extends BaseService<SchoolMapper, School> {
 
-    @Resource
-    private SchoolAdminService schoolAdminService;
+    @Value(value = "${oem.province.code}")
+    private Long provinceCode;
 
     @Resource
-    private GovDeptService govDeptService;
+    private SchoolAdminService schoolAdminService;
 
     @Resource
     private SchoolMapper schoolMapper;
@@ -60,8 +61,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private RedissonClient redissonClient;
 
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 新增学校
@@ -149,14 +150,19 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param pageRequest 分页
      * @param schoolQuery 请求体
-     * @param govDeptId   部门ID
+     * @param currentUser 当前用户
      * @return IPage<SchoolDto> {@link IPage}
      */
-    public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery, Integer govDeptId) {
+    public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
+                                          CurrentUser currentUser) {
 
+        Integer orgId = currentUser.getOrgId();
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
+        Integer districtId = districtService.getDistrictId(currentUser, schoolQuery.getDistrictId());
+
+        // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
@@ -170,14 +176,27 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 throw new BusinessException("OAuth异常");
             }
         }
+
+        // 查询
         IPage<SchoolDto> schoolDtoIPage = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
-                govDeptService.getAllSubordinate(govDeptId), schoolQuery.getName(),
-                schoolQuery.getSchoolNo(), schoolQuery.getType(), schoolQuery.getDistrictId(), userIds);
+                schoolQuery.getName(), schoolQuery.getSchoolNo(),
+                schoolQuery.getType(), districtId, userIds);
+
         List<SchoolDto> schools = schoolDtoIPage.getRecords();
+
+        // 为空直接返回
         if (CollectionUtils.isEmpty(schools)) {
             return schoolDtoIPage;
         }
-        schools.forEach(s -> s.setScreeningTime(0));
+
+        // 封装DTO
+        schools.forEach(s -> {
+            s.setScreeningTime(0);
+            // 判断是否能更新
+            if (s.getGovDeptId().equals(orgId)) {
+                s.setCanUpdate(Boolean.TRUE);
+            }
+        });
         return schoolDtoIPage;
     }
 

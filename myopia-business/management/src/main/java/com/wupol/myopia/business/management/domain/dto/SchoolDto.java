@@ -21,4 +21,9 @@ public class SchoolDto extends School {
      * 筛查次数
      */
     private Integer screeningTime;
+
+    /**
+     * 是否能更新
+     */
+    private boolean canUpdate = false;
 }

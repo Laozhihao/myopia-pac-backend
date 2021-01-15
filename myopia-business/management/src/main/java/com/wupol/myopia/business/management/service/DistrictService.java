@@ -2,18 +2,17 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.CacheKey;
-import com.wupol.myopia.business.management.constant.Const;
-import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
-import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
  * @Date 2020-12-23
  */
 @Service
+@Log4j2
 public class DistrictService extends BaseService<DistrictMapper, District> {
 
     @Value(value = "${oem.province.code}")
@@ -182,4 +182,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return list;
     }
 
+    /**
+     * 通过用户身份获取行政区域ID
+     * <p>如果是管理员，则将行政区域ID作为条件。
+     * 如果非管理员，则返回当前用户的行政区域ID</p>
+     *
+     * @param currentUser 当前用户
+     * @param districtId  行政区域ID
+     * @return 行政区域ID
+     */
+    public Integer getDistrictId(CurrentUser currentUser, Integer districtId) {
+        if (currentUser.isPlatformAdminUser()) {
+            // 平台管理员行政区域的筛选条件
+            return districtId;
+        } else {
+            // 非平台管理员只能看到自己同级行政区域
+            GovDept govDept = govDeptService.getGovDeptById(currentUser.getOrgId());
+            // 获取行政ID
+            if (null == govDept) {
+                log.error("查找机构数据异常，机构ID:{}", currentUser.getOrgId());
+                throw new BusinessException("数据异常");
+            }
+            return govDept.getDistrictId();
+        }
+    }
 }

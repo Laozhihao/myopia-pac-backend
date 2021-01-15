@@ -64,7 +64,7 @@ public class SchoolController {
     @GetMapping("list")
     public Object getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        return schoolService.getSchoolList(pageRequest, schoolQuery, user.getOrgId());
+        return schoolService.getSchoolList(pageRequest, schoolQuery, user);
     }
 
     @PutMapping("status")
