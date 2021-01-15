@@ -7,7 +7,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 @RefreshScope
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.wupol.myopia.gateway", "com.wupol.myopia.base.cache"})
 public class MyopiaGatewayApplication {
 
     public static void main(String[] args) {

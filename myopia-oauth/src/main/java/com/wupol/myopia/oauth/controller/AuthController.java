@@ -4,17 +4,27 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
-import com.wupol.myopia.oauth.domain.vo.Oauth2TokenVO;
+import com.wupol.myopia.oauth.domain.dto.RefreshTokenDTO;
+import com.wupol.myopia.oauth.domain.model.Permission;
+import com.wupol.myopia.oauth.domain.model.User;
+import com.wupol.myopia.oauth.domain.vo.LoginInfoVO;
+import com.wupol.myopia.oauth.domain.vo.TokenInfoVO;
+import com.wupol.myopia.oauth.service.PermissionService;
+import com.wupol.myopia.oauth.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +33,8 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -40,57 +49,82 @@ public class AuthController {
     private TokenEndpoint tokenEndpoint;
     @Autowired
     private KeyPair keyPair;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private PermissionService permissionService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
-     * 认证生成token，OAuth2默认支持为该接口提供客户端参数校验，不用自己去判断来的客户端是否合法
+     * 登录
      *
-     * @param principal
-     * @param loginDTO
+     * - 判断来源客户端合法性（ClientCredentialsAccessTokenFilter中拦截校验）
+     * - 校验账号密码正确性
+     * - 生成并返回token、菜单权限数据
+     *
+     * @param principal 客户端信息
+     * @param loginDTO  用户账号与授权类型信息
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/login")
-    public ApiResult login(Principal principal, LoginDTO loginDTO)
-            throws HttpRequestMethodNotSupportedException {
-        String clientId = loginDTO.getClient_id();
-        if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
-            return ApiResult.failure("client_id错误");
+    public ApiResult login(Principal principal, LoginDTO loginDTO) {
+        // 生成token
+        loginDTO.setGrant_type(AuthConstants.GRANT_TYPE_PASSWORD);
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>(){});
+        OAuth2AccessToken oAuth2AccessToken;
+        try {
+            oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
+        } catch (InvalidGrantException e) {
+            return ApiResult.failure(e.getMessage());
+        } catch (Exception e) {
+            return ApiResult.failure("登录失败");
         }
-        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO),
-                new TypeReference<Map<String, String>>() {
-                });
-        OAuth2AccessToken oAuth2AccessToken =
-                tokenEndpoint.postAccessToken(principal, parameters).getBody();
-        Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
-                .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
-                .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
-        // TODO: 方案一：这里同时返回用户的权限菜单树，前端动态渲染菜单；
-        // TODO: 方案二：提供获取权限菜单树接口，前端拿到token后再次请求获取
-        return ApiResult.success(oauth2Token);
+        if (Objects.isNull(oAuth2AccessToken)) {
+            return ApiResult.failure("登录失败");
+        }
+        // 获取菜单权限，并缓存权限
+        User user = userService.getByUsername(loginDTO.getUsername(), Integer.parseInt(loginDTO.getClient_id()));
+        List<Permission> permissions = permissionService.getUserPermissionByUserId(user.getId());
+        if (CollectionUtils.isEmpty(permissions)) {
+            return ApiResult.failure("没有访问权限");
+        }
+        List<Object> apiPermissionPaths = permissions.stream()
+                .filter(x -> x.getIsPage().equals(AuthConstants.IS_API_PERMISSION) && !StringUtils.isEmpty(x.getApiUrl()))
+                .map(Permission::getApiUrl)
+                .distinct().collect(Collectors.toList());
+        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, user.getId()), apiPermissionPaths, oAuth2AccessToken.getExpiresIn());
+        return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions.stream().distinct().collect(Collectors.toList())));
     }
 
     /**
      * 刷新token
      *
-     * @param principal
-     * @param loginDTO
+     * - 判断来源客户端合法性（ClientCredentialsAccessTokenFilter中拦截校验）
+     * - 检验 refresh_token
+     * - 生成新的token信息
+     *
+     * @param principal 客户端信息
+     * @param refreshToken  refresh_token与授权类型信息
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/refresh/token")
-    public ApiResult refreshAccessToken(Principal principal, LoginDTO loginDTO)
-            throws HttpRequestMethodNotSupportedException {
-        String clientId = loginDTO.getClient_id();
-        if (SystemCode.getByCode(Integer.valueOf(clientId)) == null) {
-            return ApiResult.failure("client_id错误");
+    public ApiResult refreshAccessToken(Principal principal, RefreshTokenDTO refreshToken) {
+        refreshToken.setGrant_type(AuthConstants.GRANT_TYPE_REFRESH_TOKEN);
+        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(refreshToken), new TypeReference<Map<String, String>>() {});
+        OAuth2AccessToken oAuthToken;
+        try {
+            oAuthToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
+        } catch (InvalidTokenException e) {
+            return ApiResult.failure("无效的刷新令牌");
+        } catch (Exception e) {
+            return ApiResult.failure("刷新令牌失败");
         }
-        Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO),
-                new TypeReference<Map<String, String>>() {
-                });
-        OAuth2AccessToken oAuth2AccessToken =
-                tokenEndpoint.postAccessToken(principal, parameters).getBody();
-        Oauth2TokenVO oauth2Token = Oauth2TokenVO.builder().token(oAuth2AccessToken.getValue())
-                .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
-                .expiresIn(oAuth2AccessToken.getExpiresIn()).build();
-        return ApiResult.success(oauth2Token);
+        if (Objects.isNull(oAuthToken)) {
+            return ApiResult.failure("刷新令牌失败");
+        }
+        // TODO: 更新权限缓存失效时间
+        return ApiResult.success(new TokenInfoVO(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn()));
     }
 
     /**

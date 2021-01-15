@@ -22,15 +22,11 @@
     </modules>
 
     <dependencies>
+        <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>base-service</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>easyexcel</artifactId>
-            <version>2.2.6</version>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,6 @@
 package com.wupol.myopia.oauth.domain.vo;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -8,12 +8,12 @@ import lombok.Data;
  * @Date 2020/12/24
  **/
 @Data
-@Builder
-public class Oauth2TokenVO {
+@AllArgsConstructor
+public class TokenInfoVO {
     /**
      * 访问令牌
      **/
-    private String token;
+    private String accessToken;
     /**
      * 刷新令牌
      **/
@@ -21,5 +21,5 @@ public class Oauth2TokenVO {
     /**
      * 有效时间(秒)
      **/
-    private int expiresIn;
+    private Integer expiresIn;
 }

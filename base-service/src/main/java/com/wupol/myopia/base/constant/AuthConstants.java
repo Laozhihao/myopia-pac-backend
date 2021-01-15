@@ -31,9 +31,9 @@ public interface AuthConstants {
     String JWT_PAYLOAD_KEY = "payload";
 
     /**
-     * Redis缓存权限规则key
+     * 客户端ID key
      */
-    String RESOURCE_ROLES_KEY = "auth:resourceRoles";
+    String CLIENT_ID_KEY = "client_id";
 
     /**
      * 黑名单token前缀
@@ -58,8 +58,7 @@ public interface AuthConstants {
     /**
      * JWT增强内容的键
      */
-    String JWT_CLIENT_ID_KEY = "client_id";
-    String JWT_USER_KEY = "user_base_info";
+    String JWT_USER_INFO_KEY = "userInfo";
 
     /**
      * 是否为菜单权限
@@ -72,4 +71,15 @@ public interface AuthConstants {
      */
     Integer IS_PAGE_PERMISSION = 1;
     Integer IS_API_PERMISSION = 0;
+
+    /**
+     * 授权类型
+     */
+    String GRANT_TYPE_PASSWORD = "password";
+    String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
+
+    /**
+     * 带有请求方法的请求路径，如 post:/management/role
+     */
+    String REQUEST_PATH_WITH_METHOD = "%s:%s";
 }

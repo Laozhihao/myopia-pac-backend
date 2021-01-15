@@ -12,6 +12,7 @@
     <description>数据采集服务</description>
 
     <dependencies>
+        <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>base-service</artifactId>

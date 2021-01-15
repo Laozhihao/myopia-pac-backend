@@ -91,8 +91,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .pathMapping("/oauth/token", "/login")
                 // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
                 // 1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
-                // 2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh
-                // token有效期内刷新便永不失效达到无需再次登录的目的
+                // 2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
                 .reuseRefreshTokens(true);
     }
 
@@ -101,7 +100,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public void configure(AuthorizationServerSecurityConfigurer security) {
         ClientCredentialsAccessTokenEndpointFilter endpointFilter = new ClientCredentialsAccessTokenEndpointFilter(security);
         endpointFilter.afterPropertiesSet();
-        endpointFilter.setFilterProcessesUrl("/login");
         endpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint());
         security.addTokenEndpointAuthenticationFilter(endpointFilter);
 
@@ -123,8 +121,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
             response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader("Cache-Control", "no-cache");
-            ApiResult result =
-                    ApiResult.failure(ResultCode.CLIENT_AUTHENTICATION_FAILED.getMessage());
+            ApiResult result = ApiResult.failure(ResultCode.CLIENT_AUTHENTICATION_FAILED.getMessage());
             response.getWriter().print(JSONUtil.toJsonStr(result));
             response.getWriter().flush();
         };
@@ -143,28 +140,20 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     /**
      * 从classpath下的密钥库中获取密钥对(公钥+私钥) TODO：密码从配置文件读、秘钥库从外部读取
      *
-     * <p>
-     * 1. 使用 keytool 生成 RSA 证书 myopia.jks
-     * </p>
-     * <p>
-     * 2. 生成命令：keytool -genkey -alias myopia -keyalg RSA -keypass 123456 -keystore myopia.jks
-     * -storepass 123456
-     * 
-     * <ul>
-     * <li>-genkey 生成密钥</li>
-     * <li>-alias 别名</li>
-     * <li>-keyalg 密钥算法</li>
-     * <li>-keypass 密钥口令</li>
-     * <li>-keystore 生成密钥库的存储路径和名称</li>
-     * <li>-storepass 密钥库口令</li>
-     * </ul>
-     * </p>
+     *   1. 使用 keytool 生成 RSA 证书 myopia.jks
+     *   2. 生成命令：keytool -genkey -alias myopia -keyalg RSA -keypass 123456 -keystore myopia.jks -storepass 123456
+     *
+     *      -genkey 生成密钥
+     *      -alias 别名
+     *      -keyalg 密钥算法
+     *      -keypass 密钥口令
+     *      -keystore 生成密钥库的存储路径和名称
+     *      -storepass 密钥库口令
      */
     @Bean
     public KeyPair keyPair() {
         // 密钥库的存储路径和名称、密钥库口令
-        KeyStoreKeyFactory factory =
-                new KeyStoreKeyFactory(new ClassPathResource("myopia.jks"), "123456".toCharArray());
+        KeyStoreKeyFactory factory = new KeyStoreKeyFactory(new ClassPathResource("myopia.jks"), "123456".toCharArray());
         // 别名、密钥口令
         return factory.getKeyPair("myopia", "123456".toCharArray());
     }
@@ -176,10 +165,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public TokenEnhancer tokenEnhancer() {
         return (accessToken, authentication) -> {
             Map<String, Object> map = new HashMap<>(2);
-            SecurityUserDetails user =
-                    (SecurityUserDetails) authentication.getUserAuthentication().getPrincipal();
-            map.put(AuthConstants.JWT_USER_KEY, user.getUserBaseInfo());
-            map.put(AuthConstants.JWT_CLIENT_ID_KEY, user.getClientId());
+            SecurityUserDetails user = (SecurityUserDetails) authentication.getUserAuthentication().getPrincipal();
+            map.put(AuthConstants.JWT_USER_INFO_KEY, user.getUserInfo());
+//            map.put(AuthConstants.JWT_CLIENT_ID_KEY, user.getClientId());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(map);
             return accessToken;
         };
