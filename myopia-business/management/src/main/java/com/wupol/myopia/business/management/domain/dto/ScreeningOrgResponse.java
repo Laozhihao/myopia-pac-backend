@@ -16,4 +16,6 @@ public class ScreeningOrgResponse extends ScreeningOrganization {
     private Integer staffCount;
 
     private Integer screeningTime;
+
+    private Boolean canUpdate = false;
 }

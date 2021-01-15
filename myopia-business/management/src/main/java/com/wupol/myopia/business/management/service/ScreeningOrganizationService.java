@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
@@ -160,20 +162,38 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param pageRequest 分页
      * @param query       筛查机构列表请求体
-     * @param govDeptId   机构id
+     * @param currentUser 当前登录用户
      * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
     public IPage<ScreeningOrgResponse> getScreeningOrganizationList(PageRequest pageRequest,
                                                                     ScreeningOrganizationQuery query,
-                                                                    Integer govDeptId) {
+                                                                    CurrentUser currentUser) {
+        Integer orgId = currentUser.getOrgId();
+        Integer districtId = null;
+
+        // 如果非平台管理员，只能看见与自己同行政区域的数据
+        if (!currentUser.isPlatformAdminUser()) {
+
+            // 获取行政ID
+            GovDept govDept = govDeptService.getGovDeptById(orgId);
+            if (null == govDept) {
+                log.error("查找机构数据异常，机构ID:{}", orgId);
+                throw new BusinessException("数据异常");
+            }
+            districtId = govDept.getDistrictId();
+        }
+
+        // 查询
         IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
-                pageRequest.toPage(), govDeptService.getAllSubordinate(govDeptId), query.getName(),
-                query.getType(), query.getConfigType(), query.getDistrictId(), query.getPhone(),
-                query.getStatus());
+                pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
+                query.getPhone(), query.getStatus());
+
+        // 为空直接返回
         List<ScreeningOrgResponse> records = orgLists.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
         }
+        // 获取筛查人员信息
         List<ScreeningOrganizationStaff> staffs = screeningOrganizationStaffService.getStaffListsByOrgIds(records
                 .stream()
                 .map(ScreeningOrganization::getId)
@@ -181,7 +201,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = staffs
                 .stream()
                 .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        // 封装DTO
         records.forEach(r -> {
+            // 同一部门才能更新
+            if (r.getGovDeptId().equals(orgId)) {
+                r.setCanUpdate(true);
+            }
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
             if (!CollectionUtils.isEmpty(staffLists)) {
                 r.setStaffCount(staffLists.size());

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -57,17 +58,25 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 获取机构人员列表
      *
      * @param request 请求入参
+     * @param currentUser 当前登录用户
      * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
+    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request, CurrentUser currentUser) {
         UserDTOQuery userQuery = new UserDTOQuery();
+
+        // 非平台管理员需要机构ID进行过滤
+        if (!currentUser.isPlatformAdminUser()) {
+            userQuery.setOrgId(request.getScreeningOrgId());
+        }
+
+        // 搜索条件
         userQuery.setCurrent(request.getCurrent())
                 .setSize(request.getSize())
-                .setOrgId(request.getScreeningOrgId())
                 .setRealName(request.getName())
                 .setIdCard(request.getIdCard())
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+        // 获取筛查人员
         ApiResult<Page<UserDTO>> apiResult = oauthServiceClient.getUserListPage(userQuery);
         if (!apiResult.isSuccess()) {
             throw new BusinessException(apiResult.getMessage());
@@ -75,6 +84,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
         });
         List<UserExtDTO> resultLists = page.getRecords();
+        // 封装DTO，回填多端管理的ID
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
             Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)

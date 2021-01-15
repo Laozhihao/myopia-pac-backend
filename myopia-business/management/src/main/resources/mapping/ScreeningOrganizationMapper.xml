@@ -51,11 +51,11 @@
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization mso
-                where mso.gov_dept_id in
-        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        and mso.status != 2
+<!--                where mso.gov_dept_id in-->
+<!--        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+        where id IS NOT NULL
         <if test="name != null and name != ''">
             and mso.name like CONCAT('%', #{name}, '%')
         </if>

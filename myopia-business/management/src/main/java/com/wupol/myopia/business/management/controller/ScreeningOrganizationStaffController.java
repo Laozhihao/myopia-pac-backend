@@ -38,8 +38,8 @@ public class ScreeningOrganizationStaffController {
 
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
-        return screeningOrganizationStaffService.getOrganizationStaffList(request);
+        CurrentUser currentUser = CurrentUserUtil.getLegalCurrentUser();
+        return screeningOrganizationStaffService.getOrganizationStaffList(request, currentUser);
     }
 
     @DeleteMapping("{id}")

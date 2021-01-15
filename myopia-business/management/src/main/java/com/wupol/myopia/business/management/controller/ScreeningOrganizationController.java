@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -68,7 +66,7 @@ public class ScreeningOrganizationController {
     @GetMapping("list")
     public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
         CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
-        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user.getOrgId());
+        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user);
     }
 
     @PutMapping("status")

@@ -93,4 +93,14 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         }
         return resultIds;
     }
+
+    /**
+     * 通过ID获取实体
+     *
+     * @param id id
+     * @return GovDept
+     */
+    public GovDept getGovDeptById(Integer id) {
+        return baseMapper.selectById(id);
+    }
 }
