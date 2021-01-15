@@ -7,20 +7,20 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.ValidationException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -205,5 +205,65 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             }
             return govDept.getDistrictId();
         }
+    }
+
+    /**
+     * 获取行政区域中文名字
+     *
+     * @param ids id
+     * @return hashmap {@link ConcurrentHashMap}
+     */
+    public Map<Integer, String> getDistrictName(List<Integer> ids) {
+        return ids.stream().map(i -> {
+            TwoTuple<Integer, String> tuple = new TwoTuple<>();
+            tuple.setFirst(i);
+            tuple.setSecond(getNameById(i));
+            return tuple;
+        }).collect(Collectors.toMap(TwoTuple::getFirst, TwoTuple::getSecond));
+    }
+
+    /**
+     * 通过id获取名字
+     *
+     * @param id 行政区域ID
+     * @return 名称
+     */
+    private String getNameById(Integer id) {
+        String key = Const.DISTRICT_CN_NAME + id;
+
+        String value = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(value)) {
+            return value;
+        }
+        District district = baseMapper.selectById(id);
+        String name = getPreDistrict(district.getParentCode(), district.getName());
+        redisUtil.set(key,name);
+        return name;
+    }
+
+    /**
+     * 获取上级代码
+     *
+     * @param code 区域代码
+     * @param name 名字
+     * @return 拼接的名字
+     */
+    private String getPreDistrict(Long code, String name) {
+        District district = getDistrictByCode(code);
+        if (null == district) {
+            return name;
+        }
+        return getPreDistrict(district.getParentCode(), district.getName() + name);
+
+    }
+
+    /**
+     * 获取区域
+     *
+     * @param code 区域代码
+     * @return 区域
+     */
+    private District getDistrictByCode(Long code) {
+        return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
     }
 }

@@ -26,4 +26,9 @@ public class SchoolDto extends School {
      * 是否能更新
      */
     private boolean canUpdate = false;
+
+    /**
+     * 行政区域名字
+     */
+    private String districtName;
 }

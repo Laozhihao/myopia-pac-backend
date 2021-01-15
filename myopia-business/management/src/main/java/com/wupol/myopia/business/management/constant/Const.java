@@ -29,4 +29,6 @@ public class Const {
 
     public static final Integer SCREENING_TIME = 0;
 
+    public static final String DISTRICT_CN_NAME = "district:cn.name:integer";
+
 }
