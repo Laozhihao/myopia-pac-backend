@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -10,6 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * 当前登录用户信息处理工具
@@ -29,15 +31,19 @@ public class CurrentUserUtil {
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (servletRequestAttributes == null) {
-            throw new BusinessException("获取当前登录的用户为空");
+            throw new BusinessException("请登录");
         }
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String payload = request.getHeader(AuthConstants.JWT_PAYLOAD_KEY);
         if (StringUtils.isBlank(payload)) {
             throw new BusinessException("请登录");
         }
-        String user = JSONObject.parseObject(payload).getString(AuthConstants.JWT_USER_KEY);
-        return JSONObject.parseObject(user, CurrentUser.class);
+        String user = JSON.parseObject(payload).getString(AuthConstants.JWT_USER_INFO_KEY);
+        CurrentUser currentUser = JSONObject.parseObject(user, CurrentUser.class);
+        if (Objects.isNull(currentUser)) {
+            throw new BusinessException("请登录");
+        }
+        return currentUser;
     }
 
     public static CurrentUser getLegalCurrentUser() {

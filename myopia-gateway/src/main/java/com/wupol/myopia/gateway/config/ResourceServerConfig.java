@@ -2,9 +2,9 @@ package com.wupol.myopia.gateway.config;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.json.JSONUtil;
-import com.wupol.myopia.gateway.constant.AuthConstants;
-import com.wupol.myopia.gateway.domain.ApiResult;
-import com.wupol.myopia.gateway.domain.ResultCode;
+import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.gateway.security.AuthorizationManager;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
@@ -45,7 +45,6 @@ public class ResourceServerConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
-        // http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
         http.authorizeExchange().pathMatchers(ArrayUtil.toArray(whiteListConfig.getUrls(), String.class)).permitAll()
                 .anyExchange().access(authorizationManager).and().exceptionHandling()
                 // 处理未授权
@@ -99,10 +98,8 @@ public class ResourceServerConfig {
     }
 
     /**
-     * @link https://blog.csdn.net/qq_24230139/article/details/105091273
-     *       ServerHttpSecurity没有将jwt中authorities的负载部分当做Authentication
-     *       需要把jwt的Claim中的authorities加入 方案：重新定义R
-     *       权限管理器，默认转换器JwtGrantedAuthoritiesConverter
+     *  ServerHttpSecurity没有将jwt中authorities的负载部分当做Authentication需要把jwt的Claim中的authorities加入
+     *  方案：重新定义权限管理器，默认转换器JwtGrantedAuthoritiesConverter
      */
     @Bean
     public Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter() {

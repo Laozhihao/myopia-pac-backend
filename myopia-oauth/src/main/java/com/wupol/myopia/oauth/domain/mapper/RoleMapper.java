@@ -20,6 +20,21 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
     List<Role> selectRoleList(Role query);
+
+    /**
+     * 通过ID集批量获取角色
+     *
+     * @param ids 角色ID集
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
     List<Role> getByIds(List<Integer> ids);
+
+    /**
+     * 获取指定用户的角色
+     *
+     * @param userId 用户ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
+    List<Role> getRoleListByUserId(Integer userId);
 
 }

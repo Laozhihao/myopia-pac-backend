@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import java.util.Collections;
@@ -29,6 +30,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     JdbcClientDetailsServiceImpl jdbcClientDetailsService;
+    @Autowired
+    AuthenticationEntryPoint authenticationEntryPoint;
 
     /**
      * 配置请求访问权限
@@ -70,6 +73,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(new ClientDetailsUserDetailsService(jdbcClientDetailsService));
         refreshTokenEndpointFilter.setAuthenticationManager(new ProviderManager(Collections.singletonList(daoAuthenticationProvider)));
+        refreshTokenEndpointFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
         return refreshTokenEndpointFilter;
     }
 }

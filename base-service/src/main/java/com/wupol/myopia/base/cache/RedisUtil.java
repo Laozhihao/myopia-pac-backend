@@ -474,7 +474,7 @@ public class RedisUtil {
 
     /**
      * 将整个list放入缓存
-     * @Author HaoHao
+     *
      * @param key 键
      * @param value 值
      * @return boolean

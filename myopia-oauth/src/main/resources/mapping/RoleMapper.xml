@@ -51,4 +51,15 @@
         where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
+    <select id="getRoleListByUserId" resultMap="BaseResultMap">
+        SELECT
+               r.*
+        FROM
+             o_user_role ur,
+             o_role r
+        WHERE
+                r.id = ur.role_id
+          AND ur.user_id = #{userId}
+    </select>
+
 </mapper>

@@ -1,6 +1,10 @@
 package com.wupol.myopia.base.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.base.constant.RoleType;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -20,21 +24,6 @@ public class CurrentUser {
     private Integer orgId;
 
     /**
-     * 真实姓名
-     */
-    private String realName;
-
-    /**
-     * 性别：0-男、1-女
-     */
-    private Integer gender;
-
-    /**
-     * 手机号码
-     */
-    private String phone;
-
-    /**
      * 用户名（账号）
      */
     private String username;
@@ -45,8 +34,30 @@ public class CurrentUser {
     private Integer systemCode;
 
     /**
-     * 状态：0-启用 1-禁止 2-删除
+     * 角色类型
      */
-    private Integer status;
+    private List<Integer> roleTypes;
 
+    /**
+     * 是否平台管理员
+     */
+    public Boolean isPlatformAdminUser() {
+        return roleTypes.contains(RoleType.SUPER_ADMIN.getType());
+    }
+
+    /**
+     * 是否政府部门用户
+     */
+    @JsonIgnore
+    public Boolean isGovDeptUser() {
+        return roleTypes.contains(RoleType.GOVERNMENT_DEPARTMENT.getType());
+    }
+
+    /**
+     * 是否筛查端用户
+     */
+    @JsonIgnore
+    public Boolean isScreeningUser() {
+        return roleTypes.contains(RoleType.SCREENING_ORGANIZATION.getType());
+    }
 }
