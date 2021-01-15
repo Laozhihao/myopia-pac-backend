@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 机构-人员表
  *
@@ -40,6 +42,7 @@ public class ScreeningOrganizationStaff implements Serializable {
     /**
      * 用户id
      */
+    @NotNull(message = "userId不能为空")
     private Integer userId;
 
     /**
