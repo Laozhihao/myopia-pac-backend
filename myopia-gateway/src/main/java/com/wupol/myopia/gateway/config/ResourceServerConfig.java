@@ -50,7 +50,8 @@ public class ResourceServerConfig {
                 // 处理未授权
                 .accessDeniedHandler(accessDeniedHandler())
                 // 处理未认证
-                .authenticationEntryPoint(authenticationEntryPoint()).and().csrf().disable();
+                .authenticationEntryPoint(authenticationEntryPoint())
+                .and().csrf().disable();
 
         return http.build();
     }

@@ -1,6 +1,5 @@
 package com.wupol.myopia.gateway.security;
 
-import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -62,21 +61,15 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             return Mono.just(new AuthorizationDecision(false));
         }
         String payload = jwsObject.getPayload().toString();
-        JSONObject payloadJson = JSONUtil.parseObj(payload);
-        JSONObject userInfoJson = payloadJson.getJSONObject(AuthConstants.JWT_USER_INFO_KEY);
+        JSONObject userInfoJson = JSONUtil.parseObj(payload).getJSONObject(AuthConstants.JWT_USER_INFO_KEY);
         List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, Integer.parseInt(userInfoJson.getStr("id"))));
         if (CollectionUtils.isEmpty(permissions)) {
             return Mono.just(new AuthorizationDecision(false));
         }
-        List<String> permissionList = JSONUtil.toBean(JSONUtil.toJsonStr(permissions.get(0)), new TypeReference<List<String>>() {}, false);
-        boolean isAuthenticated = permissionList.stream().anyMatch(x -> pathMatcher.match(x, String.format(AuthConstants.REQUEST_PATH_WITH_METHOD, method.toLowerCase(), path)));
-        return  Mono.just(new AuthorizationDecision(isAuthenticated));
-        /*return mono
+        boolean isAuthenticated = permissions.stream().anyMatch(x -> pathMatcher.match(x.toString(), String.format(AuthConstants.REQUEST_PATH_WITH_METHOD, method.toLowerCase(), path)));
+        return mono
                 .filter(Authentication::isAuthenticated)
-                .flatMapIterable(Authentication::getAuthorities)
-                .map(GrantedAuthority::getAuthority)
-                .any(x -> pathMatcher.match(x, String.format(AuthConstants.REQUEST_PATH_WITH_METHOD, method.toLowerCase(), path)))
-                .map(AuthorizationDecision::new)
-                .defaultIfEmpty(new AuthorizationDecision(false));*/
+                .map(x -> new AuthorizationDecision(isAuthenticated))
+                .defaultIfEmpty(new AuthorizationDecision(false));
     }
 }
