@@ -1,12 +1,12 @@
 package com.wupol.myopia.gateway.security;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.nimbusds.jose.JWSObject;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.domain.CurrentUser;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +60,8 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         } catch (ParseException e) {
             return Mono.just(new AuthorizationDecision(false));
         }
-        String payload = jwsObject.getPayload().toString();
-        JSONObject userInfoJson = JSONUtil.parseObj(payload).getJSONObject(AuthConstants.JWT_USER_INFO_KEY);
-        List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, Integer.parseInt(userInfoJson.getStr("id"))));
+        CurrentUser currentUser = JSONUtil.parseObj(jwsObject.getPayload().toString()).get(AuthConstants.JWT_USER_INFO_KEY, CurrentUser.class);
+        List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
         if (CollectionUtils.isEmpty(permissions)) {
             return Mono.just(new AuthorizationDecision(false));
         }
