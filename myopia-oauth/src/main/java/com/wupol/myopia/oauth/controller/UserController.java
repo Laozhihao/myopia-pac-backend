@@ -118,4 +118,15 @@ public class UserController {
     public List<User> getUserByIdCard(UserRequest request) {
         return userService.getUserByIdCard(request);
     }
+
+    /**
+     * 获取用户明细
+     *
+     * @param userId 用户ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/{userId}")
+    public User getUserDetailByUserId(@PathVariable("userId") Integer userId) {
+        return userService.getById(userId);
+    }
 }
