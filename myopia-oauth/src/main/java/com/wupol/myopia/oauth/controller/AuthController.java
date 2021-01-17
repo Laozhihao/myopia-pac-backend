@@ -4,8 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
 import com.wupol.myopia.oauth.domain.dto.RefreshTokenDTO;
 import com.wupol.myopia.oauth.domain.model.Permission;
@@ -45,6 +49,8 @@ public class AuthController {
     private KeyPair keyPair;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 登录
@@ -108,6 +114,18 @@ public class AuthController {
         // 延长权限缓存过期时间
         authService.delayPermissionCache(refreshToken.getRefresh_token(), oAuthToken.getExpiresIn());
         return ApiResult.success(new TokenInfoVO(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn()));
+    }
+
+    /**
+     * 退出登录
+     *
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @PostMapping("/exit")
+    public ApiResult logout() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        redisUtil.del(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
+        return ApiResult.success();
     }
 
     /**
