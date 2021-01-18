@@ -7,7 +7,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
-import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -42,9 +41,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private StudentMapper studentMapper;
-
-    @Resource
-    private SchoolService schoolService;
 
     @Resource
     private SchoolGradeService schoolGradeService;
@@ -111,9 +107,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         // 初始化省代码
         student.setProvinceCode(provinceCode);
-
-        // 获取年级编码
-        SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
 
         RLock rLock = redissonClient.getLock(Const.LOCK_STUDENT_REDIS + idCard);
         try {
@@ -204,14 +197,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 .collect(Collectors
                         .toMap(SchoolClass::getId, Function.identity()));
         students.forEach(s -> {
-            s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-            s.setClassName(classMaps.get(s.getClassId()).getName());
+            if (null != gradeMaps.get(s.getGradeId())) {
+                s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+            }
+            if (null != classMaps.get(s.getClassId())) {
+                s.setClassName(classMaps.get(s.getClassId()).getName());
+            }
         });
         return pageStudents;
-    }
-
-    private String generateOrgNo(String schoolNo, String gradeNo, String idCard) {
-        return StringUtils.join(schoolNo, gradeNo, StringUtils.right(idCard, 6));
     }
 
     /**
@@ -220,6 +213,4 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getExportData(StudentQuery query) {
         return baseMapper.getExportData(query);
     }
-
-
 }
