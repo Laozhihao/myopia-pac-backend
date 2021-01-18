@@ -105,7 +105,7 @@ create table m_school
     district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '学校名称',
     kind           tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
-    kind_desc      varchar(32)                         not null comment '学校性质描述 0-公办 1-私办 2-其他',
+    kind_desc      varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
     lodge_status   tinyint                             null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
     type           tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
     province_code  bigint                              null comment '省代码',
