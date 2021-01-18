@@ -73,6 +73,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<UserDTO> getUserDetailByUserId(Integer userId) {
+                return respData;
+            }
+
+            @Override
             public ApiResult getRoleList(RoleDTO param) {
                 return respData;
             }

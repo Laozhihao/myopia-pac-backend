@@ -6,10 +6,12 @@ import com.wupol.myopia.oauth.domain.model.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -25,11 +27,15 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> getUserPermissionByUserId(Integer userId) {
+    public List<Permission> getUserDistinctPermissionByUserId(Integer userId) {
         if (Objects.isNull(userId)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        return baseMapper.getUserPermissionByUserId(userId);
+        List<Permission> permissions = baseMapper.getUserPermissionByUserId(userId);
+        if (CollectionUtils.isEmpty(permissions)) {
+            return Collections.emptyList();
+        }
+        return permissions.stream().distinct().collect(Collectors.toList());
     }
 
     /**

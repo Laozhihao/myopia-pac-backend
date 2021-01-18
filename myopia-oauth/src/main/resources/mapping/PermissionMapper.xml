@@ -31,7 +31,7 @@
 
     <select id="getUserPermissionByUserId" resultMap="BaseResultMap">
         SELECT
-               p.*
+             p.*
         FROM
              o_permission p,
              o_role_permission rp,

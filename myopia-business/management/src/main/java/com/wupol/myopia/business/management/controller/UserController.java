@@ -76,4 +76,16 @@ public class UserController {
         // TODO: 获取用户详情，判断用户是否存在，用户所属部门是否属于当前登录用户的下面
         return oauthServiceClient.resetPwd(userId);
     }
+
+    /**
+     * 获取用户明细
+     *
+     * @param userId 用户ID
+     * @return com.wupol.myopia.business.management.domain.dto.UserDTO
+     **/
+    @GetMapping("/{userId}")
+    public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
+        // TODO: 只能获取自己所属部门下的用户
+        return oauthServiceClient.getUserDetailByUserId(userId).getData();
+    }
 }

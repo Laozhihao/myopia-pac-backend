@@ -84,6 +84,15 @@ public interface OauthServiceClient {
     ApiResult resetPwd(@PathVariable("userId") Integer userId);
 
     /**
+     * 获取用户明细
+     *
+     * @param userId 用户ID
+     * @return com.wupol.myopia.base.domain.ApiResult<com.wupol.myopia.business.management.domain.dto.UserDTO>
+     **/
+    @GetMapping("/oauth/user/{userId}")
+    ApiResult<UserDTO> getUserDetailByUserId(@PathVariable("userId") Integer userId);
+
+    /**
      * 获取角色列表
      *
      * @param param 查询参数

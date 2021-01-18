@@ -8,14 +8,14 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
 import com.wupol.myopia.oauth.domain.dto.RefreshTokenDTO;
 import com.wupol.myopia.oauth.domain.model.Permission;
-import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.vo.LoginInfoVO;
 import com.wupol.myopia.oauth.domain.vo.TokenInfoVO;
-import com.wupol.myopia.oauth.service.PermissionService;
-import com.wupol.myopia.oauth.service.UserService;
+import com.wupol.myopia.oauth.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,8 +31,8 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -50,9 +48,7 @@ public class AuthController {
     @Autowired
     private KeyPair keyPair;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private PermissionService permissionService;
+    private AuthService authService;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -83,18 +79,9 @@ public class AuthController {
         if (Objects.isNull(oAuth2AccessToken)) {
             return ApiResult.failure("登录失败");
         }
-        // 获取菜单权限，并缓存权限
-        User user = userService.getByUsername(loginDTO.getUsername(), Integer.parseInt(loginDTO.getClient_id()));
-        List<Permission> permissions = permissionService.getUserPermissionByUserId(user.getId());
-        if (CollectionUtils.isEmpty(permissions)) {
-            return ApiResult.failure("没有访问权限");
-        }
-        List<Object> apiPermissionPaths = permissions.stream()
-                .filter(x -> x.getIsPage().equals(AuthConstants.IS_API_PERMISSION) && !StringUtils.isEmpty(x.getApiUrl()))
-                .map(Permission::getApiUrl)
-                .distinct().collect(Collectors.toList());
-        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, user.getId()), apiPermissionPaths, oAuth2AccessToken.getExpiresIn());
-        return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions.stream().distinct().collect(Collectors.toList())));
+        // 获取菜单权限，并缓存
+        List<Permission> permissions = authService.cacheUserPermission(loginDTO.getUsername(), Integer.parseInt(loginDTO.getClient_id()), oAuth2AccessToken.getExpiresIn());
+        return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
     }
 
     /**
@@ -109,7 +96,8 @@ public class AuthController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/refresh/token")
-    public ApiResult refreshAccessToken(Principal principal, RefreshTokenDTO refreshToken) {
+    public ApiResult refreshAccessToken(Principal principal, RefreshTokenDTO refreshToken) throws ParseException {
+        // 获取新token
         refreshToken.setGrant_type(AuthConstants.GRANT_TYPE_REFRESH_TOKEN);
         Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(refreshToken), new TypeReference<Map<String, String>>() {});
         OAuth2AccessToken oAuthToken;
@@ -123,8 +111,21 @@ public class AuthController {
         if (Objects.isNull(oAuthToken)) {
             return ApiResult.failure("刷新令牌失败");
         }
-        // TODO: 更新权限缓存失效时间
+        // 延长权限缓存过期时间
+        authService.delayPermissionCache(refreshToken.getRefresh_token(), oAuthToken.getExpiresIn());
         return ApiResult.success(new TokenInfoVO(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn()));
+    }
+
+    /**
+     * 退出登录
+     *
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @PostMapping("/exit")
+    public ApiResult logout() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        redisUtil.del(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
+        return ApiResult.success();
     }
 
     /**
