@@ -55,6 +55,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 保存医院
      *
@@ -68,6 +71,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
         // 初始化省代码
         hospital.setProvinceCode(provinceCode);
+        // 设置行政区域名
+        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
 
         if (null == townCode) {
             throw new BusinessException("数据异常");
@@ -99,6 +104,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Hospital updateHospital(Hospital hospital) {
+        // 设置行政区域名
+        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
         baseMapper.updateById(hospital);
         return baseMapper.selectById(hospital.getId());
     }

@@ -34,7 +34,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -82,6 +81,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 初始化省代码
         school.setProvinceCode(provinceCode);
+        // 设置行政区域名
+        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
 
         RLock rLock = redissonClient.getLock(Const.LOCK_SCHOOL_REDIS + townCode);
         try {
@@ -106,6 +107,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public School updateSchool(School school) {
+        // 设置行政区域名
+        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
         baseMapper.updateById(school);
         return baseMapper.selectById(school.getId());
     }
@@ -190,11 +193,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolDtoIPage;
         }
 
-        Map<Integer, String> districtNameMaps = districtService
-                .getDistrictName(schools.stream().map(School::getDistrictId).collect(Collectors.toList()));
         // 封装DTO
         schools.forEach(s -> {
-            s.setDistrictName(districtNameMaps.get(s.getDistrictId()));
             s.setScreeningTime(0);
             // 判断是否能更新
             if (s.getGovDeptId().equals(orgId)) {

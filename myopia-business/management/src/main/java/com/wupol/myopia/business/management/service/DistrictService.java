@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.bind.ValidationException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -208,12 +208,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取行政区域中文名字
+     * 获取行政区域中文名字 单个
+     *
+     * @param id id
+     * @return String 区域名字
+     */
+    public String getDistrictNameById(Integer id) {
+        return getDistrictNameByIds(Lists.newArrayList(id)).get(id);
+    }
+
+    /**
+     * 获取行政区域中文名字 多个
      *
      * @param ids id
-     * @return hashmap {@link ConcurrentHashMap}
+     * @return Map
      */
-    public Map<Integer, String> getDistrictName(List<Integer> ids) {
+    public Map<Integer, String> getDistrictNameByIds(List<Integer> ids) {
         return ids.stream().map(i -> {
             TwoTuple<Integer, String> tuple = new TwoTuple<>();
             tuple.setFirst(i);

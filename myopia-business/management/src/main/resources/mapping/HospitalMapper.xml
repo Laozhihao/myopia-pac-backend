@@ -14,6 +14,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtName)">and `district_name` = #{districtName}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(level)">and `level` = #{level}</if>
                 <if test="@Ognl@isNotEmpty(levelDesc)">and `level_desc` = #{levelDesc}</if>
@@ -41,7 +42,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, district_id, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, create_user_id, gov_dept_id, district_id, district_name, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getHospitalListByCondition" resultMap="BaseResultMap">

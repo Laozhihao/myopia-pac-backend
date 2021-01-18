@@ -14,7 +14,6 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
@@ -80,6 +79,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         // 初始化省代码
         screeningOrganization.setProvinceCode(provinceCode);
+        // 设置行政区域名
+        screeningOrganization.setDistrictName(districtService.getDistrictNameById(screeningOrganization.getDistrictId()));
 
         if (null == townCode) {
             throw new BusinessException("数据异常");
@@ -139,6 +140,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+        // 设置行政区域名
+        screeningOrganization.setDistrictName(districtService.getDistrictNameById(screeningOrganization.getDistrictId()));
         baseMapper.updateById(screeningOrganization);
         return baseMapper.selectById(screeningOrganization.getId());
     }
