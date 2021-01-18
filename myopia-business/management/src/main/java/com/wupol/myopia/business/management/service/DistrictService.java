@@ -229,10 +229,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return Map
      */
     public Map<Integer, String> getDistrictNameByIds(List<Integer> ids) {
-        return ids.stream().map(i -> {
+        return ids.stream().map(id -> {
             TwoTuple<Integer, String> tuple = new TwoTuple<>();
-            tuple.setFirst(i);
-            tuple.setSecond(getNameById(i));
+            tuple.setFirst(id);
+            tuple.setSecond(getNameById(id));
             return tuple;
         }).collect(Collectors.toMap(TwoTuple::getFirst, TwoTuple::getSecond));
     }
@@ -245,14 +245,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     private String getNameById(Integer id) {
         String key = Const.DISTRICT_CN_NAME + id;
-
         String value = (String) redisUtil.get(key);
+
         if (StringUtils.isNotBlank(value)) {
             return value;
         }
         District district = baseMapper.selectById(id);
         String name = getPreDistrict(district.getParentCode(), district.getName());
-        redisUtil.set(key,name);
+        redisUtil.set(key, name);
         return name;
     }
 
@@ -269,7 +269,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name;
         }
         return getPreDistrict(district.getParentCode(), district.getName() + name);
-
     }
 
     /**
@@ -278,7 +277,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param code 区域代码
      * @return 区域
      */
-    private District getDistrictByCode(Long code) {
+    public District getDistrictByCode(Long code) {
         return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
     }
 }
