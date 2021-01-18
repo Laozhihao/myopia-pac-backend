@@ -3,12 +3,11 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.SchoolDto;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
@@ -24,8 +23,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,15 +51,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private SchoolMapper schoolMapper;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-
     @Resource
     private RedissonClient redissonClient;
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private OauthService oauthService;
 
     /**
      * 新增学校
@@ -141,10 +137,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        oauthService.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         return schoolMapper.updateById(school);
     }
@@ -170,14 +163,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
-            ApiResult<Page<UserDTO>> userListPage = oauthServiceClient.getUserListPage(query);
-            if (userListPage.isSuccess()) {
-                List<UserDTO> records = userListPage.getData().getRecords();
-                if (!CollectionUtils.isEmpty(userListPage.getData().getRecords())) {
-                    userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
-                }
-            } else {
-                throw new BusinessException("OAuth异常");
+            Page<UserDTO> userListPage = oauthService.getUserListPage(query);
+            List<UserDTO> records = userListPage.getRecords();
+            if (!CollectionUtils.isEmpty(userListPage.getRecords())) {
+                userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
 
@@ -237,11 +226,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常");
-        }
-        schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), apiResult.getData().getId());
+        UserDTO user = oauthService.addAdminUser(userDTO);
+        schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -260,10 +246,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("远程调用异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
 

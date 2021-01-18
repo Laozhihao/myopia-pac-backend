@@ -2,11 +2,10 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -19,7 +18,6 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,12 +49,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private GovDeptService govDeptService;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Resource
-    private OauthServiceClient oauthServiceClient;
-
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private OauthService oauthService;
 
     /**
      * 保存医院
@@ -157,10 +154,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        oauthService.modifyUser(userDTO);
         Hospital hospital = new Hospital()
                 .setId(request.getId())
                 .setStatus(request.getStatus());
@@ -199,11 +193,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常" + apiResult.getMessage());
-        }
-        hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId(), hospital.getGovDeptId());
+        UserDTO user = oauthService.addAdminUser(userDTO);
+        hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -222,10 +213,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("远程调用异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
 

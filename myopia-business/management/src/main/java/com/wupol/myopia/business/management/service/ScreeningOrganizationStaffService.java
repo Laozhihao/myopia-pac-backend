@@ -5,12 +5,11 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
@@ -23,8 +22,6 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -47,17 +44,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private OauthService oauthService;
 
     /**
      * 获取机构人员列表
      *
-     * @param request 请求入参
+     * @param request     请求入参
      * @param currentUser 当前登录用户
      * @return Page<UserExtDTO> {@link Page}
      */
@@ -77,11 +73,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
-        ApiResult<Page<UserDTO>> apiResult = oauthServiceClient.getUserListPage(userQuery);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException(apiResult.getMessage());
-        }
-        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), new TypeReference<Page<UserExtDTO>>() {
+        Page<UserDTO> userListPage = oauthService.getUserListPage(userQuery);
+        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(userListPage), new TypeReference<Page<UserExtDTO>>() {
         });
         List<UserExtDTO> resultLists = page.getRecords();
         // 封装DTO，回填多端管理的ID
@@ -161,10 +154,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        oauthService.modifyUser(userDTO);
         baseMapper.updateById(staff);
         return staff;
     }
@@ -183,10 +173,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        UserDTO apiResult = oauthService.modifyUser(userDTO);
         return 1;
     }
 
@@ -205,10 +192,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setId(staff.getId())
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -243,11 +227,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常");
-        }
-        tuple.setSecond(apiResult.getData().getId());
+        UserDTO user = oauthService.addAdminUser(userDTO);
+        tuple.setSecond(user.getId());
         return tuple;
     }
 

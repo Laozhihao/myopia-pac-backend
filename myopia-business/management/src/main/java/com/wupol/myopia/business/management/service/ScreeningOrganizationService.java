@@ -2,12 +2,11 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
@@ -22,8 +21,6 @@ import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQu
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,15 +53,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private OauthService oauthService;
 
     /**
      * 保存筛查机构
@@ -123,13 +119,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常");
-        }
+        UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
                 .insertAdmin(org.getCreateUserId(), org.getId(),
-                        apiResult.getData().getId(), org.getGovDeptId());
+                        user.getId(), org.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -264,10 +257,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("远程调用异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
 
