@@ -64,7 +64,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /** 根据code获取对应的地址 */
-    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+    public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
         for (District item : districtList) {
@@ -82,7 +82,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             throw new ValidationException(String.format("未匹配到地址: province=%s, city=%s, area=%s, town=%s",
                     provinceCode, cityCode, areaCode, townCode));
         }
-        return province + city + area + town;
+        return Arrays.asList(province, city, area, town);
+    }
+    /** 根据code获取对应的地址 */
+    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+        List<String> list = getSplitAddress(provinceCode, cityCode, areaCode, townCode);
+        return list.get(0) + list.get(1) + list.get(2) + list.get(3);
     }
 
     /**

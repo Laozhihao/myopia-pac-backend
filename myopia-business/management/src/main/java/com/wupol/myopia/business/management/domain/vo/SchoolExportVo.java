@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.vo;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.HeadFontStyle;
@@ -27,9 +28,7 @@ public class SchoolExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     public static final String TOP_HEADER = "学校表";
-    public static final String HEADER2 = "在线学生";
-    public static final String HEADER3 = "住校学生";
-    @ExcelProperty({TOP_HEADER, "ID"})
+    @ExcelProperty({TOP_HEADER, "ID编码"})
     private String no;
     @ExcelProperty({TOP_HEADER, "名称"})
     private String name;
@@ -39,25 +38,33 @@ public class SchoolExportVo implements Serializable {
     private String lodgeStatus;
     @ExcelProperty({TOP_HEADER, "类型"})
     private String type;
-    @ExcelProperty({TOP_HEADER, HEADER2, "总数"})
-    private Integer onlineCount;
-    @ExcelProperty({TOP_HEADER, HEADER2, "男生数"})
-    private Integer onlineMaleCount;
-    @ExcelProperty({TOP_HEADER, HEADER2, "女生数"})
-    private Integer onlineFemaleCount;
-    @ExcelProperty({TOP_HEADER, HEADER3, "总数"})
-    private Integer lodgeCount;
-    @ExcelProperty({TOP_HEADER, HEADER3, "男生数"})
-    private Integer lodgeMaleCount;
-    @ExcelProperty({TOP_HEADER, HEADER3, "女生数"})
-    private Integer lodgeFemaleCount;
-    @ExcelProperty({TOP_HEADER, "地址"})
-    private String address;
+    @ExcelProperty({TOP_HEADER, "学生数"})
+    private Integer studentCount;
+    @ExcelProperty({TOP_HEADER, "所处层级"})
+    private String districtName;
     @ExcelProperty({TOP_HEADER, "年级班级"})
     private String className;
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
     @ExcelProperty({TOP_HEADER, "筛查次数"})
     private Integer screeningCount;
+    @ExcelProperty({TOP_HEADER, "省"})
+    private String province;
+    @ExcelProperty({TOP_HEADER, "市"})
+    private String city;
+    @ExcelProperty({TOP_HEADER, "县区"})
+    private String area;
+    @ExcelProperty({TOP_HEADER, "镇/街道"})
+    private String town;
+    @ExcelProperty({TOP_HEADER, "详细"})
+    private String address;
+    @ExcelProperty({TOP_HEADER, "创建人"})
+    private String createUser;
+    @ExcelProperty({TOP_HEADER, "创建时间"})
+    private String createTime;
+
+    /** 创建人id */
+    @ExcelIgnore
+    private Integer createUserId;
 
 }
