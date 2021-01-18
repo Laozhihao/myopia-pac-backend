@@ -80,7 +80,7 @@ private static StrategyConfig getStrategyConfig() {
 #### 初始化数据库
 1. 执行对应服务resource/db/migration目录下的SQL
 2. 如果开启flyway自动执行，则不用手动执行（建议开发环境首次自动执行初始化完后，关闭自动执行）
-3. 注意，myopia-business服务的d_district表数据过多，其初始化SQL放在了“OneDrive>产品&研发>文档>近视防控项目>工程依赖安装包”目录下的d_district.sql
+3. 注意，myopia-business服务的m_district表数据过多，其初始化SQL放在了“OneDrive>产品&研发>文档>近视防控项目>工程依赖安装包”目录下的m_district.sql
 
 ### 启动
 1. 同步maven依赖（根目录myopia-pac-backend下执行）
@@ -91,7 +91,7 @@ private static StrategyConfig getStrategyConfig() {
 
 ### 开发调试
 - 登录等接口说明，请查看Eolinker的Myopia项目
-- 新增接口需要添加对应的路径到d_permission表，并为角色分配对应权限，用户从新登录后，才可正常访问【也可以从前端界面的用户管理模块中录入并分配权限】
+- 新增接口需要添加对应的路径到o_permission表，并为角色分配对应权限，用户从新登录后，才可正常访问【也可以从前端界面的用户管理模块中录入并分配权限】
 - 请求业务接口时，Header都要带上Authorization字段，其值 = Bearer字符串 + 1个空格 + 登录时返回的access_token值，如：“Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVC...”
 
 ## 生产环境部署项目
