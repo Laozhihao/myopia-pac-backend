@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 
 /**
@@ -71,7 +72,7 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException {
+    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException, ValidationException {
         //TODO 待检验日期范围
         return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
     }

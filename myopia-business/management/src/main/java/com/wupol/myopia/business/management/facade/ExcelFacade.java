@@ -83,35 +83,31 @@ public class ExcelFacade {
         if (CollectionUtils.isEmpty(list)) {
             throw new BusinessException("未找到对应的数据");
         }
-        List<ScreeningOrganizationExportVo> exportList = list.stream()
-                .map(item -> {
-                    List<String> staffNameList = new ArrayList<>();
-                    try {
-                        List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
-                                .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
-                        ApiResult<List<UserDTO>> result = oauthServiceClient.getUserBatchByIds(staffIdList);
-                        if (result.isSuccess()) {
-                            staffNameList = result.getData().stream().map(UserDTO::getRealName).collect(Collectors.toList());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return new ScreeningOrganizationExportVo()
-                            .setId(item.getId())
-                            .setName(item.getName())
-                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                            .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
-                            .setRemark(item.getRemark())
-                            .setPersonSituation("共"+staffNameList.size()+"名。"+staffNameList.toString().replaceFirst("\\[","").replaceFirst("]",""))
-                            .setScreeningCount(1)
-                            //TODO 待改成最新的筛查任务
-                            .setScreeningTitle("筛查标题")
-                            .setScreeningTime("筛查时间段")
-                            .setScreeningProgress("筛查进度")
-                            .setScreeningSchool("负责筛查学校")
-                            .setScreeningPersonSituation("共"+staffNameList.size()+"名。"+staffNameList.toString().replaceFirst("\\[","").replaceFirst("]",""));
-
-                }).collect(Collectors.toList());
+        List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
+        for (ScreeningOrganization item : list) {
+            List<String> staffNameList = new ArrayList<>();
+            List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
+                    .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
+            ApiResult<List<UserDTO>> result = oauthServiceClient.getUserBatchByIds(staffIdList);
+            if (result.isSuccess()) {
+                staffNameList = result.getData().stream().map(UserDTO::getRealName).collect(Collectors.toList());
+            }
+            ScreeningOrganizationExportVo exportVo = new ScreeningOrganizationExportVo();
+            exportVo.setId(item.getId())
+                    .setName(item.getName())
+                    .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                    .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
+                    .setRemark(item.getRemark())
+                    .setPersonSituation("共" + staffNameList.size() + "名。" + staffNameList.toString().replaceFirst("\\[", "").replaceFirst("]", ""))
+                    .setScreeningCount(1)
+                    //TODO 待改成最新的筛查任务
+                    .setScreeningTitle("筛查标题")
+                    .setScreeningTime("筛查时间段")
+                    .setScreeningProgress("筛查进度")
+                    .setScreeningSchool("负责筛查学校")
+                    .setScreeningPersonSituation("共" + staffNameList.size() + "名。" + staffNameList.toString().replaceFirst("\\[", "").replaceFirst("]", ""));
+            exportList.add(exportVo);
+        }
 
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
@@ -156,7 +152,6 @@ public class ExcelFacade {
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
                 .map(item -> {
                     return new ScreeningOrganizationStaffExportVo()
-                            // 如果未找到对应的机构员工,新建默认的
                             .setName(item.getRealName())
                             .setGender(GenderEnum.getName(item.getGender()))
                             .setPhone(item.getPhone())
@@ -201,12 +196,12 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setAccount("帐号")
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            createUserIds.add(item.getCreateUserId());
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
             exportVo.setProvince(districtList.get(0))
                     .setCity(districtList.get(1))
                     .setArea(districtList.get(2))
                     .setTown(districtList.get(3));
+            createUserIds.add(item.getCreateUserId());
             exportList.add(exportVo);
         }
 
@@ -254,12 +249,12 @@ public class ExcelFacade {
                     .setRemark(item.getRemark())
                     .setScreeningCount(2121)
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            createUserIds.add(item.getCreateUserId());
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
             exportVo.setProvince(districtList.get(0))
                     .setCity(districtList.get(1))
                     .setArea(districtList.get(2))
                     .setTown(districtList.get(3));
+            createUserIds.add(item.getCreateUserId());
             exportList.add(exportVo);
         }
 
@@ -358,6 +353,7 @@ public class ExcelFacade {
                     .map(item -> {
                         Student student = new Student();
                         try {
+                            // excel 格式： 序号	姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
                             List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
                             student.setName(item.get(1))
                                     .setGender(GenderEnum.getType(item.get(2)))
@@ -420,6 +416,7 @@ public class ExcelFacade {
         if (listMap.size() != 0) { // 去头部
             listMap.remove(0);
         }
+        // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = listMap.stream()
                 .map(item -> new UserDTO()
                         .setRealName(item.get(1))
