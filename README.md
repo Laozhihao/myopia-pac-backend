@@ -91,7 +91,7 @@ private static StrategyConfig getStrategyConfig() {
 
 ### 开发调试
 - 登录等接口说明，请查看Eolinker的Myopia项目
-- 新增接口需要添加对应的路径到o_permission表，并为角色分配对应权限，用户从新登录后，才可正常访问【也可以从前端界面的用户管理模块中录入并分配权限】
+- 新增接口需要添加对应的路径到o_permission表，并为角色分配对应权限，用户重新登录后，才可正常访问【也可以从前端界面的用户管理模块中录入并分配权限】
 - 请求业务接口时，Header都要带上Authorization字段，其值 = Bearer字符串 + 1个空格 + 登录时返回的access_token值，如：“Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVC...”
 
 ## 生产环境部署项目
