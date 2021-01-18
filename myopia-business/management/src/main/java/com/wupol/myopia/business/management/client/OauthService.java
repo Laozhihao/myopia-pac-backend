@@ -165,7 +165,7 @@ public class OauthService {
     }
 
     @OauthRequest
-    public Object deletePermission(@PathVariable("permissionId") Integer permissionId) throws BusinessException {
+    public Object deletePermission(Integer permissionId) throws BusinessException {
         return null;
     }
 
