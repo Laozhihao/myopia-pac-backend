@@ -93,4 +93,10 @@
         <include refid="Base_Where_Clause" />
     </select>
 
+    <select id="getOrgById" resultMap="BaseResponseMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        where id = #{id}
+    </select>
 </mapper>

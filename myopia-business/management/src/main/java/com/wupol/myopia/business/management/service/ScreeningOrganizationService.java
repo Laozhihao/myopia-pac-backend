@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -268,5 +269,20 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             throw new BusinessException("远程调用异常");
         }
         return new UsernameAndPasswordDTO(username, password);
+    }
+
+    /**
+     * 获取筛查机构详情
+     *
+     * @param id 筛查机构ID
+     * @return org {@link ScreeningOrgResponse}
+     */
+    public ScreeningOrgResponse getScreeningOrgDetails(Integer id) {
+        ScreeningOrgResponse org = screeningOrganizationMapper.getOrgById(id);
+        if (null == org) {
+            throw new BusinessException("数据异常");
+        }
+        org.setLastCountDate(new Date());
+        return org;
     }
 }

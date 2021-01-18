@@ -54,7 +54,7 @@ public class ScreeningOrganizationController {
     @GetMapping("{id}")
     public Object getScreeningOrganization(@PathVariable("id") Integer id) {
         CurrentUserUtil.getLegalCurrentUser();
-        return saveScreeningOrganization.getById(id);
+        return saveScreeningOrganization.getScreeningOrgDetails(id);
     }
 
     @DeleteMapping("{id}")
