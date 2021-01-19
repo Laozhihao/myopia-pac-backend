@@ -11,7 +11,6 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public Page<UserDTO> getUserListPage(UserDTOQuery param) throws BusinessException {
+    public Page<UserDTO> getUserListPage(UserDTOQuery param){
         return null;
     }
 
@@ -42,7 +41,7 @@ public class OauthService {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @OauthRequest
-    public List<UserDTO> getUserBatchByIds(List<Integer> userIds) throws BusinessException {
+    public List<UserDTO> getUserBatchByIds(List<Integer> userIds) {
         return null;
     }
 
@@ -53,7 +52,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public UserDTO addUser(UserDTO param) throws BusinessException {
+    public UserDTO addUser(UserDTO param){
         return null;
     }
 
@@ -64,7 +63,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public UserDTO addAdminUser(UserDTO param) throws BusinessException {
+    public UserDTO addAdminUser(UserDTO param){
         return null;
     }
 
@@ -75,7 +74,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public List<Integer> addScreeningUserBatch(List<UserDTO> param) throws BusinessException {
+    public List<Integer> addScreeningUserBatch(List<UserDTO> param){
         return null;
     }
 
@@ -85,7 +84,7 @@ public class OauthService {
      * @param param 用户数据
      **/
     @OauthRequest
-    public UserDTO modifyUser(UserDTO param) throws BusinessException {
+    public UserDTO modifyUser(UserDTO param){
         return null;
     }
 
@@ -95,7 +94,7 @@ public class OauthService {
      * @param userId 用户ID
      **/
     @OauthRequest
-    public ApiResult resetPwd(Integer userId) throws BusinessException {
+    public ApiResult resetPwd(Integer userId){
         return null;
     }
 
@@ -105,7 +104,7 @@ public class OauthService {
      * @param userId 用户ID
      **/
     @OauthRequest
-    public UserDTO getUserDetailByUserId(Integer userId) throws BusinessException {
+    public UserDTO getUserDetailByUserId(Integer userId){
         return null;
     }
 
@@ -115,22 +114,22 @@ public class OauthService {
      * @param param 查询参数
      **/
     @OauthRequest
-    public ApiResult getRoleList(RoleDTO param) throws BusinessException {
+    public ApiResult getRoleList(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult addRole(RoleDTO param) throws BusinessException {
+    public ApiResult addRole(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult updateRole(RoleDTO param) throws BusinessException {
+    public ApiResult updateRole(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult assignRolePermission(Integer roleId, List<Integer> permissionIds) throws BusinessException {
+    public ApiResult assignRolePermission(Integer roleId, List<Integer> permissionIds){
         return null;
     }
 
@@ -140,7 +139,7 @@ public class OauthService {
      * @param roleId 角色ID
      **/
     @OauthRequest
-    public List<PermissionDTO> getRolePermissionTree(Integer roleId) throws BusinessException {
+    public List<PermissionDTO> getRolePermissionTree(Integer roleId){
         return null;
     }
 
@@ -150,27 +149,27 @@ public class OauthService {
      * @param param
      **/
     @OauthRequest
-    public List<PermissionDTO> getPermissionList(PermissionDTO param) throws BusinessException {
+    public List<PermissionDTO> getPermissionList(PermissionDTO param){
         return null;
     }
 
     @OauthRequest
-    public Object addPermission(PermissionDTO param) throws BusinessException {
+    public Object addPermission(PermissionDTO param){
         return null;
     }
 
     @OauthRequest
-    public Object modifyPermission(PermissionDTO param) throws BusinessException {
+    public Object modifyPermission(PermissionDTO param){
         return null;
     }
 
     @OauthRequest
-    public Object deletePermission(Integer permissionId) throws BusinessException {
+    public Object deletePermission(Integer permissionId){
         return null;
     }
 
     @OauthRequest
-    public List<UserDTO> getUserByIdCard(UserRequest request) throws BusinessException {
+    public List<UserDTO> getUserByIdCard(UserRequest request){
         return null;
     }
 

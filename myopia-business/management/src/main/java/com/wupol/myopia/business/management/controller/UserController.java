@@ -3,7 +3,7 @@ package com.wupol.myopia.business.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.service.UserService;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private OauthServiceClient oauthServiceClient;
+    private OauthService oauthService;
     @Autowired
     private UserService userService;
 
@@ -62,7 +62,7 @@ public class UserController {
         // TODO：如果部门ID不为空，需要判断是否合法（为当前登录用户所属部门或名下子部门）
         // TODO: 不能更新自己、非管理员或者admin用户不能修改用户
         // 该接口不允许更新密码
-        return oauthServiceClient.modifyUser(user.setPassword(null));
+        return oauthService.modifyUser(user.setPassword(null));
     }
 
     /**
@@ -74,7 +74,7 @@ public class UserController {
     @PutMapping("/password/{userId}")
     public Object resetPwd(@PathVariable("userId") Integer userId) {
         // TODO: 获取用户详情，判断用户是否存在，用户所属部门是否属于当前登录用户的下面
-        return oauthServiceClient.resetPwd(userId);
+        return oauthService.resetPwd(userId);
     }
 
     /**
@@ -86,6 +86,6 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
         // TODO: 只能获取自己所属部门下的用户
-        return oauthServiceClient.getUserDetailByUserId(userId).getData();
+        return oauthService.getUserDetailByUserId(userId);
     }
 }

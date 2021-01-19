@@ -8,7 +8,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     @Autowired
-    private OauthServiceClient oauthServiceClient;
+    private OauthService oauthService;
     @Autowired
     private GovDeptService govDeptService;
 
@@ -49,11 +49,7 @@ public class UserService {
             param.setOrgIds(orgIds);
         }
         param.setCurrent(current).setSize(size);
-        ApiResult result = oauthServiceClient.getUserListPage(param);
-        if (!result.isSuccess()) {
-            throw new BusinessException("获取用户列表异常");
-        }
-        Page<UserDTO> userPage = JSONObject.parseObject(JSONObject.toJSONString(result.getData()), Page.class);
+        Page<UserDTO> userPage = oauthService.getUserListPage(param);
         List<UserDTO> users = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
         if (CollectionUtils.isEmpty(users)) {
             return userPage;
@@ -80,10 +76,6 @@ public class UserService {
                 .setUsername(userDTO.getPhone())
                 .setCreateUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建用户失败");
-        }
-        return apiResult.getData();
+        return oauthService.addUser(userDTO);
     }
 }

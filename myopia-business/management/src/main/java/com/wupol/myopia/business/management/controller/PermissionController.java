@@ -2,7 +2,7 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class PermissionController {
 
     @Autowired
-    private OauthServiceClient oauthServiceClient;
+    private OauthService oauthService;
 
     /**
      * 获取权限资料列表
@@ -28,7 +28,7 @@ public class PermissionController {
      **/
     @GetMapping("/list")
     public Object getPermissionList(PermissionDTO param) {
-        return oauthServiceClient.getPermissionList(param);
+        return oauthService.getPermissionList(param);
     }
 
     /**
@@ -40,7 +40,7 @@ public class PermissionController {
     @PostMapping()
     public Object addPermission(@RequestBody PermissionDTO param) {
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        return oauthServiceClient.addPermission(param);
+        return oauthService.addPermission(param);
     }
 
     /**
@@ -51,7 +51,7 @@ public class PermissionController {
      **/
     @PutMapping()
     public Object modifyPermission(@RequestBody PermissionDTO param) {
-        return oauthServiceClient.modifyPermission(param);
+        return oauthService.modifyPermission(param);
     }
 
     /**
@@ -62,7 +62,7 @@ public class PermissionController {
      **/
     @DeleteMapping("/{permissionId}")
     public Object deletePermission(@PathVariable("permissionId") Integer permissionId) {
-        return oauthServiceClient.deletePermission(permissionId);
+        return oauthService.deletePermission(permissionId);
     }
 
 }
