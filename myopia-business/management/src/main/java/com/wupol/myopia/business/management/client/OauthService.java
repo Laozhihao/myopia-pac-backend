@@ -169,7 +169,7 @@ public class OauthService {
     }
 
     @OauthRequest
-    public List<UserDTO> getUserByIdCard(UserRequest request){
+    public List<UserDTO> getUserByIds(UserRequest request){
         return null;
     }
 

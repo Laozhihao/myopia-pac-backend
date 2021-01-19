@@ -137,6 +137,6 @@ public interface OauthServiceClient {
     @DeleteMapping("/oauth/permission/{permissionId}")
     ApiResult deletePermission(@PathVariable("permissionId") Integer permissionId);
 
-    @GetMapping("/oauth/user/getByIdCard")
-    ApiResult<List<UserDTO>> getUserByIdCard(@SpringQueryMap UserRequest request);
+    @GetMapping("/oauth/user/getByIds")
+    ApiResult<List<UserDTO>> getUserByIds(@SpringQueryMap UserRequest request);
 }

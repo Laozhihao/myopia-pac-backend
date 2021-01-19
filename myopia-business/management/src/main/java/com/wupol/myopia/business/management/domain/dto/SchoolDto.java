@@ -26,4 +26,9 @@ public class SchoolDto extends School {
      * 是否能更新
      */
     private boolean canUpdate = false;
+
+    /**
+     * 创建人
+     */
+    private String createUser;
 }

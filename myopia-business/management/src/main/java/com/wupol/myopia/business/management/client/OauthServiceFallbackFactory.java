@@ -125,7 +125,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<UserDTO>> getUserByIdCard(UserRequest request) {
+            public ApiResult<List<UserDTO>> getUserByIds(UserRequest request) {
                 return respData;
             }
         };

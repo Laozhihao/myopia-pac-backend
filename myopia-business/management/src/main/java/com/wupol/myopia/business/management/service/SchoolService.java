@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -31,6 +32,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -182,8 +184,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolDtoIPage;
         }
 
+        // 获取创建人的名字
+        List<Integer> createUserId = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
+        Map<Integer, String> userDTOMap = oauthService
+                .getUserByIds(new UserRequest(createUserId))
+                .stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
+
         // 封装DTO
         schools.forEach(s -> {
+            // 创建人
+            s.setCreateUser(userDTOMap.get(s.getCreateUserId()));
             s.setScreeningTime(0);
             // 判断是否能更新
             if (s.getGovDeptId().equals(orgId)) {
