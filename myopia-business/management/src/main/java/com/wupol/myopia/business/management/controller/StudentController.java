@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * @Author HaoHao
@@ -78,7 +79,7 @@ public class StudentController {
     }
 
     @PostMapping("/import/{schoolId}")
-    public ApiResult importStudent(MultipartFile file, @PathVariable("schoolId") Integer schoolId) throws IOException {
+    public ApiResult importStudent(MultipartFile file, @PathVariable("schoolId") Integer schoolId) throws IOException, ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importStudent(schoolId, currentUser.getId(), file);
         return ApiResult.success();
