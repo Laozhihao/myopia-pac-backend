@@ -72,7 +72,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping("/password/{userId}")
-    public Object resetPwd(@PathVariable("userId") Integer userId) {
+    public UserDTO resetPwd(@PathVariable("userId") Integer userId) {
         // TODO: 获取用户详情，判断用户是否存在，用户所属部门是否属于当前登录用户的下面
         return oauthService.resetPwd(userId);
     }

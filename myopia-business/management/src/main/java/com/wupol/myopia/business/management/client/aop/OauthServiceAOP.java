@@ -46,7 +46,7 @@ public class OauthServiceAOP {
     /** 统一判断请求状态，如失败，抛异常 */
     private <T> T getData(ApiResult<T> result) throws BusinessException {
         if (!result.isSuccess()) {
-            throw new BusinessException(result.getMessage());
+            throw new BusinessException(result.getMessage(), result.getCode());
         }
         return result.getData();
     }

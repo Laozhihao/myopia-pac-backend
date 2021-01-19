@@ -33,7 +33,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public Object getRoleListOfSpecifiedOrg(@Validated(value = RoleQueryValidatorGroup.class) RoleDTO param) {
+    public List<RoleDTO> getRoleListOfSpecifiedOrg(@Validated(value = RoleQueryValidatorGroup.class) RoleDTO param) {
         return oauthService.getRoleList(param);
     }
 
@@ -44,7 +44,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PostMapping()
-    public Object addRole(@Validated(value = RoleAddValidatorGroup.class) @RequestBody RoleDTO param) {
+    public RoleDTO addRole(@Validated(value = RoleAddValidatorGroup.class) @RequestBody RoleDTO param) {
         // TODO: 同部门角色名称不能重复、非admin用户不能创建admin用户、orgID不能为空且有效（需为登录用户名下的部门）
         // TODO: 非管理员或者admin用户不能创建角色、管理员不能修改自己所属部门的管理员类型的角色
         param.setSystemCode(CurrentUserUtil.getCurrentUser().getSystemCode());
@@ -58,7 +58,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object updateRole(@Validated(value = RoleUpdateValidatorGroup.class) @RequestBody RoleDTO param) {
+    public RoleDTO updateRole(@Validated(value = RoleUpdateValidatorGroup.class) @RequestBody RoleDTO param) {
         // TODO: 非admin用户不能修改admin用户、管理员不能修改自己所属部门的管理员类型的角色
         return oauthService.updateRole(param);
     }

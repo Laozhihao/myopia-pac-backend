@@ -191,7 +191,6 @@ public class ExcelFacade {
                     .setKind(HospitalEnum.getKindName(item.getKind()))
                     .setRemark(item.getRemark())
                     .setAddress(item.getAddress())
-                    .setAccount("帐号")
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
             exportVo.setProvince(districtList.get(0))

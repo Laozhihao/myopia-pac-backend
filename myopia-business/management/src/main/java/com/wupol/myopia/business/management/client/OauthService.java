@@ -94,7 +94,7 @@ public class OauthService {
      * @param userId 用户ID
      **/
     @OauthRequest
-    public ApiResult resetPwd(Integer userId){
+    public UserDTO resetPwd(Integer userId){
         return null;
     }
 
@@ -114,22 +114,22 @@ public class OauthService {
      * @param param 查询参数
      **/
     @OauthRequest
-    public ApiResult getRoleList(RoleDTO param){
+    public List<RoleDTO> getRoleList(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult addRole(RoleDTO param){
+    public RoleDTO addRole(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult updateRole(RoleDTO param){
+    public RoleDTO updateRole(RoleDTO param){
         return null;
     }
 
     @OauthRequest
-    public ApiResult assignRolePermission(Integer roleId, List<Integer> permissionIds){
+    public Object assignRolePermission(Integer roleId, List<Integer> permissionIds){
         return null;
     }
 
@@ -154,12 +154,12 @@ public class OauthService {
     }
 
     @OauthRequest
-    public Object addPermission(PermissionDTO param){
+    public PermissionDTO addPermission(PermissionDTO param){
         return null;
     }
 
     @OauthRequest
-    public Object modifyPermission(PermissionDTO param){
+    public PermissionDTO modifyPermission(PermissionDTO param){
         return null;
     }
 

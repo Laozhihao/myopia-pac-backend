@@ -42,8 +42,6 @@ public class HospitalExportVo implements Serializable {
     private String kind;
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
-    @ExcelProperty({TOP_HEADER, "帐号"})
-    private String account;
     @ExcelProperty({TOP_HEADER, "省"})
     private String province;
     @ExcelProperty({TOP_HEADER, "市"})
