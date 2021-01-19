@@ -194,7 +194,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         schools.forEach(s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()));
-            s.setScreeningTime(0);
+            s.setScreeningCount(0);
             // 判断是否能更新
             if (s.getGovDeptId().equals(orgId)) {
                 s.setCanUpdate(Boolean.TRUE);

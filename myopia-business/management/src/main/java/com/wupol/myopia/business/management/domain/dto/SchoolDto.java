@@ -20,7 +20,7 @@ public class SchoolDto extends School {
     /**
      * 筛查次数
      */
-    private Integer screeningTime;
+    private Integer screeningCount;
 
     /**
      * 是否能更新
