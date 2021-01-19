@@ -62,6 +62,8 @@ public class ExcelFacade {
     private DistrictService districtService;
     @Autowired
     private OauthService oauthService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 生成筛查机构Excel
@@ -97,14 +99,14 @@ public class ExcelFacade {
                     .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                     .setRemark(item.getRemark())
-                    .setPersonSituation("共" + staffNameList.size() + "名。" + staffNameList.toString().replaceFirst("\\[", "").replaceFirst("]", ""))
+                    .setPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList))
                     .setScreeningCount(1)
                     //TODO 待改成最新的筛查任务
                     .setScreeningTitle("筛查标题")
                     .setScreeningTime("筛查时间段")
                     .setScreeningProgress("筛查进度")
                     .setScreeningSchool("负责筛查学校")
-                    .setScreeningPersonSituation("共" + staffNameList.size() + "名。" + staffNameList.toString().replaceFirst("\\[", "").replaceFirst("]", ""));
+                    .setScreeningPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList));
             exportList.add(exportVo);
         }
 
@@ -121,7 +123,7 @@ public class ExcelFacade {
             throw new BusinessException("筛查机构id不能为空");
         }
         UserDTOQuery userQuery = new UserDTOQuery();
-        //TODO 待改成批量
+        //TODO 待改成批量模糊查询
         userQuery.setSize(11)
                 .setCurrent(1)
                 .setOrgId(query.getScreeningOrgId())
@@ -139,9 +141,9 @@ public class ExcelFacade {
         String fileName = builder.toString();
 
         // 获取完整的用户信息
-        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
-                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
+//        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
+//        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
+//                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         String orgName = screeningOrganizationService.getById(query.getScreeningOrgId()).getName();
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
@@ -201,11 +203,10 @@ public class ExcelFacade {
         }
 
         // 批量设置创建人姓名
-//        ApiResult<List<UserDTO>> createUserList = oauthService.getUserBatchByIds();
-//        list.forEach(item -> {
-//            item.setCreateUsername(DataBaseValDisplayUtil.getUserName(userVoMap.get(item.getReportDoctorId())));
-//        });
-
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        exportList.forEach(item -> {
+            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+        });
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
 
@@ -254,10 +255,10 @@ public class ExcelFacade {
         }
 
         // 批量设置创建人姓名
-//        ApiResult<List<UserDTO>> createUserList = oauthService.getUserBatchByIds();
-//        list.forEach(item -> {
-//            item.setCreateUsername(DataBaseValDisplayUtil.getUserName(userVoMap.get(item.getReportDoctorId())));
-//        });
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        exportList.forEach(item -> {
+            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+        });
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
     }
@@ -331,46 +332,41 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException {
+    public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
-        String fileName = IOUtils.getTempPath() +multipartFile.getName()+"_"+System.currentTimeMillis()+".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        try {
-            // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
-            if (listMap.size() != 0) { // 去头部
-                listMap.remove(0);
-            }
-            List<Student> importList = new ArrayList<>();
-            for (Map<Integer, String> item : listMap) {
-                Student student = new Student();
-                // excel 格式： 序号	姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
-                List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
-                student.setName(item.get(1))
-                        .setGender(GenderEnum.getType(item.get(2)))
-                        .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
-                        .setNation(Integer.valueOf(item.get(4)))
-                        //TODO 年级班级名转id
-                        .setGradeId(23)
-                        .setClassId(18)
-                        .setSno(Integer.valueOf(item.get(7)))
-                        .setIdCard(item.get(8))
-                        .setParentPhone(item.get(9))
-                        .setProvinceCode(addressCodeList.get(0))
-                        .setCityCode(addressCodeList.get(1))
-                        .setAreaCode(addressCodeList.get(2))
-                        .setTownCode(addressCodeList.get(3))
-                        .setAddress(item.get(14))
-                        .setCreateUserId(createUserId);
-            }
-            studentService.saveBatch(importList);
-        }catch (Exception e) {
-            log.error("解析学生excel数据失败",e);
-            throw new BusinessException("解析学生excel数据失败", e);
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        if (listMap.size() != 0) { // 去头部
+            listMap.remove(0);
         }
+        List<Student> importList = new ArrayList<>();
+        for (Map<Integer, String> item : listMap) {
+            Student student = new Student();
+            // excel 格式： 序号	姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
+            student.setName(item.get(1))
+                    .setGender(GenderEnum.getType(item.get(2)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(Integer.valueOf(item.get(4)))
+                    //TODO 年级班级名转id
+                    .setGradeId(23)
+                    .setClassId(18)
+                    .setSno(Integer.valueOf(item.get(7)))
+                    .setIdCard(item.get(8))
+                    .setParentPhone(item.get(9))
+                    .setProvinceCode(addressCodeList.get(0))
+                    .setCityCode(addressCodeList.get(1))
+                    .setAreaCode(addressCodeList.get(2))
+                    .setTownCode(addressCodeList.get(3))
+                    .setAddress(item.get(14))
+                    .setCreateUserId(createUserId);
+        }
+        studentService.saveBatch(importList);
     }
 
 
@@ -417,18 +413,6 @@ public class ExcelFacade {
                         .setIsLeader(0)
                         .setOrgId(screeningOrgId)
                         .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
-
-        // 查询身份证是否重复
-        List<UserDTO> checkUser = oauthService.getUserByIdCard(new UserRequest(screeningOrgId,
-                userList.stream().map(UserDTO::getIdCard).collect(Collectors.toList())));
-//        if (!checkUser.isSuccess()) {
-//            throw new BusinessException("调用Oauth服务异常");
-//        } else {
-//            if (!CollectionUtils.isEmpty(checkUser.getData())) {
-//                throw new BusinessException("身份证号码重复，请确认");
-//            }
-//        }
-
         List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
                     .setIdCard(item.getIdCard());
@@ -465,6 +449,11 @@ public class ExcelFacade {
             log.error("获取地址失败", e);
         }
         return "";
+    }
+
+    /** 用户名列表转成输出的字符串 */
+    private String toUserNameString(List<String> userNameList) {
+        return userNameList.toString().replaceFirst("\\[", "").replaceFirst("]", "");
     }
 
     /**

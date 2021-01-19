@@ -16,9 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -78,4 +77,14 @@ public class UserService {
                 .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         return oauthService.addUser(userDTO);
     }
+
+    /**
+     * 根据id批量获取用户
+     * @param userIds 用户id列
+     * @return  Map<用户id，用户>
+     */
+    public Map<Integer, UserDTO> getUserMapByIds(Set<Integer> userIds) {
+        return oauthService.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
+    }
+
 }
