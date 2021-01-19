@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -102,5 +105,17 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClass> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 批量通过id获取实体
+     *
+     * @param ids ids
+     * @return Map<Integer, SchoolClass>
+     */
+    public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids)
+                .stream()
+                .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 }

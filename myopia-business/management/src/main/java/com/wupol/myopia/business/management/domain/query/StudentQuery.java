@@ -56,5 +56,5 @@ public class StudentQuery extends StudentVo {
     /**
      * 视力标签
      */
-    private List<Integer> visionLabels;
+    private String visionLabels;
 }

@@ -12,6 +12,7 @@ import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -166,36 +166,30 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return IPage<Student> {@link IPage}
      */
     public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
-        List<Integer> gradeIds = new ArrayList<>();
-        if (StringUtils.isNotBlank(studentQuery.getGradeIds())) {
-            gradeIds = Arrays.stream(studentQuery.getGradeIds().split(","))
-                    .map(Integer::valueOf).collect(Collectors.toList());
-        }
+
+        TwoTuple<List<Integer>, List<Integer>> conditionalFilter = conditionalFilter(
+                studentQuery.getGradeIds(), studentQuery.getVisionLabels());
+
         IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
-                studentQuery.getParentPhone(), studentQuery.getGender(),
-                gradeIds, studentQuery.getVisionLabels(), studentQuery.getStartScreeningTime(),
-                studentQuery.getEndScreeningTime());
+                studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
+                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
         List<StudentDTO> students = pageStudents.getRecords();
+
+        // 为空直接放回
         if (CollectionUtils.isEmpty(students)) {
             return pageStudents;
         }
-        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService
-                .getByIds(students
-                        .stream()
-                        .map(Student::getGradeId)
-                        .collect(Collectors.toList()))
-                .stream()
-                .collect(Collectors
-                        .toMap(SchoolGrade::getId, Function.identity()));
-        Map<Integer, SchoolClass> classMaps = schoolClassService
-                .getByIds(students
-                        .stream()
-                        .map(Student::getClassId)
-                        .collect(Collectors.toList()))
-                .stream()
-                .collect(Collectors
-                        .toMap(SchoolClass::getId, Function.identity()));
+
+        // 获取年级信息
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
+                .stream().map(Student::getGradeId).collect(Collectors.toList()));
+
+        // 获取班级信息
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
+                .stream().map(Student::getClassId).collect(Collectors.toList()));
+
+        // 封装DTO
         students.forEach(s -> {
             if (null != gradeMaps.get(s.getGradeId())) {
                 s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
@@ -212,5 +206,30 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getExportData(StudentQuery query) {
         return baseMapper.getExportData(query);
+    }
+
+    /**
+     * 条件过滤
+     *
+     * @param gradeIdsStr     年级ID字符串
+     * @param visionLabelsStr 视力标签字符串
+     * @return {@link TwoTuple} first-年级list, second-视力标签list
+     */
+    public TwoTuple<List<Integer>, List<Integer>> conditionalFilter(String gradeIdsStr,
+                                                                    String visionLabelsStr) {
+        TwoTuple<List<Integer>, List<Integer>> result = new TwoTuple<>();
+
+        // 年级条件
+        if (StringUtils.isNotBlank(gradeIdsStr)) {
+            result.setFirst(Arrays.stream(gradeIdsStr.split(","))
+                    .map(Integer::valueOf).collect(Collectors.toList()));
+        }
+
+        // 视力标签条件
+        if (StringUtils.isNotBlank(visionLabelsStr)) {
+            result.setSecond(Arrays.stream(visionLabelsStr.split(","))
+                    .map(Integer::valueOf).collect(Collectors.toList()));
+        }
+        return result;
     }
 }
