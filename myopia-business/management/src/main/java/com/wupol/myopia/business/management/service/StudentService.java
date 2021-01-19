@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -213,7 +212,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      *
      * @param gradeIdsStr     年级ID字符串
      * @param visionLabelsStr 视力标签字符串
-     * @return {@link TwoTuple} first-年级list, second-视力标签list
+     * @return {@link TwoTuple} <p>TwoTuple.getFirst-年级list, TwoTuple.getSecond-视力标签list</p>
      */
     public TwoTuple<List<Integer>, List<Integer>> conditionalFilter(String gradeIdsStr,
                                                                     String visionLabelsStr) {
