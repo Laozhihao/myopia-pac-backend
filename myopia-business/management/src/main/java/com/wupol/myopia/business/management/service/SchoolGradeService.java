@@ -136,8 +136,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return Map<Integer, SchoolGrade>
      */
     public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids)
-                .stream()
+        return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
     }
 

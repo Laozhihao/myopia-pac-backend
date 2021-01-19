@@ -114,8 +114,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return Map<Integer, SchoolClass>
      */
     public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids)
-                .stream()
+        return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 }

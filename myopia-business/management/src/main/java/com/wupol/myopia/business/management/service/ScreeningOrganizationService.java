@@ -179,13 +179,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return orgLists;
         }
         // 获取筛查人员信息
-        List<ScreeningOrganizationStaff> staffs = screeningOrganizationStaffService.getStaffListsByOrgIds(records
-                .stream()
-                .map(ScreeningOrganization::getId)
-                .collect(Collectors.toList()));
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = staffs
-                .stream()
-                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService.getOrgStaffMapByIds(
+                records.stream().map(ScreeningOrganization::getId).collect(Collectors.toList()));
+
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新

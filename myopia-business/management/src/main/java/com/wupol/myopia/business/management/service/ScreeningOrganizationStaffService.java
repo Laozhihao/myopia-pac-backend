@@ -256,6 +256,18 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     }
 
     /**
+     * 批量通过组织Id获取筛查人员信息
+     *
+     * @param orgIds orgIds
+     * @return Map<Integer, List<ScreeningOrganizationStaff>>
+     */
+    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds) {
+        return getStaffListsByOrgIds(orgIds)
+                .stream()
+                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+    }
+
+    /**
      * 获取员工通过userIds
      *
      * @param userIds 用户id
