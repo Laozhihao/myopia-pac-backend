@@ -306,7 +306,7 @@ public class ExcelFacade {
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
-                    .setLabel(item.getLabels())
+                    .setLabel(item.getVisionLabel())
                     .setSituation(item.getCurrentSituation())
                     .setScreeningCount(item.getScreeningCount())
                     //TODO 就诊次数

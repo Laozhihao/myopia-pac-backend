@@ -134,7 +134,7 @@ create table m_school_admin
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 
 )
-    comment '学校-员工表';
+    comment '学校-管理表';
 
 DROP TABLE IF EXISTS m_school_grade;
 create table m_school_grade
@@ -190,7 +190,7 @@ create table m_student
     town_code           bigint                              not null comment '镇/乡代码',
     address             varchar(128)                        null comment '详细地址',
     current_situation   varchar(128)                        null comment '当前情况',
-    labels              varchar(128)                        null comment '视力标签',
+    vision_label        tinyint UNSIGNED                    NOT NULL DEFAULT 0 COMMENT '视力标签 0-零级、1-一级、2-二级、3-三级',
     screening_count     int       default 0                 not null comment '视力筛查次数',
     questionnaire_count int       default 0                 not null comment '问卷数',
     last_screening_time timestamp                           null comment '最近筛选次数',

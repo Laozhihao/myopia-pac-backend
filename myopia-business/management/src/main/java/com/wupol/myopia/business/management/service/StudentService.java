@@ -174,7 +174,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(),
-                gradeIds, studentQuery.getLabels(), studentQuery.getStartScreeningTime(),
+                gradeIds, studentQuery.getVisionLabels(), studentQuery.getStartScreeningTime(),
                 studentQuery.getEndScreeningTime());
         List<StudentDTO> students = pageStudents.getRecords();
         if (CollectionUtils.isEmpty(students)) {

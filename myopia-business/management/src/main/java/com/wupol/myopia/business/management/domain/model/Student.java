@@ -140,9 +140,9 @@ public class Student implements Serializable {
     private String currentSituation;
 
     /**
-     * 视力标签
+     * 视力标签 0-零级、1-一级、2-二级、3-三级
      */
-    private String labels;
+    private Integer visionLabel;
 
     /**
      * 视力筛查次数
