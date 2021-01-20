@@ -84,7 +84,15 @@ public class UserService {
      * @return  Map<用户id，用户>
      */
     public Map<Integer, UserDTO> getUserMapByIds(Set<Integer> userIds) {
-        return oauthService.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
+        return getUserMapByIds(new ArrayList<>(userIds));
+    }
+    /**
+     * 根据id批量获取用户
+     * @param userIds 用户id列
+     * @return  Map<用户id，用户>
+     */
+    public Map<Integer, UserDTO> getUserMapByIds(List<Integer> userIds) {
+        return oauthService.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
     }
 
 }

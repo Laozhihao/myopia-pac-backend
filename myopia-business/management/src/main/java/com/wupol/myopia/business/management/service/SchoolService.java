@@ -61,6 +61,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private OauthService oauthService;
+    @Resource
+    private UserService userService;
 
     /**
      * 新增学校
@@ -185,15 +187,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 获取创建人的名字
-        List<Integer> createUserId = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
-        Map<Integer, String> userDTOMap = oauthService
-                .getUserByIds(new UserRequest(createUserId))
-                .stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
+        List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
+        Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
 
         // 封装DTO
         schools.forEach(s -> {
             // 创建人
-            s.setCreateUser(userDTOMap.get(s.getCreateUserId()));
+            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
             s.setScreeningCount(0);
             // 判断是否能更新
             if (s.getGovDeptId().equals(orgId)) {
