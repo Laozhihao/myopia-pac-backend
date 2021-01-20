@@ -279,7 +279,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 获取学校的筛查记录详情
      *
      * @param id 筛查记录详情ID
-     * @return Object
+     * @return 详情
      */
     public Object getScreeningRecordDetail(Integer id) {
         return null;

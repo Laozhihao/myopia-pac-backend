@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -270,11 +269,24 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return org;
     }
 
+    /**
+     * 获取筛查记录列表
+     *
+     * @param request 分页入参
+     * @param orgId   机构ID
+     * @return {@link IPage}
+     */
     public IPage<Object> getRecordLists(PageRequest request, Integer orgId) {
         return null;
     }
 
-    public Object getRecordDetail( Integer id) {
+    /**
+     * 获取筛查记录详情
+     *
+     * @param id 详情ID
+     * @return 详情
+     */
+    public Object getRecordDetail(Integer id) {
         return null;
     }
 }

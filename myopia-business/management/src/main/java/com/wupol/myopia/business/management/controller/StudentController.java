@@ -99,6 +99,6 @@ public class StudentController {
 
     @GetMapping("/screening/{id}")
     public Object getScreeningList(@PathVariable("id") Integer id) {
-        return null;
+        return studentService.getScreeningList(id);
     }
 }

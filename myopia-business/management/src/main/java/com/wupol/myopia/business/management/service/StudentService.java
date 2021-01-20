@@ -236,6 +236,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Object
      */
     public Object getScreeningList(Integer studentId) {
-        return null;
+        return studentId;
     }
 }
