@@ -42,9 +42,6 @@ import java.util.stream.Collectors;
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
 
     @Resource
-    private ScreeningOrganizationMapper screeningOrganizationMapper;
-
-    @Resource
     private RedissonClient redissonClient;
 
     @Resource
@@ -169,7 +166,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Integer districtId = districtService.getDistrictId(currentUser, query.getDistrictId());
 
         // 查询
-        IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
+        IPage<ScreeningOrgResponse> orgLists = baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getPhone(), query.getStatus());
 
@@ -205,7 +202,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
-        return screeningOrganizationMapper.getExportData(query);
+        return baseMapper.getExportData(query);
     }
 
     /**
@@ -230,7 +227,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(Integer id) {
-        ScreeningOrganization screeningOrg = screeningOrganizationMapper.selectById(id);
+        ScreeningOrganization screeningOrg = baseMapper.selectById(id);
         if (null == screeningOrg) {
             throw new BusinessException("数据异常");
         }
@@ -264,7 +261,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return org {@link ScreeningOrgResponse}
      */
     public ScreeningOrgResponse getScreeningOrgDetails(Integer id) {
-        ScreeningOrgResponse org = screeningOrganizationMapper.getOrgById(id);
+        ScreeningOrgResponse org = baseMapper.getOrgById(id);
         if (null == org) {
             throw new BusinessException("数据异常");
         }

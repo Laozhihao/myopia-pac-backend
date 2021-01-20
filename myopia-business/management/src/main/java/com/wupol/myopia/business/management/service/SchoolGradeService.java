@@ -33,9 +33,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     @Resource
     private StudentService studentService;
 
-    @Resource
-    private SchoolGradeMapper schoolGradeMapper;
-
 
     /**
      * 新增年级
@@ -89,7 +86,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = schoolGradeMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
+        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }

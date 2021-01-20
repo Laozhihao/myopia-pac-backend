@@ -39,9 +39,6 @@ import java.util.stream.Collectors;
 public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
-    private StudentMapper studentMapper;
-
-    @Resource
     private SchoolGradeService schoolGradeService;
 
     @Resource
@@ -169,7 +166,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         TwoTuple<List<Integer>, List<Integer>> conditionalFilter = conditionalFilter(
                 studentQuery.getGradeIds(), studentQuery.getVisionLabels());
 
-        IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(),
+        IPage<StudentDTO> pageStudents = baseMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
                 conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());

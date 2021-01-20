@@ -51,9 +51,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private SchoolAdminService schoolAdminService;
 
     @Resource
-    private SchoolMapper schoolMapper;
-
-    @Resource
     private RedissonClient redissonClient;
 
     @Resource
@@ -143,7 +140,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setStatus(request.getStatus());
         oauthService.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
-        return schoolMapper.updateById(school);
+        return baseMapper.updateById(school);
     }
 
     /**
@@ -175,7 +172,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 查询
-        IPage<SchoolDto> schoolDtoIPage = schoolMapper.getSchoolListByCondition(pageRequest.toPage(),
+        IPage<SchoolDto> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
                 schoolQuery.getType(), districtId, userIds);
 
@@ -211,7 +208,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(Integer id) {
-        School school = schoolMapper.selectById(id);
+        School school = baseMapper.selectById(id);
         if (null == school) {
             throw new BusinessException("数据异常");
         }

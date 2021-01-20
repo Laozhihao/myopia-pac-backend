@@ -44,9 +44,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private HospitalAdminService hospitalAdminService;
 
     @Resource
-    private HospitalMapper hospitalMapper;
-
-    @Resource
     private GovDeptService govDeptService;
 
     @Resource
@@ -134,7 +131,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return IPage<Hospital> {@link IPage}
      */
     public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(),
+        return baseMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
                 query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
     }
@@ -158,7 +155,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         Hospital hospital = new Hospital()
                 .setId(request.getId())
                 .setStatus(request.getStatus());
-        return hospitalMapper.updateById(hospital);
+        return baseMapper.updateById(hospital);
     }
 
     /**
@@ -169,7 +166,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(Integer id) {
-        Hospital hospital = hospitalMapper.selectById(id);
+        Hospital hospital = baseMapper.selectById(id);
         if (null == hospital) {
             throw new BusinessException("数据异常");
         }
