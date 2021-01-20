@@ -18,12 +18,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class UserRequest {
 
-    private Integer orgId;
+    private List<Integer> userIds;
 
-    private List<String> idCards;
-
-    public UserRequest(Integer orgId, List<String> idCards) {
-        this.orgId = orgId;
-        this.idCards = idCards;
+    public UserRequest(List<Integer> userIds) {
+        this.userIds = userIds;
     }
 }

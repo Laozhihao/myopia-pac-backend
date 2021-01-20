@@ -83,7 +83,7 @@ public class Student implements Serializable {
     /**
      * 民族 0-汉族
      */
-    @NotNull(message = "学号不能为空")
+    @NotNull(message = "民族不能为空")
     private Integer nation;
 
     /**
@@ -97,7 +97,7 @@ public class Student implements Serializable {
      * 家长手机号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_MOBILE, message = "手机号码格式错误")
-    @NotNull(message = "学号不能为空")
+    @NotNull(message = "家长手机号码不能为空")
     private String parentPhone;
 
     /**
@@ -140,9 +140,9 @@ public class Student implements Serializable {
     private String currentSituation;
 
     /**
-     * 视力标签
+     * 视力标签 0-零级、1-一级、2-二级、3-三级
      */
-    private String labels;
+    private Integer visionLabel;
 
     /**
      * 视力筛查次数

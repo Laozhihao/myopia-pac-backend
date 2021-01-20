@@ -86,6 +86,9 @@
                 <if test="param.idCard != null ">
                     and u.id_card like CONCAT('%', #{param.idCard}, '%')
                 </if>
+                <if test="param.systemCode != null">
+                    and u.system_code = #{param.systemCode}
+                </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and DATE(u.create_time) between DATE(#{param.startCreateTime}) and DATE(#{param.endCreateTime})
                 </if>

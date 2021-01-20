@@ -8,7 +8,6 @@ import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.StudentService;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -67,19 +67,19 @@ public class StudentController {
     }
 
     @GetMapping("list")
-    public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) throws ParseException {
+    public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) {
         CurrentUserUtil.getLegalCurrentUser();
         return studentService.getStudentLists(pageRequest, studentQuery);
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException {
+    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException, ValidationException {
         //TODO 待检验日期范围
         return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
     }
 
     @PostMapping("/import/{schoolId}")
-    public ApiResult importStudent(MultipartFile file,@PathVariable("schoolId") Integer schoolId) throws IOException {
+    public ApiResult importStudent(MultipartFile file, @PathVariable("schoolId") Integer schoolId) throws IOException, ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importStudent(schoolId, currentUser.getId(), file);
         return ApiResult.success();

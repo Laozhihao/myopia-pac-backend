@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 
 /**
@@ -80,7 +81,7 @@ public class SchoolController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getSchoolExportData(SchoolQuery query) throws IOException {
+    public ResponseEntity<FileSystemResource> getSchoolExportData(SchoolQuery query) throws IOException, ValidationException {
         return FileUtils.getResponseEntity(excelFacade.generateSchool(query));
     }
 }

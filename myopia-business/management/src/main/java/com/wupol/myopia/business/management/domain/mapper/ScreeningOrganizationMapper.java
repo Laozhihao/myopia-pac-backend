@@ -19,13 +19,15 @@ import java.util.List;
 public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganization> {
 
     IPage<ScreeningOrgResponse> getScreeningOrganizationListByCondition(@Param("page") Page<?> page, @Param("name") String name,
-                                                                        @Param("type") Integer type,@Param("configType") Integer configType,
+                                                                        @Param("type") Integer type, @Param("configType") Integer configType,
                                                                         @Param("districtId") Integer districtId, @Param("phone") String phone,
-                                                                        @Param("status")Integer status);
+                                                                        @Param("status") Integer status);
 
     ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
 
     List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query);
 
     ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
+
+    ScreeningOrgResponse getOrgById(@Param("id") Integer id);
 }

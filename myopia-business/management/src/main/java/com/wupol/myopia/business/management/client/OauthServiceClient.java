@@ -81,7 +81,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PutMapping("/oauth/user/password/{userId}")
-    ApiResult resetPwd(@PathVariable("userId") Integer userId);
+    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId);
 
     /**
      * 获取用户明细
@@ -99,13 +99,13 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/role/list")
-    ApiResult getRoleList(@SpringQueryMap RoleDTO param);
+    ApiResult<List<RoleDTO>> getRoleList(@SpringQueryMap RoleDTO param);
 
     @PostMapping("/oauth/role")
-    ApiResult addRole(@RequestBody RoleDTO param);
+    ApiResult<RoleDTO> addRole(@RequestBody RoleDTO param);
 
     @PutMapping("/oauth/role")
-    ApiResult updateRole(@RequestBody RoleDTO param);
+    ApiResult<RoleDTO> updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
     ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
@@ -129,14 +129,14 @@ public interface OauthServiceClient {
     ApiResult<List<PermissionDTO>> getPermissionList(@SpringQueryMap PermissionDTO param);
 
     @PostMapping("/oauth/permission")
-    ApiResult addPermission(@RequestBody PermissionDTO param);
+    ApiResult<PermissionDTO> addPermission(@RequestBody PermissionDTO param);
 
     @PutMapping("/oauth/permission")
-    ApiResult modifyPermission(@RequestBody PermissionDTO param);
+    ApiResult<PermissionDTO> modifyPermission(@RequestBody PermissionDTO param);
 
     @DeleteMapping("/oauth/permission/{permissionId}")
     ApiResult deletePermission(@PathVariable("permissionId") Integer permissionId);
 
-    @GetMapping("/oauth/user/getByIdCard")
-    ApiResult<List<UserDTO>> getUserByIdCard(@SpringQueryMap UserRequest request);
+    @GetMapping("/oauth/user/getByIds")
+    ApiResult<List<UserDTO>> getUserByIds(@SpringQueryMap UserRequest request);
 }

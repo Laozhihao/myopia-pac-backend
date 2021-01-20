@@ -6,6 +6,7 @@ create table m_screening_organization
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '筛查机构名称',
     type           tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
     type_desc      varchar(128)                        null default '' comment '机构类型描述',
@@ -60,6 +61,7 @@ create table m_hospital
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '医院名称',
     level          tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
     level_desc     varchar(32)                         null comment '等级描述',
@@ -100,9 +102,10 @@ create table m_school
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '学校名称',
     kind           tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
-    kind_desc      varchar(32)                         not null comment '学校性质描述 0-公办 1-私办 2-其他',
+    kind_desc      varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
     lodge_status   tinyint                             null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
     type           tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
     province_code  bigint                              null comment '省代码',
@@ -131,7 +134,7 @@ create table m_school_admin
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 
 )
-    comment '学校-员工表';
+    comment '学校-管理表';
 
 DROP TABLE IF EXISTS m_school_grade;
 create table m_school_grade
@@ -187,7 +190,7 @@ create table m_student
     town_code           bigint                              not null comment '镇/乡代码',
     address             varchar(128)                        null comment '详细地址',
     current_situation   varchar(128)                        null comment '当前情况',
-    labels              varchar(128)                        null comment '视力标签',
+    vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     screening_count     int       default 0                 not null comment '视力筛查次数',
     questionnaire_count int       default 0                 not null comment '问卷数',
     last_screening_time timestamp                           null comment '最近筛选次数',

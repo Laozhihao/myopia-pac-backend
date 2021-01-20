@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.bind.ValidationException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +64,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /** 根据code获取对应的地址 */
-    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+    public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
         for (District item : districtList) {
@@ -82,7 +82,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             throw new ValidationException(String.format("未匹配到地址: province=%s, city=%s, area=%s, town=%s",
                     provinceCode, cityCode, areaCode, townCode));
         }
-        return province + city + area + town;
+        return Arrays.asList(province, city, area, town);
+    }
+    /** 根据code获取对应的地址 */
+    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+        List<String> list = getSplitAddress(provinceCode, cityCode, areaCode, townCode);
+        return list.get(0) + list.get(1) + list.get(2) + list.get(3);
     }
 
     /**
@@ -208,16 +213,26 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取行政区域中文名字
+     * 获取行政区域中文名字 单个
+     *
+     * @param id id
+     * @return String 区域名字
+     */
+    public String getDistrictNameById(Integer id) {
+        return getDistrictNameByIds(Lists.newArrayList(id)).get(id);
+    }
+
+    /**
+     * 获取行政区域中文名字 多个
      *
      * @param ids id
-     * @return hashmap {@link ConcurrentHashMap}
+     * @return Map
      */
-    public Map<Integer, String> getDistrictName(List<Integer> ids) {
-        return ids.stream().map(i -> {
+    public Map<Integer, String> getDistrictNameByIds(List<Integer> ids) {
+        return ids.stream().map(id -> {
             TwoTuple<Integer, String> tuple = new TwoTuple<>();
-            tuple.setFirst(i);
-            tuple.setSecond(getNameById(i));
+            tuple.setFirst(id);
+            tuple.setSecond(getNameById(id));
             return tuple;
         }).collect(Collectors.toMap(TwoTuple::getFirst, TwoTuple::getSecond));
     }
@@ -230,14 +245,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     private String getNameById(Integer id) {
         String key = Const.DISTRICT_CN_NAME + id;
-
         String value = (String) redisUtil.get(key);
+
         if (StringUtils.isNotBlank(value)) {
             return value;
         }
         District district = baseMapper.selectById(id);
         String name = getPreDistrict(district.getParentCode(), district.getName());
-        redisUtil.set(key,name);
+        redisUtil.set(key, name);
         return name;
     }
 
@@ -254,7 +269,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name;
         }
         return getPreDistrict(district.getParentCode(), district.getName() + name);
-
     }
 
     /**
@@ -263,7 +277,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param code 区域代码
      * @return 区域
      */
-    private District getDistrictByCode(Long code) {
+    public District getDistrictByCode(Long code) {
         return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
     }
 }

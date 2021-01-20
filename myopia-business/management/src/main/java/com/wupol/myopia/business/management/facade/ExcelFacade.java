@@ -11,7 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.IOUtils;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -31,10 +31,7 @@ import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,7 +61,9 @@ public class ExcelFacade {
     @Autowired
     private DistrictService districtService;
     @Autowired
-    private OauthServiceClient oauthServiceClient;
+    private OauthService oauthService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 生成筛查机构Excel
@@ -86,29 +85,30 @@ public class ExcelFacade {
         if (CollectionUtils.isEmpty(list)) {
             throw new BusinessException("未找到对应的数据");
         }
-        List<ScreeningOrganizationExportVo> exportList = list.stream()
-                .map(item -> {
-                    List<String> staffNameList = new ArrayList<>();
-                    try {
-                        List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
-                                .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
-                        ApiResult<List<UserDTO>> result = oauthServiceClient.getUserBatchByIds(staffIdList);
-                        if (result.isSuccess()) {
-                            staffNameList = result.getData().stream().map(UserDTO::getRealName).collect(Collectors.toList());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return new ScreeningOrganizationExportVo()
-                            .setId(item.getId())
-                            .setName(item.getName())
-                            .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
-                            .setRemark(item.getRemark())
-                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                            .setPersonNames(staffNameList.toString().replaceFirst("\\[","").replaceFirst("]",""))
-                            .setScreeningCount(1)
-                            .setPersonCount(staffNameList.size());
-                }).collect(Collectors.toList());
+        List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
+        for (ScreeningOrganization item : list) {
+            List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
+                    .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
+            // 获取筛查人员信息
+            List<UserDTO> UserDTOList = oauthService.getUserBatchByIds(staffIdList);
+            List<String> staffNameList = UserDTOList.stream().map(UserDTO::getRealName).collect(Collectors.toList());
+
+            ScreeningOrganizationExportVo exportVo = new ScreeningOrganizationExportVo();
+            exportVo.setId(item.getId())
+                    .setName(item.getName())
+                    .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
+                    .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
+                    .setRemark(item.getRemark())
+                    .setPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList))
+                    .setScreeningCount(1)
+                    //TODO 待改成最新的筛查任务
+                    .setScreeningTitle("筛查标题")
+                    .setScreeningTime("筛查时间段")
+                    .setScreeningProgress("筛查进度")
+                    .setScreeningSchool("负责筛查学校")
+                    .setScreeningPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList));
+            exportList.add(exportVo);
+        }
 
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
@@ -123,18 +123,14 @@ public class ExcelFacade {
             throw new BusinessException("筛查机构id不能为空");
         }
         UserDTOQuery userQuery = new UserDTOQuery();
-        //TODO 待改成批量
+        //TODO 待改成批量模糊查询
         userQuery.setSize(11)
                 .setCurrent(1)
                 .setOrgId(query.getScreeningOrgId())
                 .setRealName(query.getNameLike())
                 .setIdCard(query.getIdCardLike())
                 .setPhone(query.getPhoneLike());
-        ApiResult apiResult = oauthServiceClient.getUserListPage(userQuery);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException(apiResult.getMessage());
-        }
-        Page<UserDTO> userPage = JSONObject.parseObject(JSONObject.toJSONString(apiResult.getData()), Page.class);
+        Page<UserDTO> userPage = oauthService.getUserListPage(userQuery);
         List<UserDTO> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("筛查机构人员");
@@ -145,15 +141,14 @@ public class ExcelFacade {
         String fileName = builder.toString();
 
         // 获取完整的用户信息
-        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
-                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
+//        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
+//        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
+//                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         String orgName = screeningOrganizationService.getById(query.getScreeningOrgId()).getName();
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
                 .map(item -> {
                     return new ScreeningOrganizationStaffExportVo()
-                            // 如果未找到对应的机构员工,新建默认的
                             .setName(item.getRealName())
                             .setGender(GenderEnum.getName(item.getGender()))
                             .setPhone(item.getPhone())
@@ -169,7 +164,7 @@ public class ExcelFacade {
      * 生成医院Excel
      * @param query    查询条件
      **/
-    public File generateHospital(HospitalQuery query) throws IOException {
+    public File generateHospital(HospitalQuery query) throws IOException, ValidationException {
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("医院");
         if (StringUtils.isNotBlank(query.getNoLike())) builder.append("-").append(query.getNoLike());
@@ -183,18 +178,34 @@ public class ExcelFacade {
         }
         String fileName = builder.toString();
         // 构建数据
+        Set<Integer> createUserIds = new HashSet<>();
         List<Hospital> list = hospitalService.getExportData(query);
-        List<HospitalExportVo> exportList = list.stream()
-                .map(item -> {
-                    return new HospitalExportVo()
-                            .setId(item.getId())
-                            .setName(item.getName())
-                            .setLevel(item.getLevelDesc())
-                            .setType(HospitalEnum.getTypeName(item.getType()))
-                            .setKind(HospitalEnum.getKindName(item.getKind()))
-                            .setRemark(item.getRemark())
-                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
-                }).collect(Collectors.toList());
+        List<HospitalExportVo> exportList = new ArrayList<>();
+        for (Hospital item : list) {
+            HospitalExportVo exportVo = new HospitalExportVo()
+                    .setId(item.getId())
+                    .setName(item.getName())
+                    .setDistrictName("层级")
+                    .setLevel(item.getLevelDesc())
+                    .setType(HospitalEnum.getTypeName(item.getType()))
+                    .setKind(HospitalEnum.getKindName(item.getKind()))
+                    .setRemark(item.getRemark())
+                    .setAddress(item.getAddress())
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
+            exportVo.setProvince(districtList.get(0))
+                    .setCity(districtList.get(1))
+                    .setArea(districtList.get(2))
+                    .setTown(districtList.get(3));
+            createUserIds.add(item.getCreateUserId());
+            exportList.add(exportVo);
+        }
+
+        // 批量设置创建人姓名
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        exportList.forEach(item -> {
+            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+        });
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
 
@@ -203,7 +214,7 @@ public class ExcelFacade {
      * 生成学校Excel
      * @param query    查询条件
      **/
-    public File generateSchool(SchoolQuery query) throws IOException {
+    public File generateSchool(SchoolQuery query) throws IOException, ValidationException {
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学校");
         if (StringUtils.isNotBlank(query.getNoLike())) builder.append("-").append(query.getNoLike());
@@ -215,23 +226,38 @@ public class ExcelFacade {
         }
         String fileName = builder.toString();
         // 构建数据
+        Set<Integer> createUserIds = new HashSet<>();
         List<School> list = schoolService.getExportData(query);
+        List<SchoolExportVo> exportList = new ArrayList<>();
+        for (School item : list) {
+            SchoolExportVo exportVo = new SchoolExportVo()
+                    .setNo(item.getSchoolNo())
+                    .setName(item.getName())
+                    .setKind(item.getKindDesc())
+                    .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
+                    .setType(SchoolEnum.getTypeName(item.getType()))
+                    .setStudentCount(123)
+                    .setDistrictName("层级")
+                    .setAddress(item.getAddress())
+                    // TODO 待组装数据. X年级：X班、Y班 ；Q年级：X班、Y班
+                    .setClassName("年级")
+                    .setRemark(item.getRemark())
+                    .setScreeningCount(2121)
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
+            exportVo.setProvince(districtList.get(0))
+                    .setCity(districtList.get(1))
+                    .setArea(districtList.get(2))
+                    .setTown(districtList.get(3));
+            createUserIds.add(item.getCreateUserId());
+            exportList.add(exportVo);
+        }
 
-        List<SchoolExportVo> exportList = list.stream()
-                .map(item -> {
-                    return new SchoolExportVo()
-                            .setNo(item.getSchoolNo())
-                            .setName(item.getName())
-                            .setKind(item.getKindDesc())
-                            .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
-                            .setType(SchoolEnum.getTypeName(item.getType()))
-                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
-                            .setClassName("年级")
-                            .setRemark(item.getRemark())
-                            .setScreeningCount(2121);
-                }).collect(Collectors.toList());
-
-
+        // 批量设置创建人姓名
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        exportList.forEach(item -> {
+            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+        });
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
     }
@@ -239,7 +265,7 @@ public class ExcelFacade {
      * 生成学生Excel
      * @param query    查询条件
      **/
-    public File generateStudent(StudentQuery query) throws IOException {
+    public File generateStudent(StudentQuery query) throws IOException, ValidationException {
 //        if (Objects.isNull(query.getSchoolId())) {
 //            throw new BusinessException("学校id不能为空");
 //        }
@@ -256,6 +282,7 @@ public class ExcelFacade {
         String fileName = builder.toString();
         // 构建数据
 //        String schoolName = schoolService.getById(query.getSchoolId()).getName();
+        String schoolName = "学校名";
         List<Student> list = studentService.getExportData(query);
         // 获取年级班级信息
         List<Integer> gradeIdList = list.stream().map(Student::getGradeId).collect(Collectors.toList());
@@ -263,21 +290,35 @@ public class ExcelFacade {
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getByIds(gradeIdList).stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
         Map<Integer, SchoolClass> classMap = schoolClassService.getByIds(classIdList).stream().collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
 
-        List<StudentExportVo> exportList = list.stream()
-                .map(item -> {
-                    return new StudentExportVo()
-                            .setNo(item.getSno())
-                            .setName(item.getName())
-                            .setGender(GenderEnum.getName(query.getGender()))
-                            .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
-                            .setNation(NationEnum.getName(item.getNation()))
-//                            .setSchool(schoolName)
-                            .setGrade(gradeMap.get(item.getGradeId()).getName())
-                            .setClassName(classMap.get(item.getClassId()).getName())
-                            .setIdCard(item.getIdCard())
-                            .setPhone(item.getParentPhone())
-                            .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()));
-                }).collect(Collectors.toList());
+        List<StudentExportVo> exportList = new ArrayList<>();
+        for (Student item : list) {
+            StudentExportVo exportVo = new StudentExportVo()
+                    .setNo(item.getSno())
+                    .setName(item.getName())
+                    .setGender(GenderEnum.getName(query.getGender()))
+                    .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
+                    .setNation(NationEnum.getName(item.getNation()))
+                    .setSchoolName(schoolName)
+                    .setGrade(gradeMap.get(item.getGradeId()).getName())
+                    .setClassName(classMap.get(item.getClassId()).getName())
+                    .setIdCard(item.getIdCard())
+                    .setBindPhone(item.getMpParentPhone())
+                    .setPhone(item.getParentPhone())
+                    .setAddress(item.getAddress())
+                    .setLabel(item.getVisionLabel())
+                    .setSituation(item.getCurrentSituation())
+                    .setScreeningCount(item.getScreeningCount())
+                    //TODO 就诊次数
+                    .setVisitsCount(6666)
+                    .setQuestionCount(item.getQuestionnaireCount())
+                    .setLastScreeningTime(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
+            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
+            exportVo.setProvince(districtList.get(0))
+                    .setCity(districtList.get(1))
+                    .setArea(districtList.get(2))
+                    .setTown(districtList.get(3));
+            exportList.add(exportVo);
+        }
         return ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
     }
 
@@ -290,54 +331,41 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException {
+    public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
-        String fileName = IOUtils.getTempPath() +multipartFile.getName()+"_"+System.currentTimeMillis()+".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        try {
-            // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
-            if (listMap.size() != 0) { // 去头部
-                listMap.remove(0);
-            }
-            List<Student> importList = listMap.stream()
-                    .map(item -> {
-                        Student student = new Student();
-                        try {
-                            List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
-                            student.setName(item.get(1))
-                                    .setGender(GenderEnum.getType(item.get(2)))
-                                    .setNation(Integer.valueOf(item.get(4)))
-                                    .setSno(Integer.valueOf(item.get(7)))
-                                    .setIdCard(item.get(8))
-                                    .setParentPhone(item.get(9))
-                                    .setAddress(item.get(14))
-                                    .setProvinceCode(addressCodeList.get(0))
-                                    .setCityCode(addressCodeList.get(1))
-                                    .setAreaCode(addressCodeList.get(2))
-                                    .setTownCode(addressCodeList.get(3))
-//                                    .setSchoolId(schoolId)
-                                    //TODO 年级班级名转id
-                                    .setGradeId(23)
-                                    .setClassId(18)
-                                    .setCreateUserId(createUserId)
-                                    // TODO: hardcode
-//                                    .setStudentNo("1234444444")
-                                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        return student;
-                    }).collect(Collectors.toList());
-            studentService.saveBatch(importList);
-        }catch (Exception e) {
-            log.error("解析学生excel数据失败",e);
-            throw new BusinessException("解析学生excel数据失败", e);
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        if (listMap.size() != 0) { // 去头部
+            listMap.remove(0);
         }
+        List<Student> importList = new ArrayList<>();
+        for (Map<Integer, String> item : listMap) {
+            Student student = new Student();
+            // excel 格式： 序号	姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
+            student.setName(item.get(1))
+                    .setGender(GenderEnum.getType(item.get(2)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(Integer.valueOf(item.get(4)))
+                    //TODO 年级班级名转id
+                    .setGradeId(23)
+                    .setClassId(18)
+                    .setSno(Integer.valueOf(item.get(7)))
+                    .setIdCard(item.get(8))
+                    .setParentPhone(item.get(9))
+                    .setProvinceCode(addressCodeList.get(0))
+                    .setCityCode(addressCodeList.get(1))
+                    .setAreaCode(addressCodeList.get(2))
+                    .setTownCode(addressCodeList.get(3))
+                    .setAddress(item.get(14))
+                    .setCreateUserId(createUserId);
+        }
+        studentService.saveBatch(importList);
     }
 
 
@@ -349,7 +377,6 @@ public class ExcelFacade {
      * @param screeningOrgId 筛查机构id
      * @throws BusinessException io异常
      */
-    // TODO 管理端做还是筛查端做?
     public void importScreeningOrganizationStaff(Integer createUserId, MultipartFile multipartFile,
                                                  Integer screeningOrgId) throws IOException {
         if (null == screeningOrgId) {
@@ -373,6 +400,7 @@ public class ExcelFacade {
         if (listMap.size() != 0) { // 去头部
             listMap.remove(0);
         }
+        // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = listMap.stream()
                 .map(item -> new UserDTO()
                         .setRealName(item.get(1))
@@ -384,23 +412,6 @@ public class ExcelFacade {
                         .setIsLeader(0)
                         .setOrgId(screeningOrgId)
                         .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
-
-        // 查询身份证是否重复
-        ApiResult<List<UserDTO>> checkUser = oauthServiceClient.getUserByIdCard(new UserRequest(screeningOrgId,
-                userList.stream().map(UserDTO::getIdCard).collect(Collectors.toList())));
-        if (!checkUser.isSuccess()) {
-            throw new BusinessException("调用Oauth服务异常");
-        } else {
-            if (!CollectionUtils.isEmpty(checkUser.getData())) {
-                throw new BusinessException("身份证号码重复，请确认");
-            }
-        }
-
-        // 批量新增, 并设置返回的userId
-        ApiResult<List<Integer>> apiResult = oauthServiceClient.addScreeningUserBatch(userList);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException(apiResult.getMessage());
-        }
         List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
                     .setIdCard(item.getIdCard());
@@ -411,9 +422,9 @@ public class ExcelFacade {
                     .setGovDeptId(1);
             return staff;
         }).collect(Collectors.toList());
-        // 设置返回的userId
+        // 批量新增, 并设置返回的userId
         for (int i = 0; i < importList.size(); i++) {
-            importList.get(i).setUserId(apiResult.getData().get(i));
+            importList.get(i).setUserId(oauthService.addScreeningUserBatch(userList).get(i));
         }
         screeningOrganizationStaffService.saveBatch(importList);
     }
@@ -437,6 +448,11 @@ public class ExcelFacade {
             log.error("获取地址失败", e);
         }
         return "";
+    }
+
+    /** 用户名列表转成输出的字符串 */
+    private String toUserNameString(List<String> userNameList) {
+        return userNameList.toString().replaceFirst("\\[", "").replaceFirst("]", "");
     }
 
     /**

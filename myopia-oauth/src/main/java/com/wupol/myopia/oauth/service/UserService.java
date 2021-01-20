@@ -187,9 +187,8 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param request   请求体
      * @return 用户列表
      */
-    public List<User> getUserByIdCard(UserRequest request) {
+    public List<User> getByIds(UserRequest request) {
         return baseMapper.selectList(new QueryWrapper<User>()
-                .eq("org_id", request.getOrgId())
-                .in("id_card", request.getIdCards()));
+                .in("id", request.getUserIds()));
     }
 }

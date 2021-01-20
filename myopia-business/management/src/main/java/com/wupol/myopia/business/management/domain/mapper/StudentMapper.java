@@ -25,7 +25,7 @@ public interface StudentMapper extends BaseMapper<Student> {
                                                 @Param("sno") Integer sno, @Param("idCard") String idCard,
                                                 @Param("name") String name, @Param("parentPhone") String parentPhone,
                                                 @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
-                                                @Param("labels") String labels, @Param("startScreeningTime") Date startScreeningTime,
+                                                @Param("visionLabels") List<Integer> visionLabels, @Param("startScreeningTime") Date startScreeningTime,
                                                 @Param("endScreeningTime") Date endScreeningTime);
 
     List<Student> getExportData(StudentQuery query);

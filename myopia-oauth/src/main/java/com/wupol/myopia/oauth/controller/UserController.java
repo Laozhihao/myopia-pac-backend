@@ -114,9 +114,9 @@ public class UserController {
         return userService.listByIds(userIds);
     }
 
-    @GetMapping("/getByIdCard")
-    public List<User> getUserByIdCard(UserRequest request) {
-        return userService.getUserByIdCard(request);
+    @GetMapping("/getByIds")
+    public List<User> getByIds(UserRequest request) {
+        return userService.getByIds(request);
     }
 
     /**

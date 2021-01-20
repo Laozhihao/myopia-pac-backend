@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -31,9 +32,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
     @Resource
     private StudentService studentService;
-
-    @Resource
-    private SchoolGradeMapper schoolGradeMapper;
 
 
     /**
@@ -88,7 +86,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = schoolGradeMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
+        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }
@@ -126,6 +124,17 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public List<SchoolGrade> getByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 批量通过id获取实体
+     *
+     * @param ids ids
+     * @return Map<Integer, SchoolGrade>
+     */
+    public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
+        return getByIds(ids).stream()
+                .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
     }
 
     /**

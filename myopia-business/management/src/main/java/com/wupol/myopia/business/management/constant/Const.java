@@ -21,12 +21,6 @@ public class Const {
 
     public static final String LOCK_HOSPITAL_REDIS = "hospital:lock.student:String";
 
-    public static final String GENERATE_ORG_SN = "org:generate.org.sn:long";
-
-    public static final String GENERATE_SCHOOL_SN = "school:generate.school.sn:long";
-
-    public static final String GENERATE_HOSPITAL_SN = "hospital:generate.hospital.sn:long";
-
     public static final Integer SCREENING_TIME = 0;
 
     public static final String DISTRICT_CN_NAME = "district:cn.name:integer";
