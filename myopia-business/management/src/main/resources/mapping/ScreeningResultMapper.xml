@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningResult">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningPlanSchoolStudentId)">and `screening_plan_school_student_id` = #{screeningPlanSchoolStudentId}</if>
+                <if test="@Ognl@isNotEmpty(taskId)">and `task_id` = #{taskId}</if>
+                <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(leftNakedVision)">and `left_naked_vision` = #{leftNakedVision}</if>
+                <if test="@Ognl@isNotEmpty(rightNakedVision)">and `right_naked_vision` = #{rightNakedVision}</if>
+                <if test="@Ognl@isNotEmpty(leftCorrectedVision)">and `left_corrected_vision` = #{leftCorrectedVision}</if>
+                <if test="@Ognl@isNotEmpty(rightCorrectedVision)">and `right_corrected_vision` = #{rightCorrectedVision}</if>
+                <if test="@Ognl@isNotEmpty(glassesType)">and `glasses_type` = #{glassesType}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel)">and `vision_label` = #{visionLabel}</if>
+                <if test="@Ognl@isNotEmpty(isLowVision)">and `is_low_vision` = #{isLowVision}</if>
+                <if test="@Ognl@isNotEmpty(isMyopia)">and `is_myopia` = #{isMyopia}</if>
+                <if test="@Ognl@isNotEmpty(isKeyWarningCrown)">and `is_key_warning_crown` = #{isKeyWarningCrown}</if>
+                <if test="@Ognl@isNotEmpty(isRecommendedVisits)">and `is_recommended_visits` = #{isRecommendedVisits}</if>
+                <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, screening_plan_school_student_id, task_id, plan_id, district_id, left_naked_vision, right_naked_vision, left_corrected_vision, right_corrected_vision, glasses_type, vision_label, is_low_vision, is_myopia, is_key_warning_crown, is_recommended_visits, is_double_screen, create_time
+    </sql>
+
+</mapper>
