@@ -228,4 +228,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         return result;
     }
+
+    /**
+     * 获取学生筛查档案
+     *
+     * @param studentId 学生ID
+     * @return Object
+     */
+    public Object getScreeningList(Integer studentId) {
+        return null;
+    }
 }

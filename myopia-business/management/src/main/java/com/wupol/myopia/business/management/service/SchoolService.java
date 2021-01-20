@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -58,6 +57,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private OauthService oauthService;
+
     @Resource
     private UserService userService;
 
@@ -262,5 +262,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getExportData(SchoolQuery query) {
         return baseMapper.getExportData(query);
+    }
+
+    /**
+     * 获取学校的筛查记录列表
+     *
+     * @param pageRequest 通用分页
+     * @param schoolId    学校ID
+     * @return {@link IPage}
+     */
+    public IPage<Object> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+        return null;
+    }
+
+    /**
+     * 获取学校的筛查记录详情
+     *
+     * @param id 筛查记录详情ID
+     * @return Object
+     */
+    public Object getScreeningRecordDetail(Integer id) {
+        return null;
     }
 }
