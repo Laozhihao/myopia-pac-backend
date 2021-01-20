@@ -67,7 +67,7 @@
             and ms.district_id = #{districtId}
         </if>
         <if test="userIds != null and userIds.size() != 0">
-            and ms.create_time in
+            and ms.create_user_id in
             <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">
                 #{id}
             </foreach>

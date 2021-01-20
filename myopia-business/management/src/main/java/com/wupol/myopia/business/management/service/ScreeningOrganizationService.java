@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -13,9 +14,7 @@ import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
@@ -58,6 +57,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private OauthService oauthService;
+
+    @Resource
+    private ScreeningTaskOrgService screeningTaskOrgService;
+
+    @Resource
+    private ScreeningTaskService screeningTaskService;
 
     /**
      * 保存筛查机构
@@ -276,8 +281,19 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<Object> getRecordLists(PageRequest request, Integer orgId) {
-        return null;
+    public IPage<ScreeningTask> getRecordLists(PageRequest request, Integer orgId) {
+        // 查询筛查任务关联的机构表
+        List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
+
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(taskOrgLists)) {
+            return new Page<>();
+        }
+        // 获取筛查通知任务
+        return screeningTaskService.getTaskByIds(request, taskOrgLists
+                .stream()
+                .map(ScreeningTaskOrg::getScreeningTaskId)
+                .collect(Collectors.toList()));
     }
 
     /**
