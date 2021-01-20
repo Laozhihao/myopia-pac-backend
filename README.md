@@ -5,7 +5,7 @@
 ## 技术栈
 
 - 基础工程：Spring Boot 2.2.11.RELEASE + Maven + JDK 1.8
-- 数据层：Mybatis Plus + MySQL 5.6
+- 数据层：Mybatis Plus + MySQL 5.7
 - 日志：Log4j2
 - 缓存：Redis 3.2.1
 - 消息队列：Kafka
