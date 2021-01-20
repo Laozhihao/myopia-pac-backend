@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNotice">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
+                <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
+                <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
+                <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
+                <if test="@Ognl@isNotEmpty(operationVersion)">and `operation_version` = #{operationVersion}</if>
+                <if test="@Ognl@isNotEmpty(creatorId)">and `creator_id` = #{creatorId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
+                <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, creator_id, create_time, operator_id, operate_time
+    </sql>
+
+</mapper>
