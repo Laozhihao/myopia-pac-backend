@@ -34,7 +34,7 @@ public class NoticeController {
         return noticeService.readNotice(ids);
     }
 
-    @PutMapping("deleted/{ids}")
+    @DeleteMapping("deleted/{ids}")
     public Object deletedNotice(@PathVariable("ids") String ids) {
         return noticeService.deletedNotice(ids);
     }
