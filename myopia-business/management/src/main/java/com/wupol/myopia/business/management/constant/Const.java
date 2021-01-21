@@ -25,4 +25,9 @@ public class Const {
 
     public static final String DISTRICT_CN_NAME = "district:cn.name:integer";
 
+    public static final Integer READ_NOTICE = 1;
+
+    public static final Integer DELETED_NOTICE = 2;
+
+
 }
