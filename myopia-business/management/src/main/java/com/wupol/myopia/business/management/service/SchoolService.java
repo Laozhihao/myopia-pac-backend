@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -300,5 +302,23 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public Object getScreeningRecordDetail(Integer id) {
         return schoolVisionStatisticService.getByPlanId(id);
+    }
+
+    /**
+     * 批量通过学校获取
+     *
+     * @param schoolNos 学校编码Lists
+     * @return Map<String, String>
+     */
+    public Map<String, String> getNameBySchoolNos(List<String> schoolNos) {
+        if (CollectionUtils.isEmpty(schoolNos)) {
+            return Maps.newHashMap();
+        }
+        List<School> schoolNo = baseMapper.selectList(new QueryWrapper<School>().in("school_no", schoolNos));
+
+        if (CollectionUtils.isEmpty(schoolNo)) {
+            return Maps.newHashMap();
+        }
+        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
     }
 }

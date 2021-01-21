@@ -54,6 +54,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private ScreeningResultService screeningResultService;
 
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 通过学校id查找学生
      *
@@ -189,6 +192,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
                 .stream().map(Student::getClassId).collect(Collectors.toList()));
 
+        // 学校信息
+        Map<String, String> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
+
         // 封装DTO
         students.forEach(s -> {
             if (null != gradeMaps.get(s.getGradeId())) {
@@ -196,6 +202,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             }
             if (null != classMaps.get(s.getClassId())) {
                 s.setClassName(classMaps.get(s.getClassId()).getName());
+            }
+            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+                s.setSchoolName(schoolMaps.get(s.getSchoolNo()));
             }
         });
         return pageStudents;
