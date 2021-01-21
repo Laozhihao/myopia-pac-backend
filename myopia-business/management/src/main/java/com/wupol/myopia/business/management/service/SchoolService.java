@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -16,6 +17,7 @@ import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -261,7 +263,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 获取导出数据
      */
     public List<School> getExportData(SchoolQuery query) {
-        return baseMapper.getExportData(query);
+        return baseMapper.getBy(query);
     }
 
     /**
@@ -283,5 +285,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public Object getScreeningRecordDetail(Integer id) {
         return null;
+    }
+
+
+    /**
+     * 模糊查询所有学校名称
+     * @param nameLike 模糊查询
+     * @param deptId    机构id
+     * @return
+     */
+    public List<String> getBySchoolName(String nameLike, Integer deptId) {
+        SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
+        query.setGovDeptId(deptId);
+        return baseMapper.getBy(query).stream().map(School::getName).collect(Collectors.toList());
     }
 }
