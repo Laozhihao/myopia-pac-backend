@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.management.domain.model;
 
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -74,21 +76,25 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--零级预警人数（默认0）
      */
+    @TableField("vision_label_0_numbers")
     private Integer visionLabel0Numbers;
 
     /**
      * 视力情况--一级预警人数（默认0）
      */
+    @TableField("vision_label_1_numbers")
     private Integer visionLabel1Numbers;
 
     /**
      * 视力情况--二级预警人数（默认0）
      */
+    @TableField("vision_label_2_numbers")
     private Integer visionLabel2Numbers;
 
     /**
      * 视力情况--三级预警人数（默认0）
      */
+    @TableField("vision_label_3_numbers")
     private Integer visionLabel3Numbers;
 
     /**
