@@ -83,7 +83,7 @@ public class ScreeningOrganizationController {
         return saveScreeningOrganization.resetPassword(request.getId());
     }
 
-    @GetMapping("/record/{orgId}")
+    @GetMapping("/record/lists/{orgId}")
     public Object getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
         return saveScreeningOrganization.getRecordLists(request, orgId);
     }

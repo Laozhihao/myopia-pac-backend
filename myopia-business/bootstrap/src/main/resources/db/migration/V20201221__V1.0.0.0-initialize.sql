@@ -193,7 +193,7 @@ create table m_student
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     screening_count     int       default 0                 not null comment '视力筛查次数',
     questionnaire_count int       default 0                 not null comment '问卷数',
-    last_screening_time timestamp                           null comment '最近筛选次数',
+    last_screening_time timestamp                           null comment '最近筛选时间',
     status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
