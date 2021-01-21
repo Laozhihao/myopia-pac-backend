@@ -285,7 +285,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
-            return null;
+            return new Page<>();
         }
 
         // 通过planIds查询计划
