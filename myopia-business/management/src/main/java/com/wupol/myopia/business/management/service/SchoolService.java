@@ -19,7 +19,6 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -326,13 +325,48 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 模糊查询所有学校名称
+     *
      * @param nameLike 模糊查询
-     * @param deptId    机构id
-     * @return
+     * @param deptId   机构id
+     * @return 学校名字List
      */
     public List<String> getBySchoolName(String nameLike, Integer deptId) {
         SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
         query.setGovDeptId(deptId);
         return baseMapper.getBy(query).stream().map(School::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过名字获取学校
+     *
+     * @param name 名字
+     * @return List<School>
+     */
+    public List<School> getBySchoolName(String name) {
+        return baseMapper.selectList(new QueryWrapper<School>().like("name", name));
+    }
+
+    /**
+     * 学校编号是否被使用
+     *
+     * @param schoolNo 学校编号
+     * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
+     */
+    public Boolean checkSchoolNo(String schoolNo) {
+        List<School> schoolList = baseMapper.selectList(new QueryWrapper<School>().eq("school_no", schoolNo));
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 通过districtId获取学校
+     *
+     * @param districtId 行政区域ID
+     * @return List<School>
+     */
+    public List<School> getByDistrictId(Integer districtId) {
+        return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
     }
 }

@@ -18,6 +18,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtJson)">and `district_json` = #{districtJson}</if>
                 <if test="@Ognl@isNotEmpty(districtName)">and `district_name` = #{districtName}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>
@@ -46,7 +47,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, gov_dept_id, district_id, district_name, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, school_no, create_user_id, gov_dept_id, district_id, district_json, district_name, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">

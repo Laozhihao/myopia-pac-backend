@@ -94,4 +94,19 @@ public class SchoolController {
     public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
         return schoolService.getScreeningRecordDetail(planId);
     }
+
+    @GetMapping("/checkSchoolNo/{schoolNo}")
+    public Object checkSchoolNo(@PathVariable("schoolNo") String schoolNo) {
+        return schoolService.checkSchoolNo(schoolNo);
+    }
+
+    @GetMapping("/getSchools/{schoolName}")
+    public Object getSchoolByName(@PathVariable("schoolName") String schoolName) {
+        return schoolService.getBySchoolName(schoolName);
+    }
+
+    @GetMapping("/getSchoolsByDistrictId/{districtId}")
+    public Object getSchoolsByDistrictId(@PathVariable("districtId")Integer districtId) {
+        return schoolService.getByDistrictId(districtId);
+    }
 }
