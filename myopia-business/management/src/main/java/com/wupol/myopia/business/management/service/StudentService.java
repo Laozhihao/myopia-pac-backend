@@ -7,9 +7,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
@@ -49,6 +47,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
+
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private ScreeningResultService screeningResultService;
 
     /**
      * 通过学校id查找学生
@@ -235,7 +239,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentId 学生ID
      * @return Object
      */
-    public Object getScreeningList(Integer studentId) {
-        return studentId;
+    public List<ScreeningResult> getScreeningList(Integer studentId) {
+
+        // 通过学生的ID查询筛查计划的学生
+        List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByStudentId(studentId);
+
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(planSchoolStudents)) {
+            return null;
+        }
+
+        // 通过计划Ids查询学生的结果
+        return screeningResultService.getByPlanSchoolStudentIds(planSchoolStudents.stream()
+                .map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()));
     }
 }

@@ -64,6 +64,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningTaskService screeningTaskService;
 
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
     /**
      * 保存筛查机构
      *
@@ -303,6 +306,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 详情
      */
     public Object getRecordDetail(Integer id) {
-        return null;
+        return schoolVisionStatisticService.getByTaskId(id);
     }
 }

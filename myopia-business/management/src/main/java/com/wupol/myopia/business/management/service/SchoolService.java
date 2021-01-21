@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -60,6 +61,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
 
     /**
      * 新增学校
@@ -271,8 +281,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public IPage<Object> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
-        return null;
+    public Object getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
+        if (CollectionUtils.isEmpty(planSchoolList)) {
+            return null;
+        }
+
+        // 通过planIds查询计划
+        return screeningPlanService.getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
     }
 
     /**
@@ -282,6 +299,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 详情
      */
     public Object getScreeningRecordDetail(Integer id) {
-        return null;
+        return schoolVisionStatisticService.getByPlanId(id);
     }
 }
