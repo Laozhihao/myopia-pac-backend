@@ -14,6 +14,7 @@
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(avgLeftVision)">and `avg_left_vision` = #{avgLeftVision}</if>
                 <if test="@Ognl@isNotEmpty(avgRightVision)">and `avg_right_vision` = #{avgRightVision}</if>
                 <if test="@Ognl@isNotEmpty(lowVisionNumbers)">and `low_vision_numbers` = #{lowVisionNumbers}</if>
@@ -33,7 +34,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, wearing_glasses_numbers, myopia_numbers, vision_label_0_numbers, vision_label_1_numbers, vision_label_2_numbers, vision_label_3_numbers, key_warning_numbers, plan_screening_numbers, real_screening_numners, create_time
+        id, screening_task_id, screening_plan_id, schoolId, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, wearing_glasses_numbers, myopia_numbers, vision_label_0_numbers, vision_label_1_numbers, vision_label_2_numbers, vision_label_3_numbers, key_warning_numbers, plan_screening_numbers, real_screening_numners, create_time
     </sql>
 
 </mapper>
