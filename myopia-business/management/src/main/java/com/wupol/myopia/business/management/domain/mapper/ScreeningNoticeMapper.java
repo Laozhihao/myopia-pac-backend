@@ -10,5 +10,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Date 2021-01-20
  */
 public interface ScreeningNoticeMapper extends BaseMapper<ScreeningNotice> {
-
+    Integer release(Integer id);
 }
