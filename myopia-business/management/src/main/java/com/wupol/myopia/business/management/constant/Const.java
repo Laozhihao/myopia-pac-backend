@@ -29,5 +29,7 @@ public class Const {
 
     public static final Integer DELETED_NOTICE = 2;
 
+    public static final Integer STUDENT_ARCHIVES = 1;
 
+    public static final Integer SCREENING_REPORT = 2;
 }
