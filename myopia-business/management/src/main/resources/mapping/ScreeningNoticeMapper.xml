@@ -34,4 +34,8 @@
         id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, creator_id, create_time, operator_id, operate_time
     </sql>
 
+    <update id="release">
+        update m_screening_notice set release_status = 1 , release_time = current_timestamp where id = #{id}
+    </update>
+
 </mapper>

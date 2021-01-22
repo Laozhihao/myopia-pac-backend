@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 筛查通知表
@@ -43,13 +44,11 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--开始时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 筛查通知--结束时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /**
@@ -75,7 +74,6 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--发布时间（时间戳 ）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date releaseTime;
 
     /**
@@ -91,7 +89,6 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--创建时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -102,8 +99,5 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--最后操作时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operateTime;
-
-
 }
