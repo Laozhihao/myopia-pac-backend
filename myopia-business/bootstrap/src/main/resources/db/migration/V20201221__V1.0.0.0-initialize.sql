@@ -183,7 +183,7 @@ create table m_student
     name                varchar(8)                          not null comment '学生姓名',
     gender              tinyint(1)                          not null comment '性别 1-男 2-女',
     birthday            timestamp                           null comment '出生日期',
-    nation              tinyint                             not null comment '民族 0-汉族',
+    nation              tinyint                             null comment '民族 0-汉族',
     id_card             varchar(32)                         not null comment '身份证号码',
     parent_phone        varchar(16)                         not null comment '家长手机号码',
     mp_parent_phone     varchar(16)                         null comment '家长公众号手机号码',
