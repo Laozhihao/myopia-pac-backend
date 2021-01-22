@@ -61,7 +61,7 @@ public class StudentController {
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        return studentService.getById(id);
+        return studentService.getStudentById(id);
     }
 
     @GetMapping("list")

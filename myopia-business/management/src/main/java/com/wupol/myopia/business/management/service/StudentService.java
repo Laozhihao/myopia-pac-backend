@@ -51,9 +51,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private Long provinceCode;
 
     @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Resource
     private ScreeningResultService screeningResultService;
 
     @Resource
@@ -265,5 +262,24 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过id获取学生信息
+     *
+     * @param id 学生ID
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = baseMapper.getStudentById(id);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            // 学校编号不为空，则拼接学校信息
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            student.setSchoolId(school.getId());
+            student.setSchoolNo(school.getSchoolNo());
+            student.setSchoolName(school.getName());
+        }
+        return student;
     }
 }

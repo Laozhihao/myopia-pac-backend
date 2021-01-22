@@ -107,4 +107,11 @@
         from m_student
         <include refid="Base_Where_Clause"/>
     </select>
+
+    <select id="getStudentById" resultMap="BaseResultMapDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student ms
+        where ms.id = #{id}
+    </select>
 </mapper>

@@ -357,6 +357,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 通过学校编号获取学校
+     *
+     * @param schoolNo 学校编号
+     * @return School
+     */
+    public School getBySchoolNo(String schoolNo) {
+        return baseMapper.selectOne(new QueryWrapper<School>().eq("school_no", schoolNo));
+    }
+
+    /**
      * 通过districtId获取学校
      *
      * @param districtId 行政区域ID
