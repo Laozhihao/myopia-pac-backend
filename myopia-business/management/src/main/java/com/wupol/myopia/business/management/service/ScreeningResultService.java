@@ -15,8 +15,31 @@ import java.util.List;
 @Service
 public class ScreeningResultService extends BaseService<ScreeningResultMapper, ScreeningResult> {
 
-    List<ScreeningResult> getByPlanSchoolStudentIds(List<Integer> ids) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningResult>().in("screening_plan_school_student_id", ids));
+    /**
+     * 通过StudentId获取筛查结果
+     *
+     * @param studentId id
+     * @return List<ScreeningResult>
+     */
+    public List<ScreeningResult> getByStudentIds(Integer studentId) {
+        return baseMapper.selectList(new QueryWrapper<ScreeningResult>()
+                .eq("student_id", studentId)
+                .orderByDesc("create_time"));
     }
 
+    /**
+     * 通过计划ID获取结果
+     *
+     * @param planId 计划ID
+     * @return 结果
+     */
+    public ScreeningResult getByPlanId(Integer planId) {
+        return baseMapper.selectOne(new QueryWrapper<ScreeningResult>().eq("plan_id", planId));
+    }
+
+    public List<ScreeningResult> getByTaskId(Integer taskId) {
+        return baseMapper.selectList(new QueryWrapper<ScreeningResult>()
+                .eq("task_id", taskId)
+                .orderByDesc("create_time"));
+    }
 }

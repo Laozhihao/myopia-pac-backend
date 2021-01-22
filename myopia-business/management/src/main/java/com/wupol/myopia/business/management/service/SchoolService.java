@@ -20,6 +20,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -72,7 +73,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
+    private ScreeningResultService screeningResultService;
 
     /**
      * 新增学校
@@ -302,7 +303,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 详情
      */
     public Object getScreeningRecordDetail(Integer id) {
-        return schoolVisionStatisticService.getByPlanId(id);
+        return screeningResultService.getByPlanId(id);
     }
 
     /**

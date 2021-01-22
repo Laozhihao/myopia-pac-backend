@@ -250,17 +250,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Object
      */
     public List<ScreeningResult> getScreeningList(Integer studentId) {
-
-        // 通过学生的ID查询筛查计划的学生
-        List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByStudentId(studentId);
-
-        // 为空直接返回
-        if (CollectionUtils.isEmpty(planSchoolStudents)) {
-            return null;
-        }
-
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByPlanSchoolStudentIds(planSchoolStudents.stream()
-                .map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()));
+        return screeningResultService.getByStudentIds(studentId);
     }
 }
