@@ -128,6 +128,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addVision")
     public Object addStudentVision() {
+        //TODO 管理端，待修改接收的参数
         return screeningAppService.addStudentVision();
     }
 
@@ -137,7 +138,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addComputer")
     public Object addStudentComputer() {
-        return screeningAppService.addStudentVision();
+        //TODO 管理端，待修改接收的参数
+        return screeningAppService.addStudentComputer();
     }
 
     /**
@@ -146,7 +148,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addBiology")
     public Object addStudentBiology() {
-        return screeningAppService.addStudentVision();
+        //TODO 管理端，待修改接收的参数
+        return screeningAppService.addStudentBiology();
     }
 
     /**
@@ -154,7 +157,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/findAllEyeDisease")
-    public Object getAllEyeDisease() {
+    public List<Object> getAllEyeDisease() {
+        //TODO 管理端，待修改返回的参数
         return screeningAppService.getAllEyeDisease();
     }
 
@@ -164,7 +168,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyeDisease")
     public Object addEyeDisease() {
-        //TODO
+        //TODO 管理端，待修改接收的参数
         return screeningAppService.addEyeDisease();
     }
 
@@ -174,7 +178,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addChronic")
     public Object addChronic() {
-        //TODO
+        //TODO 管理端，待修改接收的参数
         return screeningAppService.addChronic();
     }
 
@@ -186,6 +190,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/eye/findStudentChronicNewByStudentId")
     public List<Object> getStudentChronicNewByStudentId(Integer studentId, Integer deptId) {
+        //TODO 管理端，待修改返回的参数
         deptId = 1;
         return screeningAppService.getStudentChronicNewByStudentId(studentId, deptId);
     }
@@ -195,7 +200,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/findAllReviewResult")
-    public Object getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
+    public List<Object> getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
+        //TODO 管理端，待修改返回的参数
         return screeningAppService.getAllReviewResult(deptId, gradeName, clazzName, schoolId);
     }
 
@@ -204,7 +210,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/updateReviewResult")
-    public Object updateReviewResult(Integer eyeId) {
+    public Boolean updateReviewResult(Integer eyeId) {
+        //TODO 管理端，待修改接收的参数
         return screeningAppService.updateReviewResult(eyeId);
     }
 
@@ -216,7 +223,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/user/uploadSignPic")
-    public Object uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
+    public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
         return screeningAppService.uploadSignPic(deptId, userId, file);
     }
 
@@ -226,6 +233,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/student/save")
     public Object saveStudent(Student student) {
+        //TODO 管理端，待查询再修改
         return screeningAppService.saveStudent(student);
     }
 
@@ -235,6 +243,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/recognitionFace")
     public Object recognitionFace(Integer deptId, MultipartFile file) {
+        //TODO 筛查端，待修改
         return screeningAppService.recognitionFace(deptId, file);
     }
 

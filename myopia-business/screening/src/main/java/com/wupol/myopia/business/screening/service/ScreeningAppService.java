@@ -46,7 +46,8 @@ public class ScreeningAppService {
      * @return
      */
     public List<String> getSchoolNameBySchoolNameLike(String nameLike, Integer screeningOrgId, Boolean isReview) {
-        //TODO 待增加复测的逻辑
+        //TODO 管理端，待修改
+        // TODO 待增加复测的逻辑
         SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
         query.setGovDeptId(screeningOrgId);
         return schoolService.getBy(query).stream().map(School::getName).collect(Collectors.toList());
@@ -87,6 +88,7 @@ public class ScreeningAppService {
      * @return
      */
     public List<Student> getStudentBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer screeningOrgId, Boolean isReview) {
+        //TODO 管理端，待修改
         //TODO 待增加复测的逻辑
         List<SchoolClass> classList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName, screeningOrgId);
         for (SchoolClass item : classList) {
@@ -111,6 +113,7 @@ public class ScreeningAppService {
      * @return
      */
     public List<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
+        //TODO 管理端，待修改
         //TODO 待做随机
         return getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, "", screeningOrgId, true);
     }
@@ -120,7 +123,7 @@ public class ScreeningAppService {
      * @return
      */
     public Object addStudentVision() {
-        //TODO
+        //TODO 管理端，待修改
         return new Object();
     }
 
@@ -129,7 +132,7 @@ public class ScreeningAppService {
      * @return
      */
     public Object addStudentComputer() {
-        //TODO
+        //TODO 管理端，待修改
         return new Object();
     }
 
@@ -138,7 +141,7 @@ public class ScreeningAppService {
      * @return
      */
     public Object addStudentBiology() {
-        //TODO
+        //TODO 管理端，待修改
         return new Object();
     }
 
@@ -148,8 +151,8 @@ public class ScreeningAppService {
      * @return
      */
     public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId) {
+        //TODO 筛查端，待修改
         SchoolQuery query = new SchoolQuery();
-        //TODO 待修改成机构
         query.setGovDeptId(screeningOrgId);
         return schoolService.getBy(query);
     }
@@ -167,8 +170,9 @@ public class ScreeningAppService {
      * 查询眼睛疾病
      * @return
      */
-    public Object getAllEyeDisease() {
-        return new Object();
+    public List<Object> getAllEyeDisease() {
+        //TODO 筛查端，待修改
+        return Collections.emptyList();
     }
 
     /**
@@ -176,7 +180,7 @@ public class ScreeningAppService {
      * @return
      */
     public Object addEyeDisease() {
-        //TODO
+        //TODO 筛查端，待修改
         return new Object();
     }
 
@@ -185,7 +189,7 @@ public class ScreeningAppService {
      * @return
      */
     public Object addChronic() {
-        //TODO
+        //TODO 筛查端，待修改
         return new Object();
     }
 
@@ -196,6 +200,7 @@ public class ScreeningAppService {
      * @return
      */
     public List<Object>  getStudentChronicNewByStudentId(Integer studentId, Integer screeningOrgId) {
+        //TODO 筛查端，待修改
         return Collections.emptyList();
     }
 
@@ -203,18 +208,18 @@ public class ScreeningAppService {
      * 获取复测质控结果
      * @return
      */
-    public Object getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
-        //TODO
-        return new Object();
+    public List<Object> getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
+        //TODO 筛查端，待修改
+        return Collections.emptyList();
     }
 
     /**
      * 更新复测质控结果
      * @return
      */
-    public Object updateReviewResult(Integer eyeId) {
-        //TODO
-        return new Object();
+    public Boolean updateReviewResult(Integer eyeId) {
+        //TODO 筛查端，待修改
+        return true;
     }
 
     /**
@@ -224,9 +229,9 @@ public class ScreeningAppService {
      * @param file      签名
      * @return
      */
-    public Object uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
-        //TODO
-        return new Object();
+    public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
+        //TODO 筛查端，待修改
+        return true;
     }
 
     /**
