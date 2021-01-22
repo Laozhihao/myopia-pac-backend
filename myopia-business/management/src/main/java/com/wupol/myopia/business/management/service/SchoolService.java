@@ -10,7 +10,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.SchoolDto;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -93,7 +94,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // 设置行政区域名
         school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
 
-        RLock rLock = redissonClient.getLock(Const.LOCK_SCHOOL_REDIS + townCode);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, townCode));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -132,7 +133,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public Integer deletedSchool(Integer id) {
         School school = new School();
         school.setId(id);
-        school.setStatus(Const.STATUS_IS_DELETED);
+        school.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(school);
     }
 

@@ -3,7 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
@@ -84,7 +84,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     private List<Integer> getNextGov(List<Integer> resultIds, List<Integer> ids) {
         QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("pid", ids).ne("status", Const.STATUS_IS_DELETED);
+        queryWrapper.in("pid", ids).ne("status", CommonConst.STATUS_IS_DELETED);
         List<GovDept> govDeptLists = baseMapper.selectList(queryWrapper);
         if (!govDeptLists.isEmpty()) {
             List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());

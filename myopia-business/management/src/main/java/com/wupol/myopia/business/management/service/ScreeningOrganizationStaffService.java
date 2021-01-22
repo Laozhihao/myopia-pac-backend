@@ -10,7 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -115,8 +115,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         Integer createUserId = staffQuery.getCreateUserId();
         String phone = staffQuery.getPhone();
-
-        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_STAFF_REDIS + phone);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_STAFF_REDIS, phone));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {

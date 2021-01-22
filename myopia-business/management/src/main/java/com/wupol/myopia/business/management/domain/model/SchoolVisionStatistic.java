@@ -49,6 +49,11 @@ public class SchoolVisionStatistic implements Serializable {
     private Integer districtId;
 
     /**
+     * 视力情况--学校id
+     */
+    private Integer schoolId;
+
+    /**
      * 视力情况--平均左眼视力（小数点后一位，默认0.0）
      */
     private BigDecimal avgLeftVision;

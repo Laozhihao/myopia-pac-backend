@@ -48,6 +48,10 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
         return list(getQueryWrapper(entity));
     }
 
+    public IPage<T> findPage(Page<T> page, T entity) throws IOException {
+        return page(page, getQueryWrapper(entity));
+    }
+
     /**
      * 查询List集合
      *
