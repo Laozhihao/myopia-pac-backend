@@ -24,7 +24,7 @@ public class StudentArchivesController {
 
     @GetMapping("lists")
     public Object getLists() {
-        return templateService.getTemplateLists(CommonConst.STUDENT_ARCHIVES);
+        return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
     }
 
     @PutMapping("save")

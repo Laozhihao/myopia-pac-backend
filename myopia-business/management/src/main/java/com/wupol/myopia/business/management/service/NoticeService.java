@@ -48,7 +48,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean readNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.READ_NOTICE) > 0;
+        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.STATUS_NOTICE_READ) > 0;
     }
 
     /**
@@ -58,6 +58,6 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @return 是否删除成功
      */
     public Object deletedNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.DELETED_NOTICE) > 0;
+        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.STATUS_NOTICE_DELETED) > 0;
     }
 }
