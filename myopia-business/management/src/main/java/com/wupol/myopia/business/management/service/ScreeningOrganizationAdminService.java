@@ -44,6 +44,6 @@ public class ScreeningOrganizationAdminService extends BaseService<ScreeningOrga
     public ScreeningOrganizationAdmin getByOrgId(Integer orgId) {
         return baseMapper
                 .selectOne(new QueryWrapper<ScreeningOrganizationAdmin>()
-                        .eq("hospital_id", orgId));
+                        .eq("screening_org_id", orgId));
     }
 }

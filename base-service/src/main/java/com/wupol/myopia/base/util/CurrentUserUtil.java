@@ -45,12 +45,4 @@ public class CurrentUserUtil {
         }
         return currentUser;
     }
-
-    public static CurrentUser getLegalCurrentUser() {
-        CurrentUser currentUser = getCurrentUser();
-        if (null == currentUser || null == currentUser.getOrgId() || null == currentUser.getId()) {
-            throw new BusinessException("请登录");
-        }
-        return currentUser;
-    }
 }

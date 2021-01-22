@@ -38,7 +38,7 @@ public class SchoolController {
 
     @PostMapping()
     public Object saveSchool(@RequestBody @Valid School school) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
         return schoolService.saveSchool(school);
@@ -46,7 +46,7 @@ public class SchoolController {
 
     @PutMapping()
     public Object updateSchool(@RequestBody @Valid School school) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
         return schoolService.updateSchool(school);
@@ -64,24 +64,49 @@ public class SchoolController {
 
     @GetMapping("list")
     public Object getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolService.getSchoolList(pageRequest, schoolQuery, user);
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        CurrentUserUtil.getLegalCurrentUser();
+        CurrentUserUtil.getCurrentUser();
         return schoolService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
+        CurrentUserUtil.getCurrentUser();
         return schoolService.resetPassword(request.getId());
     }
 
     @GetMapping("/export")
     public ResponseEntity<FileSystemResource> getSchoolExportData(SchoolQuery query) throws IOException, ValidationException {
         return FileUtils.getResponseEntity(excelFacade.generateSchool(query));
+    }
+
+    @GetMapping("screening/record/lists/{schoolId}")
+    public Object getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
+        return schoolService.getScreeningRecordLists(pageRequest, schoolId);
+    }
+
+    @GetMapping("screening/record/{planId}")
+    public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
+        return schoolService.getScreeningRecordDetail(planId);
+    }
+
+    @GetMapping("/checkSchoolNo/{schoolNo}")
+    public Object checkSchoolNo(@PathVariable("schoolNo") String schoolNo) {
+        return schoolService.checkSchoolNo(schoolNo);
+    }
+
+    @GetMapping("/getSchools/{schoolName}")
+    public Object getSchoolByName(@PathVariable("schoolName") String schoolName) {
+        return schoolService.getBySchoolName(schoolName);
+    }
+
+    @GetMapping("/getSchoolsByDistrictId/{districtId}")
+    public Object getSchoolsByDistrictId(@PathVariable("districtId")Integer districtId) {
+        return schoolService.getByDistrictId(districtId);
     }
 }

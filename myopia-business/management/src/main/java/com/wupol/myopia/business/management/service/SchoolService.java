@@ -1,10 +1,11 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -17,6 +18,7 @@ import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -58,8 +60,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private OauthService oauthService;
+
     @Resource
     private UserService userService;
+
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
 
     /**
      * 新增学校
@@ -261,6 +273,100 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 获取导出数据
      */
     public List<School> getExportData(SchoolQuery query) {
-        return baseMapper.getExportData(query);
+        return baseMapper.getBy(query);
+    }
+
+    /**
+     * 获取学校的筛查记录列表
+     *
+     * @param pageRequest 通用分页
+     * @param schoolId    学校ID
+     * @return {@link IPage}
+     */
+    public Object getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
+        if (CollectionUtils.isEmpty(planSchoolList)) {
+            return new Page<>();
+        }
+
+        // 通过planIds查询计划
+        return screeningPlanService.getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
+    }
+
+    /**
+     * 获取学校的筛查记录详情
+     *
+     * @param id 筛查记录详情ID
+     * @return 详情
+     */
+    public Object getScreeningRecordDetail(Integer id) {
+        return schoolVisionStatisticService.getByPlanId(id);
+    }
+
+    /**
+     * 批量通过学校获取
+     *
+     * @param schoolNos 学校编码Lists
+     * @return Map<String, String>
+     */
+    public Map<String, String> getNameBySchoolNos(List<String> schoolNos) {
+        if (CollectionUtils.isEmpty(schoolNos)) {
+            return Maps.newHashMap();
+        }
+        List<School> schoolNo = baseMapper.selectList(new QueryWrapper<School>().in("school_no", schoolNos));
+
+        if (CollectionUtils.isEmpty(schoolNo)) {
+            return Maps.newHashMap();
+        }
+        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
+    }
+
+
+    /**
+     * 模糊查询所有学校名称
+     *
+     * @param nameLike 模糊查询
+     * @param deptId   机构id
+     * @return 学校名字List
+     */
+    public List<String> getBySchoolName(String nameLike, Integer deptId) {
+        SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
+        query.setGovDeptId(deptId);
+        return baseMapper.getBy(query).stream().map(School::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过名字获取学校
+     *
+     * @param name 名字
+     * @return List<School>
+     */
+    public List<School> getBySchoolName(String name) {
+        return baseMapper.selectList(new QueryWrapper<School>().like("name", name));
+    }
+
+    /**
+     * 学校编号是否被使用
+     *
+     * @param schoolNo 学校编号
+     * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
+     */
+    public Boolean checkSchoolNo(String schoolNo) {
+        List<School> schoolList = baseMapper.selectList(new QueryWrapper<School>().eq("school_no", schoolNo));
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 通过districtId获取学校
+     *
+     * @param districtId 行政区域ID
+     * @return List<School>
+     */
+    public List<School> getByDistrictId(Integer districtId) {
+        return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
     }
 }

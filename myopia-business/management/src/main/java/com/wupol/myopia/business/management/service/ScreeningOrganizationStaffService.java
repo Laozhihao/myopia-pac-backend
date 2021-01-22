@@ -73,9 +73,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
-        Page<UserDTO> userListPage = oauthService.getUserListPage(userQuery);
-        Page<UserExtDTO> page = JSONObject.parseObject(JSONObject.toJSONString(userListPage), new TypeReference<Page<UserExtDTO>>() {
-        });
+        Page<UserExtDTO> page = JSONObject
+                .parseObject(JSONObject.toJSONString(oauthService.getUserListPage(userQuery)),
+                        new TypeReference<Page<UserExtDTO>>() {
+                        });
         List<UserExtDTO> resultLists = page.getRecords();
         // 封装DTO，回填多端管理的ID
         if (!CollectionUtils.isEmpty(resultLists)) {
@@ -163,18 +164,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 更新状态
      *
      * @param request 入参
-     * @return 更新个数
+     * @return UserDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateStatus(StatusRequest request) {
-
+    public UserDTO updateStatus(StatusRequest request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getId());
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        UserDTO apiResult = oauthService.modifyUser(userDTO);
-        return 1;
+        return oauthService.modifyUser(userDTO);
     }
 
     /**
@@ -259,7 +258,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 批量通过组织Id获取筛查人员信息
      *
      * @param orgIds orgIds
-     * @return Map<Integer, List<ScreeningOrganizationStaff>>
+     * @return Map<Integer, List < ScreeningOrganizationStaff>>
      */
     public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds) {
         return getStaffListsByOrgIds(orgIds)

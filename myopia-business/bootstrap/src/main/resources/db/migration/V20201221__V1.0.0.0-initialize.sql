@@ -6,6 +6,7 @@ create table m_screening_organization
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_json  varchar(256)                        not null comment '行政区域json',
     district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '筛查机构名称',
     type           tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
@@ -61,6 +62,7 @@ create table m_hospital
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_json  varchar(256)                        not null comment '行政区域json',
     district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '医院名称',
     level          tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
@@ -102,6 +104,7 @@ create table m_school
     create_user_id int                                 null comment '创建人ID',
     gov_dept_id    int                                 not null comment '部门ID',
     district_id    int                                 not null comment '行政区域ID',
+    district_json  varchar(256)                        not null comment '行政区域json',
     district_name  varchar(64)                         not null comment '行政区域名',
     name           varchar(32)                         not null comment '学校名称',
     kind           tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
@@ -193,7 +196,7 @@ create table m_student
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     screening_count     int       default 0                 not null comment '视力筛查次数',
     questionnaire_count int       default 0                 not null comment '问卷数',
-    last_screening_time timestamp                           null comment '最近筛选次数',
+    last_screening_time timestamp                           null comment '最近筛选时间',
     status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
@@ -230,3 +233,19 @@ CREATE TABLE `m_government_department`  (
 
 -- 初始化部门表
 INSERT INTO `m_government_department`(`name`, `pid`, `district_id`, `create_user_id`) VALUES ('运行中心', -1, -1, -1);
+
+DROP TABLE IF EXISTS m_notice;
+create table m_notice
+(
+    id             int auto_increment comment 'id'
+        primary key,
+    create_user_id int                                 null comment '创建人',
+    status         tinyint   default 0                 not null comment '状态 0-未读 1-已读 2-删除',
+    title          varchar(32)                         null comment '标题',
+    content        varchar(512)                        not null comment '内容',
+    download_url   varchar(128)                        null comment '文件url',
+    create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+
+)
+    comment '消息表';

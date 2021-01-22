@@ -231,7 +231,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public Map<Integer, String> getDistrictNameByIds(List<Integer> ids) {
         return ids.stream().map(id -> {
             TwoTuple<Integer, String> tuple = new TwoTuple<>();
+            // 区域ID
             tuple.setFirst(id);
+            // 区域名字
             tuple.setSecond(getNameById(id));
             return tuple;
         }).collect(Collectors.toMap(TwoTuple::getFirst, TwoTuple::getSecond));
@@ -268,6 +270,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (null == district) {
             return name;
         }
+        // 循环遍历获取、拼接区域名字
         return getPreDistrict(district.getParentCode(), district.getName() + name);
     }
 

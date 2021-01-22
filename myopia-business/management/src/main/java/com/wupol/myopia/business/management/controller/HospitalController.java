@@ -37,7 +37,7 @@ public class HospitalController {
 
     @PostMapping
     public Object saveHospital(@RequestBody @Valid Hospital hospital) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
         return hospitalService.saveHospital(hospital);
@@ -45,7 +45,7 @@ public class HospitalController {
 
     @PutMapping
     public Object updateHospital(@RequestBody @Valid Hospital hospital) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
         return hospitalService.updateHospital(hospital);
@@ -53,7 +53,7 @@ public class HospitalController {
 
     @DeleteMapping("{id}")
     public Object deletedHospital(@PathVariable("id") Integer id) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalService.deletedHospital(id, user.getId(), user.getOrgId());
     }
 
@@ -64,19 +64,17 @@ public class HospitalController {
 
     @GetMapping("list")
     public Object getHospitalList(PageRequest pageRequest, HospitalQuery query) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalService.getHospitalList(pageRequest, query, user.getOrgId());
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.updateStatus(statusRequest);
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
         return hospitalService.resetPassword(request.getId());
     }
 

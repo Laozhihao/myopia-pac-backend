@@ -42,33 +42,30 @@ public class StudentController {
 
     @PostMapping()
     public Object saveStudent(@RequestBody @Valid Student student) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
     }
 
     @PutMapping()
     public Object updateStudent(@RequestBody @Valid Student student) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.updateStudent(student);
     }
 
     @DeleteMapping("{id}")
     public Object deletedStudent(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
         return studentService.deletedStudent(id);
     }
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getById(id);
     }
 
     @GetMapping("list")
     public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) {
-        CurrentUserUtil.getLegalCurrentUser();
         return studentService.getStudentLists(pageRequest, studentQuery);
     }
 
@@ -92,13 +89,16 @@ public class StudentController {
 
     @GetMapping("labels")
     public Object getVisionLabels() {
-        CurrentUserUtil.getLegalCurrentUser();
         return VisionLabelsEnum.getVisionLabels();
     }
 
     @GetMapping("nation")
     public Object getNationLists() {
-        CurrentUserUtil.getLegalCurrentUser();
         return NationEnum.getNationList();
+    }
+
+    @GetMapping("/screening/{id}")
+    public Object getScreeningList(@PathVariable("id") Integer id) {
+        return studentService.getScreeningList(id);
     }
 }

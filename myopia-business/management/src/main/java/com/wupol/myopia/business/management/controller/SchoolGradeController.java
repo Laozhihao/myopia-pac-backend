@@ -30,20 +30,18 @@ public class SchoolGradeController {
 
     @PostMapping()
     public Object saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.saveGrade(schoolGrade);
     }
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
         return schoolGradeService.deletedGrade(id);
     }
 
     @GetMapping("list")
     public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
-        CurrentUserUtil.getLegalCurrentUser();
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
@@ -52,13 +50,12 @@ public class SchoolGradeController {
 
     @GetMapping("getGradeCode")
     public Object getGradeCode() {
-        CurrentUserUtil.getLegalCurrentUser();
         return GradeCodeEnum.getGradeCodeList();
     }
 
     @PutMapping("")
     public Object updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.updateGrade(schoolGrade);
     }

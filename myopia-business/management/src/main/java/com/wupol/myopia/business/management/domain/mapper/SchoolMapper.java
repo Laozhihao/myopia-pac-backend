@@ -25,7 +25,7 @@ public interface SchoolMapper extends BaseMapper<School> {
                                               @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds);
 
     School getLastSchoolByNo(@Param("code") Integer code);
-    List<School> getExportData(SchoolQuery query);
+    List<School> getBy(SchoolQuery query);
 
     School getLastSchoolByNo(@Param("code") Long code);
 }

@@ -37,7 +37,7 @@ public class ScreeningOrganizationController {
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
@@ -45,7 +45,7 @@ public class ScreeningOrganizationController {
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
         return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
@@ -53,25 +53,23 @@ public class ScreeningOrganizationController {
 
     @GetMapping("{id}")
     public Object getScreeningOrganization(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
+        CurrentUserUtil.getCurrentUser();
         return saveScreeningOrganization.getScreeningOrgDetails(id);
     }
 
     @DeleteMapping("{id}")
     public Object deletedScreeningOrganization(@PathVariable("id") Integer id) {
-        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.deletedById(id);
     }
 
     @GetMapping("list")
     public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user);
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.updateStatus(request);
     }
 
@@ -82,7 +80,16 @@ public class ScreeningOrganizationController {
 
     @PostMapping("/reset")
     public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
         return saveScreeningOrganization.resetPassword(request.getId());
+    }
+
+    @GetMapping("/record/lists/{orgId}")
+    public Object getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
+        return saveScreeningOrganization.getRecordLists(request, orgId);
+    }
+
+    @GetMapping("/record/{id}")
+    public Object getRecordDetail(@PathVariable("id") Integer id) {
+        return saveScreeningOrganization.getRecordDetail(id);
     }
 }
