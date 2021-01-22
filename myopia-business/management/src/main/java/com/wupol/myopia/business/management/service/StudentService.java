@@ -9,10 +9,7 @@ import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
@@ -198,7 +195,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 .stream().map(Student::getClassId).collect(Collectors.toList()));
 
         // 学校信息
-        Map<String, String> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
+        Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
         // 封装DTO
         students.forEach(s -> {
@@ -209,7 +206,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 s.setClassName(classMaps.get(s.getClassId()).getName());
             }
             if (StringUtils.isNotBlank(s.getSchoolNo())) {
-                s.setSchoolName(schoolMaps.get(s.getSchoolNo()));
+                s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
+                s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
         });
         return pageStudents;

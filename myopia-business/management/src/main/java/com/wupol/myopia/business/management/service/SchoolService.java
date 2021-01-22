@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -309,7 +310,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolNos 学校编码Lists
      * @return Map<String, String>
      */
-    public Map<String, String> getNameBySchoolNos(List<String> schoolNos) {
+    public Map<String, School> getNameBySchoolNos(List<String> schoolNos) {
         if (CollectionUtils.isEmpty(schoolNos)) {
             return Maps.newHashMap();
         }
@@ -318,7 +319,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schoolNo)) {
             return Maps.newHashMap();
         }
-        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
+        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
     }
 
     /**
