@@ -249,3 +249,45 @@ create table m_notice
 
 )
     comment '消息表';
+
+DROP TABLE IF EXISTS m_template;
+create table m_template
+(
+    id          int auto_increment comment 'id'
+        primary key,
+    type        tinyint                             not null comment '1-档案卡 2-筛查报告',
+    name        varchar(32)                         not null comment '模板名称',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+)
+    comment '模板表';
+
+DROP TABLE IF EXISTS m_template_district;
+create table m_template_district
+(
+    id            int auto_increment comment 'id'
+        primary key,
+    template_id   int                                 not null comment '模板ID',
+    district_id   int                                 not null comment '行政部门 使用模板的省份',
+    district_name varchar(16)                         not null comment '省份名字',
+    create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+)
+    comment '模板区域表';
+
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (1, 1, '学生档案卡-模板1', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (2, 1, '学生档案卡-模板2', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (3, 1, '学生档案卡-模板3', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (4, 1, '学生档案卡-模板4', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (5, 2, '筛查报告-模板1', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (6, 2, '筛查报告-模板2', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');

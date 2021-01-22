@@ -83,7 +83,6 @@ public class Student implements Serializable {
     /**
      * 民族 0-汉族
      */
-    @NotNull(message = "民族不能为空")
     private Integer nation;
 
     /**
