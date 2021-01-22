@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -11,6 +12,8 @@ import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
 @Service
 public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGrade> {
 
+    @Resource
+    private SchoolService schoolService;
     @Resource
     private SchoolClassService schoolClassService;
 
@@ -149,5 +154,39 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .eq("school_id", schoolId)
                 .eq("grade_code", code)
                 .eq("status", CommonConst.STATUS_NOT_DELETED));
+    }
+
+    /**
+     * 根据学校铝箔获取年级
+     */
+    public List<SchoolGrade> getBySchoolName(String schoolName, Integer deptId) {
+        SchoolQuery schoolQuery = new SchoolQuery();
+        schoolQuery.setName(schoolName).setGovDeptId(deptId);
+        Integer schoolId = schoolService.getBy(schoolQuery).stream()
+                .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
+        SchoolGradeQuery schoolGradeQuery = new SchoolGradeQuery();
+        schoolGradeQuery.setSchoolId(schoolId);
+        return getBy(schoolGradeQuery);
+    }
+
+    /**
+     * 查询学校年级
+     *
+     * @param query 查询条件
+     * @return
+     */
+    public List<SchoolGrade> getBy(SchoolGradeQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

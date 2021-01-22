@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
@@ -194,7 +195,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 .stream().map(Student::getClassId).collect(Collectors.toList()));
 
         // 学校信息
-        Map<String, String> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
+        Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
         // 封装DTO
         students.forEach(s -> {
@@ -205,7 +206,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 s.setClassName(classMaps.get(s.getClassId()).getName());
             }
             if (StringUtils.isNotBlank(s.getSchoolNo())) {
-                s.setSchoolName(schoolMaps.get(s.getSchoolNo()));
+                s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
+                s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
         });
         return pageStudents;
@@ -250,17 +252,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return Object
      */
     public List<ScreeningResult> getScreeningList(Integer studentId) {
-
-        // 通过学生的ID查询筛查计划的学生
-        List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByStudentId(studentId);
-
-        // 为空直接返回
-        if (CollectionUtils.isEmpty(planSchoolStudents)) {
-            return null;
-        }
-
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByPlanSchoolStudentIds(planSchoolStudents.stream()
-                .map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()));
+        return screeningResultService.getByStudentIds(studentId);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

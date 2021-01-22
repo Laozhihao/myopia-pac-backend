@@ -31,10 +31,14 @@ public class ScreeningOrgResponse extends ScreeningOrganization {
      */
     private Boolean canUpdate = false;
 
-
     /**
      * 上次统计时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastCountDate;
+
+    /**
+     * 行政区域名
+     */
+    private String districtName;
 }

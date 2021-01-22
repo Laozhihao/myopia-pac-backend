@@ -17,6 +17,7 @@ import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
@@ -66,7 +67,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private ScreeningTaskService screeningTaskService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
+    private ScreeningResultService screeningResultService;
 
     /**
      * 保存筛查机构
@@ -82,8 +83,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         // 初始化省代码
         screeningOrganization.setProvinceCode(provinceCode);
-        // 设置行政区域名
-        screeningOrganization.setDistrictName(districtService.getDistrictNameById(screeningOrganization.getDistrictId()));
 
         if (null == townCode) {
             throw new BusinessException("数据异常");
@@ -140,8 +139,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        // 设置行政区域名
-        screeningOrganization.setDistrictName(districtService.getDistrictNameById(screeningOrganization.getDistrictId()));
         baseMapper.updateById(screeningOrganization);
         return baseMapper.selectById(screeningOrganization.getId());
     }
@@ -200,6 +197,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             } else {
                 r.setStaffCount(0);
             }
+            r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
             r.setScreeningTime(CommonConst.SCREENING_TIME);
         });
         return orgLists;
@@ -307,6 +305,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 详情
      */
     public Object getRecordDetail(Integer id) {
-        return schoolVisionStatisticService.getByTaskId(id);
+        return screeningResultService.getByTaskId(id);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

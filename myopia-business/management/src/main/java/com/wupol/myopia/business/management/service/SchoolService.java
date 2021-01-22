@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -72,7 +73,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
+    private ScreeningResultService screeningResultService;
 
     /**
      * 新增学校
@@ -91,8 +92,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 初始化省代码
         school.setProvinceCode(provinceCode);
-        // 设置行政区域名
-        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
 
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, townCode));
         try {
@@ -117,8 +116,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public School updateSchool(School school) {
-        // 设置行政区域名
-        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
         baseMapper.updateById(school);
         return baseMapper.selectById(school.getId());
     }
@@ -209,6 +206,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             if (s.getGovDeptId().equals(orgId)) {
                 s.setCanUpdate(Boolean.TRUE);
             }
+            // 行政区名字
+            s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
         });
         return schoolDtoIPage;
     }
@@ -302,7 +301,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 详情
      */
     public Object getScreeningRecordDetail(Integer id) {
-        return schoolVisionStatisticService.getByPlanId(id);
+        return screeningResultService.getByPlanId(id);
     }
 
     /**
@@ -311,7 +310,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolNos 学校编码Lists
      * @return Map<String, String>
      */
-    public Map<String, String> getNameBySchoolNos(List<String> schoolNos) {
+    public Map<String, School> getNameBySchoolNos(List<String> schoolNos) {
         if (CollectionUtils.isEmpty(schoolNos)) {
             return Maps.newHashMap();
         }
@@ -320,21 +319,17 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schoolNo)) {
             return Maps.newHashMap();
         }
-        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
+        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
     }
-
 
     /**
      * 模糊查询所有学校名称
      *
-     * @param nameLike 模糊查询
-     * @param deptId   机构id
-     * @return 学校名字List
+     * @param query 查询条件
+     * @return
      */
-    public List<String> getBySchoolName(String nameLike, Integer deptId) {
-        SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
-        query.setGovDeptId(deptId);
-        return baseMapper.getBy(query).stream().map(School::getName).collect(Collectors.toList());
+    public List<School> getBy(SchoolQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**
@@ -369,5 +364,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getByDistrictId(Integer districtId) {
         return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<School> getByPage(Page<?> page, SchoolQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }
