@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.service.SchoolClassService;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.SchoolService;
@@ -87,17 +88,19 @@ public class ScreeningAppService {
      * @param isReview      是否复测
      * @return
      */
-    public List<Student> getStudentBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer screeningOrgId, Boolean isReview) {
+    public IPage<Student> getStudentBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer screeningOrgId, Boolean isReview) {
         //TODO 管理端，待修改
         //TODO 待增加复测的逻辑
         List<SchoolClass> classList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName, screeningOrgId);
         for (SchoolClass item : classList) {
             if (item.getName().equals(clazzName)) { // 匹配对应的班级
                 //TODO 增加学生名过滤
-                return studentService.getStudentsByClassId(item.getId());
+                StudentQuery query = new StudentQuery();
+                query.setClassId(item.getId()).setGradeId(item.getGradeId());
+                return studentService.getByPage(pageRequest.toPage(), query);
             }
         }
-        return Collections.emptyList();
+        return (IPage<Student>) Collections.emptyList();
 
     }
 
@@ -112,7 +115,7 @@ public class ScreeningAppService {
      * @param clazzName     班级名称
      * @return
      */
-    public List<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
+    public IPage<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
         //TODO 管理端，待修改
         //TODO 待做随机
         return getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, "", screeningOrgId, true);

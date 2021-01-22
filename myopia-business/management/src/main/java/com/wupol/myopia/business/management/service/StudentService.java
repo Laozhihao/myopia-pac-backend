@@ -265,7 +265,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public Object getByPage(Page<?> page, StudentQuery query) {
+    public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
         return baseMapper.getByPage(page, query);
     }
 }

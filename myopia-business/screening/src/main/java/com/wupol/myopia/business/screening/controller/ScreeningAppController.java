@@ -79,7 +79,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public List<Student> getStudentNameBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer deptId, Boolean isReview) {
+    public IPage<Student> getStudentNameBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer deptId, Boolean isReview) {
         deptId = 1;
         return screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
     }
@@ -118,7 +118,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/student/findStudentReviewRandom")
-    public List<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer deptId) {
+    public IPage<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer deptId) {
         return screeningAppService.getStudentReviewWithRandom(pageRequest, schoolId, schoolName, gradeName, clazzName, deptId);
     }
 
