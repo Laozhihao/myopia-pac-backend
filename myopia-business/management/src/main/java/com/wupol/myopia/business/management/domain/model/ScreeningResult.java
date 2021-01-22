@@ -42,6 +42,16 @@ public class ScreeningResult implements Serializable {
     private Integer taskId;
 
     /**
+     * 筛查结果--学校id
+     */
+    private Integer schoolId;
+
+    /**
+     * 筛查结果--学生id
+     */
+    private Integer studentId;
+
+    /**
      * 筛查结果--所属的计划id
      */
     private Integer planId;
