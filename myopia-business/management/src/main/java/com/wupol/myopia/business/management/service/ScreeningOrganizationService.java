@@ -315,7 +315,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public Object getByPage(Page<?> page, ScreeningOrganizationQuery query) {
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQuery query) {
         return baseMapper.getByPage(page, query);
     }
 }

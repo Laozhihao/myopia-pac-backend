@@ -186,7 +186,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public Object getByPage(Page<?> page, SchoolGradeQuery query) {
+    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
         return baseMapper.getByPage(page, query);
     }
 }

@@ -372,7 +372,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public Object getByPage(Page<?> page, SchoolQuery query) {
+    public IPage<School> getByPage(Page<?> page, SchoolQuery query) {
         return baseMapper.getByPage(page, query);
     }
 }

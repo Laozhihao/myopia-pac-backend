@@ -236,7 +236,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public Object getByPage(Page<?> page, HospitalQuery query) {
+    public IPage<Hospital> getByPage(Page<?> page, HospitalQuery query) {
         return baseMapper.getByPage(page, query);
     }
 }
