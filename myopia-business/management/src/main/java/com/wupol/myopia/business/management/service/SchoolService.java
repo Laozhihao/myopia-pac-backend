@@ -20,7 +20,6 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -92,8 +91,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 初始化省代码
         school.setProvinceCode(provinceCode);
-        // 设置行政区域名
-        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
 
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, townCode));
         try {
@@ -118,8 +115,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public School updateSchool(School school) {
-        // 设置行政区域名
-        school.setDistrictName(districtService.getDistrictNameById(school.getDistrictId()));
         baseMapper.updateById(school);
         return baseMapper.selectById(school.getId());
     }
@@ -210,6 +205,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             if (s.getGovDeptId().equals(orgId)) {
                 s.setCanUpdate(Boolean.TRUE);
             }
+            // 行政区名字
+            s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
         });
         return schoolDtoIPage;
     }
@@ -326,7 +323,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 模糊查询所有学校名称
-     * @param query     查询条件
+     *
+     * @param query 查询条件
      * @return
      */
     public List<School> getBy(SchoolQuery query) {
@@ -365,5 +363,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getByDistrictId(Integer districtId) {
         return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public Object getByPage(Page<?> page, SchoolQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

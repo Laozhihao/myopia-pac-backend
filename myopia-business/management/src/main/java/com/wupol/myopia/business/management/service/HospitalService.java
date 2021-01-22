@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -8,6 +9,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.HospitalResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
@@ -22,6 +24,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -66,8 +69,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
         // 初始化省代码
         hospital.setProvinceCode(provinceCode);
-        // 设置行政区域名
-        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
 
         if (null == townCode) {
             throw new BusinessException("数据异常");
@@ -99,8 +100,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Hospital updateHospital(Hospital hospital) {
-        // 设置行政区域名
-        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
         baseMapper.updateById(hospital);
         return baseMapper.selectById(hospital.getId());
     }
@@ -131,10 +130,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param govDeptId   部门id
      * @return IPage<Hospital> {@link IPage}
      */
-    public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return baseMapper.getHospitalListByCondition(pageRequest.toPage(),
+    public IPage<HospitalResponse> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
+        IPage<HospitalResponse> hospitalListsPage = baseMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
                 query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
+
+        List<HospitalResponse> records = hospitalListsPage.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return hospitalListsPage;
+        }
+        records.forEach(h -> h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail())));
+        return hospitalListsPage;
     }
 
     /**
@@ -221,5 +227,16 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public List<Hospital> getExportData(HospitalQuery query) {
         return baseMapper.getExportData(query);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public Object getByPage(Page<?> page, HospitalQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

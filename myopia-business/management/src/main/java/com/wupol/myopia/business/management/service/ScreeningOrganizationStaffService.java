@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -285,5 +286,16 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public Integer countStaffNo(String staffNo) {
         return baseMapper.selectCount(new QueryWrapper<ScreeningOrganizationStaff>()
                 .eq("staff_no", staffNo));
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public Object getByPage(Page<?> page, ScreeningOrganizationStaffQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

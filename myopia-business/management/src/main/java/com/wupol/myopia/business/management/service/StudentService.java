@@ -2,13 +2,17 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.SchoolClass;
+import com.wupol.myopia.business.management.domain.model.SchoolGrade;
+import com.wupol.myopia.business.management.domain.model.ScreeningResult;
+import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.util.TwoTuple;
@@ -252,5 +256,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<ScreeningResult> getScreeningList(Integer studentId) {
         // 通过计划Ids查询学生的结果
         return screeningResultService.getByStudentIds(studentId);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public Object getByPage(Page<?> page, StudentQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

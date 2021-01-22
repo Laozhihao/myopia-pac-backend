@@ -51,12 +51,7 @@ public class Hospital implements Serializable {
     /**
      * 行政区域JSON
      */
-    private String districtJson;
-
-    /**
-     * 行政区域名
-     */
-    private String districtName;
+    private String districtDetail;
 
     /**
      * 医院名称

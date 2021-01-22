@@ -31,4 +31,9 @@ public class SchoolDto extends School {
      * 创建人
      */
     private String createUser;
+
+    /**
+     * 行政区域名
+     */
+    private String districtName;
 }
