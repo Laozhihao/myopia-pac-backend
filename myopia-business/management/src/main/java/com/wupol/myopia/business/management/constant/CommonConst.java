@@ -25,20 +25,20 @@ public interface CommonConst {
     /**
      * 通知中心 已读状态
      */
-    Integer READ_NOTICE = 1;
+    Integer STATUS_NOTICE_READ = 1;
 
     /**
      * 通知中心 删除状态
      */
-    Integer DELETED_NOTICE = 2;
+    Integer STATUS_NOTICE_DELETED = 2;
 
     /**
      * 系统中心 类型 档案卡模版
      */
-    Integer STUDENT_ARCHIVES = 1;
+    Integer TYPE_TEMPLATE_STUDENT_ARCHIVES = 1;
 
     /**
      * 系统中心 类型 筛查报告模版
      */
-    Integer SCREENING_REPORT = 2;
+    Integer TYPE_TEMPLATE_SCREENING_REPORT = 2;
 }

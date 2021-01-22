@@ -24,7 +24,7 @@ public class ScreeningReportController {
 
     @GetMapping("lists")
     public Object getLists() {
-        return templateService.getTemplateLists(CommonConst.SCREENING_REPORT);
+        return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_SCREENING_REPORT);
     }
 
     @PutMapping("save")
