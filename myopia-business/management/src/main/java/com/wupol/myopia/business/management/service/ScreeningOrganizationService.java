@@ -8,7 +8,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -87,7 +88,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_REDIS + townCode);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, townCode));
 
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -155,7 +156,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public Integer deletedById(Integer id) {
         ScreeningOrganization screeningOrganization = new ScreeningOrganization();
         screeningOrganization.setId(id);
-        screeningOrganization.setStatus(Const.STATUS_IS_DELETED);
+        screeningOrganization.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(screeningOrganization);
     }
 
@@ -199,7 +200,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             } else {
                 r.setStaffCount(0);
             }
-            r.setScreeningTime(Const.SCREENING_TIME);
+            r.setScreeningTime(CommonConst.SCREENING_TIME);
         });
         return orgLists;
     }

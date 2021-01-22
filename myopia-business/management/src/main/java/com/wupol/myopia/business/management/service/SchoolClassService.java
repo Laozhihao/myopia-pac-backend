@@ -3,7 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -56,7 +56,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         SchoolClass schoolClass = new SchoolClass();
         schoolClass.setId(classId);
         schoolClass.setCreateUserId(createUserId);
-        schoolClass.setStatus(Const.STATUS_IS_DELETED);
+        schoolClass.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolClass);
     }
 
@@ -81,7 +81,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public List<SchoolClass> getSchoolClassByGradeId(Integer gradeId) {
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
         equalsQueryAppend(schoolClassWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(schoolClassWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
     }
 
@@ -96,7 +96,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
         InQueryAppend(schoolClassWrapper, "grade_id", gradeIds);
         equalsQueryAppend(schoolClassWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(schoolClassWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
     }
 

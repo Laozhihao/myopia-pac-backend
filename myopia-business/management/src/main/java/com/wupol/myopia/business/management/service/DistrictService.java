@@ -8,7 +8,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CacheKey;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
@@ -246,7 +246,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 名称
      */
     private String getNameById(Integer id) {
-        String key = Const.DISTRICT_CN_NAME + id;
+        String key = String.format(CacheKey.DISTRICT_CN_NAME, id);
         String value = (String) redisUtil.get(key);
 
         if (StringUtils.isNotBlank(value)) {

@@ -6,7 +6,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
@@ -71,7 +72,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        RLock rLock = redissonClient.getLock(Const.LOCK_HOSPITAL_REDIS + hospital.getName());
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -118,7 +119,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         hospital.setId(id);
         hospital.setCreateUserId(createUserId);
         hospital.setGovDeptId(govDeptId);
-        hospital.setStatus(Const.STATUS_IS_DELETED);
+        hospital.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(hospital);
     }
 

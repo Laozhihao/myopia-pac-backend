@@ -3,7 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.NoticeMapper;
 import com.wupol.myopia.business.management.domain.model.Notice;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -48,7 +48,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean readNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), Const.READ_NOTICE) > 0;
+        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.READ_NOTICE) > 0;
     }
 
     /**
@@ -58,6 +58,6 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @return 是否删除成功
      */
     public Object deletedNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), Const.DELETED_NOTICE) > 0;
+        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.DELETED_NOTICE) > 0;
     }
 }

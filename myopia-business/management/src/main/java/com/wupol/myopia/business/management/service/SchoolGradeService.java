@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
@@ -72,7 +72,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setId(id);
         schoolGrade.setCreateUserId(1);
-        schoolGrade.setStatus(Const.STATUS_IS_DELETED);
+        schoolGrade.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolGrade);
     }
 
@@ -148,6 +148,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return baseMapper.selectCount(new QueryWrapper<SchoolGrade>()
                 .eq("school_id", schoolId)
                 .eq("grade_code", code)
-                .eq("status", Const.STATUS_NOT_DELETED));
+                .eq("status", CommonConst.STATUS_NOT_DELETED));
     }
 }

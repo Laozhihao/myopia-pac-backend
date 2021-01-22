@@ -4,7 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -66,7 +67,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getStudentsBySchoolId(Integer schoolId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
         equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -79,7 +80,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getStudentsByGradeId(Integer gradeId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
         equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -92,7 +93,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getStudentsByClassId(Integer classId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
         equalsQueryAppend(studentQueryWrapper, "class_id", classId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -111,7 +112,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 初始化省代码
         student.setProvinceCode(provinceCode);
 
-        RLock rLock = redissonClient.getLock(Const.LOCK_STUDENT_REDIS + idCard);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -157,7 +158,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Integer deletedStudent(Integer id) {
         Student student = new Student();
         student.setId(id);
-        student.setStatus(Const.STATUS_IS_DELETED);
+        student.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(student);
     }
 

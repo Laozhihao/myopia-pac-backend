@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
 import com.wupol.myopia.business.management.service.TemplateService;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class ScreeningReportController {
 
     @GetMapping("lists")
     public Object getLists() {
-        return templateService.getTemplateLists(Const.STUDENT_ARCHIVES);
+        return templateService.getTemplateLists(CommonConst.SCREENING_REPORT);
     }
 
     @PutMapping("save")
