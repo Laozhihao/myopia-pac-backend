@@ -13,7 +13,7 @@ import com.wupol.myopia.business.management.service.ScreeningNoticeService;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/notice")
+@RequestMapping("/management/screeningNotice")
 public class ScreeningNoticeController extends BaseController<ScreeningNoticeService, ScreeningNotice> {
     /**
      * 发布

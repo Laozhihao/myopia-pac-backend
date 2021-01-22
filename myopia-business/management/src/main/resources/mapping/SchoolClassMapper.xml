@@ -33,4 +33,13 @@
         from m_school_class
         where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
+
+    <select id="getBySchoolNameAndGradeName" resultMap="BaseResultMap">
+        select sc.*
+        from m_school s
+        left join m_school_grade sg on s.id = sg.school_id
+        left join m_school_class sc on sg.id = sc.grade_id
+        where s.name = #{schoolName} and sg.name = #{gradeName} and s.status = 0
+    </select>
+
 </mapper>

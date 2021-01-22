@@ -117,4 +117,15 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         return getByIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
+
+    /**
+     * 获取班级
+     * @param schoolName    学校名称
+     * @param gradeName     年级名称
+     * @param deptId        部门id
+     * @return
+     */
+    public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
+        return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    }
 }

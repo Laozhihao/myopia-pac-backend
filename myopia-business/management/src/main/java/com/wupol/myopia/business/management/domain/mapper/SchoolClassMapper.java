@@ -14,5 +14,6 @@ import java.util.List;
  */
 public interface SchoolClassMapper extends BaseMapper<SchoolClass> {
     List<SchoolClass> getByIds(List<Integer> ids);
+    List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId);
 
 }

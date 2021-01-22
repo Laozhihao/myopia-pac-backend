@@ -323,18 +323,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
     }
 
-
     /**
      * 模糊查询所有学校名称
-     *
-     * @param nameLike 模糊查询
-     * @param deptId   机构id
-     * @return 学校名字List
+     * @param query     查询条件
+     * @return
      */
-    public List<String> getBySchoolName(String nameLike, Integer deptId) {
-        SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
-        query.setGovDeptId(deptId);
-        return baseMapper.getBy(query).stream().map(School::getName).collect(Collectors.toList());
+    public List<School> getBy(SchoolQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**
