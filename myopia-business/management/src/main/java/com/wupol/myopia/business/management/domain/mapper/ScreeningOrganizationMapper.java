@@ -30,4 +30,6 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
     ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 
     ScreeningOrgResponse getOrgById(@Param("id") Integer id);
+
+    IPage<ScreeningOrganization> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationQuery") ScreeningOrganizationQuery screeningOrganizationQuery);
 }

@@ -1,7 +1,11 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,4 +18,6 @@ import java.util.List;
 public interface ScreeningOrganizationStaffMapper extends BaseMapper<ScreeningOrganizationStaff> {
 
     List<ScreeningOrganizationStaff> getByIds(List<Integer> ids);
+
+    IPage<ScreeningOrganizationStaff> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationStaffQuery") ScreeningOrganizationStaffQuery screeningOrganizationStaffQuery);
 }

@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +27,6 @@ public interface StudentMapper extends BaseMapper<Student> {
                                                 @Param("endScreeningTime") Date endScreeningTime);
 
     List<Student> getExportData(StudentQuery query);
+
+    IPage<Student> getByPage(@Param("page") Page<?> page, @Param("studentQuery") StudentQuery studentQuery);
 }

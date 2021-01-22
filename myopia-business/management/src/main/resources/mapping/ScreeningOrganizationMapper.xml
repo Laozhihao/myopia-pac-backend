@@ -100,4 +100,11 @@
         from m_screening_organization
         where id = #{id}
     </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        <include refid="Base_Where_Clause"/>
+    </select>
 </mapper>

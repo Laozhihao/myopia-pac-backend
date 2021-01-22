@@ -87,4 +87,11 @@
         from m_hospital
         <include refid="Base_Where_Clause" />
     </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital
+        <include refid="Base_Where_Clause"/>
+    </select>
 </mapper>
