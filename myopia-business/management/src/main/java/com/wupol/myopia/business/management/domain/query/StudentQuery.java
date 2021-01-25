@@ -57,4 +57,9 @@ public class StudentQuery extends StudentVo {
      * 视力标签
      */
     private String visionLabels;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
 }

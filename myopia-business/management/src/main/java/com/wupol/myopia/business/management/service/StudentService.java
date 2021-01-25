@@ -130,6 +130,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 查询年级和班级
         SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+        if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
+            School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
+            studentDTO.setSchoolName(school.getName());
+        }
         return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
     }
 
@@ -162,7 +166,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         IPage<StudentDTO> pageStudents = baseMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
-                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
+                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime(),
+                studentQuery.getSchoolName());
         List<StudentDTO> students = pageStudents.getRecords();
 
         // 为空直接放回
