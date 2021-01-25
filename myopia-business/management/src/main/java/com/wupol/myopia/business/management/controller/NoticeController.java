@@ -38,4 +38,10 @@ public class NoticeController {
     public Object deletedNotice(@PathVariable("ids") String ids) {
         return noticeService.deletedNotice(ids);
     }
+
+    @GetMapping("unreadCount")
+    public Object unreadCount() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return noticeService.unreadCount(currentUser);
+    }
 }

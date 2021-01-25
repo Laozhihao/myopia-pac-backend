@@ -18,4 +18,6 @@ public interface NoticeMapper extends BaseMapper<Notice> {
     IPage<Notice> getByUserId(@Param("page") Page<?> page, @Param("userId") Integer userId);
 
     Integer batchUpdateStatus(@Param("ids") List<Integer> ids, @Param("status") Integer status);
+
+    Integer unreadCount(@Param("status") Integer status, @Param("userId") Integer userId);
 }

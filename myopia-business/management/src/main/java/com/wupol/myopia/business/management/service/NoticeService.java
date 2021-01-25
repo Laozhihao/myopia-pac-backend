@@ -60,4 +60,14 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
     public Object deletedNotice(String ids) {
         return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.STATUS_NOTICE_DELETED) > 0;
     }
+
+    /**
+     * 获取用户未读个数
+     *
+     * @param currentUser 当前用户
+     * @return 未读个数
+     */
+    public Integer unreadCount(CurrentUser currentUser) {
+        return baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
+    }
 }

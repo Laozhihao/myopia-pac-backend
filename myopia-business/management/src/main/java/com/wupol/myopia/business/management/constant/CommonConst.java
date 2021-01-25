@@ -23,6 +23,11 @@ public interface CommonConst {
     Integer SCREENING_TIME = 0;
 
     /**
+     * 通知中心 未读状态
+     */
+    Integer STATUS_NOTICE_UNREAD = 0;
+
+    /**
      * 通知中心 已读状态
      */
     Integer STATUS_NOTICE_READ = 1;
