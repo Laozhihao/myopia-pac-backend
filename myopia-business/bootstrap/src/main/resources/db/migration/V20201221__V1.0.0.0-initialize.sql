@@ -271,19 +271,19 @@ create table m_template_district
 )
     comment '模板区域表';
 
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (1, 1, '学生档案卡-模板1', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (2, 1, '学生档案卡-模板2', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (3, 1, '学生档案卡-模板3', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (4, 1, '学生档案卡-模板4', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (5, 2, '筛查报告-模板1', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (6, 2, '筛查报告-模板2', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');

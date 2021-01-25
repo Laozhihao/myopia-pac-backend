@@ -31,4 +31,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     IPage<Student> getByPage(@Param("page") Page<?> page, @Param("studentQuery") StudentQuery studentQuery);
 
     StudentDTO getStudentById(@Param("id") Integer id);
+
+    List<Student> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
 }
