@@ -114,4 +114,21 @@
         from m_student ms
         where ms.id = #{id}
     </select>
+
+    <select id="getByOtherId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student student
+                     left join m_school school on student.school_no = school.school_no
+                where student.status != 2
+        <if test="schoolId != null">
+            and school.id = #{schoolId}
+        </if>
+        <if test="classId != null">
+            and student.class_id = #{classId}
+        </if>
+        <if test="gradeId != null">
+            and student.grade_id = #{gradeId}
+        </if>
+    </select>
 </mapper>

@@ -57,19 +57,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private SchoolService schoolService;
 
     /**
-     * 通过学校id查找学生
-     *
-     * @param schoolId 学校Id
-     * @return 学生列表
-     */
-    public List<Student> getStudentsBySchoolId(Integer schoolId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
-    }
-
-    /**
      * 通过年级id查找学生
      *
      * @param gradeId 年级Id
@@ -281,5 +268,19 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setSchoolName(school.getName());
         }
         return student;
+    }
+
+
+    /**
+     * 通过学校ID、班级ID、年级ID查找学生
+     *
+     * @param schoolId 学校Id
+     * @return 学生列表
+     */
+    public List<Student> getStudentsBySchoolId(Integer schoolId, Integer classId, Integer gradeId) {
+        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
+        equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
+        return baseMapper.selectList(studentQueryWrapper);
     }
 }
