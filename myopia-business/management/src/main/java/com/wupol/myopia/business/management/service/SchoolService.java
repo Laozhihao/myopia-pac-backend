@@ -174,6 +174,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
+            query.setCurrent(1);
+            query.setSize(10000000);
             Page<UserDTO> userListPage = oauthService.getUserListPage(query);
             List<UserDTO> records = userListPage.getRecords();
             if (!CollectionUtils.isEmpty(userListPage.getRecords())) {
