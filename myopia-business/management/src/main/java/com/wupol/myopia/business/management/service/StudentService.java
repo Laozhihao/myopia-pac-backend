@@ -202,7 +202,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             if (null != classMaps.get(s.getClassId())) {
                 s.setClassName(classMaps.get(s.getClassId()).getName());
             }
-            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+            if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
