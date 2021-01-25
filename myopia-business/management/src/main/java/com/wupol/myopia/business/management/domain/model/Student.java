@@ -89,14 +89,13 @@ public class Student implements Serializable {
      * 身份证号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "学号不能为空")
+    @NotNull(message = "身份证号码不能为空")
     private String idCard;
 
     /**
      * 家长手机号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_MOBILE, message = "手机号码格式错误")
-    @NotNull(message = "家长手机号码不能为空")
     private String parentPhone;
 
     /**
@@ -112,25 +111,21 @@ public class Student implements Serializable {
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
     private Long townCode;
 
     /**
      * 详细地址
      */
-    @NotBlank(message = "详细地址不能为空")
     private String address;
 
     /**
