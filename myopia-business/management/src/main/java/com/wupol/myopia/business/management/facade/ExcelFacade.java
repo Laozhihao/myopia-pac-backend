@@ -5,8 +5,6 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -21,7 +19,6 @@ import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -281,10 +278,7 @@ public class ExcelFacade {
         builder.append("-").append(schoolName);
         builder.append("-").append(gradeName);
         String fileName = builder.toString();
-        // 构建数据
-        StudentQuery query = new StudentQuery();
-        query.setGradeId(gradeId);
-        List<Student> list = studentService.getBy(query);
+        List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, null);
         // 获取年级班级信息
         List<Integer> gradeIdList = list.stream().map(Student::getGradeId).collect(Collectors.toList());
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -296,7 +290,7 @@ public class ExcelFacade {
             StudentExportVo exportVo = new StudentExportVo()
                     .setNo(item.getSno())
                     .setName(item.getName())
-                    .setGender(GenderEnum.getName(query.getGender()))
+                    .setGender(GenderEnum.getName(item.getGender()))
                     .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)

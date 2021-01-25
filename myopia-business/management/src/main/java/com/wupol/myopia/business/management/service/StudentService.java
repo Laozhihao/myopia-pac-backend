@@ -277,7 +277,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param schoolId 学校Id
      * @return 学生列表
      */
-    public List<Student> getBySchoolIdAndClassIdAndGradeId(Integer schoolId, Integer classId, Integer gradeId) {
+    public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
         return baseMapper.getByOtherId(schoolId, classId, gradeId);
     }
 }
