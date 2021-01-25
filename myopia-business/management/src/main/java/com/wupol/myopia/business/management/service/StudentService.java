@@ -211,10 +211,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 获取导出数据
+     * 查询
      */
-    public List<Student> getExportData(StudentQuery query) {
-        return baseMapper.getExportData(query);
+    public List<Student> getBy(StudentQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**

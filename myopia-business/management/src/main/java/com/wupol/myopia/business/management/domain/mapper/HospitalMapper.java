@@ -25,7 +25,7 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
 
     Hospital getLastHospitalByNo(@Param("code") Integer code);
 
-    List<Hospital> getExportData(HospitalQuery query);
+    List<Hospital> getBy(HospitalQuery query);
 
     Hospital getLastHospitalByNo(@Param("code") Long code);
 

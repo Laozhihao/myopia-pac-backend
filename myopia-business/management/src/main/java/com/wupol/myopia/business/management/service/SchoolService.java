@@ -268,14 +268,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
-
-    /**
-     * 获取导出数据
-     */
-    public List<School> getExportData(SchoolQuery query) {
-        return baseMapper.getBy(query);
-    }
-
     /**
      * 获取学校的筛查记录列表
      *

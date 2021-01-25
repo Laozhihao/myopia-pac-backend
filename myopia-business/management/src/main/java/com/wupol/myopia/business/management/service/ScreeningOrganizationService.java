@@ -207,8 +207,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
-        return baseMapper.getExportData(query);
+    public List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**

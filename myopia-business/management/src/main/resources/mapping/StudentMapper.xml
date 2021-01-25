@@ -95,7 +95,7 @@
         order by ms.create_time desc
     </select>
 
-    <select id="getExportData" resultMap="BaseResultMap">
+    <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_student
         <include refid="Base_Where_Clause" />
