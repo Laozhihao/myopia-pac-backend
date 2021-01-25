@@ -277,10 +277,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param schoolId 学校Id
      * @return 学生列表
      */
-    public List<Student> getStudentsBySchoolId(Integer schoolId, Integer classId, Integer gradeId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+    public List<Student> getBySchoolIdAndClassIdAndGradeId(Integer schoolId, Integer classId, Integer gradeId) {
+        return baseMapper.getByOtherId(schoolId, classId, gradeId);
     }
 }

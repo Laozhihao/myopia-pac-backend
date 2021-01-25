@@ -54,7 +54,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
+        m_student.id, m_student.school_no, m_student.create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -116,8 +116,7 @@
     </select>
 
     <select id="getByOtherId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+        select student.*
         from m_student student
                      left join m_school school on student.school_no = school.school_no
                 where student.status != 2
