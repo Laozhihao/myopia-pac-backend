@@ -188,13 +188,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         // 封装DTO
         students.forEach(s -> {
-            if (null != gradeMaps.get(s.getGradeId())) {
-                s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-            }
-            if (null != classMaps.get(s.getClassId())) {
-                s.setClassName(classMaps.get(s.getClassId()).getName());
-            }
+
+            // 学校编码不为空才显示班级和年级信息
             if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
+                if (null != gradeMaps.get(s.getGradeId())) {
+                    s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+                }
+                if (null != classMaps.get(s.getClassId())) {
+                    s.setClassName(classMaps.get(s.getClassId()).getName());
+                }
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
