@@ -1,10 +1,8 @@
 package com.wupol.myopia.oauth.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
@@ -184,12 +182,15 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 通过身份证查找用户
+     * 获取用户列表（支持模糊查询）
      *
-     * @param request   请求体
-     * @return 用户列表
-     */
-    public List<User> getByIds(UserRequest request) {
-        return baseMapper.selectBatchIds(request.getUserIds());
+     * @param queryParam 搜索参数
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    public List<User> getUserListWithLike(UserDTO queryParam) {
+        Assert.notNull(queryParam, "查询参数不能为空");
+        // 防止全表查询
+        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+        return baseMapper.selectUserList(queryParam);
     }
 }

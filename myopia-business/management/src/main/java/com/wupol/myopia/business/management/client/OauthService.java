@@ -33,6 +33,17 @@ public class OauthService {
     }
 
     /**
+     * 获取用户列表（支持模糊查询）
+     *
+     * @param param 查询参数
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserList(UserDTOQuery param) {
+        return null;
+    }
+
+    /**
      * 根据用户ID集批量获取用户
      *
      * @param userIds 用户ID集合

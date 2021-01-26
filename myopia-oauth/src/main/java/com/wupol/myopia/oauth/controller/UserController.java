@@ -33,12 +33,12 @@ public class UserController {
     private UserService userService;
 
     /**
-     * 获取用户列表
+     * 获取用户列表 - 分页
      *
      * @param queryParam 查询参数
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.oauth.domain.model.UserWithRole>
      **/
-    @GetMapping("/list")
+    @GetMapping("/page")
     public IPage<UserWithRole> getUserListPage(UserDTO queryParam) {
         return userService.getUserListPage(queryParam);
     }
@@ -121,5 +121,16 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserDetailByUserId(@PathVariable("userId") Integer userId) {
         return userService.getById(userId);
+    }
+
+    /**
+     * 获取用户列表（支持模糊查询）
+     *
+     * @param queryParam 搜索参数
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/list")
+    public List<User> getUserListWithLike(UserDTO queryParam) {
+        return userService.getUserListWithLike(queryParam);
     }
 }
