@@ -28,6 +28,9 @@ public class ScreeningNotice implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final Integer TYPE_GOV_DEPT = 0;
+    public static final Integer TYPE_ORG = 1;
+
     /**
      * 主键id
      */

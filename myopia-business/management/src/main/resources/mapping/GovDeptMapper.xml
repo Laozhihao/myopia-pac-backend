@@ -47,12 +47,13 @@
 
     <resultMap id="idTreeMap" type="com.wupol.myopia.business.management.domain.model.GovDept">
         <id column="id" property="id" jdbcType="INTEGER" />
+        <id column="district_id" property="districtId" jdbcType="INTEGER" />
         <collection property="child" ofType="com.wupol.myopia.business.management.domain.model.GovDept" column="{pid=id}" select="selectIdTreeByPid"/>
     </resultMap>
 
     <!-- 级联查询部门ID树 -->
     <select id="selectIdTreeByPid" resultMap="idTreeMap" >
-        select id from m_government_department where pid = #{pid}
+        select id, district_id from m_government_department where pid = #{pid}
     </select>
 
 </mapper>

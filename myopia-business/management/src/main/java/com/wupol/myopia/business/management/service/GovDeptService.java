@@ -83,15 +83,53 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * @return List<Integer>
      */
     private List<Integer> getNextGov(List<Integer> resultIds, List<Integer> ids) {
-        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("pid", ids).ne("status", Const.STATUS_IS_DELETED);
-        List<GovDept> govDeptLists = baseMapper.selectList(queryWrapper);
+        List<GovDept> govDeptLists = getUnDeletedByPid(ids);
         if (!govDeptLists.isEmpty()) {
             List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());
             resultIds.addAll(govDeptIds);
             getNextGov(resultIds, govDeptIds);
         }
         return resultIds;
+    }
+
+
+    /**
+     * 获取当前id下的所属部门（子孙）
+     *
+     * @param govOrgId 部门id
+     * @return List<Integer>
+     */
+    public List<GovDept> getAllSubordinateWithDistrictId(Integer govOrgId) {
+        return getNextGovWithDistrictId(new ArrayList<>(), Lists.newArrayList(govOrgId));
+    }
+
+    /**
+     * 遍历获取部门id
+     *
+     * @param result 结果集合
+     * @param ids       入参
+     * @return List<Integer>
+     */
+    private List<GovDept> getNextGovWithDistrictId(List<GovDept> result, List<Integer> ids) {
+        List<GovDept> govDeptLists = getUnDeletedByPid(ids);
+        if (!govDeptLists.isEmpty()) {
+            List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());
+            result.addAll(govDeptLists);
+            getNextGovWithDistrictId(result, govDeptIds);
+        }
+        return result;
+    }
+
+    /**
+     * 根据PID获取未删除的部门
+     *
+     * @param ids
+     * @return
+     */
+    private List<GovDept> getUnDeletedByPid(List<Integer> ids) {
+        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("pid", ids).ne("status", Const.STATUS_IS_DELETED);
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**

@@ -10,8 +10,10 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.Const;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
+import com.wupol.myopia.business.management.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,6 +30,8 @@ import java.util.Objects;
 @RequestMapping("/management/screeningNotice")
 public class ScreeningNoticeController extends BaseController<ScreeningNoticeService, ScreeningNotice> {
 
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     /**
      * 新增
      *
@@ -51,6 +55,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
 
     /**
      * 根据ID更新
+     *
      * @param screeningNotice 更新参数
      * @return Object
      */
@@ -95,19 +100,19 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
     }
 
     /**
-     * 分页查询创建的通知
+     * 分页查询创建的通知（发布筛查通知页）
      * 1. 管理员：所有
      * 2. 政府机构：自己部门创建的
      *
-     * @param query 查询参数
+     * @param query   查询参数
      * @param current 页码
-     * @param size 条数
+     * @param size    条数
      * @return Object
      */
     @GetMapping("dept/page")
     public IPage queryDeptPage(ScreeningNoticeQuery query,
-                           @RequestParam(defaultValue = "1") Integer current,
-                           @RequestParam(defaultValue = "10") Integer size) throws IOException {
+                               @RequestParam(defaultValue = "1") Integer current,
+                               @RequestParam(defaultValue = "10") Integer size) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setType(0);
         if (user.isPlatformAdminUser()) {
@@ -119,7 +124,33 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
     }
 
     /**
+     * 分页查询通知（筛查通知页）
+     * 1. 政府机构：上级创建的创建的筛查通知
+     * 2. 筛查机构：政府机构创建的筛查任务通知
+     *
+     * @param query   查询参数
+     * @param current 页码
+     * @param size    条数
+     * @return Object
+     */
+    @GetMapping("page")
+    public IPage queryPage(ScreeningNoticeQuery query,
+                           @RequestParam(defaultValue = "1") Integer current,
+                           @RequestParam(defaultValue = "10") Integer size) throws IOException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isGovDeptUser()) {
+            query.setType(0);
+            query.setGovDeptId(user.getOrgId());
+        } else if (user.isScreeningUser()) {
+            query.setType(1);
+            query.setGovDeptId(user.getOrgId());
+        }
+        return screeningNoticeDeptOrgService.getPage(query, current, size);
+    }
+
+    /**
      * 根据ID删除（这里默认所有表的主键字段都为“id”,且自增）
+     *
      * @param id ID
      * @return void
      */
@@ -135,12 +166,14 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
 
     /**
      * 发布
+     *
      * @param id ID
      * @return void
      */
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
+        //TODO 非政府部门，直接报错
         validateExistWithReleaseStatus(id, Const.STATUS_RELEASE);
         baseService.release(id, CurrentUserUtil.getCurrentUser());
     }

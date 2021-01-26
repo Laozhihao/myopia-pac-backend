@@ -42,6 +42,10 @@ public class ScreeningNoticeQuery extends ScreeningNotice {
      * 创建人ID列表
      */
     private List<Integer> creatorIds;
+    /**
+     * 筛查通知--操作状态（0未读 1 是已读 2是已创建）
+     */
+    private Integer operationStatus;
 
     public LocalDate getEndCreateTime() {
         return Objects.isNull(endCreateTime) ? null : endCreateTime.plusDays(1L);

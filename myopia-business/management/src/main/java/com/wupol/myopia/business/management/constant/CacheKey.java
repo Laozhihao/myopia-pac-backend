@@ -16,5 +16,6 @@ public class CacheKey {
     public static final String DISTRICT_PARENT_CODE = "DISTRICT_PARENT_CODE_%s";
     /** 指定的省的行政区域 */
     public static final String DISTRICT_PROVINCE_CODE = "DISTRICT_PROVINCE_CODE_%s";
-
+    /** 全部行政区域的ID、Name的Map */
+    public static final String DISTRICT_ID_NAME_MAP = "DISTRICT";
 }
