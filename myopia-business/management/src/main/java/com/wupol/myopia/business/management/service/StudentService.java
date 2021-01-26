@@ -51,26 +51,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private Long provinceCode;
 
     @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Resource
     private ScreeningResultService screeningResultService;
 
     @Resource
     private SchoolService schoolService;
-
-    /**
-     * 通过学校id查找学生
-     *
-     * @param schoolId 学校Id
-     * @return 学生列表
-     */
-    public List<Student> getStudentsBySchoolId(Integer schoolId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
-    }
 
     /**
      * 通过年级id查找学生
@@ -146,6 +130,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 查询年级和班级
         SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+        if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
+            School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
+            studentDTO.setSchoolName(school.getName());
+        }
         return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
     }
 
@@ -178,7 +166,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         IPage<StudentDTO> pageStudents = baseMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
                 studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
-                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime());
+                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime(),
+                studentQuery.getSchoolName());
         List<StudentDTO> students = pageStudents.getRecords();
 
         // 为空直接放回
@@ -205,7 +194,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             if (null != classMaps.get(s.getClassId())) {
                 s.setClassName(classMaps.get(s.getClassId()).getName());
             }
-            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+            if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
@@ -214,10 +203,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 获取导出数据
+     * 查询
      */
-    public List<Student> getExportData(StudentQuery query) {
-        return baseMapper.getExportData(query);
+    public List<Student> getBy(StudentQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**
@@ -265,5 +254,35 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过id获取学生信息
+     *
+     * @param id 学生ID
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = baseMapper.getStudentById(id);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            // 学校编号不为空，则拼接学校信息
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            student.setSchoolId(school.getId());
+            student.setSchoolNo(school.getSchoolNo());
+            student.setSchoolName(school.getName());
+        }
+        return student;
+    }
+
+
+    /**
+     * 通过学校ID、班级ID、年级ID查找学生
+     *
+     * @param schoolId 学校Id
+     * @return 学生列表
+     */
+    public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
+        return baseMapper.getByOtherId(schoolId, classId, gradeId);
     }
 }

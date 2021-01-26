@@ -25,7 +25,7 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
 
-    List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query);
+    List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query);
 
     ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 

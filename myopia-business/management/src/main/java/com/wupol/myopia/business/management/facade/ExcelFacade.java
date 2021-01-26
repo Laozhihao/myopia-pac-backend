@@ -5,8 +5,6 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -21,7 +19,6 @@ import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -67,21 +64,24 @@ public class ExcelFacade {
 
     /**
      * 生成筛查机构Excel
-     * @param query    查询条件
+     * @param districtId 地区id
      **/
-    public File generateScreeningOrganization(ScreeningOrganizationQuery query) throws IOException {
+    public File generateScreeningOrganization(Integer districtId) throws IOException {
+        if (Objects.isNull(districtId)) {
+            throw new BusinessException("行政区域id不能为空");
+        }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("筛查机构");
-        if (StringUtils.isNotBlank(query.getOrgIdLike())) builder.append("-").append(query.getOrgIdLike());
-        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
-        if (Objects.nonNull(query.getType())) builder.append("-").append(ScreeningOrganizationEnum.getTypeName(query.getType()));
-        if (Objects.nonNull(query.getCode())) {
-            District district = districtService.findOne(new District().setCode(query.getCode()));
-            if (Objects.nonNull(district)) builder.append("-").append(district.getName());
+        District district = districtService.findOne(new District().setId(districtId));
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
         }
+        builder.append("-").append(district.getName());
         String fileName = builder.toString();
         // 构建数据
-        List<ScreeningOrganization> list = screeningOrganizationService.getExportData(query);
+        ScreeningOrganizationQuery query = new ScreeningOrganizationQuery();
+        query.setDistrictId(districtId);
+        List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
             throw new BusinessException("未找到对应的数据");
         }
@@ -116,35 +116,29 @@ public class ExcelFacade {
 
     /**
      * 生成筛查机构人员Excel
-     * @param query    查询条件
+     * @param screeningOrgId    机构id
      **/
-    public File generateScreeningOrganizationStaff(ScreeningOrganizationStaffQuery query) throws IOException {
-        if (Objects.isNull(query.getScreeningOrgId())) {
+    public File generateScreeningOrganizationStaff(Integer screeningOrgId) throws IOException {
+        if (Objects.isNull(screeningOrgId)) {
             throw new BusinessException("筛查机构id不能为空");
         }
         UserDTOQuery userQuery = new UserDTOQuery();
         //TODO 待改成批量模糊查询
         userQuery.setSize(11)
                 .setCurrent(1)
-                .setOrgId(query.getScreeningOrgId())
-                .setRealName(query.getNameLike())
-                .setIdCard(query.getIdCardLike())
-                .setPhone(query.getPhoneLike());
+                .setOrgId(screeningOrgId);
         Page<UserDTO> userPage = oauthService.getUserListPage(userQuery);
         List<UserDTO> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("筛查机构人员");
-        builder.append("-").append(screeningOrganizationService.getById(query.getScreeningOrgId()).getName());
-        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
-        if (StringUtils.isNotBlank(query.getIdCardLike())) builder.append("-").append(query.getIdCardLike());
-        if (StringUtils.isNotBlank(query.getPhoneLike())) builder.append("-").append(query.getPhoneLike());
+        String orgName = screeningOrganizationService.getById(screeningOrgId).getName();
+        builder.append("-").append(orgName);
         String fileName = builder.toString();
 
         // 获取完整的用户信息
 //        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
 //        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
 //                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-        String orgName = screeningOrganizationService.getById(query.getScreeningOrgId()).getName();
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
                 .map(item -> {
@@ -162,24 +156,25 @@ public class ExcelFacade {
 
     /**
      * 生成医院Excel
-     * @param query    查询条件
+     * @param districtId 地区id
      **/
-    public File generateHospital(HospitalQuery query) throws IOException, ValidationException {
+    public File generateHospital(Integer districtId) throws IOException, ValidationException {
+        if (Objects.isNull(districtId)) {
+            throw new BusinessException("行政区域id不能为空");
+        }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("医院");
-        if (StringUtils.isNotBlank(query.getNoLike())) builder.append("-").append(query.getNoLike());
-        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
-        if (Objects.nonNull(query.getType())) builder.append("-").append(HospitalEnum.getTypeName(query.getType()));
-        if (Objects.nonNull(query.getKind())) builder.append("-").append(HospitalEnum.getKindName(query.getKind()));
-        if (Objects.nonNull(query.getLevel())) builder.append("-").append(query.getLevel());
-        if (Objects.nonNull(query.getCode())) {
-            District district = districtService.findOne(new District().setCode(query.getCode()));
-            if (Objects.nonNull(district)) builder.append("-").append(district.getName());
+        District district = districtService.findOne(new District().setId(districtId));
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
         }
+        builder.append("-").append(district.getName());
         String fileName = builder.toString();
         // 构建数据
         Set<Integer> createUserIds = new HashSet<>();
-        List<Hospital> list = hospitalService.getExportData(query);
+        HospitalQuery query = new HospitalQuery();
+        query.setDistrictId(districtId);
+        List<Hospital> list = hospitalService.getBy(query);
         List<HospitalExportVo> exportList = new ArrayList<>();
         for (Hospital item : list) {
             HospitalExportVo exportVo = new HospitalExportVo()
@@ -212,22 +207,25 @@ public class ExcelFacade {
 
     /**
      * 生成学校Excel
-     * @param query    查询条件
+     * @param districtId 地区id
      **/
-    public File generateSchool(SchoolQuery query) throws IOException, ValidationException {
+    public File generateSchool(Integer districtId) throws IOException, ValidationException {
+        if (Objects.isNull(districtId)) {
+            throw new BusinessException("行政区域id不能为空");
+        }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学校");
-        if (StringUtils.isNotBlank(query.getNoLike())) builder.append("-").append(query.getNoLike());
-        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
-        if (Objects.nonNull(query.getType())) builder.append("-").append(SchoolEnum.getTypeName(query.getType()));
-        if (Objects.nonNull(query.getCode())) {
-            District district = districtService.findOne(new District().setCode(query.getCode()));
-            if (Objects.nonNull(district)) builder.append("-").append(district.getName());
+        District district = districtService.findOne(new District().setId(districtId));
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
         }
+        builder.append("-").append(district.getName());
         String fileName = builder.toString();
         // 构建数据
         Set<Integer> createUserIds = new HashSet<>();
-        List<School> list = schoolService.getExportData(query);
+        SchoolQuery query = new SchoolQuery();
+        query.setDistrictId(districtId);
+        List<School> list = schoolService.getBy(query);
         List<SchoolExportVo> exportList = new ArrayList<>();
         for (School item : list) {
             SchoolExportVo exportVo = new SchoolExportVo()
@@ -263,27 +261,24 @@ public class ExcelFacade {
     }
     /**
      * 生成学生Excel
-     * @param query    查询条件
+     * @param schoolId    学校id
+     * @param gradeId    年级id
      **/
-    public File generateStudent(StudentQuery query) throws IOException, ValidationException {
-//        if (Objects.isNull(query.getSchoolId())) {
-//            throw new BusinessException("学校id不能为空");
-//        }
+    public File generateStudent(Integer schoolId, Integer gradeId) throws IOException, ValidationException {
+        if (Objects.isNull(schoolId)) {
+            throw new BusinessException("学校id不能为空");
+        }
+        if (Objects.isNull(gradeId)) {
+            throw new BusinessException("年级id不能为空");
+        }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
-        if (StringUtils.isNotBlank(query.getNameLike())) builder.append("-").append(query.getNameLike());
-        if (StringUtils.isNotBlank(query.getIdCardLike())) builder.append("-").append(query.getIdCardLike());
-        if (StringUtils.isNotBlank(query.getSnoLike())) builder.append("-").append(query.getSnoLike());
-        if (StringUtils.isNotBlank(query.getPhoneLike())) builder.append("-").append(query.getPhoneLike());
-        if (Objects.nonNull(query.getGender())) builder.append("-").append(GenderEnum.getName(query.getGender()));
-        if (Objects.nonNull(query.getGradeList())) builder.append("-").append(query.getGradeList());
-        if (Objects.nonNull(query.getStartDate())) builder.append("-").append(query.getStartDate());
-        if (Objects.nonNull(query.getEndDate())) builder.append("-").append(query.getEndDate());
+        String schoolName = schoolService.getById(schoolId).getName();
+        String gradeName = schoolGradeService.getById(gradeId).getName();
+        builder.append("-").append(schoolName);
+        builder.append("-").append(gradeName);
         String fileName = builder.toString();
-        // 构建数据
-//        String schoolName = schoolService.getById(query.getSchoolId()).getName();
-        String schoolName = "学校名";
-        List<Student> list = studentService.getExportData(query);
+        List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, null);
         // 获取年级班级信息
         List<Integer> gradeIdList = list.stream().map(Student::getGradeId).collect(Collectors.toList());
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -295,7 +290,7 @@ public class ExcelFacade {
             StudentExportVo exportVo = new StudentExportVo()
                     .setNo(item.getSno())
                     .setName(item.getName())
-                    .setGender(GenderEnum.getName(query.getGender()))
+                    .setGender(GenderEnum.getName(item.getGender()))
                     .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)

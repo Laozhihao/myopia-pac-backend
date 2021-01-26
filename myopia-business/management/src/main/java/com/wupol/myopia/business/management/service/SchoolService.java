@@ -174,6 +174,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
+            query.setCurrent(1);
+            query.setSize(10000000);
             Page<UserDTO> userListPage = oauthService.getUserListPage(query);
             List<UserDTO> records = userListPage.getRecords();
             if (!CollectionUtils.isEmpty(userListPage.getRecords())) {
@@ -268,14 +270,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
-
-    /**
-     * 获取导出数据
-     */
-    public List<School> getExportData(SchoolQuery query) {
-        return baseMapper.getBy(query);
-    }
-
     /**
      * 获取学校的筛查记录列表
      *
@@ -354,6 +348,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
+    }
+
+    /**
+     * 通过学校编号获取学校
+     *
+     * @param schoolNo 学校编号
+     * @return School
+     */
+    public School getBySchoolNo(String schoolNo) {
+        return baseMapper.selectOne(new QueryWrapper<School>().eq("school_no", schoolNo));
     }
 
     /**

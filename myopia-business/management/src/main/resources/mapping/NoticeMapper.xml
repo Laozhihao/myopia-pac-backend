@@ -50,4 +50,11 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="unreadCount" resultType="java.lang.Integer">
+        select count(1)
+        from m_notice mn
+        where mn.status = #{status}
+          and mn.create_user_id = #{userId}
+    </select>
 </mapper>

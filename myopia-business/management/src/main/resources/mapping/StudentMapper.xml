@@ -58,9 +58,9 @@
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
-        select
-        <include refid="Base_Column_List"/>
+        select ms.*
         from m_student ms
+                     left join m_school school on ms.school_no = school.school_no
                 where ms.status != 2
         <if test="sno != null">
             and ms.sno like CONCAT('%', #{sno}, '%')
@@ -92,10 +92,13 @@
         <if test="startScreeningTime != null">
             and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
         </if>
+        <if test="schoolName != null and schoolName != ''">
+            and school.name like CONCAT('%', #{schoolName}, '%')
+        </if>
         order by ms.create_time desc
     </select>
 
-    <select id="getExportData" resultMap="BaseResultMap">
+    <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_student
         <include refid="Base_Where_Clause" />
@@ -106,5 +109,28 @@
         <include refid="Base_Column_List"/>
         from m_student
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getStudentById" resultMap="BaseResultMapDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student ms
+        where ms.id = #{id}
+    </select>
+
+    <select id="getByOtherId" resultMap="BaseResultMap">
+        select student.*
+        from m_student student
+                     left join m_school school on student.school_no = school.school_no
+                where student.status != 2
+        <if test="schoolId != null">
+            and school.id = #{schoolId}
+        </if>
+        <if test="classId != null">
+            and student.class_id = #{classId}
+        </if>
+        <if test="gradeId != null">
+            and student.grade_id = #{gradeId}
+        </if>
     </select>
 </mapper>

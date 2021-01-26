@@ -17,7 +17,6 @@ import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
@@ -208,8 +207,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
-        return baseMapper.getExportData(query);
+    public List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**

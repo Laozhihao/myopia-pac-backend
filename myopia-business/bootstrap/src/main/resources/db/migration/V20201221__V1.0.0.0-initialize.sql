@@ -7,7 +7,6 @@ create table m_screening_organization
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
     district_detail varchar(256)                        not null comment '行政区域json',
-    district_name   varchar(64)                         not null comment '行政区域名',
     name            varchar(32)                         not null comment '筛查机构名称',
     type            tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
     type_desc       varchar(128)                        null default '' comment '机构类型描述',
@@ -63,7 +62,6 @@ create table m_hospital
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
     district_detail varchar(256)                        not null comment '行政区域json',
-    district_name   varchar(64)                         not null comment '行政区域名',
     name            varchar(32)                         not null comment '医院名称',
     level           tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
     level_desc      varchar(32)                         null comment '等级描述',
@@ -105,7 +103,6 @@ create table m_school
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
     district_detail varchar(256)                        not null comment '行政区域json',
-    district_name   varchar(64)                         not null comment '行政区域名',
     name            varchar(32)                         not null comment '学校名称',
     kind            tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
     kind_desc       varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
@@ -184,12 +181,12 @@ create table m_student
     birthday            timestamp                           null comment '出生日期',
     nation              tinyint                             null comment '民族 0-汉族',
     id_card             varchar(32)                         not null comment '身份证号码',
-    parent_phone        varchar(16)                         not null comment '家长手机号码',
+    parent_phone        varchar(16)                         null comment '家长手机号码',
     mp_parent_phone     varchar(16)                         null comment '家长公众号手机号码',
-    province_code       bigint                              not null comment '省代码',
-    city_code           bigint                              not null comment '市代码',
-    area_code           bigint                              not null comment '区代码',
-    town_code           bigint                              not null comment '镇/乡代码',
+    province_code       bigint                              null comment '省代码',
+    city_code           bigint                              null comment '市代码',
+    area_code           bigint                              null comment '区代码',
+    town_code           bigint                              null comment '镇/乡代码',
     address             varchar(128)                        null comment '详细地址',
     current_situation   varchar(128)                        null comment '当前情况',
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
@@ -274,19 +271,19 @@ create table m_template_district
 )
     comment '模板区域表';
 
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (1, 1, '学生档案卡-模板1', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (2, 1, '学生档案卡-模板2', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (3, 1, '学生档案卡-模板3', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (4, 1, '学生档案卡-模板4', '2021-01-22 12:08:23', '2021-01-22 12:08:23');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (5, 2, '筛查报告-模板1', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (6, 2, '筛查报告-模板2', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
-INSERT INTO myopia.m_template (id, type, name, create_time, update_time)
+INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');

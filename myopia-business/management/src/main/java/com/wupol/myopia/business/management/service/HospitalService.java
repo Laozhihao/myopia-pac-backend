@@ -223,10 +223,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
 
     /**
-     * 获取导出数据
+     * 查询
      */
-    public List<Hospital> getExportData(HospitalQuery query) {
-        return baseMapper.getExportData(query);
+    public List<Hospital> getBy(HospitalQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**

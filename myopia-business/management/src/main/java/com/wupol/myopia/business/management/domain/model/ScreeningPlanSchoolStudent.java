@@ -48,7 +48,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--参与筛查的学生年级ID
      */
-    private Integer graderId;
+    private Integer gradeId;
 
     /**
      * 筛查计划--参与筛查的学生班级ID

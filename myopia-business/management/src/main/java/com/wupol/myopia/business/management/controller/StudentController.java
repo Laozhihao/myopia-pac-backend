@@ -61,7 +61,7 @@ public class StudentController {
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        return studentService.getById(id);
+        return studentService.getStudentById(id);
     }
 
     @GetMapping("list")
@@ -70,9 +70,9 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException, ValidationException {
+    public ResponseEntity<FileSystemResource> getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException {
         //TODO 待检验日期范围
-        return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
+        return FileUtils.getResponseEntity(excelFacade.generateStudent(schoolId, gradeId));
     }
 
     @PostMapping("/import/{schoolId}")

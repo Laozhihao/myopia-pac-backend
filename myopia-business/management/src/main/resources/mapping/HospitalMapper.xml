@@ -84,7 +84,7 @@
         limit 1
     </select>
 
-    <select id="getExportData" resultMap="BaseResultMap">
+    <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_hospital
         <include refid="Base_Where_Clause" />

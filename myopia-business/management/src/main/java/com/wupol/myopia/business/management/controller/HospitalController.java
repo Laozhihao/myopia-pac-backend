@@ -79,7 +79,7 @@ public class HospitalController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getHospitalExportData(HospitalQuery query) throws IOException, ValidationException {
-        return FileUtils.getResponseEntity(excelFacade.generateHospital(query));
+    public ResponseEntity<FileSystemResource> getHospitalExportData(Integer districtId) throws IOException, ValidationException {
+        return FileUtils.getResponseEntity(excelFacade.generateHospital(districtId));
     }
 }

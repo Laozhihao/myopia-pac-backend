@@ -81,8 +81,8 @@ public class SchoolController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getSchoolExportData(SchoolQuery query) throws IOException, ValidationException {
-        return FileUtils.getResponseEntity(excelFacade.generateSchool(query));
+    public ResponseEntity<FileSystemResource> getSchoolExportData(Integer districtId) throws IOException, ValidationException {
+        return FileUtils.getResponseEntity(excelFacade.generateSchool(districtId));
     }
 
     @GetMapping("screening/record/lists/{schoolId}")

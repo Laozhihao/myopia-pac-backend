@@ -76,8 +76,8 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(query));
+    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(Integer screeningOrgId) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(screeningOrgId));
     }
 
 

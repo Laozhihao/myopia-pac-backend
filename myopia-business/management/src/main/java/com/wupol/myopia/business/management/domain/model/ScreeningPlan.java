@@ -48,13 +48,11 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--开始时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 筛查计划--结束时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /**
@@ -68,6 +66,11 @@ public class ScreeningPlan implements Serializable {
     private Integer districtId;
 
     /**
+     * 筛查计划--指定的筛查机构id
+     */
+    private Integer orgId;
+
+    /**
      * 筛查计划--发布状态 （0未发布 1已发布）
      */
     private Integer releaseStatus;
@@ -75,7 +78,6 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--发布时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date releaseTime;
 
     /**
@@ -86,7 +88,6 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--创建时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -97,8 +98,5 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--最后操作时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operateTime;
-
-
 }
