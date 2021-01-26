@@ -116,3 +116,8 @@ feign:
       default:
         connectTimeout: 60000
         readTimeout: 60000
+
+# 部署的省份的行政区编号
+oem:
+  province:
+    code: 14000000
