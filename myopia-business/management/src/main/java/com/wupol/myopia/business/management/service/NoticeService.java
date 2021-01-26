@@ -24,11 +24,6 @@ import java.util.stream.Collectors;
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
-
-    private static List<Integer> str2List(String string) {
-        return Arrays.stream(string.split(",")).map(Integer::valueOf).collect(Collectors.toList());
-    }
-
     /**
      * 获取通知列表
      *
@@ -47,8 +42,8 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @return 是否更新成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean readNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.STATUS_NOTICE_READ) > 0;
+    public Boolean readNotice(List<Integer> ids) {
+        return baseMapper.batchUpdateStatus(ids, CommonConst.STATUS_NOTICE_READ) > 0;
     }
 
     /**
@@ -57,8 +52,8 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param ids 通知ID
      * @return 是否删除成功
      */
-    public Object deletedNotice(String ids) {
-        return baseMapper.batchUpdateStatus(str2List(ids), CommonConst.STATUS_NOTICE_DELETED) > 0;
+    public Object deletedNotice(List<Integer> ids) {
+        return baseMapper.batchUpdateStatus(ids, CommonConst.STATUS_NOTICE_DELETED) > 0;
     }
 
     /**
