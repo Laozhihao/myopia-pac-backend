@@ -6,7 +6,6 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.model.UserWithRole;
-import com.wupol.myopia.oauth.service.UserRoleService;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +31,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserRoleService userRoleService;
 
     /**
      * 获取用户列表
@@ -52,7 +50,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping()
-    public User addUser(@RequestBody UserDTO userDTO) {
+    public User addUser(@RequestBody UserDTO userDTO) throws IOException {
         return userService.addUser(userDTO);
     }
 
@@ -63,8 +61,8 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public UserDTO modifyUser(@RequestBody UserDTO user) throws Exception {
-        return userService.modifyUser(user);
+    public UserDTO updateUser(@RequestBody UserDTO user) throws Exception {
+        return userService.updateUser(user);
     }
 
     /**
@@ -112,11 +110,6 @@ public class UserController {
             return new ArrayList<>();
         }
         return userService.listByIds(userIds);
-    }
-
-    @GetMapping("/getByIds")
-    public List<User> getByIds(UserRequest request) {
-        return userService.getByIds(request);
     }
 
     /**

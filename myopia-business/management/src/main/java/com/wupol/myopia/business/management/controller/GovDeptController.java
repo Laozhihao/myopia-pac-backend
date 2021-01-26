@@ -11,6 +11,7 @@ import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +50,7 @@ public class GovDeptController {
         if (Objects.isNull(queryParam.getDistrictId())) {
             throw new ValidationException("行政区ID为空");
         }
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         return govDeptService.findByList(queryParam);
     }
 
@@ -60,12 +62,10 @@ public class GovDeptController {
      **/
     @PostMapping()
     public GovDept addGovDept(@RequestBody @Validated(value = GovDeptAddValidatorGroup.class) GovDept govDept) {
-        // TODO：管理员的判断根据角色类型来、部门对应上行政区
-        if ("admin".equals(CurrentUserUtil.getCurrentUser().getUsername())) {
+        if (CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
             // 如果是管理员的话，需要选择部门，pid不能为空；行政区可以为任意
-            if (Objects.isNull(govDept.getPid())) {
-                throw new ValidationException("上级部门不能为空");
-            }
+            Assert.notNull(govDept.getPid(), "上级部门不能为空");
+            // TODO: 判断pid部门是否为当前govDept.districtId的上级行政区的部门
         } else {
             District district = districtService.getById(govDept.getDistrictId());
             GovDept currentUserDept = govDeptService.getById(CurrentUserUtil.getCurrentUser().getOrgId());
@@ -76,7 +76,6 @@ public class GovDeptController {
             // 非管理员用户，获取当前用户的部门作为上级部门
             govDept.setPid(CurrentUserUtil.getCurrentUser().getOrgId());
         }
-
         govDeptService.save(govDept);
         return govDept;
     }
@@ -88,10 +87,10 @@ public class GovDeptController {
      * @return com.wupol.myopia.business.management.domain.model.GovDept
      **/
     @PutMapping()
-    public GovDept modifyGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
-        // TODO: 非管理员用户，不允许修改pid
+    public GovDept updateGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         govDeptService.updateById(govDept);
-        return govDeptService.getById(govDept);
+        return govDeptService.getById(govDept.getId());
     }
 
     /**
@@ -101,6 +100,7 @@ public class GovDeptController {
      **/
     @GetMapping("/structure")
     public List<GovDeptVo> getGovDeptTree() {
+        // TODO: 拼接一级节点“平台系统中心”
         return govDeptService.selectGovDeptTreeByPid(CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
@@ -128,12 +128,26 @@ public class GovDeptController {
             throw new ValidationException("不存在该行政区");
         }
         // 默认省级部门的父部门为运营中心，其行政区ID为-1 TODO：抽为常量，统一维护 -1 的数据
-        Long parentCode = district.getCode().equals(oemProvinceCode) ? -1L : district.getParentCode();
-        District parentDistrict = districtService.findOne(new District().setCode(parentCode));
+        if (district.getParentCode() == 100000000) {
+            return govDeptService.findByList(new GovDept().setDistrictId(-1));
+        }
+        District parentDistrict = districtService.findOne(new District().setCode(district.getParentCode()));
         if (Objects.isNull(parentDistrict)) {
             throw new ValidationException("不存在该行政区的上级行政区");
         }
         return govDeptService.findByList(new GovDept().setDistrictId(parentDistrict.getId()));
+    }
+
+    /**
+     * 修改角色状态
+     *
+     * @param govDeptId 部门ID
+     * @param status 状态类型
+     * @return boolean
+     **/
+    @PutMapping("/{govDeptId}/{status}")
+    public boolean updateRoleStatus(@PathVariable @NotNull(message = "部门ID不能为空") Integer govDeptId, @PathVariable @NotNull(message = "状态不能为空") Integer status) {
+        return govDeptService.updateById(new GovDept().setId(govDeptId).setStatus(status));
     }
 
 }

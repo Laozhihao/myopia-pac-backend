@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -76,14 +77,14 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User addUser(UserDTO userDTO) {
-        // TODO：手机号码不能重复
-
+    public User addUser(UserDTO userDTO) throws IOException {
+        User existUser = findOne(new User().setPhone(userDTO.getPhone()).setSystemCode(userDTO.getSystemCode()));
+        Assert.isNull(existUser, "已经存在该手机号");
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
-        // 绑定角色，判断角色ID与部门ID有效性——是否都存在该角色、且是在所属部门下的、跟用户同系统端的
+        // 绑定角色，判断角色ID与部门ID有效性 —— 是否都存在该角色、且是在所属部门下的、跟用户同系统端的
         List<Integer> roleIds = userDTO.getRoleIds();
         if (CollectionUtils.isEmpty(roleIds)) {
             throw new BusinessException("角色不能为空");
@@ -95,7 +96,7 @@ public class UserService extends BaseService<UserMapper, User> {
         }
         List<UserRole> userRoles = roleIds.stream().map(roleId -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
         userRoleService.saveBatch(userRoles);
-        return user;
+        return userDTO.setId(user.getId());
     }
 
     /**
@@ -161,7 +162,8 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /** 修改用户信息 */
-    public UserDTO modifyUser(UserDTO user) throws Exception {
+    @Transactional(rollbackFor = Exception.class)
+    public UserDTO updateUser(UserDTO user) throws Exception {
         String pwd = user.getPassword();
         if (!StringUtils.isEmpty(pwd)) {
             user.setPassword(new BCryptPasswordEncoder().encode(pwd));
@@ -188,7 +190,6 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return 用户列表
      */
     public List<User> getByIds(UserRequest request) {
-        return baseMapper.selectList(new QueryWrapper<User>()
-                .in("id", request.getUserIds()));
+        return baseMapper.selectBatchIds(request.getUserIds());
     }
 }

@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.util.CollectionUtils;
+import org.springframework.validation.BindException;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +21,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -42,11 +46,22 @@ public class ControllerExceptionHandler {
     }
 
     /**
+     * 通过Assert抛出的数据校验异常
+     * @param ex ValidationException
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ApiResult handleIllegalArgumentExceptionException(IllegalArgumentException ex) {
+        logger.error("数据校验异常，{}", ex.getMessage(), ex);
+        return ApiResult.failure(ex.getMessage());
+    }
+
+    /**
      * 数据校验异常
      * @param ex ValidationException
      */
     @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResult handleTypeMismatchException(ValidationException ex) {
         logger.error("数据校验异常，{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getMessage());
@@ -87,7 +102,7 @@ public class ControllerExceptionHandler {
 
     /**
      * 使用@NotEmpty、@NotNull等注释的参数验证失败时引发的异常
-     * @param ex MethodArgumentNotValidException
+     * @param ex ConstraintViolationException
      */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -100,6 +115,18 @@ public class ControllerExceptionHandler {
             break;
         }
         return ApiResult.failure(strBuilder.toString());
+    }
+
+    /**
+     * 使用@NotEmpty、@NotNull等注释的参数验证失败时引发的异常
+     * @param ex BindException
+     */
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ApiResult handleBindException(BindException ex){
+        logger.error("请求参数不正确，{}", ex.getMessage(), ex);
+        List<ObjectError> allErrors = ex.getAllErrors();
+        return ApiResult.failure(CollectionUtils.isEmpty(allErrors) ? "请求参数错误": allErrors.get(0).getDefaultMessage());
     }
 
     /**

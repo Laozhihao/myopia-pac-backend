@@ -114,3 +114,9 @@ private static StrategyConfig getStrategyConfig() {
  ### 运行
  ```bash
  java  -jar myopia.jar
+ ```
+ 
+## 开发规范约定
+### 命名
+- 政府部门：gov_dept、筛查机构：screening_org、两者统称：org
+- Redis缓存key值命名，采用冒号来分类，为了方便维护和便于Redis可视化工具中排查问题。格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符

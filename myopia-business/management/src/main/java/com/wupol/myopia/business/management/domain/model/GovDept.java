@@ -51,7 +51,7 @@ public class GovDept implements Serializable {
     /**
      * 所属行政区ID
      */
-    @NotNull(message = "所属行政区ID不能为空", groups = GovDeptAddValidatorGroup.class)
+    @NotNull(message = "所属行政区ID不能为空", groups = {GovDeptAddValidatorGroup.class, GovDeptUpdateValidatorGroup.class})
     private Integer districtId;
 
     /**

@@ -45,12 +45,6 @@
         </where>
     </select>
 
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from o_role
-        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
-    </select>
-
     <select id="getRoleListByUserId" resultMap="BaseResultMap">
         SELECT
                r.*

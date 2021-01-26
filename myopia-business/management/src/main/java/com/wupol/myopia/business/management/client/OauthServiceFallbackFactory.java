@@ -100,7 +100,12 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId) {
+            public ApiResult<RoleDTO> getRoleById(Integer roleId) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId, Integer templateType) {
                 return respData;
             }
 
@@ -126,6 +131,16 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult<List<UserDTO>> getUserByIds(UserRequest request) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getPermissionTemplate(Integer templateType) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Boolean> updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
                 return respData;
             }
         };

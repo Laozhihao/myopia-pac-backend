@@ -2,6 +2,8 @@ package com.wupol.myopia.business.management.constant;
 
 /**
  * 缓存相关常量
+ * - 为了方便维护和便于Redis可视化工具中排查问题，采用冒号来分割风格
+ * - 格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符
  *
  * @Author Chikong
  * @Date 2020-12-22
@@ -9,21 +11,22 @@ package com.wupol.myopia.business.management.constant;
 public interface CacheKey {
 
     /**
-     * 全部行政区域
+     * 全部行政区域列表集合
      */
-    String DISTRICT = "DISTRICT";
+    String DISTRICT_ALL_LIST = "district:all";
     /**
      * 指定的行政区域
      */
-    String DISTRICT_CODE = "DISTRICT_CODE_%s";
+    String DISTRICT_LIST = "district:list:code_%s";
     /**
-     * 指定的行政区域和它的子节点
+     * 指定的行政区域和它的子节点区域树
      */
-    String DISTRICT_PARENT_CODE = "DISTRICT_PARENT_CODE_%s";
+    String DISTRICT_TREE = "district:tree:code_%s";
+    String DISTRICT_CHILD_TREE = "district:child:parent_code_%s";
     /**
      * 指定的省的行政区域
      */
-    String DISTRICT_PROVINCE_CODE = "DISTRICT_PROVINCE_CODE_%s";
+    String DISTRICT_PROVINCE_LIST = "district:province_list:code_%s";
 
     /**
      * 新增员工

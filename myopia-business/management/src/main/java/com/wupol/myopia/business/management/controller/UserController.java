@@ -7,8 +7,13 @@ import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.service.UserService;
+import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @Author HaoHao
@@ -41,14 +46,14 @@ public class UserController {
     }
 
     /**
-     * 新增用户 TODO: 参数判空校验
+     * 新增用户
      *
      * @param user 用户数据
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PostMapping()
-    public UserDTO addUser(@RequestBody UserDTO user) {
-        return userService.addUser(user, CurrentUserUtil.getCurrentUser().getOrgId());
+    public UserDTO addUser(@RequestBody @Validated(value = UserAddValidatorGroup.class) UserDTO user) {
+        return userService.addUser(user, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -58,11 +63,10 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object updateUser(@RequestBody UserDTO user) {
-        // TODO：如果部门ID不为空，需要判断是否合法（为当前登录用户所属部门或名下子部门）
+    public Object updateUser(@RequestBody @Validated(value = UserUpdateValidatorGroup.class) UserDTO user) {
         // TODO: 不能更新自己、非管理员或者admin用户不能修改用户
         // 该接口不允许更新密码
-        return oauthService.modifyUser(user.setPassword(null));
+        return userService.updateUser(user.setPassword(null), CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -87,5 +91,17 @@ public class UserController {
     public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
         // TODO: 只能获取自己所属部门下的用户
         return oauthService.getUserDetailByUserId(userId);
+    }
+
+    /**
+     * 更新用户状态
+     *
+     * @param userId 用户ID
+     * @param status 用户状态
+     * @return com.wupol.myopia.business.management.domain.dto.UserDTO
+     **/
+    @PutMapping("/{userId}/{status}")
+    public UserDTO resetPwd(@PathVariable("userId") @NotNull(message = "用户ID不能为空") Integer userId, @PathVariable("status") @NotNull(message = "用户状态不能为空") Integer status) {
+        return oauthService.modifyUser(new UserDTO().setId(userId).setStatus(status));
     }
 }

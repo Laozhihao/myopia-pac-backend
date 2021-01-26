@@ -1,14 +1,15 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.controller.BaseController;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.service.DistrictService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -22,12 +23,44 @@ import java.util.List;
 public class DistrictController extends BaseController<DistrictService, District> {
 
     /**
-     * 获取当前登录用户所在部门的行政区树
+     * 获取以当前登录用户所在部门的行政区域作为根节点的行政区域树
      *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/structure")
     public List<District> getCurrentUserDistrictTree() {
-        return baseService.getCurrentUserDistrictTree();
+        return baseService.getCurrentUserDistrictTree(CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 获取全国行政区域-树结构
+     *
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    @GetMapping("/all")
+    public List<District> getWholeCountryDistrictTree() {
+        return baseService.getWholeCountryDistrictTreeWithCache();
+    }
+
+    /**
+     * 获取当前登录用户所属层级 - 层级链(从省开始到所属层级)
+     *
+     * @return com.wupol.myopia.business.management.domain.model.District
+     **/
+    @GetMapping("/current/position")
+    public District getCurrentUserPosition() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return baseService.getCurrentUserPosition();
+    }
+
+    /**
+     * 获取指定行政区域的下级区域
+     *
+     * @param code 行政区域编号不能为空
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    @GetMapping("/child/{code}")
+    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
+        return baseService.getChildDistrictByParentCodeWithCache(code);
     }
 }

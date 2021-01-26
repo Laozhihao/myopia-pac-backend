@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.management.client;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.UserRequest;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.client.aop.annotation.OauthRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
@@ -133,13 +131,19 @@ public class OauthService {
         return null;
     }
 
+    @OauthRequest
+    public RoleDTO getRoleById(Integer roleId) {
+        return null;
+    }
+
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      **/
     @OauthRequest
-    public List<PermissionDTO> getRolePermissionTree(Integer roleId){
+    public List<PermissionDTO> getRolePermissionTree(Integer roleId, Integer templateType){
         return null;
     }
 
@@ -170,6 +174,29 @@ public class OauthService {
 
     @OauthRequest
     public List<UserDTO> getUserByIds(UserRequest request){
+        return null;
+    }
+
+    /**
+     * 根据模板类型获取模板权限-树结构
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    @OauthRequest
+    public List<PermissionDTO> getPermissionTemplate(Integer templateType) {
+        return null;
+    }
+
+    /**
+     * 更新模板权限
+     *
+     * @param templateType 模板类型
+     * @param permissionIds 权限集
+     * @return boolean
+     **/
+    @OauthRequest
+    public Boolean updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
         return null;
     }
 

@@ -231,7 +231,7 @@ CREATE TABLE `m_government_department`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '政府部门表' ROW_FORMAT = Dynamic;
 
 -- 初始化部门表
-INSERT INTO `m_government_department`(`name`, `pid`, `district_id`, `create_user_id`) VALUES ('运行中心', -1, -1, -1);
+INSERT INTO `m_government_department`(id, `name`, `pid`, `district_id`, `create_user_id`) VALUES (1, '运行中心', -1, -1, -1);
 
 DROP TABLE IF EXISTS m_notice;
 create table m_notice
