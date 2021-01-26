@@ -19,5 +19,5 @@ public interface NoticeMapper extends BaseMapper<Notice> {
 
     Integer batchUpdateStatus(@Param("ids") List<Integer> ids, @Param("status") Integer status);
 
-    Integer unreadCount(@Param("status") Integer status, @Param("userId") Integer userId);
+    List<Notice> unreadCount(@Param("status") Integer status, @Param("userId") Integer userId);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.management.domain.mapper.NoticeMapper;
 import com.wupol.myopia.business.management.domain.model.Notice;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -58,9 +59,13 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * 获取用户未读个数
      *
      * @param currentUser 当前用户
-     * @return 未读个数
+     * @return 未读列表
      */
-    public Integer unreadCount(CurrentUser currentUser) {
-        return baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
+    public UnreadNoticeResponse unreadCount(CurrentUser currentUser) {
+        UnreadNoticeResponse response = new UnreadNoticeResponse();
+        List<Notice> notices = baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
+        response.setTotal(notices.size());
+        response.setDetails(notices);
+        return response;
     }
 }
