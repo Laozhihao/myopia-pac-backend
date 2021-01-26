@@ -9,7 +9,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * 筛查通知表
@@ -34,6 +37,8 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--标题（最大25个字符）
      */
+    @Length(max = 25)
+    @NotBlank
     private String title;
 
     /**

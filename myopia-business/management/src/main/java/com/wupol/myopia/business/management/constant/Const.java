@@ -31,4 +31,9 @@ public class Const {
 
     public static final String DISTRICT_CN_NAME = "district:cn.name:integer";
 
+    public static final Integer STATUS_NOT_RELEASE = 0;
+
+    public static final Integer STATUS_RELEASE = 1;
+
+    public static final Integer DEFAULT_ID = 0;
 }
