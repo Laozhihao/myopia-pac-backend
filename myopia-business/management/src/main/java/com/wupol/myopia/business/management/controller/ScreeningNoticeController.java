@@ -2,7 +2,9 @@ package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.controller.BaseController;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
@@ -45,6 +47,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
      */
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
-        baseService.release(id);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        baseService.release(id, currentUser);
     }
 }
