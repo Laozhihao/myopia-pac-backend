@@ -30,7 +30,8 @@ public class ScreeningOrganizationExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     public static final String TOP_HEADER = "筛查机构表";
-    @ExcelProperty({TOP_HEADER, "ID"})
+    public static final String TOP_HEADER2 = "最新筛查任务";
+    @ExcelProperty({TOP_HEADER, "序号"})
     private Integer id;
     @ExcelProperty({TOP_HEADER, "筛查机构名称"})
     private String name;
@@ -41,10 +42,18 @@ public class ScreeningOrganizationExportVo implements Serializable {
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
     @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
-    private Integer personCount;
-    @ExcelProperty({TOP_HEADER, "人员名单"})
-    private String personNames;
+    private String personSituation;
     @ExcelProperty({TOP_HEADER, "筛查次数"})
     private Integer screeningCount;
+    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查标题"})
+    private String screeningTitle;
+    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查时间段"})
+    private String screeningTime;
+    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "当前进度"})
+    private String screeningProgress;
+    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "负责筛查学校"})
+    private String screeningSchool;
+    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查人员"})
+    private String screeningPersonSituation;
 
 }

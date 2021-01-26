@@ -19,5 +19,6 @@ public interface DistrictMapper extends BaseMapper<District> {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     List<District> selectDistrictTree(Long code);
+    List<District> selectChildNodeByParentCode(Long code);
     List<District> findByCodeList(Long provinceCode, Long cityCode, Long areaCode, Long townCode);
 }

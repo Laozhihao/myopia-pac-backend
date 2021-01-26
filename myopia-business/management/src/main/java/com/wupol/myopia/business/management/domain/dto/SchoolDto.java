@@ -20,7 +20,7 @@ public class SchoolDto extends School {
     /**
      * 筛查次数
      */
-    private Integer screeningTime;
+    private Integer screeningCount;
 
     /**
      * 是否能更新
@@ -28,7 +28,12 @@ public class SchoolDto extends School {
     private boolean canUpdate = false;
 
     /**
-     * 行政区域名字
+     * 创建人
+     */
+    private String createUser;
+
+    /**
+     * 行政区域名
      */
     private String districtName;
 }

@@ -6,7 +6,6 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.model.UserWithRole;
-import com.wupol.myopia.oauth.service.UserRoleService;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,16 +31,14 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserRoleService userRoleService;
 
     /**
-     * 获取用户列表
+     * 获取用户列表 - 分页
      *
      * @param queryParam 查询参数
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.oauth.domain.model.UserWithRole>
      **/
-    @GetMapping("/list")
+    @GetMapping("/page")
     public IPage<UserWithRole> getUserListPage(UserDTO queryParam) {
         return userService.getUserListPage(queryParam);
     }
@@ -52,7 +50,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping()
-    public User addUser(@RequestBody UserDTO userDTO) {
+    public User addUser(@RequestBody UserDTO userDTO) throws IOException {
         return userService.addUser(userDTO);
     }
 
@@ -63,8 +61,8 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public UserDTO modifyUser(@RequestBody UserDTO user) throws Exception {
-        return userService.modifyUser(user);
+    public UserDTO updateUser(@RequestBody UserDTO user) throws Exception {
+        return userService.updateUser(user);
     }
 
     /**
@@ -114,11 +112,6 @@ public class UserController {
         return userService.listByIds(userIds);
     }
 
-    @GetMapping("/getByIdCard")
-    public List<User> getUserByIdCard(UserRequest request) {
-        return userService.getUserByIdCard(request);
-    }
-
     /**
      * 获取用户明细
      *
@@ -128,5 +121,16 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserDetailByUserId(@PathVariable("userId") Integer userId) {
         return userService.getById(userId);
+    }
+
+    /**
+     * 获取用户列表（支持模糊查询）
+     *
+     * @param queryParam 搜索参数
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/list")
+    public List<User> getUserListWithLike(UserDTO queryParam) {
+        return userService.getUserListWithLike(queryParam);
     }
 }

@@ -52,6 +52,11 @@ public class School implements Serializable {
     private Integer districtId;
 
     /**
+     * 行政区域JSON
+     */
+    private String districtDetail;
+
+    /**
      * 学校名称
      */
     private String name;

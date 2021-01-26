@@ -34,4 +34,13 @@
         id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, release_status, release_time, creator_id, create_time, operator_id, operate_time
     </sql>
 
+    <select id="getPlanLists" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan msp where msp.id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        order by msp.create_time desc
+    </select>
 </mapper>

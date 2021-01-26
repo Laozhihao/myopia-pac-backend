@@ -27,20 +27,20 @@ public class SchoolClassController {
 
     @PostMapping()
     public Object saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.saveClass(schoolClass);
     }
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolClassService.deletedClass(id, user.getId());
     }
 
     @PutMapping()
     public Object updateClass(@RequestBody @Valid SchoolClass schoolClass) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.updateClass(schoolClass);
     }

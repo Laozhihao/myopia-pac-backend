@@ -48,6 +48,11 @@ public class ScreeningOrganization implements Serializable {
     private Integer districtId;
 
     /**
+     * 行政区域JSON
+     */
+    private String districtDetail;
+
+    /**
      * 筛查机构名称
      */
     @NotNull(message = "筛查机构名称不能为空")

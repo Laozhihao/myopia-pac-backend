@@ -36,8 +36,10 @@ public class StudentExportVo implements Serializable {
     private String birthday;
     @ExcelProperty({TOP_HEADER, "民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )"})
     private String nation;
-    @ExcelProperty({TOP_HEADER, "学校"})
-    private String school;
+    @ExcelProperty({TOP_HEADER, "学校编码"})
+    private String schoolNo;
+    @ExcelProperty({TOP_HEADER, "学校名称"})
+    private String schoolName;
     @ExcelProperty({TOP_HEADER, "年级"})
     private String grade;
     @ExcelProperty({TOP_HEADER, "班级"})
@@ -46,31 +48,31 @@ public class StudentExportVo implements Serializable {
     private Integer no;
     @ExcelProperty({TOP_HEADER, "身份证号"})
     private String idCard;
+    @ExcelProperty({TOP_HEADER, "绑定手机号"})
+    private String bindPhone;
     @ExcelProperty({TOP_HEADER, "手机号码"})
     private String phone;
-    @ExcelProperty({TOP_HEADER, "居住地址"})
+    @ExcelProperty({TOP_HEADER, "省"})
+    private String province;
+    @ExcelProperty({TOP_HEADER, "市"})
+    private String city;
+    @ExcelProperty({TOP_HEADER, "县区"})
+    private String area;
+    @ExcelProperty({TOP_HEADER, "镇/街道"})
+    private String town;
+    @ExcelProperty({TOP_HEADER, "详细"})
     private String address;
-//    @ExcelProperty({TOP_HEADER, "首次配镜年龄"})
-//    private String firstGlassesAge;
-//    @ExcelProperty({TOP_HEADER, "配镜时长（年）"})
-//    private String glassesAge;
-//    @ExcelProperty({TOP_HEADER, "初始度数（左右）"})
-//    private String firstDegree;
-//    @ExcelProperty({TOP_HEADER, "度数增长情况（左右）"})
-//    private String degreeRemark;
-//    @ExcelProperty({TOP_HEADER, "当前情况"})
-//    private String situation;
-//    @ExcelProperty({TOP_HEADER, "视力标签"})
-//    private String label;
-//    @ExcelProperty({TOP_HEADER, "视力筛查次数"})
-//    private String screeningCount;
-//    @ExcelProperty({TOP_HEADER, "问卷次数"})
-//    private String questionCount;
-//    @ExcelProperty({TOP_HEADER, "最新筛查日期"})
-//    private String lastScreeningTime;
-//    @ExcelProperty({TOP_HEADER, "绑定公众手机号"})
-//    private String wxPhone;
-//    @ExcelProperty({TOP_HEADER, "绑定时间"})
-//    private String bindTime;
+    @ExcelProperty({TOP_HEADER, "视力标签"})
+    private Integer label;
+    @ExcelProperty({TOP_HEADER, "视力情况"})
+    private String situation;
+    @ExcelProperty({TOP_HEADER, "筛查次数"})
+    private Integer screeningCount;
+    @ExcelProperty({TOP_HEADER, "就诊次数"})
+    private Integer visitsCount;
+    @ExcelProperty({TOP_HEADER, "问卷次数"})
+    private Integer questionCount;
+    @ExcelProperty({TOP_HEADER, "最新筛查日期"})
+    private String lastScreeningTime;
 
 }

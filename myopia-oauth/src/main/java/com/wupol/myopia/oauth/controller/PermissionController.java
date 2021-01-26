@@ -1,6 +1,5 @@
 package com.wupol.myopia.oauth.controller;
 
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.service.PermissionService;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 /**
  * @Author HaoHao
@@ -18,7 +16,7 @@ import java.io.IOException;
 @CrossOrigin
 @RestController
 @RequestMapping("/oauth/permission")
-public class PermissionController{
+public class PermissionController {
 
     @Autowired
     private PermissionService permissionService;
@@ -34,13 +32,15 @@ public class PermissionController{
     }
 
     @PostMapping()
-    public Object addPermission(@RequestBody @Valid Permission param) {
-        return permissionService.save(param);
+    public Permission addPermission(@RequestBody @Valid Permission param) {
+        permissionService.save(param);
+        return param;
     }
 
     @PutMapping()
-    public Object modifyPermission(@RequestBody @Valid Permission param) {
-        return permissionService.updateById(param);
+    public Permission modifyPermission(@RequestBody @Valid Permission param) {
+        permissionService.updateById(param);
+        return param;
     }
 
     @DeleteMapping("/{permissionId}")

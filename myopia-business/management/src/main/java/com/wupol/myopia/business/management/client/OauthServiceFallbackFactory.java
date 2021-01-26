@@ -29,6 +29,8 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
     private static final Logger logger = LoggerFactory.getLogger(OauthServiceFallbackFactory.class);
     private static final String SYSTEM_ERROR_MESSAGE = "系统异常，请联系管理员";
 
+
+    @SuppressWarnings("unchecked")
     @Override
     public OauthServiceClient create(Throwable throwable) {
         logger.error("【调用Oauth服务异常】{}", throwable.getMessage(), throwable);
@@ -39,6 +41,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
         return new OauthServiceClient() {
             @Override
             public ApiResult<Page<UserDTO>> getUserListPage(UserDTOQuery param) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<UserDTO>> getUserList(UserDTOQuery param) {
                 return respData;
             }
 
@@ -98,7 +105,12 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId) {
+            public ApiResult<RoleDTO> getRoleById(Integer roleId) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId, Integer templateType) {
                 return respData;
             }
 
@@ -123,7 +135,17 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<UserDTO>> getUserByIdCard(UserRequest request) {
+            public ApiResult<List<UserDTO>> getUserByIds(UserRequest request) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getPermissionTemplate(Integer templateType) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Boolean> updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
                 return respData;
             }
         };

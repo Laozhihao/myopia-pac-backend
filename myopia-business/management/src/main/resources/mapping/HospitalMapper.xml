@@ -6,6 +6,9 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Hospital">
     </resultMap>
 
+    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.HospitalResponse">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -14,6 +17,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(level)">and `level` = #{level}</if>
                 <if test="@Ognl@isNotEmpty(levelDesc)">and `level_desc` = #{levelDesc}</if>
@@ -41,10 +45,10 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, district_id, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, create_user_id, gov_dept_id, district_id, district_detail, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
-    <select id="getHospitalListByCondition" resultMap="BaseResultMap">
+    <select id="getHospitalListByCondition" resultMap="BaseResponseMap">
         select
         <include refid="Base_Column_List"/>
         from m_hospital h
@@ -80,9 +84,16 @@
         limit 1
     </select>
 
-    <select id="getExportData" resultMap="BaseResultMap">
+    <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_hospital
         <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital
+        <include refid="Base_Where_Clause"/>
     </select>
 </mapper>

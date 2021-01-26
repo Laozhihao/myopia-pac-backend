@@ -1,13 +1,15 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.client.OauthService;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.HospitalResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
@@ -19,10 +21,10 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -46,14 +48,13 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private HospitalAdminService hospitalAdminService;
 
     @Resource
-    private HospitalMapper hospitalMapper;
-
-    @Resource
     private GovDeptService govDeptService;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
     @Resource
-    private OauthServiceClient oauthServiceClient;
+    private DistrictService districtService;
+
+    @Resource
+    private OauthService oauthService;
 
     /**
      * 保存医院
@@ -72,7 +73,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        RLock rLock = redissonClient.getLock(Const.LOCK_HOSPITAL_REDIS + hospital.getName());
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -117,7 +118,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         hospital.setId(id);
         hospital.setCreateUserId(createUserId);
         hospital.setGovDeptId(govDeptId);
-        hospital.setStatus(Const.STATUS_IS_DELETED);
+        hospital.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(hospital);
     }
 
@@ -129,10 +130,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param govDeptId   部门id
      * @return IPage<Hospital> {@link IPage}
      */
-    public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return hospitalMapper.getHospitalListByCondition(pageRequest.toPage(),
+    public IPage<HospitalResponse> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
+        IPage<HospitalResponse> hospitalListsPage = baseMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
                 query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
+
+        List<HospitalResponse> records = hospitalListsPage.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return hospitalListsPage;
+        }
+        records.forEach(h -> h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail())));
+        return hospitalListsPage;
     }
 
     /**
@@ -150,14 +158,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("OAuth2 异常");
-        }
+        oauthService.modifyUser(userDTO);
         Hospital hospital = new Hospital()
                 .setId(request.getId())
                 .setStatus(request.getStatus());
-        return hospitalMapper.updateById(hospital);
+        return baseMapper.updateById(hospital);
     }
 
     /**
@@ -168,7 +173,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(Integer id) {
-        Hospital hospital = hospitalMapper.selectById(id);
+        Hospital hospital = baseMapper.selectById(id);
         if (null == hospital) {
             throw new BusinessException("数据异常");
         }
@@ -192,11 +197,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常" + apiResult.getMessage());
-        }
-        hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), apiResult.getData().getId(), hospital.getGovDeptId());
+        UserDTO user = oauthService.addAdminUser(userDTO);
+        hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -215,18 +217,26 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("远程调用异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
 
 
     /**
-     * 获取导出数据
+     * 查询
      */
-    public List<Hospital> getExportData(HospitalQuery query) {
-        return baseMapper.getExportData(query);
+    public List<Hospital> getBy(HospitalQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<Hospital> getByPage(Page<?> page, HospitalQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

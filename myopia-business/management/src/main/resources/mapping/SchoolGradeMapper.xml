@@ -39,4 +39,17 @@
         from m_school_grade
         where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from m_school_grade
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade
+        <include refid="Base_Where_Clause"/>
+    </select>
 </mapper>

@@ -35,7 +35,6 @@ public class RoleDTO implements Serializable {
     /**
      * 机构组织ID（如政府部门ID、学校ID、医院ID）
      */
-    @NotNull(message = "部门ID不能为空", groups = { RoleQueryValidatorGroup.class, RoleAddValidatorGroup.class })
     private Integer orgId;
 
     /**
@@ -46,13 +45,12 @@ public class RoleDTO implements Serializable {
     /**
      * 中文名
      */
-    @NotBlank(message = "角色名称不能为空", groups = { RoleAddValidatorGroup.class })
+    @NotBlank(message = "角色名称不能为空", groups = { RoleAddValidatorGroup.class, RoleUpdateValidatorGroup.class })
     private String chName;
 
     /**
-     * 角色类型：0-admin、1-机构管理员、2-普通用户
+     * 角色类型：0-平台管理员角色、1-政府部门人员角色、2-筛查机构角色
      */
-    @NotNull(message = "角色类型不能为空", groups = { RoleAddValidatorGroup.class })
     private Integer roleType;
 
     /**
@@ -63,7 +61,7 @@ public class RoleDTO implements Serializable {
     /**
      * 状态：0-启用 1-禁止 2-删除
      */
-    @NotNull(message = "状态不能为空", groups = { RoleAddValidatorGroup.class })
+    @NotNull(message = "状态不能为空", groups = { RoleAddValidatorGroup.class, RoleUpdateValidatorGroup.class })
     private Integer status;
 
     /**

@@ -6,6 +6,7 @@ import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -17,6 +18,7 @@ import java.util.List;
  * @Author Chikong
  * @Date 2020-12-22
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class StudentQuery extends StudentVo {
     /** 名称 */
@@ -50,4 +52,14 @@ public class StudentQuery extends StudentVo {
     private String gradeIds;
     /** 年级ids */
     private List<Integer> gradeList;
+
+    /**
+     * 视力标签
+     */
+    private String visionLabels;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
 }

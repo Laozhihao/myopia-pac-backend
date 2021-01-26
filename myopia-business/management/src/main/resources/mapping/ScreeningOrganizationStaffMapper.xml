@@ -33,4 +33,10 @@
         where user_id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_staff
+        <include refid="Base_Where_Clause"/>
+    </select>
 </mapper>
