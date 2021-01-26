@@ -5,12 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
-import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
@@ -23,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -86,7 +87,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
         ScreeningNotice notice = new ScreeningNotice();
-        notice.setId(id).setReleaseStatus(Const.STATUS_RELEASE).setReleaseTime(new Date());
+        notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (updateById(notice, user.getId())) {
             List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(user.getOrgId());
             List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
