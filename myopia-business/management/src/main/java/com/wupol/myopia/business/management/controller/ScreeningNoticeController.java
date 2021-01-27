@@ -7,9 +7,11 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ import java.util.Objects;
  * @Date 2021-01-20
  */
 @ResponseResultBody
+@Slf4j
 @CrossOrigin
 @RestController
 @RequestMapping("/management/screeningNotice")
@@ -49,6 +52,17 @@ public class ScreeningNoticeController {
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
+    }
+
+    /**
+     * 根据ID获取单个信息（这里默认所有表的主键字段都为“id”,且自增）
+     *
+     * @param id ID
+     * @return Object
+     */
+    @GetMapping("{id}")
+    public Object getInfo(@PathVariable Integer id) {
+        return screeningNoticeService.getById(id);
     }
 
     /**
@@ -172,5 +186,28 @@ public class ScreeningNoticeController {
         //TODO 非政府部门，直接报错
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         screeningNoticeService.release(id, CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 已读
+     * 1. 校验权限；管理员-都可以，筛查通知-确认部门，筛查任务通知-确认机构
+     * @param noticeDeptOrgId 筛查通知通知到的部门或者机构表ID
+     * @return void
+     */
+    @PostMapping("read/{noticeDeptOrgId}")
+    public void read(@PathVariable Integer noticeDeptOrgId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        ScreeningNoticeDeptOrg noticeDeptOrg = screeningNoticeDeptOrgService.getById(noticeDeptOrgId);
+        if (Objects.isNull(noticeDeptOrg)) {
+            throw new BusinessException("查无通知");
+        }
+        // 已读，直接返回
+        if (CommonConst.STATUS_NOTICE_READ.equals(noticeDeptOrg.getOperationStatus())) {
+            log.info("通知已读");
+            return;
+        }
+        //TODO 校验权限；管理员-都可以，筛查通知-确认部门，筛查任务通知-确认机构
+        validateExistWithReleaseStatus(noticeDeptOrgId, CommonConst.STATUS_RELEASE);
+        screeningNoticeDeptOrgService.read(noticeDeptOrgId, user);
     }
 }

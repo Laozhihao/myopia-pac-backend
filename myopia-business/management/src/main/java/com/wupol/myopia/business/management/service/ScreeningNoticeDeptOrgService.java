@@ -2,6 +2,9 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +37,18 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     private DistrictService districtService;
     @Autowired
     private GovDeptService govDeptService;
+
+    /**
+     * 设置操作人再更新
+     * @param entity
+     * @param userId
+     * @return
+     */
+    public boolean updateById(ScreeningNoticeDeptOrg entity, Integer userId) {
+        entity.setOperatorId(userId);
+        return updateById(entity);
+    }
+
     /**
      * 分页查询
      * @param query
@@ -53,5 +69,20 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
             }
         });
         return screeningNoticeIPage;
+    }
+
+    /**
+     * 已读处理
+     *
+     * @param noticeDeptOrgId
+     * @param user
+     */
+    public void read(Integer noticeDeptOrgId, CurrentUser user) {
+        //1. 更新状态
+        ScreeningNoticeDeptOrg noticeDeptOrg = new ScreeningNoticeDeptOrg();
+        noticeDeptOrg.setId(noticeDeptOrgId).setOperationStatus(CommonConst.STATUS_NOTICE_READ);
+        if (!updateById(noticeDeptOrg, user.getId())) {
+            throw new BusinessException("已读失败");
+        }
     }
 }
