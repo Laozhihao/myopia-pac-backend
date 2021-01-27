@@ -10,10 +10,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -304,7 +301,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 详情
      */
     public Object getRecordDetail(Integer id) {
-        return screeningResultService.getByTaskId(id);
+        ScreeningRecordResponse response = new ScreeningRecordResponse();
+        List<ScreeningResult> resultList = screeningResultService.getByTaskId(id);
+        response.setSchoolCount(resultList.size());
+        response.setDetails(resultList);
+        response.setStaffCount(1);
+        response.setStaffName("abc");
+        return response;
     }
 
     /**
