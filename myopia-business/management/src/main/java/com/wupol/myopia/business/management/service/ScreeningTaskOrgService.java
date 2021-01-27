@@ -22,7 +22,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @return 结果 筛查任务关联Lists
      */
     public List<ScreeningTaskOrg> getTaskOrgListsByOrgId(Integer orgId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("org_id", orgId));
+        return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("screening_org_id", orgId));
     }
 
 }
