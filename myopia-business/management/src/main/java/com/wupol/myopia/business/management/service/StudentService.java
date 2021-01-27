@@ -127,14 +127,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Student resultStudent = baseMapper.selectById(student.getId());
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(resultStudent, studentDTO);
-        // 查询年级和班级
-        SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
-        SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
         if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
             School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
             studentDTO.setSchoolName(school.getName());
+            studentDTO.setSchoolId(school.getId());
+
+            // 查询年级和班级
+            SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
+            SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+            studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
         }
-        return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
+        return studentDTO;
     }
 
     /**
