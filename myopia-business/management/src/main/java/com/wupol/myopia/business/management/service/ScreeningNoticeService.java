@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
-import com.wupol.myopia.business.management.domain.model.District;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
@@ -38,7 +37,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
-    private DistrictService districtService;
+    private GovDeptService govDeptService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
 
@@ -90,9 +89,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         ScreeningNotice notice = new ScreeningNotice();
         notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (updateById(notice, user.getId())) {
-            //TODO 待测试
-            List<District> currentUserDistrictTree = districtService.getCurrentUserDistrictTree(user);
-            List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = currentUserDistrictTree.stream().map(district -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(district.getId())).collect(Collectors.toList());
+            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(user.getOrgId());
+            List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
             //2. 为下属部门创建通知
             return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
         }

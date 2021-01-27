@@ -172,6 +172,17 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return list;
     }
 
+    /** 获取所有地行政区域,带缓存 */
+    public Map<Integer, String> getAllDistrictIdNameMap() {
+        String key = CacheKey.DISTRICT_ID_NAME_MAP;
+        if (redisUtil.hasKey(key)) {
+            return (Map) redisUtil.get(key);
+        }
+        Map<Integer, String> districtIdNameMap = getAllDistrict().stream().collect(Collectors.toMap(District::getId, District::getName));
+        redisUtil.set(key, districtIdNameMap);
+        return districtIdNameMap;
+    }
+
     /**
      * 通过用户身份获取行政区域ID
      * <p>如果是管理员，则将行政区域ID作为条件。
