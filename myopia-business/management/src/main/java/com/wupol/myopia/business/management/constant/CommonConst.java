@@ -46,4 +46,10 @@ public interface CommonConst {
      * 系统中心 类型 筛查报告模版
      */
     Integer TYPE_TEMPLATE_SCREENING_REPORT = 2;
+
+    Integer STATUS_NOT_RELEASE = 0;
+
+    Integer STATUS_RELEASE = 1;
+
+    Integer DEFAULT_ID = 0;
 }

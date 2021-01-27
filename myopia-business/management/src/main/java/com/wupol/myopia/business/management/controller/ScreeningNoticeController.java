@@ -1,17 +1,15 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.sun.javafx.binding.StringFormatter;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -57,7 +55,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
     @Override
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
-        validateExistWithReleaseStatus(screeningNotice.getId(), Const.STATUS_RELEASE);
+        validateExistWithReleaseStatus(screeningNotice.getId(), CommonConst.STATUS_RELEASE);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (!baseService.updateById(screeningNotice, user.getId())) {
             throw new BusinessException("修改失败");
@@ -73,7 +71,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
         ScreeningNotice notice = validateExist(id);
         Integer noticeStatus = notice.getReleaseStatus();
         if (releaseStatus.equals(noticeStatus)) {
-            throw new BusinessException(String.format("该通知%s", Const.STATUS_RELEASE.equals(noticeStatus) ? "已发布" : "未发布"));
+            throw new BusinessException(String.format("该通知%s", CommonConst.STATUS_RELEASE.equals(noticeStatus) ? "已发布" : "未发布"));
         }
     }
 
@@ -127,7 +125,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
     @Override
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
-        validateExistWithReleaseStatus(id, Const.STATUS_RELEASE);
+        validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         if (!baseService.removeById(id)) {
             throw new BusinessException("删除失败，请重试");
         }
@@ -141,7 +139,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
-        validateExistWithReleaseStatus(id, Const.STATUS_RELEASE);
+        validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         baseService.release(id, CurrentUserUtil.getCurrentUser());
     }
 }
