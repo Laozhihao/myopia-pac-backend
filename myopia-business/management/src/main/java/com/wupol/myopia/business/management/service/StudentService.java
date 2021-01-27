@@ -2,17 +2,17 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -24,12 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -39,12 +37,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class StudentService extends BaseService<StudentMapper, Student> {
-
-    @Resource
-    private StudentMapper studentMapper;
-
-    @Resource
-    private SchoolService schoolService;
 
     @Resource
     private SchoolGradeService schoolGradeService;
@@ -58,18 +50,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
 
-    /**
-     * 通过学校id查找学生
-     *
-     * @param schoolId 学校Id
-     * @return 学生列表
-     */
-    public List<Student> getStudentsBySchoolId(Integer schoolId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
-    }
+    @Resource
+    private ScreeningResultService screeningResultService;
+
+    @Resource
+    private SchoolService schoolService;
 
     /**
      * 通过年级id查找学生
@@ -80,7 +65,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getStudentsByGradeId(Integer gradeId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
         equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -93,7 +78,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<Student> getStudentsByClassId(Integer classId) {
         QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
         equalsQueryAppend(studentQueryWrapper, "class_id", classId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", Const.STATUS_IS_DELETED);
+        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(studentQueryWrapper);
     }
 
@@ -112,10 +97,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 初始化省代码
         student.setProvinceCode(provinceCode);
 
-        // 获取年级编码
-        SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
-
-        RLock rLock = redissonClient.getLock(Const.LOCK_STUDENT_REDIS + idCard);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -148,6 +130,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 查询年级和班级
         SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+        if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
+            School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
+            studentDTO.setSchoolName(school.getName());
+        }
         return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
     }
 
@@ -161,7 +147,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Integer deletedStudent(Integer id) {
         Student student = new Student();
         student.setId(id);
-        student.setStatus(Const.STATUS_IS_DELETED);
+        student.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(student);
     }
 
@@ -173,53 +159,130 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return IPage<Student> {@link IPage}
      */
     public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
-        List<Integer> gradeIds = new ArrayList<>();
-        if (StringUtils.isNotBlank(studentQuery.getGradeIds())) {
-            gradeIds = Arrays.stream(studentQuery.getGradeIds().split(","))
-                    .map(Integer::valueOf).collect(Collectors.toList());
-        }
-        IPage<StudentDTO> pageStudents = studentMapper.getStudentListByCondition(pageRequest.toPage(),
+
+        TwoTuple<List<Integer>, List<Integer>> conditionalFilter = conditionalFilter(
+                studentQuery.getGradeIds(), studentQuery.getVisionLabels());
+
+        IPage<StudentDTO> pageStudents = baseMapper.getStudentListByCondition(pageRequest.toPage(),
                 studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
-                studentQuery.getParentPhone(), studentQuery.getGender(),
-                gradeIds, studentQuery.getLabels(), studentQuery.getStartScreeningTime(),
-                studentQuery.getEndScreeningTime());
+                studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
+                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime(),
+                studentQuery.getSchoolName());
         List<StudentDTO> students = pageStudents.getRecords();
+
+        // 为空直接放回
         if (CollectionUtils.isEmpty(students)) {
             return pageStudents;
         }
-        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService
-                .getByIds(students
-                        .stream()
-                        .map(Student::getGradeId)
-                        .collect(Collectors.toList()))
-                .stream()
-                .collect(Collectors
-                        .toMap(SchoolGrade::getId, Function.identity()));
-        Map<Integer, SchoolClass> classMaps = schoolClassService
-                .getByIds(students
-                        .stream()
-                        .map(Student::getClassId)
-                        .collect(Collectors.toList()))
-                .stream()
-                .collect(Collectors
-                        .toMap(SchoolClass::getId, Function.identity()));
+
+        // 获取年级信息
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
+                .stream().map(Student::getGradeId).collect(Collectors.toList()));
+
+        // 获取班级信息
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
+                .stream().map(Student::getClassId).collect(Collectors.toList()));
+
+        // 学校信息
+        Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
+
+        // 封装DTO
         students.forEach(s -> {
-            s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-            s.setClassName(classMaps.get(s.getClassId()).getName());
+            if (null != gradeMaps.get(s.getGradeId())) {
+                s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+            }
+            if (null != classMaps.get(s.getClassId())) {
+                s.setClassName(classMaps.get(s.getClassId()).getName());
+            }
+            if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
+                s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
+                s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
+            }
         });
         return pageStudents;
     }
 
-    private String generateOrgNo(String schoolNo, String gradeNo, String idCard) {
-        return StringUtils.join(schoolNo, gradeNo, StringUtils.right(idCard, 6));
+    /**
+     * 查询
+     */
+    public List<Student> getBy(StudentQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**
-     * 获取导出数据
+     * 条件过滤
+     *
+     * @param gradeIdsStr     年级ID字符串
+     * @param visionLabelsStr 视力标签字符串
+     * @return {@link TwoTuple} <p>TwoTuple.getFirst-年级list, TwoTuple.getSecond-视力标签list</p>
      */
-    public List<Student> getExportData(StudentQuery query) {
-        return baseMapper.getExportData(query);
+    public TwoTuple<List<Integer>, List<Integer>> conditionalFilter(String gradeIdsStr,
+                                                                    String visionLabelsStr) {
+        TwoTuple<List<Integer>, List<Integer>> result = new TwoTuple<>();
+
+        // 年级条件
+        if (StringUtils.isNotBlank(gradeIdsStr)) {
+            result.setFirst(Arrays.stream(gradeIdsStr.split(","))
+                    .map(Integer::valueOf).collect(Collectors.toList()));
+        }
+
+        // 视力标签条件
+        if (StringUtils.isNotBlank(visionLabelsStr)) {
+            result.setSecond(Arrays.stream(visionLabelsStr.split(","))
+                    .map(Integer::valueOf).collect(Collectors.toList()));
+        }
+        return result;
+    }
+
+    /**
+     * 获取学生筛查档案
+     *
+     * @param studentId 学生ID
+     * @return Object
+     */
+    public List<ScreeningResult> getScreeningList(Integer studentId) {
+        // 通过计划Ids查询学生的结果
+        return screeningResultService.getByStudentIds(studentId);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
+        return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过id获取学生信息
+     *
+     * @param id 学生ID
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = baseMapper.getStudentById(id);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            // 学校编号不为空，则拼接学校信息
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            student.setSchoolId(school.getId());
+            student.setSchoolNo(school.getSchoolNo());
+            student.setSchoolName(school.getName());
+        }
+        return student;
     }
 
 
+    /**
+     * 通过学校ID、班级ID、年级ID查找学生
+     *
+     * @param schoolId 学校Id
+     * @return 学生列表
+     */
+    public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
+        return baseMapper.getByOtherId(schoolId, classId, gradeId);
+    }
 }

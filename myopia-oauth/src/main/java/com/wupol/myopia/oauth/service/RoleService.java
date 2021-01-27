@@ -9,6 +9,7 @@ import com.wupol.myopia.oauth.domain.model.RolePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.validation.ValidationException;
 import java.util.List;
@@ -23,7 +24,6 @@ public class RoleService extends BaseService<RoleMapper, Role> {
 
     @Autowired
     private PermissionService permissionService;
-
     @Autowired
     private RolePermissionService rolePermissionService;
 
@@ -44,7 +44,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param permissionIds 权限资源ID
      * @return 角色权限列表
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         rolePermissionService.deleteByRoleId(roleId);
         rolePermissionService.insertRolePermissionBatch(roleId, permissionIds);
@@ -55,18 +55,16 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> getRolePermissionTree(Integer roleId) {
+    public List<Permission> getRolePermissionTree(Integer roleId, Integer templateType) {
         Role role = getById(roleId);
-        if (Objects.isNull(role)) {
-            throw new ValidationException("不存在该角色");
-        }
+        Assert.notNull(role, "不存在该角色");
         if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
             return permissionService.getAdminRolePermissionTree(0, roleId);
         }
-        // TODO: 根据角色所属的部门所在的行政区获取行政区等级
-        return permissionService.selectRoleAllTree(0, roleId, 1);
+        return permissionService.selectRoleAllTree(0, roleId, templateType);
     }
 
     /**
@@ -76,7 +74,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
     List<Role> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**

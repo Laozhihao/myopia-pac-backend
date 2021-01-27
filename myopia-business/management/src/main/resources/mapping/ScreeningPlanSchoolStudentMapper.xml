@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(studentAge)">and `student_age` = #{studentAge}</if>
+                <if test="@Ognl@isNotEmpty(studentSituation)">and `student_situation` = #{studentSituation}</if>
+                <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
+                <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, screening_plan_id, school_id, school_name, grade_id, class_id, student_id, student_age, student_situation, student_no, student_name, create_time
+    </sql>
+
+</mapper>

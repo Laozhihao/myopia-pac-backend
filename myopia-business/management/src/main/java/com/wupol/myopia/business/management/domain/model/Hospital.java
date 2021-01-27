@@ -49,6 +49,11 @@ public class Hospital implements Serializable {
     private Integer districtId;
 
     /**
+     * 行政区域JSON
+     */
+    private String districtDetail;
+
+    /**
      * 医院名称
      */
     @NotBlank(message = "医院名称不能为空")

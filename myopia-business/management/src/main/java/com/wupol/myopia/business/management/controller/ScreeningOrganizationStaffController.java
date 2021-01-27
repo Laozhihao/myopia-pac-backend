@@ -38,19 +38,19 @@ public class ScreeningOrganizationStaffController {
 
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
-        CurrentUser currentUser = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.getOrganizationStaffList(request, currentUser);
     }
 
     @DeleteMapping("{id}")
     public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.deletedOrganizationStaff(id, user.getId());
     }
 
     @PostMapping()
     public Object insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
@@ -58,26 +58,26 @@ public class ScreeningOrganizationStaffController {
 
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
-        CurrentUser user = CurrentUserUtil.getLegalCurrentUser();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
-        CurrentUserUtil.getLegalCurrentUser();
+        CurrentUserUtil.getCurrentUser();
         return ApiResult.success(screeningOrganizationStaffService.updateStatus(statusRequest));
     }
 
     @PostMapping("reset")
     public Object resetPassword(@RequestBody @Valid StaffResetPasswordRequest request) {
-        CurrentUserUtil.getLegalCurrentUser();
+        CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.resetPassword(request);
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(ScreeningOrganizationStaffQuery query) throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(query));
+    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(Integer screeningOrgId) throws IOException {
+        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(screeningOrgId));
     }
 
 

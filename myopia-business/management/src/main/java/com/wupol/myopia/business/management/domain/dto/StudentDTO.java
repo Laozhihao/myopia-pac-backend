@@ -24,4 +24,14 @@ public class StudentDTO extends Student {
      * 班级名称
      */
     private String className;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
+
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 }

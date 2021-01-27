@@ -26,8 +26,17 @@ public interface OauthServiceClient {
      * @param param 查询参数
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @GetMapping("/oauth/user/list")
+    @GetMapping("/oauth/user/page")
     ApiResult<Page<UserDTO>> getUserListPage(@SpringQueryMap UserDTOQuery param);
+
+    /**
+     * 获取用户列表（支持模糊查询）
+     *
+     * @param param 查询参数
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @GetMapping("/oauth/user/list")
+    ApiResult<List<UserDTO>> getUserList(@SpringQueryMap UserDTOQuery param);
 
     /**
      * 根据用户ID集批量获取用户
@@ -81,7 +90,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PutMapping("/oauth/user/password/{userId}")
-    ApiResult resetPwd(@PathVariable("userId") Integer userId);
+    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId);
 
     /**
      * 获取用户明细
@@ -99,25 +108,29 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/oauth/role/list")
-    ApiResult getRoleList(@SpringQueryMap RoleDTO param);
+    ApiResult<List<RoleDTO>> getRoleList(@SpringQueryMap RoleDTO param);
 
     @PostMapping("/oauth/role")
-    ApiResult addRole(@RequestBody RoleDTO param);
+    ApiResult<RoleDTO> addRole(@RequestBody RoleDTO param);
 
     @PutMapping("/oauth/role")
-    ApiResult updateRole(@RequestBody RoleDTO param);
+    ApiResult<RoleDTO> updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
     ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
+
+    @GetMapping("/oauth/role/{roleId}")
+    ApiResult<RoleDTO> getRoleById(@PathVariable("roleId") Integer roleId);
 
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @GetMapping("/oauth/role/permission/structure/{roleId}")
-    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId);
+    @GetMapping("/oauth/role/permission/structure/{roleId}/{templateType}")
+    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType);
 
     /**
      * 获取权限列表
@@ -129,14 +142,33 @@ public interface OauthServiceClient {
     ApiResult<List<PermissionDTO>> getPermissionList(@SpringQueryMap PermissionDTO param);
 
     @PostMapping("/oauth/permission")
-    ApiResult addPermission(@RequestBody PermissionDTO param);
+    ApiResult<PermissionDTO> addPermission(@RequestBody PermissionDTO param);
 
     @PutMapping("/oauth/permission")
-    ApiResult modifyPermission(@RequestBody PermissionDTO param);
+    ApiResult<PermissionDTO> modifyPermission(@RequestBody PermissionDTO param);
 
     @DeleteMapping("/oauth/permission/{permissionId}")
     ApiResult deletePermission(@PathVariable("permissionId") Integer permissionId);
 
-    @GetMapping("/oauth/user/getByIdCard")
-    ApiResult<List<UserDTO>> getUserByIdCard(@SpringQueryMap UserRequest request);
+    @GetMapping("/oauth/user/getByIds")
+    ApiResult<List<UserDTO>> getUserByIds(@SpringQueryMap UserRequest request);
+
+    /**
+     * 根据模板类型获取模板权限-树结构
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    @GetMapping("/oauth/districtPermission/{templateType}")
+    ApiResult<List<PermissionDTO>> getPermissionTemplate(@PathVariable("templateType") Integer templateType);
+
+    /**
+     * 更新模板权限
+     *
+     * @param templateType 模板类型
+     * @param permissionIds 权限集
+     * @return boolean
+     **/
+    @PutMapping("/oauth/districtPermission/{templateType}")
+    ApiResult<Boolean> updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionIds);
 }

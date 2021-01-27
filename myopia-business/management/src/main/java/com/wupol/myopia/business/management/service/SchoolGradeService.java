@@ -2,21 +2,25 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,13 +31,12 @@ import java.util.stream.Collectors;
 public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGrade> {
 
     @Resource
+    private SchoolService schoolService;
+    @Resource
     private SchoolClassService schoolClassService;
 
     @Resource
     private StudentService studentService;
-
-    @Resource
-    private SchoolGradeMapper schoolGradeMapper;
 
 
     /**
@@ -74,7 +77,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setId(id);
         schoolGrade.setCreateUserId(1);
-        schoolGrade.setStatus(Const.STATUS_IS_DELETED);
+        schoolGrade.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolGrade);
     }
 
@@ -88,7 +91,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = schoolGradeMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
+        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }
@@ -129,6 +132,17 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
+     * 批量通过id获取实体
+     *
+     * @param ids ids
+     * @return Map<Integer, SchoolGrade>
+     */
+    public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
+        return getByIds(ids).stream()
+                .collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
+    }
+
+    /**
      * 通过code统计
      *
      * @param schoolId 学校ID
@@ -139,6 +153,40 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return baseMapper.selectCount(new QueryWrapper<SchoolGrade>()
                 .eq("school_id", schoolId)
                 .eq("grade_code", code)
-                .eq("status", Const.STATUS_NOT_DELETED));
+                .eq("status", CommonConst.STATUS_NOT_DELETED));
+    }
+
+    /**
+     * 根据学校铝箔获取年级
+     */
+    public List<SchoolGrade> getBySchoolName(String schoolName, Integer deptId) {
+        SchoolQuery schoolQuery = new SchoolQuery();
+        schoolQuery.setName(schoolName).setGovDeptId(deptId);
+        Integer schoolId = schoolService.getBy(schoolQuery).stream()
+                .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
+        SchoolGradeQuery schoolGradeQuery = new SchoolGradeQuery();
+        schoolGradeQuery.setSchoolId(schoolId);
+        return getBy(schoolGradeQuery);
+    }
+
+    /**
+     * 查询学校年级
+     *
+     * @param query 查询条件
+     * @return
+     */
+    public List<SchoolGrade> getBy(SchoolGradeQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

@@ -1,36 +1,33 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.constant.Const;
+import com.wupol.myopia.business.management.client.OauthService;
+import com.wupol.myopia.business.management.constant.CacheKey;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,9 +42,6 @@ import java.util.stream.Collectors;
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
 
     @Resource
-    private ScreeningOrganizationMapper screeningOrganizationMapper;
-
-    @Resource
     private RedissonClient redissonClient;
 
     @Resource
@@ -56,15 +50,23 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Value(value = "${oem.province.code}")
     private Long provinceCode;
 
-    @Qualifier("com.wupol.myopia.business.management.client.OauthServiceClient")
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private OauthService oauthService;
+
+    @Resource
+    private ScreeningTaskOrgService screeningTaskOrgService;
+
+    @Resource
+    private ScreeningTaskService screeningTaskService;
+
+    @Resource
+    private ScreeningResultService screeningResultService;
 
     /**
      * 保存筛查机构
@@ -84,7 +86,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (null == townCode) {
             throw new BusinessException("数据异常");
         }
-        RLock rLock = redissonClient.getLock(Const.LOCK_ORG_REDIS + townCode);
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, townCode));
 
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -121,13 +123,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
-        ApiResult<UserDTO> apiResult = oauthServiceClient.addAdminUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("创建管理员信息异常");
-        }
+        UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
                 .insertAdmin(org.getCreateUserId(), org.getId(),
-                        apiResult.getData().getId(), org.getGovDeptId());
+                        user.getId(), org.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -153,7 +152,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public Integer deletedById(Integer id) {
         ScreeningOrganization screeningOrganization = new ScreeningOrganization();
         screeningOrganization.setId(id);
-        screeningOrganization.setStatus(Const.STATUS_IS_DELETED);
+        screeningOrganization.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(screeningOrganization);
     }
 
@@ -172,7 +171,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Integer districtId = districtService.getDistrictId(currentUser, query.getDistrictId());
 
         // 查询
-        IPage<ScreeningOrgResponse> orgLists = screeningOrganizationMapper.getScreeningOrganizationListByCondition(
+        IPage<ScreeningOrgResponse> orgLists = baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getPhone(), query.getStatus());
 
@@ -182,13 +181,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return orgLists;
         }
         // 获取筛查人员信息
-        List<ScreeningOrganizationStaff> staffs = screeningOrganizationStaffService.getStaffListsByOrgIds(records
-                .stream()
-                .map(ScreeningOrganization::getId)
-                .collect(Collectors.toList()));
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = staffs
-                .stream()
-                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService.getOrgStaffMapByIds(
+                records.stream().map(ScreeningOrganization::getId).collect(Collectors.toList()));
+
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
@@ -201,7 +196,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             } else {
                 r.setStaffCount(0);
             }
-            r.setScreeningTime(Const.SCREENING_TIME);
+            r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
+            r.setScreeningTime(CommonConst.SCREENING_TIME);
         });
         return orgLists;
     }
@@ -211,8 +207,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getExportData(ScreeningOrganizationQuery query) {
-        return screeningOrganizationMapper.getExportData(query);
+    public List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query) {
+        return baseMapper.getBy(query);
     }
 
     /**
@@ -237,7 +233,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO resetPassword(Integer id) {
-        ScreeningOrganization screeningOrg = screeningOrganizationMapper.selectById(id);
+        ScreeningOrganization screeningOrg = baseMapper.selectById(id);
         if (null == screeningOrg) {
             throw new BusinessException("数据异常");
         }
@@ -260,10 +256,65 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setId(userId)
                 .setUsername(username)
                 .setPassword(password);
-        ApiResult<UserDTO> apiResult = oauthServiceClient.modifyUser(userDTO);
-        if (!apiResult.isSuccess()) {
-            throw new BusinessException("远程调用异常");
-        }
+        oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
+    }
+
+    /**
+     * 获取筛查机构详情
+     *
+     * @param id 筛查机构ID
+     * @return org {@link ScreeningOrgResponse}
+     */
+    public ScreeningOrgResponse getScreeningOrgDetails(Integer id) {
+        ScreeningOrgResponse org = baseMapper.getOrgById(id);
+        if (null == org) {
+            throw new BusinessException("数据异常");
+        }
+        org.setLastCountDate(new Date());
+        return org;
+    }
+
+    /**
+     * 获取筛查记录列表
+     *
+     * @param request 分页入参
+     * @param orgId   机构ID
+     * @return {@link IPage}
+     */
+    public IPage<ScreeningTask> getRecordLists(PageRequest request, Integer orgId) {
+        // 查询筛查任务关联的机构表
+        List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
+
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(taskOrgLists)) {
+            return new Page<>();
+        }
+        // 获取筛查通知任务
+        return screeningTaskService.getTaskByIds(request, taskOrgLists
+                .stream()
+                .map(ScreeningTaskOrg::getScreeningTaskId)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * 获取筛查记录详情
+     *
+     * @param id 详情ID
+     * @return 详情
+     */
+    public Object getRecordDetail(Integer id) {
+        return screeningResultService.getByTaskId(id);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQuery query) {
+        return baseMapper.getByPage(page, query);
     }
 }

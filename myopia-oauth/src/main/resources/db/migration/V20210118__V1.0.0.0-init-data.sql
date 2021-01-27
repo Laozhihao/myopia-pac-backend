@@ -30,7 +30,8 @@ INSERT INTO `o_permission` VALUES (28, '退出登录', NULL, 'post:/auth/exit', 
 INSERT INTO `o_permission` VALUES (29, '权限集合包设置', 'permissionsGather', NULL, 1, 1, 2, 5, 1, now(), now());
 
 -- 初始化用户数据 - 超级管理员（密码：123456）
-INSERT INTO `o_role` VALUES (1, -1, 'admin', '超级管理员', 0, -1, 1, 0, NULL, now(), now());
+-- 角色和用户的orgId值要与business服务中的运营中心部门ID（见对应服务的初始化SQL）一致
+INSERT INTO `o_role` VALUES (1, 1, 'admin', '超级管理员', 0, -1, 1, 0, NULL, now(), now());
 INSERT INTO `o_user` VALUES (1, 1, '超级管理员', 1, NULL, NULL, 'admin', '$2a$10$XiLyxJhjcGEkMKG7KVY/XuGu2cHxPp5S89AuyKh50.Gyl1OHUWQlq', 0, 1, -1, 0, NULL, now(), now(), NULL);
 INSERT INTO `o_user_role`(`user_id`, `role_id`) VALUES (1, 1);
 
