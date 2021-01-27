@@ -50,7 +50,7 @@ public class ScreeningNoticeController {
 //            Assert.notNull(screeningNotice.getDistrictId());
 //            Assert.notNull(screeningNotice.getGovDeptId());
 //        }
-        screeningNotice.setCreatorId(user.getId()).setOperatorId(user.getId());
+        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }

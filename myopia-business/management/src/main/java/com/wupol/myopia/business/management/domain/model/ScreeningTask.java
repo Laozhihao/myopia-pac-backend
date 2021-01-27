@@ -81,7 +81,7 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--创建者ID
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查任务--创建时间（时间戳）

@@ -92,7 +92,7 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--创建人id  
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查通知--创建时间（时间戳）

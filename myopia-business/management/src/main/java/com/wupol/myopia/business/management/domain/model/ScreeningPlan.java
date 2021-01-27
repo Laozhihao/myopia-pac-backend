@@ -83,7 +83,7 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--创建者ID
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查计划--创建时间（时间戳）
