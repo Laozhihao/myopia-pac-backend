@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.Objects;
 
 /**
@@ -206,8 +208,9 @@ public class ScreeningNoticeController {
             log.info("通知已读");
             return;
         }
-        //TODO 校验权限；管理员-都可以，筛查通知-确认部门，筛查任务通知-确认机构
-        validateExistWithReleaseStatus(noticeDeptOrgId, CommonConst.STATUS_RELEASE);
-        screeningNoticeDeptOrgService.read(noticeDeptOrgId, user);
+        //校验权限；管理员-都可以，筛查通知-确认部门，筛查任务通知-确认机构
+        if (user.isPlatformAdminUser() || user.getOrgId().equals(noticeDeptOrg.getAcceptOrgId())) {
+            screeningNoticeDeptOrgService.read(noticeDeptOrgId, user);
+        }
     }
 }
