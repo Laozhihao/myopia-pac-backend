@@ -8,7 +8,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
@@ -17,7 +16,6 @@ import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
