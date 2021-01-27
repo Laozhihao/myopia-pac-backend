@@ -143,4 +143,16 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
     public GovDept getGovDeptById(Integer id) {
         return baseMapper.selectById(id);
     }
+
+    /**
+     * 根据ID列表获取部门
+     *
+     * @param govDeptIds
+     * @return
+     */
+    public List<GovDept> getByIds(List<Integer> govDeptIds) {
+        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", govDeptIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

@@ -60,5 +60,5 @@ public interface CacheKey {
     /**
      * 全部行政区域的ID、Name的Map
      */
-    String DISTRICT_ID_NAME_MAP = "DISTRICT";
+    String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
 }

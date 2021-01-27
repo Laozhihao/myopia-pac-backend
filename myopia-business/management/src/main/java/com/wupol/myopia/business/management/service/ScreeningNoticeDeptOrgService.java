@@ -44,11 +44,12 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         Page<ScreeningNotice> page = new Page<>(pageNum, pageSize);
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         Map<Integer, String> districtIdNameMap = districtService.getAllDistrictIdNameMap();
-//        Map<Integer, String> govDeptIdNameMap = govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
+        List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).collect(Collectors.toList());
+        Map<Integer, String> govDeptIdNameMap = govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         screeningNoticeIPage.getRecords().forEach(vo -> {
             vo.setDistrictName(districtIdNameMap.getOrDefault(vo.getDistrictId(), ""));
             if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())) {
-//                vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
+                vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
             }
         });
         return screeningNoticeIPage;
