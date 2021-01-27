@@ -43,7 +43,7 @@ public class ScreeningNoticeDeptOrg implements Serializable {
     /**
      * 筛查通知--接收通知对象的id（机构id 或者 部门id）
      */
-    private Integer acceptGovOrgId;
+    private Integer acceptOrgId;
 
     /**
      * 筛查通知--操作状态（0未读 1 是已读 2是已创建）

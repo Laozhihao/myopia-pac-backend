@@ -38,7 +38,7 @@ public class ScreeningTaskOrg implements Serializable {
     /**
      * 筛查任务--筛查机构id
      */
-    private Integer orgId;
+    private Integer screeningOrgId;
 
     /**
      * 筛查任务--机构质控员名字（长度限制未知）

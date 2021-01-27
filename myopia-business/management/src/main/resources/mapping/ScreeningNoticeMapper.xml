@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNotice">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -37,5 +39,28 @@
     <update id="release">
         update m_screening_notice set release_status = 1 , release_time = current_timestamp where id = #{id}
     </update>
+
+    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        m_screening_notice
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.type)">and `type` = #{param.type}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and `district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and `title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.creatorIds != null">
+                    and `creator_id` in <foreach collection="param.creatorIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
 
 </mapper>

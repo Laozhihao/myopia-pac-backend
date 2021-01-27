@@ -68,7 +68,7 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--指定的筛查机构id
      */
-    private Integer orgId;
+    private Integer screeningOrgId;
 
     /**
      * 筛查计划--发布状态 （0未发布 1已发布）
