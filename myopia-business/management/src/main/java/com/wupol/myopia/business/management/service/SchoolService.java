@@ -270,6 +270,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthService.modifyUser(userDTO);
         return new UsernameAndPasswordDTO(username, password);
     }
+
     /**
      * 获取学校的筛查记录列表
      *
@@ -379,5 +380,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public IPage<School> getByPage(Page<?> page, SchoolQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 批量通过id获取
+     * @param ids 学校id
+     * @return List<School>
+     */
+    public List<School> getByIds(List<Integer> ids) {
+        return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
     }
 }

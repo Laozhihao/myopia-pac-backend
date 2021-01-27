@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +18,7 @@ public class ScreeningRecordResponse {
 
     private Integer staffCount;
 
-    private String staffName;
+    private List<String> staffName;
 
-    private List<ScreeningResult> details;
+    private List<RecordDetails> details;
 }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -24,10 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +67,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningResultService screeningResultService;
+
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
+    @Resource
+    private SchoolService schoolService;
 
     /**
      * 保存筛查机构
@@ -302,11 +311,43 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public Object getRecordDetail(Integer id) {
         ScreeningRecordResponse response = new ScreeningRecordResponse();
-        List<ScreeningResult> resultList = screeningResultService.getByTaskId(id);
-        response.setSchoolCount(resultList.size());
-        response.setDetails(resultList);
+        List<RecordDetails> details = new ArrayList<>();
+
+        List<ScreeningResult> resultList = screeningResultService.getByTaskIdGroupBySchoolId(id);
+
+        if (CollectionUtils.isEmpty(resultList)) {
+            return null;
+        }
+        // 获取学校id
+        List<Integer> schoolIds = resultList.stream().map(ScreeningResult::getSchoolId).collect(Collectors.toList());
+
+        // 设置学校总数
+        response.setSchoolCount(schoolIds.size());
+
+        // 查询学校统计
+        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService.getBySchoolIds(schoolIds);
+        Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics.stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
+
+        // 学校名称
+        List<School> schools = schoolService.getByIds(schoolIds);
+        Map<Integer, School> schoolMaps = schools.stream().collect(Collectors.toMap(School::getId, Function.identity()));
+
+        // 设置DTO
+        schoolIds.forEach(s -> {
+            RecordDetails detail = new RecordDetails();
+            detail.setSchoolId(s);
+            if (null != schoolMaps.get(s)) {
+                detail.setSchoolName(schoolMaps.get(s).getName());
+            }
+            if (null != schoolStatisticMaps.get(s)) {
+                detail.setPlanScreeningNumbers(schoolStatisticMaps.get(s).getPlanScreeningNumbers());
+                detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+            }
+            details.add(detail);
+        });
+        response.setDetails(details);
         response.setStaffCount(1);
-        response.setStaffName("abc");
+        response.setStaffName(Lists.newArrayList("abc"));
         return response;
     }
 
