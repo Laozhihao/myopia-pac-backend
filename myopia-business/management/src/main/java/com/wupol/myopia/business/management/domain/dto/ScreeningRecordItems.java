@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ScreeningRecordResponse {
+public class ScreeningRecordItems {
 
     private Integer schoolCount;
 

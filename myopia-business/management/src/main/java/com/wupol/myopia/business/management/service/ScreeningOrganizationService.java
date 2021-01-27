@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -288,7 +287,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningTask> getRecordLists(PageRequest request, Integer orgId) {
+    public IPage<ScreeningTaskResponse> getRecordLists(PageRequest request, Integer orgId) {
         // 查询筛查任务关联的机构表
         List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
 
@@ -297,38 +296,49 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return new Page<>();
         }
         // 获取筛查通知任务
-        return screeningTaskService.getTaskByIds(request, taskOrgLists
+        IPage<ScreeningTaskResponse> taskPages = screeningTaskService.getTaskByIds(request, taskOrgLists
                 .stream()
                 .map(ScreeningTaskOrg::getScreeningTaskId)
                 .collect(Collectors.toList()));
+        List<ScreeningTaskResponse> tasks = taskPages.getRecords();
+        if (CollectionUtils.isEmpty(tasks)) {
+            return taskPages;
+        }
+        tasks.forEach(this::extractedDTO);
+        return taskPages;
     }
 
-    /**
-     * 获取筛查记录详情
-     *
-     * @param id 详情ID
-     * @return 详情
-     */
-    public Object getRecordDetail(Integer id) {
-        ScreeningRecordResponse response = new ScreeningRecordResponse();
+    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+        ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<Integer> schoolIds = screeningResultService.getByTaskIdGroupBySchoolId(id);
-
+        List<Integer> schoolIds = screeningResultService.getSchoolIdByTaskId(taskResponse.getId());
         if (CollectionUtils.isEmpty(schoolIds)) {
-            return null;
+            return;
         }
 
         // 设置学校总数
         response.setSchoolCount(schoolIds.size());
 
         // 查询学校统计
-        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService.getBySchoolIds(id, schoolIds);
-        Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics.stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
+        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
+                .getBySchoolIds(taskResponse.getId(), schoolIds);
+        Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics
+                .stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
 
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
-        Map<Integer, School> schoolMaps = schools.stream().collect(Collectors.toMap(School::getId, Function.identity()));
+        Map<Integer, School> schoolMaps = schools
+                .stream().collect(Collectors.toMap(School::getId, Function.identity()));
+
+        List<Integer> createUserIds = screeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
+        // 员工信息
+        if (!CollectionUtils.isEmpty(createUserIds)) {
+            List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);
+            response.setStaffCount(createUserIds.size());
+            response.setStaffName(userDTOS
+                    .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
+        }
 
         // 设置DTO
         schoolIds.forEach(s -> {
@@ -344,9 +354,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             details.add(detail);
         });
         response.setDetails(details);
-        response.setStaffCount(1);
-        response.setStaffName(Lists.newArrayList("abc"));
-        return response;
+        taskResponse.setItems(response);
     }
 
     /**

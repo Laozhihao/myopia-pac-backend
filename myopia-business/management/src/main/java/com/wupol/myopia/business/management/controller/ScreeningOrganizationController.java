@@ -87,9 +87,4 @@ public class ScreeningOrganizationController {
     public Object getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
         return saveScreeningOrganization.getRecordLists(request, orgId);
     }
-
-    @GetMapping("/record/{id}")
-    public Object getRecordDetail(@PathVariable("id") Integer id) {
-        return saveScreeningOrganization.getRecordDetail(id);
-    }
 }

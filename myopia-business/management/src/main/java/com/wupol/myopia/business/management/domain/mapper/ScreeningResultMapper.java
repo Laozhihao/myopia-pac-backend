@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface ScreeningResultMapper extends BaseMapper<ScreeningResult> {
 
-    List<Integer> getByTaskIdGroupBySchoolId(Integer taskId);
+    List<Integer> getSchoolIdByTaskId(Integer taskId);
+
+    List<Integer> getCreateUserIdByTaskId(Integer taskId);
 
 }

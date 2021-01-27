@@ -37,7 +37,23 @@ public class ScreeningResultService extends BaseService<ScreeningResultMapper, S
         return baseMapper.selectOne(new QueryWrapper<ScreeningResult>().eq("plan_id", planId));
     }
 
-    public List<Integer> getByTaskIdGroupBySchoolId(Integer taskId) {
-        return baseMapper.getByTaskIdGroupBySchoolId(taskId);
+    /**
+     * 获取学校ID
+     *
+     * @param taskId 通知任务
+     * @return 学校ID
+     */
+    public List<Integer> getSchoolIdByTaskId(Integer taskId) {
+        return baseMapper.getSchoolIdByTaskId(taskId);
+    }
+
+    /**
+     * 获取筛查人员ID
+     *
+     * @param taskId 通知任务
+     * @return 学校ID
+     */
+    public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
+        return baseMapper.getCreateUserIdByTaskId(taskId);
     }
 }
