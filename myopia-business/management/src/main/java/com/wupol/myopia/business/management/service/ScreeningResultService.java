@@ -37,10 +37,7 @@ public class ScreeningResultService extends BaseService<ScreeningResultMapper, S
         return baseMapper.selectOne(new QueryWrapper<ScreeningResult>().eq("plan_id", planId));
     }
 
-    public List<ScreeningResult> getByTaskIdGroupBySchoolId(Integer taskId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningResult>()
-                .eq("task_id", taskId)
-                .groupBy("school_id")
-                .orderByDesc("create_time"));
+    public List<Integer> getByTaskIdGroupBySchoolId(Integer taskId) {
+        return baseMapper.getByTaskIdGroupBySchoolId(taskId);
     }
 }

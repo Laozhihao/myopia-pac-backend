@@ -36,7 +36,16 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
         return baseMapper.selectList(new QueryWrapper<SchoolVisionStatistic>().eq("screening_plan_id", planId));
     }
 
-    public List<SchoolVisionStatistic> getBySchoolIds(List<Integer> schoolIds) {
-        return baseMapper.selectList(new QueryWrapper<SchoolVisionStatistic>().eq("school_id", schoolIds));
+    /**
+     * 通过taskId和schoolIds获取统计信息
+     *
+     * @param taskId    通知任务ID
+     * @param schoolIds 学校ID
+     * @return List<SchoolVisionStatistic>
+     */
+    public List<SchoolVisionStatistic> getBySchoolIds(Integer taskId, List<Integer> schoolIds) {
+        return baseMapper.selectList(new QueryWrapper<SchoolVisionStatistic>()
+                .eq("screening_task_id", taskId)
+                .in("school_id", schoolIds));
     }
 }

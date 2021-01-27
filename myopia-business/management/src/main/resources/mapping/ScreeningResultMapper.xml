@@ -39,4 +39,10 @@
         id, screening_plan_school_student_id, task_id, studentId, schoolId, plan_id, district_id, left_naked_vision, right_naked_vision, left_corrected_vision, right_corrected_vision, glasses_type, vision_label, is_low_vision, is_myopia, is_key_warning_crown, is_recommended_visits, is_double_screen, create_user_id, create_time
     </sql>
 
+    <select id="getByTaskIdGroupBySchoolId" resultType="java.lang.Integer">
+        SELECT school_id
+        FROM m_screening_result
+        WHERE task_id = #{taskId}
+        GROUP BY school_id
+    </select>
 </mapper>

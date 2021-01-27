@@ -313,19 +313,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         ScreeningRecordResponse response = new ScreeningRecordResponse();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<ScreeningResult> resultList = screeningResultService.getByTaskIdGroupBySchoolId(id);
+        List<Integer> schoolIds = screeningResultService.getByTaskIdGroupBySchoolId(id);
 
-        if (CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
             return null;
         }
-        // 获取学校id
-        List<Integer> schoolIds = resultList.stream().map(ScreeningResult::getSchoolId).collect(Collectors.toList());
 
         // 设置学校总数
         response.setSchoolCount(schoolIds.size());
 
         // 查询学校统计
-        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService.getBySchoolIds(schoolIds);
+        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService.getBySchoolIds(id, schoolIds);
         Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics.stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
 
         // 学校名称
