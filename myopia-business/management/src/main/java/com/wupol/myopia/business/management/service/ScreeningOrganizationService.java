@@ -308,6 +308,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return taskPages;
     }
 
+    /**
+     * 封装DTO
+     *
+     * @param taskResponse 筛查端-记录详情
+     */
     private void extractedDTO(ScreeningTaskResponse taskResponse) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
