@@ -45,7 +45,7 @@ public class ScreeningTaskController {
 //            Assert.notNull(screeningTask.getDistrictId());
 //            Assert.notNull(screeningTask.getGovDeptId());
 //        }
-        screeningTask.setCreatorId(user.getId()).setOperatorId(user.getId());
+        screeningTask.setCreateUserId(user.getId()).setOperatorId(user.getId());
         if (!screeningTaskService.save(screeningTask)) {
             throw new BusinessException("创建失败");
         }
@@ -149,7 +149,7 @@ public class ScreeningTaskController {
 //            Assert.notNull(screeningTask.getDistrictId());
 //            Assert.notNull(screeningTask.getGovDeptId());
 //        }
-        screeningTask.setCreatorId(user.getId()).setOperatorId(user.getId());
+        screeningTask.setCreateUserId(user.getId()).setOperatorId(user.getId());
         if (!screeningTaskService.save(screeningTask)) {
             throw new BusinessException("创建失败");
         }
