@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.sun.javafx.binding.StringFormatter;
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -27,8 +25,10 @@ import java.util.Objects;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/screeningNotice")
-public class ScreeningNoticeController extends BaseController<ScreeningNoticeService, ScreeningNotice> {
+public class ScreeningNoticeController {
 
+    @Autowired
+    protected ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     /**
@@ -37,7 +37,6 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
      * @param screeningNotice 新增参数
      * @return Object
      */
-    @Override
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -47,7 +46,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
 //            Assert.notNull(screeningNotice.getGovDeptId());
 //        }
         screeningNotice.setCreatorId(user.getId()).setOperatorId(user.getId());
-        if (!baseService.save(screeningNotice)) {
+        if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
     }
@@ -58,12 +57,11 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
      * @param screeningNotice 更新参数
      * @return Object
      */
-    @Override
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
         validateExistWithReleaseStatus(screeningNotice.getId(), CommonConst.STATUS_RELEASE);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (!baseService.updateById(screeningNotice, user.getId())) {
+        if (!screeningNoticeService.updateById(screeningNotice, user.getId())) {
             throw new BusinessException("修改失败");
         }
     }
@@ -91,7 +89,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
         if (Objects.isNull(id)) {
             throw new BusinessException("参数ID不存在");
         }
-        ScreeningNotice notice = baseService.getById(id);
+        ScreeningNotice notice = screeningNoticeService.getById(id);
         if (Objects.isNull(notice)) {
             throw new BusinessException("查无该通知");
         }
@@ -119,7 +117,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
         } else if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        return baseService.getPage(query, current, size);
+        return screeningNoticeService.getPage(query, current, size);
     }
 
     /**
@@ -133,7 +131,7 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
      * @return Object
      */
     @GetMapping("page")
-    public IPage queryPage(ScreeningNoticeQuery query,
+    public IPage queryInfo(ScreeningNoticeQuery query,
                            @RequestParam(defaultValue = "1") Integer current,
                            @RequestParam(defaultValue = "10") Integer size) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -154,11 +152,10 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
      * @return void
      */
     @DeleteMapping("{id}")
-    @Override
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        if (!baseService.removeById(id)) {
+        if (!screeningNoticeService.removeById(id)) {
             throw new BusinessException("删除失败，请重试");
         }
     }
@@ -174,6 +171,6 @@ public class ScreeningNoticeController extends BaseController<ScreeningNoticeSer
         // 已发布，直接返回
         //TODO 非政府部门，直接报错
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        baseService.release(id, CurrentUserUtil.getCurrentUser());
+        screeningNoticeService.release(id, CurrentUserUtil.getCurrentUser());
     }
 }
