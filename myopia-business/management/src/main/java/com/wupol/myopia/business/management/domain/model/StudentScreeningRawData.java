@@ -43,7 +43,7 @@ public class StudentScreeningRawData implements Serializable {
     /**
      * 提交数据的筛查人员ID
      */
-    private Integer staffId;
+    private Integer createUserId;
 
     /**
      * 筛查原始数据--创建时间

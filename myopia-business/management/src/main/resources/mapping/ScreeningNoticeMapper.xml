@@ -23,7 +23,7 @@
                 <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
                 <if test="@Ognl@isNotEmpty(operationVersion)">and `operation_version` = #{operationVersion}</if>
-                <if test="@Ognl@isNotEmpty(creatorId)">and `creator_id` = #{creatorId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
@@ -33,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, creator_id, create_time, operator_id, operate_time
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
     </sql>
 
     <update id="release">
@@ -53,8 +53,8 @@
                 <if test="param.titleLike != null and param.titleLike != ''">
                     and `title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
-                <if test="param.creatorIds != null">
-                    and `creator_id` in <foreach collection="param.creatorIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                <if test="param.createUserIds != null">
+                    and `creator_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>

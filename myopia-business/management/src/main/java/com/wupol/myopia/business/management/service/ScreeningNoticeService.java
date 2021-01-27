@@ -70,12 +70,12 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
                 // 可以直接返回空
                 return new Page<ScreeningNoticeVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageNum).setSize(pageSize).setPages(0).setTotal(0);
             }
-            query.setCreatorIds(queryCreatorIds);
+            query.setCreateUserIds(queryCreatorIds);
         }
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
-        List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreatorId).distinct().collect(Collectors.toList());
+        List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreatorId(), "")));
+        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
         return screeningNoticeIPage;
     }
 

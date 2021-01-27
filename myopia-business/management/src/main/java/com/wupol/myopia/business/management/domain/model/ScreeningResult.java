@@ -119,7 +119,7 @@ public class ScreeningResult implements Serializable {
     /**
      * 提交数据的筛查人员ID
      */
-    private Integer staffId;
+    private Integer createUserId;
 
     /**
      * 创建时间

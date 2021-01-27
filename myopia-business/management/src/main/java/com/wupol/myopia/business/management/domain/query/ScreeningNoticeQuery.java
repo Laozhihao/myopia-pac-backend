@@ -41,7 +41,7 @@ public class ScreeningNoticeQuery extends ScreeningNotice {
     /**
      * 创建人ID列表
      */
-    private List<Integer> creatorIds;
+    private List<Integer> createUserIds;
     /**
      * 筛查通知--操作状态（0未读 1 是已读 2是已创建）
      */
