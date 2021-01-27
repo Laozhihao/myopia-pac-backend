@@ -41,6 +41,11 @@ public class StudentScreeningRawData implements Serializable {
     private String screeningRawData;
 
     /**
+     * 提交数据的筛查人员ID
+     */
+    private Integer staffId;
+
+    /**
      * 筛查原始数据--创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

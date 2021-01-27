@@ -117,6 +117,11 @@ public class ScreeningResult implements Serializable {
     private Boolean isDoubleScreen;
 
     /**
+     * 提交数据的筛查人员ID
+     */
+    private Integer staffId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

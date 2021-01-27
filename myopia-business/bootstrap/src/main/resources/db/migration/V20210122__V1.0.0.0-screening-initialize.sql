@@ -246,6 +246,7 @@ CREATE TABLE `m_student_screening_raw_data` (
     `id` int(11) NOT NULL COMMENT '主键id',
     `screening_plan_school_student_id` int(10) unsigned NOT NULL COMMENT '筛查原始数据--所属的学生id',
     `screening_raw_data` json NOT NULL COMMENT '筛查原始数据',
+    `staff_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '提交的筛查人员id',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查原始数据--创建时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='筛查原始数据表';
@@ -273,6 +274,7 @@ CREATE TABLE `m_screening_result` (
     `is_key_warning_crown` tinyint(1) NOT NULL DEFAULT '-1' COMMENT '筛查结果--是否属于重点视力人群：-1-默认、0-否、1-是',
     `is_recommended_visits` tinyint(1) NOT NULL DEFAULT '-1' COMMENT '筛查结果--是否建议就诊：-1-默认、0-否、1-是',
     `is_double_screen` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '筛查结果--是否复筛（0否，1是）',
+    `staff_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '提交的筛查人员id',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='筛查结果表';
