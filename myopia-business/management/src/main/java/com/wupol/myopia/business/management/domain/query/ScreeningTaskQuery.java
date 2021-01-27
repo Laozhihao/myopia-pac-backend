@@ -1,25 +1,24 @@
 package com.wupol.myopia.business.management.domain.query;
 
 
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * 筛查通知查询
+ * 筛查任务查询
  *
  * @Author Alix
- * @Date 2021-1-22
+ * @Date 2021-01-27
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ScreeningNoticeQuery extends ScreeningNotice {
+public class ScreeningTaskQuery extends ScreeningTask {
     /**
      * 筛查通知--开始时间（时间戳）
      */
