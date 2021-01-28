@@ -26,8 +26,14 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("screening_org_id", orgId));
     }
 
+    /**
+     * 通过机构ID统计通知任务
+     * <p>可以多个一个机构ids，这样就不用全表查数据</p></p>
+     *
+     * @return List<OrgScreeningCountVO>
+     */
     public List<OrgScreeningCountVO> countScreeningTime() {
-        return baseMapper.countScreeningTime();
+        return baseMapper.countScreeningTimeByOrgId();
     }
 
 }

@@ -84,9 +84,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
             Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
-                    .stream()
-                    .collect(Collectors.
-                            toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
+                    .stream().collect(Collectors
+                            .toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
             resultLists.forEach(s -> s.setStaffId(staffSnMaps.get(s.getId()).getId()));
             return page;
         }
@@ -252,7 +251,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return List<ScreeningOrganizationStaff>
      */
     public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>().in("screening_org_id", orgIds));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                        .in("screening_org_id", orgIds));
     }
 
     /**
@@ -274,8 +275,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 员工
      */
     public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                .in("user_id", userIds));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                        .in("user_id", userIds));
     }
 
     /**

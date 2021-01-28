@@ -123,14 +123,16 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      */
     public Boolean check(Integer type, List<TemplateBindItem> list) {
         // 根据类型查模板
-        List<Template> templateList = baseMapper.selectList(new QueryWrapper<Template>().eq("type", type));
+        List<Template> templateList = baseMapper
+                .selectList(new QueryWrapper<Template>()
+                        .eq("type", type));
 
         // 根据模板ID获取所有的行政ID
         List<TemplateDistrict> allDistrict = templateDistrictService.getByTemplateIds(
                 templateList.stream().map(Template::getId).collect(Collectors.toList()));
 
         // 判断两个list是否有相同元素
-        return !Collections.disjoint(list.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList())
-                , allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
+        return !Collections.disjoint(list.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()),
+                allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
     }
 }
