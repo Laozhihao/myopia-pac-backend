@@ -19,6 +19,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -198,17 +199,31 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
         Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
 
+        // 筛查统计
+        List<SchoolScreeningCountVO> countVOS = screeningPlanSchoolService.countScreeningTime();
+        Map<Integer, Integer> countMaps = countVOS.stream()
+                .collect(Collectors
+                        .toMap(SchoolScreeningCountVO::getSchoolId,
+                                SchoolScreeningCountVO::getCount));
+
         // 封装DTO
         schools.forEach(s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
-            s.setScreeningCount(0);
+
             // 判断是否能更新
             if (s.getGovDeptId().equals(orgId)) {
                 s.setCanUpdate(Boolean.TRUE);
             }
             // 行政区名字
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+
+            // 筛查次数
+            if (null != countMaps.get(s.getId())) {
+                s.setScreeningCount(countMaps.get(s.getId()));
+            } else {
+                s.setScreeningCount(0);
+            }
         });
         return schoolDtoIPage;
     }

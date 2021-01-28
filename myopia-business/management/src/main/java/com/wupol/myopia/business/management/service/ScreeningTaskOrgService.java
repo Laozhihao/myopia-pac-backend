@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,10 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      */
     public List<ScreeningTaskOrg> getTaskOrgListsByOrgId(Integer orgId) {
         return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("screening_org_id", orgId));
+    }
+
+    public List<OrgScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
     }
 
 }

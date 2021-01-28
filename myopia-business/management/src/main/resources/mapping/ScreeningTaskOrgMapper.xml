@@ -26,4 +26,9 @@
         id, screening_task_id, screening_org_id, quality_controller_name, quality_controller_contact, quality_controller_commander, create_time
     </sql>
 
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO">
+        select count(1) as count , screening_org_id
+        from m_screening_task_org
+        group by screening_org_id
+    </select>
 </mapper>

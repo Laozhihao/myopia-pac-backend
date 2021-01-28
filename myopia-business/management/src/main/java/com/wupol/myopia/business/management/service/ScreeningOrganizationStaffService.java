@@ -62,9 +62,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTOQuery userQuery = new UserDTOQuery();
 
         // 非平台管理员需要机构ID进行过滤
-        if (!currentUser.isPlatformAdminUser()) {
-            userQuery.setOrgId(request.getScreeningOrgId());
-        }
+//        if (!currentUser.isPlatformAdminUser()) {
+//            userQuery.setOrgId(request.getScreeningOrgId());
+//        }
+        userQuery.setOrgId(request.getScreeningOrgId());
 
         // 搜索条件
         userQuery.setCurrent(request.getCurrent())
@@ -261,9 +262,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return Map<Integer, List < ScreeningOrganizationStaff>>
      */
     public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds) {
-        return getStaffListsByOrgIds(orgIds)
-                .stream()
-                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        return getStaffListsByOrgIds(orgIds).stream()
+                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getScreeningOrgId));
+
     }
 
     /**

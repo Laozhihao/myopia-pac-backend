@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,5 +26,13 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper
                 .selectList(new QueryWrapper<ScreeningPlanSchool>()
                         .eq("school_id", schoolId));
+    }
+
+    /**
+     * 学校筛查统计
+     * @return List<SchoolScreeningCountVO>
+     */
+    public List<SchoolScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
     }
 }

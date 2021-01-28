@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationM
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -186,9 +187,18 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
         }
+
+        // 筛查次数
+        List<OrgScreeningCountVO> orgScreeningCountVOS = screeningTaskOrgService.countScreeningTime();
+        Map<Integer, Integer> countMaps = orgScreeningCountVOS
+                .stream().collect(Collectors
+                        .toMap(OrgScreeningCountVO::getScreeningOrgId,
+                                OrgScreeningCountVO::getCount));
+
         // 获取筛查人员信息
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService.getOrgStaffMapByIds(
-                records.stream().map(ScreeningOrganization::getId).collect(Collectors.toList()));
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
+                .getOrgStaffMapByIds(records.stream().map(ScreeningOrganization::getId)
+                        .collect(Collectors.toList()));
 
         // 封装DTO
         records.forEach(r -> {
@@ -196,6 +206,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             if (r.getGovDeptId().equals(orgId)) {
                 r.setCanUpdate(true);
             }
+
+            // 筛查人员
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
             if (!CollectionUtils.isEmpty(staffLists)) {
                 r.setStaffCount(staffLists.size());
@@ -203,7 +215,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 r.setStaffCount(0);
             }
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
-            r.setScreeningTime(CommonConst.SCREENING_TIME);
+
+            // 筛查次数
+            if (null != countMaps.get(r.getId())) {
+                r.setScreeningTime(countMaps.get(r.getId()));
+            } else {
+                r.setScreeningTime(CommonConst.SCREENING_TIME);
+            }
         });
         return orgLists;
     }
