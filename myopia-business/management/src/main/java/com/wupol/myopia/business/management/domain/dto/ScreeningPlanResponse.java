@@ -5,6 +5,8 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 学校端-筛查记录
  *
@@ -17,7 +19,7 @@ public class ScreeningPlanResponse extends ScreeningPlan {
     /**
      * 详情
      */
-    private SchoolVisionStatistic items;
+    private List<SchoolVisionStatistic> items;
 
     /**
      * 机构名称

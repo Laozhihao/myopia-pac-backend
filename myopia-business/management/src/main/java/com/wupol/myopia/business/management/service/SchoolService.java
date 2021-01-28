@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -312,7 +313,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                             .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
             plans.forEach(p -> {
                 p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
-                p.setItems(statisticMaps.get(p.getId()));
+                p.setItems(Lists.newArrayList(statisticMaps.get(p.getId())));
             });
 
         }
