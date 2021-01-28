@@ -12,14 +12,9 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.SchoolDto;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -74,6 +69,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private ScreeningResultService screeningResultService;
+
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
 
     /**
      * 新增学校
@@ -286,7 +284,29 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 通过planIds查询计划
-        return screeningPlanService.getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
+        IPage<ScreeningPlanResponse> planPages = screeningPlanService
+                .getListByIds(pageRequest,
+                        planSchoolList
+                                .stream()
+                                .map(ScreeningPlanSchool::getScreeningPlanId)
+                                .collect(Collectors.toList()));
+
+        List<ScreeningPlanResponse> plans = planPages.getRecords();
+
+        if (!CollectionUtils.isEmpty(plans)) {
+            List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+            // 学校统计信息
+            List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
+                    .getByPlanIdsAndSchoolId(planIds, schoolId);
+            Map<Integer, SchoolVisionStatistic> statisticMaps = schoolStatistics
+                    .stream()
+                    .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity()));
+            plans.forEach(p -> {
+                p.setItems(statisticMaps.get(p.getId()));
+            });
+
+        }
+        return planPages;
     }
 
     /**
@@ -384,6 +404,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 批量通过id获取
+     *
      * @param ids 学校id
      * @return List<School>
      */

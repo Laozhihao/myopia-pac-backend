@@ -8,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponse;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -243,11 +244,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 获取学生筛查档案
      *
      * @param studentId 学生ID
-     * @return Object
+     * @return StudentScreeningResultResponse
      */
-    public List<ScreeningResult> getScreeningList(Integer studentId) {
+    public StudentScreeningResultResponse getScreeningList(Integer studentId) {
+        StudentScreeningResultResponse response = new StudentScreeningResultResponse();
+
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByStudentIds(studentId);
+        List<ScreeningResult> resultList = screeningResultService.getByStudentIds(studentId);
+        response.setTotal(resultList.size());
+        response.setItems(resultList);
+        return response;
     }
 
     /**
