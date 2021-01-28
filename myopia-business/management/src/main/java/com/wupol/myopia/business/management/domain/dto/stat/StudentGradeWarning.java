@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.management.domain.dto;
+package com.wupol.myopia.business.management.domain.dto.stat;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -10,17 +10,55 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class StudentGradeWarning {
     /**
-     * 预警级别
+     * 当前统计时间
      */
-    private Integer warngingLevel;
+    private Long statTime;
 
     /**
-     * 人数
+     * 总重点视力对象数
      */
-    private Long counts;
+    private Long keyObjNum;
 
     /**
-     * 人数比例
+     *  总视力对象数在总学生数中的占比
      */
-    private Float rate;
+    private Float keyObjPercentage;
+
+    /**
+     * 去年今日的时间
+     */
+    private Long lastStatTime;
+
+    /**
+     * 去年今日的总重点视力对象数
+     */
+    private Long lastKeyObjNum;
+
+    /**
+     *  去年今日的总视力对象数在总学生数中的占比
+     */
+    private Long lastKeyObjPercentage;
+
+    /**
+     * 分级预警信息
+     */
+    private WarningLevelInfo warningLevelInfo;
+
+    @Data
+    public static class WarningLevelInfo {
+        /**
+         * 预警级别
+         */
+        private Integer warningLevel;
+
+        /**
+         * 人数
+         */
+        private Long num;
+
+        /**
+         * 人数比例
+         */
+        private Float rate;
+    }
 }
