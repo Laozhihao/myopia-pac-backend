@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,5 +56,14 @@ public class ScreeningResultService extends BaseService<ScreeningResultMapper, S
      */
     public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
         return baseMapper.getCreateUserIdByTaskId(taskId);
+    }
+
+    /**
+     * 获取学生筛查次数
+     *
+     * @return List<StudentScreeningCountVO>
+     */
+    public List<StudentScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
     }
 }

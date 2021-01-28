@@ -302,10 +302,10 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setLabel(item.getVisionLabel())
                     .setSituation(item.getCurrentSituation())
-                    .setScreeningCount(item.getScreeningCount())
+//                    .setScreeningCount(item.getScreeningCount())
                     //TODO 就诊次数
                     .setVisitsCount(6666)
-                    .setQuestionCount(item.getQuestionnaireCount())
+//                    .setQuestionCount(item.getQuestionnaireCount())
                     .setLastScreeningTime(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
             exportVo.setProvince(districtList.get(0))

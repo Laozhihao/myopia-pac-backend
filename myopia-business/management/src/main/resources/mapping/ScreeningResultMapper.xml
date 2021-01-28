@@ -52,4 +52,10 @@
         WHERE task_id = #{taskId}
         GROUP BY create_user_id
     </select>
+
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
+        select count(1) as count, student_id
+        from m_screening_result
+        group by student_id
+    </select>
 </mapper>

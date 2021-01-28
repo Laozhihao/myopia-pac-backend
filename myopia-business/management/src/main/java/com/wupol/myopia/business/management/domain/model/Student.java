@@ -139,16 +139,6 @@ public class Student implements Serializable {
     private Integer visionLabel;
 
     /**
-     * 视力筛查次数
-     */
-    private Integer screeningCount;
-
-    /**
-     * 问卷数
-     */
-    private Integer questionnaireCount;
-
-    /**
      * 最近筛选次数
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

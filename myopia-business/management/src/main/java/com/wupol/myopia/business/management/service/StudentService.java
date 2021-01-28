@@ -13,6 +13,7 @@ import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -190,6 +191,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 学校信息
         Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
+        // 筛查次数
+        List<StudentScreeningCountVO> studentScreeningCountVOS = screeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountVO::getStudentId,
+                        StudentScreeningCountVO::getCount));
+
         // 封装DTO
         students.forEach(s -> {
 
@@ -204,6 +211,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
+
+            // 筛查次数
+            if (null != countMaps.get(s.getId())) {
+                s.setScreeningCount(countMaps.get(s.getId()));
+            } else {
+                s.setScreeningCount(0);
+            }
+
+            // TODO: 就诊次数
+            s.setSeeDoctorCount(0);
+            // TODO: 设置问卷数
+            s.setQuestionnaireCount(0);
         });
         return pageStudents;
     }

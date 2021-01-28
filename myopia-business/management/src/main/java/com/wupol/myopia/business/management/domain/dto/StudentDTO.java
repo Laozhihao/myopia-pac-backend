@@ -34,4 +34,20 @@ public class StudentDTO extends Student {
      * 学校ID
      */
     private Integer schoolId;
+
+    /**
+     * 视力筛查次数
+     */
+    private Integer screeningCount;
+
+    /**
+     * 问卷数
+     */
+    private Integer questionnaireCount;
+
+
+    /**
+     * 就诊次数
+     */
+    private Integer seeDoctorCount;
 }

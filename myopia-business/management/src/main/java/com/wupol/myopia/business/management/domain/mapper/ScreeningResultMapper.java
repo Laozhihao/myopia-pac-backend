@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 
 import java.util.List;
 
@@ -16,5 +17,7 @@ public interface ScreeningResultMapper extends BaseMapper<ScreeningResult> {
     List<Integer> getSchoolIdByTaskId(Integer taskId);
 
     List<Integer> getCreateUserIdByTaskId(Integer taskId);
+
+    List<StudentScreeningCountVO> countScreeningTime();
 
 }
