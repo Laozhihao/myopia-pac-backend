@@ -286,11 +286,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 通过planIds查询计划
         IPage<ScreeningPlanResponse> planPages = screeningPlanService
-                .getListByIds(pageRequest,
-                        planSchoolList
-                                .stream()
-                                .map(ScreeningPlanSchool::getScreeningPlanId)
-                                .collect(Collectors.toList()));
+                .getListByIds(pageRequest, planSchoolList.stream()
+                        .map(ScreeningPlanSchool::getScreeningPlanId)
+                        .collect(Collectors.toList()));
 
         List<ScreeningPlanResponse> plans = planPages.getRecords();
 
@@ -309,8 +307,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
             Map<Integer, String> orgMaps = orgLists
                     .stream()
-                    .collect(Collectors
-                            .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+                    .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+
+            // 封装DTO
             plans.forEach(p -> {
                 p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
                 p.setItems(Lists.newArrayList(statisticMaps.get(p.getId())));
@@ -342,7 +341,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 模糊查询所有学校名称
      *
      * @param query 查询条件
-     * @return
+     * @return List<School>
      */
     public List<School> getBy(SchoolQuery query) {
         return baseMapper.getBy(query);

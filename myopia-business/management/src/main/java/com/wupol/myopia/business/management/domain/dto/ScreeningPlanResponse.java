@@ -17,13 +17,12 @@ import java.util.List;
 public class ScreeningPlanResponse extends ScreeningPlan {
 
     /**
-     * 详情
-     */
-    private List<SchoolVisionStatistic> items;
-
-    /**
      * 机构名称
      */
     private String orgName;
 
+    /**
+     * 详情
+     */
+    private List<SchoolVisionStatistic> items;
 }

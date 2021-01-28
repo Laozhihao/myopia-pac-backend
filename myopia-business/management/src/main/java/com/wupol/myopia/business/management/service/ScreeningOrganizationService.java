@@ -334,8 +334,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
-        Map<Integer, School> schoolMaps = schools
-                .stream().collect(Collectors.toMap(School::getId, Function.identity()));
+        Map<Integer, School> schoolMaps = schools.stream()
+                .collect(Collectors.toMap(School::getId, Function.identity()));
 
         List<Integer> createUserIds = screeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
         // 员工信息
@@ -346,7 +346,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                     .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
         }
 
-        // 设置DTO
+        // 封装DTO
         schoolIds.forEach(s -> {
             RecordDetails detail = new RecordDetails();
             detail.setSchoolId(s);

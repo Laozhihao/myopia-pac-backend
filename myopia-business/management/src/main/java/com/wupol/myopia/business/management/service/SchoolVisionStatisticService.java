@@ -48,8 +48,9 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
      * @return List<SchoolVisionStatistic>
      */
     public List<SchoolVisionStatistic> getBySchoolIds(Integer taskId, List<Integer> schoolIds) {
-        return baseMapper.selectList(new QueryWrapper<SchoolVisionStatistic>()
-                .eq("screening_task_id", taskId)
-                .in("school_id", schoolIds));
+        return baseMapper
+                .selectList(new QueryWrapper<SchoolVisionStatistic>()
+                        .eq("screening_task_id", taskId)
+                        .in("school_id", schoolIds));
     }
 }

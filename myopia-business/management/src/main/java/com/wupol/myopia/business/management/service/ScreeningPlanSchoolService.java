@@ -15,7 +15,15 @@ import java.util.List;
 @Service
 public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolMapper, ScreeningPlanSchool> {
 
+    /**
+     * 通过学校ID获取计划
+     *
+     * @param schoolId 学校ID
+     * @return List<ScreeningPlanSchool>
+     */
     public List<ScreeningPlanSchool> getBySchoolId(Integer schoolId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchool>().eq("school_id", schoolId));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningPlanSchool>()
+                        .eq("school_id", schoolId));
     }
 }
