@@ -14,6 +14,14 @@ import lombok.Setter;
 @Setter
 public class ScreeningPlanResponse extends ScreeningPlan {
 
+    /**
+     * 详情
+     */
     private SchoolVisionStatistic items;
+
+    /**
+     * 机构名称
+     */
+    private String orgName;
 
 }

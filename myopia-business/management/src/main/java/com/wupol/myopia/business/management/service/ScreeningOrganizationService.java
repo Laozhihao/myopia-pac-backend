@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -371,5 +372,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过IDs批量查询
+     *
+     * @param orgIds id列表
+     * @return List<ScreeningOrganization>
+     */
+    public List<ScreeningOrganization> getByIds(List<Integer> orgIds) {
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganization>()
+                        .in("id", orgIds));
     }
 }

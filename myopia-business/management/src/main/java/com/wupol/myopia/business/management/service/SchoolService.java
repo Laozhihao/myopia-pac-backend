@@ -68,10 +68,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private SchoolVisionStatisticService schoolVisionStatisticService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 新增学校
@@ -301,22 +301,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             Map<Integer, SchoolVisionStatistic> statisticMaps = schoolStatistics
                     .stream()
                     .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity()));
+
+            // 获取筛查机构
+            List<Integer> orgIds = plans
+                    .stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+            List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
+            Map<Integer, String> orgMaps = orgLists
+                    .stream()
+                    .collect(Collectors
+                            .toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
             plans.forEach(p -> {
+                p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
                 p.setItems(statisticMaps.get(p.getId()));
             });
 
         }
         return planPages;
-    }
-
-    /**
-     * 获取学校的筛查记录详情
-     *
-     * @param id 筛查记录详情ID
-     * @return 详情
-     */
-    public Object getScreeningRecordDetail(Integer id) {
-        return screeningResultService.getByPlanId(id);
     }
 
     /**
