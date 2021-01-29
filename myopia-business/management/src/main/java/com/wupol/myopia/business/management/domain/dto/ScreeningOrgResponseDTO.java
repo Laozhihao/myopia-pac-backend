@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ScreeningOrgResponse extends ScreeningOrganization {
+public class ScreeningOrgResponseDTO extends ScreeningOrganization {
 
     /**
      * 筛查人员统计

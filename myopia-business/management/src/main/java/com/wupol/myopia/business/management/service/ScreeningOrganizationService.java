@@ -20,6 +20,7 @@ import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -141,9 +142,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
         baseMapper.updateById(screeningOrganization);
-        return baseMapper.selectById(screeningOrganization.getId());
+        ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
+        ScreeningOrganization organization = baseMapper.selectById(screeningOrganization.getId());
+        BeanUtils.copyProperties(organization, response);
+        response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
+        return response;
     }
 
     /**
@@ -168,19 +173,19 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param currentUser 当前登录用户
      * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
-    public IPage<ScreeningOrgResponse> getScreeningOrganizationList(PageRequest pageRequest,
-                                                                    ScreeningOrganizationQuery query,
-                                                                    CurrentUser currentUser) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
+                                                                       ScreeningOrganizationQuery query,
+                                                                       CurrentUser currentUser) {
         Integer orgId = currentUser.getOrgId();
         Integer districtId = districtService.getDistrictId(currentUser, query.getDistrictId());
 
         // 查询
-        IPage<ScreeningOrgResponse> orgLists = baseMapper.getScreeningOrganizationListByCondition(
+        IPage<ScreeningOrgResponseDTO> orgLists = baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getGovDeptId(), query.getPhone(), query.getStatus());
 
         // 为空直接返回
-        List<ScreeningOrgResponse> records = orgLists.getRecords();
+        List<ScreeningOrgResponseDTO> records = orgLists.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
         }
@@ -210,6 +215,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             } else {
                 r.setStaffCount(0);
             }
+            // 区域名字
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
 
             // 筛查次数
@@ -294,10 +300,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 获取筛查机构详情
      *
      * @param id 筛查机构ID
-     * @return org {@link ScreeningOrgResponse}
+     * @return org {@link ScreeningOrgResponseDTO}
      */
-    public ScreeningOrgResponse getScreeningOrgDetails(Integer id) {
-        ScreeningOrgResponse org = baseMapper.getOrgById(id);
+    public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
+        ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
         if (null == org) {
             throw new BusinessException("数据异常");
         }

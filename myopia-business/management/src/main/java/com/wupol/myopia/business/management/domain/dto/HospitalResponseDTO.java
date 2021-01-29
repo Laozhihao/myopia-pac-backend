@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class HospitalResponse extends Hospital {
+public class HospitalResponseDTO extends Hospital {
 
     /**
      * 行政区域名

@@ -25,6 +25,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,9 +121,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public School updateSchool(School school) {
+    public SchoolResponseDTO updateSchool(School school) {
         baseMapper.updateById(school);
-        return baseMapper.selectById(school.getId());
+        School source = baseMapper.selectById(school.getId());
+        SchoolResponseDTO dto = new SchoolResponseDTO();
+        BeanUtils.copyProperties(source,dto);
+        dto.setDistrictName(districtService.getDistrictName(source.getDistrictDetail()));
+        return dto;
     }
 
     /**
@@ -166,8 +171,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param currentUser 当前用户
      * @return IPage<SchoolDto> {@link IPage}
      */
-    public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
-                                          CurrentUser currentUser) {
+    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
+                                                  CurrentUser currentUser) {
 
         Integer orgId = currentUser.getOrgId();
         String createUser = schoolQuery.getCreateUser();
@@ -189,11 +194,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 查询
-        IPage<SchoolDto> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
+        IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
                 schoolQuery.getType(), districtId, userIds);
 
-        List<SchoolDto> schools = schoolDtoIPage.getRecords();
+        List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
         // 为空直接返回
         if (CollectionUtils.isEmpty(schools)) {
@@ -230,7 +235,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolDto> getSchoolDtoConsumer(Integer orgId, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(Integer orgId, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());

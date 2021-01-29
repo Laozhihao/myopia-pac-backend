@@ -13,7 +13,7 @@ import lombok.Setter;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SchoolDto extends School {
+public class SchoolResponseDTO extends School {
 
     private String accountNo;
 
