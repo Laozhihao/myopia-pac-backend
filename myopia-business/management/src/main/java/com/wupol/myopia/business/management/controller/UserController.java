@@ -1,19 +1,20 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.UserService;
 import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * @Author HaoHao
@@ -29,6 +30,8 @@ public class UserController {
     private OauthService oauthService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private GovDeptService govDeptService;
 
     /**
      * 分页获取用户列表 TODO: 支持根据日期查询
@@ -42,7 +45,7 @@ public class UserController {
     public IPage<UserDTO> getUserListPage(UserDTOQuery queryParam,
                                           @RequestParam(defaultValue = "1") Integer current,
                                           @RequestParam(defaultValue = "10") Integer size) {
-        return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser().getOrgId());
+        return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -64,9 +67,9 @@ public class UserController {
      **/
     @PutMapping()
     public Object updateUser(@RequestBody @Validated(value = UserUpdateValidatorGroup.class) UserDTO user) {
-        // TODO: 不能更新自己、非管理员或者admin用户不能修改用户
-        // 该接口不允许更新密码
-        return userService.updateUser(user.setPassword(null), CurrentUserUtil.getCurrentUser());
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        userService.validatePermission(currentUser, user.getId());
+        return userService.updateUser(user, currentUser);
     }
 
     /**
@@ -77,8 +80,8 @@ public class UserController {
      **/
     @PutMapping("/password/{userId}")
     public UserDTO resetPwd(@PathVariable("userId") Integer userId) {
-        // TODO: 获取用户详情，判断用户是否存在，用户所属部门是否属于当前登录用户的下面
-        return oauthService.resetPwd(userId);
+        userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
+        return userService.resetPwd(userId);
     }
 
     /**
@@ -89,8 +92,11 @@ public class UserController {
      **/
     @GetMapping("/{userId}")
     public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
-        // TODO: 只能获取自己所属部门下的用户
-        return oauthService.getUserDetailByUserId(userId);
+        UserDTO userDTO = oauthService.getUserDetailByUserId(userId);
+        Assert.notNull(userDTO, "不存在该用户");
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(userDTO.getOrgId()), "没有访问该用户信息权限");
+        return userDTO.setOrgName(govDeptService.getById(userDTO.getOrgId()).getName()).setPassword(null);
     }
 
     /**
@@ -101,7 +107,8 @@ public class UserController {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PutMapping("/{userId}/{status}")
-    public UserDTO resetPwd(@PathVariable("userId") @NotNull(message = "用户ID不能为空") Integer userId, @PathVariable("status") @NotNull(message = "用户状态不能为空") Integer status) {
-        return oauthService.modifyUser(new UserDTO().setId(userId).setStatus(status));
+    public UserDTO updateUserStatus(@PathVariable("userId") Integer userId, @PathVariable("status") Integer status) {
+        userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
+        return userService.updateUserStatus(userId, status);
     }
 }

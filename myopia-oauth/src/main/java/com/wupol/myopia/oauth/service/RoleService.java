@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
@@ -10,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
-import javax.validation.ValidationException;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -33,7 +34,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param query 查询参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    public List<Role> selectRoleList(Role query) {
+    public List<Role> getRoleList(RoleDTO query) {
         return baseMapper.selectRoleList(query);
     }
 
@@ -73,7 +74,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param ids 角色ID集
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> getByIds(List<Integer> ids) {
+    public List<Role> getByIds(List<Integer> ids) {
         return baseMapper.selectBatchIds(ids);
     }
 
@@ -83,8 +84,22 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> getRoleListByUserId(Integer userId) {
-        return baseMapper.getRoleListByUserId(userId);
+    public List<Role> getRoleListByUserId(Integer userId) {
+        return baseMapper.selectRoleListByUserId(userId);
+    }
+
+    /**
+     * 获取用户ID列表
+     *
+     * @param query 查询条件
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getUserIdList(Role query) {
+        List<Integer> userIds = baseMapper.selectUserIdList(query);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return userIds;
+        }
+        return userIds.stream().distinct().collect(Collectors.toList());
     }
 
 }

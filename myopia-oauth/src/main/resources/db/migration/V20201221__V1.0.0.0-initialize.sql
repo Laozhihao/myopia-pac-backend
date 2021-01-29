@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS `o_user`;
 CREATE TABLE `o_user` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `org_id` int(11) NOT NULL COMMENT '机构组织ID（如政府部门ID、学校ID、医院ID）',
-  `real_name` varchar(10) DEFAULT NULL COMMENT '真实姓名',
+  `real_name` varchar(50) DEFAULT NULL COMMENT '真实姓名',
   `gender` tinyint(1) DEFAULT NULL COMMENT '性别：0-男、1-女',
   `phone` varchar(16) DEFAULT NULL COMMENT '手机号码',
   `id_card` varchar(18) DEFAULT NULL COMMENT '身份证号码',
@@ -56,6 +56,7 @@ CREATE TABLE `o_user` (
   `password` varchar(200) NOT NULL COMMENT '密码',
   `is_leader` tinyint(1) DEFAULT '0' COMMENT '是否领导：0-否、1-是',
   `system_code` tinyint(1) NOT NULL COMMENT '系统编号',
+  `user_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '用户类型：0-平台管理员、1-非平台管理员',
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建人',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0-启用 1-禁止 2-删除',
   `remark` varchar(255) DEFAULT NULL COMMENT '备注',

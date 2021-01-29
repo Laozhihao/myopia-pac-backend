@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 用户表
+ * 用户
  *
  * @Author HaoHao
  * @Date 2020-12-23
@@ -150,5 +151,13 @@ public class UserDTO implements Serializable {
     @NotEmpty(message = "角色ID不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private List<Integer> roleIds;
 
+    /**
+     * 用户类型：0-平台管理员、1-非平台管理员
+     */
     private Integer userType;
+
+    /**
+     * 行政区明细
+     */
+    private List<District> districtDetail;
 }

@@ -117,4 +117,9 @@ public class User implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLoginTime;
 
+    /**
+     * 用户类型：0-平台管理员、1-非平台管理员
+     */
+    private Integer userType;
+
 }
