@@ -38,6 +38,11 @@ public interface CommonConst {
     Integer STATUS_NOTICE_DELETED = 2;
 
     /**
+     * 通知中心 已读已创建状态
+     */
+    Integer STATUS_NOTICE_CREATED = 3;
+
+    /**
      * 系统中心 类型 档案卡模版
      */
     Integer TYPE_TEMPLATE_STUDENT_ARCHIVES = 1;
