@@ -422,7 +422,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
+        return baseMapper.selectList(new QueryWrapper<School>().like("district_id", districtId));
     }
 
     /**

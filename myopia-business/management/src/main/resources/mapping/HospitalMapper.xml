@@ -56,7 +56,10 @@
         <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and h.status != 2
+        <if test="status != null">
+            and h.status = #{status}
+        </if>
+
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
         </if>
