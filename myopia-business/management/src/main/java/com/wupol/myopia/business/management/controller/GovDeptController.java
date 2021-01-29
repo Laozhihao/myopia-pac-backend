@@ -1,12 +1,15 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import com.wupol.myopia.business.management.service.DistrictService;
 import com.wupol.myopia.business.management.service.GovDeptService;
+import com.wupol.myopia.business.management.service.UserService;
 import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,9 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -38,6 +43,8 @@ public class GovDeptController {
     private GovDeptService govDeptService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 获取部门列表
@@ -47,11 +54,13 @@ public class GovDeptController {
      **/
     @GetMapping("/list")
     public List<GovDept> getGovDeptList(GovDept queryParam) throws IOException {
-        if (Objects.isNull(queryParam.getDistrictId())) {
-            throw new ValidationException("行政区ID为空");
-        }
+        Assert.notNull(queryParam.getDistrictId(), "行政区ID不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
-        return govDeptService.findByList(queryParam);
+        List<GovDept> govDeptList = govDeptService.findByListOrderByIdAsc(queryParam);
+        List<Integer> userIds = govDeptList.stream().map(GovDept::getCreateUserId).distinct().collect(Collectors.toList());
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(userIds);
+        govDeptList.forEach(govDept -> govDept.setCreateUserName(userMap.get(govDept.getCreateUserId()).getRealName()));
+        return govDeptList;
     }
 
     /**
@@ -62,21 +71,22 @@ public class GovDeptController {
      **/
     @PostMapping()
     public GovDept addGovDept(@RequestBody @Validated(value = GovDeptAddValidatorGroup.class) GovDept govDept) {
-        if (CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
-            // 如果是管理员的话，需要选择部门，pid不能为空；行政区可以为任意
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        // 如果是管理员的话，需要选择部门，pid不能为空；行政区可以为任意
+        if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(govDept.getPid(), "上级部门不能为空");
             // TODO: 判断pid部门是否为当前govDept.districtId的上级行政区的部门
         } else {
             District district = districtService.getById(govDept.getDistrictId());
-            GovDept currentUserDept = govDeptService.getById(CurrentUserUtil.getCurrentUser().getOrgId());
+            GovDept currentUserDept = govDeptService.getById(currentUser.getOrgId());
             District parentDistrict = districtService.getById(currentUserDept.getDistrictId());
             if (Objects.isNull(district) || Objects.isNull(parentDistrict) || !parentDistrict.getCode().equals(district.getParentCode())) {
                 throw new ValidationException("行政区ID无效，只能为下一级行政区创建部门");
             }
             // 非管理员用户，获取当前用户的部门作为上级部门
-            govDept.setPid(CurrentUserUtil.getCurrentUser().getOrgId());
+            govDept.setPid(currentUser.getOrgId());
         }
-        govDeptService.save(govDept);
+        govDeptService.save(govDept.setCreateUserId(currentUser.getId()));
         return govDept;
     }
 
@@ -139,14 +149,15 @@ public class GovDeptController {
     }
 
     /**
-     * 修改角色状态
+     * 修改部门状态
      *
      * @param govDeptId 部门ID
      * @param status 状态类型
      * @return boolean
      **/
     @PutMapping("/{govDeptId}/{status}")
-    public boolean updateRoleStatus(@PathVariable @NotNull(message = "部门ID不能为空") Integer govDeptId, @PathVariable @NotNull(message = "状态不能为空") Integer status) {
+    public boolean updateStatus(@PathVariable @NotNull(message = "部门ID不能为空") Integer govDeptId, @PathVariable @NotNull(message = "状态不能为空") Integer status) {
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         return govDeptService.updateById(new GovDept().setId(govDeptId).setStatus(status));
     }
 

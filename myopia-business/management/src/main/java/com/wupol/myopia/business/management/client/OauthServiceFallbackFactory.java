@@ -75,7 +75,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult resetPwd(Integer userId) {
+            public ApiResult<UserDTO> resetPwd(Integer userId, String password) {
                 return respData;
             }
 
@@ -141,6 +141,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult<List<PermissionDTO>> getPermissionTemplate(Integer templateType) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<Integer>> getPermissionTemplateIdList(Integer templateType) {
                 return respData;
             }
 

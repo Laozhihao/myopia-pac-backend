@@ -5,8 +5,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
+import com.wupol.myopia.business.management.validator.PermissionAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.PermissionUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,28 +39,33 @@ public class PermissionController {
     }
 
     /**
-     * 新增权限资源 TODO：参数校验
+     * 新增权限资源
      *
      * @param param 权限资源数据
      * @return java.lang.Object
      **/
     @PostMapping()
-    public Object addPermission(@RequestBody PermissionDTO param) {
+    public Object addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        return oauthService.addPermission(param);
+        Assert.isTrue(param.getIsPage() == 1 || StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
+        // 非页面时，必为非菜单
+        param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
+        return oauthService.addPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**
-     * 更新权限资源 TODO：参数校验
+     * 更新权限资源
      *
      * @param param 权限资源数据
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object modifyPermission(@RequestBody PermissionDTO param) {
+    public Object modifyPermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        return oauthService.modifyPermission(param);
+        Assert.isTrue(param.getIsPage() == 1 || StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
+        // 非页面时，必为非菜单
+        param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
+        return oauthService.modifyPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
     }
 
     /**

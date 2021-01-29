@@ -10,9 +10,8 @@ import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -102,5 +101,41 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     public GovDept getGovDeptById(Integer id) {
         return baseMapper.selectById(id);
+    }
+
+    /**
+     * 获取政府部门（带有行政区域）
+     *
+     * @param ids 部门ID集
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    public List<GovDeptVo> getGovDeptWithDistrictByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectGovDeptWithDistrictByIds(ids);
+    }
+
+    /**
+     * 获取政府部门（带有行政区域）
+     *
+     * @param govDeptIds 部门ID集
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    public Map<Integer, GovDeptVo> getGovDeptMapByIds(List<Integer> govDeptIds) {
+        if (CollectionUtils.isEmpty(govDeptIds)) {
+            return Collections.emptyMap();
+        }
+        List<GovDeptVo> govDeptList = getGovDeptWithDistrictByIds(govDeptIds);
+        return govDeptList.stream().collect(Collectors.toMap(GovDept::getId, Function.identity()));
+    }
+    /**
+     * 获取部门列表
+     *
+     * @param govDept 查询参数
+     * @return java.util.List<com.wupol.myopia.business.management.domain.vo.GovDeptVo>
+     **/
+    public List<GovDept> getGovDeptList(GovDept govDept) {
+        return baseMapper.selectGovDeptList(govDept);
     }
 }

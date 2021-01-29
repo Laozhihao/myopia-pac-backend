@@ -39,18 +39,7 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/all")
     public List<District> getWholeCountryDistrictTree() {
-        return baseService.getWholeCountryDistrictTreeWithCache();
-    }
-
-    /**
-     * 获取当前登录用户所属层级 - 层级链(从省开始到所属层级)
-     *
-     * @return com.wupol.myopia.business.management.domain.model.District
-     **/
-    @GetMapping("/current/position")
-    public District getCurrentUserPosition() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return baseService.getCurrentUserPosition();
+        return baseService.getWholeCountryDistrictTreePriorityCache();
     }
 
     /**
@@ -61,6 +50,16 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/child/{code}")
     public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
-        return baseService.getChildDistrictByParentCodeWithCache(code);
+        return baseService.getChildDistrictByParentCodePriorityCache(code);
+    }
+
+    /**
+     * 获取当前登录用户所属层级位置 - 层级链(从省开始到所属层级)
+     *
+     * @return com.wupol.myopia.business.management.domain.model.District
+     **/
+    @GetMapping("/current/position")
+    public List<District> getCurrentUserPosition() {
+        return baseService.getCurrentUserDistrictPositionDetail(CurrentUserUtil.getCurrentUser());
     }
 }

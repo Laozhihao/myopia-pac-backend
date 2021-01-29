@@ -2,11 +2,13 @@ package com.wupol.myopia.oauth.controller;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.RolePermission;
 import com.wupol.myopia.oauth.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,16 +33,32 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public List<Role> getRoleList(Role param) {
-        return roleService.selectRoleList(param);
+    public List<Role> getRoleList(RoleDTO param) {
+        return roleService.getRoleList(param);
     }
 
+    /**
+     * 新增角色
+     *
+     * @param param 角色参数
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
     @PostMapping()
     public Role addRole(@RequestBody Role param) {
-        roleService.save(param);
+        try {
+            roleService.save(param);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("已经存在该角色名称");
+        }
         return param;
     }
 
+    /**
+     * 编辑角色
+     *
+     * @param param 角色参数
+     * @return com.wupol.myopia.oauth.domain.model.Role
+     **/
     @PutMapping()
     public Role updateRole(@RequestBody Role param) {
         if (!roleService.updateById(param)) {
@@ -49,6 +67,13 @@ public class RoleController {
         return param;
     }
 
+    /**
+     * 给角色分配权限 TODO: 校验权限是否都为对应模板内的
+     *
+     * @param roleId 角色ID
+     * @param permissionId 权限ID集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.RolePermission>
+     **/
     @PostMapping("/permission/{roleId}")
     public List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionId) {
         return roleService.assignRolePermission(roleId, permissionId);

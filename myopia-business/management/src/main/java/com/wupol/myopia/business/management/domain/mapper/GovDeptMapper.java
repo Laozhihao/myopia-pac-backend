@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -29,5 +30,21 @@ public interface GovDeptMapper extends BaseMapper<GovDept> {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     List<GovDept> selectIdTreeByPid(Integer pid);
+
+    /**
+     * 获取政府部门（带有行政区域）
+     *
+     * @param ids 部门ID集
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    List<GovDeptVo> selectGovDeptWithDistrictByIds(@Param("ids") List<Integer> ids);
+
+    /**
+     * 获取部门列表
+     *
+     * @param govDept 查询参数
+     * @return java.util.List<com.wupol.myopia.business.management.domain.vo.GovDeptVo>
+     **/
+    List<GovDept> selectGovDeptList(GovDept govDept);
 
 }
