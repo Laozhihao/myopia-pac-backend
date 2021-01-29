@@ -236,25 +236,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
 
             // 判断是否能更新
-            if (s.getGovDeptId().equals(orgId)) {
-                s.setCanUpdate(Boolean.TRUE);
-            }
+            s.setCanUpdate(s.getGovDeptId().equals(orgId));
+
             // 行政区名字
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
 
             // 筛查次数
-            if (null != countMaps.get(s.getId())) {
-                s.setScreeningCount(countMaps.get(s.getId()));
-            } else {
-                s.setScreeningCount(0);
-            }
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
 
             // 学生统计
-            if (null != studentCountMaps.get(s.getSchoolNo())) {
-                s.setStudentCount(studentCountMaps.get(s.getSchoolNo()));
-            } else {
-                s.setStudentCount(0);
-            }
+            s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
         };
     }
 

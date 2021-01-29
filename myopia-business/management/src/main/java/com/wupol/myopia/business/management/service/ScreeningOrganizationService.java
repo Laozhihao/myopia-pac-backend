@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -202,9 +201,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
-            if (r.getGovDeptId().equals(orgId)) {
-                r.setCanUpdate(true);
-            }
+            r.setCanUpdate(r.getGovDeptId().equals(orgId));
 
             // 筛查人员
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
@@ -216,12 +213,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
 
             // 筛查次数
-            if (null != countMaps.get(r.getId())) {
-                r.setScreeningTime(countMaps.get(r.getId()));
-            } else {
-                r.setScreeningTime(CommonConst.SCREENING_TIME);
-            }
-            r.setScreeningTime(CommonConst.SCREENING_TIME);
+            r.setScreeningTime(countMaps.getOrDefault(r.getId(), 0));
             r.setAlreadyHaveTask(finalHaveTaskOrgIds.contains(r.getId()));
         });
         return orgLists;

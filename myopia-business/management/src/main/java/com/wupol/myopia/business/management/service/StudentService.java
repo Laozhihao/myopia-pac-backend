@@ -214,11 +214,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             }
 
             // 筛查次数
-            if (null != countMaps.get(s.getId())) {
-                s.setScreeningCount(countMaps.get(s.getId()));
-            } else {
-                s.setScreeningCount(0);
-            }
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(),0));
 
             // TODO: 就诊次数
             s.setSeeDoctorCount(0);
