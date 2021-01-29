@@ -20,5 +20,5 @@ public interface ScreeningNoticeDeptOrgMapper extends BaseMapper<ScreeningNotice
 
     IPage<ScreeningNoticeVo> selectPageByQuery(@Param("page")IPage<ScreeningNotice> page, @Param("param")ScreeningNoticeQuery query);
 
-    Integer updateStatusByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer govDeptId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
+    Integer updateStatusByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer acceptOrgId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
 }

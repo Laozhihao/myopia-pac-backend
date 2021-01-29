@@ -118,4 +118,14 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     public boolean checkTimeLegal(ScreeningNotice screeningNotice) {
         return baseMapper.selectByTimePeriods(screeningNotice).size() > 0;
     }
+
+    /**
+     * 根据任务ID获取通知（type为1）
+     * @param screeningTaskId
+     * @return
+     */
+    public ScreeningNotice getByScreeningTaskId(Integer screeningTaskId) {
+        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("screening_task_id", screeningTaskId).eq("type", ScreeningNotice.TYPE_ORG);
+        return baseMapper.selectOne(queryWrapper);
+    }
 }

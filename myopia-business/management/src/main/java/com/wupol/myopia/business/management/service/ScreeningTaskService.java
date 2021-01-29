@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -108,7 +107,9 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         screeningTask.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (updateById(screeningTask, user.getId())) {
             //2. 发布通知
-            screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId()).setOperateTime(new Date()).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date()).setType(ScreeningNotice.TYPE_ORG);
+            screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId()).setOperateTime(new Date())
+                    .setScreeningTaskId(id).setGovDeptId(CommonConst.DEFAULT_ID).setType(ScreeningNotice.TYPE_ORG)
+                    .setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
             screeningNoticeService.save(screeningNotice);
             //3. 为筛查机构创建通知
             List<ScreeningTaskOrg> orgLists = screeningTaskOrgService.getOrgListsByTaskId(id);
@@ -132,7 +133,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         screeningTaskOrgService.saveOrUpdateBatchByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
         if (needUpdateNoticeStatus) {
             // 更新通知状态
-            screeningNoticeDeptOrgService.readAndCreateTask(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), user);
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), user);
         }
     }
 

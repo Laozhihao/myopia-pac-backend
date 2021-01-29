@@ -79,6 +79,11 @@ public class ScreeningNotice implements Serializable {
     private Integer districtId;
 
     /**
+     * 筛查通知--来源的筛查任务id（type为1有）
+     */
+    private Integer screeningTaskId;
+
+    /**
      * 筛查通知--通知状态（0未发布、1已发布）
      */
     private Integer releaseStatus;
