@@ -36,7 +36,7 @@ public interface CacheKey {
     /**
      * 新增学校
      */
-    String LOCK_SCHOOL_REDIS = "lock:school:town_code_%s";
+    String LOCK_SCHOOL_REDIS = "lock:school:school_no_%s";
 
     /**
      * 新增学生
@@ -51,7 +51,7 @@ public interface CacheKey {
     /**
      * 新增机构
      */
-    String LOCK_ORG_REDIS = "lock:org:town_code_%s";
+    String LOCK_ORG_REDIS = "lock:org:name_%s";
 
     /**
      * 行政区域中文名

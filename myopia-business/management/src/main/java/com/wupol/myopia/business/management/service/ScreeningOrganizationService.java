@@ -18,10 +18,10 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -45,9 +45,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
@@ -82,17 +79,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
-        Long townCode = screeningOrganization.getTownCode();
         Integer createUserId = screeningOrganization.getCreateUserId();
-
-        // 初始化省代码
-        screeningOrganization.setProvinceCode(provinceCode);
-
-        if (null == townCode) {
-            throw new BusinessException("数据异常");
+        String name = screeningOrganization.getName();
+        if (StringUtils.isBlank(name)) {
+            throw new BusinessException("名字不能为空");
         }
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, townCode));
-
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, name));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -107,7 +99,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 rLock.unlock();
             }
         }
-        log.warn("用户id:{}新增机构获取不到锁，区域代码:{}", createUserId, townCode);
+        log.warn("用户id:{}新增机构获取不到锁，机构名称:{}", createUserId, name);
         throw new BusinessException("请重试");
     }
 

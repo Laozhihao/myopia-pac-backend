@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -47,9 +46,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class SchoolService extends BaseService<SchoolMapper, School> {
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private SchoolAdminService schoolAdminService;
@@ -91,15 +87,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public UsernameAndPasswordDTO saveSchool(School school) {
 
         Integer createUserId = school.getCreateUserId();
-        Long townCode = school.getTownCode();
-        if (null == townCode) {
+        String schoolNo = school.getSchoolNo();
+        if (StringUtils.isBlank(schoolNo)) {
             throw new BusinessException("数据异常");
         }
 
-        // 初始化省代码
-        school.setProvinceCode(provinceCode);
-
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, townCode));
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, schoolNo));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -110,7 +103,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             log.error("用户id:{}获取锁异常,e:{}", createUserId, e);
             throw new BusinessException("系统繁忙，请稍后再试");
         }
-        log.warn("用户id:{}新增学校获取不到锁，区域代码:{}", createUserId, townCode);
+        log.error("用户id:{}新增学校获取不到锁，学校名称:{}", createUserId, schoolNo);
         throw new BusinessException("请重试");
     }
 
@@ -125,7 +118,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         baseMapper.updateById(school);
         School source = baseMapper.selectById(school.getId());
         SchoolResponseDTO dto = new SchoolResponseDTO();
-        BeanUtils.copyProperties(source,dto);
+        BeanUtils.copyProperties(source, dto);
         dto.setDistrictName(districtService.getDistrictName(source.getDistrictDetail()));
         return dto;
     }

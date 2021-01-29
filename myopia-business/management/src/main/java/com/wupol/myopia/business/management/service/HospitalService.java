@@ -22,7 +22,6 @@ import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -41,9 +40,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     public RedissonClient redissonClient;
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private HospitalAdminService hospitalAdminService;
@@ -66,14 +62,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
         Integer createUserId = hospital.getCreateUserId();
-        Long townCode = hospital.getTownCode();
 
-        // 初始化省代码
-        hospital.setProvinceCode(provinceCode);
-
-        if (null == townCode) {
-            throw new BusinessException("数据异常");
-        }
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -89,7 +78,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 rLock.unlock();
             }
         }
-        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, townCode);
+        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, hospital.getName());
         throw new BusinessException("请重试");
     }
 
@@ -104,7 +93,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         baseMapper.updateById(hospital);
         Hospital h = baseMapper.selectById(hospital.getId());
         HospitalResponseDTO response = new HospitalResponseDTO();
-        BeanUtils.copyProperties(h,response);
+        BeanUtils.copyProperties(h, response);
         response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
         return response;
     }
