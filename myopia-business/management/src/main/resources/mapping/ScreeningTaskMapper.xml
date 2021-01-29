@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningTask">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo">
+    </resultMap>
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">
@@ -45,5 +47,30 @@
             #{id}
         </foreach>
         order by mst.create_time desc
+    </select>
+
+    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT
+        mst.id, mst.screening_notice_id, mst.title, mst.start_time, mst.end_time, mst.content, mst.release_time, mst.release_status,
+        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id, mst.create_time
+        FROM
+        m_screening_task mst
+        LEFT JOIN m_district md ON mst.district_id = md.id
+        LEFT JOIN m_government_department mgd ON mst.gov_dept_id = mgd.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and mst.`district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and mst.`title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.createUserIds != null">
+                    and mst.`creator_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(mst.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
     </select>
 </mapper>

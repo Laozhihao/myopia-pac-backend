@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 筛查通知表
@@ -47,16 +48,19 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--通知内容（长度未知）
      */
+    @NotBlank
     private String content;
 
     /**
      * 筛查通知--开始时间（时间戳）
      */
+    @NotNull
     private Date startTime;
 
     /**
      * 筛查通知--结束时间（时间戳）
      */
+    @NotNull
     private Date endTime;
 
     /**

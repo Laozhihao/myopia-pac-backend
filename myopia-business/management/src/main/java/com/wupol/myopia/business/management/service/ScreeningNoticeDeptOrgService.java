@@ -12,6 +12,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeDeptOrgMapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
@@ -52,12 +53,11 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     /**
      * 分页查询
      * @param query
-     * @param pageNum
-     * @param pageSize
+     * @param pageRequest
      * @return
      */
-    public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, Integer pageNum, Integer pageSize) {
-        Page<ScreeningNotice> page = new Page<>(pageNum, pageSize);
+    public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
+        Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         Map<Integer, String> districtIdNameMap = districtService.getAllDistrictIdNameMap();
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).collect(Collectors.toList());

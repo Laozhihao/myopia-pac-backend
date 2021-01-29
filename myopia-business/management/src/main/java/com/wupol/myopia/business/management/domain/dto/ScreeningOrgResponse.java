@@ -41,4 +41,9 @@ public class ScreeningOrgResponse extends ScreeningOrganization {
      * 行政区域名
      */
     private String districtName;
+
+    /**
+     * 是否已有任务
+     */
+    private Boolean alreadyHaveTask = false;
 }

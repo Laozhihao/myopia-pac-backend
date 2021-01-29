@@ -20,8 +20,8 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
 
     IPage<ScreeningOrgResponse> getScreeningOrganizationListByCondition(@Param("page") Page<?> page, @Param("name") String name,
                                                                         @Param("type") Integer type, @Param("configType") Integer configType,
-                                                                        @Param("districtId") Integer districtId, @Param("phone") String phone,
-                                                                        @Param("status") Integer status);
+                                                                        @Param("districtId") Integer districtId, @Param("govDeptId") Integer govDeptId,
+                                                                        @Param("phone") String phone, @Param("status") Integer status);
 
     ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
 
