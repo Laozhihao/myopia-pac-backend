@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -12,6 +13,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
@@ -21,18 +23,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, ScreeningNotice> {
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
@@ -55,20 +54,18 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     /**
      * 分页查询
      * @param query
-     * @param pageNum
-     * @param pageSize
+     * @param pageRequest
      * @return
      */
-    public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, Integer pageNum, Integer pageSize) {
-        Page<ScreeningNotice> page = new Page<>(pageNum, pageSize);
+    public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
+        Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
-            //TODO 优化查询，目前人员查询有问题
             UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setUsername(query.getCreatorNameLike()).setCurrent(1).setSize(1000);
-            List<Integer> queryCreatorIds = oauthServiceClient.getUserListPage(userDTOQuery).getData().getRecords().stream().map(UserDTO::getId).collect(Collectors.toList());
+            userDTOQuery.setRealName(query.getCreatorNameLike());
+            List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(queryCreatorIds)) {
                 // 可以直接返回空
-                return new Page<ScreeningNoticeVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageNum).setSize(pageSize).setPages(0).setTotal(0);
+                return new Page<ScreeningNoticeVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
             }
             query.setCreateUserIds(queryCreatorIds);
         }
@@ -95,5 +92,30 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
         }
         throw new BusinessException("发布失败");
+    }
+
+    /**
+     * 部门是否已存在该标题
+     * @param screeningNoticeId 已有的ID，更新时使用。新增时可为null
+     * @param govDeptId 部门ID
+     * @param title 标题
+     * @return
+     */
+    public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
+        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("gov_dept_id", govDeptId).eq("title", title);
+        if (Objects.nonNull(screeningNoticeId)) {
+            queryWrapper.ne("id", screeningNoticeId);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 判断时间段是否合法（只查看已发布的）
+     * 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     * @param screeningNotice：必须存在govDeptId、startTime、endTime
+     * @return
+     */
+    public boolean checkTimeLegal(ScreeningNotice screeningNotice) {
+        return baseMapper.selectByTimePeriods(screeningNotice).size() > 0;
     }
 }

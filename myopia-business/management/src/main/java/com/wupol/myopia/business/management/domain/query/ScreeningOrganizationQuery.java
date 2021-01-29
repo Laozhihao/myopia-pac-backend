@@ -4,6 +4,9 @@ package com.wupol.myopia.business.management.domain.query;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 /**
  * 筛查机构查询
@@ -20,4 +23,12 @@ public class ScreeningOrganizationQuery extends ScreeningOrganization {
     private String nameLike;
     /** 地区编码 */
     private Long code;
+    /** 查询开始时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startTime;
+    /** 查询结束时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endTime;
+    /** 是否需要查询是否有任务（配合开始结束时间） **/
+    private Boolean needCheckHaveTask = false;
 }

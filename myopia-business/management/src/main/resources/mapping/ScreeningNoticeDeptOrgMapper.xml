@@ -30,10 +30,13 @@
 
     <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
         SELECT
-          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msndo.district_id, msndo.accept_org_id, msndo.operation_status
+          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time,
+          msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.operation_status
         FROM
         m_screening_notice_dept_org msndo
         LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
+        LEFT JOIN m_district md ON msndo.district_id = md.id
+        LEFT JOIN m_government_department mgd ON msndo.accept_org_id = mgd.id
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(param.type)">and msn.`type` = #{param.type}</if>

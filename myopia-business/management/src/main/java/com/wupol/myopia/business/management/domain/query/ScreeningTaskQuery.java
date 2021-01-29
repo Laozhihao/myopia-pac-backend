@@ -4,6 +4,7 @@ package com.wupol.myopia.business.management.domain.query;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -13,11 +14,12 @@ import java.util.Objects;
 /**
  * 筛查任务查询
  *
- * @Author Alix
+ * @author Alix
  * @Date 2021-01-27
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class ScreeningTaskQuery extends ScreeningTask {
     /**
      * 筛查通知--开始时间（时间戳）

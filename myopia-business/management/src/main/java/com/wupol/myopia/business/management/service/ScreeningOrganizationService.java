@@ -27,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -173,7 +171,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 查询
         IPage<ScreeningOrgResponse> orgLists = baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
-                query.getPhone(), query.getStatus());
+                query.getGovDeptId(), query.getPhone(), query.getStatus());
 
         // 为空直接返回
         List<ScreeningOrgResponse> records = orgLists.getRecords();
@@ -183,7 +181,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService.getOrgStaffMapByIds(
                 records.stream().map(ScreeningOrganization::getId).collect(Collectors.toList()));
-
+        // 获取已有任务的机构ID列表
+        List<Integer> finalHaveTaskOrgIds = getHaveTaskOrgIds(query);
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
@@ -198,8 +197,22 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             }
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
             r.setScreeningTime(CommonConst.SCREENING_TIME);
+            r.setAlreadyHaveTask(finalHaveTaskOrgIds.contains(r.getId()));
         });
         return orgLists;
+    }
+
+    /**
+     * 根据是否需要查询机构是否已有任务，返回时间段内已有任务的机构id
+     *
+     * @param query
+     * @return
+     */
+    private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQuery query) {
+        if (query.getNeedCheckHaveTask()) {
+            return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
+        }
+        return Collections.emptyList();
     }
 
     /**

@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
@@ -50,6 +51,14 @@ public class ScreeningNoticeController {
 //            Assert.notNull(screeningNotice.getDistrictId());
 //            Assert.notNull(screeningNotice.getGovDeptId());
 //        }
+        // 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+        if (screeningNoticeService.checkTimeLegal(screeningNotice)) {
+            throw new ValidationException("该部门该时间段已存在筛查通知");
+        }
+        // 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
+        if (screeningNoticeService.checkTitleExist(null, screeningNotice.getGovDeptId(), screeningNotice.getTitle())) {
+            throw new ValidationException("该部门已存在相同标题通知");
+        }
         screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
@@ -118,14 +127,11 @@ public class ScreeningNoticeController {
      * 2. 政府机构：自己部门创建的
      *
      * @param query   查询参数
-     * @param current 页码
-     * @param size    条数
+     * @param pageRequest 分页数据
      * @return Object
      */
     @GetMapping("dept/page")
-    public IPage queryDeptPage(ScreeningNoticeQuery query,
-                               @RequestParam(defaultValue = "1") Integer current,
-                               @RequestParam(defaultValue = "10") Integer size) throws IOException {
+    public IPage queryDeptPage(ScreeningNoticeQuery query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setType(0);
         if (user.isPlatformAdminUser()) {
@@ -133,7 +139,7 @@ public class ScreeningNoticeController {
         } else if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeService.getPage(query, current, size);
+        return screeningNoticeService.getPage(query, pageRequest);
     }
 
     /**
@@ -142,14 +148,11 @@ public class ScreeningNoticeController {
      * 2. 筛查机构：政府机构创建的筛查任务通知
      *
      * @param query   查询参数
-     * @param current 页码
-     * @param size    条数
+     * @param pageRequest 分页数据
      * @return Object
      */
     @GetMapping("page")
-    public IPage queryInfo(ScreeningNoticeQuery query,
-                           @RequestParam(defaultValue = "1") Integer current,
-                           @RequestParam(defaultValue = "10") Integer size) throws IOException {
+    public IPage queryInfo(ScreeningNoticeQuery query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             query.setType(0);
@@ -158,7 +161,7 @@ public class ScreeningNoticeController {
             query.setType(1);
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeDeptOrgService.getPage(query, current, size);
+        return screeningNoticeDeptOrgService.getPage(query, pageRequest);
     }
 
     /**
