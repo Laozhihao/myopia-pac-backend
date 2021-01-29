@@ -53,7 +53,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
     private SchoolService schoolService;
@@ -249,8 +249,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentId 学生ID
      * @return Object
      */
-    public List<ScreeningResult> getScreeningList(Integer studentId) {
+    public List<VisionScreeningResult> getScreeningList(Integer studentId) {
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByStudentIds(studentId);
+        return visionScreeningResultService.getByStudentIds(studentId);
     }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.VisionScreeningResult">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(taskId)">and `task_id` = #{taskId}</if>
+                <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
+                <if test="@Ognl@isNotEmpty(computerOptometry)">and `computer_optometry` = #{computerOptometry}</if>
+                <if test="@Ognl@isNotEmpty(biometricData)">and `biometric_data` = #{biometricData}</if>
+                <if test="@Ognl@isNotEmpty(other_eye_diseases)">and `other_eye_diseases` = #{otherEyeDiseases}</if>
+                <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, studentId, create_user_id, schoolId, plan_id, district_id, vision_data,computer_optometry  , biometric_data ,  other_eye_diseases, is_double_screen, create_time
+    </sql>
+
+</mapper>

@@ -20,7 +20,6 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -73,7 +72,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 新增学校
@@ -299,11 +298,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 获取学校的筛查记录详情
      *
-     * @param id 筛查记录详情ID
+     * @param schoolIds 筛查记录详情ID
      * @return 详情
      */
-    public Object getScreeningRecordDetail(Integer id) {
-        return screeningResultService.getByPlanId(id);
+    public List<School> getSchoolByIds(List<Long> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        List<School> schools = baseMapper.selectBatchIds(schoolIds);
+        return schools;
     }
 
     /**
@@ -323,6 +326,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, School::getName));
     }
+
+
+
+
 
     /**
      * 模糊查询所有学校名称

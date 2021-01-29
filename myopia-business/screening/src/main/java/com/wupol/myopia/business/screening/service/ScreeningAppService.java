@@ -1,22 +1,20 @@
 package com.wupol.myopia.business.screening.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.myopia.common.constant.ScreeningConstant;
+import com.myopia.common.utils.JsonUtil;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.service.SchoolClassService;
-import com.wupol.myopia.business.management.service.SchoolGradeService;
-import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.service.StudentService;
+import com.wupol.myopia.business.management.service.*;
+import com.wupol.myopia.business.management.domain.dto.VisionDataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,12 +35,20 @@ public class ScreeningAppService {
     private SchoolClassService schoolClassService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private StudentScreeningRawDataService studentScreeningRawDataService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
 
     /**
      * 模糊查询所有学校名称
-     * @param nameLike 模糊查询
-     * @param screeningOrgId    机构id
-     * @param isReview      是否复测
+     *
+     * @param nameLike       模糊查询
+     * @param screeningOrgId 机构id
+     * @param isReview       是否复测
      * @return
      */
     public List<String> getSchoolNameBySchoolNameLike(String nameLike, Integer screeningOrgId, Boolean isReview) {
@@ -55,8 +61,9 @@ public class ScreeningAppService {
 
     /**
      * 查询学校的年级名称
-     * @param schoolName 学校名
-     * @param screeningOrgId    机构id
+     *
+     * @param schoolName     学校名
+     * @param screeningOrgId 机构id
      * @return
      */
     public List<String> getGradeNameBySchoolName(String schoolName, Integer screeningOrgId) {
@@ -66,9 +73,10 @@ public class ScreeningAppService {
 
     /**
      * 获取学校年级的班级名称
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param screeningOrgId        机构id
+     *
+     * @param schoolName     学校名称
+     * @param gradeName      年级名称
+     * @param screeningOrgId 机构id
      * @return
      */
     public List<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer screeningOrgId) {
@@ -78,13 +86,14 @@ public class ScreeningAppService {
 
     /**
      * 获取学校年级班级对应的学生名称
-     * @param schoolId      学校id, 仅复测时有
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param clazzName     班级名称
-     * @param studentName     学生名称
-     * @param screeningOrgId        机构id
-     * @param isReview      是否复测
+     *
+     * @param schoolId       学校id, 仅复测时有
+     * @param schoolName     学校名称
+     * @param gradeName      年级名称
+     * @param clazzName      班级名称
+     * @param studentName    学生名称
+     * @param screeningOrgId 机构id
+     * @param isReview       是否复测
      * @return
      */
     public List<Student> getStudentBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer screeningOrgId, Boolean isReview) {
@@ -104,12 +113,13 @@ public class ScreeningAppService {
 
     /**
      * 随机获取学生复测信息
-     * @param pageRequest   分页
-     * @param screeningOrgId        机构id
-     * @param schoolId      学校id
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param clazzName     班级名称
+     *
+     * @param pageRequest    分页
+     * @param screeningOrgId 机构id
+     * @param schoolId       学校id
+     * @param schoolName     学校名称
+     * @param gradeName      年级名称
+     * @param clazzName      班级名称
      * @return
      */
     public List<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
@@ -120,46 +130,77 @@ public class ScreeningAppService {
 
     /**
      * 保存学生眼镜信息
+     *
+     * @param screeningResultBasicData
      * @return
      */
-    public Object addStudentVision() {
-        //TODO 管理端，待修改
-        return new Object();
+    public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData);
+        if (visionScreeningResult.getId() != null) {
+            //更新
+            visionScreeningResultService.updateById(visionScreeningResult);
+        } else {
+            //创建
+            visionScreeningResultService.save(visionScreeningResult);
+        }
     }
 
-    /**
-     * 保存电脑验光
-     * @return
-     */
-    public Object addStudentComputer() {
-        //TODO 管理端，待修改
-        return new Object();
-    }
+/*
+    *//**
+     * 创建记录
+     *
+     * @param visionDataDTO
+     * @param screeningPlan
+     *//*
+    private void createScreeningResultAndSave(VisionDataDTO visionDataDTO, ScreeningPlan screeningPlan) {
+        VisionScreeningResult visionScreeningResult = new VisionScreeningResult()
+                .setCreateTime(new Date())
+                .setPlanId(screeningPlan.getId())
+                .setTaskId(screeningPlan.getScreeningTaskId())
+                .setDistrictId(screeningPlan.getDistrictId())
+                .setIsDoubleScreen(false)
+                .setStudentId(visionDataDTO.getStudentId())
+                .setSchoolId(visionDataDTO.getSchoolId())
+                .setGlassesType(WearingGlassesSituation.getKey(visionDataDTO.getGlassesType()).get())
+                .setRightNakedVision(visionDataDTO.getRightNakedVision())
+                .setLeftNakedVision(visionDataDTO.getLeftNakedVision())
+                .setRightCorrectedVision(visionDataDTO.getRightCorrectedVision())
+                .setLeftCorrectedVision(visionDataDTO.getLeftCorrectedVision());
+        boolean isSaveSuccess = screeningResultService.save(visionScreeningResult);
+        if (!isSaveSuccess) {
+            throw new ManagementUncheckedException("screeningResultService.save失败，screeningResult =  " + JsonUtil.objectToJsonString(visionScreeningResult));
+        }
+    }*/
 
     /**
-     * 保存生物测量数据
-     * @return
+     * 保存原始数据
+     *
+     * @param visionDataDTO
      */
-    public Object addStudentBiology() {
-        //TODO 管理端，待修改
-        return new Object();
+    private void saveRawScreeningData(VisionDataDTO visionDataDTO) {
+        StudentScreeningRawData studentScreeningRawData = new StudentScreeningRawData();
+        studentScreeningRawData.setScreeningRawData(JsonUtil.objectToJsonString(visionDataDTO));
+        //studentScreeningRawData.setScreeningPlanSchoolStudentId(visionDataDTO);
+        studentScreeningRawData.setCreateTime(new Date());
+        studentScreeningRawDataService.save(studentScreeningRawData);
     }
+
 
     /**
      * 获取筛查就机构对应的学校
-     * @param screeningOrgId        机构id
+     *
+     * @param screeningOrgId 机构id
      * @return
      */
     public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId) {
-        //TODO 筛查端，待修改
-        SchoolQuery query = new SchoolQuery();
-        query.setGovDeptId(screeningOrgId);
-        return schoolService.getBy(query);
+        List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId);
+        return schoolService.getSchoolByIds(schoolIds);
     }
 
     /**
      * 获取学生
-     * @param id        学生id
+     *
+     * @param id 学生id
      * @return
      */
     public Student getStudentById(Integer id) {
@@ -167,16 +208,8 @@ public class ScreeningAppService {
     }
 
     /**
-     * 查询眼睛疾病
-     * @return
-     */
-    public List<Object> getAllEyeDisease() {
-        //TODO 筛查端，待修改
-        return Collections.emptyList();
-    }
-
-    /**
      * 增加该学生的眼睛疾病
+     *
      * @return
      */
     public Object addEyeDisease() {
@@ -186,6 +219,7 @@ public class ScreeningAppService {
 
     /**
      * 保存慢性病信息
+     *
      * @return
      */
     public Object addChronic() {
@@ -195,17 +229,19 @@ public class ScreeningAppService {
 
     /**
      * 查询学生录入的最新一条数据(慢性病)
-     * @param studentId    学生id
-     * @param screeningOrgId        机构id
+     *
+     * @param studentId      学生id
+     * @param screeningOrgId 机构id
      * @return
      */
-    public List<Object>  getStudentChronicNewByStudentId(Integer studentId, Integer screeningOrgId) {
+    public List<Object> getStudentChronicNewByStudentId(Integer studentId, Integer screeningOrgId) {
         //TODO 筛查端，待修改
         return Collections.emptyList();
     }
 
     /**
      * 获取复测质控结果
+     *
      * @return
      */
     public List<Object> getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
@@ -215,6 +251,7 @@ public class ScreeningAppService {
 
     /**
      * 更新复测质控结果
+     *
      * @return
      */
     public Boolean updateReviewResult(Integer eyeId) {
@@ -224,9 +261,10 @@ public class ScreeningAppService {
 
     /**
      * 上传筛查机构用户的签名图片
-     * @param deptId    筛查机构id
-     * @param userId    用户id
-     * @param file      签名
+     *
+     * @param deptId 筛查机构id
+     * @param userId 用户id
+     * @param file   签名
      * @return
      */
     public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
@@ -236,6 +274,7 @@ public class ScreeningAppService {
 
     /**
      * 保存学生信息
+     *
      * @return
      */
     public Object saveStudent(Student student) {
@@ -245,6 +284,7 @@ public class ScreeningAppService {
 
     /**
      * 人脸识别
+     *
      * @return
      */
     public Object recognitionFace(Integer deptId, MultipartFile file) {

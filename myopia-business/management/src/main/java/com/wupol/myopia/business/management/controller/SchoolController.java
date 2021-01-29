@@ -92,7 +92,7 @@ public class SchoolController {
 
     @GetMapping("screening/record/{planId}")
     public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
-        return schoolService.getScreeningRecordDetail(planId);
+        return null;// schoolService.getScreeningRecordDetail(planId);
     }
 
     @GetMapping("/checkSchoolNo/{schoolNo}")

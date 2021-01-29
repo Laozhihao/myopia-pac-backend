@@ -6,6 +6,8 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlan">
     </resultMap>
 
+
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -17,6 +19,7 @@
                 <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
                 <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
@@ -30,8 +33,28 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, release_status, release_time, creator_id, create_time, operator_id, operate_time
+        id
+        , screening_task_id, title, content,screeningOrgId, start_time, end_time, gov_dept_id, district_id, release_status, release_time, creator_id, create_time, operator_id, operate_time
     </sql>
+
+    <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
+        select p.* from m_screening_plan p , m_screening_plan_school sps
+        where
+        p.id = sps.screening_plan_id
+        and p.screening_org_id = #{screeningOrgId}
+        and p.release_status = #{releaseStatus}
+        and sps.school_id = #{schoolId}
+        and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
+    </select>
+
+    <select id="selectScreeningSchoolIds" resultType="integer">
+        select sps.school_id from m_screening_plan p , m_screening_plan_school sps
+        where
+            p.id = sps.screening_plan_id
+          and p.screening_org_id = #{screeningOrgId}
+          and p.release_status = #{releaseStatus}
+          and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
+    </select>
 
     <select id="getPlanLists" resultMap="BaseResultMap">
         select
@@ -42,4 +65,6 @@
         </foreach>
         order by msp.create_time desc
     </select>
+
+
 </mapper>

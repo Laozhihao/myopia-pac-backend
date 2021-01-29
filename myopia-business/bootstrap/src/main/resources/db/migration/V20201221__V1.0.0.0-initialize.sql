@@ -95,34 +95,6 @@ create table m_hospital_admin
 )
     comment '医院-管理员表';
 
-DROP TABLE IF EXISTS m_school;
-create table m_school
-(
-    id             int auto_increment comment 'id'
-        primary key,
-    school_no      varchar(64)                         not null comment '学校编号',
-    create_user_id int                                 null comment '创建人ID',
-    gov_dept_id    int                                 not null comment '部门ID',
-    district_id    int                                 not null comment '行政区域ID',
-    district_json  varchar(256)                        not null comment '行政区域json',
-    district_name  varchar(64)                         not null comment '行政区域名',
-    name           varchar(32)                         not null comment '学校名称',
-    kind           tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
-    kind_desc      varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
-    lodge_status   tinyint                             null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
-    type           tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
-    province_code  bigint                              null comment '省代码',
-    city_code      bigint                              not null comment '市代码',
-    area_code      bigint                              not null comment '区代码',
-    town_code      bigint                              not null comment '镇/乡代码',
-    address        varchar(128)                        null comment '详细地址',
-    remark         varchar(128)                        null comment '说明',
-    status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-
-)
-    comment '学校表';
 
 DROP TABLE IF EXISTS m_school_admin;
 create table m_school_admin

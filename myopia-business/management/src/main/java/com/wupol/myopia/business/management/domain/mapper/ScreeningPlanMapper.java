@@ -17,4 +17,16 @@ import java.util.List;
 public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     IPage<ScreeningPlan> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+
+    ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
+
+    /**
+     * 查找当前机构的未完成的说有学校id
+     * @param screeningOrgId
+     * @param releaseStatus
+     * @param currentTimestamp
+     * @return
+     */
+    List<Long> selectScreeningSchoolIds(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
+
 }
