@@ -199,7 +199,9 @@ public class ExcelFacade {
         // 批量设置创建人姓名
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
         exportList.forEach(item -> {
-            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+            if (null != userMap.get(item.getCreateUserId())) {
+                item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+            }
         });
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
@@ -254,7 +256,9 @@ public class ExcelFacade {
         // 批量设置创建人姓名
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
         exportList.forEach(item -> {
-            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+            if (null != userMap.get(item.getCreateUserId())) {
+                item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
+            }
         });
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
