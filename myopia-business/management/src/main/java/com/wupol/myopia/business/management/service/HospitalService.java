@@ -133,7 +133,15 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (CollectionUtils.isEmpty(records)) {
             return hospitalListsPage;
         }
-        records.forEach(h -> h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail())));
+        // 详细地址
+        records.forEach(h -> {
+            if (null != h.getTownCode()) {
+                h.setAddress(districtService.getTopDistrictName(h.getTownCode()));
+            } else if (null != h.getAreaCode()) {
+                h.setAddress(districtService.getTopDistrictName(h.getAreaCode()));
+            }
+            h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+        });
         return hospitalListsPage;
     }
 

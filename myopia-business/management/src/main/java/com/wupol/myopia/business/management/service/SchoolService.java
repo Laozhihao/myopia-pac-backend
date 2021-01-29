@@ -244,6 +244,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
             // 学生统计
             s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
+
+            // 详细地址
+            if (null != s.getTownCode()) {
+                s.setAddress(districtService.getTopDistrictName(s.getTownCode()));
+            } else if (null != s.getAreaCode()) {
+                s.setAddress(districtService.getTopDistrictName(s.getAreaCode()));
+            }
         };
     }
 

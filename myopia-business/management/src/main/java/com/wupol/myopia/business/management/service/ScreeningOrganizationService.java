@@ -213,6 +213,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             // 筛查次数
             r.setScreeningTime(countMaps.getOrDefault(r.getId(), 0));
             r.setAlreadyHaveTask(finalHaveTaskOrgIds.contains(r.getId()));
+
+            // 详细地址
+            if (null != r.getTownCode()) {
+                r.setAddress(districtService.getTopDistrictName(r.getTownCode()));
+            } else if (null != r.getAreaCode()) {
+                r.setAddress(districtService.getTopDistrictName(r.getAreaCode()));
+            }
         });
         return orgLists;
     }

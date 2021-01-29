@@ -394,4 +394,41 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return baseMapper.selectBatchIds(districtIds);
     }
 
+    /**
+     * 从当前节点出发，向上获取区域名称
+     *
+     * @param code 当前节点
+     * @return 名字
+     */
+    public String getTopDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_TOP_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+
+        // 为空，从数据库查询
+        String resultName = getName("", code);
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
+     * 循环遍历
+     *
+     * @param name 名字
+     * @param code code
+     * @return 名字
+     */
+    private String getName(String name, Long code) {
+        District district = baseMapper
+                .selectOne(new QueryWrapper<District>()
+                        .eq("code", code));
+        if (null == district) {
+            return name;
+        }
+        return getName(district.getName() + name, district.getParentCode());
+    }
 }

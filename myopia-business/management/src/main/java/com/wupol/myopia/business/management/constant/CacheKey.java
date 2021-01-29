@@ -58,11 +58,9 @@ public interface CacheKey {
     String LOCK_ORG_REDIS = "lock:org:name_%s";
 
     /**
-     * 行政区域中文名
-     */
-    String DISTRICT_CN_NAME = "district:cn_name:id_%s";
-    /**
      * 全部行政区域的ID、Name的Map
      */
     String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
+
+    String DISTRICT_TOP_CN_NAME = "district:top_cn_name:code_%s";
 }
