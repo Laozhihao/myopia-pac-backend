@@ -13,6 +13,7 @@ import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -314,5 +315,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
         return baseMapper.getByOtherId(schoolId, classId, gradeId);
+    }
+
+    /**
+     * 统计学生人数
+     *
+     * @return List<StudentCountVO>
+     */
+    public List<StudentCountVO> countStudentBySchoolNo() {
+        return baseMapper.countStudentBySchoolNo();
     }
 }

@@ -20,6 +20,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private StudentService studentService;
 
     /**
      * 新增学校
@@ -206,8 +211,27 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                         .toMap(SchoolScreeningCountVO::getSchoolId,
                                 SchoolScreeningCountVO::getCount));
 
+        // 学生统计
+        List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
+        Map<String, Integer> studentCountMaps = studentCountVOS.stream()
+                .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
+
         // 封装DTO
-        schools.forEach(s -> {
+        schools.forEach(getSchoolDtoConsumer(orgId, userDTOMap, countMaps, studentCountMaps));
+        return schoolDtoIPage;
+    }
+
+    /**
+     * 封装DTO
+     *
+     * @param orgId            机构ID
+     * @param userDTOMap       用户信息
+     * @param countMaps        筛查统计
+     * @param studentCountMaps 学生统计
+     * @return Consumer<SchoolDto>
+     */
+    private Consumer<SchoolDto> getSchoolDtoConsumer(Integer orgId, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+        return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
 
@@ -224,8 +248,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             } else {
                 s.setScreeningCount(0);
             }
-        });
-        return schoolDtoIPage;
+
+            // 学生统计
+            if (null != studentCountMaps.get(s.getSchoolNo())) {
+                s.setStudentCount(studentCountMaps.get(s.getSchoolNo()));
+            } else {
+                s.setStudentCount(0);
+            }
+        };
     }
 
     /**

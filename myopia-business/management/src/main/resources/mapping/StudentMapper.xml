@@ -131,4 +131,10 @@
             and student.grade_id = #{gradeId}
         </if>
     </select>
+
+    <select id="countStudentBySchoolNo" resultType="com.wupol.myopia.business.management.domain.vo.StudentCountVO">
+        select count(1) as count, school_no
+        from m_student
+        group by school_no
+    </select>
 </mapper>

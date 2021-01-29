@@ -36,4 +36,9 @@ public class SchoolDto extends School {
      * 行政区域名
      */
     private String districtName;
+
+    /**
+     * 学生统计
+     */
+    private Integer studentCount;
 }
