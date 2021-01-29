@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.validator.RoleAddValidatorGroup;
-import com.wupol.myopia.business.management.validator.RoleQueryValidatorGroup;
 import com.wupol.myopia.business.management.validator.RoleUpdateValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 角色表
@@ -86,5 +87,28 @@ public class RoleDTO implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 所属部门ID集
+     */
+    private List<Integer> orgIds;
 
+    /**
+     * 行政区ID
+     */
+    private Integer districtId;
+
+    /**
+     * 行政区明细
+     */
+    private List<District> districtDetail;
+
+    /**
+     * 创建人姓名
+     */
+    private String createUserName;
+
+    /**
+     * 部门名称
+     */
+    private String orgName;
 }

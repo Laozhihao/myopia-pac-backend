@@ -171,7 +171,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-        Integer districtId = districtService.getDistrictId(currentUser, schoolQuery.getDistrictId());
+        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
 
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {

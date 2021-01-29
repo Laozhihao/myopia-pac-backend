@@ -169,7 +169,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                                                                        ScreeningOrganizationQuery query,
                                                                        CurrentUser currentUser) {
         Integer orgId = currentUser.getOrgId();
-        Integer districtId = districtService.getDistrictId(currentUser, query.getDistrictId());
+        Integer districtId = districtService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
         // 查询
         IPage<ScreeningOrgResponseDTO> orgLists = baseMapper.getScreeningOrganizationListByCondition(

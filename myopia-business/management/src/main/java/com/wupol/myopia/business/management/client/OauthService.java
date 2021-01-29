@@ -29,7 +29,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public Page<UserDTO> getUserListPage(UserDTOQuery param){
+    public Page<UserDTO> getUserListPage(UserDTOQuery param) {
         return null;
     }
 
@@ -99,12 +99,13 @@ public class OauthService {
     }
 
     /**
-     * 重置管理端用户的密码【其他端用户的不适合】
+     * 重置管理端用户的密码
      *
      * @param userId 用户ID
+     * @param password 密码
      **/
     @OauthRequest
-    public UserDTO resetPwd(Integer userId){
+    public UserDTO resetPwd(Integer userId, String password){
         return null;
     }
 
@@ -197,6 +198,17 @@ public class OauthService {
      **/
     @OauthRequest
     public List<PermissionDTO> getPermissionTemplate(Integer templateType) {
+        return null;
+    }
+
+    /**
+     * 根据模板类型获取模板权限的ID集
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.DistrictPermission>
+     **/
+    @OauthRequest
+    public List<Integer> getPermissionTemplateIdList(Integer templateType) {
         return null;
     }
 
