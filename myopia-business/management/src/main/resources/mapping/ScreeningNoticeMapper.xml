@@ -74,8 +74,8 @@
                 and release_status = 1
                 <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
-                <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>
+                <if test="param.startTime != null and param.endTime != null">
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
                 </if>
             </trim>
         </where>

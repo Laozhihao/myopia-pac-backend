@@ -46,7 +46,7 @@ public class ScreeningNoticeDeptOrg implements Serializable {
     private Integer acceptOrgId;
 
     /**
-     * 筛查通知--操作状态（0未读 1 是已读 2是已创建）
+     * 筛查通知--操作状态（0未读 1 是已读 2是删除 3是已读已创建）
      */
     private Integer operationStatus;
 

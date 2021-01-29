@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -122,7 +123,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * 新增或更新
      * @param screeningTaskDTO
      */
-    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO) {
+    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
         screeningTaskDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
         if (!saveOrUpdate(screeningTaskDTO)) {
@@ -130,6 +131,10 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         }
         // 新增或更新筛查机构信息
         screeningTaskOrgService.saveOrUpdateBatchByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
+        if (needUpdateNoticeStatus) {
+            // 更新通知状态
+            screeningNoticeDeptOrgService.readAndCreateTask(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), user);
+        }
     }
 
     /**
@@ -140,5 +145,16 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     public void removeWithOrgs(Integer screeningTaskId) {
         removeById(screeningTaskId);
         screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, Collections.emptyList());
+    }
+
+    /**
+     * 校验部门是否已创建
+     * @param screeningNoticeId
+     * @param govDeptId
+     */
+    public boolean checkIsCreated(Integer screeningNoticeId, Integer govDeptId) {
+        QueryWrapper<ScreeningTask> query = new QueryWrapper<>();
+        query.eq("screening_notice_id", screeningNoticeId).eq("gov_dept_id", govDeptId);
+        return baseMapper.selectCount(query) > 0;
     }
 }

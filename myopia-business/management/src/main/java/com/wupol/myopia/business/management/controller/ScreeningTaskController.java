@@ -14,7 +14,6 @@ import com.wupol.myopia.business.management.service.ScreeningTaskOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.service.ScreeningTaskService;
@@ -47,13 +46,17 @@ public class ScreeningTaskController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // 已创建校验
+        if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
+            throw new ValidationException("该部门任务已创建");
+        }
         //TODO 校验部门
         // TODO 看前端是否能拿到用户的层级与部门再做处理
 //        if (user.isPlatformAdminUser()) {
 //            Assert.notNull(screeningTask.getDistrictId());
 //            Assert.notNull(screeningTask.getGovDeptId());
 //        }
-        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO);
+        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
     /**
@@ -78,7 +81,7 @@ public class ScreeningTaskController {
         validateExistWithReleaseStatus(screeningTaskDTO.getId(), CommonConst.STATUS_RELEASE);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //TODO 校验部门
-        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO);
+        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, false);
     }
 
     /**

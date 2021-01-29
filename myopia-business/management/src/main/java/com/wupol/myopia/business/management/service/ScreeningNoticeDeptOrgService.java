@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -84,5 +85,17 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         if (!updateById(noticeDeptOrg, user.getId())) {
             throw new BusinessException("已读失败");
         }
+    }
+
+    /**
+     * 已读已创建任务状态处理
+     *
+     * @param noticeId
+     * @param govDeptId
+     * @param user
+     */
+    public void readAndCreateTask(Integer noticeId, Integer govDeptId, CurrentUser user) {
+        //1. 更新状态
+        baseMapper.updateStatusByNoticeIdAndAcceptOrgId(noticeId, govDeptId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
     }
 }
