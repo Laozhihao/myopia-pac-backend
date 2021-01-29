@@ -69,6 +69,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /** 根据code获取对应的地址 */
     public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
+            return Collections.emptyList();
+        }
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
         for (District item : districtList) {

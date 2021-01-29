@@ -180,7 +180,7 @@ public class ExcelFacade {
             HospitalExportVo exportVo = new HospitalExportVo()
                     .setId(item.getId())
                     .setName(item.getName())
-                    .setDistrictName("层级")
+                    .setDistrictName(district.getName())
                     .setLevel(item.getLevelDesc())
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
@@ -188,10 +188,12 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            exportVo.setProvince(districtList.get(0))
-                    .setCity(districtList.get(1))
-                    .setArea(districtList.get(2))
-                    .setTown(districtList.get(3));
+            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
+                exportVo.setProvince(districtList.get(0))
+                        .setCity(districtList.get(1))
+                        .setArea(districtList.get(2))
+                        .setTown(districtList.get(3));
+            }
             createUserIds.add(item.getCreateUserId());
             exportList.add(exportVo);
         }
@@ -199,9 +201,7 @@ public class ExcelFacade {
         // 批量设置创建人姓名
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
         exportList.forEach(item -> {
-            if (null != userMap.get(item.getCreateUserId())) {
-                item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
-            }
+            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
         });
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
@@ -245,10 +245,12 @@ public class ExcelFacade {
                     .setScreeningCount(2121)
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            exportVo.setProvince(districtList.get(0))
-                    .setCity(districtList.get(1))
-                    .setArea(districtList.get(2))
-                    .setTown(districtList.get(3));
+            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
+                exportVo.setProvince(districtList.get(0))
+                        .setCity(districtList.get(1))
+                        .setArea(districtList.get(2))
+                        .setTown(districtList.get(3));
+            }
             createUserIds.add(item.getCreateUserId());
             exportList.add(exportVo);
         }
@@ -312,10 +314,12 @@ public class ExcelFacade {
 //                    .setQuestionCount(item.getQuestionnaireCount())
                     .setLastScreeningTime(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            exportVo.setProvince(districtList.get(0))
-                    .setCity(districtList.get(1))
-                    .setArea(districtList.get(2))
-                    .setTown(districtList.get(3));
+            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
+                exportVo.setProvince(districtList.get(0))
+                        .setCity(districtList.get(1))
+                        .setArea(districtList.get(2))
+                        .setTown(districtList.get(3));
+            }
             exportList.add(exportVo);
         }
         return ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
