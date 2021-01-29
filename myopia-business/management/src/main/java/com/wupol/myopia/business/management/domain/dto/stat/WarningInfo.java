@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
+import java.util.List;
+
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -7,8 +10,9 @@ import lombok.experimental.Accessors;
  * 统计预警信息
  */
 @Data
+@Builder
 @Accessors(chain = true)
-public class StudentGradeWarning {
+public class WarningInfo {
     /**
      * 当前统计时间
      */
@@ -37,14 +41,15 @@ public class StudentGradeWarning {
     /**
      *  去年今日的总视力对象数在总学生数中的占比
      */
-    private Long lastKeyObjPercentage;
+    private Float lastKeyObjPercentage;
 
     /**
      * 分级预警信息
      */
-    private WarningLevelInfo warningLevelInfo;
+    private List<WarningLevelInfo> warningLevelInfoList;
 
     @Data
+    @Accessors(chain = true)
     public static class WarningLevelInfo {
         /**
          * 预警级别
@@ -59,6 +64,12 @@ public class StudentGradeWarning {
         /**
          * 人数比例
          */
-        private Float rate;
+        private Float percentage;
+
+        public WarningLevelInfo(Integer warningLevel, Long num, Float percentage) {
+            this.warningLevel = warningLevel;
+            this.num = num;
+            this.percentage = percentage;
+        }
     }
 }
