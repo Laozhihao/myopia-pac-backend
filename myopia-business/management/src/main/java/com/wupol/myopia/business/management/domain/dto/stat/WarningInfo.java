@@ -21,12 +21,12 @@ public class WarningInfo {
     /**
      * 总重点视力对象数
      */
-    private Long keyObjNum;
+    private Integer focusTargetsNum;
 
     /**
      *  总视力对象数在总学生数中的占比
      */
-    private Float keyObjPercentage;
+    private Float focusTargetsPercentage;
 
     /**
      * 去年今日的时间
@@ -36,12 +36,12 @@ public class WarningInfo {
     /**
      * 去年今日的总重点视力对象数
      */
-    private Long lastKeyObjNum;
+    private Integer lastFocusTargetsNum;
 
     /**
      *  去年今日的总视力对象数在总学生数中的占比
      */
-    private Float lastKeyObjPercentage;
+    private Float lastFocusTargetsPercentage;
 
     /**
      * 分级预警信息
@@ -59,14 +59,14 @@ public class WarningInfo {
         /**
          * 人数
          */
-        private Long num;
+        private Integer num;
 
         /**
          * 人数比例
          */
         private Float percentage;
 
-        public WarningLevelInfo(Integer warningLevel, Long num, Float percentage) {
+        public WarningLevelInfo(Integer warningLevel, Integer num, Float percentage) {
             this.warningLevel = warningLevel;
             this.num = num;
             this.percentage = percentage;
