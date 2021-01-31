@@ -128,7 +128,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     public List<ScreeningNotice> getByIds(List<Integer> ids) {
         return baseMapper
                 .selectList(new QueryWrapper<ScreeningNotice>()
-                        .in("id", ids));
+                        .in("id", ids)
+                        .orderByDesc("create_time"));
     }
 
     /**

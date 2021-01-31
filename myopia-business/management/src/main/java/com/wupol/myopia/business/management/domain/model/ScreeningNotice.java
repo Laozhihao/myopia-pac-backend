@@ -54,13 +54,15 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--开始时间（时间戳）
      */
-    @NotNull
+    @NotNull(message = "开始时间不能为空")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 筛查通知--结束时间（时间戳）
      */
-    @NotNull
+    @NotNull(message = "结束时间不能为空")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /**
