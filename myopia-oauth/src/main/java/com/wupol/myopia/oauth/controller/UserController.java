@@ -60,7 +60,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public UserDTO updateUser(@RequestBody UserDTO user) throws Exception {
+    public UserWithRole updateUser(@RequestBody UserDTO user) throws Exception {
         return userService.updateUser(user);
     }
 
@@ -131,5 +131,16 @@ public class UserController {
     @GetMapping("/list")
     public List<User> getUserListWithLike(UserDTO queryParam) {
         return userService.getUserListWithLike(queryParam);
+    }
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @GetMapping("/count")
+    public Integer count(UserDTO queryParam) throws IOException {
+        return userService.count(queryParam);
     }
 }
