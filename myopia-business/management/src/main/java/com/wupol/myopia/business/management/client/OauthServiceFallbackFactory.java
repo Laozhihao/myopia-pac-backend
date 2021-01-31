@@ -85,6 +85,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<Integer> count(UserDTO queryParam) {
+                return respData;
+            }
+
+            @Override
             public ApiResult getRoleList(RoleDTO param) {
                 return respData;
             }

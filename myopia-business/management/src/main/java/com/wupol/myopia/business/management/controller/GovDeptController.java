@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
@@ -14,6 +17,7 @@ import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +49,8 @@ public class GovDeptController {
     private DistrictService districtService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private OauthService oauthService;
 
     /**
      * 获取部门列表
@@ -57,9 +63,16 @@ public class GovDeptController {
         Assert.notNull(queryParam.getDistrictId(), "行政区ID不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         List<GovDept> govDeptList = govDeptService.findByListOrderByIdAsc(queryParam);
+        // 填充创建人姓名、部门人数
         List<Integer> userIds = govDeptList.stream().map(GovDept::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(userIds);
-        govDeptList.forEach(govDept -> govDept.setCreateUserName(userMap.get(govDept.getCreateUserId()).getRealName()));
+        govDeptList.forEach(govDept -> {
+            UserDTO createUser = userMap.get(govDept.getCreateUserId());
+            if (Objects.nonNull(createUser)) {
+                govDept.setCreateUserName(createUser.getRealName());
+            }
+            govDept.setUserCount(oauthService.count(new UserDTO().setOrgId(govDept.getId()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())));
+        });
         return govDeptList;
     }
 
@@ -86,7 +99,11 @@ public class GovDeptController {
             // 非管理员用户，获取当前用户的部门作为上级部门
             govDept.setPid(currentUser.getOrgId());
         }
-        govDeptService.save(govDept.setCreateUserId(currentUser.getId()));
+        try {
+            govDeptService.save(govDept.setCreateUserId(currentUser.getId()));
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("已经存在该部门名称");
+        }
         return govDept;
     }
 
@@ -100,7 +117,7 @@ public class GovDeptController {
     public GovDept updateGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         govDeptService.updateById(govDept);
-        return govDeptService.getById(govDept.getId());
+        return govDept;
     }
 
     /**

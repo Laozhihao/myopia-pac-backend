@@ -34,7 +34,7 @@ public class UserController {
     private GovDeptService govDeptService;
 
     /**
-     * 分页获取用户列表 TODO: 支持根据日期查询
+     * 分页获取用户列表
      *
      * @param queryParam     查询参数
      * @param current   当前页码

@@ -4,6 +4,9 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -48,7 +51,10 @@ public class PermissionController {
 
     @PutMapping()
     public Permission modifyPermission(@RequestBody @Valid Permission param) throws IOException {
-        permissionService.validateParam(param);
+        if (!StringUtils.isEmpty(param.getMenuBtnName())) {
+            List<Permission> exist = permissionService.findByList(new Permission().setMenuBtnName(param.getMenuBtnName()));
+            Assert.isTrue(CollectionUtils.isEmpty(exist) || exist.get(0).getId().equals(param.getId()), "该页面或按钮name已经存在");
+        }
         permissionService.updateById(param);
         return param;
     }

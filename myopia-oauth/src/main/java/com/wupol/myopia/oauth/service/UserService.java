@@ -169,7 +169,7 @@ public class UserService extends BaseService<UserMapper, User> {
 
     /** 修改用户信息 */
     @Transactional(rollbackFor = Exception.class)
-    public UserDTO updateUser(UserDTO user) throws Exception {
+    public UserWithRole updateUser(UserDTO user) throws Exception {
         String pwd = user.getPassword();
         if (!StringUtils.isEmpty(pwd)) {
             user.setPassword(new BCryptPasswordEncoder().encode(pwd));
@@ -178,14 +178,10 @@ public class UserService extends BaseService<UserMapper, User> {
         if (!updateById(user)) {
             throw new Exception("更新用户信息失败");
         }
-        if (!CollectionUtils.isEmpty(user.getRoleIds())) {
-            if (!userRoleService.updateByRoleIds(user.getId(), user.getRoleIds())) {
-                throw new Exception("更新用户角色失败");
-            }
-            // 设置对应角色的详情
-            user.setRoles(roleService.getByIds(user.getRoleIds()));
-        }
-        return user;
+        UserDTO newUser = new UserDTO();
+        newUser.setId(user.getId());
+        List<UserWithRole> userWithRoles = baseMapper.selectUserListWithRole(newUser);
+        return userWithRoles.get(0);
 
     }
 

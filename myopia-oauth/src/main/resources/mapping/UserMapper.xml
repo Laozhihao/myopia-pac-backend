@@ -52,6 +52,7 @@
     <sql id="Base_Like_Where_Clause">
         <where>
             <trim prefixOverrides="and">
+                <if test="param.id != null">and u.`id` = #{param.id}</if>
                 <if test="param.orgId != null">and u.`org_id` = #{param.orgId}</if>
                 <if test="param.userType != null">and u.`user_type` = #{param.userType}</if>
                 <if test="param.isLeader != null">and u.`is_leader` = #{param.isLeader}</if>

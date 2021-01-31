@@ -120,6 +120,17 @@ public class OauthService {
     }
 
     /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @OauthRequest
+    public Integer count(UserDTO queryParam) {
+        return null;
+    }
+
+    /**
      * 获取角色列表
      *
      * @param param 查询参数

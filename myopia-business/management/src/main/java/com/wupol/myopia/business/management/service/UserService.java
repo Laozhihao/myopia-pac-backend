@@ -8,6 +8,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
@@ -109,7 +110,10 @@ public class UserService {
         validateAndInitUserData(user, currentUser);
         // 该接口不允许更新密码
         user.setUsername(user.getPhone()).setSystemCode(currentUser.getSystemCode()).setPassword(null);
-        return oauthService.modifyUser(user);
+        UserDTO newUser = oauthService.modifyUser(user);
+        GovDept govDept = govDeptService.getById(newUser.getOrgId());
+        District district = districtService.getById(govDept.getDistrictId());
+        return newUser.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
     }
 
     /**

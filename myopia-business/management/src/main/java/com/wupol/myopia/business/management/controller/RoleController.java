@@ -130,7 +130,10 @@ public class RoleController {
         // 非平台管理员用户，只能修改自己部门的角色
         Assert.isTrue(currentUser.isPlatformAdminUser() || role.getOrgId().equals(currentUser.getOrgId()), "非法操作，只能修改自己部门的角色");
         role.setStatus(param.getStatus()).setRemark(param.getRemark()).setChName(param.getChName());
-        return oauthService.updateRole(role);
+        RoleDTO roleDTO = oauthService.updateRole(role);
+        GovDept govDept = govDeptService.getById(roleDTO.getOrgId());
+        District district = districtService.getById(govDept.getDistrictId());
+        return roleDTO.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
     }
 
     /**
