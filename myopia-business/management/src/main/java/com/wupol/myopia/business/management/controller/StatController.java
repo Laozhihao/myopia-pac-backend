@@ -26,10 +26,10 @@ public class StatController {
     @GetMapping("warningList")
     public ApiResult getWarningList() {
         // TODO: Mocking Data
-        Long total = 617225L;
-        Long normalTotal = 493824L;
-        Long focusTargetsNum = 123455L;
-        Long lastFocusTargetsNum = 164321L;
+        Integer total = 617225;
+        Integer normalTotal = 493824;
+        Integer focusTargetsNum = 123455;
+        Integer lastFocusTargetsNum = 164321;
         return ApiResult.success(
                 WarningInfo.builder()
                         .statTime(System.currentTimeMillis())
@@ -40,10 +40,10 @@ public class StatController {
                         .lastFocusTargetsPercentage(lastFocusTargetsNum * 100f / normalTotal)
                         .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
                             {
-                                add(new WarningLevelInfo(0, 123443L, 123443L * 100f / total));
-                                add(new WarningLevelInfo(1, 123278L, 123278L * 100f / total));
-                                add(new WarningLevelInfo(2, 113445L, 113445L * 100f / total));
-                                add(new WarningLevelInfo(3, 33445L, 33445L * 100f / total));
+                                add(new WarningLevelInfo(0, 123443, 123443 * 100f / total));
+                                add(new WarningLevelInfo(1, 123278, 123278 * 100f / total));
+                                add(new WarningLevelInfo(2, 113445, 113445 * 100f / total));
+                                add(new WarningLevelInfo(3, 33445, 33445 * 100f / total));
                             }
                         })
                         .build());
