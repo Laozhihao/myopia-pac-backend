@@ -22,18 +22,12 @@ import java.util.stream.Collectors;
 public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlanSchoolStudentMapper, ScreeningPlanSchoolStudent> {
 
     /**
-     * 同学生ID获取计划
+     * 根据学生id获取筛查计划学校学生
      *
      * @param studentId 学生ID
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
-    /**
-     * 根据学生id获取筛查计划学校学生
-     * @param studentId
-     * @return
-     */
-    List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
         return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("student_id", studentId));
     }
 
