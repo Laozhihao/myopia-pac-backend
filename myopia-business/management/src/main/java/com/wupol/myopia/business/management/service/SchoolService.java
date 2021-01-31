@@ -167,7 +167,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
                                                   CurrentUser currentUser) {
 
-        Integer orgId = currentUser.getOrgId();
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
@@ -215,26 +214,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(orgId, userDTOMap, countMaps, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
     }
 
     /**
      * 封装DTO
      *
-     * @param orgId            机构ID
+     * @param currentUser      当前登录用户
      * @param userDTOMap       用户信息
      * @param countMaps        筛查统计
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(Integer orgId, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
 
             // 判断是否能更新
-            s.setCanUpdate(s.getGovDeptId().equals(orgId));
+            s.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
 
             // 行政区名字
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
