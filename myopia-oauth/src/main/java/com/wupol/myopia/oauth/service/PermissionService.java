@@ -6,8 +6,11 @@ import com.wupol.myopia.oauth.domain.model.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -59,7 +62,27 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
         return baseMapper.selectRolePermissionTree(pid, roleId, districtLevel);
     }
 
+    /**
+     * 获取平台管理员的角色权限树（全量）
+     *
+     * @param pid
+     * @param roleId
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
     public List<Permission> getAdminRolePermissionTree(Integer pid, Integer roleId) {
         return baseMapper.selectAdminRolePermissionTree(pid, roleId);
+    }
+
+    /**
+     * 校验参数
+     *
+     * @param param 参数
+     * @return void
+     **/
+    public void validateParam(Permission param) throws IOException {
+        if (!StringUtils.isEmpty(param.getMenuBtnName())) {
+            List<Permission> exist = findByList(new Permission().setMenuBtnName(param.getMenuBtnName()));
+            Assert.isTrue(CollectionUtils.isEmpty(exist), "该页面或按钮name已经存在");
+        }
     }
 }
