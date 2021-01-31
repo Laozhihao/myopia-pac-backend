@@ -82,7 +82,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping("/admin")
-    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) {
+    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
         return userService.addAdminUser(userDTO);
     }
 

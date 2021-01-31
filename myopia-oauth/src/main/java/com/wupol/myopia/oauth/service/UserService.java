@@ -86,8 +86,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public User addUser(UserDTO userDTO) throws IOException {
-        User existUser = findOne(new User().setPhone(userDTO.getPhone()).setSystemCode(userDTO.getSystemCode()));
-        Assert.isNull(existUser, "已经存在该手机号");
+        validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
@@ -107,6 +106,15 @@ public class UserService extends BaseService<UserMapper, User> {
         return userDTO.setId(user.getId());
     }
 
+    private void validateParam(String phone, Integer systemCode) throws IOException {
+        Assert.notNull(SystemCode.getByCode(systemCode), "系统编号为空或无效");
+        if (StringUtils.isEmpty(phone)) {
+            return;
+        }
+        User existUser = findOne(new User().setPhone(phone).setSystemCode(systemCode));
+        Assert.isNull(existUser, "已经存在该手机号码");
+    }
+
     /**
      * 管理端创建医院端、学校端管理员，创建筛查端的筛查人员
      *
@@ -114,12 +122,8 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User addAdminUser(UserDTO userDTO) {
-        if (Objects.isNull(SystemCode.getByCode(userDTO.getSystemCode()))) {
-            throw new ValidationException("无效系统编号");
-        }
-        // 同端手机号码不能重复
-
+    public User addAdminUser(UserDTO userDTO) throws IOException {
+        validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
@@ -170,18 +174,19 @@ public class UserService extends BaseService<UserMapper, User> {
     /** 修改用户信息 */
     @Transactional(rollbackFor = Exception.class)
     public UserWithRole updateUser(UserDTO user) throws Exception {
-        String pwd = user.getPassword();
-        if (!StringUtils.isEmpty(pwd)) {
-            user.setPassword(new BCryptPasswordEncoder().encode(pwd));
+        User existUser = getById(user.getId());
+        Assert.notNull(existUser, "该用户不存在");
+        if (!StringUtils.isEmpty(user.getPhone())) {
+            User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
+            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(user.getId()), "已经存在该手机号码");
         }
-        // TODO: 手机号不为空，则判断是否唯一
         if (!updateById(user)) {
             throw new Exception("更新用户信息失败");
         }
         UserDTO newUser = new UserDTO();
         newUser.setId(user.getId());
         List<UserWithRole> userWithRoles = baseMapper.selectUserListWithRole(newUser);
-        return userWithRoles.get(0);
+        return userWithRoles.get(0).setRoles(roleService.getRoleListByUserId(user.getId()));
 
     }
 
