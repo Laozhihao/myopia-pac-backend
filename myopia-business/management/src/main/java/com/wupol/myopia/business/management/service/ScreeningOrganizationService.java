@@ -135,14 +135,28 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+        Integer orgId = screeningOrganization.getId();
+
         baseMapper.updateById(screeningOrganization);
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
-        ScreeningOrganization o = baseMapper.selectById(screeningOrganization.getId());
+        ScreeningOrganization o = baseMapper.selectById(orgId);
         BeanUtils.copyProperties(o, response);
         response.setDistrictName(districtService.getDistrictName(o.getDistrictDetail()));
         // 详细地址
         response.setAddressDetail(districtService.getAddressDetails(
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
+
+        // 获取管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(orgId);
+        if (null == admin) {
+            log.error("更新筛查机构ID异常:{}", orgId);
+            throw new BusinessException("数据异常");
+        }
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(admin.getUserId())
+                .setStatus(screeningOrganization.getStatus());
+        oauthService.modifyUser(userDTO);
         return response;
     }
 
