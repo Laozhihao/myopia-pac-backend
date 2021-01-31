@@ -14,7 +14,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class StudentDTO extends Student {
-
     /**
      * 年级名称
      */
@@ -34,20 +33,4 @@ public class StudentDTO extends Student {
      * 学校ID
      */
     private Integer schoolId;
-
-    /**
-     * 视力筛查次数
-     */
-    private Integer screeningCount;
-
-    /**
-     * 问卷数
-     */
-    private Integer questionnaireCount;
-
-
-    /**
-     * 就诊次数
-     */
-    private Integer seeDoctorCount;
 }

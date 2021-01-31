@@ -15,17 +15,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningOrgResponseDTO extends ScreeningOrganization {
-
-    /**
-     * 筛查人员统计
-     */
-    private Integer staffCount;
-
-    /**
-     * 筛查次数
-     */
-    private Integer screeningTime;
-
     /**
      * 是否能更新
      */

@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -49,9 +48,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolClassService schoolClassService;
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private ScreeningResultService screeningResultService;
@@ -96,9 +92,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         Integer createUserId = student.getCreateUserId();
         String idCard = student.getIdCard();
-
-        // 初始化省代码
-        student.setProvinceCode(provinceCode);
 
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
@@ -214,7 +207,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             }
 
             // 筛查次数
-            s.setScreeningCount(countMaps.getOrDefault(s.getId(),0));
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
 
             // TODO: 就诊次数
             s.setSeeDoctorCount(0);

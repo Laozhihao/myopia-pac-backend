@@ -12,7 +12,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SchoolResponseDTO extends School {
-
     /**
      * 账号
      */
@@ -22,11 +21,6 @@ public class SchoolResponseDTO extends School {
      * 是否能更新
      */
     private boolean canUpdate = false;
-
-    /**
-     * 创建人
-     */
-    private String createUser;
 
     /**
      * 行政区域名

@@ -132,8 +132,8 @@ public class School implements Serializable {
 
     /**
      * 学生统计
-     */@TableField(exist = false)
-
+     */
+    @TableField(exist = false)
     private Integer studentCount;
 
     /**
