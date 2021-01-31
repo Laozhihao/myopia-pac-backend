@@ -49,7 +49,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolService.updateSchool(school);
+        return schoolService.updateSchool(school, user);
     }
 
     @GetMapping("{id}")

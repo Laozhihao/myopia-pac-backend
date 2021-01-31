@@ -3,8 +3,6 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.wupol.myopia.business.management.domain.model.School;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 学校返回类
@@ -15,12 +13,10 @@ import lombok.Setter;
 @Data
 public class SchoolResponseDTO extends School {
 
-    private String accountNo;
-
     /**
-     * 筛查次数
+     * 账号
      */
-    private Integer screeningCount;
+    private String accountNo;
 
     /**
      * 是否能更新
@@ -38,7 +34,7 @@ public class SchoolResponseDTO extends School {
     private String districtName;
 
     /**
-     * 学生统计
+     * 地址详情
      */
-    private Integer studentCount;
+    private String addressDetail;
 }

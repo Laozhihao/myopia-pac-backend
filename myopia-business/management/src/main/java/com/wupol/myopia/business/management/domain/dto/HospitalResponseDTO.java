@@ -17,4 +17,9 @@ public class HospitalResponseDTO extends Hospital {
      * 行政区域名
      */
     private String districtName;
+
+    /**
+     * 详细地址
+     */
+    private String addressDetail;
 }

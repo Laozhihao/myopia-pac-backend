@@ -137,9 +137,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
         baseMapper.updateById(screeningOrganization);
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
-        ScreeningOrganization organization = baseMapper.selectById(screeningOrganization.getId());
-        BeanUtils.copyProperties(organization, response);
-        response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
+        ScreeningOrganization o = baseMapper.selectById(screeningOrganization.getId());
+        BeanUtils.copyProperties(o, response);
+        response.setDistrictName(districtService.getDistrictName(o.getDistrictDetail()));
+        // 详细地址
+        response.setAddressDetail(districtService.getAddressDetails(
+                o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
         return response;
     }
 
@@ -215,11 +218,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             r.setAlreadyHaveTask(finalHaveTaskOrgIds.contains(r.getId()));
 
             // 详细地址
-            if (null != r.getTownCode()) {
-                r.setAddress(districtService.getTopDistrictName(r.getTownCode()));
-            } else if (null != r.getAreaCode()) {
-                r.setAddress(districtService.getTopDistrictName(r.getAreaCode()));
-            }
+            r.setAddressDetail(districtService.getAddressDetails(
+                    r.getProvinceCode(), r.getCityCode(), r.getAreaCode(), r.getTownCode(), r.getAddress()));
         });
         return orgLists;
     }
@@ -417,6 +417,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     /**
      * 根据名称模糊查询
+     *
      * @param screeningOrgNameLike
      * @return
      */

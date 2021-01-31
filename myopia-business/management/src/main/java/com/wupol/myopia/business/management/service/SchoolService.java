@@ -110,16 +110,21 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 更新学校
      *
-     * @param school 学校实体类
+     * @param school      学校实体类
+     * @param currentUser 当前登录用户
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolResponseDTO updateSchool(School school) {
+    public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
         baseMapper.updateById(school);
-        School source = baseMapper.selectById(school.getId());
+        School s = baseMapper.selectById(school.getId());
         SchoolResponseDTO dto = new SchoolResponseDTO();
-        BeanUtils.copyProperties(source, dto);
-        dto.setDistrictName(districtService.getDistrictName(source.getDistrictDetail()));
+        BeanUtils.copyProperties(s, dto);
+        dto.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+        dto.setAddressDetail(districtService.getAddressDetails(
+                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+        // 判断是否能更新
+        dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
         return dto;
     }
 
@@ -249,11 +254,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
 
             // 详细地址
-            if (null != s.getTownCode()) {
-                s.setAddress(districtService.getTopDistrictName(s.getTownCode()));
-            } else if (null != s.getAreaCode()) {
-                s.setAddress(districtService.getTopDistrictName(s.getAreaCode()));
-            }
+            s.setAddressDetail(districtService.getAddressDetails(
+                    s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         };
     }
 

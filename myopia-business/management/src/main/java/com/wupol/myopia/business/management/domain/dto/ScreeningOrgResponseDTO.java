@@ -46,4 +46,9 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      * 是否已有任务
      */
     private Boolean alreadyHaveTask = false;
+
+    /**
+     * 地址详情
+     */
+    private String addressDetail;
 }

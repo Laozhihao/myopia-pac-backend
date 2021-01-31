@@ -95,6 +95,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         HospitalResponseDTO response = new HospitalResponseDTO();
         BeanUtils.copyProperties(h, response);
         response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+        // 行政区域名称
+        response.setAddressDetail(districtService.getAddressDetails(
+                h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
         return response;
     }
 
@@ -133,13 +136,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (CollectionUtils.isEmpty(records)) {
             return hospitalListsPage;
         }
-        // 详细地址
         records.forEach(h -> {
-            if (null != h.getTownCode()) {
-                h.setAddress(districtService.getTopDistrictName(h.getTownCode()));
-            } else if (null != h.getAreaCode()) {
-                h.setAddress(districtService.getTopDistrictName(h.getAreaCode()));
-            }
+            // 详细地址
+            h.setAddressDetail(districtService.getAddressDetails(
+                    h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
+
+            // 行政区域名称
             h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
         });
         return hospitalListsPage;

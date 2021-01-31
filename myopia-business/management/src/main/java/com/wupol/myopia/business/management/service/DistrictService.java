@@ -431,4 +431,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         return getName(district.getName() + name, district.getParentCode());
     }
+
+
+    /**
+     * 通过code拼接详细地址
+     *
+     * @param provinceCode 省代码
+     * @param cityCode     市代码
+     * @param areaCode     区代码
+     * @param townCode     镇代码
+     * @param address      地址
+     * @return 全名称
+     */
+    public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
+        if (null != townCode) {
+            return getTopDistrictName(townCode) + "  " + address;
+        } else if (null != areaCode) {
+            return getTopDistrictName(areaCode) + "  " + address;
+        } else if (null != cityCode) {
+            return getTopDistrictName(cityCode) + "  " + address;
+        } else if (null != provinceCode) {
+            return getTopDistrictName(provinceCode) + "  " + address;
+        }
+        return "";
+    }
 }

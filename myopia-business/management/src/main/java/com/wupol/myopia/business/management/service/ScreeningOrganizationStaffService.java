@@ -147,16 +147,20 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrganizationStaffQuery updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
-
+        Integer id = staff.getId();
+        ScreeningOrganizationStaff checkStaff = baseMapper.selectById(id);
+        if (null == checkStaff || null == checkStaff.getUserId()) {
+            log.error("更新筛查人员失败id:{},数据异常", id);
+            throw new BusinessException("数据异常");
+        }
         UserDTO userDTO = new UserDTO()
-                .setId(staff.getUserId())
+                .setId(checkStaff.getUserId())
                 .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
-        baseMapper.updateById(staff);
         return staff;
     }
 
