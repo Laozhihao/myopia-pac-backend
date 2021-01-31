@@ -147,6 +147,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public Integer updateStatus(StatusRequest request) {
 
         SchoolAdmin staff = schoolAdminService.getAdminBySchoolId(request.getId());
+        if (null == staff) {
+            log.error("更新学校状态异常，找不到学校管理员。学校ID:{}", request.getId());
+            throw new BusinessException("数据异常!");
+        }
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
