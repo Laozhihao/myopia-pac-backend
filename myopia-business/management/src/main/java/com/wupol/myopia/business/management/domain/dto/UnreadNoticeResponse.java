@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.wupol.myopia.business.management.domain.model.Notice;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +16,18 @@ import java.util.List;
 @Setter
 public class UnreadNoticeResponse {
 
+    /**
+     * 总数
+     */
     private Integer total;
 
-    private List<Notice> details;
+    /**
+     * 站内信
+     */
+    private List<Notice> stationLetter;
+
+    /**
+     * 筛查通知
+     */
+    private List<ScreeningNotice> screeningNotice;
 }

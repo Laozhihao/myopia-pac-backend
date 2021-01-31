@@ -11,8 +11,12 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 通知Service
@@ -23,6 +27,9 @@ import java.util.List;
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
+    @Resource
+    private ScreeningNoticeService screeningNoticeService;
+
     /**
      * 获取通知列表
      *
@@ -31,7 +38,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @return {@link IPage} List<Notice>
      */
     public IPage<Notice> getLists(PageRequest pageRequest, CurrentUser currentUser) {
-        return baseMapper.getByUserId(pageRequest.toPage(), currentUser.getId());
+        return baseMapper.getByNoticeUserId(pageRequest.toPage(), currentUser.getId());
     }
 
     /**
@@ -63,9 +70,40 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      */
     public UnreadNoticeResponse unreadCount(CurrentUser currentUser) {
         UnreadNoticeResponse response = new UnreadNoticeResponse();
+
+        // 查找当前用户所有未读的
         List<Notice> notices = baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
         response.setTotal(notices.size());
-        response.setDetails(notices);
+
+        // 通过类型分组
+        Map<Byte, List<Notice>> noticeMaps = notices.stream()
+                .collect(Collectors.groupingBy(Notice::getType));
+
+        // 站内信
+        List<Notice> stationLetters = noticeMaps.get(CommonConst.NOTICE_STATION_LETTER);
+        if (!CollectionUtils.isEmpty(stationLetters)) {
+            response.setStationLetter(stationLetters);
+        }
+
+        // 筛查通知
+        List<Notice> screeningNotices = noticeMaps.get(CommonConst.NOTICE_SCREENING_NOTICE);
+        if (!CollectionUtils.isEmpty(screeningNotices)) {
+            // 查找筛查通知详情
+            List<Integer> screeningNoticeIds = screeningNotices.stream().map(Notice::getLinkId).collect(Collectors.toList());
+            response.setScreeningNotice(screeningNoticeService.getByIds(screeningNoticeIds));
+        }
         return response;
+    }
+
+    /**
+     * 筛查通知已读
+     *
+     * @param currentUser       当前用户
+     * @param screeningNoticeId 筛查通知ID
+     * @return 是否成功
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean readScreeningNotice(CurrentUser currentUser, Integer screeningNoticeId) {
+        return baseMapper.updateScreeningNotice(currentUser.getId(), screeningNoticeId) > 0;
     }
 }

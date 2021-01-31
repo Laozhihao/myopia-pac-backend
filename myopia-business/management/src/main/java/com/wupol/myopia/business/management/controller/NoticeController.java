@@ -45,4 +45,10 @@ public class NoticeController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.unreadCount(currentUser);
     }
+
+    @PostMapping("screeningNotice/{screeningNoticeId}")
+    public Object readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return noticeService.readScreeningNotice(currentUser, screeningNoticeId);
+    }
 }

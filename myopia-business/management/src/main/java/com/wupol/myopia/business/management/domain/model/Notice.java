@@ -27,6 +27,19 @@ public class Notice {
     private Integer createUserId;
 
     /**
+     * 关联ID
+     */
+    private Integer linkId;
+
+    /**
+     * 通知的userId
+     */
+    private Integer noticeUserId;
+
+    // 类型 0-站内信 1-筛查通知
+    private Byte type;
+
+    /**
      * 状态 0-未读 1-已读 2-删除
      */
     private Byte status;

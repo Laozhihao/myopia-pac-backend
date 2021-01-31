@@ -234,13 +234,15 @@ create table m_notice
     id             int auto_increment comment 'id'
         primary key,
     create_user_id int                                 null comment '创建人',
+    link_id        int                                 null comment '关联ID',
+    notice_user_id int                                 null comment '通知的userId',
+    type           tinyint                             not null comment '类型 0-站内信 1-筛查通知',
     status         tinyint   default 0                 not null comment '状态 0-未读 1-已读 2-删除',
     title          varchar(32)                         null comment '标题',
     content        varchar(512)                        not null comment '内容',
     download_url   varchar(128)                        null comment '文件url',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-
 )
     comment '消息表';
 

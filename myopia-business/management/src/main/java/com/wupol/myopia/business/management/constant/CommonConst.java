@@ -61,4 +61,14 @@ public interface CommonConst {
      * 筛查表默认ID
      */
     Integer DEFAULT_ID = 0;
+
+    /**
+     * 通知-站内信
+     */
+    Byte NOTICE_STATION_LETTER = 0;
+
+    /**
+     * 通知-筛查通知
+     */
+    Byte NOTICE_SCREENING_NOTICE = 1;
 }

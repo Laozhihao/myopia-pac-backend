@@ -15,9 +15,11 @@ import java.util.List;
  */
 public interface NoticeMapper extends BaseMapper<Notice> {
 
-    IPage<Notice> getByUserId(@Param("page") Page<?> page, @Param("userId") Integer userId);
+    IPage<Notice> getByNoticeUserId(@Param("page") Page<?> page, @Param("userId") Integer userId);
 
     Integer batchUpdateStatus(@Param("ids") List<Integer> ids, @Param("status") Integer status);
 
     List<Notice> unreadCount(@Param("status") Integer status, @Param("userId") Integer userId);
+
+    Integer updateScreeningNotice(@Param("noticeUserId") Integer noticeUserId, @Param("linkId") Integer linkId);
 }
