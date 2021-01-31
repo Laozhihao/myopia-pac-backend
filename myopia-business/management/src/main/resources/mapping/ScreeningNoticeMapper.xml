@@ -20,6 +20,7 @@
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
                 <if test="@Ognl@isNotEmpty(operationVersion)">and `operation_version` = #{operationVersion}</if>
@@ -33,7 +34,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
     </sql>
 
     <update id="release">

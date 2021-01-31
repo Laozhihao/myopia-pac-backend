@@ -88,14 +88,14 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     }
 
     /**
-     * 已读已创建任务状态处理
+     * 已读已创建通知状态处理
      *
      * @param noticeId
-     * @param govDeptId
+     * @param acceptOrgId
      * @param user
      */
-    public void readAndCreateTask(Integer noticeId, Integer govDeptId, CurrentUser user) {
+    public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, CurrentUser user) {
         //1. 更新状态
-        baseMapper.updateStatusByNoticeIdAndAcceptOrgId(noticeId, govDeptId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+        baseMapper.updateStatusByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
     }
 }

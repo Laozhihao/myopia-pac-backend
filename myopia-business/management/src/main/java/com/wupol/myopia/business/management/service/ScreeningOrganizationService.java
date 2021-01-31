@@ -414,4 +414,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .selectList(new QueryWrapper<ScreeningOrganization>()
                         .in("id", orgIds));
     }
+
+    /**
+     * 根据名称模糊查询
+     * @param screeningOrgNameLike
+     * @return
+     */
+    public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike) {
+        QueryWrapper<ScreeningOrganization> query = new QueryWrapper<>();
+        query.like("name", screeningOrgNameLike);
+        return baseMapper.selectList(query);
+    }
 }
