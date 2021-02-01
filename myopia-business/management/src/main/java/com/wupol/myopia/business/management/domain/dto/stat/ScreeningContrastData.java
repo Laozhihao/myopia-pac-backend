@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ScreeningCompareData {
+public class ScreeningContrastData {
     /** 筛查学生数 */
     private Integer screeningNum;
 
@@ -19,40 +19,40 @@ public class ScreeningCompareData {
     private Integer averageVisionRight;
 
     /** 视力低下率 */
-    private Float lowVisionRate;
+    private Float lowVisionRatio;
 
-    /** 视力不良率 */
-    private Float poorVisionRate;
+    /** 屈光不正率 */
+    private Float refractiveErrorRatio;
 
     /** 戴镜率 */
-    private Float wearingGlassesRate;
+    private Float wearingGlassesRatio;
 
     /** 近视人数 */
     private Integer myopiaNum;
 
     /** 近视率 */
-    private Float myopiaRate;
+    private Float myopiaRatio;
 
     /** 重点视力对象数量 */
     private Integer focusTargetsNum;
 
     /** 0级预警率 */
-    private Float warningLevelZeroRate;
+    private Float warningLevelZeroRatio;
 
     /** 1级预警率 */
-    private Float warningLevelOneRate;
+    private Float warningLevelOneRatio;
 
     /** 2级预警率 */
-    private Float warningLevelTwoRate;
+    private Float warningLevelTwoRatio;
 
     /** 3级预警率 */
-    private Float warningLevelThreeRate;
+    private Float warningLevelThreeRatio;
 
     /** 建议就诊数 */
     private Integer recommendVisitNum;
 
     /** 视力筛查完成率 */
-    private Float screeningFinishedRate;
+    private Float screeningFinishedRatio;
 
     /** 复测人数 */
     private Integer rescreenNum;
@@ -76,5 +76,5 @@ public class ScreeningCompareData {
     private Integer incorrectItemNum;
 
     /** 错误率/发生率 */
-    private Float incorrectRate;
+    private Float incorrectRatio;
 }

@@ -70,13 +70,8 @@ public class StatController {
         return ApiResult.success(list);
     }
 
-    @GetMapping("rescreenInfo")
-    public ApiResult getRescreenInfo() {
-        return ApiResult.success();
-    }
-
-    @GetMapping("/dataCompare")
-    public ApiResult dataCompare(@RequestParam("compareType") Integer compareType,
+    @GetMapping("/compareData")
+    public ApiResult getScreeningCompareData(@RequestParam("compareType") Integer compareType,
             @RequestParam("compareOneId") Integer compareOneId,
             @RequestParam(value = "compareTwoId", required = false) Integer compareTwoId) {
         return ApiResult.success();
