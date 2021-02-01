@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -63,6 +64,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
         Integer createUserId = hospital.getCreateUserId();
 
+        if (checkHospitalName(hospital.getName(), null)) {
+            throw new BusinessException("医院名字重复，请确认");
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -90,6 +95,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public HospitalResponseDTO updateHospital(Hospital hospital) {
+        if (checkHospitalName(hospital.getName(), hospital.getId())) {
+            throw new BusinessException("医院名字重复，请确认");
+        }
         baseMapper.updateById(hospital);
         Hospital h = baseMapper.selectById(hospital.getId());
         HospitalResponseDTO response = new HospitalResponseDTO();
@@ -216,7 +224,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
         String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
-        oauthService.resetPwd(userId,password);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -237,5 +245,21 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public IPage<Hospital> getByPage(Page<?> page, HospitalQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 检查医院名称是否重复
+     *
+     * @param hospitalName 医院名称
+     * @param id           医院ID
+     * @return 是否重复
+     */
+    public Boolean checkHospitalName(String hospitalName, Integer id) {
+        QueryWrapper<Hospital> queryWrapper = new QueryWrapper<Hospital>()
+                .eq("name", hospitalName);
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

@@ -92,6 +92,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             throw new BusinessException("数据异常");
         }
 
+        if (checkSchoolName(school.getName(), null)) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, schoolNo));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -116,6 +120,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
+
+        if (checkSchoolName(school.getName(), school.getId())) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
+
         baseMapper.updateById(school);
         School s = baseMapper.selectById(school.getId());
         SchoolResponseDTO dto = new SchoolResponseDTO();
@@ -454,5 +463,23 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getByIds(List<Integer> ids) {
         return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
+    }
+
+    /**
+     * 检查学校名称是否重复
+     *
+     * @param schoolName 学校名称
+     * @param id         学校ID
+     * @return 是否重复
+     */
+    public Boolean checkSchoolName(String schoolName, Integer id) {
+        QueryWrapper<School> queryWrapper = new QueryWrapper<School>()
+                .eq("name", schoolName);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

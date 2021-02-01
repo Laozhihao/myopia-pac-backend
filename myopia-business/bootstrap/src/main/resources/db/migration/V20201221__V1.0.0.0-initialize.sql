@@ -287,3 +287,12 @@ INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
 INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+
+create unique index m_hospital_name_uindex
+    on m_hospital (name);
+
+create unique index m_screening_organization_name_uindex
+    on m_screening_organization (name);
+
+create unique index m_school_name_uindex
+    on m_school (name);
