@@ -8,19 +8,16 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
-import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.management.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.management.service.ScreeningPlanService;
+import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +28,7 @@ import java.util.Objects;
 
 /**
  * 筛查计划相关接口
+ *
  * @author Alix
  * @Date 2021-01-20
  */
@@ -40,9 +38,15 @@ import java.util.Objects;
 @RequestMapping("/management/screeningPlan")
 public class ScreeningPlanController {
     @Autowired
-    protected ScreeningPlanService screeningPlanService;
+    private ScreeningTaskService screeningTaskService;
+    @Autowired
+    private ScreeningTaskOrgService screeningTaskOrgService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 新增
@@ -53,16 +57,27 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // TODO 已创建校验-调整
+        // 已创建校验
         if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
             throw new ValidationException("筛查计划已创建");
         }
-        // TODO 校验部门
-        // TODO 看前端是否能拿到用户的层级与部门再做处理
-//        if (user.isPlatformAdminUser()) {
-//            Assert.notNull(screeningTask.getDistrictId());
-//            Assert.notNull(screeningTask.getGovDeptId());
-//        }
+        // 校验用户机构
+        ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
+        ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId());
+        if (Objects.isNull(screeningTaskOrg)) {
+            throw new ValidationException("筛查机构错误");
+        }
+        if (user.isScreeningUser()) {
+            // 筛查机构人员，需校验是否同机构
+            Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getGovDeptId()), "无该筛查机构权限");
+        }
+        if (user.isPlatformAdminUser() || user.isScreeningUser()) {
+            screeningPlanDTO.setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
     }
 
@@ -124,8 +139,8 @@ public class ScreeningPlanController {
     /**
      * 分页查询计划列表
      *
-     * @param query   查询参数
-     * @param page    分页数据
+     * @param query 查询参数
+     * @param page  分页数据
      * @return Object
      */
     @GetMapping("page")
@@ -148,6 +163,18 @@ public class ScreeningPlanController {
         // 任务状态判断
         validateExist(screeningPlanId);
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
+    }
+
+    /**
+     * 获取计划学校的年级情况
+     *
+     * @param screeningPlanId 计划ID
+     * @param schoolId        学校ID
+     * @return Object
+     */
+    @GetMapping("grades/{screeningPlanId}/{schoolId}")
+    public List<SchoolGradeVo> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolStudentService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -207,7 +234,7 @@ public class ScreeningPlanController {
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         //TODO 非筛查机构，直接报错
         // 没有学校，直接报错
-        if (CollectionUtils.isEmpty(screeningPlanSchoolService.getSchoolListsByPlanId(id))){
+        if (CollectionUtils.isEmpty(screeningPlanSchoolService.getSchoolListsByPlanId(id))) {
             throw new ValidationException("无筛查的学校");
         }
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());

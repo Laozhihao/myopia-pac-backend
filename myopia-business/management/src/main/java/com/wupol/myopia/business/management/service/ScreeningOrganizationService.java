@@ -209,7 +209,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .getOrgStaffMapByIds(records.stream().map(ScreeningOrganization::getId)
                         .collect(Collectors.toList()));
         // 获取已有任务的机构ID列表
-        List<Integer> finalHaveTaskOrgIds = getHaveTaskOrgIds(query);
+        List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
@@ -227,7 +227,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
             // 筛查次数
             r.setScreeningTime(countMaps.getOrDefault(r.getId(), 0));
-            r.setAlreadyHaveTask(finalHaveTaskOrgIds.contains(r.getId()));
+            r.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
 
             // 详细地址
             r.setAddressDetail(districtService.getAddressDetails(

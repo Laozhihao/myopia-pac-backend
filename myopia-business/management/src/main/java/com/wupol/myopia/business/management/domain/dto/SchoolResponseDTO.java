@@ -31,4 +31,9 @@ public class SchoolResponseDTO extends School {
      * 地址详情
      */
     private String addressDetail;
+
+    /**
+     * 是否已有计划
+     */
+    private Boolean alreadyHavePlan = false;
 }

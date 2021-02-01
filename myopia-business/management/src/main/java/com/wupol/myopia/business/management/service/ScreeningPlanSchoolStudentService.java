@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,5 +63,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public Map<Integer, Long> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
         return getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+    }
+
+    /**
+     * 获取计划中的学校年级情况
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolGradeVo> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 }

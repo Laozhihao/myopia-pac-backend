@@ -32,6 +32,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -218,6 +219,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolDtoIPage;
         }
 
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
         Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
@@ -235,7 +239,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, countMaps, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
     }
 
@@ -248,7 +252,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, List<Integer> havePlanSchoolIds, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
@@ -268,7 +272,21 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 详细地址
             s.setAddressDetail(districtService.getAddressDetails(
                     s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+            s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
         };
+    }
+
+    /**
+     * 根据是否需要查询学校是否已有计划，返回时间段内已有计划的学校id
+     *
+     * @param query
+     * @return
+     */
+    private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
+        if (query.getNeedCheckHavePlan()) {
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
+        }
+        return Collections.emptyList();
     }
 
     /**
