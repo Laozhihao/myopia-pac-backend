@@ -2,6 +2,8 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContrast;
 import com.wupol.myopia.business.management.domain.dto.stat.TaskBriefNotification;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
@@ -70,11 +72,101 @@ public class StatController {
         return ApiResult.success(list);
     }
 
-    @GetMapping("/compareData")
-    public ApiResult getScreeningCompareData(@RequestParam("compareType") Integer compareType,
-            @RequestParam("compareOneId") Integer compareOneId,
-            @RequestParam(value = "compareTwoId", required = false) Integer compareTwoId) {
-        return ApiResult.success();
+    @GetMapping("/dataContrast")
+    public ApiResult getScreeningDataContrast(@RequestParam("contrastType") Integer contrastTypeId,
+            @RequestParam("nid1") Integer notificationId1,
+            @RequestParam(value = "nid2", required = false) Integer notificationId2,
+            Integer districtId, Integer schoolType) {
+        ScreeningDataContrastType contrastType = ScreeningDataContrastType.get(contrastTypeId);
+        if (contrastType == null) {
+            return ApiResult.failure("数据不正确");
+        }
+        // TODO: Deal according different params
+        switch (contrastType) {
+            case TIME:
+                break;
+            case TIME_N_DISTRICT:
+                break;
+            case TIME_N_SCHOOL_TYPE:
+                break;
+            case TIME_N_DISTRICT_N_SCHOOL_TYPE:
+        }
+        Integer actualScrNum = 1111111;
+        ScreeningDataContrast data1 =
+                ScreeningDataContrast.builder()
+                        .screeningNum(1234565)
+                        .actualScreeningNum(actualScrNum)
+                        .averageVisionLeft(0.83f)
+                        .averageVisionRight(0.85f)
+                        .lowVisionRatio(convertToRatio(350000f / actualScrNum))
+                        .refractiveErrorRatio(convertToRatio(0.23f))
+                        .wearingGlassesRatio(convertToRatio(0.53f))
+                        .myopiaNum(350000)
+                        .myopiaRatio(convertToRatio(350000f / actualScrNum))
+                        .focusTargetsNum(350000)
+                        .warningLevelZeroRatio(convertToRatio(123430f / actualScrNum))
+                        .warningLevelOneRatio(convertToRatio(23430f / actualScrNum))
+                        .warningLevelTwoRatio(convertToRatio(10020f / actualScrNum))
+                        .warningLevelThreeRatio(convertToRatio(8430f / actualScrNum))
+                        .recommendVisitNum(123430)
+                        .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum))
+                        .rescreenNum(Math.round(actualScrNum * 0.25f))
+                        .wearingGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.35f))
+                        .wearingGlassesRescreenIndexNum(
+                                Math.round(actualScrNum * 0.25f * 0.35f) * 4)
+                        .withoutGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.65f))
+                        .withoutGlassesRescreenIndexNum(
+                                Math.round(actualScrNum * 0.25f * 0.65f) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum * 0.25f * 0.65f) * 6)
+                        .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
+                        .incorrectRatio(convertToRatio(0.0015f))
+                        .build();
+
+        Integer actualScrNum2 = 1010101;
+        ScreeningDataContrast data2 =
+                ScreeningDataContrast.builder()
+                        .screeningNum(2234565)
+                        .actualScreeningNum(actualScrNum2)
+                        .averageVisionLeft(0.83f)
+                        .averageVisionRight(0.85f)
+                        .lowVisionRatio(convertToRatio(0.43f))
+                        .refractiveErrorRatio(convertToRatio(0.23f))
+                        .wearingGlassesRatio(convertToRatio(0.53f))
+                        .myopiaNum(350000)
+                        .myopiaRatio(convertToRatio(350000 * 1.0f / actualScrNum2))
+                        .focusTargetsNum(350000)
+                        .warningLevelZeroRatio(convertToRatio(123430 * 1f / actualScrNum2))
+                        .warningLevelOneRatio(convertToRatio(23430 * 1f / actualScrNum2))
+                        .warningLevelTwoRatio(convertToRatio(10020 * 1f / actualScrNum2))
+                        .warningLevelThreeRatio(convertToRatio(8430 * 1f / actualScrNum2))
+                        .recommendVisitNum(123430)
+                        .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum2))
+                        .rescreenNum(Math.round(actualScrNum2 * 0.25f))
+                        .wearingGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.35f))
+                        .wearingGlassesRescreenIndexNum(
+                                Math.round(actualScrNum2 * 0.25f * 0.35f) * 4)
+                        .withoutGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.65f))
+                        .withoutGlassesRescreenIndexNum(
+                                Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum2 * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
+                        .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
+                        .incorrectRatio(convertToRatio(0.0015f))
+                        .build();
+        Map result = new HashMap() {
+            {
+                put("result1", data1);
+                if (notificationId2 != null && notificationId2 > 0) {
+                    put("result2", data2);
+                }
+            }
+        };
+        return ApiResult.success(result);
+    }
+
+    private Float convertToRatio(Float num) {
+        return Math.round(num * 10000) / 100f;
     }
 
     private Long getYearMillis(Integer year) {

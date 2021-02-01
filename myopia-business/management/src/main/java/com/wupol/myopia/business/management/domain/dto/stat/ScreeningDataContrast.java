@@ -5,27 +5,24 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ScreeningContrastData {
+public class ScreeningDataContrast {
     /** 筛查学生数 */
     private Integer screeningNum;
 
     /** 实际筛查学生数 */
-    private Integer ActualScreeningNum;
+    private Integer actualScreeningNum;
 
     /** 左眼平均视力 */
-    private Integer averageVisionLeft;
+    private Float averageVisionLeft;
 
     /** 右眼平均视力 */
-    private Integer averageVisionRight;
+    private Float averageVisionRight;
 
     /** 视力低下率 */
     private Float lowVisionRatio;
 
     /** 屈光不正率 */
     private Float refractiveErrorRatio;
-
-    /** 戴镜率 */
-    private Float wearingGlassesRatio;
 
     /** 近视人数 */
     private Integer myopiaNum;
@@ -56,6 +53,9 @@ public class ScreeningContrastData {
 
     /** 复测人数 */
     private Integer rescreenNum;
+
+    /** 戴镜率 */
+    private Float wearingGlassesRatio;
 
     /** 戴镜复测人数 */
     private Integer wearingGlassesRescreenNum;

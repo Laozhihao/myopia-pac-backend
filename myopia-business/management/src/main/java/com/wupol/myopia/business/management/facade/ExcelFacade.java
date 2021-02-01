@@ -228,20 +228,23 @@ public class ExcelFacade {
         List<School> list = schoolService.getBy(query);
         List<SchoolExportVo> exportList = new ArrayList<>();
         for (School item : list) {
-            SchoolExportVo exportVo = new SchoolExportVo()
-                    .setNo(item.getSchoolNo())
-                    .setName(item.getName())
-                    .setKind(item.getKindDesc())
-                    .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
-                    .setType(SchoolEnum.getTypeName(item.getType()))
-                    .setStudentCount(123)
-                    .setDistrictName("层级")
-                    .setAddress(item.getAddress())
-                    // TODO 待组装数据. X年级：X班、Y班 ；Q年级：X班、Y班
-                    .setClassName("年级")
-                    .setRemark(item.getRemark())
-                    .setScreeningCount(2121)
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            SchoolExportVo exportVo =
+                    new SchoolExportVo()
+                            .setNo(item.getSchoolNo())
+                            .setName(item.getName())
+                            .setKind(item.getKindDesc())
+                            // TODO: @is lodgeStatus needed?
+                            // .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
+                            .setType(SchoolType.get(item.getType()).name)
+                            .setStudentCount(123)
+                            .setDistrictName("层级")
+                            .setAddress(item.getAddress())
+                            // TODO 待组装数据. X年级：X班、Y班 ；Q年级：X班、Y班
+                            .setClassName("年级")
+                            .setRemark(item.getRemark())
+                            .setScreeningCount(2121)
+                            .setCreateTime(DateFormatUtil.format(
+                                    item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
             exportVo.setProvince(districtList.get(0))
                     .setCity(districtList.get(1))
