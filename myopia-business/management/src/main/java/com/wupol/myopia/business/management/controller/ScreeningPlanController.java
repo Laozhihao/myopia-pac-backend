@@ -219,7 +219,7 @@ public class ScreeningPlanController {
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        screeningPlanService.removeWithSchools(id);
+        screeningPlanService.removeWithSchools(CurrentUserUtil.getCurrentUser(), id);
     }
 
     /**

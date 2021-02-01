@@ -7,6 +7,8 @@
     </resultMap>
     <resultMap id="SchoolGradeVo" type="com.wupol.myopia.business.management.domain.vo.SchoolGradeVo">
     </resultMap>
+    <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.management.domain.dto.GradeClassesDTO">
+    </resultMap>
 
 
     <!-- 通用查询条件 -->
@@ -33,10 +35,12 @@
     <sql id="Base_Column_List">
         id, screening_plan_id, school_id, school_name, grade_id, class_id, student_id, student_age, student_situation, student_no, student_name, create_time
     </sql>
-    <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="SchoolGradeVo">
-        select grade_id, class_id from m_screening_plan_school_student
+    <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
+        select msg.id as grade_id, msg.name as grade_name, msc.id as class_id, msc.name as class_name from (select grade_id, class_id from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
-        group by grade_id, class_id
+        group by grade_id, class_id) grader_class
+            left join m_school_grade msg on grader_class.grade_id = msg.id
+            left join m_school_class msc on grader_class.class_id = msc.id
     </select>
 
 </mapper>

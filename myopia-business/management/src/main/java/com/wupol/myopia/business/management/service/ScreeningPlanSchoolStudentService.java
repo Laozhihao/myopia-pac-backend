@@ -4,13 +4,16 @@ import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
+import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,6 +75,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<SchoolGradeVo> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        List<GradeClassesDTO> gradeClasses = baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        List<SchoolGradeVo> schoolGradeVos = new ArrayList<>();
+        Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
+        graderIdClasses.keySet().forEach(gradeId -> {
+            SchoolGradeVo vo = new SchoolGradeVo();
+            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
+            vo.setId(gradeId).setName(gradeClassesDTOS.get(0).getGradeName());
+            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
+                SchoolClass schoolClass = new SchoolClass();
+                schoolClass.setId(dto.getClassId()).setName(dto.getClassName());
+                return schoolClass;
+            }).collect(Collectors.toList()));
+            schoolGradeVos.add(vo);
+        });
+        return schoolGradeVos;
     }
 }

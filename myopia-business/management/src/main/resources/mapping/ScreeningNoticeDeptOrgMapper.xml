@@ -36,7 +36,7 @@
 
     <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
         SELECT
-          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time,
+          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
           msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.operation_status
         FROM
         m_screening_notice_dept_org msndo

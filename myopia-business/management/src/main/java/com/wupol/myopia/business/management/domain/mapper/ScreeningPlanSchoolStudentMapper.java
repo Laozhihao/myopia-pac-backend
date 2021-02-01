@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
+import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
@@ -15,5 +16,5 @@ import java.util.List;
  */
 public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPlanSchoolStudent> {
 
-    List<SchoolGradeVo> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 }

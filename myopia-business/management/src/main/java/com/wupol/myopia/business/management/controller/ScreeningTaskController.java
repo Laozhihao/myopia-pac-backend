@@ -18,6 +18,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.service.ScreeningTaskService;
 
+import javax.management.DescriptorKey;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.List;
@@ -171,6 +172,7 @@ public class ScreeningTaskController {
      * @return boolean 已有任务true，没有任务false
      */
     @PostMapping("orgs/period/{orgId}")
+    @Deprecated
     public boolean checkOrgHasTaskInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
         return screeningTaskOrgService.checkHasTaskInPeriod(orgId, screeningTaskQuery);
     }
