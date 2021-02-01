@@ -52,4 +52,13 @@
         from m_school_grade
         <include refid="Base_Where_Clause"/>
     </select>
+
+    <select id="getBySchoolIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO">
+        select *
+        from m_school_grade msg
+                where msg.school_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

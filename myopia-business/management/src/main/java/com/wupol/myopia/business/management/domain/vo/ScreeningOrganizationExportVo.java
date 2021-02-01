@@ -31,29 +31,53 @@ public class ScreeningOrganizationExportVo implements Serializable {
 
     public static final String TOP_HEADER = "筛查机构表";
     public static final String TOP_HEADER2 = "最新筛查任务";
+
     @ExcelProperty({TOP_HEADER, "序号"})
     private Integer id;
+
     @ExcelProperty({TOP_HEADER, "筛查机构名称"})
     private String name;
-    @ExcelProperty({TOP_HEADER, "详细地址"})
-    private String address;
+
     @ExcelProperty({TOP_HEADER, "类型"})
     private String type;
-    @ExcelProperty({TOP_HEADER, "说明"})
-    private String remark;
+
+    @ExcelProperty({TOP_HEADER, "配置"})
+    private String config;
+
+    @ExcelProperty({TOP_HEADER, "联系方式"})
+    private String phone;
+
     @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
     private String personSituation;
+
+    @ExcelProperty({TOP_HEADER, "说明"})
+    private String remark;
+
     @ExcelProperty({TOP_HEADER, "筛查次数"})
     private Integer screeningCount;
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查标题"})
-    private String screeningTitle;
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查时间段"})
-    private String screeningTime;
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "当前进度"})
-    private String screeningProgress;
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "负责筛查学校"})
-    private String screeningSchool;
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "筛查人员"})
-    private String screeningPersonSituation;
+
+    @ExcelProperty({TOP_HEADER, "所处层级"})
+    private String districtName;
+
+    @ExcelProperty({TOP_HEADER, "省"})
+    private String province;
+
+    @ExcelProperty({TOP_HEADER, "市"})
+    private String city;
+
+    @ExcelProperty({TOP_HEADER, "县区"})
+    private String area;
+
+    @ExcelProperty({TOP_HEADER, "镇/街道"})
+    private String town;
+
+    @ExcelProperty({TOP_HEADER, "详细"})
+    private String address;
+
+    @ExcelProperty({TOP_HEADER, "创建人"})
+    private String createUser;
+
+    @ExcelProperty({TOP_HEADER, "创建时间"})
+    private String createTime;
 
 }

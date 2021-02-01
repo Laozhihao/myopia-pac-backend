@@ -42,4 +42,12 @@
         where s.name = #{schoolName} and sg.name = #{gradeName} and s.status = 0
     </select>
 
+    <select id="getByGradeIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO">
+        select *
+        from m_school_class msc
+                where msc.grade_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
