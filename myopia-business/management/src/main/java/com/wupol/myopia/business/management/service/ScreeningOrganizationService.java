@@ -145,6 +145,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 详细地址
         response.setAddressDetail(districtService.getAddressDetails(
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
+        response.setScreeningTime(screeningOrganization.getScreeningTime())
+                .setStaffCount(screeningOrganization.getStaffCount());
         return response;
     }
 

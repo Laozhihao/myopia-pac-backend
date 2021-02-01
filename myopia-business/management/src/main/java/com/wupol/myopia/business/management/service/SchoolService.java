@@ -125,6 +125,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         // 判断是否能更新
         dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+        dto.setStudentCount(school.getStudentCount())
+                .setScreeningCount(school.getScreeningCount())
+                .setCreateUser(school.getCreateUser());
         return dto;
     }
 

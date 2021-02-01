@@ -133,6 +133,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
             studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
         }
+        studentDTO.setScreeningCount(student.getScreeningCount())
+                .setQuestionnaireCount(student.getQuestionnaireCount())
+                .setSeeDoctorCount(student.getSeeDoctorCount());
         return studentDTO;
     }
 
