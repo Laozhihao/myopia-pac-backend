@@ -47,7 +47,7 @@ public class PermissionController {
     @PostMapping()
     public Object addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        Assert.isTrue(param.getIsPage() == 1 || StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
+        Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
         return oauthService.addPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
@@ -60,9 +60,9 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object modifyPermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
+    public Object updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        Assert.isTrue(param.getIsPage() == 1 || StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
+        Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
         return oauthService.modifyPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));

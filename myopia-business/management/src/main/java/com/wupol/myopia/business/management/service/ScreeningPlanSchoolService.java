@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
@@ -27,6 +29,12 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolMapper, ScreeningPlanSchool> {
 
+    /**
+     * 通过学校ID获取计划
+     *
+     * @param schoolId 学校ID
+     * @return List<ScreeningPlanSchool>
+     */
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     /**
@@ -35,7 +43,17 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @return
      */
     public List<ScreeningPlanSchool> getBySchoolId(Integer schoolId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchool>().eq("school_id", schoolId));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningPlanSchool>()
+                        .eq("school_id", schoolId));
+    }
+
+    /**
+     * 学校筛查统计
+     * @return List<SchoolScreeningCountVO>
+     */
+    public List<SchoolScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
     }
 
     /**

@@ -120,6 +120,19 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
+     * 通过筛查通知ids查找
+     *
+     * @param ids ids
+     * @return List<ScreeningNotice>
+     */
+    public List<ScreeningNotice> getByIds(List<Integer> ids) {
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningNotice>()
+                        .in("id", ids)
+                        .orderByDesc("create_time"));
+    }
+
+    /**
      * 根据任务ID获取通知（type为1）
      * @param screeningTaskId
      * @return

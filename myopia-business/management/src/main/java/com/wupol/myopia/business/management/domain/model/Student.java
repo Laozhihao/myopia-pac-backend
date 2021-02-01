@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -95,7 +96,6 @@ public class Student implements Serializable {
     /**
      * 家长手机号码
      */
-    @Pattern(regexp = RegularUtils.REGULAR_MOBILE, message = "手机号码格式错误")
     private String parentPhone;
 
     /**
@@ -139,16 +139,6 @@ public class Student implements Serializable {
     private Integer visionLabel;
 
     /**
-     * 视力筛查次数
-     */
-    private Integer screeningCount;
-
-    /**
-     * 问卷数
-     */
-    private Integer questionnaireCount;
-
-    /**
      * 最近筛选次数
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
@@ -170,6 +160,24 @@ public class Student implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 视力筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningCount;
+
+    /**
+     * 问卷数
+     */
+    @TableField(exist = false)
+    private Integer questionnaireCount;
+
+    /**
+     * 就诊次数
+     */
+    @TableField(exist = false)
+    private Integer seeDoctorCount;
 
 
 }

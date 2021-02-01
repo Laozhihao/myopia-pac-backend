@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 消息表控制层
@@ -29,13 +30,13 @@ public class NoticeController {
         return noticeService.getLists(pageRequest, currentUser);
     }
 
-    @PutMapping("read/{ids}")
-    public Object readNotice(@PathVariable("ids") String ids) {
+    @PostMapping("read")
+    public Object readNotice(@RequestBody List<Integer> ids) {
         return noticeService.readNotice(ids);
     }
 
-    @DeleteMapping("deleted/{ids}")
-    public Object deletedNotice(@PathVariable("ids") String ids) {
+    @PostMapping("deleted")
+    public Object deletedNotice(@RequestBody List<Integer> ids) {
         return noticeService.deletedNotice(ids);
     }
 
@@ -43,5 +44,11 @@ public class NoticeController {
     public Object unreadCount() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.unreadCount(currentUser);
+    }
+
+    @PostMapping("screeningNotice/{screeningNoticeId}")
+    public Object readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return noticeService.readScreeningNotice(currentUser, screeningNoticeId);
     }
 }

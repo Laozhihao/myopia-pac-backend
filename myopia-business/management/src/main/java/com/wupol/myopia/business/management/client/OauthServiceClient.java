@@ -103,6 +103,15 @@ public interface OauthServiceClient {
     ApiResult<UserDTO> getUserDetailByUserId(@PathVariable("userId") Integer userId);
 
     /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @GetMapping("/oauth/user/count")
+    ApiResult<Integer> count(@SpringQueryMap UserDTO queryParam);
+
+    /**
      * 获取角色列表
      *
      * @param param 查询参数

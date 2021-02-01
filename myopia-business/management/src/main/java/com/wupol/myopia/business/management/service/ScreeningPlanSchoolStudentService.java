@@ -25,10 +25,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 根据学生id获取筛查计划学校学生
-     * @param studentId
-     * @return
+     *
+     * @param studentId 学生ID
+     * @return List<ScreeningPlanSchoolStudent>
      */
-    List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
+    public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
         return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("student_id", studentId));
     }
 

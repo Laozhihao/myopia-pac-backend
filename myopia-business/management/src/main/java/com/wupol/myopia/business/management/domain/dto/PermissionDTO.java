@@ -9,11 +9,10 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-//import javax.validation.constraints.Pattern;
 
 /**
  * 权限资源表
@@ -46,7 +45,10 @@ public class PermissionDTO implements Serializable {
 
     /**
      * 功能接口地址（权限资源为功能时，该值不能为空）
+     * put:/management/permission/template/**
+     * get:/management/district/all
      */
+    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]+(/([\\w-]+|(\\*\\*)))*$", message = "功能接口url格式错误", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private String apiUrl;
 
     /**
@@ -98,5 +100,4 @@ public class PermissionDTO implements Serializable {
      * 子权限
      */
     private List<PermissionDTO> child;
-
 }

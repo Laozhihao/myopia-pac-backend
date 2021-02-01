@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -88,19 +89,16 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
     private Long townCode;
 
     /**
@@ -130,5 +128,16 @@ public class ScreeningOrganization implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 筛查人员统计
+     */
+    @TableField(exist = false)
+    private Integer staffCount;
+
+    /**
+     * 筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningTime;
 
 }

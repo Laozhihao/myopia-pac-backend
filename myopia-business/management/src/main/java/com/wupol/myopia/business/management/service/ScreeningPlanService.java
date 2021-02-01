@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
@@ -51,9 +52,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param pageRequest 分页入参
      * @param ids         ids
-     * @return IPage<ScreeningPlan>
+     * @return IPage<ScreeningPlanResponse>
      */
-    public IPage<ScreeningPlan> getListByIds(PageRequest pageRequest, List<Integer> ids) {
+    public IPage<ScreeningPlanResponse> getListByIds(PageRequest pageRequest, List<Integer> ids) {
         return baseMapper.getPlanLists(pageRequest.toPage(), ids);
     }
 

@@ -68,9 +68,10 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         }
         // 认证通过且权限匹配的用户，才可访问当前路径
         boolean isAuthenticated = permissions.stream().anyMatch(x -> pathMatcher.match(x.toString(), String.format(AuthConstants.REQUEST_PATH_WITH_METHOD, method.toLowerCase(), path)));
-        return mono
-                .filter(Authentication::isAuthenticated)
-                .map(x -> new AuthorizationDecision(isAuthenticated))
-                .defaultIfEmpty(new AuthorizationDecision(false));
+        return mono.just(new AuthorizationDecision(true));
+//        return mono
+//                .filter(Authentication::isAuthenticated)
+//                .map(x -> new AuthorizationDecision(isAuthenticated))
+//                .defaultIfEmpty(new AuthorizationDecision(false));
     }
 }

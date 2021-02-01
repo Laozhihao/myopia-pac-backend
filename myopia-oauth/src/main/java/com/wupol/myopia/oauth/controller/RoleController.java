@@ -64,7 +64,10 @@ public class RoleController {
         if (!roleService.updateById(param)) {
             throw new BusinessException("修改角色失败");
         }
-        return param;
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setId(param.getId());
+        List<Role> roles = roleService.getRoleList(roleDTO);
+        return roles.get(0);
     }
 
     /**

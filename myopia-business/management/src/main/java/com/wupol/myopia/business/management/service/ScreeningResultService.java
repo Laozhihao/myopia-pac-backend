@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,9 +38,32 @@ public class ScreeningResultService extends BaseService<ScreeningResultMapper, S
         return baseMapper.selectOne(new QueryWrapper<ScreeningResult>().eq("plan_id", planId));
     }
 
-    public List<ScreeningResult> getByTaskId(Integer taskId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningResult>()
-                .eq("task_id", taskId)
-                .orderByDesc("create_time"));
+    /**
+     * 获取学校ID
+     *
+     * @param taskId 通知任务
+     * @return 学校ID
+     */
+    public List<Integer> getSchoolIdByTaskId(Integer taskId) {
+        return baseMapper.getSchoolIdByTaskId(taskId);
+    }
+
+    /**
+     * 获取筛查人员ID
+     *
+     * @param taskId 通知任务
+     * @return 学校ID
+     */
+    public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
+        return baseMapper.getCreateUserIdByTaskId(taskId);
+    }
+
+    /**
+     * 获取学生筛查次数
+     *
+     * @return List<StudentScreeningCountVO>
+     */
+    public List<StudentScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
     }
 }

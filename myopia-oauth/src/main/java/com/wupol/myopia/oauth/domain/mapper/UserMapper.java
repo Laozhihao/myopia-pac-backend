@@ -25,5 +25,7 @@ public interface UserMapper extends BaseMapper<User> {
      **/
     IPage<UserWithRole> selectUserListWithRole(@Param("page")IPage<?> page, @Param("param")UserDTO queryParam);
 
+    List<UserWithRole> selectUserListWithRole(@Param("param")UserDTO queryParam);
+
     List<User> selectUserList(@Param("param")UserDTO queryParam);
 }

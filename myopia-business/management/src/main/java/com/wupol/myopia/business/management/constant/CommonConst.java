@@ -18,11 +18,6 @@ public interface CommonConst {
     Integer STATUS_NOT_DELETED = 0;
 
     /**
-     * 筛查次数
-     */
-    Integer SCREENING_TIME = 0;
-
-    /**
      * 通知中心 未读状态
      */
     Integer STATUS_NOTICE_UNREAD = 0;
@@ -66,4 +61,14 @@ public interface CommonConst {
      * 筛查表默认ID
      */
     Integer DEFAULT_ID = 0;
+
+    /**
+     * 通知-站内信
+     */
+    Byte NOTICE_STATION_LETTER = 0;
+
+    /**
+     * 通知-筛查通知
+     */
+    Byte NOTICE_SCREENING_NOTICE = 1;
 }

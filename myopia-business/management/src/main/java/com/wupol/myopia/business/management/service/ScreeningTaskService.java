@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
@@ -64,7 +65,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param ids         ids
      * @return {@link IPage} 统一分页返回体
      */
-    public IPage<ScreeningTask> getTaskByIds(PageRequest pageRequest, List<Integer> ids) {
+    public IPage<ScreeningTaskResponse> getTaskByIds(PageRequest pageRequest, List<Integer> ids) {
         return baseMapper.getTaskByIds(pageRequest.toPage(), ids);
     }
 

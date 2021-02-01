@@ -9,6 +9,7 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -115,6 +116,17 @@ public class OauthService {
      **/
     @OauthRequest
     public UserDTO getUserDetailByUserId(Integer userId){
+        return null;
+    }
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @OauthRequest
+    public Integer count(UserDTO queryParam) {
         return null;
     }
 

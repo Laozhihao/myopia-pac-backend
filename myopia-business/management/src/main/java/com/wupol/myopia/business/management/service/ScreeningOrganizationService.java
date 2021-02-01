@@ -11,18 +11,17 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponse;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,9 +45,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
@@ -67,6 +64,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningResultService screeningResultService;
 
+    @Resource
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 保存筛查机构
      *
@@ -76,17 +79,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
-        Long townCode = screeningOrganization.getTownCode();
         Integer createUserId = screeningOrganization.getCreateUserId();
-
-        // 初始化省代码
-        screeningOrganization.setProvinceCode(provinceCode);
-
-        if (null == townCode) {
-            throw new BusinessException("数据异常");
+        String name = screeningOrganization.getName();
+        if (StringUtils.isBlank(name)) {
+            throw new BusinessException("名字不能为空");
         }
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, townCode));
-
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, name));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
@@ -101,7 +99,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 rLock.unlock();
             }
         }
-        log.warn("用户id:{}新增机构获取不到锁，区域代码:{}", createUserId, townCode);
+        log.warn("用户id:{}新增机构获取不到锁，机构名称:{}", createUserId, name);
         throw new BusinessException("请重试");
     }
 
@@ -136,9 +134,30 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrganization updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+        Integer orgId = screeningOrganization.getId();
+
         baseMapper.updateById(screeningOrganization);
-        return baseMapper.selectById(screeningOrganization.getId());
+        ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
+        ScreeningOrganization o = baseMapper.selectById(orgId);
+        BeanUtils.copyProperties(o, response);
+        response.setDistrictName(districtService.getDistrictName(o.getDistrictDetail()));
+        // 详细地址
+        response.setAddressDetail(districtService.getAddressDetails(
+                o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
+
+        // 获取管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(orgId);
+        if (null == admin) {
+            log.error("更新筛查机构ID异常:{}", orgId);
+            throw new BusinessException("数据异常");
+        }
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(admin.getUserId())
+                .setStatus(screeningOrganization.getStatus());
+        oauthService.modifyUser(userDTO);
+        return response;
     }
 
     /**
@@ -163,42 +182,58 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param currentUser 当前登录用户
      * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
-    public IPage<ScreeningOrgResponse> getScreeningOrganizationList(PageRequest pageRequest,
-                                                                    ScreeningOrganizationQuery query,
-                                                                    CurrentUser currentUser) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
+                                                                       ScreeningOrganizationQuery query,
+                                                                       CurrentUser currentUser) {
         Integer orgId = currentUser.getOrgId();
         Integer districtId = districtService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
         // 查询
-        IPage<ScreeningOrgResponse> orgLists = baseMapper.getScreeningOrganizationListByCondition(
+        IPage<ScreeningOrgResponseDTO> orgLists = baseMapper.getScreeningOrganizationListByCondition(
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getGovDeptId(), query.getPhone(), query.getStatus());
 
         // 为空直接返回
-        List<ScreeningOrgResponse> records = orgLists.getRecords();
+        List<ScreeningOrgResponseDTO> records = orgLists.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
         }
+
+        // 筛查次数
+        List<OrgScreeningCountVO> orgScreeningCountVOS = screeningTaskOrgService.countScreeningTime();
+        Map<Integer, Integer> countMaps = orgScreeningCountVOS
+                .stream().collect(Collectors
+                        .toMap(OrgScreeningCountVO::getScreeningOrgId,
+                                OrgScreeningCountVO::getCount));
+
         // 获取筛查人员信息
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService.getOrgStaffMapByIds(
-                records.stream().map(ScreeningOrganization::getId).collect(Collectors.toList()));
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
+                .getOrgStaffMapByIds(records.stream().map(ScreeningOrganization::getId)
+                        .collect(Collectors.toList()));
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
-            if (r.getGovDeptId().equals(orgId)) {
-                r.setCanUpdate(true);
-            }
+            r.setCanUpdate(r.getGovDeptId().equals(orgId));
+
+            // 筛查人员
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
             if (!CollectionUtils.isEmpty(staffLists)) {
                 r.setStaffCount(staffLists.size());
             } else {
                 r.setStaffCount(0);
             }
+            // 区域名字
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
-            r.setScreeningTime(CommonConst.SCREENING_TIME);
+
+            // 筛查次数
+            r.setScreeningTime(countMaps.getOrDefault(r.getId(), 0));
             r.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
+
+            // 详细地址
+            r.setAddressDetail(districtService.getAddressDetails(
+                    r.getProvinceCode(), r.getCityCode(), r.getAreaCode(), r.getTownCode(), r.getAddress()));
         });
         return orgLists;
     }
@@ -278,10 +313,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 获取筛查机构详情
      *
      * @param id 筛查机构ID
-     * @return org {@link ScreeningOrgResponse}
+     * @return org {@link ScreeningOrgResponseDTO}
      */
-    public ScreeningOrgResponse getScreeningOrgDetails(Integer id) {
-        ScreeningOrgResponse org = baseMapper.getOrgById(id);
+    public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
+        ScreeningOrgResponseDTO org = baseMapper.getOrgById(id);
         if (null == org) {
             throw new BusinessException("数据异常");
         }
@@ -296,7 +331,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningTask> getRecordLists(PageRequest request, Integer orgId) {
+    public IPage<ScreeningTaskResponse> getRecordLists(PageRequest request, Integer orgId) {
         // 查询筛查任务关联的机构表
         List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
 
@@ -305,20 +340,70 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return new Page<>();
         }
         // 获取筛查通知任务
-        return screeningTaskService.getTaskByIds(request, taskOrgLists
+        IPage<ScreeningTaskResponse> taskPages = screeningTaskService.getTaskByIds(request, taskOrgLists
                 .stream()
                 .map(ScreeningTaskOrg::getScreeningTaskId)
                 .collect(Collectors.toList()));
+        List<ScreeningTaskResponse> tasks = taskPages.getRecords();
+        if (CollectionUtils.isEmpty(tasks)) {
+            return taskPages;
+        }
+        tasks.forEach(this::extractedDTO);
+        return taskPages;
     }
 
     /**
-     * 获取筛查记录详情
+     * 封装DTO
      *
-     * @param id 详情ID
-     * @return 详情
+     * @param taskResponse 筛查端-记录详情
      */
-    public Object getRecordDetail(Integer id) {
-        return screeningResultService.getByTaskId(id);
+    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+        ScreeningRecordItems response = new ScreeningRecordItems();
+        List<RecordDetails> details = new ArrayList<>();
+
+        List<Integer> schoolIds = screeningResultService.getSchoolIdByTaskId(taskResponse.getId());
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return;
+        }
+
+        // 设置学校总数
+        response.setSchoolCount(schoolIds.size());
+
+        // 查询学校统计
+        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
+                .getBySchoolIds(taskResponse.getId(), schoolIds);
+        Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics
+                .stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
+
+        // 学校名称
+        List<School> schools = schoolService.getByIds(schoolIds);
+        Map<Integer, School> schoolMaps = schools.stream()
+                .collect(Collectors.toMap(School::getId, Function.identity()));
+
+        List<Integer> createUserIds = screeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
+        // 员工信息
+        if (!CollectionUtils.isEmpty(createUserIds)) {
+            List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);
+            response.setStaffCount(createUserIds.size());
+            response.setStaffName(userDTOS
+                    .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
+        }
+
+        // 封装DTO
+        schoolIds.forEach(s -> {
+            RecordDetails detail = new RecordDetails();
+            detail.setSchoolId(s);
+            if (null != schoolMaps.get(s)) {
+                detail.setSchoolName(schoolMaps.get(s).getName());
+            }
+            if (null != schoolStatisticMaps.get(s)) {
+                detail.setPlanScreeningNumbers(schoolStatisticMaps.get(s).getPlanScreeningNumbers());
+                detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+            }
+            details.add(detail);
+        });
+        response.setDetails(details);
+        taskResponse.setItems(response);
     }
 
     /**
@@ -333,7 +418,20 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
+     * 通过IDs批量查询
+     *
+     * @param orgIds id列表
+     * @return List<ScreeningOrganization>
+     */
+    public List<ScreeningOrganization> getByIds(List<Integer> orgIds) {
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganization>()
+                        .in("id", orgIds));
+    }
+
+    /**
      * 根据名称模糊查询
+     *
      * @param screeningOrgNameLike
      * @return
      */

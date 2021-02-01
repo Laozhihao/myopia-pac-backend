@@ -93,7 +93,7 @@
         <collection property="child"
                     ofType="com.wupol.myopia.oauth.domain.model.Permission"
                     column="{pid = id, roleId = role_id}"
-                    select="selectRolePermissionTree"/>
+                    select="selectAdminRolePermissionTree"/>
     </resultMap>
     <!-- 获取平台管理员的权限-树结构【基于全量权限】 -->
     <select id="selectAdminRolePermissionTree" resultMap="AdminRolePermissionTreeMap">

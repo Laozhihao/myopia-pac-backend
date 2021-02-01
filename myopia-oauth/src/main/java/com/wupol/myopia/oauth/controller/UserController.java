@@ -60,7 +60,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public UserDTO updateUser(@RequestBody UserDTO user) throws Exception {
+    public UserWithRole updateUser(@RequestBody UserDTO user) throws Exception {
         return userService.updateUser(user);
     }
 
@@ -82,7 +82,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping("/admin")
-    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) {
+    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
         return userService.addAdminUser(userDTO);
     }
 
@@ -131,5 +131,16 @@ public class UserController {
     @GetMapping("/list")
     public List<User> getUserListWithLike(UserDTO queryParam) {
         return userService.getUserListWithLike(queryParam);
+    }
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @GetMapping("/count")
+    public Integer count(UserDTO queryParam) throws IOException {
+        return userService.count(queryParam);
     }
 }

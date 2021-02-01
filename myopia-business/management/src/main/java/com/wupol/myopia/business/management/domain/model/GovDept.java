@@ -92,4 +92,10 @@ public class GovDept implements Serializable {
      */
     @TableField(exist = false)
     private String createUserName;
+
+    /**
+     * 部门人数
+     */
+    @TableField(exist = false)
+    private Integer userCount;
 }

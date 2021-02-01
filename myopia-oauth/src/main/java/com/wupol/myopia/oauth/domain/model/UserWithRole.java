@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.domain.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class UserWithRole extends User {
     /**
      * 创建人真实姓名
