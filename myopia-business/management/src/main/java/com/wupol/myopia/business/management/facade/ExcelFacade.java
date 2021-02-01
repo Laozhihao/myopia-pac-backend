@@ -91,12 +91,6 @@ public class ExcelFacade {
             throw new BusinessException("未找到对应的数据");
         }
 
-        // 查询层级
-        List<Integer> districtIds = list.stream()
-                .map(ScreeningOrganization::getDistrictId)
-                .collect(Collectors.toList());
-        Map<Integer, String> districtMaps = districtService.getByIds(districtIds);
-
         // 创建人姓名
         Set<Integer> createUserIds = list.stream()
                 .map(ScreeningOrganization::getCreateUserId)
@@ -114,8 +108,10 @@ public class ExcelFacade {
                     .setPersonSituation("886")
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
-                    .setDistrictName(districtMaps.get(item.getDistrictId()));
-            //TODO 待改成最新的筛查任务
+                    .setDistrictName(district.getName())
+                    .setAddress(item.getAddress())
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
@@ -128,9 +124,6 @@ public class ExcelFacade {
             if (null != item.getTownCode()) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
-            exportVo.setAddress(item.getAddress());
-            exportVo.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
-            exportVo.setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
@@ -206,7 +199,6 @@ public class ExcelFacade {
         Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
 
-
         for (Hospital item : list) {
             HospitalExportVo exportVo = new HospitalExportVo()
                     .setId(item.getId())
@@ -216,7 +208,9 @@ public class ExcelFacade {
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
                     .setRemark(item.getRemark())
+                    .setAccountNo(item.getName())
                     .setAddress(item.getAddress())
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
@@ -230,7 +224,6 @@ public class ExcelFacade {
             if (null != item.getTownCode()) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
-            exportVo.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
             exportList.add(exportVo);
         }
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
@@ -242,10 +235,11 @@ public class ExcelFacade {
      *
      * @param districtId 地区id
      **/
-    public File generateSchool(Integer districtId) throws IOException, ValidationException {
+    public File generateSchool(Integer districtId) throws IOException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
+
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学校");
         District district = districtService.findOne(new District().setId(districtId));
@@ -255,17 +249,12 @@ public class ExcelFacade {
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
 
-
         SchoolQuery query = new SchoolQuery();
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
-        List<Integer> districtIds = list.stream().map(School::getDistrictId).collect(Collectors.toList());
         Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
-
-        // 查询层级
-        Map<Integer, String> districtMaps = districtService.getByIds(districtIds);
 
         // 创建人姓名
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
@@ -298,14 +287,14 @@ public class ExcelFacade {
                     .setKind(item.getKindDesc())
                     .setType(SchoolEnum.getTypeName(item.getType()))
                     .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
-                    .setDistrictName(districtMaps.get(item.getDistrictId()))
+                    .setDistrictName(district.getName())
                     .setAddress(item.getAddress())
-
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
 
-            // TODO 待组装数据. X年级：X班、Y班 ；Q年级：X班、Y班
+            // TODO: 留给有缘人
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportVO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
@@ -339,7 +328,6 @@ public class ExcelFacade {
             if (null != item.getTownCode()) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
-            exportVo.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
