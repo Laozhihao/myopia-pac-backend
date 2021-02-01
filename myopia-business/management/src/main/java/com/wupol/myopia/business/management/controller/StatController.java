@@ -165,6 +165,11 @@ public class StatController {
         return ApiResult.success(result);
     }
 
+    @GetMapping("tastStat")
+    public ApiResult getTaskStat(Integer nid) {
+        return ApiResult.success();
+    }
+
     private Float convertToRatio(Float num) {
         return Math.round(num * 10000) / 100f;
     }
