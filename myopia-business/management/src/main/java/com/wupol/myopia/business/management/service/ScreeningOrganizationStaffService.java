@@ -191,11 +191,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
         String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
         String username = request.getPhone();
-        UserDTO userDTO = new UserDTO()
-                .setId(staff.getId())
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(staff.getUserId(), password);
         return new UsernameAndPasswordDTO(username, password);
     }
 

@@ -145,18 +145,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 详细地址
         response.setAddressDetail(districtService.getAddressDetails(
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
-
-        // 获取管理员
-        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(orgId);
-        if (null == admin) {
-            log.error("更新筛查机构ID异常:{}", orgId);
-            throw new BusinessException("数据异常");
-        }
-        // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(admin.getUserId())
-                .setStatus(screeningOrganization.getStatus());
-        oauthService.modifyUser(userDTO);
         return response;
     }
 
@@ -300,12 +288,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private UsernameAndPasswordDTO resetOAuthPassword(ScreeningOrganization screeningOrg, Integer userId) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = screeningOrg.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 

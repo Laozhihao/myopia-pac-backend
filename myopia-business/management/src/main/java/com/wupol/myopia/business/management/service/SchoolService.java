@@ -307,12 +307,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 

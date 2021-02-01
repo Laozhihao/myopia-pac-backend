@@ -216,12 +216,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
         String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId,password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
