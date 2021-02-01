@@ -416,6 +416,27 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取行政区域
+     *
+     * @param code code
+     * @return 名称
+     */
+    public String getDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+        // 为空，从数据库查询
+        String resultName = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("code", code)).getName();
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
      * 循环遍历
      *
      * @param name 名字
@@ -454,5 +475,17 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return getTopDistrictName(provinceCode) + "  " + address;
         }
         return "";
+    }
+
+    /**
+     * 通过行政id获取行政名称
+     *
+     * @param ids 行政id
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getByIds(List<Integer> ids) {
+        List<District> districts = baseMapper.selectList(new QueryWrapper<District>().in("id", ids));
+        return districts.stream()
+                .collect(Collectors.toMap(District::getId, District::getName));
     }
 }

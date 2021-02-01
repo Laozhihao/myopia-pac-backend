@@ -63,4 +63,6 @@ public interface CacheKey {
     String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
 
     String DISTRICT_TOP_CN_NAME = "district:top_cn_name:code_%s";
+
+    String DISTRICT_CN_NAME = "district:cn_name:code_%s";
 }

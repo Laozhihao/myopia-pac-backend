@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
  * @Date 2020-12-22
  */
 public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
-    List<SchoolGrade> getByIds(List<Integer> ids);
+    List<SchoolGrade> getByIds(@Param("ids") List<Integer> ids);
 
     IPage<SchoolGradeItems> getGradeBySchool(@Param("page") Page<?> page,
                                              @Param("schoolId") Integer schoolId);
@@ -25,4 +26,6 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
     List<SchoolGrade> getBy(SchoolGradeQuery query);
 
     IPage<SchoolGrade> getByPage(@Param("page") Page<?> page, @Param("query") SchoolGradeQuery query);
+
+    List<SchoolGradeExportVO> getBySchoolIds(@Param("ids") List<Integer> ids);
 }

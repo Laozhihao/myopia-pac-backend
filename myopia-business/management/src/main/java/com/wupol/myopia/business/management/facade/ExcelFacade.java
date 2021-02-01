@@ -13,7 +13,10 @@ import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
-import com.wupol.myopia.business.management.domain.query.*;
+import com.wupol.myopia.business.management.domain.query.HospitalQuery;
+import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
@@ -64,6 +67,7 @@ public class ExcelFacade {
 
     /**
      * 生成筛查机构Excel
+     *
      * @param districtId 地区id
      **/
     public File generateScreeningOrganization(Integer districtId) throws IOException {
@@ -78,45 +82,58 @@ public class ExcelFacade {
         }
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
-        // 构建数据
+
+        // 查询数据
         ScreeningOrganizationQuery query = new ScreeningOrganizationQuery();
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
             throw new BusinessException("未找到对应的数据");
         }
+
+        // 创建人姓名
+        Set<Integer> createUserIds = list.stream()
+                .map(ScreeningOrganization::getCreateUserId)
+                .collect(Collectors.toSet());
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+
         List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
-            List<Integer> staffIdList = screeningOrganizationStaffService.findByList(new ScreeningOrganizationStaff().setScreeningOrgId(item.getId()))
-                    .stream().map(ScreeningOrganizationStaff::getId).collect(Collectors.toList());
-            // 获取筛查人员信息
-            List<UserDTO> UserDTOList = oauthService.getUserBatchByIds(staffIdList);
-            List<String> staffNameList = UserDTOList.stream().map(UserDTO::getRealName).collect(Collectors.toList());
-
             ScreeningOrganizationExportVo exportVo = new ScreeningOrganizationExportVo();
             exportVo.setId(item.getId())
                     .setName(item.getName())
-                    .setAddress(getAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode(), item.getAddress()))
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
+                    .setConfig("配置")
+                    .setPhone(item.getPhone())
+                    .setPersonSituation("886")
                     .setRemark(item.getRemark())
-                    .setPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList))
-                    .setScreeningCount(1)
-                    //TODO 待改成最新的筛查任务
-                    .setScreeningTitle("筛查标题")
-                    .setScreeningTime("筛查时间段")
-                    .setScreeningProgress("筛查进度")
-                    .setScreeningSchool("负责筛查学校")
-                    .setScreeningPersonSituation("共" + staffNameList.size() + "名。" + toUserNameString(staffNameList));
+                    .setScreeningCount(886)
+                    .setDistrictName(district.getName())
+                    .setAddress(item.getAddress())
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            if (null != item.getProvinceCode()) {
+                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
+            }
+            if (null != item.getCityCode()) {
+                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
+            }
+            if (null != item.getAreaCode()) {
+                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
+            }
+            if (null != item.getTownCode()) {
+                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
+            }
             exportList.add(exportVo);
         }
-
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
     }
 
     /**
      * 生成筛查机构人员Excel
-     * @param screeningOrgId    机构id
+     *
+     * @param screeningOrgId 机构id
      **/
     public File generateScreeningOrganizationStaff(Integer screeningOrgId) throws IOException {
         if (Objects.isNull(screeningOrgId)) {
@@ -156,6 +173,7 @@ public class ExcelFacade {
 
     /**
      * 生成医院Excel
+     *
      * @param districtId 地区id
      **/
     public File generateHospital(Integer districtId) throws IOException, ValidationException {
@@ -170,12 +188,17 @@ public class ExcelFacade {
         }
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
-        // 构建数据
-        Set<Integer> createUserIds = new HashSet<>();
+
+        List<HospitalExportVo> exportList = new ArrayList<>();
+
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
-        List<HospitalExportVo> exportList = new ArrayList<>();
+
+        // 创建人姓名
+        Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+
         for (Hospital item : list) {
             HospitalExportVo exportVo = new HospitalExportVo()
                     .setId(item.getId())
@@ -185,36 +208,38 @@ public class ExcelFacade {
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
                     .setRemark(item.getRemark())
+                    .setAccountNo(item.getName())
                     .setAddress(item.getAddress())
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
-                exportVo.setProvince(districtList.get(0))
-                        .setCity(districtList.get(1))
-                        .setArea(districtList.get(2))
-                        .setTown(districtList.get(3));
+            if (null != item.getProvinceCode()) {
+                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
-            createUserIds.add(item.getCreateUserId());
+            if (null != item.getCityCode()) {
+                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
+            }
+            if (null != item.getAreaCode()) {
+                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
+            }
+            if (null != item.getTownCode()) {
+                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
+            }
             exportList.add(exportVo);
         }
-
-        // 批量设置创建人姓名
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
-        exportList.forEach(item -> {
-            item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
-        });
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
 
 
     /**
      * 生成学校Excel
+     *
      * @param districtId 地区id
      **/
-    public File generateSchool(Integer districtId) throws IOException, ValidationException {
+    public File generateSchool(Integer districtId) throws IOException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
+
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学校");
         District district = districtService.findOne(new District().setId(districtId));
@@ -223,52 +248,97 @@ public class ExcelFacade {
         }
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
-        // 构建数据
-        Set<Integer> createUserIds = new HashSet<>();
+
         SchoolQuery query = new SchoolQuery();
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
+
+        List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
+        Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
+
+        // 创建人姓名
+        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+
+        // 学生统计
+        // TODO: 优化查询，传入学校编号，有空再弄（留给有缘人）
+        List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
+        Map<String, Integer> studentCountMaps = studentCountVOS.stream()
+                .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
+
+        // 年级统计
+        List<SchoolGradeExportVO> grades = schoolGradeService.getBySchoolIds(schoolIds);
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportVO::getId).collect(Collectors.toList());
+
+        // 班级统计
+        List<SchoolClassExportVO> classes = schoolClassService.getByGradeIds(gradeIds);
+        // 通过班级id分组
+        Map<Integer, List<SchoolClassExportVO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportVO::getGradeId));
+        // 年级设置班级
+        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+
+        // 年级通过学校ID分组
+        Map<Integer, List<SchoolGradeExportVO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportVO::getSchoolId));
+
         List<SchoolExportVo> exportList = new ArrayList<>();
         for (School item : list) {
             SchoolExportVo exportVo = new SchoolExportVo()
                     .setNo(item.getSchoolNo())
                     .setName(item.getName())
                     .setKind(item.getKindDesc())
-                    .setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
-                    .setStudentCount(123)
-                    .setDistrictName("层级")
+                    .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
+                    .setDistrictName(district.getName())
                     .setAddress(item.getAddress())
-                    // TODO 待组装数据. X年级：X班、Y班 ；Q年级：X班、Y班
-                    .setClassName("年级")
                     .setRemark(item.getRemark())
-                    .setScreeningCount(2121)
+                    .setScreeningCount(886)
+                    .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
-                exportVo.setProvince(districtList.get(0))
-                        .setCity(districtList.get(1))
-                        .setArea(districtList.get(2))
-                        .setTown(districtList.get(3));
+
+            // TODO: 留给有缘人
+            StringBuilder result = new StringBuilder();
+            List<SchoolGradeExportVO> exportGrade = gradeMaps.get(item.getId());
+            if (!CollectionUtils.isEmpty(exportGrade)) {
+                for (SchoolGradeExportVO g : exportGrade) {
+                    result.append(g.getName()).append(": ");
+                    if (!CollectionUtils.isEmpty(g.getChild())) {
+                        for (int i = 0; i < g.getChild().size(); i++) {
+                            result.append(g.getChild().get(i).getName());
+                            if (i < g.getChild().size() - 1) {
+                                result.append("、");
+                            } else {
+                                result.append("。");
+                            }
+                        }
+                    }
+                }
+                exportVo.setClassName(result.toString());
             }
-            createUserIds.add(item.getCreateUserId());
+            if (null != item.getLodgeStatus()) {
+                exportVo.setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()));
+            }
+            if (null != item.getProvinceCode()) {
+                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
+            }
+            if (null != item.getCityCode()) {
+                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
+            }
+            if (null != item.getAreaCode()) {
+                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
+            }
+            if (null != item.getTownCode()) {
+                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
+            }
             exportList.add(exportVo);
         }
-
-        // 批量设置创建人姓名
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
-        exportList.forEach(item -> {
-            if (null != userMap.get(item.getCreateUserId())) {
-                item.setCreateUser(userMap.get(item.getCreateUserId()).getRealName());
-            }
-        });
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
     }
+
     /**
      * 生成学生Excel
-     * @param schoolId    学校id
-     * @param gradeId    年级id
+     *
+     * @param schoolId 学校id
+     * @param gradeId  年级id
      **/
     public File generateStudent(Integer schoolId, Integer gradeId) throws IOException, ValidationException {
         if (Objects.isNull(schoolId)) {
@@ -432,13 +502,17 @@ public class ExcelFacade {
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
-    /** 获取学生的导入模版 */
+    /**
+     * 获取学生的导入模版
+     */
     public File getStudentImportDemo() {
         //TODO 待完成文件系统再修改
         return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
     }
 
-    /** 获取筛查机构人员的导入模版 */
+    /**
+     * 获取筛查机构人员的导入模版
+     */
     public File getScreeningOrganizationStaffImportDemo() {
         //TODO 待完成文件系统再修改
         return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
@@ -453,7 +527,9 @@ public class ExcelFacade {
         return "";
     }
 
-    /** 用户名列表转成输出的字符串 */
+    /**
+     * 用户名列表转成输出的字符串
+     */
     private String toUserNameString(List<String> userNameList) {
         return userNameList.toString().replaceFirst("\\[", "").replaceFirst("]", "");
     }
@@ -461,7 +537,7 @@ public class ExcelFacade {
     /**
      * 获取文件路径
      *
-     * @param fileName  文件名
+     * @param fileName 文件名
      * @return java.lang.String
      **/
     private String getFilePathName(String fileName) {
