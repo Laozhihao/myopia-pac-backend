@@ -45,9 +45,11 @@
         LEFT JOIN m_government_department mgd ON msndo.accept_org_id = mgd.id
         <where>
             <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.releaseStatus)">and msn.`release_status` = #{param.releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(param.type)">and msn.`type` = #{param.type}</if>
                 <if test="@Ognl@isNotEmpty(param.operationStatus)">and msndo.operation_status = #{param.operationStatus}</if>
                 <if test="@Ognl@isNotEmpty(param.districtId)">and msndo.`district_id` = #{param.districtId}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and msndo.`accept_org_id` = #{param.govDeptId}</if>
                 <if test="param.titleLike != null and param.titleLike != ''">
                     and msn.`title` like CONCAT('%',#{param.titleLike},'%')
                 </if>

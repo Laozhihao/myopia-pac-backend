@@ -139,12 +139,18 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
 
     /**
      * 删除，并删除关联的机构信息
+     * 需修改通知状态为已读
      * @param screeningTaskId
      * @return
      */
-    public void removeWithOrgs(Integer screeningTaskId) {
-        removeById(screeningTaskId);
+    public void removeWithOrgs(Integer screeningTaskId, CurrentUser user) {
+        // 1. 修改通知状态为已读
+        ScreeningTask screeningTask = getById(screeningTaskId);
+        screeningNoticeDeptOrgService.read(screeningTask.getScreeningNoticeId(), screeningTask.getGovDeptId(), user);
+        // 2. 删除任务关联的筛查机构信息
         screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, Collections.emptyList());
+        // 3. 删除任务
+        removeById(screeningTaskId);
     }
 
     /**

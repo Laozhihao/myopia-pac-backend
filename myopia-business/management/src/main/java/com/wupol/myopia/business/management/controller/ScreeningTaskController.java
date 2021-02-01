@@ -185,7 +185,7 @@ public class ScreeningTaskController {
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        screeningTaskService.removeWithOrgs(id);
+        screeningTaskService.removeWithOrgs(id, CurrentUserUtil.getCurrentUser());
     }
 
     /**

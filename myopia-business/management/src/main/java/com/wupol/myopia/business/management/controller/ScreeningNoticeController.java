@@ -6,14 +6,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
+import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.management.service.ScreeningNoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,6 +40,9 @@ public class ScreeningNoticeController {
     protected ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private GovDeptService govDeptService;
+
     /**
      * 新增
      *
@@ -46,22 +52,40 @@ public class ScreeningNoticeController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // TODO 看前端是否能拿到用户的层级与部门再做处理
-//        if (user.isPlatformAdminUser()) {
-//            Assert.notNull(screeningNotice.getDistrictId());
-//            Assert.notNull(screeningNotice.getGovDeptId());
-//        }
+        createOrReleaseValidate(screeningNotice);
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningNotice.getDistrictId(), "请选择行政区域");
+            Assert.notNull(screeningNotice.getGovDeptId(), "请选择所处部门");
+        }
+        if (user.isScreeningUser()) {
+            throw new ValidationException("无权限");
+        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，设置为用户自身所在的部门层级
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            screeningNotice.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+        }
+        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        if (!screeningNoticeService.save(screeningNotice)) {
+            throw new BusinessException("创建失败");
+        }
+    }
+
+    /**
+     * 创建筛查通知或发布时校验
+     * 1. 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     * 2. 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
+     *
+     * @param screeningNotice
+     */
+    private void createOrReleaseValidate(ScreeningNotice screeningNotice) {
         // 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
         if (screeningNoticeService.checkTimeLegal(screeningNotice)) {
             throw new ValidationException("该部门该时间段已存在筛查通知");
         }
         // 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
-        if (screeningNoticeService.checkTitleExist(null, screeningNotice.getGovDeptId(), screeningNotice.getTitle())) {
+        if (screeningNoticeService.checkTitleExist(screeningNotice.getId(), screeningNotice.getGovDeptId(), screeningNotice.getTitle())) {
             throw new ValidationException("该部门已存在相同标题通知");
-        }
-        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
-        if (!screeningNoticeService.save(screeningNotice)) {
-            throw new BusinessException("创建失败");
         }
     }
 
@@ -126,7 +150,7 @@ public class ScreeningNoticeController {
      * 1. 管理员：所有
      * 2. 政府机构：自己部门创建的
      *
-     * @param query   查询参数
+     * @param query       查询参数
      * @param pageRequest 分页数据
      * @return Object
      */
@@ -147,13 +171,14 @@ public class ScreeningNoticeController {
      * 1. 政府机构：上级创建的创建的筛查通知
      * 2. 筛查机构：政府机构创建的筛查任务通知
      *
-     * @param query   查询参数
+     * @param query       查询参数
      * @param pageRequest 分页数据
      * @return Object
      */
     @GetMapping("page")
     public IPage queryInfo(ScreeningNoticeQuery query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        query.setReleaseStatus(CommonConst.STATUS_RELEASE);
         if (user.isGovDeptUser()) {
             query.setType(0);
             query.setGovDeptId(user.getOrgId());
@@ -188,14 +213,21 @@ public class ScreeningNoticeController {
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
-        //TODO 非政府部门，直接报错
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        screeningNoticeService.release(id, CurrentUserUtil.getCurrentUser());
+        ScreeningNotice notice = screeningNoticeService.getById(id);
+        createOrReleaseValidate(notice);
+        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
+            screeningNoticeService.release(id, user);
+        } else {
+            throw new ValidationException("无权限");
+        }
     }
 
     /**
      * 已读
      * 1. 校验权限；管理员-都可以，筛查通知-确认部门，筛查任务通知-确认机构
+     *
      * @param noticeDeptOrgId 筛查通知通知到的部门或者机构表ID
      * @return void
      */

@@ -58,7 +58,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * 判断筛查机构时间段是否已有发布的任务
      * 一个筛查机构在同一部门一个时间段内只能出现一次
      * @param orgId：机构ID
-     * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime，已有的会有screeningNoticeId
+     * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime，已有的需有id
      * @return
      */
     public boolean checkHasTaskInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {

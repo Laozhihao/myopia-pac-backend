@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,4 +17,6 @@ import java.util.List;
 public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchool> {
 
     List<ScreeningPlanSchoolVo> selectVoListByPlanId(@Param("screeningPlanId") Integer screeningPlanId);
+
+    List<ScreeningPlanSchool> selectHasPlanInPeriod(@Param("param") ScreeningPlanQuery screeningPlanQuery);
 }

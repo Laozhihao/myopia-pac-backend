@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS `m_screening_notice`;
 CREATE TABLE `m_screening_notice` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `title` varchar(25) NOT NULL COMMENT '筛查通知--标题（最大25个字符）',
-    `content` varchar(255) NOT NULL COMMENT '筛查通知--通知内容（长度未知）',
+    `content` varchar(10000) NOT NULL COMMENT '筛查通知--通知内容（长度未知）',
     `start_time` timestamp NULL COMMENT '筛查通知--开始时间（时间戳）',
     `end_time` timestamp NULL COMMENT '筛查通知--结束时间（时间戳）',
     `type` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '筛查通知--通知类型（0是筛查通知-政府、1是筛查任务通知-筛查机构）',

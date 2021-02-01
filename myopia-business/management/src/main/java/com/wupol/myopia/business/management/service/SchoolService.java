@@ -34,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -170,6 +171,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
 
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
@@ -210,8 +213,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             }
             // 行政区名字
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+            s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
         });
         return schoolDtoIPage;
+    }
+
+    /**
+     * 根据是否需要查询学校是否已有计划，返回时间段内已有计划的学校id
+     *
+     * @param query
+     * @return
+     */
+    private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
+        if (query.getNeedCheckHavePlan()) {
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
+        }
+        return Collections.emptyList();
     }
 
     /**

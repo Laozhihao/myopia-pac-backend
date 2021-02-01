@@ -22,14 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Service
@@ -52,6 +49,19 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     }
 
     /**
+     * 根据通知ID和接收机构ID获取通知
+     *
+     * @param screeningNoticeId
+     * @param acceptOrgId
+     * @return
+     */
+    public ScreeningNoticeDeptOrg getByScreeningNoticeIdAndAcceptOrgId(Integer screeningNoticeId, Integer acceptOrgId) {
+        QueryWrapper<ScreeningNoticeDeptOrg> query = new QueryWrapper<>();
+        query.eq("screening_notice_id", screeningNoticeId).eq("accept_org_id", acceptOrgId);
+        return baseMapper.selectOne(query);
+    }
+
+    /**
      * 分页查询
      * @param query
      * @param pageRequest
@@ -62,7 +72,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         Map<Integer, String> districtIdNameMap = districtService.getAllDistrictIdNameMap();
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).collect(Collectors.toList());
-        Map<Integer, String> govDeptIdNameMap = govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
+        Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         screeningNoticeIPage.getRecords().forEach(vo -> {
             vo.setDistrictName(districtIdNameMap.getOrDefault(vo.getDistrictId(), ""));
             if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())) {
@@ -85,6 +95,23 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         if (!updateById(noticeDeptOrg, user.getId())) {
             throw new BusinessException("已读失败");
         }
+    }
+
+    /**
+     * 根据通知ID和机构ID设置已读
+     *
+     * @param screeningNoticeId
+     * @param acceptOrgId
+     * @param user
+     */
+    public void read(Integer screeningNoticeId, Integer acceptOrgId, CurrentUser user) {
+        // 1. 查找关联的通知
+        ScreeningNoticeDeptOrg noticeDeptOrg = getByScreeningNoticeIdAndAcceptOrgId(screeningNoticeId, acceptOrgId);
+        if (Objects.isNull(noticeDeptOrg)) {
+            return;
+        }
+        // 2. 更新状态
+        read(noticeDeptOrg.getId(), user);
     }
 
     /**

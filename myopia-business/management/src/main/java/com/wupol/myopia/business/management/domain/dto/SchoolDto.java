@@ -36,4 +36,9 @@ public class SchoolDto extends School {
      * 行政区域名
      */
     private String districtName;
+
+    /**
+     * 是否已有计划
+     */
+    private Boolean alreadyHavePlan = false;
 }

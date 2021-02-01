@@ -110,7 +110,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 判断时间段是否合法（只查看已发布的）
+     * 发布筛查通知时，判断时间段是否合法（只查看已发布的且校验type为0）
      * 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
      * @param screeningNotice：必须存在govDeptId、startTime、endTime
      * @return
