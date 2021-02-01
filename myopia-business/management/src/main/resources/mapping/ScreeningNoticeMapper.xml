@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNotice">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -18,10 +20,11 @@
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
                 <if test="@Ognl@isNotEmpty(operationVersion)">and `operation_version` = #{operationVersion}</if>
-                <if test="@Ognl@isNotEmpty(creatorId)">and `creator_id` = #{creatorId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
@@ -31,11 +34,52 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, content, start_time, end_time, type, gov_dept_id, district_id, release_status, release_time, operation_version, creator_id, create_time, operator_id, operate_time
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
     </sql>
 
     <update id="release">
         update m_screening_notice set release_status = 1 , release_time = current_timestamp where id = #{id}
     </update>
+
+    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        m_screening_notice
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
+                <if test="@Ognl@isNotEmpty(param.type)">and `type` = #{param.type}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and `district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and `title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.createUserIds != null">
+                    and `creator_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectByTimePeriods" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        m_screening_notice
+        <where>
+            <trim prefixOverrides="and">
+                and release_status = 1
+                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="param.startTime != null and param.endTime != null">
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
 
 </mapper>

@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -23,5 +25,17 @@
     <sql id="Base_Column_List">
         id, screening_plan_id, school_id, school_name, create_time
     </sql>
+
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO">
+        select count(1) as count, school_id
+        from m_screening_plan_school
+        group by school_id
+    </select>
+    <select id="selectVoListByPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
+      SELECT
+        <include refid="Base_Column_List"/>
+      FROM m_screening_plan_school
+      WHERE screening_plan_id = #{screeningPlanId}
+    </select>
 
 </mapper>

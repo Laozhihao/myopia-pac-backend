@@ -28,6 +28,7 @@
                 <if test="@Ognl@isNotEmpty(isKeyWarningCrown)">and `is_key_warning_crown` = #{isKeyWarningCrown}</if>
                 <if test="@Ognl@isNotEmpty(isRecommendedVisits)">and `is_recommended_visits` = #{isRecommendedVisits}</if>
                 <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -35,7 +36,26 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_school_student_id, task_id, studentId, schoolId, plan_id, district_id, left_naked_vision, right_naked_vision, left_corrected_vision, right_corrected_vision, glasses_type, vision_label, is_low_vision, is_myopia, is_key_warning_crown, is_recommended_visits, is_double_screen, create_time
+        id, screening_plan_school_student_id, task_id, studentId, schoolId, plan_id, district_id, left_naked_vision, right_naked_vision, left_corrected_vision, right_corrected_vision, glasses_type, vision_label, is_low_vision, is_myopia, is_key_warning_crown, is_recommended_visits, is_double_screen, create_user_id, create_time
     </sql>
 
+    <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
+        SELECT school_id
+        FROM m_screening_result
+        WHERE task_id = #{taskId}
+        GROUP BY school_id
+    </select>
+
+    <select id="getCreateUserIdByTaskId" resultType="java.lang.Integer">
+        SELECT create_user_id
+        FROM m_screening_result
+        WHERE task_id = #{taskId}
+        GROUP BY create_user_id
+    </select>
+
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
+        select count(1) as count, student_id
+        from m_screening_result
+        group by student_id
+    </select>
 </mapper>

@@ -2,8 +2,12 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -16,5 +20,7 @@ import java.util.List;
  */
 public interface ScreeningTaskMapper extends BaseMapper<ScreeningTask> {
 
-    IPage<ScreeningTask> getTaskByIds(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+    IPage<ScreeningTaskResponse> getTaskByIds(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+
+    IPage<ScreeningTaskVo> selectPageByQuery(@Param("page") Page<ScreeningTask> page, @Param("param") ScreeningTaskQuery query);
 }

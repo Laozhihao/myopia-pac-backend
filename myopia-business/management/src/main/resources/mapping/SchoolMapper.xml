@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.School">
     </resultMap>
 
-    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.management.domain.dto.SchoolDto">
+    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.management.domain.dto.SchoolResponseDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->

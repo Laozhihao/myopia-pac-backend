@@ -75,6 +75,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /** 根据code获取对应的地址 */
     public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
+            return Collections.emptyList();
+        }
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
         for (District item : districtList) {
@@ -109,6 +112,17 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         List<District> list = baseMapper.selectList(new QueryWrapper<>());
         redisUtil.set(key, list);
         return list;
+    }
+
+    /** 获取所有地行政区域,带缓存 */
+    public Map<Integer, String> getAllDistrictIdNameMap() {
+        String key = CacheKey.DISTRICT_ID_NAME_MAP;
+        if (redisUtil.hasKey(key)) {
+            return (Map) redisUtil.get(key);
+        }
+        Map<Integer, String> districtIdNameMap = getAllDistrict().stream().collect(Collectors.toMap(District::getId, District::getName));
+        redisUtil.set(key, districtIdNameMap);
+        return districtIdNameMap;
     }
 
     /**
@@ -380,4 +394,65 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return baseMapper.selectBatchIds(districtIds);
     }
 
+    /**
+     * 从当前节点出发，向上获取区域名称
+     *
+     * @param code 当前节点
+     * @return 名字
+     */
+    public String getTopDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_TOP_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+
+        // 为空，从数据库查询
+        String resultName = getName("", code);
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
+     * 循环遍历
+     *
+     * @param name 名字
+     * @param code code
+     * @return 名字
+     */
+    private String getName(String name, Long code) {
+        District district = baseMapper
+                .selectOne(new QueryWrapper<District>()
+                        .eq("code", code));
+        if (null == district) {
+            return name;
+        }
+        return getName(district.getName() + name, district.getParentCode());
+    }
+
+
+    /**
+     * 通过code拼接详细地址
+     *
+     * @param provinceCode 省代码
+     * @param cityCode     市代码
+     * @param areaCode     区代码
+     * @param townCode     镇代码
+     * @param address      地址
+     * @return 全名称
+     */
+    public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
+        if (null != townCode) {
+            return getTopDistrictName(townCode) + "  " + address;
+        } else if (null != areaCode) {
+            return getTopDistrictName(areaCode) + "  " + address;
+        } else if (null != cityCode) {
+            return getTopDistrictName(cityCode) + "  " + address;
+        } else if (null != provinceCode) {
+            return getTopDistrictName(provinceCode) + "  " + address;
+        }
+        return "";
+    }
 }

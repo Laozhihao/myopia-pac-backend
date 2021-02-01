@@ -49,7 +49,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolService.updateSchool(school);
+        return schoolService.updateSchool(school, user);
     }
 
     @GetMapping("{id}")
@@ -88,11 +88,6 @@ public class SchoolController {
     @GetMapping("screening/record/lists/{schoolId}")
     public Object getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
         return schoolService.getScreeningRecordLists(pageRequest, schoolId);
-    }
-
-    @GetMapping("screening/record/{planId}")
-    public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
-        return schoolService.getScreeningRecordDetail(planId);
     }
 
     @GetMapping("/checkSchoolNo/{schoolNo}")

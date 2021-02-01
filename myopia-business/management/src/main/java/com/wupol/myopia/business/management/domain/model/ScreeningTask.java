@@ -11,9 +11,9 @@ import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * 筛查通知任务或者计划表
+ * 筛查通知任务表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data
@@ -75,18 +75,16 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--发布时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date releaseTime;
 
     /**
      * 筛查任务--创建者ID
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查任务--创建时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -97,7 +95,6 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--最后操作时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operateTime;
 
 

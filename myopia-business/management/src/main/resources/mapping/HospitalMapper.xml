@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Hospital">
     </resultMap>
 
-    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.HospitalResponse">
+    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.HospitalResponseDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -56,7 +56,10 @@
         <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and h.status != 2
+        <if test="status != null">
+            and h.status = #{status}
+        </if>
+
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
         </if>

@@ -8,17 +8,19 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponse;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -46,9 +48,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolClassService schoolClassService;
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private ScreeningResultService screeningResultService;
@@ -94,9 +93,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Integer createUserId = student.getCreateUserId();
         String idCard = student.getIdCard();
 
-        // 初始化省代码
-        student.setProvinceCode(provinceCode);
-
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -127,14 +123,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Student resultStudent = baseMapper.selectById(student.getId());
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(resultStudent, studentDTO);
-        // 查询年级和班级
-        SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
-        SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
         if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
             School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
             studentDTO.setSchoolName(school.getName());
+            studentDTO.setSchoolId(school.getId());
+
+            // 查询年级和班级
+            SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
+            SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+            studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
         }
-        return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
+        return studentDTO;
     }
 
     /**
@@ -186,18 +185,34 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 学校信息
         Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
+        // 筛查次数
+        List<StudentScreeningCountVO> studentScreeningCountVOS = screeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountVO::getStudentId,
+                        StudentScreeningCountVO::getCount));
+
         // 封装DTO
         students.forEach(s -> {
-            if (null != gradeMaps.get(s.getGradeId())) {
-                s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-            }
-            if (null != classMaps.get(s.getClassId())) {
-                s.setClassName(classMaps.get(s.getClassId()).getName());
-            }
+
+            // 学校编码不为空才显示班级和年级信息
             if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
+                if (null != gradeMaps.get(s.getGradeId())) {
+                    s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+                }
+                if (null != classMaps.get(s.getClassId())) {
+                    s.setClassName(classMaps.get(s.getClassId()).getName());
+                }
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
+
+            // 筛查次数
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+
+            // TODO: 就诊次数
+            s.setSeeDoctorCount(0);
+            // TODO: 设置问卷数
+            s.setQuestionnaireCount(0);
         });
         return pageStudents;
     }
@@ -238,11 +253,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 获取学生筛查档案
      *
      * @param studentId 学生ID
-     * @return Object
+     * @return StudentScreeningResultResponse
      */
-    public List<ScreeningResult> getScreeningList(Integer studentId) {
+    public StudentScreeningResultResponse getScreeningList(Integer studentId) {
+        StudentScreeningResultResponse response = new StudentScreeningResultResponse();
+
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByStudentIds(studentId);
+        List<ScreeningResult> resultList = screeningResultService.getByStudentIds(studentId);
+        response.setTotal(resultList.size());
+        response.setItems(resultList);
+        return response;
     }
 
     /**
@@ -284,5 +304,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
         return baseMapper.getByOtherId(schoolId, classId, gradeId);
+    }
+
+    /**
+     * 统计学生人数
+     *
+     * @return List<StudentCountVO>
+     */
+    public List<StudentCountVO> countStudentBySchoolNo() {
+        return baseMapper.countStudentBySchoolNo();
     }
 }

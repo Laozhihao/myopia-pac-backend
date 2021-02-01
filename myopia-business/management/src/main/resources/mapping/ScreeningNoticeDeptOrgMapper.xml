@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg">
     </resultMap>
+    <resultMap id="ScreeningNoticeVoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -13,7 +15,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-                <if test="@Ognl@isNotEmpty(acceptGovOrgId)">and `accept_gov_org_id` = #{acceptGovOrgId}</if>
+                <if test="@Ognl@isNotEmpty(acceptOrgId)">and `accept_org_id` = #{acceptOrgId}</if>
                 <if test="@Ognl@isNotEmpty(operationStatus)">and `operation_status` = #{operationStatus}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -23,7 +25,37 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_notice_id, district_id, accept_gov_org_id, operation_status, operator_id, create_time
+        id, screening_notice_id, district_id, accept_org_id, operation_status, operator_id, create_time
     </sql>
+
+    <update id="updateStatusByNoticeIdAndAcceptOrgId">
+        UPDATE m_screening_notice_dept_org
+        SET operator_id = #{operatorId}, operation_status = #{operationStatus}
+        WHERE screening_notice_id = #{screeningNoticeId} AND accept_org_id = #{acceptOrgId}
+    </update>
+
+    <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
+        SELECT
+          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time,
+          msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.operation_status
+        FROM
+        m_screening_notice_dept_org msndo
+        LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
+        LEFT JOIN m_district md ON msndo.district_id = md.id
+        LEFT JOIN m_government_department mgd ON msndo.accept_org_id = mgd.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.type)">and msn.`type` = #{param.type}</if>
+                <if test="@Ognl@isNotEmpty(param.operationStatus)">and msndo.operation_status = #{param.operationStatus}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and msndo.`district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and msn.`title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(msn.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msn.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
 
 </mapper>

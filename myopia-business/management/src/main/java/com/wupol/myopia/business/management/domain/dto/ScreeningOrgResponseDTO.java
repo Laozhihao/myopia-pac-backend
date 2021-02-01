@@ -14,18 +14,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ScreeningOrgResponse extends ScreeningOrganization {
-
-    /**
-     * 筛查人员统计
-     */
-    private Integer staffCount;
-
-    /**
-     * 筛查次数
-     */
-    private Integer screeningTime;
-
+public class ScreeningOrgResponseDTO extends ScreeningOrganization {
     /**
      * 是否能更新
      */
@@ -41,4 +30,14 @@ public class ScreeningOrgResponse extends ScreeningOrganization {
      * 行政区域名
      */
     private String districtName;
+
+    /**
+     * 是否已有任务
+     */
+    private Boolean alreadyHaveTask = false;
+
+    /**
+     * 地址详情
+     */
+    private String addressDetail;
 }
