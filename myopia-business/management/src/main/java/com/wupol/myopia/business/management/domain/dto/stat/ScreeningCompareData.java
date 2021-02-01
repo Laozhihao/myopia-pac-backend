@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ScreenCompareData {
+public class ScreeningCompareData {
     /** 筛查学生数 */
     private Integer screeningNum;
 
