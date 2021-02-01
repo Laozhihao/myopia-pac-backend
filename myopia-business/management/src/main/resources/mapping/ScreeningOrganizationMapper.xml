@@ -69,6 +69,9 @@
         <if test="districtId != null">
             and mso.district_id = #{districtId}
         </if>
+        <if test="govDeptId != null">
+            and mso.gov_dept_id = #{govDeptId}
+        </if>
         <if test="phone != null and phone != ''">
             and mso.phone like CONCAT('%', #{phone}, '%')
         </if>

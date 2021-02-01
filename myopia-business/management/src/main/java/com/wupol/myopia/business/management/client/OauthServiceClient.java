@@ -87,10 +87,11 @@ public interface OauthServiceClient {
      * 重置管理端用户的密码【其他端用户的不适合】
      *
      * @param userId 用户ID
+     * @param password 密码
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PutMapping("/oauth/user/password/{userId}")
-    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId);
+    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId, @RequestParam("password") String password);
 
     /**
      * 获取用户明细
@@ -161,6 +162,15 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/districtPermission/{templateType}")
     ApiResult<List<PermissionDTO>> getPermissionTemplate(@PathVariable("templateType") Integer templateType);
+
+    /**
+     * 根据模板类型获取模板权限的ID集
+     *
+     * @param templateType 模板类型
+     * @return com.wupol.myopia.base.domain.ApiResult<java.util.List<java.lang.Integer>>
+     **/
+    @GetMapping("/oauth/districtPermission/list/{templateType}")
+    ApiResult<List<Integer>> getPermissionTemplateIdList(@PathVariable("templateType") Integer templateType);
 
     /**
      * 更新模板权限

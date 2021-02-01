@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlan">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -18,10 +20,10 @@
                 <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
-                <if test="@Ognl@isNotEmpty(creatorId)">and `creator_id` = #{creatorId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
@@ -31,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, org_id, release_status, release_time, creator_id, create_time, operator_id, operate_time
+        id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, release_status, release_time, create_user_id, create_time, operator_id, operate_time
     </sql>
 
     <select id="getPlanLists" resultMap="BaseResultMap">
@@ -42,5 +44,33 @@
             #{id}
         </foreach>
         order by msp.create_time desc
+    </select>
+
+    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT
+        mst.id, mst.screening_task_id, mst.title, mst.start_time, mst.end_time, mst.content, mst.release_time, mst.release_status,
+        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id, mst.create_time
+        FROM
+        m_screening_plan mst
+        LEFT JOIN m_district md ON mst.district_id = md.id
+        LEFT JOIN m_government_department mgd ON mst.gov_dept_id = mgd.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and mst.`district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and mst.`title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.createUserIds != null">
+                    and mst.`create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.screeningOrgIds != null">
+                    and mst.`screening_org_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(mst.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
     </select>
 </mapper>

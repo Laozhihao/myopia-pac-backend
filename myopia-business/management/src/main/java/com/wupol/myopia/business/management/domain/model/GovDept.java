@@ -81,6 +81,15 @@ public class GovDept implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 下级部门
+     */
     @TableField(exist = false)
     private List<GovDept> child;
+
+    /**
+     * 创建人名
+     */
+    @TableField(exist = false)
+    private String createUserName;
 }

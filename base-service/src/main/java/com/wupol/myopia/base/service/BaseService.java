@@ -55,7 +55,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @return java.util.List<T>
      **/
     public List<T> findByListOrderByIdAsc(T entity) throws IOException {
-        return list(getQueryWrapper(entity).orderByAsc("id"));
+        return list(getQueryWrapper(entity).orderByDesc("id"));
     }
 
     /**

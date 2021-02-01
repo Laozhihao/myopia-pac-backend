@@ -25,7 +25,6 @@ import java.util.List;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@Transactional(rollbackFor = Exception.class)
 @RequestMapping("/oauth/user")
 public class UserController {
 
@@ -72,8 +71,8 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping("/password/{userId}")
-    public User resetPwd(@PathVariable Integer userId) {
-        return userService.resetPwd(userId);
+    public User resetPwd(@PathVariable Integer userId, String password) {
+        return userService.resetPwd(userId, password);
     }
 
     /**

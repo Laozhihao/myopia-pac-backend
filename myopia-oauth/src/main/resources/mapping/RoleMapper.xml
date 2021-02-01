@@ -39,13 +39,20 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="orgId != null">and r.org_id = #{orgId}</if>
+                <if test="roleType != null">and r.role_type = #{roleType}</if>
+                <if test="systemCode != null">and r.system_code = #{systemCode}</if>
                 <if test="status != null">and r.status = #{status}</if>
                 <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
+                <if test="createUserName != null and createUserName != ''">and u.real_name like CONCAT("%",#{createUserName},"%")</if>
+                <if test="orgIds != null">
+                    and r.`org_id` IN <foreach collection="orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
+        ORDER BY r.create_time DESC
     </select>
 
-    <select id="getRoleListByUserId" resultMap="BaseResultMap">
+    <select id="selectRoleListByUserId" resultMap="BaseResultMap">
         SELECT
                r.*
         FROM
@@ -54,6 +61,20 @@
         WHERE
                 r.id = ur.role_id
           AND ur.user_id = #{userId}
+    </select>
+
+    <select id="selectUserIdList" resultType="integer">
+        SELECT
+             ur.user_id
+        FROM
+             o_role r INNER JOIN o_user_role ur ON r.id = ur.role_id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="orgId != null">and r.org_id = #{orgId}</if>
+                <if test="systemCode != null">and r.system_code = #{systemCode}</if>
+                <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
+            </trim>
+        </where>
     </select>
 
 </mapper>

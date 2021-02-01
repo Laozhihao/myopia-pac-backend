@@ -10,9 +10,8 @@ import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +93,46 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return resultIds;
     }
 
+
+    /**
+     * 获取当前id下的所属部门（子孙）
+     *
+     * @param govOrgId 部门id
+     * @return List<Integer>
+     */
+    public List<GovDept> getAllSubordinateWithDistrictId(Integer govOrgId) {
+        return getNextGovWithDistrictId(new ArrayList<>(), Lists.newArrayList(govOrgId));
+    }
+
+    /**
+     * 遍历获取部门id
+     *
+     * @param result 结果集合
+     * @param ids       入参
+     * @return List<Integer>
+     */
+    private List<GovDept> getNextGovWithDistrictId(List<GovDept> result, List<Integer> ids) {
+        List<GovDept> govDeptLists = getUnDeletedByPid(ids);
+        if (!govDeptLists.isEmpty()) {
+            List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());
+            result.addAll(govDeptLists);
+            getNextGovWithDistrictId(result, govDeptIds);
+        }
+        return result;
+    }
+
+    /**
+     * 根据PID获取未删除的部门
+     *
+     * @param ids
+     * @return
+     */
+    private List<GovDept> getUnDeletedByPid(List<Integer> ids) {
+        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("pid", ids).ne("status", CommonConst.STATUS_IS_DELETED);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 通过ID获取实体
      *
@@ -102,5 +141,53 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     public GovDept getGovDeptById(Integer id) {
         return baseMapper.selectById(id);
+    }
+
+    /**
+     * 获取政府部门（带有行政区域）
+     *
+     * @param ids 部门ID集
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    public List<GovDeptVo> getGovDeptWithDistrictByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectGovDeptWithDistrictByIds(ids);
+    }
+
+    /**
+     * 获取政府部门（带有行政区域）
+     *
+     * @param govDeptIds 部门ID集
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
+     **/
+    public Map<Integer, GovDeptVo> getGovDeptMapByIds(List<Integer> govDeptIds) {
+        if (CollectionUtils.isEmpty(govDeptIds)) {
+            return Collections.emptyMap();
+        }
+        List<GovDeptVo> govDeptList = getGovDeptWithDistrictByIds(govDeptIds);
+        return govDeptList.stream().collect(Collectors.toMap(GovDept::getId, Function.identity()));
+    }
+    /**
+     * 获取部门列表
+     *
+     * @param govDept 查询参数
+     * @return java.util.List<com.wupol.myopia.business.management.domain.vo.GovDeptVo>
+     **/
+    public List<GovDept> getGovDeptList(GovDept govDept) {
+        return baseMapper.selectGovDeptList(govDept);
+    }
+
+    /**
+     * 根据ID列表获取部门
+     *
+     * @param govDeptIds
+     * @return
+     */
+    public List<GovDept> getByIds(List<Integer> govDeptIds) {
+        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", govDeptIds);
+        return baseMapper.selectList(queryWrapper);
     }
 }

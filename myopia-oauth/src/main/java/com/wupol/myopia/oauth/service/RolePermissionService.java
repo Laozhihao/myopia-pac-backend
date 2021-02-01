@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.mapper.RolePermissionMapper;
 import com.wupol.myopia.oauth.domain.model.RolePermission;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class RolePermissionService extends BaseService<RolePermissionMapper, Rol
      *
      * @param roleId 角色ID
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteByRoleId(Integer roleId) {
         baseMapper.delete(new QueryWrapper<RolePermission>().eq("role_id", roleId));
     }
@@ -32,9 +33,11 @@ public class RolePermissionService extends BaseService<RolePermissionMapper, Rol
      * @param roleId        角色ID
      * @param permissionIds 权限资源ID
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void insertRolePermissionBatch(Integer roleId, List<Integer> permissionIds) {
-        baseMapper.insertRolePermissionBatch(roleId, permissionIds);
+        if (CollectionUtils.isNotEmpty(permissionIds)) {
+            baseMapper.insertRolePermissionBatch(roleId, permissionIds);
+        }
     }
 
     /**

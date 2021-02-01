@@ -9,7 +9,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 筛查通知表
@@ -25,6 +29,9 @@ public class ScreeningNotice implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final Integer TYPE_GOV_DEPT = 0;
+    public static final Integer TYPE_ORG = 1;
+
     /**
      * 主键id
      */
@@ -34,21 +41,26 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--标题（最大25个字符）
      */
+    @Length(max = 25)
+    @NotBlank
     private String title;
 
     /**
      * 筛查通知--通知内容（长度未知）
      */
+    @NotBlank
     private String content;
 
     /**
      * 筛查通知--开始时间（时间戳）
      */
+    @NotNull
     private Date startTime;
 
     /**
      * 筛查通知--结束时间（时间戳）
      */
+    @NotNull
     private Date endTime;
 
     /**
@@ -65,6 +77,11 @@ public class ScreeningNotice implements Serializable {
      * 筛查通知--所处地区id
      */
     private Integer districtId;
+
+    /**
+     * 筛查通知--来源的筛查任务id（type为1有）
+     */
+    private Integer screeningTaskId;
 
     /**
      * 筛查通知--通知状态（0未发布、1已发布）
@@ -84,7 +101,7 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--创建人id  
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查通知--创建时间（时间戳）

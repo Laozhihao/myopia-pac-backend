@@ -6,25 +6,20 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg">
     </resultMap>
 
+    <!-- vo查询映射结果 -->
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
-                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
-                <if test="@Ognl@isNotEmpty(
-qualityControllerName)">and `
-quality_controller_name` = #{
-qualityControllerName}</if>
-                <if test="@Ognl@isNotEmpty(
-qualityControllerContact)">and `
-quality_controller_contact` = #{
-qualityControllerContact}</if>
-                <if test="@Ognl@isNotEmpty(
-qualityControllerCommander)">and `
-quality_controller_commander` = #{
-qualityControllerCommander}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(qualityControllerName)">and `quality_controller_name` = #{qualityControllerName}</if>
+                <if test="@Ognl@isNotEmpty(qualityControllerContact)">and `quality_controller_contact` = #{qualityControllerContact}</if>
+                <if test="@Ognl@isNotEmpty(qualityControllerCommander)">and `quality_controller_commander` = #{qualityControllerCommander}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -32,10 +27,31 @@ qualityControllerCommander}</if>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, org_id, 
-quality_controller_name, 
-quality_controller_contact, 
-quality_controller_commander, create_time
+        id, screening_task_id, screening_org_id, quality_controller_name, quality_controller_contact, quality_controller_commander, create_time
     </sql>
+
+    <select id="selectHasTaskInPeriod" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        msto.*
+        FROM m_screening_task_org msto
+        LEFT JOIN m_screening_task mst ON msto.screening_task_id = mst.id
+        <where>
+            <trim prefixOverrides="and">
+                AND mst.release_status = 1
+                <if test="@Ognl@isNotEmpty(orgId)">and msto.`screening_org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ msto.`screening_task_id` <> #{param.id}]]></if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(mst.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectVoListByScreeningTaskId" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT msto.*, mso.name FROM m_screening_task_org msto
+            LEFT JOIN m_screening_organization mso ON msto.screening_org_id = mso.id
+        WHERE msto.screening_task_id = #{screeningTaskId}
+    </select>
 
 </mapper>

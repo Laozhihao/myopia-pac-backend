@@ -3,7 +3,7 @@ package com.wupol.myopia.oauth.domain.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -19,5 +19,5 @@ public class UserWithRole extends User {
     /**
      * 用户拥有的所有角色
      **/
-    private ArrayList<Role> roles;
+    private List<Role> roles;
 }

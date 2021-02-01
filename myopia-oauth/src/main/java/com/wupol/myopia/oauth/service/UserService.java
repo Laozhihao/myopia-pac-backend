@@ -64,8 +64,18 @@ public class UserService extends BaseService<UserMapper, User> {
         if (Objects.isNull(queryParam.getCurrent()) || Objects.isNull(queryParam.getSize())) {
             throw new BusinessException("页码或页数为空");
         }
+        // 防止跨系统查询
+        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+        if (!StringUtils.isEmpty(queryParam.getRoleName())) {
+            List<Integer> userIds = roleService.getUserIdList(new Role().setChName(queryParam.getRoleName()).setOrgId(queryParam.getOrgId()).setSystemCode(queryParam.getSystemCode()));
+            queryParam.setUserIds(userIds);
+        }
         Page<UserWithRole> page = new Page<>(queryParam.getCurrent(), queryParam.getSize());
-        return baseMapper.selectUserListWithRole(page, queryParam);
+        IPage<UserWithRole> userPage = baseMapper.selectUserListWithRole(page, queryParam);
+        // 获取角色信息
+        List<UserWithRole> userWithRoles = userPage.getRecords();
+        userWithRoles.forEach(userWithRole -> userWithRole.setRoles(roleService.getRoleListByUserId(userWithRole.getId())));
+        return userPage.setRecords(userWithRoles);
     }
 
     /**
@@ -146,17 +156,15 @@ public class UserService extends BaseService<UserMapper, User> {
      * 重置密码
      *
      * @param userId 用户ID
+     * @param password 密码
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User resetPwd(Integer userId) {
-        User user = getById(userId);
-        if (Objects.isNull(user)) {
-            throw new ValidationException("用户不存在");
-        }
-        String pwd = PasswordGenerator.getManagementUserPwd();
-        updateById(user.setPassword(new BCryptPasswordEncoder().encode(pwd)));
-        return user.setPassword(pwd);
+    public User resetPwd(Integer userId, String password) {
+        Assert.notNull(password, "密码不能为空");
+        User user = new User().setId(userId).setPassword(new BCryptPasswordEncoder().encode(password));
+        Assert.isTrue(updateById(user), "重置密码失败");
+        return user;
     }
 
     /** 修改用户信息 */

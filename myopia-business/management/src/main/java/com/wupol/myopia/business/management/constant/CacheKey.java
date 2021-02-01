@@ -13,7 +13,10 @@ public interface CacheKey {
     /**
      * 全部行政区域列表集合
      */
-    String DISTRICT_ALL_LIST = "district:all";
+    String DISTRICT_ALL_LIST = "district:all:list";
+    String DISTRICT_ALL_TREE = "district:all:tree";
+    String DISTRICT_ALL_PROVINCE_TREE = "district:all:province_tree";
+
     /**
      * 指定的行政区域
      */
@@ -27,6 +30,7 @@ public interface CacheKey {
      * 指定的省的行政区域
      */
     String DISTRICT_PROVINCE_LIST = "district:province_list:code_%s";
+    String DISTRICT_PROVINCE_TREE = "district:province_tree:code_%s";
 
     /**
      * 新增员工
@@ -57,5 +61,8 @@ public interface CacheKey {
      * 行政区域中文名
      */
     String DISTRICT_CN_NAME = "district:cn_name:id_%s";
-
+    /**
+     * 全部行政区域的ID、Name的Map
+     */
+    String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
 }
