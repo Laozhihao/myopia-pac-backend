@@ -58,6 +58,11 @@ public class Student implements Serializable {
     private Integer gradeId;
 
     /**
+     * 学龄段
+     */
+    private Integer gradeType;
+
+    /**
      * 班级id
      */
     private Integer classId;

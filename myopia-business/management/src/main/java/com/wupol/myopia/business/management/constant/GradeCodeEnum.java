@@ -17,33 +17,34 @@ import java.util.Objects;
 public enum GradeCodeEnum {
 
 
+    ONE_PRIMARY_SCHOOL("一年级", "01", 0),
+    TWO_PRIMARY_SCHOOL("二年级", "02", 0),
+    THREE_PRIMARY_SCHOOL("三年级", "03", 0),
+    FOUR_PRIMARY_SCHOOL("四年级", "04", 0),
+    FIVE_PRIMARY_SCHOOL("五年级", "05", 0),
+    SIX_PRIMARY_SCHOOL("六年级", "06", 0),
 
-    ONE_PRIMARY_SCHOOL("一年级", "01", 1),
-    TWO_PRIMARY_SCHOOL("二年级", "02", 1),
-    THREE_PRIMARY_SCHOOL("三年级", "03", 1),
-    FOUR_PRIMARY_SCHOOL("四年级", "04", 1),
-    FIVE_PRIMARY_SCHOOL("五年级", "05", 1),
-    SIX_PRIMARY_SCHOOL("六年级", "06", 1),
+    ONE_JUNIOR_SCHOOL("初一", "11", 1),
+    TWO_JUNIOR_SCHOOL("初二", "12", 1),
+    THREE_JUNIOR_SCHOOL("初三", "13", 1),
+    FOUR_JUNIOR_SCHOOL("初四", "14", 1),
 
-    ONE_JUNIOR_SCHOOL("初一", "11", 2),
-    TWO_JUNIOR_SCHOOL("初二", "12", 2),
-    THREE_JUNIOR_SCHOOL("初三", "13", 2),
-    FOUR_JUNIOR_SCHOOL("初四", "14", 2),
+    ONE_HIGH_SCHOOL("高一", "21", 2),
+    TWO_HIGH_SCHOOL("高二", "22", 2),
+    THREE_HIGH_SCHOOL("高三", "23", 2),
 
-    ONE_HIGH_SCHOOL("高一", "21", 3),
-    TWO_HIGH_SCHOOL("高二", "22", 3),
-    THREE_HIGH_SCHOOL("高三", "23", 3),
+    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", 3),
+    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", 3),
+    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", 3),
 
-    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", 4),
-    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", 4),
-    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", 4),
+    ONE_UNIVERSITY("大一", "41", 4),
+    TWO_UNIVERSITY("大二", "42", 4),
+    THREE_UNIVERSITY("大三", "43", 4),
+    FOUR_UNIVERSITY("大四", "44", 4),
 
-    ONE_UNIVERSITY("大一", "41", 5),
-    TWO_UNIVERSITY("大二", "42", 5),
-    THREE_UNIVERSITY("大三", "43", 5),
-    FOUR_UNIVERSITY("大四", "44", 5),
-
-    KINDERGARTEN("幼儿园大班", "53", 6),
+    ONE_KINDERGARTEN("小班", "51", 5),
+    TWO_KINDERGARTEN("中班", "52", 5),
+    THREE_KINDERGARTEN("大班", "53", 5),
 
     OTHER("其他", "90", 0);
 
@@ -73,11 +74,38 @@ public enum GradeCodeEnum {
 
     /**
      * 根据类型获取描述
+     *
+     * @param code code
+     * @return 描述
      */
     public static String getName(String code) {
         GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.code.equals(code))
                 .findFirst().orElse(null);
         return Objects.nonNull(h) ? h.name : null;
+    }
+
+    /**
+     * 根据code获取
+     *
+     * @param code code
+     * @return GradeCodeEnum
+     */
+    public static GradeCodeEnum getByCode(String code) {
+        return Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过名称获取学校code和type
+     *
+     * @param name 名称
+     * @return GradeCodeEnum
+     */
+    public static GradeCodeEnum getByName(String name) {
+        return Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.name.equals(name))
+                .findFirst().orElse(null);
     }
 }
