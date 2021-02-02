@@ -204,7 +204,7 @@ public class ExcelFacade {
                     .setId(item.getId())
                     .setName(item.getName())
                     .setDistrictName(district.getName())
-                    .setLevel(item.getLevelDesc())
+                    .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
                     .setRemark(item.getRemark())
@@ -228,7 +228,6 @@ public class ExcelFacade {
         }
         return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
     }
-
 
     /**
      * 生成学校Excel
