@@ -1,11 +1,15 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ScreeningDataStat {
+public class ScreeningClassStat {
+    /** 筛查通知ID */
+    private Integer notificationId;
+
     /** 筛查学生数 */
     private Integer screeningNum;
 
@@ -22,44 +26,19 @@ public class ScreeningDataStat {
     private Float averageVisionRight;
 
     /** 视力低下率 */
-    private Float lowVisionRatio;
-    /** 男视力低下率 */
-    private Float lowVisionMenRatio;
-    /** 女视力低下率 */
-    private Float lowVisionWomenRatio;
+    private ClassStat lowVision;
 
     /** 屈光不正率 */
-    private Float refractiveErrorRatio;
+    private ClassStat refractiveError;
 
-    /** 近视人数 */
-    private Integer myopiaNum;
+    /** 戴镜情况 */
+    private ClassStat wearingGlasses;
 
-    /** 近视率 */
-    private Float myopiaRatio;
-
-    /** 重点视力对象数量 */
-    private Integer focusTargetsNum;
-
-    /** 0级预警率 */
-    private Float warningLevelZeroRatio;
-
-    /** 1级预警率 */
-    private Float warningLevelOneRatio;
-
-    /** 2级预警率 */
-    private Float warningLevelTwoRatio;
-
-    /** 3级预警率 */
-    private Float warningLevelThreeRatio;
-
-    /** 建议就诊数 */
-    private Integer recommendVisitNum;
+    /** 近视情况 */
+    private ClassStat myopia;
 
     /** 复测人数 */
     private Integer rescreenNum;
-
-    /** 戴镜率 */
-    private Float wearingGlassesRatio;
 
     /** 戴镜复测人数 */
     private Integer wearingGlassesRescreenNum;
@@ -74,7 +53,7 @@ public class ScreeningDataStat {
     private Integer withoutGlassesRescreenIndexNum;
 
     /** 复测项次 */
-    private Integer rescreenItemNum;
+    private Long rescreenItemNum;
 
     /** 错误项次数 */
     private Integer incorrectItemNum;
@@ -83,23 +62,34 @@ public class ScreeningDataStat {
     private Float incorrectRatio;
 
     @Data
+    @AllArgsConstructor
     public static class BasicStatParams {
+        /** 占比 */
         private float ratio;
-        private float num;
+        /** 数量 */
+        private Integer num;
     }
 
     @Data
-    public static class GenderStat extends BasicStatParams {
+    @AllArgsConstructor
+    public static class ClassStat {
+        /** 占比 */
+        private float ratio;
+        /** 数量 */
+        private Integer num;
+        /** 男性 */
         private BasicStatParams male;
+        /** 女性 */
         private BasicStatParams female;
-    }
-
-    @Data
-    public static class GradeTypeStat extends BasicStatParams {
+        /** 幼儿园 */
         private BasicStatParams kindergarten;
+        /** 小学 */
         private BasicStatParams primary;
+        /** 初中 */
         private BasicStatParams junior;
+        /** 高中 */
         private BasicStatParams high;
+        /** 职业中学 */
         private BasicStatParams vocationalHigh;
     }
 }
