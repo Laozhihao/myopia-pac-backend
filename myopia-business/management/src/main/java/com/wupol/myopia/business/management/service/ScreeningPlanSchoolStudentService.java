@@ -1,17 +1,21 @@
 package com.wupol.myopia.business.management.service;
 
-import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +46,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param excludeSchoolIds
      */
     public void deleteByPlanIdAndExcludeSchoolIds(Integer screeningPlanId, List<Integer> excludeSchoolIds) {
-        Assert.notNull(screeningPlanId);
+        Assert.notNull(screeningPlanId, "筛查计划ID不能为空");
         QueryWrapper<ScreeningPlanSchoolStudent> query = new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId);
         if (!CollectionUtils.isEmpty(excludeSchoolIds)) {
             query.notIn("school_id", excludeSchoolIds);
@@ -90,5 +94,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             schoolGradeVos.add(vo);
         });
         return schoolGradeVos;
+    }
+
+    /**
+     * 分页获取筛查计划的学校学生数据
+     * @param query
+     * @param pageRequest
+     * @return
+     */
+    public IPage<StudentDTO> getPage(StudentQuery query, PageRequest pageRequest) {
+        Assert.notNull(query.getScreeningPlanId(), "筛查计划ID不能为空");
+        Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
+        Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
+        return baseMapper.selectPageByQuery(page, query);
     }
 }

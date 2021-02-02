@@ -74,7 +74,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         screeningNoticeIPage.getRecords().forEach(vo -> {
-            vo.setDistrictName(districtIdNameMap.getOrDefault(vo.getDistrictId(), ""));
+            vo.setDistrictName(districtIdNameMap.getOrDefault(vo.getDistrictId(), "")).setDistrictDetail(districtService.getDistrictPositionDetailById(vo.getDistrictId()));
             if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())) {
                 vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
             }

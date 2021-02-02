@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import cn.hutool.core.exceptions.ValidateException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -12,17 +13,21 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
+import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
+import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,6 +52,8 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ExcelFacade excelFacade;
 
     /**
      * 新增
@@ -185,8 +192,8 @@ public class ScreeningPlanController {
      */
     @PostMapping("schools")
     public void addSchoolsInfo(@RequestBody @Valid ScreeningPlanSchool screeningPlanSchool) {
-        // 任务状态判断
-        validateExistWithReleaseStatus(screeningPlanSchool.getScreeningPlanId(), CommonConst.STATUS_RELEASE);
+        // 任务状态判断：已发布才能新增
+        validateExistWithReleaseStatus(screeningPlanSchool.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
         // 是否已存在
         ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanSchool.getScreeningPlanId(), screeningPlanSchool.getSchoolId());
         if (Objects.nonNull(planSchool)) {
@@ -196,18 +203,6 @@ public class ScreeningPlanController {
             throw new BusinessException("新增失败");
         }
     }
-
-//    /**
-//     * 筛查机构相同时间段内是否已有已发布的任务
-//     *
-//     * @param orgId 机构ID
-//     * @param screeningTaskQuery 查询参数，必须有govDeptId、startCreateTime、endCreateTime，如果是已有任务，需有id
-//     * @return boolean 已有任务true，没有任务false
-//     */
-//    @PostMapping("orgs/period/{orgId}")
-//    public boolean checkOrgHasTaskInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
-//        return screeningTaskOrgService.checkHasTaskInPeriod(orgId, screeningTaskQuery);
-//    }
 
     /**
      * 根据ID删除（这里默认所有表的主键字段都为“id”,且自增）
@@ -238,5 +233,41 @@ public class ScreeningPlanController {
             throw new ValidationException("无筛查的学校");
         }
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 分页查询筛查学生信息
+     *
+     * @param query 查询参数
+     * @param page  分页数据
+     * @return Object
+     */
+    @GetMapping("students/page")
+    public IPage queryStudentInfos(PageRequest page, StudentQuery query) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isGovDeptUser()) {
+            throw new ValidationException("无查看权限");
+        }
+        return screeningPlanSchoolStudentService.getPage(query, page);
+    }
+
+    /**
+     * 导入筛查计划的学生数据
+     * @param file
+     * @param screeningPlanId
+     * @param schoolId
+     * @throws IOException
+     */
+    @PostMapping("/import/{screeningPlanId}/{schoolId}")
+    public void importOrganizationStaff(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        //1. 校验计划学校是否已存在
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
+        if (Objects.isNull(planSchool)) {
+            throw new ValidationException("该筛查学校不存在");
+        }
+        //2. 与肖肖已确认：发布成功后才能导入
+        validateExistWithReleaseStatus(screeningPlanId, CommonConst.STATUS_RELEASE);
+        excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
     }
 }

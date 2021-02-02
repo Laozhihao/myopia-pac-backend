@@ -4,6 +4,7 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -45,6 +46,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
+    private DistrictService districtService;
+    @Autowired
     private OauthServiceClient oauthServiceClient;
 
     /**
@@ -79,7 +82,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         Page<ScreeningTask> page = (Page<ScreeningTask>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
             UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setRealName(query.getCreatorNameLike());
+            userDTOQuery.setRealName(query.getCreatorNameLike()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
             List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(queryCreatorIds)) {
                 // 可以直接返回空
@@ -131,7 +134,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查机构信息
-        screeningTaskOrgService.saveOrUpdateBatchByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
+        screeningTaskOrgService.saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
         if (needUpdateNoticeStatus) {
             // 更新通知状态
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), user);
@@ -163,5 +166,16 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         QueryWrapper<ScreeningTask> query = new QueryWrapper<>();
         query.eq("screening_notice_id", screeningNoticeId).eq("gov_dept_id", govDeptId);
         return baseMapper.selectCount(query) > 0;
+    }
+
+    /**
+     * 获取任务DTO（带行政区明细）
+     * @param screeningTaskId
+     * @return
+     */
+    public ScreeningTaskDTO getDTOById(Integer screeningTaskId) {
+        ScreeningTaskDTO screeningTaskDTO = ScreeningTaskDTO.build(getById(screeningTaskId));
+        screeningTaskDTO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningTaskDTO.getDistrictId()));
+        return screeningTaskDTO;
     }
 }

@@ -325,6 +325,20 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 根据层级ID获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
+     *
+     * @param districtId 行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getDistrictPositionDetailById(Integer districtId) {
+        District district = getById(districtId);
+        if (Objects.isNull(district)) {
+            return Collections.emptyList();
+        }
+        return getDistrictPositionDetail(district.getCode());
+    }
+
+    /**
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param district 行政区域

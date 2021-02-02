@@ -467,4 +467,51 @@ public class ExcelFacade {
     private String getFilePathName(String fileName) {
         return FilenameUtils.concat(IOUtils.getTempSubPath("excel"), fileName);
     }
+
+    public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, Integer screeningPlanId, Integer schoolId) throws IOException {
+//        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
+//        File file = new File(fileName);
+//        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+//        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+//        List<Map<Integer, String>> listMap;
+//        try {
+//            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+//        } catch (ExcelAnalysisException excelAnalysisException) {
+//            log.error("导入机构人员异常", excelAnalysisException);
+//            throw new BusinessException("解析文件格式异常");
+//        } catch (Exception e) {
+//            log.error("导入机构人员异常", e);
+//            throw new BusinessException("解析Excel文件异常");
+//        }
+//        if (listMap.size() != 0) { // 去头部
+//            listMap.remove(0);
+//        }
+//        // excel格式：序号	姓名	性别	身份证号	手机号码	说明
+//        List<UserDTO> userList = listMap.stream()
+//                .map(item -> new UserDTO()
+//                        .setRealName(item.get(1))
+//                        .setGender(GenderEnum.getType(item.get(2)))
+//                        .setIdCard(item.get(3))
+//                        .setPhone(item.get(4))
+//                        .setRemark(item.get(5))
+//                        .setCreateUserId(createUserId)
+//                        .setIsLeader(0)
+//                        .setOrgId(screeningOrgId)
+//                        .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
+//        List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
+//            ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
+//                    .setIdCard(item.getIdCard());
+//            staff.setScreeningOrgId(item.getOrgId())
+//                    .setCreateUserId(item.getCreateUserId())
+//                    .setRemark(item.getRemark())
+//                    //TODO 设置哪个?
+//                    .setGovDeptId(1);
+//            return staff;
+//        }).collect(Collectors.toList());
+//        // 批量新增, 并设置返回的userId
+//        for (int i = 0; i < importList.size(); i++) {
+//            importList.get(i).setUserId(oauthService.addScreeningUserBatch(userList).get(i));
+//        }
+//        screeningOrganizationStaffService.saveBatch(importList);
+    }
 }

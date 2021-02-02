@@ -62,4 +62,12 @@ public class StudentQuery extends StudentVo {
      * 学校名称
      */
     private String schoolName;
+    /**
+     * 筛查计划ID
+     */
+    private Integer screeningPlanId;
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 }

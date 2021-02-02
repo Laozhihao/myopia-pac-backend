@@ -38,6 +38,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
+    private DistrictService districtService;
+    @Autowired
     private OauthServiceClient oauthServiceClient;
 
     /**
@@ -72,7 +74,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
+        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")).setDistrictDetail(districtService.getDistrictPositionDetailById(vo.getDistrictId())));
         return screeningNoticeIPage;
     }
 

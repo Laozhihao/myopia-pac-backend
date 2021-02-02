@@ -6,23 +6,27 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
+import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningTaskOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.service.ScreeningTaskService;
 
-import javax.management.DescriptorKey;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Alix
@@ -38,6 +42,9 @@ public class ScreeningTaskController {
     protected ScreeningTaskService screeningTaskService;
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
+    @Autowired
+    private GovDeptService govDeptService;
+
     /**
      * 新增
      *
@@ -47,16 +54,23 @@ public class ScreeningTaskController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        //校验部门
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningTaskDTO.getDistrictId(), "请选择行政区域");
+            Assert.notNull(screeningTaskDTO.getGovDeptId(), "请选择所处部门");
+        }
+        if (user.isScreeningUser()) {
+            throw new ValidationException("无权限");
+        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，设置为用户自身所在的部门层级
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            screeningTaskDTO.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+        }
         // 已创建校验
         if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
             throw new ValidationException("该部门任务已创建");
         }
-        //TODO 校验部门
-        // TODO 看前端是否能拿到用户的层级与部门再做处理
-//        if (user.isPlatformAdminUser()) {
-//            Assert.notNull(screeningTask.getDistrictId());
-//            Assert.notNull(screeningTask.getGovDeptId());
-//        }
         screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
@@ -68,7 +82,7 @@ public class ScreeningTaskController {
      */
     @GetMapping("{id}")
     public Object getInfo(@PathVariable Integer id) {
-        return screeningTaskService.getById(id);
+        return screeningTaskService.getDTOById(id);
     }
 
     /**
@@ -147,21 +161,18 @@ public class ScreeningTaskController {
     /**
      * 新增筛查机构
      *
-     * @param screeningTaskOrg 新增参数
+     * @param screeningTaskOrgs 新增参数
      * @return Object
      */
-    @PostMapping("orgs")
-    public void addOrgsInfo(@RequestBody @Valid ScreeningTaskOrg screeningTaskOrg) {
+    @PostMapping("orgs/{screeningTaskId}")
+    public void addOrgsInfo(@PathVariable Integer screeningTaskId, @RequestBody @Valid List<ScreeningTaskOrg> screeningTaskOrgs) {
+        if (CollectionUtils.isEmpty(screeningTaskOrgs)) {
+            return;
+        }
         // 任务状态判断
-        validateExistWithReleaseStatus(screeningTaskOrg.getScreeningTaskId(), CommonConst.STATUS_RELEASE);
+        validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_NOT_RELEASE);
         // 是否已存在
-        ScreeningTaskOrg taskOrg = screeningTaskOrgService.getOne(screeningTaskOrg.getScreeningTaskId(), screeningTaskOrg.getScreeningOrgId());
-        if (Objects.nonNull(taskOrg)) {
-            screeningTaskOrg.setId(taskOrg.getId());
-        }
-        if (!screeningTaskOrgService.saveOrUpdate(screeningTaskOrg)) {
-            throw new BusinessException("新增失败");
-        }
+        screeningTaskOrgService.saveOrUpdateBatchByTaskId(screeningTaskId, screeningTaskOrgs);
     }
 
     /**
