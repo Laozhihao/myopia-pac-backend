@@ -21,7 +21,6 @@ import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -348,7 +347,7 @@ public class ExcelFacade {
         }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
-        School school = schoolService.getById(schoolId);
+        School school = schoolService.getBySchoolId(schoolId);
         String schoolName = school.getName();
         String gradeName = schoolGradeService.getById(gradeId).getName();
         builder.append("-").append(schoolName);
@@ -514,7 +513,7 @@ public class ExcelFacade {
      */
     public File getStudentImportDemo() throws URISyntaxException, MalformedURLException {
         //TODO 待完成文件系统再修改
-        URL url = new URL("https://image.cxm520hyq.com/uPic/2021-02-02-ScreeningStaffImport.xlsx");
+        URL url = new URL("src/main/resources/db/migration/ScreeningStaffImport.xlsx");
         return new File(url.toURI());
     }
 
@@ -524,31 +523,5 @@ public class ExcelFacade {
     public File getScreeningOrganizationStaffImportDemo() {
         //TODO 待完成文件系统再修改
         return new File("src/main/resources/db/migration/ScreeningStaffImport.xlsx");
-    }
-
-    private String getAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
-        try {
-            return districtService.getAddressPrefix(provinceCode, cityCode, areaCode, townCode) + address;
-        } catch (ValidationException e) {
-            log.error("获取地址失败", e);
-        }
-        return "";
-    }
-
-    /**
-     * 用户名列表转成输出的字符串
-     */
-    private String toUserNameString(List<String> userNameList) {
-        return userNameList.toString().replaceFirst("\\[", "").replaceFirst("]", "");
-    }
-
-    /**
-     * 获取文件路径
-     *
-     * @param fileName 文件名
-     * @return java.lang.String
-     **/
-    private String getFilePathName(String fileName) {
-        return FilenameUtils.concat(IOUtils.getTempSubPath("excel"), fileName);
     }
 }
