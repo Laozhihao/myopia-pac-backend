@@ -74,12 +74,27 @@ public enum GradeCodeEnum {
 
     /**
      * 根据类型获取描述
+     *
+     * @param code code
+     * @return 描述
      */
     public static String getName(String code) {
         GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values())
                 .filter(item -> item.code.equals(code))
                 .findFirst().orElse(null);
         return Objects.nonNull(h) ? h.name : null;
+    }
+
+    /**
+     * 根据code获取
+     *
+     * @param code code
+     * @return GradeCodeEnum
+     */
+    public static GradeCodeEnum getByCode(String code) {
+        return Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().orElse(null);
     }
 
     /**
