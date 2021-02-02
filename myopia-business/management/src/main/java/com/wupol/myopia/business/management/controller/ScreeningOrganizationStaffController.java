@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * @Author HaoHao
@@ -84,12 +85,12 @@ public class ScreeningOrganizationStaffController {
     @PostMapping("/import/{screeningOrgId}")
     public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importScreeningOrganizationStaff(currentUser.getId(), file, screeningOrgId);
+        excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
         return ApiResult.success();
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException, URISyntaxException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
     }
 }

@@ -84,7 +84,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public List<Integer> addScreeningUserBatch(List<UserDTO> param){
+    public List<UserDTO> addScreeningUserBatch(List<UserDTO> param){
         return null;
     }
 

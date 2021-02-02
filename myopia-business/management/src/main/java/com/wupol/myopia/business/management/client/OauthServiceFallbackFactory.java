@@ -65,7 +65,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<Integer>> addScreeningUserBatch(List<UserDTO> param) {
+            public ApiResult<List<UserDTO>> addScreeningUserBatch(List<UserDTO> param) {
                 return respData;
             }
 
