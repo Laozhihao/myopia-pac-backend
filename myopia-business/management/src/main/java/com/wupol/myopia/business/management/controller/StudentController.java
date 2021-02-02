@@ -85,7 +85,7 @@ public class StudentController {
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws MalformedURLException, URISyntaxException {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getStudentImportDemo());
     }
 

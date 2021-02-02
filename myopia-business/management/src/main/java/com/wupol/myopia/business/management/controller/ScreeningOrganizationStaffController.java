@@ -90,7 +90,7 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException, URISyntaxException {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
     }
 }
