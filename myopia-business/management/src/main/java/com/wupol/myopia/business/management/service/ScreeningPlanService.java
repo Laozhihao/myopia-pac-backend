@@ -143,9 +143,18 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningPlanId
      * @return
      */
-    public void removeWithSchools(Integer screeningPlanId) {
+    public void removeWithSchools(CurrentUser user,Integer screeningPlanId) {
+        // 1. 修改通知状态为已读
+        ScreeningPlan screeningPlan = getById(screeningPlanId);
+        ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
+        if (Objects.isNull(screeningNotice)) {
+            throw new BusinessException("找不到对应任务通知");
+        }
+        screeningNoticeDeptOrgService.read(screeningNotice.getId(), screeningPlan.getScreeningOrgId(), user);
+        // 2. 删除计划关联的学校信息
         screeningPlanSchoolStudentService.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, Collections.emptyList());
         screeningPlanSchoolService.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, Collections.emptyList());
+        // 3. 删除计划
         removeById(screeningPlanId);
     }
 

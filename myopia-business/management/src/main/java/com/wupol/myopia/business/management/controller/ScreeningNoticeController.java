@@ -52,7 +52,8 @@ public class ScreeningNoticeController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        createOrReleaseValidate(screeningNotice);
+        // 2021.02.01 与肖肖确认，发布时确认即可
+        // createOrReleaseValidate(screeningNotice);
         if (user.isPlatformAdminUser()) {
             Assert.notNull(screeningNotice.getDistrictId(), "请选择行政区域");
             Assert.notNull(screeningNotice.getGovDeptId(), "请选择所处部门");

@@ -237,13 +237,37 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     }
 
     /**
+     * 根据部门ID获取筛查机构列表（带是否已有任务）
+     *
+     * @param query       筛查机构列表请求体
+     * @return List<ScreeningOrgResponse>
+     */
+    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+        // 查询
+        List<ScreeningOrganization> screeningOrganizationList = baseMapper.getBy(query);
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(screeningOrganizationList)) {
+            return Collections.emptyList();
+        }
+        // 获取已有任务的机构ID列表
+        List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+        // 封装DTO
+        return screeningOrganizationList.stream().map(r -> {
+            ScreeningOrgResponseDTO orgResponseDTO = new ScreeningOrgResponseDTO();
+            BeanUtils.copyProperties(r, orgResponseDTO);
+            orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
+            return orgResponseDTO;
+        }).collect(Collectors.toList());
+    }
+
+    /**
      * 根据是否需要查询机构是否已有任务，返回时间段内已有任务的机构id
      *
      * @param query
      * @return
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQuery query) {
-        if (query.getNeedCheckHaveTask()) {
+        if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();
