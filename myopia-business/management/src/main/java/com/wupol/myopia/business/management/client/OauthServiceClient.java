@@ -72,7 +72,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/oauth/user/screening/batch")
-    ApiResult<List<Integer>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
+    ApiResult<List<UserDTO>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
      * 更新用户

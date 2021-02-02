@@ -5,6 +5,7 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -451,12 +451,12 @@ public class ExcelFacade {
     /**
      * 导入机构人员
      *
-     * @param createUserId   创建人id
+     * @param currentUser    当前登录用户
      * @param multipartFile  导入文件
      * @param screeningOrgId 筛查机构id
      * @throws BusinessException io异常
      */
-    public void importScreeningOrganizationStaff(Integer createUserId, MultipartFile multipartFile,
+    public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile,
                                                  Integer screeningOrgId) throws IOException {
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
@@ -481,30 +481,38 @@ public class ExcelFacade {
         }
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = listMap.stream()
-                .map(item -> new UserDTO()
-                        .setRealName(item.get(1))
-                        .setGender(GenderEnum.getType(item.get(2)))
-                        .setIdCard(item.get(3))
-                        .setPhone(item.get(4))
-                        .setRemark(item.get(5))
-                        .setCreateUserId(createUserId)
-                        .setIsLeader(0)
-                        .setOrgId(screeningOrgId)
-                        .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())).collect(Collectors.toList());
+                .map(item -> {
+                    UserDTO userDTO = new UserDTO()
+                            .setRealName(item.get(1))
+                            .setGender(GenderEnum.getType(item.get(2)))
+                            .setIdCard(item.get(3))
+                            .setPhone(item.get(4))
+                            .setCreateUserId(currentUser.getId())
+                            .setIsLeader(0)
+                            .setOrgId(screeningOrgId)
+                            .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+                    if (null != item.get(5)) {
+                        userDTO.setRemark(item.get(5));
+                    }
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
         List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
-            ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo()
-                    .setIdCard(item.getIdCard());
-            staff.setScreeningOrgId(item.getOrgId())
+            ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo();
+            staff.setIdCard(item.getIdCard())
+                    .setScreeningOrgId(item.getOrgId())
                     .setCreateUserId(item.getCreateUserId())
                     .setRemark(item.getRemark())
-                    //TODO 设置哪个?
-                    .setGovDeptId(1);
+                    .setGovDeptId(currentUser.getOrgId());
             return staff;
         }).collect(Collectors.toList());
-        // 批量新增, 并设置返回的userId
-        for (int i = 0; i < importList.size(); i++) {
-            importList.get(i).setUserId(oauthService.addScreeningUserBatch(userList).get(i));
-        }
+
+        // 批量新增OAuth2
+        List<UserDTO> userDTOS = oauthService.addScreeningUserBatch(userList);
+        Map<String, Integer> userMaps = userDTOS.stream()
+                .collect(Collectors.toMap(UserDTO::getIdCard, UserDTO::getId));
+        // 设置userId
+        importList.forEach(i-> i.setUserId(userMaps.get(i.getIdCard())));
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
@@ -513,8 +521,7 @@ public class ExcelFacade {
      */
     public File getStudentImportDemo() throws URISyntaxException, MalformedURLException {
         //TODO 待完成文件系统再修改
-        URL url = new URL("src/main/resources/db/migration/ScreeningStaffImport.xlsx");
-        return new File(url.toURI());
+        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
     }
 
     /**
@@ -522,6 +529,6 @@ public class ExcelFacade {
      */
     public File getScreeningOrganizationStaffImportDemo() {
         //TODO 待完成文件系统再修改
-        return new File("src/main/resources/db/migration/ScreeningStaffImport.xlsx");
+        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
     }
 }

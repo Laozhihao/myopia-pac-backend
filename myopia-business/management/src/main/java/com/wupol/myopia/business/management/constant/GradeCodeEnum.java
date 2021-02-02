@@ -16,40 +16,47 @@ import java.util.Objects;
 @Getter
 public enum GradeCodeEnum {
 
-    ONE_PRIMARY_SCHOOL("一年级", "01"),
-    TWO_PRIMARY_SCHOOL("二年级", "02"),
-    THREE_PRIMARY_SCHOOL("三年级", "03"),
-    FOUR_PRIMARY_SCHOOL("四年级", "04"),
-    FIVE_PRIMARY_SCHOOL("五年级", "05"),
-    SIX_PRIMARY_SCHOOL("六年级", "06"),
 
-    ONE_JUNIOR_SCHOOL("初一", "11"),
-    TWO_JUNIOR_SCHOOL("初二", "12"),
-    THREE_JUNIOR_SCHOOL("初三", "13"),
-    FOUR_JUNIOR_SCHOOL("初四", "14"),
 
-    ONE_HIGH_SCHOOL("高一", "21"),
-    TWO_HIGH_SCHOOL("高二", "22"),
-    THREE_HIGH_SCHOOL("高三", "23"),
+    ONE_PRIMARY_SCHOOL("一年级", "01", 1),
+    TWO_PRIMARY_SCHOOL("二年级", "02", 1),
+    THREE_PRIMARY_SCHOOL("三年级", "03", 1),
+    FOUR_PRIMARY_SCHOOL("四年级", "04", 1),
+    FIVE_PRIMARY_SCHOOL("五年级", "05", 1),
+    SIX_PRIMARY_SCHOOL("六年级", "06", 1),
 
-    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31"),
-    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32"),
-    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33"),
+    ONE_JUNIOR_SCHOOL("初一", "11", 2),
+    TWO_JUNIOR_SCHOOL("初二", "12", 2),
+    THREE_JUNIOR_SCHOOL("初三", "13", 2),
+    FOUR_JUNIOR_SCHOOL("初四", "14", 2),
 
-    ONE_UNIVERSITY("大一", "41"),
-    TWO_UNIVERSITY("大二", "42"),
-    THREE_UNIVERSITY("大三", "43"),
-    FOUR_UNIVERSITY("大四", "44"),
+    ONE_HIGH_SCHOOL("高一", "21", 3),
+    TWO_HIGH_SCHOOL("高二", "22", 3),
+    THREE_HIGH_SCHOOL("高三", "23", 3),
 
-    KINDERGARTEN("幼儿园大班", "53");
+    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", 4),
+    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", 4),
+    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", 4),
+
+    ONE_UNIVERSITY("大一", "41", 5),
+    TWO_UNIVERSITY("大二", "42", 5),
+    THREE_UNIVERSITY("大三", "43", 5),
+    FOUR_UNIVERSITY("大四", "44", 5),
+
+    KINDERGARTEN("幼儿园大班", "53", 6),
+
+    OTHER("其他", "90", 0);
 
     private final String name;
 
     private final String code;
 
-    GradeCodeEnum(String name, String code) {
+    private final Integer type;
+
+    GradeCodeEnum(String name, String code, Integer type) {
         this.name = name;
         this.code = code;
+        this.type = type;
     }
 
     public static List<GradeCode> getGradeCodeList() {
@@ -64,9 +71,13 @@ public enum GradeCodeEnum {
         return gradeCodeList;
     }
 
-    /** 根据类型获取描述 */
+    /**
+     * 根据类型获取描述
+     */
     public static String getName(String code) {
-        GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values()).filter(item -> item.code.equals(code)).findFirst().orElse(null);
+        GradeCodeEnum h = Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().orElse(null);
         return Objects.nonNull(h) ? h.name : null;
     }
 }
