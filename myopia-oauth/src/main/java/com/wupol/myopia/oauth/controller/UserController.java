@@ -93,7 +93,7 @@ public class UserController {
      * @return java.util.List<java.lang.Integer>
      **/
     @PostMapping("/screening/batch")
-    public List<Integer> addScreeningUserBatch(@RequestBody List<UserDTO> userList) {
+    public List<User> addScreeningUserBatch(@RequestBody List<UserDTO> userList) {
         return userService.addScreeningUserBatch(userList);
     }
 

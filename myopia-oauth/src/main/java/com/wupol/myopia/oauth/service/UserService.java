@@ -139,10 +139,10 @@ public class UserService extends BaseService<UserMapper, User> {
      * 批量新增筛查人员
      *
      * @param userList 用户列表集合
-     * @return java.util.List<java.lang.Integer>
+     * @return java.util.List<User>
      **/
     @Transactional(rollbackFor = Exception.class)
-    public List<Integer> addScreeningUserBatch(List<UserDTO> userList) {
+    public List<User> addScreeningUserBatch(List<UserDTO> userList) {
         long size = userList.stream().filter(x -> SystemCode.SCREENING_CLIENT.getCode().equals(x.getSystemCode())).count();
         if (size != userList.size()) {
             throw new ValidationException("存在无效系统编号");
@@ -153,7 +153,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return user.setPassword(PasswordGenerator.getScreeningUserPwd(x.getPhone(), x.getIdCard())).setUsername(x.getPhone());
         }).collect(Collectors.toList());
         saveBatch(users);
-        return users.stream().map(User::getId).collect(Collectors.toList());
+        return users;
     }
 
     /**

@@ -500,4 +500,19 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         return baseMapper.selectList(queryWrapper).size() > 0;
     }
+
+    /**
+     * 获取学校详情
+     *
+     * @param id 学校ID
+     * @return SchoolResponseDTO
+     */
+    public SchoolResponseDTO getBySchoolId(Integer id) {
+        SchoolResponseDTO responseDTO = new SchoolResponseDTO();
+        School s = baseMapper.selectById(id);
+        BeanUtils.copyProperties(s, responseDTO);
+        responseDTO.setAddressDetail(districtService.getAddressDetails(
+                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+        return responseDTO;
+    }
 }
