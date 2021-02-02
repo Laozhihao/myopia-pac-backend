@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * @Author HaoHao
@@ -89,7 +90,7 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException, URISyntaxException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
     }
 }

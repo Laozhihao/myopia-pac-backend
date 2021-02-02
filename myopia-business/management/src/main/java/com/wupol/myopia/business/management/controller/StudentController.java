@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 
 /**
@@ -83,7 +85,7 @@ public class StudentController {
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws MalformedURLException, URISyntaxException {
         return FileUtils.getResponseEntity(excelFacade.getStudentImportDemo());
     }
 

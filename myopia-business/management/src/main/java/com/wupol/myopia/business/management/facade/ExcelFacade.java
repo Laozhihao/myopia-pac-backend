@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.facade;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
@@ -30,6 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -103,7 +107,7 @@ public class ExcelFacade {
             exportVo.setId(item.getId())
                     .setName(item.getName())
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
-                    .setConfig("配置")
+                    .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
                     .setPhone(item.getPhone())
                     .setPersonSituation("886")
                     .setRemark(item.getRemark())
@@ -140,10 +144,10 @@ public class ExcelFacade {
             throw new BusinessException("筛查机构id不能为空");
         }
         UserDTOQuery userQuery = new UserDTOQuery();
-        //TODO 待改成批量模糊查询
         userQuery.setSize(11)
                 .setCurrent(1)
-                .setOrgId(screeningOrgId);
+                .setOrgId(screeningOrgId)
+                .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         Page<UserDTO> userPage = oauthService.getUserListPage(userQuery);
         List<UserDTO> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
         // 设置文件名
@@ -158,15 +162,13 @@ public class ExcelFacade {
 //                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
-                .map(item -> {
-                    return new ScreeningOrganizationStaffExportVo()
-                            .setName(item.getRealName())
-                            .setGender(GenderEnum.getName(item.getGender()))
-                            .setPhone(item.getPhone())
-                            .setIdCard(item.getIdCard())
-                            .setOrganization(orgName);
-                }).collect(Collectors.toList());
-
+                .map(item -> new ScreeningOrganizationStaffExportVo()
+                        .setId(item.getId())
+                        .setName(item.getRealName())
+                        .setGender(GenderEnum.getName(item.getGender()))
+                        .setPhone(item.getPhone())
+                        .setIdCard(item.getIdCard())
+                        .setOrganization(orgName)).collect(Collectors.toList());
         log.info("导出文件: {}", fileName);
         return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
     }
@@ -283,7 +285,7 @@ public class ExcelFacade {
             SchoolExportVo exportVo = new SchoolExportVo()
                     .setNo(item.getSchoolNo())
                     .setName(item.getName())
-                    .setKind(item.getKindDesc())
+                    .setKind(SchoolEnum.getKindName(item.getKind()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
                     .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
                     .setDistrictName(district.getName())
@@ -504,9 +506,10 @@ public class ExcelFacade {
     /**
      * 获取学生的导入模版
      */
-    public File getStudentImportDemo() {
+    public File getStudentImportDemo() throws URISyntaxException, MalformedURLException {
         //TODO 待完成文件系统再修改
-        return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
+        URL url = new URL("https://image.cxm520hyq.com/uPic/2021-02-02-ScreeningStaffImport.xlsx");
+        return new File(url.toURI());
     }
 
     /**
@@ -514,7 +517,7 @@ public class ExcelFacade {
      */
     public File getScreeningOrganizationStaffImportDemo() {
         //TODO 待完成文件系统再修改
-        return new File("C:\\Users\\Chikong\\AppData\\Local\\Temp\\export\\excel\\demo.xlsx");
+        return new File("src/main/resources/db/migration/ScreeningStaffImport.xlsx");
     }
 
     private String getAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {

@@ -19,7 +19,10 @@ public enum SchoolEnum {
     TYPE_9(4, "九年一贯制学校"),
     TYPE_12(5, "十二年一贯制学校"),
     TYPE_VOCATIONAL(6, "职业高中"),
-    TYPE_OTHER(7, "7其他");
+    TYPE_OTHER(7, "7其他"),
+    KIND_1(0,"公办"),
+    KIND_2(1,"私办"),
+    KIND_3(2,"其他");
 
     /** 类型 **/
     private final Integer type;
@@ -61,6 +64,17 @@ public enum SchoolEnum {
             return TYPE_VOCATIONAL.name;
         } else if (kind.equals(TYPE_OTHER.type)) {
             return TYPE_OTHER.name;
+        }
+        return "";
+    }
+
+    public static String getKindName(Integer type) {
+        if (type.equals(KIND_1.type)) {
+            return KIND_1.name;
+        } else if (type.equals(KIND_2.type)) {
+            return KIND_2.name;
+        } else if (type.equals(KIND_3.type)) {
+            return KIND_3.name;
         }
         return "";
     }
