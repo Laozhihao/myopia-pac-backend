@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.facade;
 
-import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +35,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -350,28 +348,31 @@ public class ExcelFacade {
         }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
-        String schoolName = schoolService.getById(schoolId).getName();
+        School school = schoolService.getById(schoolId);
+        String schoolName = school.getName();
         String gradeName = schoolGradeService.getById(gradeId).getName();
         builder.append("-").append(schoolName);
         builder.append("-").append(gradeName);
         String fileName = builder.toString();
-        List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, gradeId, null);
+
+        // 查询学生
+        List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
         // 获取年级班级信息
-        List<Integer> gradeIdList = list.stream().map(Student::getGradeId).collect(Collectors.toList());
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getByIds(gradeIdList).stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-        Map<Integer, SchoolClass> classMap = schoolClassService.getByIds(classIdList).stream().collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
 
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
             StudentExportVo exportVo = new StudentExportVo()
+                    .setId(item.getId())
                     .setNo(item.getSno())
                     .setName(item.getName())
+                    .setSchoolNo(school.getSchoolNo())
                     .setGender(GenderEnum.getName(item.getGender()))
                     .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)
-                    .setGrade(gradeMap.get(item.getGradeId()).getName())
+                    .setGrade(gradeName)
                     .setClassName(classMap.get(item.getClassId()).getName())
                     .setIdCard(item.getIdCard())
                     .setBindPhone(item.getMpParentPhone())
@@ -379,17 +380,22 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setLabel(item.getVisionLabel())
                     .setSituation(item.getCurrentSituation())
-//                    .setScreeningCount(item.getScreeningCount())
+                    .setScreeningCount(886)
                     //TODO 就诊次数
-                    .setVisitsCount(6666)
-//                    .setQuestionCount(item.getQuestionnaireCount())
-                    .setLastScreeningTime(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
-            List<String> districtList = districtService.getSplitAddress(item.getProvinceCode(), item.getCityCode(), item.getAreaCode(), item.getTownCode());
-            if (!CollectionUtils.isEmpty(districtList)) { // 有地址才填充
-                exportVo.setProvince(districtList.get(0))
-                        .setCity(districtList.get(1))
-                        .setArea(districtList.get(2))
-                        .setTown(districtList.get(3));
+                    .setVisitsCount(886)
+                    .setQuestionCount(886)
+                    .setLastScreeningTime(null);
+            if (null != item.getProvinceCode()) {
+                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
+            }
+            if (null != item.getCityCode()) {
+                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
+            }
+            if (null != item.getAreaCode()) {
+                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
+            }
+            if (null != item.getTownCode()) {
+                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
         }
