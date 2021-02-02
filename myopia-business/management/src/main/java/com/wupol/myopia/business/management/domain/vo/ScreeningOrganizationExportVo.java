@@ -42,7 +42,7 @@ public class ScreeningOrganizationExportVo implements Serializable {
     private String type;
 
     @ExcelProperty({TOP_HEADER, "配置"})
-    private String config;
+    private String configType;
 
     @ExcelProperty({TOP_HEADER, "联系方式"})
     private String phone;
