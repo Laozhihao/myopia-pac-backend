@@ -95,14 +95,11 @@ public class ScreeningDataStat {
     }
 
     @Data
-    public static class SchoolTypeStat extends BasicStatParams {
+    public static class GradeTypeStat extends BasicStatParams {
+        private BasicStatParams kindergarten;
         private BasicStatParams primary;
-        private BasicStatParams secondary;
+        private BasicStatParams junior;
         private BasicStatParams high;
-        private BasicStatParams integratedMiddle;
-        private BasicStatParams edu9;
-        private BasicStatParams edu12;
-        private BasicStatParams vocational;
-        private BasicStatParams others;
+        private BasicStatParams vocationalHigh;
     }
 }

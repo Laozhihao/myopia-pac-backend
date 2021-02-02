@@ -87,9 +87,9 @@ public class StatController {
                 break;
             case TIME_N_DISTRICT:
                 break;
-            case TIME_N_SCHOOL_TYPE:
+            case TIME_N_SCHOOL_AGE:
                 break;
-            case TIME_N_DISTRICT_N_SCHOOL_TYPE:
+            case TIME_N_DISTRICT_N_SCHOOL_AGE:
         }
         Integer actualScrNum = 1111111;
         ScreeningDataContrast data1 =
