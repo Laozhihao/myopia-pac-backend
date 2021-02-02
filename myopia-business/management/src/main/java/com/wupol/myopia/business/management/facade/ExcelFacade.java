@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -512,23 +514,25 @@ public class ExcelFacade {
         Map<String, Integer> userMaps = userDTOS.stream()
                 .collect(Collectors.toMap(UserDTO::getIdCard, UserDTO::getId));
         // 设置userId
-        importList.forEach(i-> i.setUserId(userMaps.get(i.getIdCard())));
+        importList.forEach(i -> i.setUserId(userMaps.get(i.getIdCard())));
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
     /**
      * 获取学生的导入模版
      */
-    public File getStudentImportDemo() throws URISyntaxException, MalformedURLException {
-        //TODO 待完成文件系统再修改
-        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
+    public File getStudentImportDemo() throws IOException {
+        ClassPathResource resource = new ClassPathResource("template" + File.separator + "studentImport.xlsx.xlsx");
+        // 获取文件
+        return resource.getFile();
     }
 
     /**
      * 获取筛查机构人员的导入模版
      */
-    public File getScreeningOrganizationStaffImportDemo() {
-        //TODO 待完成文件系统再修改
-        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
+    public File getScreeningOrganizationStaffImportDemo() throws IOException {
+        ClassPathResource resource = new ClassPathResource("template" + File.separator + "ScreeningStaffImport.xlsx");
+        // 获取文件
+        return resource.getFile();
     }
 }
