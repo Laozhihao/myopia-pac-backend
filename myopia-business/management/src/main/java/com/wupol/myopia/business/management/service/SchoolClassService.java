@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,6 +99,16 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         equalsQueryAppend(schoolClassWrapper, "school_id", schoolId);
         notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(schoolClassWrapper);
+    }
+
+    /**
+     * 通过年级ID获取班级信息
+     *
+     * @param gradeIds 年级ids
+     * @return List<SchoolClass>
+     */
+    public List<SchoolClassExportVO> getByGradeIds(List<Integer> gradeIds) {
+        return baseMapper.getByGradeIds(gradeIds);
     }
 
     /**

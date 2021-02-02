@@ -84,6 +84,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (StringUtils.isBlank(name)) {
             throw new BusinessException("名字不能为空");
         }
+
+        if (checkScreeningOrgName(name, null)) {
+            throw new BusinessException("筛查机构名称不能重复");
+        }
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, name));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -137,6 +141,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
         Integer orgId = screeningOrganization.getId();
 
+        if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
+            throw new BusinessException("筛查机构名称不能重复");
+        }
+
         baseMapper.updateById(screeningOrganization);
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
         ScreeningOrganization o = baseMapper.selectById(orgId);
@@ -145,18 +153,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 详细地址
         response.setAddressDetail(districtService.getAddressDetails(
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
-
-        // 获取管理员
-        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(orgId);
-        if (null == admin) {
-            log.error("更新筛查机构ID异常:{}", orgId);
-            throw new BusinessException("数据异常");
-        }
-        // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(admin.getUserId())
-                .setStatus(screeningOrganization.getStatus());
-        oauthService.modifyUser(userDTO);
+        response.setScreeningTime(screeningOrganization.getScreeningTime())
+                .setStaffCount(screeningOrganization.getStaffCount());
         return response;
     }
 
@@ -324,12 +322,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private UsernameAndPasswordDTO resetOAuthPassword(ScreeningOrganization screeningOrg, Integer userId) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = screeningOrg.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -463,5 +456,22 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         QueryWrapper<ScreeningOrganization> query = new QueryWrapper<>();
         query.like("name", screeningOrgNameLike);
         return baseMapper.selectList(query);
+    }
+
+    /**
+     * 检查筛查机构名称是否重复
+     *
+     * @param name 筛查机构名称
+     * @param id   筛查机构ID
+     * @return 是否重复
+     */
+    public Boolean checkScreeningOrgName(String name, Integer id) {
+        QueryWrapper<ScreeningOrganization> queryWrapper = new QueryWrapper<ScreeningOrganization>()
+                .eq("name", name);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

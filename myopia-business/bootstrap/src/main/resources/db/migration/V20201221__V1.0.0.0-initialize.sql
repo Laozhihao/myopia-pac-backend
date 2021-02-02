@@ -174,8 +174,9 @@ create table m_student
     school_no           varchar(64)                         not null comment '学校编号',
     create_user_id      int                                 null comment '创建人ID',
     sno                 int                                 not null comment '学号',
-    grade_id            int                                 null comment '班级ID',
-    class_id            int                                 null comment '年级ID',
+    grade_id            int                                 null comment '年级ID',
+    grade_type          tinyint                             null comment '学龄段',
+    class_id            int                                 null comment '班级ID',
     name                varchar(8)                          not null comment '学生姓名',
     gender              tinyint(1)                          not null comment '性别 1-男 2-女',
     birthday            timestamp                           null comment '出生日期',
@@ -287,3 +288,12 @@ INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
 INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+
+create unique index m_hospital_name_uindex
+    on m_hospital (name);
+
+create unique index m_screening_organization_name_uindex
+    on m_screening_organization (name);
+
+create unique index m_school_name_uindex
+    on m_school (name);

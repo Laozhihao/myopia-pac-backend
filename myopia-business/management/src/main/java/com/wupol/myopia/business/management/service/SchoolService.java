@@ -93,6 +93,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             throw new BusinessException("数据异常");
         }
 
+        if (checkSchoolName(school.getName(), null)) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, schoolNo));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -117,6 +121,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
+
+        if (checkSchoolName(school.getName(), school.getId())) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
+
         baseMapper.updateById(school);
         School s = baseMapper.selectById(school.getId());
         SchoolResponseDTO dto = new SchoolResponseDTO();
@@ -126,6 +135,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         // 判断是否能更新
         dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+        dto.setStudentCount(school.getStudentCount())
+                .setScreeningCount(school.getScreeningCount())
+                .setCreateUser(school.getCreateUser());
         return dto;
     }
 
@@ -325,12 +337,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -446,6 +453,17 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 批量通过学校编号获取学校
+     *
+     * @param schoolNos 学校编号
+     * @return School
+     */
+    public List<School> getBySchoolNos(List<String> schoolNos) {
+         return baseMapper.selectList(new QueryWrapper<School>()
+                .in("school_no", schoolNos));
+    }
+
+    /**
      * 通过districtId获取学校
      *
      * @param districtId 行政区域ID
@@ -474,5 +492,38 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getByIds(List<Integer> ids) {
         return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
+    }
+
+    /**
+     * 检查学校名称是否重复
+     *
+     * @param schoolName 学校名称
+     * @param id         学校ID
+     * @return 是否重复
+     */
+    public Boolean checkSchoolName(String schoolName, Integer id) {
+        QueryWrapper<School> queryWrapper = new QueryWrapper<School>()
+                .eq("name", schoolName);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 获取学校详情
+     *
+     * @param id 学校ID
+     * @return SchoolResponseDTO
+     */
+    public SchoolResponseDTO getBySchoolId(Integer id) {
+        SchoolResponseDTO responseDTO = new SchoolResponseDTO();
+        School s = baseMapper.selectById(id);
+        BeanUtils.copyProperties(s, responseDTO);
+        responseDTO.setAddressDetail(districtService.getAddressDetails(
+                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+        return responseDTO;
     }
 }

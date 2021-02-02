@@ -54,7 +54,7 @@ public class SchoolController {
 
     @GetMapping("{id}")
     public Object saveSchool(@PathVariable("id") Integer id) {
-        return schoolService.getById(id);
+        return schoolService.getBySchoolId(id);
     }
 
     @DeleteMapping("{id}")

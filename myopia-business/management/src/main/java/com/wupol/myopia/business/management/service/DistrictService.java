@@ -454,6 +454,27 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取行政区域
+     *
+     * @param code code
+     * @return 名称
+     */
+    public String getDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+        // 为空，从数据库查询
+        String resultName = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("code", code)).getName();
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
      * 循环遍历
      *
      * @param name 名字
@@ -492,5 +513,53 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return getTopDistrictName(provinceCode) + "  " + address;
         }
         return "";
+    }
+
+    /**
+     * 通过行政id获取行政名称
+     *
+     * @param ids 行政id
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getByIds(List<Integer> ids) {
+        List<District> districts = baseMapper.selectList(new QueryWrapper<District>().in("id", ids));
+        return districts.stream()
+                .collect(Collectors.toMap(District::getId, District::getName));
+    }
+
+    /**
+     * 通过名字获取code
+     *
+     * @param name 行政名字
+     * @return code
+     */
+    public Long getCodeByName(String name) {
+        String key = String.format(CacheKey.DISTRICT_CODE, name);
+
+        // 先从缓存中取
+        Long code = getLongCode(key, Long.class);
+        if (null != code) {
+            return code;
+        }
+        // 为空，从数据库查询
+        District district = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("name", name));
+        if (null == district) {
+            return null;
+        }
+        Long resultCode = district.getCode();
+        redisUtil.set(key, resultCode);
+        return resultCode;
+    }
+
+    private <T> T getLongCode(String key, Class<T> clazz) {
+        Object valueObj = redisUtil.get(key);
+        if (clazz.isInstance(valueObj)) {
+            return (T) valueObj;
+        } else if (clazz == Long.class && valueObj instanceof Integer) {
+            Integer obj = (Integer) valueObj;
+            return (T) Long.valueOf(obj.longValue());
+        }
+        return null;
     }
 }

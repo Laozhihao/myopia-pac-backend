@@ -101,7 +101,7 @@ public class UserService extends BaseService<UserMapper, User> {
         if (size != roleIds.size()) {
             throw new BusinessException("无效角色");
         }
-        List<UserRole> userRoles = roleIds.stream().map(roleId -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
+        List<UserRole> userRoles = roleIds.stream().distinct().map(roleId -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
         userRoleService.saveBatch(userRoles);
         return userDTO.setId(user.getId());
     }
@@ -139,10 +139,10 @@ public class UserService extends BaseService<UserMapper, User> {
      * 批量新增筛查人员
      *
      * @param userList 用户列表集合
-     * @return java.util.List<java.lang.Integer>
+     * @return java.util.List<User>
      **/
     @Transactional(rollbackFor = Exception.class)
-    public List<Integer> addScreeningUserBatch(List<UserDTO> userList) {
+    public List<User> addScreeningUserBatch(List<UserDTO> userList) {
         long size = userList.stream().filter(x -> SystemCode.SCREENING_CLIENT.getCode().equals(x.getSystemCode())).count();
         if (size != userList.size()) {
             throw new ValidationException("存在无效系统编号");
@@ -153,7 +153,7 @@ public class UserService extends BaseService<UserMapper, User> {
             return user.setPassword(PasswordGenerator.getScreeningUserPwd(x.getPhone(), x.getIdCard())).setUsername(x.getPhone());
         }).collect(Collectors.toList());
         saveBatch(users);
-        return users.stream().map(User::getId).collect(Collectors.toList());
+        return users;
     }
 
     /**
@@ -174,19 +174,39 @@ public class UserService extends BaseService<UserMapper, User> {
     /** 修改用户信息 */
     @Transactional(rollbackFor = Exception.class)
     public UserWithRole updateUser(UserDTO user) throws Exception {
-        User existUser = getById(user.getId());
+        Integer userId = user.getId();
+        User existUser = getById(userId);
         Assert.notNull(existUser, "该用户不存在");
         if (!StringUtils.isEmpty(user.getPhone())) {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
-            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(user.getId()), "已经存在该手机号码");
+            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码");
         }
+        // 更新用户
         if (!updateById(user)) {
             throw new Exception("更新用户信息失败");
         }
+
+        // 获取用户最新信息
         UserDTO newUser = new UserDTO();
-        newUser.setId(user.getId());
-        List<UserWithRole> userWithRoles = baseMapper.selectUserListWithRole(newUser);
-        return userWithRoles.get(0).setRoles(roleService.getRoleListByUserId(user.getId()));
+        newUser.setId(userId);
+        UserWithRole userWithRole = baseMapper.selectUserListWithRole(newUser).get(0);
+
+        // 绑定新角色
+        List<Integer> roleIds = user.getRoleIds();
+        if (!CollectionUtils.isEmpty(roleIds)) {
+            List<Role> roles = roleService.listByIds(roleIds);
+            long size = roles.stream().filter(role -> role.getSystemCode().equals(user.getSystemCode()) && role.getOrgId().equals(user.getOrgId())).count();
+            if (size != roleIds.size()) {
+                throw new BusinessException("无效角色");
+            }
+            userRoleService.remove(new UserRole().setUserId(userId));
+            List<UserRole> userRoles = roleIds.stream().distinct().map(roleId -> new UserRole().setUserId(userId).setRoleId(roleId)).collect(Collectors.toList());
+            userRoleService.saveBatch(userRoles);
+            return userWithRole.setRoles(roles);
+        }
+
+        // 获取用户角色信息
+        return userWithRole.setRoles(roleService.getRoleListByUserId(userId));
 
     }
 
