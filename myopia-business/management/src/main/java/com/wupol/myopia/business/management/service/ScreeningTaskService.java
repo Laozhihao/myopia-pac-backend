@@ -93,7 +93,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         IPage<ScreeningTaskVo> screeningTaskIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningTaskIPage.getRecords().stream().map(ScreeningTask::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningTaskIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
+        screeningTaskIPage.getRecords().forEach(vo -> vo.setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId())).setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
         return screeningTaskIPage;
     }
 

@@ -79,4 +79,12 @@
             </trim>
         </where>
     </select>
+
+    <select id="selectByIdCards" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select mspss.*, ms.id_card
+        from m_screening_plan_school_student mspss
+        left join m_student ms on mspss.student_id = ms.id
+        where mspss.screening_plan_id = #{screeningPlanId} and mspss.school_id = #{schoolId}
+        and ms.id_card in <foreach collection="idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 </mapper>

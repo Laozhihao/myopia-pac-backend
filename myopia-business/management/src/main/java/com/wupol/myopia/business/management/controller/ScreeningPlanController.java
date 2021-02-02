@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.controller;
 
-import cn.hutool.core.exceptions.ValidateException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -8,15 +7,15 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -267,7 +266,7 @@ public class ScreeningPlanController {
             throw new ValidationException("该筛查学校不存在");
         }
         //2. 与肖肖已确认：发布成功后才能导入
-        validateExistWithReleaseStatus(screeningPlanId, CommonConst.STATUS_RELEASE);
+        validateExistWithReleaseStatus(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
     }
 }

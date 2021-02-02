@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
@@ -26,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -313,5 +312,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<StudentCountVO> countStudentBySchoolNo() {
         return baseMapper.countStudentBySchoolNo();
+    }
+
+    /**
+     * 根据身份证列表获取学生
+     * @param idCardList
+     * @return
+     */
+    public List<Student> getByIdCards(List<String> idCardList) {
+        StudentQuery studentQuery = new StudentQuery();
+        return Lists.partition(idCardList, 50).stream().map(list -> {
+            studentQuery.setIdCardList(list);
+            return baseMapper.getBy(studentQuery);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 }

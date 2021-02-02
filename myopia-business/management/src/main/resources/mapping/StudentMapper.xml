@@ -46,6 +46,9 @@
                 <if test="gradeList != null">and grade_id in
                     <foreach collection="gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
+                <if test="idCardList != null">and id_card in
+                    <foreach collection="idCardList" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
     </sql>

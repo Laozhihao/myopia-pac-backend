@@ -4,7 +4,9 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -17,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +42,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 删除筛查计划中，除了指定学校ID的其它学校学生信息
+     *
      * @param screeningPlanId
      * @param excludeSchoolIds
      */
@@ -56,6 +57,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 根据计划ID获取所有筛查学生
+     *
      * @param screeningPlanId
      * @return
      */
@@ -65,6 +67,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 根据计划ID获取学校ID的学生数Map
+     *
      * @param screeningPlanId
      * @return
      */
@@ -74,6 +77,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 获取计划中的学校年级情况
+     *
      * @param screeningPlanId
      * @param schoolId
      * @return
@@ -98,6 +102,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 分页获取筛查计划的学校学生数据
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -106,6 +111,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         Assert.notNull(query.getScreeningPlanId(), "筛查计划ID不能为空");
         Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
         Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
-        return baseMapper.selectPageByQuery(page, query);
+        IPage<StudentDTO> studentDTOIPage = baseMapper.selectPageByQuery(page, query);
+        studentDTOIPage.getRecords().forEach(studentDTO -> studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation())));
+        return studentDTOIPage;
+    }
+
+    /**
+     * 根据身份证号获取筛查学生
+     * @param screeningPlanId
+     * @param schoolId
+     * @param idCardList
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByIdCards(Integer screeningPlanId, Integer schoolId, List<String> idCardList) {
+//TODO        return Lists.partition(idCardList, 50).stream().map(list -> baseMapper.selectByIdCards(screeningPlanId, schoolId, list)).flatMap(Collection::stream).collect(Collectors.toList());
+        return Collections.emptyList();
     }
 }

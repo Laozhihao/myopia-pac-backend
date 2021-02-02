@@ -85,10 +85,10 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
-        ScreeningNotice notice = new ScreeningNotice();
+        ScreeningNotice notice = getById(id);
         notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (updateById(notice, user.getId())) {
-            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(user.getOrgId());
+            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
             List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
             //2. 为下属部门创建通知
             return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
