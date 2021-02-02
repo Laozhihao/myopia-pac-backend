@@ -522,7 +522,7 @@ public class ExcelFacade {
      * 获取学生的导入模版
      */
     public File getStudentImportDemo() throws IOException {
-        ClassPathResource resource = new ClassPathResource("template" + File.separator + "studentImport.xlsx.xlsx");
+        ClassPathResource resource = new ClassPathResource("template" + File.separator + "studentImport.xlsx");
         // 获取文件
         return resource.getFile();
     }
