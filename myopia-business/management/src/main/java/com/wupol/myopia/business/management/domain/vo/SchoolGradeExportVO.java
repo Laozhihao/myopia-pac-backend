@@ -22,6 +22,9 @@ public class SchoolGradeExportVO {
     private Integer schoolId;
 
     @JSONField(serialize = false)
+    private String schoolNo;
+
+    @JSONField(serialize = false)
     private String gradeCode;
 
     @JSONField(ordinal = 1)
