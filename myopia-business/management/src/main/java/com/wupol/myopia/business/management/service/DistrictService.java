@@ -488,4 +488,40 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return districts.stream()
                 .collect(Collectors.toMap(District::getId, District::getName));
     }
+
+    /**
+     * 通过名字获取code
+     *
+     * @param name 行政名字
+     * @return code
+     */
+    public Long getCodeByName(String name) {
+        String key = String.format(CacheKey.DISTRICT_CODE, name);
+
+        // 先从缓存中取
+        Long code = getLongCode(key, Long.class);
+        if (null != code) {
+            return code;
+        }
+        // 为空，从数据库查询
+        District district = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("name", name));
+        if (null == district) {
+            return null;
+        }
+        Long resultCode = district.getCode();
+        redisUtil.set(key, resultCode);
+        return resultCode;
+    }
+
+    private <T> T getLongCode(String key, Class<T> clazz) {
+        Object valueObj = redisUtil.get(key);
+        if (clazz.isInstance(valueObj)) {
+            return (T) valueObj;
+        } else if (clazz == Long.class && valueObj instanceof Integer) {
+            Integer obj = (Integer) valueObj;
+            return (T) Long.valueOf(obj.longValue());
+        }
+        return null;
+    }
 }

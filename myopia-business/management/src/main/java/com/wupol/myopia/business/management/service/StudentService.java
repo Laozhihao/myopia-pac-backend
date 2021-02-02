@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponse;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
@@ -93,6 +94,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Integer createUserId = student.getCreateUserId();
         String idCard = student.getIdCard();
 
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -119,6 +126,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudent(Student student) {
+
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+        // 更新学生
         baseMapper.updateById(student);
         Student resultStudent = baseMapper.selectById(student.getId());
         StudentDTO studentDTO = new StudentDTO();

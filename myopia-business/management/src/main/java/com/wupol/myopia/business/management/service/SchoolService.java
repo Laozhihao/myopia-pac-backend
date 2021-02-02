@@ -453,6 +453,17 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 批量通过学校编号获取学校
+     *
+     * @param schoolNos 学校编号
+     * @return School
+     */
+    public List<School> getBySchoolNos(List<String> schoolNos) {
+         return baseMapper.selectList(new QueryWrapper<School>()
+                .in("school_no", schoolNos));
+    }
+
+    /**
      * 通过districtId获取学校
      *
      * @param districtId 行政区域ID

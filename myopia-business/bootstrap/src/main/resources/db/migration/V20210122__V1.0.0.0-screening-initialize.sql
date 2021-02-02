@@ -279,3 +279,22 @@ CREATE TABLE `m_screening_result` (
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='筛查结果表';
+
+DROP TABLE IF EXISTS `m_vision_screening_result`;
+
+CREATE TABLE `m_vision_screening_result` (
+    `id` int(11) NOT NULL COMMENT '主键id',
+    `screening_plan_school_student_id` int(10) unsigned NOT NULL COMMENT '筛查结果--所属的学生id',
+    `task_id` int(11) NOT NULL COMMENT '筛查结果--所属的任务id',
+    `plan_id` int(11) DEFAULT NULL COMMENT '筛查结果--所属的计划id',
+    `school_id` int(10) unsigned NOT NULL COMMENT '筛查结果--执行的学校id',
+    `student_id` int(10) unsigned NOT NULL COMMENT '筛查结果--参与筛查的学生id',
+    `district_id` int(11) DEFAULT NULL COMMENT '筛查结果--所属的地区id',
+    `vision_data` json NOT NULL COMMENT '筛查结果--视力数据',
+    `computer_optometry` json COMMENT '筛查结果--电脑验光',
+    `biometric_data` json COMMENT '筛查结果--生物测量',
+    `other_eye_diseases` json COMMENT '筛查结果--其他眼疾',
+    `is_double_screen` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '筛查结果--是否复筛（0否，1是）',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '筛查结果表';
