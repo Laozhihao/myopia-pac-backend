@@ -10,6 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.IOUtils;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -474,6 +476,41 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
+
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+                throw new BusinessException("学生性别异常");
+            }
+
+            if (StringUtils.isBlank(item.get(2))) {
+                throw new BusinessException("学生出生日期不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(4))) {
+                throw new BusinessException("学校编号不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(5))) {
+                throw new BusinessException("学生年级不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(6))) {
+                throw new BusinessException("学生班级不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(7))) {
+                throw new BusinessException("学生学号异常");
+            }
+
+            if (StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8))) {
+                throw new BusinessException("学生身份证异常");
+            }
+
+            if (StringUtils.isBlank(item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+                    throw new BusinessException("学生手机号码异常");
+                }
+            }
+
             // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
@@ -571,23 +608,36 @@ public class ExcelFacade {
         }
 
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
-        List<UserDTO> userList = listMap.stream()
-                .map(item -> {
-                    UserDTO userDTO = new UserDTO()
-                            .setRealName(item.get(1))
-                            .setGender(GenderEnum.getType(item.get(2)))
-                            .setIdCard(item.get(3))
-                            .setPhone(item.get(4))
-                            .setCreateUserId(currentUser.getId())
-                            .setIsLeader(0)
-                            .setOrgId(screeningOrgId)
-                            .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-                    if (null != item.get(5)) {
-                        userDTO.setRemark(item.get(5));
-                    }
-                    return userDTO;
-                })
-                .collect(Collectors.toList());
+        List<UserDTO> userList = new ArrayList<>();
+        for (Map<Integer, String> item : listMap) {
+            if (StringUtils.isBlank(item.get(0))) {
+                break;
+            }
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+                throw new BusinessException("性别异常");
+            }
+
+            if (StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2))) {
+                throw new BusinessException("身份证异常");
+            }
+
+            if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
+                throw new BusinessException("手机号码异常");
+            }
+            UserDTO userDTO = new UserDTO()
+                    .setRealName(item.get(0))
+                    .setGender(GenderEnum.getType(item.get(1)))
+                    .setIdCard(item.get(2))
+                    .setPhone(item.get(3))
+                    .setCreateUserId(currentUser.getId())
+                    .setIsLeader(0)
+                    .setOrgId(screeningOrgId)
+                    .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+            if (null != item.get(4)) {
+                userDTO.setRemark(item.get(4));
+            }
+            userList.add(userDTO);
+        }
         List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo();
             staff.setIdCard(item.getIdCard())
