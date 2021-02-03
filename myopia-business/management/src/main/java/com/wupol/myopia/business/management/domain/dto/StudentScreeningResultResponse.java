@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +17,5 @@ public class StudentScreeningResultResponse {
 
     private Integer total;
 
-    private List<ScreeningResult> items;
+    private List<VisionScreeningResult> items;
 }
