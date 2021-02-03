@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -272,6 +270,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 详细地址
             s.setAddressDetail(districtService.getAddressDetails(
                     s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+
+            // 是否已有筛查计划
             s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
         };
     }
@@ -283,7 +283,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return
      */
     private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
-        if (query.getNeedCheckHavePlan()) {
+        if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
             return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();
@@ -525,5 +525,31 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         responseDTO.setAddressDetail(districtService.getAddressDetails(
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         return responseDTO;
+    }
+
+    /**
+     * 根据层级Id获取学校列表（带是否有计划字段）
+     * @param schoolQuery
+     * @return
+     */
+    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQuery schoolQuery) {
+        Assert.notNull(schoolQuery.getDistrictId(), "层级id不能为空");
+        schoolQuery.setStatus(CommonConst.STATUS_NOT_DELETED);
+        // 查询
+        List<School> schoolList = getByDistrictId(schoolQuery.getDistrictId());
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return Collections.emptyList();
+        }
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
+        // 封装DTO
+        return schoolList.stream().map(school -> {
+            SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
+            BeanUtils.copyProperties(school, schoolResponseDTO);
+            schoolResponseDTO.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
+            return schoolResponseDTO;
+        }).collect(Collectors.toList());
     }
 }

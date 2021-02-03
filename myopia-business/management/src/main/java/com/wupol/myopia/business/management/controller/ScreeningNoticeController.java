@@ -26,7 +26,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.Objects;
 
 /**
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @ResponseResultBody
@@ -212,8 +212,8 @@ public class ScreeningNoticeController {
      */
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
-        // 已发布，直接返回
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // 已发布，直接返回
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         ScreeningNotice notice = screeningNoticeService.getById(id);
         createOrReleaseValidate(notice);

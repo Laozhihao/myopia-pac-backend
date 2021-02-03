@@ -22,7 +22,7 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
 
     List<OrgScreeningCountVO> countScreeningTimeByOrgId();
 
-    List<ScreeningTaskOrg> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
+    List<ScreeningTaskOrgVo> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
 
     List<ScreeningTaskOrgVo> selectVoListByScreeningTaskId(@Param("screeningTaskId") Integer screeningTaskId);
 }
