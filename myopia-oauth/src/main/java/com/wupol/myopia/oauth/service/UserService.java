@@ -117,7 +117,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 管理端创建医院端、学校端管理员，创建筛查端的筛查人员
+     * 创建医院端、学校端、筛查端的管理员
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -133,7 +133,7 @@ public class UserService extends BaseService<UserMapper, User> {
 
         // 绑定角色
 
-        return user;
+        return userDTO.setId(user.getId());
     }
 
     /**
