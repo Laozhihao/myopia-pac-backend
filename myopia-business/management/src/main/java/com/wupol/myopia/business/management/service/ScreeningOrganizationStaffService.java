@@ -159,8 +159,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
+                .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
+        resetPassword(new StaffResetPasswordRequest(staff.getId(),staff.getPhone(),staff.getIdCard()));
         return staff;
     }
 

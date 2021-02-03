@@ -21,7 +21,7 @@ public enum SchoolEnum {
     TYPE_VOCATIONAL(6, "职业高中"),
     TYPE_OTHER(7, "7其他"),
     KIND_1(0,"公办"),
-    KIND_2(1,"私办"),
+    KIND_2(1,"民办"),
     KIND_3(2,"其他");
 
     /** 类型 **/

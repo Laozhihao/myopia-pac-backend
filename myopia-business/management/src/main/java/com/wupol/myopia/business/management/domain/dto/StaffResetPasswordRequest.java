@@ -21,4 +21,10 @@ public class StaffResetPasswordRequest {
 
     @NotBlank(message = "身份证不能空")
     private String idCard;
+
+    public StaffResetPasswordRequest(@NotNull(message = "员工id不能为空") Integer staffId, @NotBlank(message = "手机号码不能为空") String phone, @NotBlank(message = "身份证不能空") String idCard) {
+        this.staffId = staffId;
+        this.phone = phone;
+        this.idCard = idCard;
+    }
 }
