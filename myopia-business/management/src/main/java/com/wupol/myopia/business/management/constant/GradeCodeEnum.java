@@ -17,36 +17,54 @@ import java.util.Objects;
 public enum GradeCodeEnum {
 
 
-    ONE_PRIMARY_SCHOOL("一年级", "01", 0),
-    TWO_PRIMARY_SCHOOL("二年级", "02", 0),
-    THREE_PRIMARY_SCHOOL("三年级", "03", 0),
-    FOUR_PRIMARY_SCHOOL("四年级", "04", 0),
-    FIVE_PRIMARY_SCHOOL("五年级", "05", 0),
-    SIX_PRIMARY_SCHOOL("六年级", "06", 0),
+    /**
+     * 小学
+     */
+    ONE_PRIMARY_SCHOOL("一年级", "01", SchoolAge.PRIMARY.code),
+    TWO_PRIMARY_SCHOOL("二年级", "02", SchoolAge.PRIMARY.code),
+    THREE_PRIMARY_SCHOOL("三年级", "03", SchoolAge.PRIMARY.code),
+    FOUR_PRIMARY_SCHOOL("四年级", "04", SchoolAge.PRIMARY.code),
+    FIVE_PRIMARY_SCHOOL("五年级", "05", SchoolAge.PRIMARY.code),
+    SIX_PRIMARY_SCHOOL("六年级", "06", SchoolAge.PRIMARY.code),
 
-    ONE_JUNIOR_SCHOOL("初一", "11", 1),
-    TWO_JUNIOR_SCHOOL("初二", "12", 1),
-    THREE_JUNIOR_SCHOOL("初三", "13", 1),
-    FOUR_JUNIOR_SCHOOL("初四", "14", 1),
+    /**
+     * 初中
+     */
+    ONE_JUNIOR_SCHOOL("初一", "11", SchoolAge.JUNIOR.code),
+    TWO_JUNIOR_SCHOOL("初二", "12", SchoolAge.JUNIOR.code),
+    THREE_JUNIOR_SCHOOL("初三", "13", SchoolAge.JUNIOR.code),
+    FOUR_JUNIOR_SCHOOL("初四", "14", SchoolAge.JUNIOR.code),
 
-    ONE_HIGH_SCHOOL("高一", "21", 2),
-    TWO_HIGH_SCHOOL("高二", "22", 2),
-    THREE_HIGH_SCHOOL("高三", "23", 2),
+    /**
+     * 高中
+     */
+    ONE_HIGH_SCHOOL("高一", "21", SchoolAge.HIGH.code),
+    TWO_HIGH_SCHOOL("高二", "22", SchoolAge.HIGH.code),
+    THREE_HIGH_SCHOOL("高三", "23", SchoolAge.HIGH.code),
 
-    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", 3),
-    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", 3),
-    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", 3),
+    /**
+     * 职高
+     */
+    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", SchoolAge.VOCATIONAL_HIGH.code),
+    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", SchoolAge.VOCATIONAL_HIGH.code),
+    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", SchoolAge.VOCATIONAL_HIGH.code),
 
-    ONE_UNIVERSITY("大一", "41", 4),
-    TWO_UNIVERSITY("大二", "42", 4),
-    THREE_UNIVERSITY("大三", "43", 4),
-    FOUR_UNIVERSITY("大四", "44", 4),
+    /**
+     * 大学
+     */
+    ONE_UNIVERSITY("大一", "41", SchoolAge.UNIVERSITY.code),
+    TWO_UNIVERSITY("大二", "42", SchoolAge.UNIVERSITY.code),
+    THREE_UNIVERSITY("大三", "43", SchoolAge.UNIVERSITY.code),
+    FOUR_UNIVERSITY("大四", "44", SchoolAge.UNIVERSITY.code),
 
-    ONE_KINDERGARTEN("小班", "51", 5),
-    TWO_KINDERGARTEN("中班", "52", 5),
-    THREE_KINDERGARTEN("大班", "53", 5),
+    /**
+     * 幼儿园
+     */
+    ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code),
+    TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code),
+    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code),
 
-    OTHER("其他", "90", 0);
+    OTHER("其他", "90", -1);
 
     private final String name;
 

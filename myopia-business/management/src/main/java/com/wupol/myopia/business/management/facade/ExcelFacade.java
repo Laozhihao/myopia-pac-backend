@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -93,7 +94,7 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
-            throw new BusinessException("未找到对应的数据");
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
         }
 
         // 创建人姓名
@@ -113,7 +114,7 @@ public class ExcelFacade {
                     .setPersonSituation("886")
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
@@ -157,6 +158,10 @@ public class ExcelFacade {
         builder.append("-").append(orgName);
         String fileName = builder.toString();
 
+        if (CollectionUtils.isEmpty(userList)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
+        }
+
         // 获取完整的用户信息
 //        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
 //        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
@@ -179,7 +184,7 @@ public class ExcelFacade {
      *
      * @param districtId 地区id
      **/
-    public File generateHospital(Integer districtId) throws IOException, ValidationException {
+    public File generateHospital(Integer districtId) throws IOException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
@@ -198,6 +203,10 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
 
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+        }
+
         // 创建人姓名
         Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
@@ -206,7 +215,7 @@ public class ExcelFacade {
             HospitalExportVo exportVo = new HospitalExportVo()
                     .setId(item.getId())
                     .setName(item.getName())
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
@@ -255,6 +264,10 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
 
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+        }
+
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
         Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
 
@@ -289,7 +302,7 @@ public class ExcelFacade {
                     .setKind(SchoolEnum.getKindName(item.getKind()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
                     .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
@@ -360,6 +373,11 @@ public class ExcelFacade {
 
         // 查询学生
         List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
+
+        // 为空直接导出
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
+        }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
@@ -422,12 +440,18 @@ public class ExcelFacade {
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
+            listMap.remove(1);
         }
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
         List<School> schools = schoolService.getBySchoolNos(schoolNos);
         if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("数据异常");
+            throw new BusinessException("数据为空");
+        }
+
+        List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
+        if (studentService.checkIdCards(idCards)) {
+            throw new BusinessException("学生身份证号码重复");
         }
 
         // 收集年级信息
@@ -452,6 +476,41 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
+
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+                throw new BusinessException("学生性别异常");
+            }
+
+            if (StringUtils.isBlank(item.get(2))) {
+                throw new BusinessException("学生出生日期不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(4))) {
+                throw new BusinessException("学校编号不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(5))) {
+                throw new BusinessException("学生年级不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(6))) {
+                throw new BusinessException("学生班级不能为空");
+            }
+
+            if (StringUtils.isBlank(item.get(7))) {
+                throw new BusinessException("学生学号异常");
+            }
+
+            if (StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8))) {
+                throw new BusinessException("学生身份证异常");
+            }
+
+            if (StringUtils.isBlank(item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+                    throw new BusinessException("学生手机号码异常");
+                }
+            }
+
             // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             student.setName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
@@ -491,7 +550,7 @@ public class ExcelFacade {
                 Map<String, Integer> classExportMaps = classExportVOS.stream()
                         .collect(Collectors.toMap(SchoolClassExportVO::getName, SchoolClassExportVO::getId));
                 Integer classId = classExportMaps.get(item.get(6));
-                if (null == classId ) {
+                if (null == classId) {
                     throw new BusinessException("班级数据异常");
                 } else {
                     // 设置班级信息
@@ -535,24 +594,50 @@ public class ExcelFacade {
         if (listMap.size() != 0) { // 去头部
             listMap.remove(0);
         }
+
+        // 收集身份证号码
+        List<String> idCards = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+
+        // 收集手机号码
+        List<String> phones = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+
+
+        List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkPhones)) {
+            throw new BusinessException("手机号码重复");
+        }
+
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
-        List<UserDTO> userList = listMap.stream()
-                .map(item -> {
-                    UserDTO userDTO = new UserDTO()
-                            .setRealName(item.get(1))
-                            .setGender(GenderEnum.getType(item.get(2)))
-                            .setIdCard(item.get(3))
-                            .setPhone(item.get(4))
-                            .setCreateUserId(currentUser.getId())
-                            .setIsLeader(0)
-                            .setOrgId(screeningOrgId)
-                            .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-                    if (null != item.get(5)) {
-                        userDTO.setRemark(item.get(5));
-                    }
-                    return userDTO;
-                })
-                .collect(Collectors.toList());
+        List<UserDTO> userList = new ArrayList<>();
+        for (Map<Integer, String> item : listMap) {
+            if (StringUtils.isBlank(item.get(0))) {
+                break;
+            }
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+                throw new BusinessException("性别异常");
+            }
+
+            if (StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2))) {
+                throw new BusinessException("身份证异常");
+            }
+
+            if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
+                throw new BusinessException("手机号码异常");
+            }
+            UserDTO userDTO = new UserDTO()
+                    .setRealName(item.get(0))
+                    .setGender(GenderEnum.getType(item.get(1)))
+                    .setIdCard(item.get(2))
+                    .setPhone(item.get(3))
+                    .setCreateUserId(currentUser.getId())
+                    .setIsLeader(0)
+                    .setOrgId(screeningOrgId)
+                    .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+            if (null != item.get(4)) {
+                userDTO.setRemark(item.get(4));
+            }
+            userList.add(userDTO);
+        }
         List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
             ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo();
             staff.setIdCard(item.getIdCard())

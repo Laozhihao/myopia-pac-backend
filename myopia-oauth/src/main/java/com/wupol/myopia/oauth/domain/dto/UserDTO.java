@@ -79,4 +79,9 @@ public class UserDTO extends User {
      **/
     private List<Integer> userIds;
 
+    /**
+     * 手机号码集合
+     **/
+    private List<String> phones;
+
 }

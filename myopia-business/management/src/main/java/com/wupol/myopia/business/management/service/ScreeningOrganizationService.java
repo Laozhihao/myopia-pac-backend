@@ -123,7 +123,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
 
         UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
@@ -147,6 +147,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         baseMapper.updateById(screeningOrganization);
+
+        // 机构管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(screeningOrganization.getId());
+        // 更新OAuth账号
+        schoolService.updateOAuthName(admin.getUserId(), screeningOrganization.getName());
+
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
         ScreeningOrganization o = baseMapper.selectById(orgId);
         BeanUtils.copyProperties(o, response);

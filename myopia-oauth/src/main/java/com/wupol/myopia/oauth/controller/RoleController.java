@@ -9,6 +9,7 @@ import com.wupol.myopia.oauth.domain.model.RolePermission;
 import com.wupol.myopia.oauth.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,8 +62,11 @@ public class RoleController {
      **/
     @PutMapping()
     public Role updateRole(@RequestBody Role param) {
-        if (!roleService.updateById(param)) {
-            throw new BusinessException("修改角色失败");
+        try {
+            boolean success = roleService.updateById(param);
+            Assert.isTrue(success, "修改角色失败");
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("已经存在该角色名称");
         }
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setId(param.getId());
