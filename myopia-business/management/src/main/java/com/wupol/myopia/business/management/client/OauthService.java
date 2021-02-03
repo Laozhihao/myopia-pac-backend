@@ -34,7 +34,7 @@ public class OauthService {
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持用户名模糊查询）
      *
      * @param param 查询参数
      * @return com.wupol.myopia.base.domain.ApiResult

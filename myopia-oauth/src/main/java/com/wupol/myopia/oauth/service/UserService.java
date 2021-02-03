@@ -86,6 +86,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public User addUser(UserDTO userDTO) throws IOException {
+        // 校验参数
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
@@ -101,7 +102,7 @@ public class UserService extends BaseService<UserMapper, User> {
         if (size != roleIds.size()) {
             throw new BusinessException("无效角色");
         }
-        List<UserRole> userRoles = roleIds.stream().map(roleId -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
+        List<UserRole> userRoles = roleIds.stream().distinct().map(roleId -> new UserRole().setUserId(user.getId()).setRoleId(roleId)).collect(Collectors.toList());
         userRoleService.saveBatch(userRoles);
         return userDTO.setId(user.getId());
     }
@@ -174,32 +175,52 @@ public class UserService extends BaseService<UserMapper, User> {
     /** 修改用户信息 */
     @Transactional(rollbackFor = Exception.class)
     public UserWithRole updateUser(UserDTO user) throws Exception {
-        User existUser = getById(user.getId());
+        Integer userId = user.getId();
+        User existUser = getById(userId);
         Assert.notNull(existUser, "该用户不存在");
         if (!StringUtils.isEmpty(user.getPhone())) {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
-            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(user.getId()), "已经存在该手机号码");
+            Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码");
         }
+        // 更新用户
         if (!updateById(user)) {
             throw new Exception("更新用户信息失败");
         }
+
+        // 获取用户最新信息
         UserDTO newUser = new UserDTO();
-        newUser.setId(user.getId());
-        List<UserWithRole> userWithRoles = baseMapper.selectUserListWithRole(newUser);
-        return userWithRoles.get(0).setRoles(roleService.getRoleListByUserId(user.getId()));
+        newUser.setId(userId);
+        UserWithRole userWithRole = baseMapper.selectUserListWithRole(newUser).get(0);
+
+        // 绑定新角色
+        List<Integer> roleIds = user.getRoleIds();
+        if (!CollectionUtils.isEmpty(roleIds)) {
+            List<Role> roles = roleService.listByIds(roleIds);
+            long size = roles.stream().filter(role -> role.getSystemCode().equals(user.getSystemCode()) && role.getOrgId().equals(user.getOrgId())).count();
+            if (size != roleIds.size()) {
+                throw new BusinessException("无效角色");
+            }
+            userRoleService.remove(new UserRole().setUserId(userId));
+            List<UserRole> userRoles = roleIds.stream().distinct().map(roleId -> new UserRole().setUserId(userId).setRoleId(roleId)).collect(Collectors.toList());
+            userRoleService.saveBatch(userRoles);
+            return userWithRole.setRoles(roles);
+        }
+
+        // 获取用户角色信息
+        return userWithRole.setRoles(roleService.getRoleListByUserId(userId));
 
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持按名称模糊查询）
      *
-     * @param queryParam 搜索参数
+     * @param userName 用户名
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    public List<User> getUserListWithLike(UserDTO queryParam) {
-        Assert.notNull(queryParam, "查询参数不能为空");
-        // 防止全表查询
-        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+    public List<User> getUserListByNameLike(String userName) {
+        Assert.notNull(userName, "用户名不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setRealName(userName);
         return baseMapper.selectUserList(queryParam);
     }
 }
