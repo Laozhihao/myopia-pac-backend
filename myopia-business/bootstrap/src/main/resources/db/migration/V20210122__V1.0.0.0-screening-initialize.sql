@@ -286,42 +286,21 @@ CREATE TABLE `m_school_vision_statistic`
 -- ----------------------------
 CREATE TABLE `m_vision_screening_result`
 (
-    `id`                               INT(10,0) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_plan_school_student_id` INT(10,0) NULL DEFAULT NULL COMMENT '筛查计划中的学生id',
-    `screening_org_id`                 INT(10,0) NOT NULL COMMENT '筛查结果--所属的机构id',
-    `task_id`                          INT(10,0) NOT NULL COMMENT '筛查结果--所属的任务id',
-    `create_user_id`                   INT(10,0) NOT NULL COMMENT '筛查结果--创建的用户id',
-    `plan_id`                          INT(10,0) NULL DEFAULT NULL COMMENT '筛查结果--所属的计划id',
-    `school_id`                        INT(10,0) NOT NULL COMMENT '筛查结果--执行的学校id',
-    `student_id`                       INT(10,0) NOT NULL COMMENT '筛查结果--参与筛查的学生id',
-    `district_id`                      INT(10,0) NULL DEFAULT NULL COMMENT '筛查结果--所属的地区id',
+    `id`                               INT(10) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+    `screening_plan_school_student_id` INT(10) NULL DEFAULT NULL COMMENT '筛查计划中的学生id',
+    `screening_org_id`                 INT(10) NOT NULL COMMENT '筛查结果--所属的机构id',
+    `task_id`                          INT(10) NOT NULL COMMENT '筛查结果--所属的任务id',
+    `create_user_id`                   INT(10) NOT NULL COMMENT '筛查结果--创建的用户id',
+    `plan_id`                          INT(10) NULL DEFAULT NULL COMMENT '筛查结果--所属的计划id',
+    `school_id`                        INT(10) NOT NULL COMMENT '筛查结果--执行的学校id',
+    `student_id`                       INT(10) NOT NULL COMMENT '筛查结果--参与筛查的学生id',
+    `district_id`                      INT(10) NULL DEFAULT NULL COMMENT '筛查结果--所属的地区id',
     `vision_data`                      JSON NULL DEFAULT NULL COMMENT '筛查结果--视力数据',
     `computer_optometry`               JSON NULL DEFAULT NULL COMMENT '筛查结果--电脑验光',
     `biometric_data`                   JSON NULL DEFAULT NULL COMMENT '筛查结果--生物测量',
     `other_eye_diseases`               JSON NULL DEFAULT NULL COMMENT '筛查结果--其他眼疾',
-    `is_double_screen`                 TINYINT(3,0) NOT NULL DEFAULT '0' COMMENT '筛查结果--是否复筛（0否，1是）',
+    `is_double_screen`                 TINYINT(3) NOT NULL DEFAULT '0' COMMENT '筛查结果--是否复筛（0否，1是）',
     `update_time`                      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查结果--更新时间',
     `create_time`                      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`) USING BTREE
 ) COMMENT='筛查结果表';
-
-
-DROP TABLE IF EXISTS `m_vision_screening_result`;
-
-CREATE TABLE `m_vision_screening_result`
-(
-    `id`                               int(11) NOT NULL COMMENT '主键id',
-    `screening_plan_school_student_id` int(10) unsigned NOT NULL COMMENT '筛查结果--所属的学生id',
-    `task_id`                          int(11) NOT NULL COMMENT '筛查结果--所属的任务id',
-    `plan_id`                          int(11) DEFAULT NULL COMMENT '筛查结果--所属的计划id',
-    `school_id`                        int(10) unsigned NOT NULL COMMENT '筛查结果--执行的学校id',
-    `student_id`                       int(10) unsigned NOT NULL COMMENT '筛查结果--参与筛查的学生id',
-    `district_id`                      int(11) DEFAULT NULL COMMENT '筛查结果--所属的地区id',
-    `vision_data`                      json      NOT NULL COMMENT '筛查结果--视力数据',
-    `computer_optometry`               json COMMENT '筛查结果--电脑验光',
-    `biometric_data`                   json COMMENT '筛查结果--生物测量',
-    `other_eye_diseases`               json COMMENT '筛查结果--其他眼疾',
-    `is_double_screen`                 tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '筛查结果--是否复筛（0否，1是）',
-    `create_time`                      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '筛查结果表';
