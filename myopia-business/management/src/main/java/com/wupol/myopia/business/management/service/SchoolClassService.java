@@ -139,4 +139,13 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
         return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
     }
+
+    /**
+     * 根据学校Id获取所有班级
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolClass> getBySchoolId(Integer schoolId) {
+        return baseMapper.selectList(new QueryWrapper<SchoolClass>().eq("school_id", schoolId));
+    }
 }

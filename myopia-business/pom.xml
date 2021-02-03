@@ -21,12 +21,22 @@
         <module>bootstrap</module>
     </modules>
 
+    <properties>
+        <base-framework.version>1.00.004-RELEASE</base-framework.version>
+    </properties>
+
     <dependencies>
         <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>base-service</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- base framework -->
+        <dependency>
+            <groupId>com.wupol</groupId>
+            <artifactId>whole-framework</artifactId>
+            <version>${base-framework.version}</version>
         </dependency>
     </dependencies>
 
