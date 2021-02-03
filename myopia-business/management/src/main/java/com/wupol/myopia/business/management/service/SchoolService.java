@@ -13,6 +13,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -77,6 +78,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private StudentService studentService;
 
+    @Resource
+    private SchoolGradeService schoolGradeService;
+
+    @Resource
+    private SchoolClassService schoolClassService;
+
     /**
      * 新增学校
      *
@@ -101,6 +108,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
                 baseMapper.insert(school);
+                initGradeAndClass(school.getId(), school.getType(), createUserId);
                 return generateAccountAndPassword(school);
             }
         } catch (InterruptedException e) {
@@ -441,7 +449,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return School
      */
     public List<School> getBySchoolNos(List<String> schoolNos) {
-         return baseMapper.selectList(new QueryWrapper<School>()
+        return baseMapper.selectList(new QueryWrapper<School>()
                 .in("school_no", schoolNos));
     }
 
@@ -507,5 +515,123 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         responseDTO.setAddressDetail(districtService.getAddressDetails(
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         return responseDTO;
+    }
+
+    /**
+     * 初始化学校年级和班级信息
+     *
+     * @param schoolId     学校ID
+     * @param type         学校类型
+     * @param createUserId 创建人
+     */
+    private void initGradeAndClass(Integer schoolId, Integer type, Integer createUserId) {
+        List<SchoolGrade> schoolGrades = new ArrayList<>();
+        switch (type) {
+            case 0:
+                // 小学，6个年级
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()));
+                break;
+            case 1:
+                // 初级中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()));
+                break;
+            case 2:
+                // 高级中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 3:
+                // 完全中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 4:
+                // 九年一贯制学校
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()));
+                break;
+            case 5:
+                // 十二年一贯制学校
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 6:
+                // 职业高中
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getName()));
+                break;
+            case 7:
+                // 其他
+                break;
+        }
+        if (!CollectionUtils.isEmpty(schoolGrades)) {
+            // 批量新增年级
+            if (schoolGradeService.saveBatch(schoolGrades)) {
+                // 批量新增班级
+                batchCreateClass(createUserId, schoolId,
+                        schoolGrades.stream().map(SchoolGrade::getId)
+                                .collect(Collectors.toList()));
+            }
+        }
+    }
+
+    /**
+     * 批量新增班级信息
+     *
+     * @param createUserId 创建人
+     * @param schoolId     学校ID
+     * @param gradeIds     年级ids
+     */
+    private void batchCreateClass(Integer createUserId, Integer schoolId, List<Integer> gradeIds) {
+
+        gradeIds.forEach(g -> {
+            ArrayList<SchoolClass> schoolClasses = Lists.newArrayList(
+                    new SchoolClass(g, createUserId, schoolId, "一班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "二班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "三班", 35));
+            schoolClassService.saveBatch(schoolClasses);
+        });
+
     }
 }
