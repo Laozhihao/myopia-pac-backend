@@ -33,4 +33,9 @@ public class StudentDTO extends Student {
      * 学校ID
      */
     private Integer schoolId;
+
+    /**
+     * 民族描述
+     */
+    private String nationDesc;
 }

@@ -5,7 +5,6 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
@@ -87,23 +86,31 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     }
 
     /**
+     * 批量更新或新增筛查任务的机构信息（删除非列表中的筛查机构）
+     * @param screeningTaskId
+     * @param screeningOrgs
+     */
+    public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
+        // 删除掉已有的不存在的机构信息
+        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.EMPTY_LIST : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
+        deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
+        if (!CollectionUtils.isEmpty(screeningOrgs)) {
+            saveOrUpdateBatchByTaskId(screeningTaskId, screeningOrgs);
+
+        }
+    }
+
+    /**
      * 批量更新或新增筛查任务的机构信息
      * @param screeningTaskId
      * @param screeningOrgs
      */
     public void saveOrUpdateBatchByTaskId(Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
-        // 删除掉已有的不存在的机构信息
-        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.EMPTY_LIST : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
-        if (!CollectionUtils.isEmpty(screeningOrgs)) {
-            // 1. 查出剩余的
-            Map<Integer, Integer> orgIdMap = getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
-            // 2. 更新id，并批量新增或修改
-            screeningOrgs.forEach(taskOrg -> {
-                taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null));
-            });
-            saveOrUpdateBatch(screeningOrgs);
-        }
+        // 1. 查出剩余的
+        Map<Integer, Integer> orgIdMap = getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
+        // 2. 更新id，并批量新增或修改
+        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));
+        saveOrUpdateBatch(screeningOrgs);
     }
 
     /**

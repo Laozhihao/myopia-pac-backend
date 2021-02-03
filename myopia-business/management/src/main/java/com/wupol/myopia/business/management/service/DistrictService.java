@@ -114,17 +114,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return list;
     }
 
-    /** 获取所有地行政区域,带缓存 */
-    public Map<Integer, String> getAllDistrictIdNameMap() {
-        String key = CacheKey.DISTRICT_ID_NAME_MAP;
-        if (redisUtil.hasKey(key)) {
-            return (Map) redisUtil.get(key);
-        }
-        Map<Integer, String> districtIdNameMap = getAllDistrict().stream().collect(Collectors.toMap(District::getId, District::getName));
-        redisUtil.set(key, districtIdNameMap);
-        return districtIdNameMap;
-    }
-
     /**
      * 通过用户身份，过滤查询的行政区域ID
      *  - 如果是平台管理员，则将行政区域ID作为条件
@@ -155,6 +144,41 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name.toString();
         }
         List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {});
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtId 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictId(Integer districtId) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetailById(districtId);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
+     *
+     * @param list 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictPositionDetail(List<District> list) {
+        StringBuilder name = new StringBuilder();
         if (CollectionUtils.isEmpty(list)) {
             return name.toString();
         }
@@ -321,6 +345,20 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return Collections.emptyList();
         }
         District district = getNotPlatformAdminUserDistrict(currentUser);
+        return getDistrictPositionDetail(district.getCode());
+    }
+
+    /**
+     * 根据层级ID获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
+     *
+     * @param districtId 行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getDistrictPositionDetailById(Integer districtId) {
+        District district = getById(districtId);
+        if (Objects.isNull(district)) {
+            return Collections.emptyList();
+        }
         return getDistrictPositionDetail(district.getCode());
     }
 
