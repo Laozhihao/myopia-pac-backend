@@ -538,6 +538,19 @@ public class ExcelFacade {
         if (listMap.size() != 0) { // 去头部
             listMap.remove(0);
         }
+
+        // 收集身份证号码
+        List<String> idCards = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+
+        // 收集手机号码
+        List<String> phones = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+
+
+        List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkPhones)) {
+            throw new BusinessException("身份证号码重复");
+        }
+
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = listMap.stream()
                 .map(item -> {

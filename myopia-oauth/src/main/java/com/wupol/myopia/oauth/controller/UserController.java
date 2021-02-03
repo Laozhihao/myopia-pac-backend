@@ -101,12 +101,27 @@ public class UserController {
      * @param userIds 用户ID集合
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/batch")
+    @GetMapping("/batch/id")
     public List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
             return new ArrayList<>();
         }
         return userService.listByIds(userIds);
+    }
+
+    /**
+     * 根据手机号码集批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch/phone")
+    public List<User> getUserBatchByPhones(@RequestParam("phones") List<String> phones, @RequestParam("systemCode") Integer systemCode) {
+        if (CollectionUtils.isEmpty(phones)) {
+            return new ArrayList<>();
+        }
+        return userService.getUserBatchByPhones(phones, systemCode);
     }
 
     /**
@@ -121,7 +136,7 @@ public class UserController {
     }
 
     /**
-     * 获取用户列表（仅支持按名称模糊查询）
+     * 获取用户列表（仅支持按名称模糊查询）【可跨端查询】
      *
      * @param queryParam 搜索参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>

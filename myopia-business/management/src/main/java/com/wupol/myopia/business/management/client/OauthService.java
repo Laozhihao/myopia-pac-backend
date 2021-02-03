@@ -9,7 +9,6 @@ import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -52,6 +51,18 @@ public class OauthService {
      **/
     @OauthRequest
     public List<UserDTO> getUserBatchByIds(List<Integer> userIds) {
+        return null;
+    }
+
+    /**
+     * 根据用户ID集批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByPhones(List<String> phones, Integer systemCode) {
         return null;
     }
 
