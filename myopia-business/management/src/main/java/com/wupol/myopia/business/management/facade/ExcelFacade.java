@@ -22,7 +22,9 @@ import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,10 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -405,44 +406,96 @@ public class ExcelFacade {
     /**
      * 导入学生
      *
-     * @param schoolId      学校id
      * @param createUserId  创建人userID
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer schoolId, Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
-        if (null == schoolId) {
-            throw new BusinessException("学校ID不能为空");
-        }
+    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
-        if (listMap.size() != 0) { // 去头部
+        if (listMap.size() != 0) {
+            // 去头部
             listMap.remove(0);
         }
+        // 收集学校编号
+        List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+        List<School> schools = schoolService.getBySchoolNos(schoolNos);
+        if (CollectionUtils.isEmpty(schools)) {
+            throw new BusinessException("数据异常");
+        }
+
+        // 收集年级信息
+        List<SchoolGradeExportVO> grades = schoolGradeService.getBySchoolIds(schools.stream()
+                .map(School::getId).collect(Collectors.toList()));
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportVO::getId)
+                .collect(Collectors.toList());
+        // 班级统计
+        List<SchoolClassExportVO> classes = schoolClassService.getByGradeIds(gradeIds);
+        // 通过班级id分组
+        Map<Integer, List<SchoolClassExportVO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportVO::getGradeId));
+        // 年级设置班级
+        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+
+        // 通过学校编号分组
+        Map<String, List<SchoolGradeExportVO>> schoolGradeMaps = grades.stream()
+                .collect(Collectors.groupingBy(SchoolGradeExportVO::getSchoolNo));
+
         List<Student> importList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             Student student = new Student();
-            // excel 格式： 序号	姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
-            List<Long> addressCodeList = districtService.getCodeByName(item.get(10), item.get(11), item.get(12), item.get(13));
-            student.setName(item.get(1))
-                    .setGender(GenderEnum.getType(item.get(2)))
-                    .setBirthday(DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(Integer.valueOf(item.get(4)))
-                    //TODO 年级班级名转id
-                    .setGradeId(23)
-                    .setClassId(18)
+            if (StringUtils.isBlank(item.get(0))) {
+                break;
+            }
+            // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
+            student.setName(item.get(0))
+                    .setGender(GenderEnum.getType(item.get(1)))
+                    .setBirthday(DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(NationEnum.getCode(item.get(3)))
+                    .setSchoolNo(item.get(4))
+                    .setGradeType(GradeCodeEnum.getByName(item.get(5)).getType())
                     .setSno(Integer.valueOf(item.get(7)))
                     .setIdCard(item.get(8))
                     .setParentPhone(item.get(9))
-                    .setProvinceCode(addressCodeList.get(0))
-                    .setCityCode(addressCodeList.get(1))
-                    .setAreaCode(addressCodeList.get(2))
-                    .setTownCode(addressCodeList.get(3))
+                    .setProvinceCode(districtService.getCodeByName(item.get(10)))
+                    .setCityCode(districtService.getCodeByName(item.get(11)))
+                    .setAreaCode(districtService.getCodeByName(item.get(12)))
+                    .setTownCode(districtService.getCodeByName(item.get(13)))
                     .setAddress(item.get(14))
                     .setCreateUserId(createUserId);
+
+            // 通过学校编号获取改学校的年级信息
+            List<SchoolGradeExportVO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
+
+            // 转换成年级Maps，年级名称作为Key
+            Map<String, SchoolGradeExportVO> gradeMaps = schoolGradeExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolGradeExportVO::getName, Function.identity()));
+
+            // 年级信息
+            SchoolGradeExportVO schoolGradeExportVO = gradeMaps.get(item.get(5));
+            if (null == schoolGradeExportVO) {
+                throw new BusinessException("年级数据异常");
+            } else {
+                // 设置年级ID
+                student.setGradeId(schoolGradeExportVO.getId());
+
+                // 获取年级内的班级信息
+                List<SchoolClassExportVO> classExportVOS = schoolGradeExportVO.getChild();
+
+                // 转换成班级Maps 把班级名称作为key
+                Map<String, Integer> classExportMaps = classExportVOS.stream()
+                        .collect(Collectors.toMap(SchoolClassExportVO::getName, SchoolClassExportVO::getId));
+                Integer classId = classExportMaps.get(item.get(6));
+                if (null == classId ) {
+                    throw new BusinessException("班级数据异常");
+                } else {
+                    // 设置班级信息
+                    student.setClassId(classId);
+                }
+            }
+            importList.add(student);
         }
         studentService.saveBatch(importList);
     }
@@ -512,23 +565,25 @@ public class ExcelFacade {
         Map<String, Integer> userMaps = userDTOS.stream()
                 .collect(Collectors.toMap(UserDTO::getIdCard, UserDTO::getId));
         // 设置userId
-        importList.forEach(i-> i.setUserId(userMaps.get(i.getIdCard())));
+        importList.forEach(i -> i.setUserId(userMaps.get(i.getIdCard())));
         screeningOrganizationStaffService.saveBatch(importList);
     }
 
     /**
      * 获取学生的导入模版
      */
-    public File getStudentImportDemo() throws URISyntaxException, MalformedURLException {
-        //TODO 待完成文件系统再修改
-        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
+    public File getStudentImportDemo() throws IOException {
+        ClassPathResource resource = new ClassPathResource("template" + File.separator + "StudentImport.xlsx");
+        // 获取文件
+        return resource.getFile();
     }
 
     /**
      * 获取筛查机构人员的导入模版
      */
-    public File getScreeningOrganizationStaffImportDemo() {
-        //TODO 待完成文件系统再修改
-        return new File("/Users/simple4h/ScreeningStaffImport.xlsx");
+    public File getScreeningOrganizationStaffImportDemo() throws IOException {
+        ClassPathResource resource = new ClassPathResource("template" + File.separator + "ScreeningStaffImport.xlsx");
+        // 获取文件
+        return resource.getFile();
     }
 }
