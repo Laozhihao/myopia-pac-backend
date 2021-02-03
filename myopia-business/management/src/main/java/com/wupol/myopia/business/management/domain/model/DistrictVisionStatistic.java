@@ -62,9 +62,19 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer lowVisionNumbers;
 
     /**
+     * 视力情况--视力低下比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer lowVisionRatio;
+
+    /**
      * 视力情况--戴镜人数（默认0）
      */
     private Integer wearingGlassesNumbers;
+
+    /**
+     * 视力情况--戴镜人数（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer wearingGlassesRatio;
 
     /**
      * 视力情况--近视人数（默认0）
@@ -72,9 +82,29 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer myopiaNumbers;
 
     /**
+     * 视力情况--近视比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer myopiaRatio;
+
+    /**
+     * 视力情况--屈光不正人数（默认0）
+     */
+    private Integer ametropiaNumbers;
+
+    /**
+     * 视力情况--屈光不正比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer ametropiaRatios;
+
+    /**
      * 视力情况--零级预警人数（默认0）
      */
     private Integer visionLabel0Numbers;
+
+    /**
+     * 视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer visionLabel0Ratio;
 
     /**
      * 视力情况--一级预警人数（默认0）
@@ -82,9 +112,19 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer visionLabel1Numbers;
 
     /**
+     * 视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer visionLabel1Ratio;
+
+    /**
      * 视力情况--二级预警人数（默认0）
      */
     private Integer visionLabel2Numbers;
+
+    /**
+     * 视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer visionLabel2Ratio;
 
     /**
      * 视力情况--三级预警人数（默认0）
@@ -92,9 +132,24 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer visionLabel3Numbers;
 
     /**
+     * 视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer visionLabel3Ratio;
+
+    /**
      * 视力情况--重点视力对象数量（默认0）
      */
     private Integer keyWarningNumbers;
+
+    /**
+     * 视力情况--建议就诊数量（默认0）
+     */
+    private Integer treatmentAdviceNumbers;
+
+    /**
+     * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
+     */
+    private Integer treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）
@@ -107,10 +162,15 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer realScreeningNumners;
 
     /**
-     * 视力情况--统计时间
+     * 视力情况--更新时间
+     */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    /**
+     * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 
 }
