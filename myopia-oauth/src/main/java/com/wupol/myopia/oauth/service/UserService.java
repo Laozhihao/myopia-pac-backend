@@ -223,4 +223,19 @@ public class UserService extends BaseService<UserMapper, User> {
         queryParam.setRealName(userName);
         return baseMapper.selectUserList(queryParam);
     }
+
+    /**
+     * 根据手机号码批量查询
+     *
+     * @param phones 手机号码集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    public List<User> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+        Assert.notEmpty(phones, "手机号码不能为空");
+        Assert.notNull(systemCode, "系统编号不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setSystemCode(systemCode);
+        queryParam.setPhones(phones);
+        return baseMapper.selectUserList(queryParam);
+    }
 }
