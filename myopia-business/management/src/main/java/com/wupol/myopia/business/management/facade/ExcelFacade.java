@@ -424,6 +424,7 @@ public class ExcelFacade {
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
+            listMap.remove(1);
         }
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
