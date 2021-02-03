@@ -99,6 +99,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
 
+        // 检查学生身份证是否重复
+        if (checkIdCard(student.getIdCard(), null)) {
+            throw new BusinessException("学生身份证重复");
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -131,6 +136,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
+
+        // 检查学生身份证是否重复
+        if (checkIdCard(student.getIdCard(), student.getId())) {
+            throw new BusinessException("学生身份证重复");
+        }
+
         // 更新学生
         baseMapper.updateById(student);
         Student resultStudent = baseMapper.selectById(student.getId());
@@ -331,6 +342,24 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return baseMapper.countStudentBySchoolNo();
     }
 
+
+    /**
+     * 检查学生身份证号码是否重复
+     *
+     * @param IdCard 身份证号码
+     * @param id     学生ID
+     * @return 是否重复
+     */
+    public Boolean checkIdCard(String IdCard, Integer id) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
+                .eq("id_card", IdCard);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
     /**
      * 根据身份证列表获取学生
      * @param idCardList
@@ -342,5 +371,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             studentQuery.setIdCardList(list);
             return baseMapper.getBy(studentQuery);
         }).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    /**
+     * 批量检查学生身份证号码是否重复
+     *
+     * @param IdCards 身份证号码
+     * @return 是否重复
+     */
+    public Boolean checkIdCards(List<String> IdCards) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
+                .in("id_card", IdCards);
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

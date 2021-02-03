@@ -106,4 +106,24 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
     public Boolean readScreeningNotice(CurrentUser currentUser, Integer screeningNoticeId) {
         return baseMapper.updateScreeningNotice(currentUser.getId(), screeningNoticeId) > 0;
     }
+
+    /**
+     * 导出Excel-通知
+     *
+     * @param createUserId 创建人
+     * @param title        标题
+     * @param content      内容
+     * @param downloadUrl  文件url
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void createExportNotice(Integer createUserId, String title, String content, String downloadUrl) {
+        Notice notice = new Notice();
+        notice.setCreateUserId(createUserId);
+        notice.setNoticeUserId(createUserId);
+        notice.setType(CommonConst.NOTICE_STATION_LETTER);
+        notice.setTitle(title);
+        notice.setContent(content);
+        notice.setDownloadUrl(downloadUrl);
+        baseMapper.insert(notice);
+    }
 }

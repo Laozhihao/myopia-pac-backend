@@ -1,7 +1,6 @@
 package com.wupol.myopia.oauth.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -9,7 +8,6 @@ import com.wupol.myopia.oauth.domain.model.UserWithRole;
 import com.wupol.myopia.oauth.service.UserService;
 import com.wupol.myopia.oauth.validator.UserValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -103,12 +101,27 @@ public class UserController {
      * @param userIds 用户ID集合
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/batch")
+    @GetMapping("/batch/id")
     public List<User> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
             return new ArrayList<>();
         }
         return userService.listByIds(userIds);
+    }
+
+    /**
+     * 根据手机号码集批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch/phone")
+    public List<User> getUserBatchByPhones(@RequestParam("phones") List<String> phones, @RequestParam("systemCode") Integer systemCode) {
+        if (CollectionUtils.isEmpty(phones)) {
+            return new ArrayList<>();
+        }
+        return userService.getUserBatchByPhones(phones, systemCode);
     }
 
     /**
@@ -123,14 +136,14 @@ public class UserController {
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持按名称模糊查询）【可跨端查询】
      *
      * @param queryParam 搜索参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/list")
-    public List<User> getUserListWithLike(UserDTO queryParam) {
-        return userService.getUserListWithLike(queryParam);
+    public List<User> getUserListByNameLike(UserDTO queryParam) {
+        return userService.getUserListByNameLike(queryParam.getRealName());
     }
 
     /**

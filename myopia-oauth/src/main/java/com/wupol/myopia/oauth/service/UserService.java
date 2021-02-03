@@ -86,6 +86,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public User addUser(UserDTO userDTO) throws IOException {
+        // 校验参数
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
@@ -116,7 +117,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 管理端创建医院端、学校端管理员，创建筛查端的筛查人员
+     * 创建医院端、学校端、筛查端的管理员
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
@@ -132,7 +133,7 @@ public class UserService extends BaseService<UserMapper, User> {
 
         // 绑定角色
 
-        return user;
+        return userDTO.setId(user.getId());
     }
 
     /**
@@ -211,15 +212,30 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持按名称模糊查询）
      *
-     * @param queryParam 搜索参数
+     * @param userName 用户名
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    public List<User> getUserListWithLike(UserDTO queryParam) {
-        Assert.notNull(queryParam, "查询参数不能为空");
-        // 防止全表查询
-        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+    public List<User> getUserListByNameLike(String userName) {
+        Assert.notNull(userName, "用户名不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setRealName(userName);
+        return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
+     * 根据手机号码批量查询
+     *
+     * @param phones 手机号码集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    public List<User> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+        Assert.notEmpty(phones, "手机号码不能为空");
+        Assert.notNull(systemCode, "系统编号不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setSystemCode(systemCode);
+        queryParam.setPhones(phones);
         return baseMapper.selectUserList(queryParam);
     }
 }

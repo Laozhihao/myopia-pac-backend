@@ -70,7 +70,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
         Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
-        List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).collect(Collectors.toList());
+        List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeVo::getAcceptOrgId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         screeningNoticeIPage.getRecords().forEach(vo -> {
             List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(vo.getDistrictId());

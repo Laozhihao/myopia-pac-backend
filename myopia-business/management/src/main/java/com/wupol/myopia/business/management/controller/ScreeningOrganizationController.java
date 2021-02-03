@@ -98,8 +98,7 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/listByGovDept")
     public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
-        Assert.notNull(query.getGovDeptId(), "部门id不能为空");
-        query.setStatus(CommonConst.STATUS_NOT_DELETED);
+
         return saveScreeningOrganization.getScreeningOrganizationListByGovDeptId(query);
     }
 }

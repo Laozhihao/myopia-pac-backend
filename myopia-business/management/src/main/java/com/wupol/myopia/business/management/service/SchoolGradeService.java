@@ -200,4 +200,8 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public List<SchoolGradeExportVO> getBySchoolIds(List<Integer> schoolIds) {
         return baseMapper.getBySchoolIds(schoolIds);
     }
+
+    public List<Integer> batchInsertGrade( ) {
+        return null;
+    }
 }
