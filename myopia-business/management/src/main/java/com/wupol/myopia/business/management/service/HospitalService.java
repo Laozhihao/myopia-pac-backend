@@ -54,6 +54,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private OauthService oauthService;
 
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 保存医院
      *
@@ -99,6 +102,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
             throw new BusinessException("医院名字重复，请确认");
         }
         baseMapper.updateById(hospital);
+
+        // 医院管理员
+        HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
+        // 更新OAuth账号
+        schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
+
         Hospital h = baseMapper.selectById(hospital.getId());
         HospitalResponseDTO response = new HospitalResponseDTO();
         BeanUtils.copyProperties(h, response);

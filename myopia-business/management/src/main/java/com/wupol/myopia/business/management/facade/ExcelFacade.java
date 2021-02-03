@@ -110,7 +110,7 @@ public class ExcelFacade {
                     .setPersonSituation("886")
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
@@ -203,7 +203,7 @@ public class ExcelFacade {
             HospitalExportVo exportVo = new HospitalExportVo()
                     .setId(item.getId())
                     .setName(item.getName())
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
                     .setType(HospitalEnum.getTypeName(item.getType()))
                     .setKind(HospitalEnum.getKindName(item.getKind()))
@@ -286,7 +286,7 @@ public class ExcelFacade {
                     .setKind(SchoolEnum.getKindName(item.getKind()))
                     .setType(SchoolEnum.getTypeName(item.getType()))
                     .setStudentCount(studentCountMaps.getOrDefault(item.getSchoolNo(), 0))
-                    .setDistrictName(district.getName())
+                    .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
@@ -357,6 +357,11 @@ public class ExcelFacade {
 
         // 查询学生
         List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
+
+        // 为空直接导出
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<StudentExportVo>(), StudentExportVo.class);
+        }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
@@ -419,6 +424,7 @@ public class ExcelFacade {
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
+            listMap.remove(1);
         }
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());

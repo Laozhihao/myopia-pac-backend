@@ -73,5 +73,13 @@ public class SchoolGrade implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    public SchoolGrade(Integer createUserId, @NotNull(message = "学校id不能为空") Integer schoolId, @NotBlank(message = "年级code不能为空") String gradeCode, @NotBlank(message = "年级名称不能为空") String name) {
+        this.createUserId = createUserId;
+        this.schoolId = schoolId;
+        this.gradeCode = gradeCode;
+        this.name = name;
+    }
 
+    public SchoolGrade() {
+    }
 }
