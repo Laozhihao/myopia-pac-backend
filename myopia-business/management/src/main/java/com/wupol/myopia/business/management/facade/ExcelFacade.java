@@ -92,7 +92,7 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
-            throw new BusinessException("未找到对应的数据");
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
         }
 
         // 创建人姓名
@@ -156,6 +156,10 @@ public class ExcelFacade {
         builder.append("-").append(orgName);
         String fileName = builder.toString();
 
+        if (CollectionUtils.isEmpty(userList)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
+        }
+
         // 获取完整的用户信息
 //        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
 //        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
@@ -178,7 +182,7 @@ public class ExcelFacade {
      *
      * @param districtId 地区id
      **/
-    public File generateHospital(Integer districtId) throws IOException, ValidationException {
+    public File generateHospital(Integer districtId) throws IOException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
@@ -196,6 +200,10 @@ public class ExcelFacade {
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
+
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+        }
 
         // 创建人姓名
         Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
@@ -253,6 +261,10 @@ public class ExcelFacade {
         SchoolQuery query = new SchoolQuery();
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
+
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+        }
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
         Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
@@ -362,7 +374,7 @@ public class ExcelFacade {
 
         // 为空直接导出
         if (CollectionUtils.isEmpty(list)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<StudentExportVo>(), StudentExportVo.class);
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -555,7 +567,7 @@ public class ExcelFacade {
 
         List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("身份证号码重复");
+            throw new BusinessException("手机号码重复");
         }
 
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
