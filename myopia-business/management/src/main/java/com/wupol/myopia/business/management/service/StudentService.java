@@ -372,4 +372,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return baseMapper.getBy(studentQuery);
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
+
+    /**
+     * 批量检查学生身份证号码是否重复
+     *
+     * @param IdCards 身份证号码
+     * @return 是否重复
+     */
+    public Boolean checkIdCards(List<String> IdCards) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
+                .in("id_card", IdCards);
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
 }
