@@ -86,6 +86,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     @Transactional(rollbackFor = Exception.class)
     public User addUser(UserDTO userDTO) throws IOException {
+        // 校验参数
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
@@ -211,15 +212,15 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持按名称模糊查询）
      *
-     * @param queryParam 搜索参数
+     * @param userName 用户名
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    public List<User> getUserListWithLike(UserDTO queryParam) {
-        Assert.notNull(queryParam, "查询参数不能为空");
-        // 防止全表查询
-        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+    public List<User> getUserListByNameLike(String userName) {
+        Assert.notNull(userName, "用户名不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setRealName(userName);
         return baseMapper.selectUserList(queryParam);
     }
 }
