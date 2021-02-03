@@ -132,8 +132,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
         }
-
         baseMapper.updateById(school);
+
+        // 获取学校管理员
+        SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(school.getId());
+        // 更新OAuth账号
+        updateOAuthName(admin.getUserId(), school.getName());
+
         School s = baseMapper.selectById(school.getId());
         SchoolResponseDTO dto = new SchoolResponseDTO();
         BeanUtils.copyProperties(s, dto);
@@ -205,12 +210,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
-            query.setCurrent(1);
-            query.setSize(Integer.MAX_VALUE);
-            Page<UserDTO> userListPage = oauthService.getUserListPage(query);
-            List<UserDTO> records = userListPage.getRecords();
-            if (!CollectionUtils.isEmpty(userListPage.getRecords())) {
-                userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
+            List<UserDTO> userListPage = oauthService.getUserList(query);
+            if (!CollectionUtils.isEmpty(userListPage)) {
+                userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
 
@@ -632,6 +634,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                     new SchoolClass(g, createUserId, schoolId, "三班", 35));
             schoolClassService.saveBatch(schoolClasses);
         });
+    }
 
+    /**
+     * 更新OAuh2 username
+     *
+     * @param userId   用户ID
+     * @param username 用户名
+     */
+    public void updateOAuthName(Integer userId, String username) {
+        UserDTO userDTO = new UserDTO()
+                .setId(userId)
+                .setUsername(username);
+        oauthService.modifyUser(userDTO);
     }
 }

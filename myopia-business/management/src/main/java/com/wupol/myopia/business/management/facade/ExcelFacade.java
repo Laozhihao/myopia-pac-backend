@@ -357,6 +357,11 @@ public class ExcelFacade {
 
         // 查询学生
         List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
+
+        // 为空直接导出
+        if (CollectionUtils.isEmpty(list)) {
+            return ExcelUtil.exportListToExcel(fileName, new ArrayList<StudentExportVo>(), StudentExportVo.class);
+        }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);

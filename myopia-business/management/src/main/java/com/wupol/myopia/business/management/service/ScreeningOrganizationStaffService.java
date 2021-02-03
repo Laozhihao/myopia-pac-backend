@@ -153,14 +153,20 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             log.error("更新筛查人员失败id:{},数据异常", id);
             throw new BusinessException("数据异常");
         }
+
+        String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
+        String username = staff.getPhone();
+
         UserDTO userDTO = new UserDTO()
                 .setId(checkStaff.getUserId())
                 .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
+                .setUsername(username)
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
+        resetPassword(new StaffResetPasswordRequest(staff.getId(),staff.getPhone(),staff.getIdCard()));
         return staff;
     }
 
