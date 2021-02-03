@@ -3,6 +3,9 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat.BasicStatParams;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat.ClassStat;
 import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContrast;
 import com.wupol.myopia.business.management.domain.dto.stat.TaskBriefNotification;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
@@ -73,11 +76,12 @@ public class StatController {
     }
 
     @GetMapping("/dataContrast")
-    public ApiResult getScreeningDataContrast(@RequestParam("contrastType") Integer contrastTypeId,
+    public ApiResult getScreeningDataContrast(
+            @RequestParam("contrastType") Integer contrastTypeCode,
             @RequestParam("nid1") Integer notificationId1,
             @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolType) {
-        ScreeningDataContrastType contrastType = ScreeningDataContrastType.get(contrastTypeId);
+            Integer districtId, Integer schoolAge) {
+        ScreeningDataContrastType contrastType = ScreeningDataContrastType.get(contrastTypeCode);
         if (contrastType == null) {
             return ApiResult.failure("数据不正确");
         }
@@ -165,13 +169,69 @@ public class StatController {
         return ApiResult.success(result);
     }
 
+    @GetMapping("/dataClass")
+    public ApiResult getScreeningClassStat(@RequestParam("nid") Integer notificationId) {
+        int screeningNum = 123456;
+        int actualScreeningNum = 111321;
+        int rescreenNum = 44498;
+        int wearingGlassesRescreenNum = 35898;
+        int wearingGlassesRescreenIndexNum = 6;
+        int withoutGlassesRescreenNum = 23898;
+        int withoutGlassesRescreenIndexNum = 4;
+        long rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
+                + withoutGlassesRescreenNum * withoutGlassesRescreenIndexNum;
+        int incorrectItemNum = 12345;
+        float incorrectRatio = convertToRatio(incorrectItemNum * 1f / actualScreeningNum);
+        int maleNum = 54498;
+        int lowVisionNum = 67789;
+
+        BasicStatParams male =
+                new BasicStatParams(convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
+        BasicStatParams female = male;
+        BasicStatParams kindergarten = male;
+        BasicStatParams primary = male;
+        BasicStatParams junior = male;
+        BasicStatParams high = male;
+        BasicStatParams vocationalHigh = male;
+
+        ClassStat lowVision = new ClassStat(convertToRatio(lowVisionNum * 1f / actualScreeningNum),
+                lowVisionNum, male, female, kindergarten, primary, junior, high, vocationalHigh);
+        ClassStat refractiveError = lowVision;
+        ClassStat wearingGlasses = lowVision;
+        ClassStat myopia = lowVision;
+
+        ScreeningClassStat stat =
+                ScreeningClassStat.builder()
+                        .notificationId(15)
+                        .screeningNum(screeningNum)
+                        .actualScreeningNum(actualScreeningNum)
+                        .screeningFinishedRatio(
+                                convertToRatio(actualScreeningNum * 1f / screeningNum))
+                        .averageVisionLeft(0.5f)
+                        .averageVisionRight(0.48f)
+                        .lowVision(lowVision)
+                        .refractiveError(refractiveError)
+                        .wearingGlasses(wearingGlasses)
+                        .myopia(myopia)
+                        .rescreenNum(rescreenNum)
+                        .wearingGlassesRescreenNum(wearingGlassesRescreenNum)
+                        .wearingGlassesRescreenIndexNum(wearingGlassesRescreenIndexNum)
+                        .withoutGlassesRescreenNum(withoutGlassesRescreenNum)
+                        .withoutGlassesRescreenIndexNum(withoutGlassesRescreenIndexNum)
+                        .rescreenItemNum(rescreenItemNum)
+                        .incorrectItemNum(incorrectItemNum)
+                        .incorrectRatio(incorrectRatio)
+                        .build();
+        return ApiResult.success(stat);
+    }
+
     @GetMapping("tastStat")
     public ApiResult getTaskStat(Integer nid) {
         return ApiResult.success();
     }
 
     private Float convertToRatio(Float num) {
-        return Math.round(num * 10000) / 100f;
+        return Math.round(num * 1000000) / 10000f;
     }
 
     private Long getYearMillis(Integer year) {
