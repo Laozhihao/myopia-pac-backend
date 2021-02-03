@@ -430,7 +430,12 @@ public class ExcelFacade {
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
         List<School> schools = schoolService.getBySchoolNos(schoolNos);
         if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("数据异常");
+            throw new BusinessException("数据为空");
+        }
+
+        List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
+        if (studentService.checkIdCards(idCards)) {
+            throw new BusinessException("学生身份证号码重复");
         }
 
         // 收集年级信息
@@ -494,7 +499,7 @@ public class ExcelFacade {
                 Map<String, Integer> classExportMaps = classExportVOS.stream()
                         .collect(Collectors.toMap(SchoolClassExportVO::getName, SchoolClassExportVO::getId));
                 Integer classId = classExportMaps.get(item.get(6));
-                if (null == classId ) {
+                if (null == classId) {
                     throw new BusinessException("班级数据异常");
                 } else {
                     // 设置班级信息
