@@ -516,7 +516,7 @@ public class ExcelFacade {
                     .setNation(NationEnum.getCode(item.get(3)))
                     .setSchoolNo(item.get(4))
                     .setGradeType(GradeCodeEnum.getByName(item.get(5)).getType())
-                    .setSno(Integer.valueOf(item.get(7)))
+                    .setSno((item.get(7)))
                     .setIdCard(item.get(8))
                     .setParentPhone(item.get(9))
                     .setProvinceCode(districtService.getCodeByName(item.get(10)))
