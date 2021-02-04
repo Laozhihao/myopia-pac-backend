@@ -60,9 +60,11 @@
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
-        select ms.*
+        select ms.*, school.name as schoolName, school.id as schoolId, msg.name as gradeName, msc.name as className
         from m_student ms
                      left join m_school school on ms.school_no = school.school_no
+                     left join m_school_grade msg on ms.grade_id = msg.id
+                     left join m_school_class msc on ms.class_id = msc.id
                 where ms.status != 2
         <if test="sno != null">
             and ms.sno like CONCAT('%', #{sno}, '%')
