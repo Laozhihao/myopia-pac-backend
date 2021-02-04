@@ -35,6 +35,7 @@
                 <if test="@Ognl@isNotEmpty(currentSituation)">and `current_situation` = #{currentSituation}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel)">and `vision_label` = #{visionLabel}</if>
                 <if test="@Ognl@isNotEmpty(lastScreeningTime)">and `last_screening_time` = #{lastScreeningTime}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -53,7 +54,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, last_screening_time, status, create_time, update_time
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">

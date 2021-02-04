@@ -150,6 +150,11 @@ public class Student implements Serializable {
     private Date lastScreeningTime;
 
     /**
+     * 备注
+     */
+    private String remark;
+
+    /**
      * 状态 0-启用 1-禁止 2-删除
      */
     private Integer status;
