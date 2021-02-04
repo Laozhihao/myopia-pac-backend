@@ -173,7 +173,7 @@ create table m_student
         primary key,
     school_no           varchar(64)                         not null comment '学校编号',
     create_user_id      int                                 null comment '创建人ID',
-    sno                 int                                 not null comment '学号',
+    sno                 varchar(64)                         not null comment '学号',
     grade_id            int                                 null comment '年级ID',
     grade_type          tinyint                             null comment '学龄段',
     class_id            int                                 null comment '班级ID',
