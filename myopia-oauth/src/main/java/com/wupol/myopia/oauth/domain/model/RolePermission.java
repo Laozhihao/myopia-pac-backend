@@ -26,7 +26,6 @@ public class RolePermission implements Serializable {
     /**
      * 角色ID
      */
-    @TableId(value = "role_id", type = IdType.AUTO)
     private Integer roleId;
 
     /**

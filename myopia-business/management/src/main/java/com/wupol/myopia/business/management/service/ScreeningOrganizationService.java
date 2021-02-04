@@ -123,7 +123,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
         UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
@@ -144,6 +144,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
+        }
+
+        if (null == screeningOrganization.getTownCode()){
+            screeningOrganization.setTownCode(0L);
         }
 
         baseMapper.updateById(screeningOrganization);
