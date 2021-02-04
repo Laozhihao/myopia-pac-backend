@@ -21,7 +21,7 @@ import java.util.List;
 public interface StudentMapper extends BaseMapper<Student> {
 
     IPage<StudentDTO> getStudentListByCondition(@Param("page") Page<?> page,
-                                                @Param("sno") Integer sno, @Param("idCard") String idCard,
+                                                @Param("sno") String sno, @Param("idCard") String idCard,
                                                 @Param("name") String name, @Param("parentPhone") String parentPhone,
                                                 @Param("gender") Integer gender, @Param("gradeIds") List<Integer> gradeIds,
                                                 @Param("visionLabels") List<Integer> visionLabels, @Param("startScreeningTime") Date startScreeningTime,
