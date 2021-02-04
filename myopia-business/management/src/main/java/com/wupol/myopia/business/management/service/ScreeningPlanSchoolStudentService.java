@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -155,40 +156,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public void insertByUpload(Integer userId, List<Map<Integer, String>> listMap, Integer screeningPlanId, Integer schoolId) {
         // 获取所有身份证号
         List<String> idCardList = listMap.stream().map(item -> item.getOrDefault(8, null)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        // 身份证号是否符合规则
-        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
-            throw new BusinessException("存在不正确的身份证号");
-        }
-        // 根据学校ID获取年级班级信息
         Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
-        // 获取所有年级名
-        List<String> gradeNameList = listMap.stream().map(item -> item.getOrDefault(5, null)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        // 年级名与班级名是否都存在
-        if (gradeNameList.stream().anyMatch(gradeName -> !gradeNameIdMap.keySet().contains(gradeName))) {
-            throw new BusinessException("存在不正确的年级名称");
-        }
         Map<String, Integer> classNameIdMap = schoolClassService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
-        List<String> classNameList = listMap.stream().map(item -> item.getOrDefault(6, null)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        if (classNameList.stream().anyMatch(gradeName -> !classNameIdMap.keySet().contains(gradeName))) {
-            throw new BusinessException("存在不正确的班级名称");
-        }
+        checkExcelDataLegal(listMap, idCardList, gradeNameIdMap, classNameIdMap);
         // 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(idCardList).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 根据身份证号分批获取已有的筛查学生数据
         Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = getByIdCards(screeningPlanId, schoolId, idCardList).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
-        // excel格式：序号、姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、年级、班级、学号、身份证号、手机号码、居住地址
-        List<Student> excelStudents = listMap.stream().map(item -> {
-            try {
-                return generateStudentByExcelItem(item, gradeNameIdMap, classNameIdMap);
-            } catch (Exception e) {
-                log.error("导入筛查学生数据异常", e);
-                return null;
-            }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        if (excelStudents.size() != listMap.size()) {
-            throw new BusinessException("学生数据有误，请检查");
-        }
+        List<Student> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, classNameIdMap);
+        Map<String, Student> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 1. 筛选出需新增的学生并新增得ID
+        List<String> needAddedIdCards = CompareUtil.getAdded(new ArrayList<>(excelIdCardStudentMap.keySet()), new ArrayList<>(idCardExistStudents.keySet()));
+
         // 2. 其它学生判断是否需要更新
         // 2.1 不需要更新，插入ID，并新增ScreeningPlanSchoolStudent
         // 2.1 需要更新，加入到更新学生数据。插入ID，并新增ScreeningPlanSchoolStudent
@@ -214,6 +193,59 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 //        studentService.saveOrUpdateBatch(needAddOrUpdateStudents);
 //        //TODO 已有处理
 //        saveBatch(screeningPlanSchoolStudents);
+    }
+
+    /**
+     * 校验excel的筛查学生数据是否正确
+     * 1. 身份证号
+     * 2. 年级
+     * 3. 班级
+     * @param listMap
+     * @param idCardList
+     * @param gradeNameIdMap
+     * @param classNameIdMap
+     */
+    private void checkExcelDataLegal(List<Map<Integer, String>> listMap, List<String> idCardList, Map<String, Integer> gradeNameIdMap, Map<String, Integer> classNameIdMap) {
+        // 身份证号是否符合规则
+        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
+            throw new BusinessException("存在不正确的身份证号");
+        }
+        // 根据学校ID获取年级班级信息
+        // 获取所有年级名
+        List<String> gradeNameList = listMap.stream().map(item -> item.getOrDefault(5, null)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        // 年级名是否都存在
+        if (gradeNameList.stream().anyMatch(gradeName -> !gradeNameIdMap.keySet().contains(gradeName))) {
+            throw new BusinessException("存在不正确的年级名称");
+        }
+        // 获取所有年级名
+        List<String> classNameList = listMap.stream().map(item -> item.getOrDefault(6, null)).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        // 班级名是否都存在
+        if (classNameList.stream().anyMatch(gradeName -> !classNameIdMap.keySet().contains(gradeName))) {
+            throw new BusinessException("存在不正确的班级名称");
+        }
+    }
+
+    /**
+     * 根据excel数据生成学生数据列表
+     * @param listMap
+     * @param gradeNameIdMap
+     * @param classNameIdMap
+     * @return
+     */
+    private List<Student> getStudentListFromExcelItem(List<Map<Integer, String>> listMap, Map<String, Integer> gradeNameIdMap, Map<String, Integer> classNameIdMap) {
+        // excel格式：序号、姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、年级、班级、学号、身份证号、手机号码、居住地址
+        List<Student> excelStudents = listMap.stream().map(item -> {
+            try {
+                return generateStudentByExcelItem(item, gradeNameIdMap, classNameIdMap);
+            } catch (Exception e) {
+                log.error("导入筛查学生数据异常", e);
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        if (excelStudents.size() != listMap.size()) {
+            throw new BusinessException("学生数据有误，请检查");
+        }
+        return excelStudents;
     }
 
     /**

@@ -64,26 +64,27 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // 已创建校验
-        if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
-            throw new ValidationException("筛查计划已创建");
-        }
         // 校验用户机构
-        ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
-        ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId());
-        if (Objects.isNull(screeningTaskOrg)) {
-            throw new ValidationException("筛查任务查无该机构");
-        }
+        // TODO 是否需要校验用户
+//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
+//            // 政府部门，无法新增计划
+//            throw new ValidationException("无权限");
+//        }
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
-            Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getGovDeptId()), "无该筛查机构权限");
+            Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
         }
-        if (user.isPlatformAdminUser() || user.isScreeningUser()) {
+        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有改筛查机构
+        if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
+            if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
+                throw new ValidationException("筛查计划已创建");
+            }
+            ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId());
+            if (Objects.isNull(screeningTaskOrg)) {
+                throw new ValidationException("筛查任务查无该机构");
+            }
+            ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
-        }
-        if (user.isGovDeptUser()) {
-            // 政府部门，无法新增计划
-            throw new ValidationException("无权限");
         }
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
     }
@@ -107,13 +108,30 @@ public class ScreeningPlanController {
      */
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) throws AccessDeniedException {
-        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
+        validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        //校验部门
-        if (user.isPlatformAdminUser() || user.isScreeningUser() && user.getOrgId().equals(screeningPlan.getScreeningOrgId())) {
-            screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
-        } else {
-            throw new AccessDeniedException("无权限");
+        screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
+    }
+
+    /**
+     * 校验计划是否存在与发布状态
+     * 同时校验权限
+     *
+     * @param screeningPlanId
+     * @param releaseStatus
+     */
+    private void validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
+        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // 校验用户机构
+        // TODO 是否需要校验用户
+//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
+//            // 政府部门，无法新增计划
+//            throw new ValidationException("无权限");
+//        }
+        if (user.isScreeningUser()) {
+            // 筛查机构人员，需校验是否同机构
+            Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
         }
     }
 
@@ -126,7 +144,7 @@ public class ScreeningPlanController {
     private ScreeningPlan validateExistWithReleaseStatusAndReturn(Integer id, Integer releaseStatus) {
         ScreeningPlan screeningPlan = validateExist(id);
         Integer taskStatus = screeningPlan.getReleaseStatus();
-        if (releaseStatus.equals(taskStatus)) {
+        if (Objects.nonNull(releaseStatus) && releaseStatus.equals(taskStatus)) {
             throw new BusinessException(String.format("该计划%s", CommonConst.STATUS_RELEASE.equals(taskStatus) ? "已发布" : "未发布"));
         }
         return screeningPlan;
@@ -187,6 +205,8 @@ public class ScreeningPlanController {
      */
     @GetMapping("grades/{screeningPlanId}/{schoolId}")
     public List<SchoolGradeVo> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        // 任务状态判断
+        validateExist(screeningPlanId);
         return screeningPlanSchoolStudentService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
@@ -205,9 +225,7 @@ public class ScreeningPlanController {
         if (Objects.nonNull(planSchool)) {
             screeningPlanSchool.setId(planSchool.getId());
         }
-        if (!screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool)) {
-            throw new BusinessException("新增失败");
-        }
+        screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
     }
 
     /**
@@ -232,17 +250,12 @@ public class ScreeningPlanController {
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) throws AccessDeniedException {
         // 已发布，直接返回
-        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(id, CommonConst.STATUS_RELEASE);
+        validateExistWithReleaseStatusAndReturn(id, CommonConst.STATUS_RELEASE);
         // 没有学校，直接报错
         if (CollectionUtils.isEmpty(screeningPlanSchoolService.getSchoolListsByPlanId(id))) {
             throw new ValidationException("无筛查的学校");
         }
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isPlatformAdminUser() || user.isScreeningUser() && user.getOrgId().equals(screeningPlan.getScreeningOrgId())) {
-            screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
-        } else {
-            throw new AccessDeniedException("无权限");
-        }
+        screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -254,15 +267,13 @@ public class ScreeningPlanController {
      */
     @GetMapping("students/page")
     public IPage queryStudentInfos(PageRequest page, StudentQuery query) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (user.isGovDeptUser()) {
-            throw new ValidationException("无查看权限");
-        }
+        validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
         return screeningPlanSchoolStudentService.getPage(query, page);
     }
 
     /**
      * 导入筛查计划的学生数据
+     *
      * @param file
      * @param screeningPlanId
      * @param schoolId
@@ -271,13 +282,13 @@ public class ScreeningPlanController {
     @PostMapping("/import/{screeningPlanId}/{schoolId}")
     public void importOrganizationStaff(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        //1. 校验计划学校是否已存在
+        //1. 发布成功后才能导入
+        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
+        //2. 校验计划学校是否已存在
         ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
         if (Objects.isNull(planSchool)) {
             throw new ValidationException("该筛查学校不存在");
         }
-        //2. 与肖肖已确认：发布成功后才能导入
-        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
     }
 }

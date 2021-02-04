@@ -36,7 +36,6 @@ public class ScreeningPlan implements Serializable {
     /**
      * 筛查计划--所属的筛查任务id
      */
-    @NotNull(message = "所属筛查任务id不能为空")
     private Integer screeningTaskId;
 
     /**
