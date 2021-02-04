@@ -1,9 +1,14 @@
 package com.wupol.myopia.oauth.service;
 
+import com.wupol.myopia.base.constant.PermissionTemplateType;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.mapper.DistrictPermissionMapper;
 import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
+import com.wupol.myopia.oauth.domain.model.Role;
+import com.wupol.myopia.oauth.domain.model.RolePermission;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -18,6 +23,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DistrictPermissionService extends BaseService<DistrictPermissionMapper, DistrictPermission> {
+
+    @Autowired
+    private RolePermissionService rolePermissionService;
+    @Autowired
+    private RoleService roleService;
 
     /**
      * 根据模板类型获取模板权限-树结构
@@ -42,6 +52,13 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         Assert.notNull(permissionIds, "模板的权限不能为null");
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
-        return saveBatch(permissions);
+        boolean success = saveBatch(permissions);
+        // 同步更新筛查管理端角色权限
+        if (PermissionTemplateType.SCREENING_ORGANIZATION.getType().equals(templateType)) {
+            Role role = roleService.findOne(new Role().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()));
+            List<RolePermission> rolePermission = permissionIds.stream().map(id -> new RolePermission().setRoleId(role.getId()).setPermissionId(id)).collect(Collectors.toList());
+            rolePermissionService.saveBatch(rolePermission);
+        }
+        return success;
     }
 }
