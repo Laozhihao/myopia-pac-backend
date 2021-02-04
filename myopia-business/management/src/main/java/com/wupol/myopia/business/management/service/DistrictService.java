@@ -430,8 +430,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name;
         }
         // 为空，从数据库查询
-        String resultName = baseMapper.selectOne(new QueryWrapper<District>()
-                .eq("code", code)).getName();
+        District district = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("code", code));
+        if (null == district) {
+            return "";
+        }
+        String resultName = district.getName();
         redisUtil.set(key, resultName);
         return resultName;
     }

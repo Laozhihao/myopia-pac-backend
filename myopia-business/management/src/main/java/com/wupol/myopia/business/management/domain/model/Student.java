@@ -49,8 +49,8 @@ public class Student implements Serializable {
     /**
      * 学号
      */
-    @NotNull(message = "学号不能为空")
-    private Integer sno;
+    @NotBlank(message = "学号不能为空")
+    private String sno;
 
     /**
      * 年级ID
