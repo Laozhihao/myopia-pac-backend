@@ -142,6 +142,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生身份证重复");
         }
 
+        if (null == student.getTownCode()){
+            student.setTownCode(0L);
+        }
+
         // 更新学生
         baseMapper.updateById(student);
         Student resultStudent = baseMapper.selectById(student.getId());
