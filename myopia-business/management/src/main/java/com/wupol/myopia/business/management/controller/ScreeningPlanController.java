@@ -279,16 +279,16 @@ public class ScreeningPlanController {
      * @param schoolId
      * @throws IOException
      */
-    @PostMapping("/import/{screeningPlanId}/{schoolId}")
-    public void importOrganizationStaff(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+    @PostMapping("/upload/{screeningPlanId}/{schoolId}")
+    public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        //1. 发布成功后才能导入
-        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
-        //2. 校验计划学校是否已存在
-        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
-        if (Objects.isNull(planSchool)) {
-            throw new ValidationException("该筛查学校不存在");
-        }
+//        //1. 发布成功后才能导入
+//        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
+//        //2. 校验计划学校是否已存在
+//        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
+//        if (Objects.isNull(planSchool)) {
+//            throw new ValidationException("该筛查学校不存在");
+//        }
         excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
     }
 }

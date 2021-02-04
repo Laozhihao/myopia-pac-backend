@@ -85,7 +85,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--参与筛查的学生编号
      */
-    private String studentNo;
+    private Integer studentNo;
 
     /**
      * 筛查计划--参与筛查的学生名字

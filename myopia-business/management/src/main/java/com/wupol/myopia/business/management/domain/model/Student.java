@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.StringUtils;
+import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -184,5 +187,21 @@ public class Student implements Serializable {
     @TableField(exist = false)
     private Integer seeDoctorCount;
 
-
+    /**
+     * 上传筛查学生时，判断学生需更新信息是否一致
+     * 由于只有部分字段，所以不使用equals
+     * @param excelStudent
+     * @return
+     */
+    public boolean checkNeedUpdate(Student excelStudent) {
+        return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
+                !this.gender.equals(excelStudent.gender) ||
+                !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
+                !this.nation.equals(excelStudent.nation) ||
+                !this.gradeId.equals(excelStudent.gradeId) ||
+                !this.classId.equals(excelStudent.classId) ||
+                !this.sno.equals(excelStudent.sno) ||
+                !StringUtils.equalsIgnoreCase(this.address, excelStudent.address) ||
+                !StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone);
+    }
 }

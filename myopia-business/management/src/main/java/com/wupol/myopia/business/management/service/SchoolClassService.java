@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO;
+import com.wupol.myopia.business.management.domain.vo.SchoolClassVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,7 +146,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param schoolId
      * @return
      */
-    public List<SchoolClass> getBySchoolId(Integer schoolId) {
-        return baseMapper.selectList(new QueryWrapper<SchoolClass>().eq("school_id", schoolId));
+    public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
+        return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
     }
 }
