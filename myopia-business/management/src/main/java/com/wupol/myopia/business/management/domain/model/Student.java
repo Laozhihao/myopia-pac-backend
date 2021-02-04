@@ -200,7 +200,7 @@ public class Student implements Serializable {
                 !this.nation.equals(excelStudent.nation) ||
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
-                !this.sno.equals(excelStudent.sno) ||
+                !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
                 !StringUtils.equalsIgnoreCase(this.address, excelStudent.address) ||
                 !StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone);
     }

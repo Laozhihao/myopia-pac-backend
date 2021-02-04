@@ -328,7 +328,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                     .setNation(StringUtils.isBlank(item.get(4)) ? null : Integer.parseInt(item.get(4)))
                     .setGradeId(gradeNameIdMap.get(item.get(5)))
                     .setClassId(gradeClassNameClassIdMap.get(String.format("%s-%s", item.get(5), item.get(6))))
-                    .setSno(StringUtils.isBlank(item.get(7)) ? null : Integer.parseInt(item.get(7)))
+                    .setSno(StringUtils.getDefaultIfBlank(item.get(7), null))
                     .setIdCard(StringUtils.getDefaultIfBlank(item.get(8), null))
                     .setParentPhone(StringUtils.getDefaultIfBlank(item.get(9), null))
                     .setAddress(StringUtils.getDefaultIfBlank(item.get(10), null));
