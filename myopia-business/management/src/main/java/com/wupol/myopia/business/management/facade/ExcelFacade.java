@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -380,7 +381,10 @@ public class ExcelFacade {
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
+        Map<Integer, SchoolClass> classMap = Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(classIdList)) {
+            classMap = schoolClassService.getClassMapByIds(classIdList);
+        }
 
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
@@ -394,7 +398,6 @@ public class ExcelFacade {
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)
                     .setGrade(gradeName)
-                    .setClassName(classMap.get(item.getClassId()).getName())
                     .setIdCard(item.getIdCard())
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
@@ -406,6 +409,11 @@ public class ExcelFacade {
                     .setVisitsCount(886)
                     .setQuestionCount(886)
                     .setLastScreeningTime(null);
+
+            if (null != item.getClassId() && null != classMap.get(item.getClassId())) {
+                exportVo.setClassName(classMap.get(item.getClassId()).getName());
+            }
+
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
