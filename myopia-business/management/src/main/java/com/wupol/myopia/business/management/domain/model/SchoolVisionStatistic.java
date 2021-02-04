@@ -106,41 +106,49 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--零级预警人数（默认0）
      */
+    @TableField("vision_label_0_numbers")
     private Integer visionLabel0Numbers;
 
     /**
      * 视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
+    @TableField("vision_label_0_ratio")
     private Integer visionLabel0Ratio;
 
     /**
      * 视力情况--一级预警人数（默认0）
      */
+    @TableField("vision_label_1_numbers")
     private Integer visionLabel1Numbers;
 
     /**
      * 视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）
      */
+    @TableField("vision_label_1_ratio")
     private Integer visionLabel1Ratio;
 
     /**
      * 视力情况--二级预警人数（默认0）
      */
+    @TableField("vision_label_2_numbers")
     private Integer visionLabel2Numbers;
 
     /**
      * 视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）
      */
+    @TableField("vision_label_2_ratio")
     private Integer visionLabel2Ratio;
 
     /**
      * 视力情况--三级预警人数（默认0）
      */
+    @TableField("vision_label_3_numbers")
     private Integer visionLabel3Numbers;
 
     /**
      * 视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）
      */
+    @TableField("vision_label_3_ratio")
     private Integer visionLabel3Ratio;
 
     /**

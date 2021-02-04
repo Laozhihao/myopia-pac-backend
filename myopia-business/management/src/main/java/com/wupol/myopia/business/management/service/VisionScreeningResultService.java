@@ -42,10 +42,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * 获取学校ID
      *
      * @param taskId 通知任务
+     * @param orgId  机构ID
      * @return 学校ID
      */
-    public List<Integer> getSchoolIdByTaskId(Integer taskId) {
-        return baseMapper.getSchoolIdByTaskId(taskId);
+    public List<Integer> getSchoolIdByTaskId(Integer taskId, Integer orgId) {
+        return baseMapper.getSchoolIdByTaskId(taskId, orgId);
     }
 
     /**
