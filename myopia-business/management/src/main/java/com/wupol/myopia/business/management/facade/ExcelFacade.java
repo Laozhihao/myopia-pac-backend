@@ -454,7 +454,7 @@ public class ExcelFacade {
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
         List<School> schools = schoolService.getBySchoolNos(schoolNos);
         if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("数据为空");
+            throw new BusinessException("学校编号异常");
         }
 
         List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
