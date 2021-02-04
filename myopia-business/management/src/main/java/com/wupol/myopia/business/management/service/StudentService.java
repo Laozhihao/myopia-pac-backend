@@ -50,7 +50,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private SchoolClassService schoolClassService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
     private SchoolService schoolService;
@@ -217,7 +217,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
         // 筛查次数
-        List<StudentScreeningCountVO> studentScreeningCountVOS = screeningResultService.countScreeningTime();
+        List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
         Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
                 .toMap(StudentScreeningCountVO::getStudentId,
                         StudentScreeningCountVO::getCount));
@@ -290,7 +290,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         StudentScreeningResultResponse response = new StudentScreeningResultResponse();
 
         // 通过计划Ids查询学生的结果
-        List<ScreeningResult> resultList = screeningResultService.getByStudentIds(studentId);
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentId);
         response.setTotal(resultList.size());
         response.setItems(resultList);
         return response;

@@ -186,8 +186,9 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * @return
      */
     public List<GovDept> getByIds(List<Integer> govDeptIds) {
-        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id", govDeptIds);
-        return baseMapper.selectList(queryWrapper);
+        if (CollectionUtils.isEmpty(govDeptIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectBatchIds(govDeptIds);
     }
 }

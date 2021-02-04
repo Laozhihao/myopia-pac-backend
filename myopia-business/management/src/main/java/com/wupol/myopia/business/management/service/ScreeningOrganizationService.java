@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -62,7 +63,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private ScreeningTaskService screeningTaskService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
     private SchoolVisionStatisticService schoolVisionStatisticService;
@@ -253,6 +254,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return List<ScreeningOrgResponse>
      */
     public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+        Assert.notNull(query.getGovDeptId(), "部门id不能为空");
+        query.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
         List<ScreeningOrganization> screeningOrganizationList = baseMapper.getBy(query);
         // 为空直接返回
@@ -388,7 +391,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<Integer> schoolIds = screeningResultService.getSchoolIdByTaskId(taskResponse.getId());
+        List<Integer> schoolIds = visionScreeningResultService.getSchoolIdByTaskId(taskResponse.getId());
         if (CollectionUtils.isEmpty(schoolIds)) {
             return;
         }
@@ -407,7 +410,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Map<Integer, School> schoolMaps = schools.stream()
                 .collect(Collectors.toMap(School::getId, Function.identity()));
 
-        List<Integer> createUserIds = screeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
+        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
         // 员工信息
         if (!CollectionUtils.isEmpty(createUserIds)) {
             List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);

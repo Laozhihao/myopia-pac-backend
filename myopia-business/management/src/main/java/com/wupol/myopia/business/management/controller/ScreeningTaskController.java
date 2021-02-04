@@ -176,16 +176,15 @@ public class ScreeningTaskController {
     }
 
     /**
-     * 筛查机构相同时间段内是否已有已发布的任务
+     * 获取筛查机构相同时间段内已有已发布的任务
      *
      * @param orgId 机构ID
-     * @param screeningTaskQuery 查询参数，必须有govDeptId、startCreateTime、endCreateTime，如果是已有任务，需有id
-     * @return boolean 已有任务true，没有任务false
+     * @param screeningTaskQuery 查询参数，必须有govDeptId、startCreateTime、endCreateTime
+     * @return List
      */
     @PostMapping("orgs/period/{orgId}")
-    @Deprecated
-    public boolean checkOrgHasTaskInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
-        return screeningTaskOrgService.checkHasTaskInPeriod(orgId, screeningTaskQuery);
+    public List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
+        return screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
     }
 
     /**
@@ -212,6 +211,7 @@ public class ScreeningTaskController {
         // 已发布，直接返回
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         //TODO 非政府部门，直接报错
+
         //没有筛查机构，直接报错
         if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(id))){
             throw new ValidationException("无筛查机构");

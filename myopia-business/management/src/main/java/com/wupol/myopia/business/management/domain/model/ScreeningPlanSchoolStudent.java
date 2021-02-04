@@ -5,10 +5,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * 参与筛查计划的学生表
@@ -59,6 +64,13 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生id
      */
     private Integer studentId;
+
+    /**
+     * 筛查计划--参与筛查的学生身份证号码
+     */
+    @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
+    @NotNull(message = "身份证号码不能为空")
+    private String idCard;
 
     /**
      * 筛查计划--参与筛查的学生年龄
