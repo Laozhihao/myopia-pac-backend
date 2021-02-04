@@ -279,7 +279,20 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         ScreeningOrganization org = new ScreeningOrganization();
         org.setId(request.getId());
         org.setStatus(request.getStatus());
-        return baseMapper.updateById(org);
+        baseMapper.updateById(org);
+
+        // 查找管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(request.getId());
+        if (null == admin) {
+            throw new BusinessException("数据异常");
+        }
+
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(admin.getUserId())
+                .setStatus(request.getStatus());
+        oauthService.modifyUser(userDTO);
+        return 1;
     }
 
     /**
