@@ -28,12 +28,6 @@
         id, grade_id, create_user_id, school_id, name, seat_count, status, create_time, update_time
     </sql>
 
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from m_school_class
-        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
-    </select>
-
     <select id="getBySchoolNameAndGradeName" resultMap="BaseResultMap">
         select sc.*
         from m_school s

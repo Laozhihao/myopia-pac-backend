@@ -112,20 +112,13 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     }
 
     /**
-     * 根据id列表查询
-     */
-    public List<SchoolClass> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
-    }
-
-    /**
      * 批量通过id获取实体
      *
      * @param ids ids
      * @return Map<Integer, SchoolClass>
      */
     public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
-        return getByIds(ids).stream()
+        return baseMapper.selectBatchIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 
