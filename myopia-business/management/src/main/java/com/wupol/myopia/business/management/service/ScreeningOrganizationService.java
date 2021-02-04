@@ -122,7 +122,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
         UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
