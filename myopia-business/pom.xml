@@ -37,6 +37,16 @@
             <groupId>com.wupol</groupId>
             <artifactId>whole-framework</artifactId>
             <version>${base-framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>database</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>cache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
