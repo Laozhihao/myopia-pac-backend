@@ -3,9 +3,10 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
+import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
+import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
+import com.wupol.myopia.business.management.domain.dto.stat.RescreenStat;
 import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat.BasicStatParams;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat.ClassStat;
 import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContrast;
 import com.wupol.myopia.business.management.domain.dto.stat.TaskBriefNotification;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
@@ -96,6 +97,20 @@ public class StatController {
             case TIME_N_DISTRICT_N_SCHOOL_AGE:
         }
         Integer actualScrNum = 1111111;
+        RescreenStat rescreenStat =
+                RescreenStat.builder()
+                        .rescreenNum(Math.round(actualScrNum * 0.25f))
+                        .wearingGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.35f))
+                        .wearingGlassesRescreenIndexNum(
+                                Math.round(actualScrNum * 0.25f * 0.35f) * 4)
+                        .withoutGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.65f))
+                        .withoutGlassesRescreenIndexNum(
+                                Math.round(actualScrNum * 0.25f * 0.65f) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum * 0.25f * 0.65f) * 6)
+                        .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
+                        .incorrectRatio(convertToRatio(0.0015f))
+                        .build();
         ScreeningDataContrast data1 =
                 ScreeningDataContrast.builder()
                         .screeningNum(1234565)
@@ -114,20 +129,24 @@ public class StatController {
                         .warningLevelThreeRatio(convertToRatio(8430f / actualScrNum))
                         .recommendVisitNum(123430)
                         .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum))
-                        .rescreenNum(Math.round(actualScrNum * 0.25f))
-                        .wearingGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.35f))
-                        .wearingGlassesRescreenIndexNum(
-                                Math.round(actualScrNum * 0.25f * 0.35f) * 4)
-                        .withoutGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.65f))
-                        .withoutGlassesRescreenIndexNum(
-                                Math.round(actualScrNum * 0.25f * 0.65f) * 6)
-                        .rescreenItemNum(Math.round(actualScrNum * 0.25f * 0.35f) * 4
-                                + Math.round(actualScrNum * 0.25f * 0.65f) * 6)
-                        .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
-                        .incorrectRatio(convertToRatio(0.0015f))
+                        .rescreenStat(rescreenStat)
                         .build();
 
         Integer actualScrNum2 = 1010101;
+        RescreenStat rescreenStat2 =
+                RescreenStat.builder()
+                        .rescreenNum(Math.round(actualScrNum2 * 0.25f))
+                        .wearingGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.35f))
+                        .wearingGlassesRescreenIndexNum(
+                                Math.round(actualScrNum2 * 0.25f * 0.35f) * 4)
+                        .withoutGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.65f))
+                        .withoutGlassesRescreenIndexNum(
+                                Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum2 * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
+                        .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
+                        .incorrectRatio(convertToRatio(0.0015f))
+                        .build();
         ScreeningDataContrast data2 =
                 ScreeningDataContrast.builder()
                         .screeningNum(2234565)
@@ -146,17 +165,7 @@ public class StatController {
                         .warningLevelThreeRatio(convertToRatio(8430 * 1f / actualScrNum2))
                         .recommendVisitNum(123430)
                         .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum2))
-                        .rescreenNum(Math.round(actualScrNum2 * 0.25f))
-                        .wearingGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.35f))
-                        .wearingGlassesRescreenIndexNum(
-                                Math.round(actualScrNum2 * 0.25f * 0.35f) * 4)
-                        .withoutGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.65f))
-                        .withoutGlassesRescreenIndexNum(
-                                Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
-                        .rescreenItemNum(Math.round(actualScrNum2 * 0.25f * 0.35f) * 4
-                                + Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
-                        .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
-                        .incorrectRatio(convertToRatio(0.0015f))
+                        .rescreenStat(rescreenStat2)
                         .build();
         Map result = new HashMap() {
             {
@@ -178,7 +187,7 @@ public class StatController {
         int wearingGlassesRescreenIndexNum = 6;
         int withoutGlassesRescreenNum = 23898;
         int withoutGlassesRescreenIndexNum = 4;
-        long rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
+        int rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
                 + withoutGlassesRescreenNum * withoutGlassesRescreenIndexNum;
         int incorrectItemNum = 12345;
         float incorrectRatio = convertToRatio(incorrectItemNum * 1f / actualScreeningNum);
@@ -200,19 +209,8 @@ public class StatController {
         ClassStat wearingGlasses = lowVision;
         ClassStat myopia = lowVision;
 
-        ScreeningClassStat stat =
-                ScreeningClassStat.builder()
-                        .notificationId(15)
-                        .screeningNum(screeningNum)
-                        .actualScreeningNum(actualScreeningNum)
-                        .screeningFinishedRatio(
-                                convertToRatio(actualScreeningNum * 1f / screeningNum))
-                        .averageVisionLeft(0.5f)
-                        .averageVisionRight(0.48f)
-                        .lowVision(lowVision)
-                        .refractiveError(refractiveError)
-                        .wearingGlasses(wearingGlasses)
-                        .myopia(myopia)
+        RescreenStat rescreenStat =
+                RescreenStat.builder()
                         .rescreenNum(rescreenNum)
                         .wearingGlassesRescreenNum(wearingGlassesRescreenNum)
                         .wearingGlassesRescreenIndexNum(wearingGlassesRescreenIndexNum)
@@ -222,6 +220,21 @@ public class StatController {
                         .incorrectItemNum(incorrectItemNum)
                         .incorrectRatio(incorrectRatio)
                         .build();
+
+        ScreeningClassStat stat = ScreeningClassStat.builder()
+                                          .notificationId(15)
+                                          .screeningNum(screeningNum)
+                                          .actualScreeningNum(actualScreeningNum)
+                                          .screeningFinishedRatio(convertToRatio(
+                                                  actualScreeningNum * 1f / screeningNum))
+                                          .averageVisionLeft(0.5f)
+                                          .averageVisionRight(0.48f)
+                                          .lowVision(lowVision)
+                                          .refractiveError(refractiveError)
+                                          .wearingGlasses(wearingGlasses)
+                                          .myopia(myopia)
+                                          .rescreenStat(rescreenStat)
+                                          .build();
         return ApiResult.success(stat);
     }
 
