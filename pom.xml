@@ -63,6 +63,36 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- Vistel repository -->
+        <repository>
+            <id>vistel-private-release-repository</id>
+            <name>Release Repository for Vistel</name>
+            <url>s3p://vistel-registry/maven/release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vistel-private-snapshot-repository</id>
+            <name>Snapshot Repository for Vistel</name>
+            <url>s3p://vistel-registry/maven/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
     </repositories>
 
+    <build>
+        <finalName>myopia</finalName>
+        <extensions>
+            <!-- S3 private repo -->
+            <extension>
+                <groupId>s3-wagon-private</groupId>
+                <artifactId>s3-wagon-private</artifactId>
+                <version>1.3.2</version>
+            </extension>
+        </extensions>
+    </build>
 </project>
