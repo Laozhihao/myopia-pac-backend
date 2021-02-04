@@ -597,7 +597,7 @@ public class ExcelFacade {
         List<String> idCards = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
 
         // 收集手机号码
-        List<String> phones = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
+        List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
 
 
         List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
