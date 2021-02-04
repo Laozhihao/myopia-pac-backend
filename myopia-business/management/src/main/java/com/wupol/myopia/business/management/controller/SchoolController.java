@@ -1,13 +1,16 @@
 package com.wupol.myopia.business.management.controller;
 
+import cn.hutool.core.lang.Assert;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.management.util.FileUtils;
@@ -49,12 +52,12 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolService.updateSchool(school);
+        return schoolService.updateSchool(school, user);
     }
 
     @GetMapping("{id}")
     public Object saveSchool(@PathVariable("id") Integer id) {
-        return schoolService.getById(id);
+        return schoolService.getBySchoolId(id);
     }
 
     @DeleteMapping("{id}")
@@ -90,11 +93,6 @@ public class SchoolController {
         return schoolService.getScreeningRecordLists(pageRequest, schoolId);
     }
 
-    @GetMapping("screening/record/{planId}")
-    public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
-        return schoolService.getScreeningRecordDetail(planId);
-    }
-
     @GetMapping("/checkSchoolNo/{schoolNo}")
     public Object checkSchoolNo(@PathVariable("schoolNo") String schoolNo) {
         return schoolService.checkSchoolNo(schoolNo);
@@ -106,7 +104,12 @@ public class SchoolController {
     }
 
     @GetMapping("/getSchoolsByDistrictId/{districtId}")
-    public Object getSchoolsByDistrictId(@PathVariable("districtId")Integer districtId) {
+    public Object getSchoolsByDistrictId(@PathVariable("districtId")Integer districtId, SchoolQuery schoolQuery) {
         return schoolService.getByDistrictId(districtId);
+    }
+
+    @GetMapping("/listByDistrict")
+    public Object getSchoolListByDistctId(SchoolQuery schoolQuery) {
+        return schoolService.getSchoolListByDistrictId(schoolQuery);
     }
 }

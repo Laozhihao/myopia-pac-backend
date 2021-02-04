@@ -71,7 +71,8 @@ public enum NationEnum {
     DERUNG(53, "独龙族"),
     TATAR(54, "塔塔尔族"),
     NANAI(55, "赫哲族"),
-    LHOBA(56, "珞巴族");
+    LHOBA(56, "珞巴族"),
+    OTHER(57,"其他");
 
     private final Integer code;
 
@@ -94,9 +95,24 @@ public enum NationEnum {
         return nationLists;
     }
 
-    /** 根据类型获取描述 */
+    /**
+     * 根据类型获取描述
+     */
     public static String getName(Integer nation) {
         NationEnum h = Arrays.stream(NationEnum.values()).filter(item -> item.code.equals(nation)).findFirst().orElse(null);
         return Objects.nonNull(h) ? h.name : null;
+    }
+
+    /**
+     * 通过名称获取code
+     *
+     * @param name 民族名称
+     * @return code
+     */
+    public static Integer getCode(String name) {
+        NationEnum h = Arrays.stream(NationEnum.values())
+                .filter(item -> item.name.equals(name))
+                .findFirst().orElse(null);
+        return Objects.nonNull(h) ? h.code : null;
     }
 }

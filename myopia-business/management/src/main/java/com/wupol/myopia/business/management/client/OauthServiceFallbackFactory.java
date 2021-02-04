@@ -55,6 +55,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<List<UserDTO>> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+                return respData;
+            }
+
+            @Override
             public ApiResult<UserDTO> addUser(UserDTO param) {
                 return respData;
             }
@@ -65,7 +70,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<Integer>> addScreeningUserBatch(List<UserDTO> param) {
+            public ApiResult<List<UserDTO>> addScreeningUserBatch(List<UserDTO> param) {
                 return respData;
             }
 
@@ -81,6 +86,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult<UserDTO> getUserDetailByUserId(Integer userId) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Integer> count(UserDTO queryParam) {
                 return respData;
             }
 

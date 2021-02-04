@@ -52,28 +52,24 @@
     <sql id="Base_Like_Where_Clause">
         <where>
             <trim prefixOverrides="and">
+                <if test="param.id != null">and u.`id` = #{param.id}</if>
                 <if test="param.orgId != null">and u.`org_id` = #{param.orgId}</if>
                 <if test="param.userType != null">and u.`user_type` = #{param.userType}</if>
                 <if test="param.isLeader != null">and u.`is_leader` = #{param.isLeader}</if>
                 <if test="param.status != null">and u.`status` = #{param.status}</if>
-                <if test="param.realName != null and param.realName != ''">
-                    and u.`real_name` like CONCAT('%',#{param.realName},'%')
-                </if>
-                <if test="param.phone != null and param.phone != ''">
-                    and u.`phone` like CONCAT('%',#{param.phone},'%')
-                </if>
+                <if test="param.systemCode != null">and u.system_code = #{param.systemCode}</if>
+                <if test="param.realName != null and param.realName != ''">and u.`real_name` like CONCAT('%',#{param.realName},'%')</if>
+                <if test="param.phone != null and param.phone != ''">and u.`phone` like CONCAT('%',#{param.phone},'%')</if>
                 <if test="param.createUserName != null and param.createUserName != ''">and ou.`real_name` like CONCAT("%",#{param.createUserName},"%")</if>
+                <if test="param.idCard != null and param.idCard != ''">and u.id_card like CONCAT('%', #{param.idCard}, '%')</if>
                 <if test="param.orgIds != null">
                     and u.`org_id` IN <foreach collection="param.orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.userIds != null">
                     and u.`id` IN <foreach collection="param.userIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
-                <if test="param.idCard != null and param.idCard != ''">
-                    and u.id_card like CONCAT('%', #{param.idCard}, '%')
-                </if>
-                <if test="param.systemCode != null">
-                    and u.system_code = #{param.systemCode}
+                <if test="param.phones != null">
+                    and u.`phone` IN <foreach collection="param.phones" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and DATE(u.create_time) between DATE(#{param.startCreateTime}) and DATE(#{param.endCreateTime})

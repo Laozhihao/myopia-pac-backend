@@ -15,7 +15,7 @@ public enum ResultCode {
     /** 请求失败 */
     BAD_REQUEST(400, "Bad Request"),
     /** 系统异常 */
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+    INTERNAL_SERVER_ERROR(500, "系统繁忙，请稍后重试"),
 
     CLIENT_AUTHENTICATION_FAILED(401,"客户端认证失败"),
     USER_ACCESS_UNAUTHORIZED (401, "访问未授权"),

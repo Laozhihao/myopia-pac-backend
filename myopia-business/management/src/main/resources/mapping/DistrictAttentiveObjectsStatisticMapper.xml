@@ -15,10 +15,16 @@
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label_0_numbers` = #{visionLabel0Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label_0_ratio` = #{visionLabel0Ratio}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel1Numbers)">and `vision_label_1_numbers` = #{visionLabel1Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel1Ratio)">and `vision_label_1_ratio` = #{visionLabel1Ratio}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel2Numbers)">and `vision_label_2_numbers` = #{visionLabel2Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel2Ratio)">and `vision_label_2_ratio` = #{visionLabel2Ratio}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel3Numbers)">and `vision_label_3_numbers` = #{visionLabel3Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel3Ratio)">and `vision_label_3_ratio` = #{visionLabel3Ratio}</if>
                 <if test="@Ognl@isNotEmpty(keyWarningNumbers)">and `key_warning_numbers` = #{keyWarningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(studentNumbers)">and `student_numbers` = #{studentNumbers}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -26,7 +32,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, screening_plan_id, district_id, vision_label_0_numbers, vision_label_1_numbers, vision_label_2_numbers, vision_label_3_numbers, key_warning_numbers, create_time
+        id, screening_task_id, screening_plan_id, district_id, vision_label_0_numbers, vision_label_0_ratio, vision_label_1_numbers, vision_label_1_ratio, vision_label_2_numbers, vision_label_2_ratio, vision_label_3_numbers, vision_label_3_ratio, key_warning_numbers, student_numbers, update_time, create_time
     </sql>
 
 </mapper>

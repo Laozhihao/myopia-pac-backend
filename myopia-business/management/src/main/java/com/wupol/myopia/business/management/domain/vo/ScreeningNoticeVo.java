@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.management.domain.vo;
 
+import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * 筛查通知
@@ -23,4 +26,6 @@ public class ScreeningNoticeVo extends ScreeningNotice {
     private String districtName;
     /** 部门名称 */
     private String govDeptName;
+    /** 行政区明细 */
+    private List<District> districtDetail;
 }

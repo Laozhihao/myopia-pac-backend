@@ -36,7 +36,7 @@
 
     <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
         SELECT
-          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time,
+          msndo.id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
           msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.operation_status
         FROM
         m_screening_notice_dept_org msndo
@@ -45,9 +45,11 @@
         LEFT JOIN m_government_department mgd ON msndo.accept_org_id = mgd.id
         <where>
             <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.releaseStatus)">and msn.`release_status` = #{param.releaseStatus}</if>
                 <if test="@Ognl@isNotEmpty(param.type)">and msn.`type` = #{param.type}</if>
                 <if test="@Ognl@isNotEmpty(param.operationStatus)">and msndo.operation_status = #{param.operationStatus}</if>
                 <if test="@Ognl@isNotEmpty(param.districtId)">and msndo.`district_id` = #{param.districtId}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and msndo.`accept_org_id` = #{param.govDeptId}</if>
                 <if test="param.titleLike != null and param.titleLike != ''">
                     and msn.`title` like CONCAT('%',#{param.titleLike},'%')
                 </if>

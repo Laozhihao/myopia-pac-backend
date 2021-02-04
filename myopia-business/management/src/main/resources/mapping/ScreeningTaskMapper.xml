@@ -8,6 +8,10 @@
     <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo">
     </resultMap>
 
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -35,7 +39,7 @@
         id, screening_notice_id, title, content, start_time, end_time, gov_dept_id, district_id, release_status, release_time, create_user_id, create_time, operator_id, operate_time
     </sql>
 
-    <select id="getTaskByIds" resultMap="BaseResultMap">
+    <select id="getTaskByIds" resultMap="BaseResultDtoMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_task mst where mst.id in
@@ -48,10 +52,9 @@
     <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
         SELECT
         mst.id, mst.screening_notice_id, mst.title, mst.start_time, mst.end_time, mst.content, mst.release_time, mst.release_status,
-        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id, mst.create_time
+        mst.district_id, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id, mst.create_time
         FROM
         m_screening_task mst
-        LEFT JOIN m_district md ON mst.district_id = md.id
         LEFT JOIN m_government_department mgd ON mst.gov_dept_id = mgd.id
         <where>
             <trim prefixOverrides="and">

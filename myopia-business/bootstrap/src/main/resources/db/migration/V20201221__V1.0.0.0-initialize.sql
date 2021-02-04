@@ -6,16 +6,16 @@ create table m_screening_organization
     create_user_id  int                                 null comment '创建人ID',
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(256)                        not null comment '行政区域json',
+    district_detail varchar(512)                        not null comment '行政区域json',
     name            varchar(32)                         not null comment '筛查机构名称',
     type            tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
     type_desc       varchar(128)                        null default '' comment '机构类型描述',
     config_type     tinyint                             not null comment '配置 0-省级配置 1-单点配置',
     phone           varchar(32)                         null comment '联系方式',
     province_code   bigint                              null comment '省代码',
-    city_code       bigint                              not null comment '市代码',
-    area_code       bigint                              not null comment '区代码',
-    town_code       bigint                              not null comment '镇/乡代码',
+    city_code       bigint                              null comment '市代码',
+    area_code       bigint                              null comment '区代码',
+    town_code       bigint                              null comment '镇/乡代码',
     address         varchar(128)                        null comment '详细地址',
     remark          varchar(128)                        null comment '说明',
     status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
@@ -61,16 +61,16 @@ create table m_hospital
     create_user_id  int                                 null comment '创建人ID',
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(256)                        not null comment '行政区域json',
+    district_detail varchar(512)                        not null comment '行政区域json',
     name            varchar(32)                         not null comment '医院名称',
     level           tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
     level_desc      varchar(32)                         null comment '等级描述',
     type            tinyint                             not null comment '医院类型 0-定点医院 1-非定点医院',
     kind            tinyint                             not null comment '医院性质 0-公立 1-私立',
     province_code   bigint                              null comment '省代码',
-    city_code       bigint                              not null comment '市代码',
-    area_code       bigint                              not null comment '区代码',
-    town_code       bigint                              not null comment '镇/乡代码',
+    city_code       bigint                              null comment '市代码',
+    area_code       bigint                              null comment '区代码',
+    town_code       bigint                              null comment '镇/乡代码',
     address         varchar(128)                        null comment '详细地址',
     remark          varchar(128)                        null comment '说明',
     status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
@@ -102,16 +102,16 @@ create table m_school
     create_user_id  int                                 null comment '创建人ID',
     gov_dept_id     int                                 not null comment '部门ID',
     district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(256)                        not null comment '行政区域json',
+    district_detail varchar(512)                        not null comment '行政区域json',
     name            varchar(32)                         not null comment '学校名称',
     kind            tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
     kind_desc       varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
     lodge_status    tinyint                             null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
     type            tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
     province_code   bigint                              null comment '省代码',
-    city_code       bigint                              not null comment '市代码',
-    area_code       bigint                              not null comment '区代码',
-    town_code       bigint                              not null comment '镇/乡代码',
+    city_code       bigint                              null comment '市代码',
+    area_code       bigint                              null comment '区代码',
+    town_code       bigint                              null comment '镇/乡代码',
     address         varchar(128)                        null comment '详细地址',
     remark          varchar(128)                        null comment '说明',
     status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
@@ -142,7 +142,7 @@ create table m_school_grade
         primary key,
     create_user_id int                                 null comment '创建人ID',
     school_id      int                                 not null comment '学校ID',
-    grade_code     int                                 not null comment '年级编码',
+    grade_code     varchar(8)                          not null comment '年级编码',
     name           varchar(32)                         not null comment '年级名称',
     status         tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -174,8 +174,9 @@ create table m_student
     school_no           varchar(64)                         not null comment '学校编号',
     create_user_id      int                                 null comment '创建人ID',
     sno                 int                                 not null comment '学号',
-    grade_id            int                                 null comment '班级ID',
-    class_id            int                                 null comment '年级ID',
+    grade_id            int                                 null comment '年级ID',
+    grade_type          tinyint                             null comment '学龄段',
+    class_id            int                                 null comment '班级ID',
     name                varchar(8)                          not null comment '学生姓名',
     gender              tinyint(1)                          not null comment '性别 1-男 2-女',
     birthday            timestamp                           null comment '出生日期',
@@ -190,8 +191,6 @@ create table m_student
     address             varchar(128)                        null comment '详细地址',
     current_situation   varchar(128)                        null comment '当前情况',
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
-    screening_count     int       default 0                 not null comment '视力筛查次数',
-    questionnaire_count int       default 0                 not null comment '问卷数',
     last_screening_time timestamp                           null comment '最近筛选时间',
     status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -236,13 +235,15 @@ create table m_notice
     id             int auto_increment comment 'id'
         primary key,
     create_user_id int                                 null comment '创建人',
+    link_id        int                                 null comment '关联ID',
+    notice_user_id int                                 null comment '通知的userId',
+    type           tinyint                             not null comment '类型 0-站内信 1-筛查通知',
     status         tinyint   default 0                 not null comment '状态 0-未读 1-已读 2-删除',
     title          varchar(32)                         null comment '标题',
     content        varchar(512)                        not null comment '内容',
     download_url   varchar(128)                        null comment '文件url',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-
 )
     comment '消息表';
 
@@ -287,3 +288,12 @@ INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (7, 2, '筛查报告-模板3', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
 INSERT INTO m_template (id, type, name, create_time, update_time)
 VALUES (8, 2, '筛查报告-模板4', '2021-01-22 12:08:57', '2021-01-22 12:08:57');
+
+create unique index m_hospital_name_uindex
+    on m_hospital (name);
+
+create unique index m_screening_organization_name_uindex
+    on m_screening_organization (name);
+
+create unique index m_school_name_uindex
+    on m_school (name);

@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,5 +189,19 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过学校id获取年级
+     *
+     * @param schoolIds 学校ID
+     * @return List<SchoolGrade>
+     */
+    public List<SchoolGradeExportVO> getBySchoolIds(List<Integer> schoolIds) {
+        return baseMapper.getBySchoolIds(schoolIds);
+    }
+
+    public List<Integer> batchInsertGrade( ) {
+        return null;
     }
 }

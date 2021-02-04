@@ -90,25 +90,21 @@ public class Hospital implements Serializable {
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
     private Long townCode;
 
     /**
      * 详细地址
      */
-    @NotBlank(message = "详细地址不能为空")
     private String address;
 
     /**

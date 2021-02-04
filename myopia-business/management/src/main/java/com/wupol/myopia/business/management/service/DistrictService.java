@@ -75,6 +75,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /** 根据code获取对应的地址 */
     public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
+        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
+            return Collections.emptyList();
+        }
         String province = null, city = null, area = null, town = null;
         List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
         for (District item : districtList) {
@@ -111,17 +114,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return list;
     }
 
-    /** 获取所有地行政区域,带缓存 */
-    public Map<Integer, String> getAllDistrictIdNameMap() {
-        String key = CacheKey.DISTRICT_ID_NAME_MAP;
-        if (redisUtil.hasKey(key)) {
-            return (Map) redisUtil.get(key);
-        }
-        Map<Integer, String> districtIdNameMap = getAllDistrict().stream().collect(Collectors.toMap(District::getId, District::getName));
-        redisUtil.set(key, districtIdNameMap);
-        return districtIdNameMap;
-    }
-
     /**
      * 通过用户身份，过滤查询的行政区域ID
      *  - 如果是平台管理员，则将行政区域ID作为条件
@@ -152,6 +144,41 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name.toString();
         }
         List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {});
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtId 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictId(Integer districtId) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetailById(districtId);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
+     *
+     * @param list 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictPositionDetail(List<District> list) {
+        StringBuilder name = new StringBuilder();
         if (CollectionUtils.isEmpty(list)) {
             return name.toString();
         }
@@ -322,6 +349,20 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 根据层级ID获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
+     *
+     * @param districtId 行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getDistrictPositionDetailById(Integer districtId) {
+        District district = getById(districtId);
+        if (Objects.isNull(district)) {
+            return Collections.emptyList();
+        }
+        return getDistrictPositionDetail(district.getCode());
+    }
+
+    /**
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param district 行政区域
@@ -391,4 +432,134 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return baseMapper.selectBatchIds(districtIds);
     }
 
+    /**
+     * 从当前节点出发，向上获取区域名称
+     *
+     * @param code 当前节点
+     * @return 名字
+     */
+    public String getTopDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_TOP_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+
+        // 为空，从数据库查询
+        String resultName = getName("", code);
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
+     * 获取行政区域
+     *
+     * @param code code
+     * @return 名称
+     */
+    public String getDistrictName(Long code) {
+        String key = String.format(CacheKey.DISTRICT_CN_NAME, code);
+
+        // 先从缓存中取
+        String name = (String) redisUtil.get(key);
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+        // 为空，从数据库查询
+        String resultName = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("code", code)).getName();
+        redisUtil.set(key, resultName);
+        return resultName;
+    }
+
+    /**
+     * 循环遍历
+     *
+     * @param name 名字
+     * @param code code
+     * @return 名字
+     */
+    private String getName(String name, Long code) {
+        District district = baseMapper
+                .selectOne(new QueryWrapper<District>()
+                        .eq("code", code));
+        if (null == district) {
+            return name;
+        }
+        return getName(district.getName() + name, district.getParentCode());
+    }
+
+
+    /**
+     * 通过code拼接详细地址
+     *
+     * @param provinceCode 省代码
+     * @param cityCode     市代码
+     * @param areaCode     区代码
+     * @param townCode     镇代码
+     * @param address      地址
+     * @return 全名称
+     */
+    public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
+        if (null != townCode) {
+            return getTopDistrictName(townCode) + "  " + address;
+        } else if (null != areaCode) {
+            return getTopDistrictName(areaCode) + "  " + address;
+        } else if (null != cityCode) {
+            return getTopDistrictName(cityCode) + "  " + address;
+        } else if (null != provinceCode) {
+            return getTopDistrictName(provinceCode) + "  " + address;
+        }
+        return "";
+    }
+
+    /**
+     * 通过行政id获取行政名称
+     *
+     * @param ids 行政id
+     * @return Map<Integer, String>
+     */
+    public Map<Integer, String> getByIds(List<Integer> ids) {
+        List<District> districts = baseMapper.selectList(new QueryWrapper<District>().in("id", ids));
+        return districts.stream()
+                .collect(Collectors.toMap(District::getId, District::getName));
+    }
+
+    /**
+     * 通过名字获取code
+     *
+     * @param name 行政名字
+     * @return code
+     */
+    public Long getCodeByName(String name) {
+        String key = String.format(CacheKey.DISTRICT_CODE, name);
+
+        // 先从缓存中取
+        Long code = getLongCode(key, Long.class);
+        if (null != code) {
+            return code;
+        }
+        // 为空，从数据库查询
+        District district = baseMapper.selectOne(new QueryWrapper<District>()
+                .eq("name", name));
+        if (null == district) {
+            return null;
+        }
+        Long resultCode = district.getCode();
+        redisUtil.set(key, resultCode);
+        return resultCode;
+    }
+
+    private <T> T getLongCode(String key, Class<T> clazz) {
+        Object valueObj = redisUtil.get(key);
+        if (clazz.isInstance(valueObj)) {
+            return (T) valueObj;
+        } else if (clazz == Long.class && valueObj instanceof Integer) {
+            Integer obj = (Integer) valueObj;
+            return (T) Long.valueOf(obj.longValue());
+        }
+        return null;
+    }
 }

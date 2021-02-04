@@ -38,6 +38,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
+    private DistrictService districtService;
+    @Autowired
     private OauthServiceClient oauthServiceClient;
 
     /**
@@ -72,7 +74,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
+        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")).setDistrictDetail(districtService.getDistrictPositionDetailById(vo.getDistrictId())));
         return screeningNoticeIPage;
     }
 
@@ -83,10 +85,10 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
-        ScreeningNotice notice = new ScreeningNotice();
+        ScreeningNotice notice = getById(id);
         notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (updateById(notice, user.getId())) {
-            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(user.getOrgId());
+            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
             List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
             //2. 为下属部门创建通知
             return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
@@ -110,13 +112,26 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 判断时间段是否合法（只查看已发布的）
+     * 发布筛查通知时，判断时间段是否合法（只查看已发布的且校验type为0）
      * 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
      * @param screeningNotice：必须存在govDeptId、startTime、endTime
      * @return
      */
     public boolean checkTimeLegal(ScreeningNotice screeningNotice) {
         return baseMapper.selectByTimePeriods(screeningNotice).size() > 0;
+    }
+
+    /**
+     * 通过筛查通知ids查找
+     *
+     * @param ids ids
+     * @return List<ScreeningNotice>
+     */
+    public List<ScreeningNotice> getByIds(List<Integer> ids) {
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningNotice>()
+                        .in("id", ids)
+                        .orderByDesc("create_time"));
     }
 
     /**

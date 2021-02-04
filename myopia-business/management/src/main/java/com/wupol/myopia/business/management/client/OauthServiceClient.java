@@ -30,7 +30,7 @@ public interface OauthServiceClient {
     ApiResult<Page<UserDTO>> getUserListPage(@SpringQueryMap UserDTOQuery param);
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持用户名模糊查询）
      *
      * @param param 查询参数
      * @return com.wupol.myopia.base.domain.ApiResult
@@ -44,8 +44,18 @@ public interface OauthServiceClient {
      * @param userIds 用户ID集合
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/oauth/user/batch")
+    @GetMapping("/oauth/user/batch/id")
     ApiResult<List<UserDTO>> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
+
+    /**
+     * 根据用户ID集批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/phone")
+    ApiResult<List<UserDTO>> getUserBatchByPhones(@RequestParam("phones") List<String> phones, @RequestParam("systemCode") Integer systemCode);
 
     /**
      * 新增用户
@@ -72,7 +82,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/oauth/user/screening/batch")
-    ApiResult<List<Integer>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
+    ApiResult<List<UserDTO>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
      * 更新用户
@@ -101,6 +111,15 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/{userId}")
     ApiResult<UserDTO> getUserDetailByUserId(@PathVariable("userId") Integer userId);
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @GetMapping("/oauth/user/count")
+    ApiResult<Integer> count(@SpringQueryMap UserDTO queryParam);
 
     /**
      * 获取角色列表

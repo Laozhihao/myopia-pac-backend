@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.service;
 
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -12,31 +14,28 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.SchoolDto;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,9 +46,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class SchoolService extends BaseService<SchoolMapper, School> {
-
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
 
     @Resource
     private SchoolAdminService schoolAdminService;
@@ -73,7 +69,19 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private ScreeningPlanService screeningPlanService;
 
     @Resource
-    private ScreeningResultService screeningResultService;
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private StudentService studentService;
+
+    @Resource
+    private SchoolGradeService schoolGradeService;
+
+    @Resource
+    private SchoolClassService schoolClassService;
 
     /**
      * 新增学校
@@ -85,39 +93,63 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public UsernameAndPasswordDTO saveSchool(School school) {
 
         Integer createUserId = school.getCreateUserId();
-        Long townCode = school.getTownCode();
-        if (null == townCode) {
+        String schoolNo = school.getSchoolNo();
+        if (StringUtils.isBlank(schoolNo)) {
             throw new BusinessException("数据异常");
         }
 
-        // 初始化省代码
-        school.setProvinceCode(provinceCode);
+        if (checkSchoolName(school.getName(), null)) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
 
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, townCode));
+        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_SCHOOL_REDIS, schoolNo));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
                 baseMapper.insert(school);
+                initGradeAndClass(school.getId(), school.getType(), createUserId);
                 return generateAccountAndPassword(school);
             }
         } catch (InterruptedException e) {
             log.error("用户id:{}获取锁异常,e:{}", createUserId, e);
             throw new BusinessException("系统繁忙，请稍后再试");
         }
-        log.warn("用户id:{}新增学校获取不到锁，区域代码:{}", createUserId, townCode);
+        log.error("用户id:{}新增学校获取不到锁，学校名称:{}", createUserId, schoolNo);
         throw new BusinessException("请重试");
     }
 
     /**
      * 更新学校
      *
-     * @param school 学校实体类
+     * @param school      学校实体类
+     * @param currentUser 当前登录用户
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public School updateSchool(School school) {
+    public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
+
+        if (checkSchoolName(school.getName(), school.getId())) {
+            throw new BusinessException("学校名称重复，请确认");
+        }
         baseMapper.updateById(school);
-        return baseMapper.selectById(school.getId());
+
+        // 获取学校管理员
+        SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(school.getId());
+        // 更新OAuth账号
+        updateOAuthName(admin.getUserId(), school.getName());
+
+        School s = baseMapper.selectById(school.getId());
+        SchoolResponseDTO dto = new SchoolResponseDTO();
+        BeanUtils.copyProperties(s, dto);
+        dto.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+        dto.setAddressDetail(districtService.getAddressDetails(
+                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+        // 判断是否能更新
+        dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+        dto.setStudentCount(school.getStudentCount())
+                .setScreeningCount(school.getScreeningCount())
+                .setCreateUser(school.getCreateUser());
+        return dto;
     }
 
     /**
@@ -144,6 +176,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public Integer updateStatus(StatusRequest request) {
 
         SchoolAdmin staff = schoolAdminService.getAdminBySchoolId(request.getId());
+        if (null == staff) {
+            log.error("更新学校状态异常，找不到学校管理员。学校ID:{}", request.getId());
+            throw new BusinessException("数据异常!");
+        }
         // 更新OAuth2
         UserDTO userDTO = new UserDTO()
                 .setId(staff.getUserId())
@@ -161,10 +197,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param currentUser 当前用户
      * @return IPage<SchoolDto> {@link IPage}
      */
-    public IPage<SchoolDto> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
-                                          CurrentUser currentUser) {
+    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
+                                                  CurrentUser currentUser) {
 
-        Integer orgId = currentUser.getOrgId();
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
@@ -174,44 +209,94 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
             query.setRealName(createUser);
-            query.setCurrent(1);
-            query.setSize(10000000);
-            Page<UserDTO> userListPage = oauthService.getUserListPage(query);
-            List<UserDTO> records = userListPage.getRecords();
-            if (!CollectionUtils.isEmpty(userListPage.getRecords())) {
-                userIds = records.stream().map(UserDTO::getId).collect(Collectors.toList());
+            List<UserDTO> userListPage = oauthService.getUserList(query);
+            if (!CollectionUtils.isEmpty(userListPage)) {
+                userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
 
         // 查询
-        IPage<SchoolDto> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
+        IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
                 schoolQuery.getType(), districtId, userIds);
 
-        List<SchoolDto> schools = schoolDtoIPage.getRecords();
+        List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
         // 为空直接返回
         if (CollectionUtils.isEmpty(schools)) {
             return schoolDtoIPage;
         }
 
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
         Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
 
+        // 筛查统计
+        List<SchoolScreeningCountVO> countVOS = screeningPlanSchoolService.countScreeningTime();
+        Map<Integer, Integer> countMaps = countVOS.stream()
+                .collect(Collectors
+                        .toMap(SchoolScreeningCountVO::getSchoolId,
+                                SchoolScreeningCountVO::getCount));
+
+        // 学生统计
+        List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
+        Map<String, Integer> studentCountMaps = studentCountVOS.stream()
+                .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
+
         // 封装DTO
-        schools.forEach(s -> {
+        schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
+        return schoolDtoIPage;
+    }
+
+    /**
+     * 封装DTO
+     *
+     * @param currentUser      当前登录用户
+     * @param userDTOMap       用户信息
+     * @param countMaps        筛查统计
+     * @param studentCountMaps 学生统计
+     * @return Consumer<SchoolDto>
+     */
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, List<Integer> havePlanSchoolIds, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+        return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
-            s.setScreeningCount(0);
+
             // 判断是否能更新
-            if (s.getGovDeptId().equals(orgId)) {
-                s.setCanUpdate(Boolean.TRUE);
-            }
+            s.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+
             // 行政区名字
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
-        });
-        return schoolDtoIPage;
+
+            // 筛查次数
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+
+            // 学生统计
+            s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
+
+            // 详细地址
+            s.setAddressDetail(districtService.getAddressDetails(
+                    s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+
+            // 是否已有筛查计划
+            s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
+        };
+    }
+
+    /**
+     * 根据是否需要查询学校是否已有计划，返回时间段内已有计划的学校id
+     *
+     * @param query
+     * @return
+     */
+    private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
+        if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -262,14 +347,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
+
     /**
      * 获取学校的筛查记录列表
      *
@@ -285,17 +366,38 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 通过planIds查询计划
-        return screeningPlanService.getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
-    }
+        IPage<ScreeningPlanResponse> planPages = screeningPlanService
+                .getListByIds(pageRequest, planSchoolList.stream()
+                        .map(ScreeningPlanSchool::getScreeningPlanId)
+                        .collect(Collectors.toList()));
 
-    /**
-     * 获取学校的筛查记录详情
-     *
-     * @param id 筛查记录详情ID
-     * @return 详情
-     */
-    public Object getScreeningRecordDetail(Integer id) {
-        return screeningResultService.getByPlanId(id);
+        List<ScreeningPlanResponse> plans = planPages.getRecords();
+
+        if (!CollectionUtils.isEmpty(plans)) {
+            List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+            // 学校统计信息
+            List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
+                    .getByPlanIdsAndSchoolId(planIds, schoolId);
+            Map<Integer, SchoolVisionStatistic> statisticMaps = schoolStatistics
+                    .stream()
+                    .collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity()));
+
+            // 获取筛查机构
+            List<Integer> orgIds = plans
+                    .stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+            List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
+            Map<Integer, String> orgMaps = orgLists
+                    .stream()
+                    .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+
+            // 封装DTO
+            plans.forEach(p -> {
+                p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
+                p.setItems(Lists.newArrayList(statisticMaps.get(p.getId())));
+            });
+
+        }
+        return planPages;
     }
 
     /**
@@ -320,7 +422,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 模糊查询所有学校名称
      *
      * @param query 查询条件
-     * @return
+     * @return List<School>
      */
     public List<School> getBy(SchoolQuery query) {
         return baseMapper.getBy(query);
@@ -361,13 +463,24 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 批量通过学校编号获取学校
+     *
+     * @param schoolNos 学校编号
+     * @return School
+     */
+    public List<School> getBySchoolNos(List<String> schoolNos) {
+        return baseMapper.selectList(new QueryWrapper<School>()
+                .in("school_no", schoolNos));
+    }
+
+    /**
      * 通过districtId获取学校
      *
      * @param districtId 行政区域ID
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("districtId", districtId));
+        return baseMapper.selectList(new QueryWrapper<School>().like("district_id", districtId));
     }
 
     /**
@@ -379,5 +492,204 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public IPage<School> getByPage(Page<?> page, SchoolQuery query) {
         return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 批量通过id获取
+     *
+     * @param ids 学校id
+     * @return List<School>
+     */
+    public List<School> getByIds(List<Integer> ids) {
+        return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
+    }
+
+    /**
+     * 检查学校名称是否重复
+     *
+     * @param schoolName 学校名称
+     * @param id         学校ID
+     * @return 是否重复
+     */
+    public Boolean checkSchoolName(String schoolName, Integer id) {
+        QueryWrapper<School> queryWrapper = new QueryWrapper<School>()
+                .eq("name", schoolName);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 获取学校详情
+     *
+     * @param id 学校ID
+     * @return SchoolResponseDTO
+     */
+    public SchoolResponseDTO getBySchoolId(Integer id) {
+        SchoolResponseDTO responseDTO = new SchoolResponseDTO();
+        School s = baseMapper.selectById(id);
+        BeanUtils.copyProperties(s, responseDTO);
+        responseDTO.setAddressDetail(districtService.getAddressDetails(
+                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+        return responseDTO;
+    }
+
+    /**
+     * 初始化学校年级和班级信息
+     *
+     * @param schoolId     学校ID
+     * @param type         学校类型
+     * @param createUserId 创建人
+     */
+    private void initGradeAndClass(Integer schoolId, Integer type, Integer createUserId) {
+        List<SchoolGrade> schoolGrades = new ArrayList<>();
+        switch (type) {
+            case 0:
+                // 小学，6个年级
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()));
+                break;
+            case 1:
+                // 初级中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()));
+                break;
+            case 2:
+                // 高级中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 3:
+                // 完全中学
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 4:
+                // 九年一贯制学校
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()));
+                break;
+            case 5:
+                // 十二年一贯制学校
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.ONE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.TWO_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.THREE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FOUR_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode(), GradeCodeEnum.SIX_PRIMARY_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.THREE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()));
+                break;
+            case 6:
+                // 职业高中
+                schoolGrades = Lists.newArrayList(
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getName()));
+                break;
+            case 7:
+                // 其他
+                break;
+        }
+        if (!CollectionUtils.isEmpty(schoolGrades)) {
+            // 批量新增年级
+            if (schoolGradeService.saveBatch(schoolGrades)) {
+                // 批量新增班级
+                batchCreateClass(createUserId, schoolId,
+                        schoolGrades.stream().map(SchoolGrade::getId)
+                                .collect(Collectors.toList()));
+            }
+        }
+    }
+
+    /**
+     * 批量新增班级信息
+     *
+     * @param createUserId 创建人
+     * @param schoolId     学校ID
+     * @param gradeIds     年级ids
+     */
+    private void batchCreateClass(Integer createUserId, Integer schoolId, List<Integer> gradeIds) {
+
+        gradeIds.forEach(g -> {
+            ArrayList<SchoolClass> schoolClasses = Lists.newArrayList(
+                    new SchoolClass(g, createUserId, schoolId, "一班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "二班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "三班", 35));
+            schoolClassService.saveBatch(schoolClasses);
+        });
+    }
+
+    /**
+     * 更新OAuh2 username
+     *
+     * @param userId   用户ID
+     * @param username 用户名
+     */
+    public void updateOAuthName(Integer userId, String username) {
+        UserDTO userDTO = new UserDTO()
+                .setId(userId)
+                .setUsername(username);
+        oauthService.modifyUser(userDTO);
+    }
+
+    /**
+     * 根据层级Id获取学校列表（带是否有计划字段）
+     * @param schoolQuery
+     * @return
+     */
+    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQuery schoolQuery) {
+        Assert.notNull(schoolQuery.getDistrictId(), "层级id不能为空");
+        schoolQuery.setStatus(CommonConst.STATUS_NOT_DELETED);
+        // 查询
+        List<School> schoolList = getByDistrictId(schoolQuery.getDistrictId());
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return Collections.emptyList();
+        }
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
+        // 封装DTO
+        return schoolList.stream().map(school -> {
+            SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
+            BeanUtils.copyProperties(school, schoolResponseDTO);
+            schoolResponseDTO.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
+            return schoolResponseDTO;
+        }).collect(Collectors.toList());
     }
 }

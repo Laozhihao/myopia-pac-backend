@@ -3,30 +3,32 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponse;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -47,11 +49,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private SchoolClassService schoolClassService;
 
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
-
     @Resource
-    private ScreeningResultService screeningResultService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
     private SchoolService schoolService;
@@ -94,8 +93,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Integer createUserId = student.getCreateUserId();
         String idCard = student.getIdCard();
 
-        // 初始化省代码
-        student.setProvinceCode(provinceCode);
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+
+        // 检查学生身份证是否重复
+        if (checkIdCard(student.getIdCard(), null)) {
+            throw new BusinessException("学生身份证重复");
+        }
 
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
         try {
@@ -123,18 +130,37 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudent(Student student) {
+
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+
+        // 检查学生身份证是否重复
+        if (checkIdCard(student.getIdCard(), student.getId())) {
+            throw new BusinessException("学生身份证重复");
+        }
+
+        // 更新学生
         baseMapper.updateById(student);
         Student resultStudent = baseMapper.selectById(student.getId());
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(resultStudent, studentDTO);
-        // 查询年级和班级
-        SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
-        SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
         if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
             School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
             studentDTO.setSchoolName(school.getName());
+            studentDTO.setSchoolId(school.getId());
+
+            // 查询年级和班级
+            SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
+            SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+            studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
         }
-        return studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
+        studentDTO.setScreeningCount(student.getScreeningCount())
+                .setQuestionnaireCount(student.getQuestionnaireCount())
+                .setSeeDoctorCount(student.getSeeDoctorCount());
+        return studentDTO;
     }
 
     /**
@@ -186,18 +212,34 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 学校信息
         Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
 
+        // 筛查次数
+        List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountVO::getStudentId,
+                        StudentScreeningCountVO::getCount));
+
         // 封装DTO
         students.forEach(s -> {
-            if (null != gradeMaps.get(s.getGradeId())) {
-                s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-            }
-            if (null != classMaps.get(s.getClassId())) {
-                s.setClassName(classMaps.get(s.getClassId()).getName());
-            }
+
+            // 学校编码不为空才显示班级和年级信息
             if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
+                if (null != gradeMaps.get(s.getGradeId())) {
+                    s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
+                }
+                if (null != classMaps.get(s.getClassId())) {
+                    s.setClassName(classMaps.get(s.getClassId()).getName());
+                }
                 s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
                 s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
             }
+
+            // 筛查次数
+            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+
+            // TODO: 就诊次数
+            s.setSeeDoctorCount(0);
+            // TODO: 设置问卷数
+            s.setQuestionnaireCount(0);
         });
         return pageStudents;
     }
@@ -238,11 +280,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 获取学生筛查档案
      *
      * @param studentId 学生ID
-     * @return Object
+     * @return StudentScreeningResultResponse
      */
-    public List<ScreeningResult> getScreeningList(Integer studentId) {
+    public StudentScreeningResultResponse getScreeningList(Integer studentId) {
+        StudentScreeningResultResponse response = new StudentScreeningResultResponse();
+
         // 通过计划Ids查询学生的结果
-        return screeningResultService.getByStudentIds(studentId);
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentId);
+        response.setTotal(resultList.size());
+        response.setItems(resultList);
+        return response;
     }
 
     /**
@@ -284,5 +331,57 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
         return baseMapper.getByOtherId(schoolId, classId, gradeId);
+    }
+
+    /**
+     * 统计学生人数
+     *
+     * @return List<StudentCountVO>
+     */
+    public List<StudentCountVO> countStudentBySchoolNo() {
+        return baseMapper.countStudentBySchoolNo();
+    }
+
+
+    /**
+     * 检查学生身份证号码是否重复
+     *
+     * @param IdCard 身份证号码
+     * @param id     学生ID
+     * @return 是否重复
+     */
+    public Boolean checkIdCard(String IdCard, Integer id) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
+                .eq("id_card", IdCard);
+
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 根据身份证列表获取学生
+     * @param idCardList
+     * @return
+     */
+    public List<Student> getByIdCards(List<String> idCardList) {
+        StudentQuery studentQuery = new StudentQuery();
+        return Lists.partition(idCardList, 50).stream().map(list -> {
+            studentQuery.setIdCardList(list);
+            return baseMapper.getBy(studentQuery);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    /**
+     * 批量检查学生身份证号码是否重复
+     *
+     * @param IdCards 身份证号码
+     * @return 是否重复
+     */
+    public Boolean checkIdCards(List<String> IdCards) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
+                .in("id_card", IdCards);
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

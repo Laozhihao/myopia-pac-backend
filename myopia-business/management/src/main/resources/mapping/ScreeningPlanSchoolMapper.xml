@@ -26,11 +26,32 @@
         id, screening_plan_id, school_id, school_name, create_time
     </sql>
 
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO">
+        select count(1) as count, school_id
+        from m_screening_plan_school
+        group by school_id
+    </select>
     <select id="selectVoListByPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
       SELECT
         <include refid="Base_Column_List"/>
       FROM m_screening_plan_school
       WHERE screening_plan_id = #{screeningPlanId}
+    </select>
+
+    <select id="selectHasPlanInPeriod" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        msps.*
+        FROM m_screening_plan_school msps
+        LEFT JOIN m_screening_plan msp ON msps.screening_plan_id = msp.id
+        <where>
+            <trim prefixOverrides="and">
+                AND msp.release_status = 1
+                <if test="@Ognl@isNotEmpty(param.districtId)">and msp.`district_id` = #{param.districtId}</if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(msp.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
     </select>
 
 </mapper>

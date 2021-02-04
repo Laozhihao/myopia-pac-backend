@@ -33,7 +33,7 @@ public class OauthService {
     }
 
     /**
-     * 获取用户列表（支持模糊查询）
+     * 获取用户列表（仅支持用户名模糊查询）
      *
      * @param param 查询参数
      * @return com.wupol.myopia.base.domain.ApiResult
@@ -51,6 +51,18 @@ public class OauthService {
      **/
     @OauthRequest
     public List<UserDTO> getUserBatchByIds(List<Integer> userIds) {
+        return null;
+    }
+
+    /**
+     * 根据用户ID集批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByPhones(List<String> phones, Integer systemCode) {
         return null;
     }
 
@@ -83,7 +95,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public List<Integer> addScreeningUserBatch(List<UserDTO> param){
+    public List<UserDTO> addScreeningUserBatch(List<UserDTO> param){
         return null;
     }
 
@@ -115,6 +127,17 @@ public class OauthService {
      **/
     @OauthRequest
     public UserDTO getUserDetailByUserId(Integer userId){
+        return null;
+    }
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @OauthRequest
+    public Integer count(UserDTO queryParam) {
         return null;
     }
 

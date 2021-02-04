@@ -106,8 +106,8 @@ public class StatController {
                         .withoutGlassesRescreenNum(Math.round(actualScrNum * 0.25f * 0.65f))
                         .withoutGlassesRescreenIndexNum(
                                 Math.round(actualScrNum * 0.25f * 0.65f) * 6)
-                        .rescreenItemNum(Math.round(actualScrNum * 0.25d * 0.35d) * 4
-                                + Math.round(actualScrNum * 0.25d * 0.65d) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum * 0.25f * 0.65f) * 6)
                         .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
                         .incorrectRatio(convertToRatio(0.0015f))
                         .build();
@@ -142,8 +142,8 @@ public class StatController {
                         .withoutGlassesRescreenNum(Math.round(actualScrNum2 * 0.25f * 0.65f))
                         .withoutGlassesRescreenIndexNum(
                                 Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
-                        .rescreenItemNum(Math.round(actualScrNum2 * 0.25d * 0.35d) * 4
-                                + Math.round(actualScrNum2 * 0.25d * 0.65d) * 6)
+                        .rescreenItemNum(Math.round(actualScrNum2 * 0.25f * 0.35f) * 4
+                                + Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
                         .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
                         .incorrectRatio(convertToRatio(0.0015f))
                         .build();
@@ -187,7 +187,7 @@ public class StatController {
         int wearingGlassesRescreenIndexNum = 6;
         int withoutGlassesRescreenNum = 23898;
         int withoutGlassesRescreenIndexNum = 4;
-        long rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
+        int rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
                 + withoutGlassesRescreenNum * withoutGlassesRescreenIndexNum;
         int incorrectItemNum = 12345;
         float incorrectRatio = convertToRatio(incorrectItemNum * 1f / actualScreeningNum);

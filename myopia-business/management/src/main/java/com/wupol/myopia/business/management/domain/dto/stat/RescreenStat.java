@@ -22,7 +22,7 @@ public class RescreenStat {
     private Integer withoutGlassesRescreenIndexNum;
 
     /** 复测项次 */
-    private Long rescreenItemNum;
+    private Integer rescreenItemNum;
 
     /** 错误项次数 */
     private Integer incorrectItemNum;

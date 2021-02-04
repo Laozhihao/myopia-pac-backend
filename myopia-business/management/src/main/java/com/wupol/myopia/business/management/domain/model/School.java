@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -127,4 +128,23 @@ public class School implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+
+    /**
+     * 学生统计
+     */
+    @TableField(exist = false)
+    private Integer studentCount;
+
+    /**
+     * 筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningCount;
+
+    /**
+     * 创建人
+     */
+    @TableField(exist = false)
+    private String createUser;
 }

@@ -5,6 +5,13 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent">
     </resultMap>
+    <resultMap id="SchoolGradeVo" type="com.wupol.myopia.business.management.domain.vo.SchoolGradeVo">
+    </resultMap>
+    <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.management.domain.dto.GradeClassesDTO">
+    </resultMap>
+    <resultMap id="StudentDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
+    </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -17,6 +24,7 @@
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
                 <if test="@Ognl@isNotEmpty(studentAge)">and `student_age` = #{studentAge}</if>
                 <if test="@Ognl@isNotEmpty(studentSituation)">and `student_situation` = #{studentSituation}</if>
                 <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
@@ -28,7 +36,55 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, school_id, school_name, grade_id, class_id, student_id, student_age, student_situation, student_no, student_name, create_time
+        id, screening_plan_id, school_id, school_name, grade_id, class_id, student_id, id_card, student_age, student_situation, student_no, student_name, create_time
     </sql>
 
+    <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
+        select msg.id as grade_id, msg.name as grade_name, msc.id as class_id, msc.name as class_name from (select grade_id, class_id from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        group by grade_id, class_id) grader_class
+            left join m_school_grade msg on grader_class.grade_id = msg.id
+            left join m_school_class msc on grader_class.class_id = msc.id
+    </select>
+
+    <select id="selectPageByQuery" resultMap="StudentDTO" parameterType="java.util.Map">
+        SELECT
+          ms.id, ms.sno, ms.name, ms.gender, ms.birthday, ms.address, ms.id_card, ms.nation, ms.parent_phone, msg.name as grade_name, msc.name as class_name
+        FROM
+        m_screening_plan_school_student mspss
+        LEFT JOIN m_student ms ON mspss.student_id = ms.id
+        LEFT JOIN m_school_grade msg ON msg.id = mspss.grade_id
+        LEFT JOIN m_school_class msc ON msc.id = mspss.class_id
+        <where>
+            <trim prefixOverrides="and">
+                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                AND mspss.school_id = #{param.schoolId}
+                <if test="param.nameLike != null and param.nameLike != ''">
+                    and ms.`name` like CONCAT('%',#{param.nameLike},'%')
+                </if>
+                <if test="param.idCardLike != null and param.idCardLike != ''">
+                    and ms.`id_card` like CONCAT('%',#{param.idCardLike},'%')
+                </if>
+                <if test="param.snoLike != null and param.snoLike != ''">
+                    and ms.`sno` like CONCAT('%',#{param.snoLike},'%')
+                </if>
+                <if test="param.phoneLike != null and param.phoneLike != ''">
+                    and ms.`parent_phone` like CONCAT('%',#{param.phoneLike},'%')
+                </if>
+                <if test="param.gender != null and param.gender != ''">
+                    and ms.`gender` = #{param.gender}
+                </if>
+                <if test="param.gradeList != null">
+                    and mspss.`grade_id` in <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectByIdCards" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        and id_card in <foreach collection="idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
 </mapper>

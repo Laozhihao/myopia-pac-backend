@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
+import cn.hutool.core.lang.Assert;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -88,8 +90,15 @@ public class ScreeningOrganizationController {
         return saveScreeningOrganization.getRecordLists(request, orgId);
     }
 
-    @GetMapping("/record/{id}")
-    public Object getRecordDetail(@PathVariable("id") Integer id) {
-        return saveScreeningOrganization.getRecordDetail(id);
+    /**
+     * 根据部门ID获取筛查机构列表
+     *
+     * @param query
+     * @return
+     */
+    @GetMapping("/listByGovDept")
+    public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+
+        return saveScreeningOrganization.getScreeningOrganizationListByGovDeptId(query);
     }
 }

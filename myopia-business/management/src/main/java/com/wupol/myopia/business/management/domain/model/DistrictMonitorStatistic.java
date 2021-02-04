@@ -41,7 +41,7 @@ public class DistrictMonitorStatistic implements Serializable {
     private Integer screeningPlanId;
 
     /**
-     * 监测情况--所属的地区id
+     * 监测情况--所属的地区id（筛查范围）
      */
     private Integer districtId;
 
@@ -51,29 +51,14 @@ public class DistrictMonitorStatistic implements Serializable {
     private Integer investigationNumbers;
 
     /**
-     * 监测情况--完成率（默认100,单位%）
-     */
-    private Integer completionRatio;
-
-    /**
-     * 监测情况--合格率（默认100,单位%）
-     */
-    private Integer passRatio;
-
-    /**
-     * 监测情况--合格人数（默认0）
-     */
-    private Integer passNumbers;
-
-    /**
      * 监测情况--脱镜复测数量（默认0）
      */
     private Integer withoutGlassDsn;
 
     /**
-     * 监测情况--脱镜复测比例（默认0）
+     * 监测情况--脱镜复测指标数（dsin = double screening index numbers默认0）
      */
-    private Integer withoutGlassDsr;
+    private Integer withoutGlassDsin;
 
     /**
      * 监测情况--戴镜复测数量（默认0）
@@ -81,9 +66,9 @@ public class DistrictMonitorStatistic implements Serializable {
     private Integer wearingGlassDsn;
 
     /**
-     * 监测情况--戴镜复测比例（默认0）
+     * 监测情况--戴镜复测指标数（dsin = double screening index numbers默认0）
      */
-    private Integer wearingGlassDsr;
+    private Integer wearingGlassDsin;
 
     /**
      * 监测情况--复测数量（默认0）
@@ -111,10 +96,14 @@ public class DistrictMonitorStatistic implements Serializable {
     private Integer screeningNumbers;
 
     /**
-     * 监测情况--统计时间
+     * 监测情况--更新时间
+     */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    /**
+     * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
-
 }

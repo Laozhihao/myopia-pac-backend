@@ -62,9 +62,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTOQuery userQuery = new UserDTOQuery();
 
         // 非平台管理员需要机构ID进行过滤
-        if (!currentUser.isPlatformAdminUser()) {
-            userQuery.setOrgId(request.getScreeningOrgId());
-        }
+//        if (!currentUser.isPlatformAdminUser()) {
+//            userQuery.setOrgId(request.getScreeningOrgId());
+//        }
+        userQuery.setOrgId(request.getScreeningOrgId());
 
         // 搜索条件
         userQuery.setCurrent(request.getCurrent())
@@ -83,9 +84,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (!CollectionUtils.isEmpty(resultLists)) {
             List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
             Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
-                    .stream()
-                    .collect(Collectors.
-                            toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
+                    .stream().collect(Collectors
+                            .toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
             resultLists.forEach(s -> s.setStaffId(staffSnMaps.get(s.getId()).getId()));
             return page;
         }
@@ -147,16 +147,22 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrganizationStaffQuery updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
-
+        Integer id = staff.getId();
+        ScreeningOrganizationStaff checkStaff = baseMapper.selectById(id);
+        if (null == checkStaff || null == checkStaff.getUserId()) {
+            log.error("更新筛查人员失败id:{},数据异常", id);
+            throw new BusinessException("数据异常");
+        }
         UserDTO userDTO = new UserDTO()
-                .setId(staff.getUserId())
+                .setId(checkStaff.getUserId())
                 .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
+                .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
-        baseMapper.updateById(staff);
+        resetPassword(new StaffResetPasswordRequest(staff.getId(),staff.getPhone(),staff.getIdCard()));
         return staff;
     }
 
@@ -187,11 +193,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
         String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
         String username = request.getPhone();
-        UserDTO userDTO = new UserDTO()
-                .setId(staff.getId())
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(staff.getUserId(), password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -251,7 +253,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return List<ScreeningOrganizationStaff>
      */
     public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>().in("screening_org_id", orgIds));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                        .in("screening_org_id", orgIds));
     }
 
     /**
@@ -261,9 +265,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return Map<Integer, List < ScreeningOrganizationStaff>>
      */
     public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds) {
-        return getStaffListsByOrgIds(orgIds)
-                .stream()
-                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getId));
+        return getStaffListsByOrgIds(orgIds).stream()
+                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getScreeningOrgId));
+
     }
 
     /**
@@ -273,8 +277,9 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 员工
      */
     public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                .in("user_id", userIds));
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                        .in("user_id", userIds));
     }
 
     /**
