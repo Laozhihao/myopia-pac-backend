@@ -128,11 +128,13 @@ public class UserService extends BaseService<UserMapper, User> {
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
+        boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
-        // copy一份admin的权限，生成该医院的角色【需要初始化时插入admin的角色及其权限、系统全部权限】
-
-        // 绑定角色
-
+        // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
+        if (isScreeningAdmin) {
+            Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
+            userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
+        }
         return userDTO.setId(user.getId());
     }
 

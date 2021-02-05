@@ -123,7 +123,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(org.getCreateUserId())
-                .setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+                .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
         UserDTO user = oauthService.addAdminUser(userDTO);
         screeningOrganizationAdminService
@@ -144,6 +144,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
+        }
+
+        if (null == screeningOrganization.getTownCode()) {
+            screeningOrganization.setTownCode(0L);
         }
 
         baseMapper.updateById(screeningOrganization);
@@ -246,7 +250,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 根据部门ID获取筛查机构列表（带是否已有任务）
      *
-     * @param query       筛查机构列表请求体
+     * @param query 筛查机构列表请求体
      * @return List<ScreeningOrgResponse>
      */
     public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
@@ -302,7 +306,20 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         ScreeningOrganization org = new ScreeningOrganization();
         org.setId(request.getId());
         org.setStatus(request.getStatus());
-        return baseMapper.updateById(org);
+        baseMapper.updateById(org);
+
+        // 查找管理员
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(request.getId());
+        if (null == admin) {
+            throw new BusinessException("数据异常");
+        }
+
+        // 更新OAuth2
+        UserDTO userDTO = new UserDTO()
+                .setId(admin.getUserId())
+                .setStatus(request.getStatus());
+        oauthService.modifyUser(userDTO);
+        return 1;
     }
 
     /**
@@ -374,7 +391,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
-        tasks.forEach(this::extractedDTO);
+        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
         return taskPages;
     }
 
@@ -382,12 +399,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 封装DTO
      *
      * @param taskResponse 筛查端-记录详情
+     * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+    private void extractedDTO(ScreeningTaskResponse taskResponse, Integer orgId) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<Integer> schoolIds = visionScreeningResultService.getSchoolIdByTaskId(taskResponse.getId());
+        List<Integer> schoolIds = visionScreeningResultService.getSchoolIdByTaskId(taskResponse.getId(), orgId);
         if (CollectionUtils.isEmpty(schoolIds)) {
             return;
         }

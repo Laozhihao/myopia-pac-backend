@@ -204,4 +204,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public List<Integer> batchInsertGrade( ) {
         return null;
     }
+
+    /**
+     * 根据学校Id获取所有年级
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolGrade> getBySchoolId(Integer schoolId) {
+        return baseMapper.selectList(new QueryWrapper<SchoolGrade>().eq("school_id", schoolId));
+    }
 }

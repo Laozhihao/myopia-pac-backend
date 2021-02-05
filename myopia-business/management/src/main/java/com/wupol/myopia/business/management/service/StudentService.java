@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
@@ -142,6 +143,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生身份证重复");
         }
 
+        if (null == student.getTownCode()) {
+            student.setTownCode(0L);
+        }
+
         // 更新学生
         baseMapper.updateById(student);
         Student resultStudent = baseMapper.selectById(student.getId());
@@ -201,17 +206,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return pageStudents;
         }
 
-        // 获取年级信息
-        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
-                .stream().map(Student::getGradeId).collect(Collectors.toList()));
-
-        // 获取班级信息
-        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
-                .stream().map(Student::getClassId).collect(Collectors.toList()));
-
-        // 学校信息
-        Map<String, School> schoolMaps = schoolService.getNameBySchoolNos(students.stream().map(Student::getSchoolNo).collect(Collectors.toList()));
-
         // 筛查次数
         List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
         Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
@@ -219,28 +213,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                         StudentScreeningCountVO::getCount));
 
         // 封装DTO
-        students.forEach(s -> {
-
-            // 学校编码不为空才显示班级和年级信息
-            if (StringUtils.isNotBlank(s.getSchoolNo()) && null != schoolMaps.get(s.getSchoolNo())) {
-                if (null != gradeMaps.get(s.getGradeId())) {
-                    s.setGradeName(gradeMaps.get(s.getGradeId()).getName());
-                }
-                if (null != classMaps.get(s.getClassId())) {
-                    s.setClassName(classMaps.get(s.getClassId()).getName());
-                }
-                s.setSchoolName(schoolMaps.get(s.getSchoolNo()).getName());
-                s.setSchoolId(schoolMaps.get(s.getSchoolNo()).getId());
-            }
-
+        for (StudentDTO s : students) {
             // 筛查次数
             s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
-
             // TODO: 就诊次数
             s.setSeeDoctorCount(0);
             // TODO: 设置问卷数
             s.setQuestionnaireCount(0);
-        });
+        }
         return pageStudents;
     }
 

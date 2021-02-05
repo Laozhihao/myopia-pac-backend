@@ -37,6 +37,7 @@
         SELECT school_id
         FROM m_vision_screening_result
         WHERE task_id = #{taskId}
+          and screening_org_id = #{orgId}
         GROUP BY school_id
     </select>
 
