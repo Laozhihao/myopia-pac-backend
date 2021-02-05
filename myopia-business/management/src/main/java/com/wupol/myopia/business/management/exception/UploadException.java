@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.management.exception;
 
+import com.wupol.myopia.base.exception.BusinessException;
+
 /**
  * @author Alix
  * @Date 2021/02/03
  */
-public class UploadException extends RuntimeException {
+public class UploadException extends BusinessException {
     public UploadException(String message, Throwable cause) {
         super(message, cause);
     }

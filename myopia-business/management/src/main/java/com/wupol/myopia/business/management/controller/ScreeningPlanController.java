@@ -282,6 +282,7 @@ public class ScreeningPlanController {
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
     public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        // TODO
 //        //1. 发布成功后才能导入
 //        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
 //        //2. 校验计划学校是否已存在
