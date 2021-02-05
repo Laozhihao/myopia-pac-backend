@@ -85,10 +85,10 @@ public class AuthController {
         if (Objects.isNull(oAuth2AccessToken)) {
             return ApiResult.failure("登录失败");
         }
-        // 获取菜单权限，并缓存
-        List<Permission> permissions = authService.cacheUserPermission(loginDTO.getUsername(), Integer.parseInt(loginDTO.getClient_id()), oAuth2AccessToken.getExpiresIn());
-        // 更新用户最后登录时间
         CurrentUser currentUser = authService.parseToken(oAuth2AccessToken.getValue());
+        // 获取菜单权限，并缓存
+        List<Permission> permissions = authService.cacheUserPermission(currentUser.getUsername(), currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn());
+        // 更新用户最后登录时间
         userService.updateById(new User().setId(currentUser.getId()).setLastLoginTime(new Date()));
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
     }

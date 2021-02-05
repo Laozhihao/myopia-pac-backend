@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.constant.RoleType;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -62,7 +63,7 @@ public class RoleController {
             }
             param.setOrgIds(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
         }
-        List<RoleDTO> roleList = oauthService.getRoleList(param);
+        List<RoleDTO> roleList = oauthService.getRoleList(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
         if (CollectionUtils.isEmpty(roleList)) {
             return roleList;
         }

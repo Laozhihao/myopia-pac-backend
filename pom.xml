@@ -85,7 +85,6 @@
     </repositories>
 
     <build>
-        <finalName>myopia</finalName>
         <extensions>
             <!-- S3 private repo -->
             <extension>

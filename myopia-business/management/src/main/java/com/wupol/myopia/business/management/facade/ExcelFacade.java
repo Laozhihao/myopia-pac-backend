@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -380,7 +381,10 @@ public class ExcelFacade {
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
+        Map<Integer, SchoolClass> classMap = Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(classIdList)) {
+            classMap = schoolClassService.getClassMapByIds(classIdList);
+        }
 
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
@@ -394,7 +398,6 @@ public class ExcelFacade {
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)
                     .setGrade(gradeName)
-                    .setClassName(classMap.get(item.getClassId()).getName())
                     .setIdCard(item.getIdCard())
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
@@ -406,6 +409,11 @@ public class ExcelFacade {
                     .setVisitsCount(886)
                     .setQuestionCount(886)
                     .setLastScreeningTime(null);
+
+            if (null != item.getClassId() && null != classMap.get(item.getClassId())) {
+                exportVo.setClassName(classMap.get(item.getClassId()).getName());
+            }
+
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
@@ -446,7 +454,7 @@ public class ExcelFacade {
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
         List<School> schools = schoolService.getBySchoolNos(schoolNos);
         if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("数据为空");
+            throw new BusinessException("学校编号异常");
         }
 
         List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
@@ -597,14 +605,20 @@ public class ExcelFacade {
 
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+        if (idCards.stream().distinct().count() < idCards.size()) {
+            throw new BusinessException("身份证号码重复");
+        }
+        // TODO: 身份证号码是否被使用
 
         // 收集手机号码
         List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-
+        if (phones.stream().distinct().count() < phones.size()) {
+            throw new BusinessException("手机号码重复");
+        }
 
         List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("手机号码重复");
+            throw new BusinessException("手机号码已经被使用，请确认！");
         }
 
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
