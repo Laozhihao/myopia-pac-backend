@@ -136,7 +136,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         // 新增或更新筛查机构信息
         screeningTaskOrgService.saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
         if (needUpdateNoticeStatus) {
-            //TODO 更新通知状态＆更新ID
+            //更新通知状态＆更新ID
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), screeningTaskDTO.getId(), user);
         }
     }

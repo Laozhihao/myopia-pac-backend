@@ -124,6 +124,6 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      */
     public void statusReadAndCreate(Integer noticeId, Integer acceptOrgId, Integer genTaskOrPlanId, CurrentUser user) {
         //1. 更新状态与任务/计划ID
-        baseMapper.updateStatusByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
+        baseMapper.updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(noticeId, acceptOrgId, genTaskOrPlanId, user.getId(), CommonConst.STATUS_NOTICE_CREATED);
     }
 }
