@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 **/src/main/resources/*.yaml
 **/src/main/resources/*.xml
+**/src/main/resources/*.yml
 
 ### IntelliJ IDEA ###
 .idea
@@ -16,6 +17,4 @@ target/
 .project
 .classpath
 .factorypath
-.vscode/
 soar*
-**/src/main/resources/*.yml
