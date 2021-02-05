@@ -653,7 +653,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             ArrayList<SchoolClass> schoolClasses = Lists.newArrayList(
                     new SchoolClass(g, createUserId, schoolId, "一班", 35),
                     new SchoolClass(g, createUserId, schoolId, "二班", 35),
-                    new SchoolClass(g, createUserId, schoolId, "三班", 35));
+                    new SchoolClass(g, createUserId, schoolId, "三班", 35),
+                    new SchoolClass(g, createUserId, schoolId, "其他", 35));
             schoolClassService.saveBatch(schoolClasses);
         });
     }
