@@ -128,13 +128,8 @@ public class UserService extends BaseService<UserMapper, User> {
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
-        // 转换筛查管理端的系统编号为管理端的（TODO：上生产前要调整为根据域名系统编号，则这里的转换要撤掉）
         boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
-        if (isScreeningAdmin) {
-            user.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        }
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
-        // TODO: 初始化的时候，初始化一个角色，copy一份模板的权限到该角色，修改模板的时候，同步更新该角色权限
         // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
         if (isScreeningAdmin) {
             Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
