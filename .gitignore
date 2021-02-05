@@ -18,3 +18,4 @@ target/
 .factorypath
 .vscode/
 soar*
+**/src/main/resources/*.yml
