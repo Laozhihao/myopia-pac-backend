@@ -604,7 +604,7 @@ public class ExcelFacade {
         }
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(2)).collect(Collectors.toList());
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
