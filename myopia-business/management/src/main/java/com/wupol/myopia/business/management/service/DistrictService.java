@@ -363,6 +363,20 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取当前用户的所处的省级District
+     * <p>天河区-> 广东省天河区</p>
+     * <p>梅园新村街道-> 江苏省南京市玄武区梅园新村街道</p>
+     *
+     * @param currentUser 当前用户
+     * @return List<District>
+     */
+    public List<District> getProvinceDistrict(CurrentUser currentUser) {
+        District district = getNotPlatformAdminUserDistrict(currentUser);
+        List<District> districtPositionDetail = getDistrictPositionDetail(district.getCode());
+        return getSpecificDistrictTreePriorityCache(districtPositionDetail.get(0).getCode());
+    }
+
+    /**
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param district 行政区域

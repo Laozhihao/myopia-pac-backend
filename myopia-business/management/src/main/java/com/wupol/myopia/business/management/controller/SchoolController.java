@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.School;
@@ -111,5 +112,10 @@ public class SchoolController {
     @GetMapping("/listByDistrict")
     public Object getSchoolListByDistctId(SchoolQuery schoolQuery) {
         return schoolService.getSchoolListByDistrictId(schoolQuery);
+    }
+
+    @GetMapping("/schoolAge/list")
+    public Object getSchoolAge() {
+        return SchoolAge.getSchoolAgeList();
     }
 }
