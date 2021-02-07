@@ -332,7 +332,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param currentUser 当前用户
      * @return List<District>
      */
-    public List<District> getProvinceDistrict(CurrentUser currentUser) {
+    public List<District> getProvinceDistrict(CurrentUser currentUser) throws IOException {
         District district = getNotPlatformAdminUserDistrict(currentUser);
         List<District> districtPositionDetail = getDistrictPositionDetail(district.getCode());
         return getSpecificDistrictTreePriorityCache(districtPositionDetail.get(0).getCode());
