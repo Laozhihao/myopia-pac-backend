@@ -160,4 +160,9 @@ public class UserDTO implements Serializable {
      * 行政区明细
      */
     private List<District> districtDetail;
+
+    /**
+     * 行政区ID
+     */
+    private Integer districtId;
 }

@@ -55,7 +55,7 @@ public class OauthService {
     }
 
     /**
-     * 根据用户ID集批量获取用户
+     * 根据手机号码批量获取用户
      *
      * @param phones 手机号码集合
      * @param systemCode 系统编号
@@ -63,6 +63,18 @@ public class OauthService {
      **/
     @OauthRequest
     public List<UserDTO> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+        return null;
+    }
+
+    /**
+     * 根据手身份证号码批量获取用户
+     *
+     * @param idCards 身份证号码
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByIdCards(List<String> idCards, Integer systemCode) {
         return null;
     }
 

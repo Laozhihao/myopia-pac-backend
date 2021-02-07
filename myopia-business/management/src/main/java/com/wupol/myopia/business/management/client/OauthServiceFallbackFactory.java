@@ -60,6 +60,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<List<UserDTO>> getUserBatchByIdCards(List<String> idCards, Integer systemCode) {
+                return respData;
+            }
+
+            @Override
             public ApiResult<UserDTO> addUser(UserDTO param) {
                 return respData;
             }

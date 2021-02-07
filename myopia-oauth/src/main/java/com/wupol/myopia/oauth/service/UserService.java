@@ -128,13 +128,8 @@ public class UserService extends BaseService<UserMapper, User> {
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
-        // 转换筛查管理端的系统编号为管理端的（TODO：上生产前要调整为根据域名系统编号，则这里的转换要撤掉）
         boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
-        if (isScreeningAdmin) {
-            user.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        }
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
-        // TODO: 初始化的时候，初始化一个角色，copy一份模板的权限到该角色，修改模板的时候，同步更新该角色权限
         // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
         if (isScreeningAdmin) {
             Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
@@ -243,6 +238,21 @@ public class UserService extends BaseService<UserMapper, User> {
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
         queryParam.setPhones(phones);
+        return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
+     * 根据手机号码批量查询
+     *
+     * @param idCards 手机号码集合
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    public List<User> getUserBatchByIdCards(List<String> idCards, Integer systemCode) {
+        Assert.notEmpty(idCards, "身份证号码不能为空");
+        Assert.notNull(systemCode, "系统编号不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setSystemCode(systemCode);
+        queryParam.setIdCards(idCards);
         return baseMapper.selectUserList(queryParam);
     }
 }
