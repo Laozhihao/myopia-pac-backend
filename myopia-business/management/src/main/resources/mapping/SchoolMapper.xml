@@ -50,13 +50,12 @@
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
-        select
-        <include refid="Base_Column_List"/>
-        from m_school ms
+        select ms.*
+                from m_school ms
         <if test="districtIdPre != null">
             left join m_district d on ms.district_id = d.id
             left join (select id, left(code, 2) as pre
-            from m_district md) as re on re.id = d.id
+                       from m_district md) as re on re.id = d.id
         </if>
         where ms.status != 2
         <if test="name != null and name != ''">
