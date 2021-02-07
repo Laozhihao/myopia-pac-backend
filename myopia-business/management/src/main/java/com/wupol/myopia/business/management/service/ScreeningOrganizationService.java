@@ -145,11 +145,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
         }
-
-        if (null == screeningOrganization.getTownCode()){
-            screeningOrganization.setTownCode(0L);
-        }
-
         baseMapper.updateById(screeningOrganization);
 
         // 机构管理员

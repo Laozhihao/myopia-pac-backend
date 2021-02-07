@@ -132,10 +132,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
         }
-
-        if (null == school.getTownCode()) {
-            school.setTownCode(0L);
-        }
         baseMapper.updateById(school);
 
         // 获取学校管理员
