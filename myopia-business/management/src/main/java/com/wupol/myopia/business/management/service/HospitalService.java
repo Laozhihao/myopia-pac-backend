@@ -219,6 +219,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
