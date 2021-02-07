@@ -121,3 +121,14 @@ feign:
 oem:
   province:
     code: 14000000
+
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath:
+  # 可上传的文件类型后缀
+  suffixs:
+  # 上传S3的bucket
+  bucketName:
+  # S3链接失效时间（小时）
+  expiredHours:
