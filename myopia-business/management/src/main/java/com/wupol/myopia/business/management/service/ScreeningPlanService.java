@@ -134,7 +134,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             if (Objects.isNull(screeningNotice)) {
                 throw new BusinessException("找不到对应任务通知");
             }
-            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), screeningPlanDTO.getScreeningOrgId(), user);
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getId(), user);
         }
     }
 

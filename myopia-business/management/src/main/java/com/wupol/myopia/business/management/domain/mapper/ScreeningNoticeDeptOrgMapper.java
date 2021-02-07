@@ -13,12 +13,12 @@ import org.springframework.context.annotation.PropertySource;
 /**
  * 筛查通知通知到的部门或者机构表Mapper接口
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 public interface ScreeningNoticeDeptOrgMapper extends BaseMapper<ScreeningNoticeDeptOrg> {
 
     IPage<ScreeningNoticeVo> selectPageByQuery(@Param("page")IPage<ScreeningNotice> page, @Param("param")ScreeningNoticeQuery query);
 
-    Integer updateStatusByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer acceptOrgId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
+    Integer updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer acceptOrgId, @Param("screeningTaskPlanId") Integer genTaskOrPlanId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
 }

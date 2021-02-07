@@ -117,7 +117,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             screeningNoticeService.save(screeningNotice);
             //3. 为筛查机构创建通知
             List<ScreeningTaskOrg> orgLists = screeningTaskOrgService.getOrgListsByTaskId(id);
-            List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
+            List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
             return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
         }
         throw new BusinessException("发布失败");
@@ -136,8 +136,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         // 新增或更新筛查机构信息
         screeningTaskOrgService.saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(screeningTaskDTO.getId(), screeningTaskDTO.getScreeningOrgs());
         if (needUpdateNoticeStatus) {
-            // 更新通知状态
-            screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), user);
+            //更新通知状态＆更新ID
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), screeningTaskDTO.getId(), user);
         }
     }
 

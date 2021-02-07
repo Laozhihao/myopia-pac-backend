@@ -28,4 +28,6 @@ public class ScreeningNoticeVo extends ScreeningNotice {
     private String govDeptName;
     /** 行政区明细 */
     private List<District> districtDetail;
+    /** 筛查通知--该通知对应的筛查任务或筛查计划ID */
+    private Integer screeningTaskPlanId;
 }

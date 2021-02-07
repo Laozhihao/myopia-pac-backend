@@ -33,7 +33,8 @@ CREATE TABLE `m_screening_notice_dept_org`
     `screening_notice_id` int(10) unsigned NOT NULL COMMENT '筛查通知--筛查通知表id',
     `district_id`         int(10) unsigned NOT NULL COMMENT '筛查通知--接收对象所在的区域id',
     `accept_org_id`       int(10) unsigned NOT NULL COMMENT '筛查通知--接收通知对象的id（机构id 或者 部门id）',
-    `operation_status`    tinyint(3) unsigned NOT NULL DEFAULT '000' COMMENT '筛查通知--操作状态（0未读 1 是已读 2是删除 3是已读已创建）',
+    `screening_task_plan_id`       int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查通知--该通知对应的筛查任务或筛查计划ID',
+    `operation_status`    tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '筛查通知--操作状态（0未读 1 是已读 2是删除 3是已读已创建）',
     `operator_id`         int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查通知--操作人id（查看或者编辑的人id）',
     `create_time`         timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
