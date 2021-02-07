@@ -266,7 +266,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
-            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getUsername());
+            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
 
             // 判断是否能更新
             s.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
@@ -316,6 +316,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setOrgId(school.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 

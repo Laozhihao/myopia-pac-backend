@@ -121,6 +121,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
