@@ -607,6 +607,10 @@ public class ExcelFacade {
             throw new BusinessException("身份证号码重复");
         }
         // TODO: 身份证号码是否被使用
+        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards, SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkIdCards)) {
+            throw new BusinessException("身份证号码已经被使用，请确认！");
+        }
 
         // 收集手机号码
         List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
