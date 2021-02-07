@@ -35,16 +35,16 @@ public class StatService {
         return WarningInfo.builder()
                 .statTime(System.currentTimeMillis())
                 .focusTargetsNum(focusTargetsNum)
-                .focusTargetsPercentage(focusTargetsNum * 100f / normalTotal)
+                .focusTargetsPercentage(convertToRatio(focusTargetsNum * 1f / normalTotal))
                 .lastStatTime(getYearMillis(-1))
                 .lastFocusTargetsNum(lastFocusTargetsNum)
-                .lastFocusTargetsPercentage(lastFocusTargetsNum * 100f / normalTotal)
+                .lastFocusTargetsPercentage(convertToRatio(lastFocusTargetsNum * 1f / normalTotal))
                 .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
                     {
-                        add(new WarningLevelInfo(0, 123443, 123443 * 100f / total));
-                        add(new WarningLevelInfo(1, 123278, 123278 * 100f / total));
-                        add(new WarningLevelInfo(2, 113445, 113445 * 100f / total));
-                        add(new WarningLevelInfo(3, 33445, 33445 * 100f / total));
+                        add(new WarningLevelInfo(0, 123443, convertToRatio(123443 * 1f / total)));
+                        add(new WarningLevelInfo(1, 123278, convertToRatio(123278 * 1f / total)));
+                        add(new WarningLevelInfo(2, 113445, convertToRatio(113445 * 1f / total)));
+                        add(new WarningLevelInfo(3, 33445, convertToRatio(33445 * 1f / total)));
                     }
                 })
                 .build();
