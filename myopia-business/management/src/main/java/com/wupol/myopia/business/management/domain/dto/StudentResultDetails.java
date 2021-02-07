@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ResultDetails {
+public class StudentResultDetails {
 
     /**
      * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}

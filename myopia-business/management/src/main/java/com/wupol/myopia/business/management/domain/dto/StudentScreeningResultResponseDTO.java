@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.management.domain.dto;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.management.domain.dto.ResultDetails;
 
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ScreeningResultResponseDTO {
+public class StudentScreeningResultResponseDTO {
 
     /**
      * 0 为左眼 1 为右眼
@@ -26,13 +24,13 @@ public class ScreeningResultResponseDTO {
     /**
      * 详情
      */
-    private ResultDetails detail;
+    private StudentResultDetails detail;
 
-    public List<ScreeningResultResponseDTO> packageDTO(VisionScreeningResult result) {
+    public List<StudentScreeningResultResponseDTO> packageDTO(VisionScreeningResult result) {
 
         // 设置左眼
-        ScreeningResultResponseDTO left = new ScreeningResultResponseDTO();
-        ResultDetails leftDetails = new ResultDetails();
+        StudentScreeningResultResponseDTO left = new StudentScreeningResultResponseDTO();
+        StudentResultDetails leftDetails = new StudentResultDetails();
         leftDetails.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
         leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
         leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
@@ -49,8 +47,8 @@ public class ScreeningResultResponseDTO {
         left.setDetail(leftDetails);
 
         //设置右眼
-        ScreeningResultResponseDTO right = new ScreeningResultResponseDTO();
-        ResultDetails rightDetails = new ResultDetails();
+        StudentScreeningResultResponseDTO right = new StudentScreeningResultResponseDTO();
+        StudentResultDetails rightDetails = new StudentResultDetails();
         rightDetails.setGlassesType(result.getVisionData().getRightEyeData().getGlassesType());
         rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
         rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
