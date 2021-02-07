@@ -236,7 +236,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
-        Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
+        List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
+        Map<Integer, UserDTO> userDTOMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
 
         // 筛查统计
         List<SchoolScreeningCountVO> countVOS = screeningPlanSchoolService.countScreeningTime();
@@ -267,7 +268,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, List<Integer> havePlanSchoolIds, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
-            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
+            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getUsername());
 
             // 判断是否能更新
             s.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
