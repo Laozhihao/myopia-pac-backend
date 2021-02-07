@@ -267,7 +267,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 只能看到所属的省级数据
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            District district = districtService.getProvinceDistrictTreePriorityCache(org.getDistrictId());
+            District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(org.getDistrictId()).getCode());
             String pre = String.valueOf(district.getCode()).substring(0, 2);
             return new TwoTuple<>(null, Integer.valueOf(pre));
         }
