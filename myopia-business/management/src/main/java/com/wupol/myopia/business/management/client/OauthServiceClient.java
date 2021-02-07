@@ -48,7 +48,7 @@ public interface OauthServiceClient {
     ApiResult<List<UserDTO>> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
 
     /**
-     * 根据用户ID集批量获取用户
+     * 根据手机号码批量获取用户
      *
      * @param phones 手机号码集合
      * @param systemCode 系统编号
@@ -56,6 +56,16 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/batch/phone")
     ApiResult<List<UserDTO>> getUserBatchByPhones(@RequestParam("phones") List<String> phones, @RequestParam("systemCode") Integer systemCode);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param idCards 身份证号码集
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/idCard")
+    ApiResult<List<UserDTO>> getUserBatchByIdCards(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode);
 
     /**
      * 新增用户

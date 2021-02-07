@@ -110,7 +110,7 @@ public class UserController {
     }
 
     /**
-     * 根据手机号码集批量获取用户
+     * 根据手机号码批量获取用户
      *
      * @param phones 手机号码集合
      * @param systemCode 系统编号
@@ -122,6 +122,21 @@ public class UserController {
             return new ArrayList<>();
         }
         return userService.getUserBatchByPhones(phones, systemCode);
+    }
+
+    /**
+     * 根据身份证号码批量获取用户
+     *
+     * @param idCards 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch/idCard")
+    public List<User> getUserBatchByIdCard(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode) {
+        if (CollectionUtils.isEmpty(idCards)) {
+            return new ArrayList<>();
+        }
+        return userService.getUserBatchByIdCards(idCards, systemCode);
     }
 
     /**

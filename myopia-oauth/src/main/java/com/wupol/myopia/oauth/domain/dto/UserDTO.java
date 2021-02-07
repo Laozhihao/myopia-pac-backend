@@ -84,4 +84,9 @@ public class UserDTO extends User {
      **/
     private List<String> phones;
 
+    /**
+     * 身份证号码集合
+     **/
+    private List<String> idCards;
+
 }
