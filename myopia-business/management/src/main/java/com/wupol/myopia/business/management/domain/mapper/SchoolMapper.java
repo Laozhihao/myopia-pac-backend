@@ -20,7 +20,8 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
                                                       @Param("schoolNo") String schoolNo, @Param("type") Integer type,
-                                                      @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds);
+                                                      @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
+                                                      @Param("districtIdPre")Integer districtIdPre);
 
     School getLastSchoolByNo(@Param("code") Integer code);
 
