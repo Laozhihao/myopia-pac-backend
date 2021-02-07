@@ -507,7 +507,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 全名称
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
-        if (null != townCode && townCode != 0) {
+        if (null != townCode) {
             return getTopDistrictName(townCode) + "  " + address;
         } else if (null != areaCode) {
             return getTopDistrictName(areaCode) + "  " + address;
