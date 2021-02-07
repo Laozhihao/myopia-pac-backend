@@ -191,7 +191,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .getUserBatchByPhones(Lists.newArrayList(staff.getPhone()),
                         SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("手机号码已经被使用");
+            if (checkPhones.size() > 1) {
+                throw new BusinessException("手机号码重复");
+            }
+            if (!checkPhones.get(0).getId().equals(admin.getUserId())) {
+                throw new BusinessException("手机号码重复");
+            }
         }
         UserDTO userDTO = new UserDTO()
                 .setId(checkStaff.getUserId())
