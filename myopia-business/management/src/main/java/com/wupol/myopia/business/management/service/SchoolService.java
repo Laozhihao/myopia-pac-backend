@@ -208,7 +208,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
+//        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
 
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
@@ -223,7 +223,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), districtId, userIds);
+                schoolQuery.getType(), schoolQuery.getDistrictId(), userIds);
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
