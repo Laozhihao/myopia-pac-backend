@@ -122,6 +122,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setPhone(org.getPhone())
                 .setRealName(username)
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
@@ -151,7 +152,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 机构管理员
         ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(screeningOrganization.getId());
         // 更新OAuth账号
-        schoolService.updateOAuthName(admin.getUserId(), screeningOrganization.getName());
+        UserDTO userDTO = new UserDTO()
+                .setId(admin.getUserId())
+                .setPhone(screeningOrganization.getPhone())
+                .setRealName(screeningOrganization.getName())
+                .setUsername(screeningOrganization.getName());
+        oauthService.modifyUser(userDTO);
 
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
         ScreeningOrganization o = baseMapper.selectById(orgId);

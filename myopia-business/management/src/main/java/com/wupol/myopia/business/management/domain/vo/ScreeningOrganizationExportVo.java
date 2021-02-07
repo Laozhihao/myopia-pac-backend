@@ -32,9 +32,6 @@ public class ScreeningOrganizationExportVo implements Serializable {
     public static final String TOP_HEADER = "筛查机构表";
     public static final String TOP_HEADER2 = "最新筛查任务";
 
-    @ExcelProperty({TOP_HEADER, "序号"})
-    private Integer id;
-
     @ExcelProperty({TOP_HEADER, "筛查机构名称"})
     private String name;
 

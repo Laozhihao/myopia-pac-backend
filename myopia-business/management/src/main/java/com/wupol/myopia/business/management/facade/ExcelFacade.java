@@ -107,8 +107,7 @@ public class ExcelFacade {
         List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
             ScreeningOrganizationExportVo exportVo = new ScreeningOrganizationExportVo();
-            exportVo.setId(item.getId())
-                    .setName(item.getName())
+            exportVo.setName(item.getName())
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                     .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
                     .setPhone(item.getPhone())
@@ -214,7 +213,6 @@ public class ExcelFacade {
 
         for (Hospital item : list) {
             HospitalExportVo exportVo = new HospitalExportVo()
-                    .setId(item.getId())
                     .setName(item.getName())
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))

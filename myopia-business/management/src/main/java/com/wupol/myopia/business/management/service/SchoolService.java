@@ -60,9 +60,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private OauthService oauthService;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     @Resource
