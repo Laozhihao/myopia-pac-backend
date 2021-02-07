@@ -132,6 +132,7 @@ public class Student implements Serializable {
     /**
      * 详细地址
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
 
     /**
