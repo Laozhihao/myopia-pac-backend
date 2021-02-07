@@ -28,7 +28,7 @@ public class DistrictController extends BaseController<DistrictService, District
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/structure")
-    public List<District> getCurrentUserDistrictTree() {
+    public List<District> getCurrentUserDistrictTree() throws IOException {
         return baseService.getCurrentUserDistrictTree(CurrentUserUtil.getCurrentUser());
     }
 
