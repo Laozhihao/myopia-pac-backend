@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
  * @author Simple4H
  */
 @Data
+@NoArgsConstructor
 public class StaffResetPasswordRequest {
 
     @NotNull(message = "员工id不能为空")

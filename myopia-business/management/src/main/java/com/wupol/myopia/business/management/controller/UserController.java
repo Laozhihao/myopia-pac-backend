@@ -1,13 +1,18 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.service.GovDeptService;
+import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.management.service.UserService;
 import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
@@ -32,6 +37,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 分页获取用户列表
@@ -96,7 +103,19 @@ public class UserController {
         Assert.notNull(userDTO, "不存在该用户");
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(userDTO.getOrgId()), "没有访问该用户信息权限");
-        return userDTO.setOrgName(govDeptService.getById(userDTO.getOrgId()).getName()).setPassword(null);
+        // 屏蔽密码
+        userDTO.setPassword(null);
+        // 管理端 - 平台管理员或政府部门人员用户
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+            GovDept govDept = govDeptService.getById(userDTO.getOrgId());
+            return userDTO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
+        }
+        // 管理端 - 筛查机构管理员用户
+        if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(userDTO.getOrgId());
+            return userDTO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
+        }
+        throw new BusinessException("不支持查询该用户");
     }
 
     /**

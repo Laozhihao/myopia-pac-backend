@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +47,11 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @return 角色权限列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
-        rolePermissionService.deleteByRoleId(roleId);
-        rolePermissionService.insertRolePermissionBatch(roleId, permissionIds);
-        return rolePermissionService.getRolePermissionByRoleId(roleId);
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) throws IOException {
+        rolePermissionService.remove(new RolePermission().setRoleId(roleId));
+        List<RolePermission> rolePermission = permissionIds.stream().map(id -> new RolePermission().setRoleId(roleId).setPermissionId(id)).collect(Collectors.toList());
+        rolePermissionService.saveBatch(rolePermission);
+        return rolePermission;
     }
 
     /**
