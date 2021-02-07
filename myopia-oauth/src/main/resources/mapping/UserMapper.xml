@@ -72,7 +72,7 @@
                     and u.`phone` IN <foreach collection="param.phones" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.idCards != null">
-                    and u.`idCard` IN <foreach collection="param.idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and u.`id_card` IN <foreach collection="param.idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and DATE(u.create_time) between DATE(#{param.startCreateTime}) and DATE(#{param.endCreateTime})
