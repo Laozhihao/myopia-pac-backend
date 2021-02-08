@@ -25,14 +25,16 @@ COPY ./myopia-device/pom.xml /build/myopia-device/pom.xml
 COPY ./myopia-gateway/pom.xml /build/myopia-gateway/pom.xml
 COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
 
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
+#RUN --mount=type=cache,target=/root/.m2 \
+#    mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
+#RUN mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
 
 COPY . .
 COPY myopia-business/bootstrap/setting/env/* /build/myopia-business/bootstrap/src/main/resources/
 
 RUN --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
+#RUN mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
 # application
 FROM openjdk:8-jre-alpine
