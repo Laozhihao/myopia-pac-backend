@@ -328,7 +328,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Boolean checkIdCard(String IdCard, Integer id) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .eq("id_card", IdCard);
+                .eq("id_card", IdCard)
+                .ne("status",CommonConst.STATUS_IS_DELETED);
 
         if (null != id) {
             queryWrapper.ne("id", id);
@@ -344,7 +345,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Boolean checkIdCards(List<String> IdCards) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .in("id_card", IdCards);
+                .in("id_card", IdCards)
+                .ne("status",CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }
