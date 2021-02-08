@@ -445,7 +445,7 @@ public class ExcelFacade {
         List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
         if (listMap.size() != 0) {
             // 去头部
-            listMap.remove(1);
+            listMap.remove(0);
         }
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
@@ -455,7 +455,8 @@ public class ExcelFacade {
         }
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> s.get(8))
+                .filter(Objects::nonNull).collect(Collectors.toList());
 
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("学生身份证号码重复");
