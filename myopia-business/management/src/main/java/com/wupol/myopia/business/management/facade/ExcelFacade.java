@@ -445,7 +445,6 @@ public class ExcelFacade {
         List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
         if (listMap.size() != 0) {
             // 去头部
-            listMap.remove(0);
             listMap.remove(1);
         }
         // 收集学校编号
@@ -455,7 +454,12 @@ public class ExcelFacade {
             throw new BusinessException("学校编号异常");
         }
 
+        // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
+
+        if (idCards.stream().distinct().count() < idCards.size()) {
+            throw new BusinessException("学生身份证号码重复");
+        }
         if (studentService.checkIdCards(idCards)) {
             throw new BusinessException("学生身份证号码重复");
         }
@@ -512,7 +516,7 @@ public class ExcelFacade {
             }
 
             if (StringUtils.isNotBlank(item.get(9))) {
-                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
                     throw new BusinessException("学生手机号码异常");
                 }
             }
