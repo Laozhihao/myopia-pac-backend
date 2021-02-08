@@ -511,7 +511,7 @@ public class ExcelFacade {
                 throw new BusinessException("学生身份证异常");
             }
 
-            if (StringUtils.isBlank(item.get(9))) {
+            if (StringUtils.isNotBlank(item.get(9))) {
                 if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
                     throw new BusinessException("学生手机号码异常");
                 }
