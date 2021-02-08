@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.m2 \
 # application
 FROM openjdk:8-jre-alpine
 WORKDIR /app
-EXPOSE 8020
+EXPOSE 8000
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk add --no-cache ttf-dejavu
