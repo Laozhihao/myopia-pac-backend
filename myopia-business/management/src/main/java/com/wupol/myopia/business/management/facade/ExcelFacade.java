@@ -145,8 +145,9 @@ public class ExcelFacade {
         if (Objects.isNull(screeningOrgId)) {
             throw new BusinessException("筛查机构id不能为空");
         }
+        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId);
         UserDTOQuery userQuery = new UserDTOQuery();
-        userQuery.setSize(11)
+        userQuery.setSize(staffLists.size())
                 .setCurrent(1)
                 .setOrgId(screeningOrgId)
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
