@@ -386,7 +386,6 @@ public class ExcelFacade {
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
             StudentExportVo exportVo = new StudentExportVo()
-                    .setId(item.getId())
                     .setNo(item.getSno())
                     .setName(item.getName())
                     .setSchoolNo(school.getSchoolNo())
