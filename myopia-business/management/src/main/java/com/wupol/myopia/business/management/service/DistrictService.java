@@ -194,7 +194,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param currentUser 当前登录用户
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getCurrentUserDistrictTree(CurrentUser currentUser) {
+    public List<District> getCurrentUserDistrictTree(CurrentUser currentUser) throws IOException {
         // 平台管理员，可看到全国的
         if (currentUser.isPlatformAdminUser()) {
             return getWholeCountryDistrictTreePriorityCache();
@@ -228,7 +228,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param rootCode 指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) {
+    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) throws IOException {
         // 从缓存获取
         String key = String.format(CacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
@@ -273,11 +273,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param rootCode 指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public District getSpecificDistrictTree(List<District> districts, long rootCode) {
+    public District getSpecificDistrictTree(List<District> districts, long rootCode) throws IOException {
         String rootCodeStr = String.valueOf(rootCode);
         // 如果不包含“000”，则说明是街道、乡、镇，无下级行政区域。如：110119202-香营乡、110119200-大庄科乡、110119110-井庄镇
         if (!rootCodeStr.contains("000")) {
-            return null;
+            return findOne(new District().setCode(rootCode));
         }
         for (District district : districts) {
             Long code = district.getCode();
@@ -370,7 +370,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param currentUser 当前用户
      * @return List<District>
      */
-    public List<District> getProvinceDistrict(CurrentUser currentUser) {
+    public List<District> getProvinceDistrict(CurrentUser currentUser) throws IOException {
         District district = getNotPlatformAdminUserDistrict(currentUser);
         List<District> districtPositionDetail = getDistrictPositionDetail(district.getCode());
         return getSpecificDistrictTreePriorityCache(districtPositionDetail.get(0).getCode());
