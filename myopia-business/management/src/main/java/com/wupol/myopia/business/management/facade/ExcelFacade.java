@@ -509,8 +509,10 @@ public class ExcelFacade {
                 throw new BusinessException("学生身份证异常");
             }
 
-            if (StringUtils.isBlank(item.get(9)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
-                throw new BusinessException("学生手机号码异常");
+            if (StringUtils.isNotBlank(item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+                    throw new BusinessException("学生手机号码异常");
+                }
             }
 
             // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
