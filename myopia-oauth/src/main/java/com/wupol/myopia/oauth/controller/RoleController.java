@@ -12,6 +12,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -82,7 +83,7 @@ public class RoleController {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.RolePermission>
      **/
     @PostMapping("/permission/{roleId}")
-    public List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionId) {
+    public List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionId) throws IOException {
         return roleService.assignRolePermission(roleId, permissionId);
     }
 

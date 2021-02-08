@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -116,6 +117,23 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         Integer createUserId = staffQuery.getCreateUserId();
         String phone = staffQuery.getPhone();
+
+        // 检查身份证号码是否重复
+        List<UserDTO> checkIdCards = oauthService
+                .getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
+                        SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkIdCards)) {
+            throw new BusinessException("身份证已经被使用！");
+        }
+
+        // 检查手机号码是否重复
+        List<UserDTO> checkPhones = oauthService
+                .getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
+                        SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkPhones)) {
+            throw new BusinessException("手机号码已经被使用");
+        }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_STAFF_REDIS, phone));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -153,6 +171,33 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             log.error("更新筛查人员失败id:{},数据异常", id);
             throw new BusinessException("数据异常");
         }
+        ScreeningOrganizationStaff admin = baseMapper.selectById(staff.getId());
+
+        // 检查身份证号码是否重复
+        List<UserDTO> checkIdCards = oauthService
+                .getUserBatchByIdCards(Lists.newArrayList(staff.getIdCard()),
+                        SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkIdCards)) {
+            if (checkIdCards.size() > 1) {
+                throw new BusinessException("身份证号码重复");
+            }
+            if (!checkIdCards.get(0).getId().equals(admin.getUserId())) {
+                throw new BusinessException("身份证号码重复");
+            }
+        }
+
+        // 检查手机号码是否重复
+        List<UserDTO> checkPhones = oauthService
+                .getUserBatchByPhones(Lists.newArrayList(staff.getPhone()),
+                        SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkPhones)) {
+            if (checkPhones.size() > 1) {
+                throw new BusinessException("手机号码重复");
+            }
+            if (!checkPhones.get(0).getId().equals(admin.getUserId())) {
+                throw new BusinessException("手机号码重复");
+            }
+        }
         UserDTO userDTO = new UserDTO()
                 .setId(checkStaff.getUserId())
                 .setRealName(staff.getRealName())
@@ -162,7 +207,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
-        resetPassword(new StaffResetPasswordRequest(staff.getId(),staff.getPhone(),staff.getIdCard()));
+        resetPassword(new StaffResetPasswordRequest(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
     }
 

@@ -7,7 +7,6 @@ import com.wupol.myopia.oauth.domain.mapper.DistrictPermissionMapper;
 import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
-import com.wupol.myopia.oauth.domain.model.RolePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +23,6 @@ import java.util.stream.Collectors;
 @Service
 public class DistrictPermissionService extends BaseService<DistrictPermissionMapper, DistrictPermission> {
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
     @Autowired
     private RoleService roleService;
 
@@ -56,8 +53,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         // 同步更新筛查管理端角色权限
         if (PermissionTemplateType.SCREENING_ORGANIZATION.getType().equals(templateType)) {
             Role role = roleService.findOne(new Role().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()));
-            List<RolePermission> rolePermission = permissionIds.stream().map(id -> new RolePermission().setRoleId(role.getId()).setPermissionId(id)).collect(Collectors.toList());
-            rolePermissionService.saveBatch(rolePermission);
+            roleService.assignRolePermission(role.getId(), permissionIds);
         }
         return success;
     }

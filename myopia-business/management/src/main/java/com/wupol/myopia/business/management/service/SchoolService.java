@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -60,9 +61,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private OauthService oauthService;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     @Resource
@@ -82,6 +80,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Resource
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 新增学校
@@ -130,10 +131,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         if (checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
-        }
-
-        if (null == school.getTownCode()) {
-            school.setTownCode(0L);
         }
         baseMapper.updateById(school);
 
@@ -207,7 +204,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
+//        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
 
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
@@ -218,11 +215,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
+        TwoTuple<Integer, Integer> a = packageList(currentUser, schoolQuery.getDistrictId());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), districtId, userIds);
+                schoolQuery.getType(), a.getFirst(), userIds, a.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -236,7 +234,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
-        Map<Integer, UserDTO> userDTOMap = userService.getUserMapByIds(createUserIds);
+        List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
+        Map<Integer, UserDTO> userDTOMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
 
         // 筛查统计
         List<SchoolScreeningCountVO> countVOS = screeningPlanSchoolService.countScreeningTime();
@@ -253,6 +252,28 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // 封装DTO
         schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
+    }
+
+    private TwoTuple<Integer, Integer> packageList(CurrentUser currentUser, Integer districtId) {
+        // 管理员看到全部
+        if (currentUser.isPlatformAdminUser()) {
+            // 不为空说明是搜索条件
+            if (null != districtId) {
+                return new TwoTuple<>(districtId, null);
+            }
+        } else if (currentUser.isScreeningUser()) {
+            if (null != districtId) {
+                // 不为空说明是搜索条件
+                return new TwoTuple<>(districtId, null);
+            }
+            // 只能看到所属的省级数据
+            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
+            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+            District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(org.getDistrictId()).getCode());
+            String pre = String.valueOf(district.getCode()).substring(0, 2);
+            return new TwoTuple<>(null, Integer.valueOf(pre));
+        }
+        return new TwoTuple<>(districtId, null);
     }
 
     /**
@@ -333,6 +354,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setOrgId(school.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 

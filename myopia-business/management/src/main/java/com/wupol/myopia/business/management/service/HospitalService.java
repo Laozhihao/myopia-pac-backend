@@ -101,10 +101,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (checkHospitalName(hospital.getName(), hospital.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
-
-        if (null == hospital.getTownCode()){
-            hospital.setTownCode(0L);
-        }
         baseMapper.updateById(hospital);
 
         // 医院管理员
@@ -219,6 +215,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
