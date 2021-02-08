@@ -294,6 +294,18 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 通过组织Id获取员工
      *
+     * @param orgId 组织id
+     * @return List<ScreeningOrganizationStaff>
+     */
+    public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId) {
+        return baseMapper
+                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
+                        .eq("screening_org_id", orgId));
+    }
+
+    /**
+     * 通过组织Id获取员工
+     *
      * @param orgIds 组织id
      * @return List<ScreeningOrganizationStaff>
      */
