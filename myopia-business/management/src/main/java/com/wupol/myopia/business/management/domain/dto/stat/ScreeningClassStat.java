@@ -15,6 +15,9 @@ public class ScreeningClassStat {
     /** 实际筛查学生数 */
     private Integer actualScreeningNum;
 
+    /** 有效筛查学生数 */
+    private Integer validScreeningNum;
+
     /** 视力筛查完成率 */
     private Float screeningFinishedRatio;
 
