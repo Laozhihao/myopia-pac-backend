@@ -510,7 +510,7 @@ public class ExcelFacade {
             }
 
             if (StringUtils.isNotBlank(item.get(9))) {
-                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
                     throw new BusinessException("学生手机号码异常");
                 }
             }
