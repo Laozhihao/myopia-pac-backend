@@ -21,9 +21,9 @@ COPY ./myopia-business/parent/pom.xml /build/myopia-business/parent/pom.xml
 COPY ./myopia-business/school/pom.xml /build/myopia-business/school/pom.xml
 COPY ./myopia-business/screening/pom.xml /build/myopia-business/screening/pom.xml
 
-COPY ./myopia-device/pom.xml /build/myopia-device/pom.xml
-COPY ./myopia-gateway/pom.xml /build/myopia-gateway/pom.xml
-COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
+#COPY ./myopia-device/pom.xml /build/myopia-device/pom.xml
+#COPY ./myopia-gateway/pom.xml /build/myopia-gateway/pom.xml
+#COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
 
 #RUN --mount=type=cache,target=/root/.m2 \
 #    mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
@@ -32,7 +32,8 @@ COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
 COPY . .
 COPY myopia-business/bootstrap/setting/env/* /build/myopia-business/bootstrap/src/main/resources/
 
-RUN --mount=type=cache,target=/root/.m2 \
+RUN cd /build/myopia-business/bootstrap \
+    --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 #RUN mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
