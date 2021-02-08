@@ -55,7 +55,7 @@ spring:
       resourceserver:
         jwt:
           # 获取JWT验签公钥请求路径
-          jwk-set-uri: 'http://8.135.35.154:8000/auth/rsa/publicKey'
+          jwk-set-uri: 'http://8.135.35.154:7000/auth/rsa/publicKey'
 
   ### Redis配置
   redis:
