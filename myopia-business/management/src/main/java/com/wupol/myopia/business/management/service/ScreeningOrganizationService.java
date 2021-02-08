@@ -141,12 +141,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
-        Integer orgId = screeningOrganization.getId();
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
         }
-        baseMapper.updateById(screeningOrganization);
+        ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
+        ScreeningOrganization checkOrg = baseMapper.selectById(screeningOrganization.getId());
 
         // 机构管理员
         ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(screeningOrganization.getId());
@@ -158,8 +158,18 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setUsername(screeningOrganization.getName());
         oauthService.modifyUser(userDTO);
 
-        ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
-        ScreeningOrganization o = baseMapper.selectById(orgId);
+        // 名字更新重置密码
+        if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
+            response.setUpdatePassword(Boolean.TRUE);
+            response.setUsername(screeningOrganization.getName());
+            // 重置密码
+            String password = PasswordGenerator.getScreeningAdminPwd();
+            oauthService.resetPwd(admin.getUserId(), password);
+            response.setPassword(password);
+        }
+
+        baseMapper.updateById(screeningOrganization);
+        ScreeningOrganization o = baseMapper.selectById(screeningOrganization.getId());
         BeanUtils.copyProperties(o, response);
         response.setDistrictName(districtService.getDistrictName(o.getDistrictDetail()));
         // 详细地址

@@ -20,6 +20,7 @@ import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -98,18 +99,32 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public HospitalResponseDTO updateHospital(Hospital hospital) {
+
         if (checkHospitalName(hospital.getName(), hospital.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
-        baseMapper.updateById(hospital);
+
+        HospitalResponseDTO response = new HospitalResponseDTO();
+        Hospital checkHospital = baseMapper.selectById(hospital.getId());
 
         // 医院管理员
         HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
+
         // 更新OAuth账号
         schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
 
+        // 名字更新重置密码
+        if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
+            response.setUpdatePassword(Boolean.TRUE);
+            response.setUsername(hospital.getName());
+            // 重置密码
+            String password = PasswordGenerator.getHospitalAdminPwd();
+            oauthService.resetPwd(admin.getUserId(), password);
+            response.setPassword(password);
+        }
+
+        baseMapper.updateById(hospital);
         Hospital h = baseMapper.selectById(hospital.getId());
-        HospitalResponseDTO response = new HospitalResponseDTO();
         BeanUtils.copyProperties(h, response);
         response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
         // 行政区域名称
