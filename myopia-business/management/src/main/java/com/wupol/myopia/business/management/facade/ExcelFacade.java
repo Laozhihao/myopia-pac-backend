@@ -170,7 +170,6 @@ public class ExcelFacade {
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
                 .map(item -> new ScreeningOrganizationStaffExportVo()
-                        .setId(item.getId())
                         .setName(item.getRealName())
                         .setGender(GenderEnum.getName(item.getGender()))
                         .setPhone(item.getPhone())
