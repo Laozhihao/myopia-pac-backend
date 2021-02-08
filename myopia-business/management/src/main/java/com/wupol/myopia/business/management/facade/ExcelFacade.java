@@ -443,7 +443,6 @@ public class ExcelFacade {
         List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
         if (listMap.size() != 0) {
             // 去头部
-            listMap.remove(0);
             listMap.remove(1);
         }
         // 收集学校编号
