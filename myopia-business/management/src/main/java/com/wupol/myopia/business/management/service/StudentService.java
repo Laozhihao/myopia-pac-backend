@@ -4,14 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponse;
+import com.wupol.myopia.business.management.domain.dto.StudentResultDetails;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultItems;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -258,14 +259,21 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param studentId 学生ID
      * @return StudentScreeningResultResponse
      */
-    public StudentScreeningResultResponse getScreeningList(Integer studentId) {
-        StudentScreeningResultResponse response = new StudentScreeningResultResponse();
+    public StudentScreeningResultResponseDTO getScreeningList(Integer studentId) {
+        StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
+        List<StudentScreeningResultItems> items = new ArrayList<>();
 
         // 通过计划Ids查询学生的结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentId);
-        response.setTotal(resultList.size());
-        response.setItems(resultList);
-        return response;
+
+        for (VisionScreeningResult r : resultList) {
+            StudentScreeningResultItems item = new StudentScreeningResultItems();
+            item.setDetails(packageDTO(r));
+            items.add(item);
+        }
+        responseDTO.setTotal(resultList.size());
+        responseDTO.setItems(items);
+        return responseDTO;
     }
 
     /**
@@ -338,6 +346,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 根据身份证列表获取学生
+     *
      * @param idCardList
      * @return
      */
@@ -359,5 +368,47 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
                 .in("id_card", IdCards);
         return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 封装结果
+     *
+     * @param result 结果表
+     * @return List<StudentResultDetails>
+     */
+    private List<StudentResultDetails> packageDTO(VisionScreeningResult result) {
+
+        // 设置左眼
+        StudentResultDetails leftDetails = new StudentResultDetails();
+        leftDetails.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
+        leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+        leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
+        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAD());
+        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAL());
+        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCCT());
+        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLT());
+        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWTW());
+        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
+        leftDetails.setLateriality(0);
+
+        //设置右眼
+        StudentResultDetails rightDetails = new StudentResultDetails();
+        rightDetails.setGlassesType(result.getVisionData().getRightEyeData().getGlassesType());
+        rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
+        rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+        rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
+        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAD());
+        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAL());
+        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCCT());
+        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLT());
+        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWTW());
+        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
+        rightDetails.setLateriality(1);
+        return Lists.newArrayList(leftDetails, rightDetails);
     }
 }

@@ -1,4 +1,5 @@
 package com.wupol.myopia.business.management.domain.dto;
+import com.google.common.collect.Lists;
 
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
@@ -13,9 +14,10 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class StudentScreeningResultResponse {
+public class StudentScreeningResultItems {
 
-    private Integer total;
-
-    private List<VisionScreeningResult> items;
+    /**
+     * 详情
+     */
+    private List<StudentResultDetails> details;
 }
