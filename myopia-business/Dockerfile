@@ -32,6 +32,7 @@ COPY ./myopia-business/screening/pom.xml /build/myopia-business/screening/pom.xm
 COPY . .
 COPY myopia-business/bootstrap/setting/env/* /build/myopia-business/bootstrap/src/main/resources/
 
+RUN pwd
 RUN --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 #RUN mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
