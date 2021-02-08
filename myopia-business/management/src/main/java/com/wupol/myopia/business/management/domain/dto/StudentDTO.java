@@ -38,4 +38,14 @@ public class StudentDTO extends Student {
      * 民族描述
      */
     private String nationDesc;
+
+    /**
+     * 性别描述
+     */
+    private String genderDesc;
+
+    /**
+     * 筛查二维码地址
+     */
+    private String qrCodeUrl;
 }

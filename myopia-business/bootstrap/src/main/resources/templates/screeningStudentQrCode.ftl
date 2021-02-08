@@ -111,19 +111,19 @@
 <div id="report" class="wraper">
     <div class="report-content">
         <div class="report-images">
-            <#list 1..25 as n>
+            <#list students as student>
             <div class="images-desc">
                 <div class="images-wraper">
-                    <img crossorigin="anonymous" src="./img/code.png" />
+                    <img crossorigin="anonymous" src="data:image/jpeg;base64,${student.qrCodeUrl?if_exists}" alt=""/>
                 </div>
                 <div class="note-label">
-                    姓名：这是名字
+                    姓名：${student.name?if_exists}
                 </div>
                 <div class="note-label">
-                    性别：男
+                    性别：${student.genderDesc?if_exists}
                 </div>
                 <div class="note-label">
-                    年级班级：6年级12班
+                    年级班级：${classDisplay?if_exists}
                 </div>
             </div>
             </#list>
