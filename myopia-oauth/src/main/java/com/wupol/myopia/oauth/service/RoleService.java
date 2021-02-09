@@ -81,13 +81,27 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     }
 
     /**
-     * 获取指定用户的角色
+     * 获取指定用户的角色(全部)
      *
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
     public List<Role> getRoleListByUserId(Integer userId) {
         return baseMapper.selectRoleListByUserId(userId);
+    }
+
+    /**
+     * 获取指定用户的角色(可用的)
+     *
+     * @param userId 用户ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
+    public List<Role> getUsableRoleByUserId(Integer userId) {
+        List<Role> roleList = getRoleListByUserId(userId);
+        if (CollectionUtils.isEmpty(roleList)) {
+            return roleList;
+        }
+        return roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
     }
 
     /**
