@@ -698,7 +698,7 @@ public class ExcelFacade {
      * 获取学生的导入模版
      */
     public File getStudentImportDemo() throws IOException {
-        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "导入学生.xlsx");
+        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStudentTemplate.xlsx");
         // 获取文件
         return resource.getFile();
     }
@@ -707,7 +707,7 @@ public class ExcelFacade {
      * 获取筛查机构人员的导入模版
      */
     public File getScreeningOrganizationStaffImportDemo() throws IOException {
-        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "导入筛查人员.xlsx");
+        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStaffTemplate.xlsx");
         // 获取文件
         return resource.getFile();
     }
