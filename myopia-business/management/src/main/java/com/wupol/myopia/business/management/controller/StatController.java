@@ -4,16 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.service.StatService;
-import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
 import com.wupol.myopia.business.management.domain.dto.stat.*;
-import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
-import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.RescreenStat;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContrast;
-import com.wupol.myopia.business.management.domain.dto.stat.TaskBriefNotification;
-import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
-import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,11 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ResponseResultBody
 @CrossOrigin
