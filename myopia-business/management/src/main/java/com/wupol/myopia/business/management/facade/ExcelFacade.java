@@ -630,7 +630,8 @@ public class ExcelFacade {
             throw new BusinessException("身份证号码重复");
         }
         // TODO: 身份证号码是否被使用
-        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards, SystemCode.SCREENING_CLIENT.getCode());
+        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards,
+                SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证号码已经被使用，请确认！");
         }

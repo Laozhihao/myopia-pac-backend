@@ -71,10 +71,11 @@ public class OauthService {
      *
      * @param idCards 身份证号码
      * @param systemCode 系统编号
+     * @param orgId 机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @OauthRequest
-    public List<UserDTO> getUserBatchByIdCards(List<String> idCards, Integer systemCode) {
+    public List<UserDTO> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {
         return null;
     }
 

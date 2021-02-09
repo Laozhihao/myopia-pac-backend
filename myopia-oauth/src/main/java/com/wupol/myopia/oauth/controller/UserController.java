@@ -129,14 +129,15 @@ public class UserController {
      *
      * @param idCards 手机号码集合
      * @param systemCode 系统编号
+     * @param orgId 机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/batch/idCard")
-    public List<User> getUserBatchByIdCard(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode) {
+    public List<User> getUserBatchByIdCard(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode, @RequestParam("orgId") Integer orgId) {
         if (CollectionUtils.isEmpty(idCards)) {
             return new ArrayList<>();
         }
-        return userService.getUserBatchByIdCards(idCards, systemCode);
+        return userService.getUserBatchByIdCards(idCards, systemCode, orgId);
     }
 
     /**
