@@ -121,7 +121,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         // 检查身份证号码是否重复
         List<UserDTO> checkIdCards = oauthService
                 .getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
-                        SystemCode.SCREENING_CLIENT.getCode());
+                        SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证已经被使用！");
         }
@@ -176,7 +176,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         // 检查身份证号码是否重复
         List<UserDTO> checkIdCards = oauthService
                 .getUserBatchByIdCards(Lists.newArrayList(staff.getIdCard()),
-                        SystemCode.SCREENING_CLIENT.getCode());
+                        SystemCode.SCREENING_CLIENT.getCode(), checkStaff.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             if (checkIdCards.size() > 1) {
                 throw new BusinessException("身份证号码重复");
