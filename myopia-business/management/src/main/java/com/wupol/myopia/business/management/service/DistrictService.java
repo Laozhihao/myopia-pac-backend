@@ -363,20 +363,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取当前用户的所处的省级District
-     * <p>天河区-> 广东省天河区</p>
-     * <p>梅园新村街道-> 江苏省南京市玄武区梅园新村街道</p>
-     *
-     * @param currentUser 当前用户
-     * @return List<District>
-     */
-    public List<District> getProvinceDistrict(CurrentUser currentUser) throws IOException {
-        District district = getNotPlatformAdminUserDistrict(currentUser);
-        List<District> districtPositionDetail = getDistrictPositionDetail(district.getCode());
-        return getSpecificDistrictTreePriorityCache(districtPositionDetail.get(0).getCode());
-    }
-
-    /**
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param district 行政区域
@@ -580,4 +566,19 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         return null;
     }
+
+    /**
+     * 获取当前登录用户所属省级的行政区树
+     *
+     * @param currentUser 当前登录用户
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getCurrentUserProvinceTree(CurrentUser currentUser) {
+        if (currentUser.isPlatformAdminUser()) {
+            return getWholeCountryDistrictTreePriorityCache();
+        }
+        District district = getNotPlatformAdminUserDistrict(currentUser);
+        return Collections.singletonList(getProvinceDistrictTreePriorityCache(district.getCode()));
+    }
+
 }
