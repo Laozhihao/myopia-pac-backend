@@ -17,6 +17,7 @@ import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.util.S3Utils;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.util.UploadUtil;
+import jodd.io.FileNameUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -59,19 +60,24 @@ public class CommonController extends BaseController<DataCommitService, DataComm
         try {
             String savePath = uploadConfig.getSavePath();
             TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
-            String originalFilename = uploadToServerResults.getFirst();
             String tempPath = uploadToServerResults.getSecond();
             // 判断上传的文件是否图片或者PDF
             String allowExtension = uploadConfig.getSuffixs();
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
-            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, originalFilename);
-            Map<String, String> resultMap = new HashMap<>(16);
-            resultMap.put("url", String.format(FILE_URI, resourceFile.getId()));
+            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
+            Map<String, Object> resultMap = new HashMap<>(16);
+            resultMap.put("url", resourceFileService.getResourcePath(resourceFile.getId()));
+            resultMap.put("fileId", resourceFile.getId());
             return resultMap;
         } catch (Exception e) {
             throw new UploadException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
         }
+    }
+
+    private String genNewFileName(MultipartFile file) {
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        return String.format("%s.%s", UUID.randomUUID(), extension);
     }
 
     /**
@@ -101,15 +107,15 @@ public class CommonController extends BaseController<DataCommitService, DataComm
         try {
             String savePath = uploadConfig.getSavePath();
             TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
-            String originalFilename = uploadToServerResults.getFirst();
             String tempPath = uploadToServerResults.getSecond();
             // 判断上传的文件是否图片或者PDF
             String allowExtension = uploadConfig.getSuffixs();
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
-            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, originalFilename);
+            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
             Map<String, String> resultMap = new HashMap<>(16);
-            resultMap.put("url", s3Utils.getResourcePath(resourceFile.getBucket(), resourceFile.getS3Key()));
+            //TODO 处理延期时间
+            resultMap.put("url", s3Utils.getResourcePathWithExpiredHours(resourceFile.getBucket(), resourceFile.getS3Key(), 6*24));
             return resultMap;
         } catch (Exception e) {
             throw new UploadException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);

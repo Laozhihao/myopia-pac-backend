@@ -114,7 +114,7 @@
             <#list students as student>
             <div class="images-desc">
                 <div class="images-wraper">
-                    <img crossorigin="anonymous" src="data:image/jpeg;base64,${student.qrCodeUrl?if_exists}" alt=""/>
+                    <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" alt=""/>
                 </div>
                 <div class="note-label">
                     姓名：${student.name?if_exists}

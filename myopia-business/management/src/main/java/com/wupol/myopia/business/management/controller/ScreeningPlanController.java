@@ -31,10 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.List;
 
 /**
  * 筛查计划相关接口
@@ -58,6 +60,8 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
     private ExcelFacade excelFacade;
     @Autowired
     private S3Utils s3Utils;
@@ -72,16 +76,15 @@ public class ScreeningPlanController {
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        // TODO 是否需要校验用户
-//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-//            // 政府部门，无法新增计划
-//            throw new ValidationException("无权限");
-//        }
+        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
         }
-        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有改筛查机构
+        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
                 throw new ValidationException("筛查计划已创建");
@@ -92,6 +95,10 @@ public class ScreeningPlanController {
             }
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+        } else {
+            // 用户自己新建的筛查计划需设置districtId
+            ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
+            screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
     }
@@ -131,11 +138,10 @@ public class ScreeningPlanController {
         ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        // TODO 是否需要校验用户
-//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-//            // 政府部门，无法新增计划
-//            throw new ValidationException("无权限");
-//        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
@@ -184,7 +190,10 @@ public class ScreeningPlanController {
     @GetMapping("page")
     public IPage queryInfo(PageRequest page, ScreeningPlanQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (!user.isPlatformAdminUser()) {
+        if (user.isScreeningUser()) {
+            query.setScreeningOrgId(user.getOrgId());
+        }
+        if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
         return screeningPlanService.getPage(query, page);
@@ -314,12 +323,12 @@ public class ScreeningPlanController {
             // 2. 处理参数
             String classDisplay = "1年级1班";
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130);
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             List<StudentDTO> students = new ArrayList<>();
             StudentDTO studentDTO = new StudentDTO();
             studentDTO.setName("黄XX");
             students.add(studentDTO.setGenderDesc("男").setQrCodeUrl(""));
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getName(), config, "jpeg")));
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getName(), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
             models.put("classDisplay", classDisplay);

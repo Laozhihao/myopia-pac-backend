@@ -47,7 +47,7 @@ DROP TABLE IF EXISTS `m_screening_task`;
 CREATE TABLE `m_screening_task`
 (
     `id`                  int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_notice_id` int(10) unsigned NOT NULL COMMENT '筛查任务--所属的通知id',
+    `screening_notice_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查任务--所属的通知id，自己创建时默认0',
     `title`               varchar(25)    NOT NULL COMMENT '筛查任务--标题',
     `content`             varchar(10000) NOT NULL COMMENT '筛查任务--内容',
     `start_time`          timestamp NULL COMMENT '筛查任务--开始时间（时间戳）',
@@ -86,7 +86,7 @@ DROP TABLE IF EXISTS `m_screening_plan`;
 CREATE TABLE `m_screening_plan`
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_task_id` int(10) unsigned NOT NULL COMMENT '筛查计划--所属的筛查任务id',
+    `screening_task_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查任务id，自己创建时默认0',
     `title`             varchar(25)    NOT NULL COMMENT '筛查计划--标题',
     `content`           varchar(10000) NOT NULL COMMENT '筛查计划--内容',
     `start_time`        timestamp NULL COMMENT '筛查计划--开始时间（时间戳）',

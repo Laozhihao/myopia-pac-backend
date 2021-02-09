@@ -72,15 +72,15 @@ public final class S3Utils {
      * 上传文件到S3并保存到resourceFile表
      *
      * @param fileTempPath
-     * @param originalFilename
+     * @param fileName
      * @return
      * @throws UtilException
      */
-    public ResourceFile uploadS3AndGetResourceFile(String fileTempPath, String originalFilename) throws UtilException {
+    public ResourceFile uploadS3AndGetResourceFile(String fileTempPath, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
-        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), originalFilename);
-        s3Client.uploadFile(bucket, key,new File(fileTempPath));
-        ResourceFile file = new ResourceFile().setBucket(bucket).setS3Key(key).setFileName(originalFilename);
+        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
+        s3Client.uploadFile(bucket, key, new File(fileTempPath));
+        ResourceFile file = new ResourceFile().setBucket(bucket).setS3Key(key).setFileName(fileName);
         resourceFileService.save(file);
         return file;
     }
@@ -89,13 +89,13 @@ public final class S3Utils {
      * 上传文件到S3
      *
      * @param fileTempPath
-     * @param originalFilename
+     * @param fileName
      * @return
      * @throws UtilException
      */
-    public void uploadS3(String fileTempPath, String originalFilename) throws UtilException {
+    public void uploadS3(String fileTempPath, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
-        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), originalFilename);
+        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
         s3Client.uploadFile(bucket, key,new File(fileTempPath));
     }
 
@@ -107,19 +107,30 @@ public final class S3Utils {
      * @return
      */
     public String getResourcePath(String bucketName, String s3Key) {
+        Integer expiredHours= uploadConfig.getExpiredHours();
+        return getResourcePathWithExpiredHours(bucketName, s3Key, expiredHours);
+    }
+
+    /**
+     * 获取文件链接
+     *
+     * @param bucketName
+     * @param s3Key
+     * @return
+     */
+    public String getResourcePathWithExpiredHours(String bucketName, String s3Key, Integer expiredHours) {
         String key = String.format(CacheKey.FILE_URL, s3Key);
         Object fileUrl = redisUtil.get(key);
         if (Objects.nonNull(fileUrl)) {
             return fileUrl.toString();
         }
-        Integer expiredHours= uploadConfig.getExpiredHours();
         Date expire = DateUtil.getRecentDate(expiredHours);
         try {
-            String resourceS3Url = s3Client.getResourceS3Url(bucketName, key, expire);
+            String resourceS3Url = s3Client.getResourceS3Url(bucketName, s3Key, expire);
             redisUtil.set(key, resourceS3Url, expiredHours * 60 * 60);
             return resourceS3Url;
         } catch (UtilException e) {
-            log.error(String.format("获取文件链接失败, bucket: %s, key: %s", bucketName, key));
+            log.error(String.format("获取文件链接失败, bucket: %s, key: %s", bucketName, s3Key), e);
             return null;
         }
     }

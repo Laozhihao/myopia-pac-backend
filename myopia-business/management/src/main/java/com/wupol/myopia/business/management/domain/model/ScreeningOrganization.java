@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.util.Date;
 import java.io.Serializable;
+
+import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
+import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -113,6 +116,12 @@ public class ScreeningOrganization implements Serializable {
      * 说明
      */
     private String remark;
+
+    /**
+     * 告知书配置
+     */
+    @TableField(typeHandler = NotificationConfigTypeHandler.class)
+    private NotificationConfig notificationConfig;
 
     /**
      * 状态 0-启用 1-禁止 2-删除
