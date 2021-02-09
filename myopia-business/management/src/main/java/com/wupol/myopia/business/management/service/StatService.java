@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.management.service;
 
+import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
+import com.wupol.myopia.business.management.constant.StatClassLabel;
 import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
 import com.wupol.myopia.business.management.domain.dto.stat.RescreenStat;
@@ -202,20 +204,53 @@ public class StatService {
         int maleNum = 54498;
         int lowVisionNum = 67789;
 
-        BasicStatParams male =
-                new BasicStatParams(convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
-        BasicStatParams female = male;
-        BasicStatParams kindergarten = male;
-        BasicStatParams primary = male;
-        BasicStatParams junior = male;
-        BasicStatParams high = male;
-        BasicStatParams vocationalHigh = male;
+        BasicStatParams male = new BasicStatParams(
+                "男", convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
+        BasicStatParams female = new BasicStatParams(
+                "女", convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
 
-        ClassStat lowVision = new ClassStat(convertToRatio(lowVisionNum * 1f / actualScreeningNum),
-                lowVisionNum, male, female, kindergarten, primary, junior, high, vocationalHigh);
-        ClassStat refractiveError = lowVision;
-        ClassStat wearingGlasses = lowVision;
-        ClassStat myopia = lowVision;
+        List<ClassStat> tabGender = new ArrayList<ClassStat>() {
+            {
+                for (StatClassLabel label : StatClassLabel.values()) {
+                    add(ClassStat.builder()
+                                    .title(label.name())
+                                    .num(lowVisionNum)
+                                    .ratio(convertToRatio(lowVisionNum * 1f / actualScreeningNum))
+                                    .items(new ArrayList() {
+                                        {
+                                            add(male);
+                                            add(female);
+                                        }
+                                    })
+                                    .build());
+                }
+            }
+        };
+
+        List<ClassStat> tabSchoolAge = new ArrayList<ClassStat>() {
+            {
+                for (StatClassLabel label : StatClassLabel.values()) {
+                    add(ClassStat.builder()
+                                    .title(label.name())
+                                    .num(lowVisionNum)
+                                    .ratio(convertToRatio(lowVisionNum * 1f / actualScreeningNum))
+                                    .items(new ArrayList() {
+                                        {
+                                            for (SchoolAge age : SchoolAge.values()) {
+                                                if (age.equals(SchoolAge.UNIVERSITY)) {
+                                                    continue;
+                                                }
+                                                add(new BasicStatParams(age.desc,
+                                                        convertToRatio(
+                                                                maleNum * 1f / actualScreeningNum),
+                                                        maleNum));
+                                            }
+                                        }
+                                    })
+                                    .build());
+                }
+            }
+        };
 
         RescreenStat rescreenStat =
                 RescreenStat.builder()
@@ -238,10 +273,8 @@ public class StatService {
                                                   actualScreeningNum * 1f / screeningNum))
                                           .averageVisionLeft(0.5f)
                                           .averageVisionRight(0.48f)
-                                          .lowVision(lowVision)
-                                          .refractiveError(refractiveError)
-                                          .wearingGlasses(wearingGlasses)
-                                          .myopia(myopia)
+                                          .tabGender(tabGender)
+                                          .tabSchoolAge(tabSchoolAge)
                                           .rescreenStat(rescreenStat)
                                           .build();
         return stat;
