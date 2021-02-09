@@ -460,15 +460,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 学校编号是否被使用
      *
+     * @param schoolId 学校ID
      * @param schoolNo 学校编号
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
-    public Boolean checkSchoolNo(String schoolNo) {
-        List<School> schoolList = baseMapper.selectList(new QueryWrapper<School>().eq("school_no", schoolNo));
-        if (CollectionUtils.isEmpty(schoolList)) {
-            return Boolean.FALSE;
+    public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
+        QueryWrapper<School> query = new QueryWrapper<School>()
+                .eq("school_no", schoolNo);
+
+        if (-1 != schoolId) {
+            query.ne("id", schoolId);
         }
-        return Boolean.TRUE;
+        return baseMapper.selectList(query).size() > 0;
     }
 
     /**
