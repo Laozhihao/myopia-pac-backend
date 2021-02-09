@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.mapper.TemplateDistrictMapper
 import com.wupol.myopia.business.management.domain.model.TemplateDistrict;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -16,6 +17,9 @@ import java.util.List;
  */
 @Service
 public class TemplateDistrictService extends BaseService<TemplateDistrictMapper, TemplateDistrict> {
+
+    @Resource
+    private TemplateDistrictMapper templateDistrictMapper;
 
     /**
      * 批量通过templateId查询区域
@@ -44,7 +48,7 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
      * @param districtIds 区域ID List
      */
     public void deletedByTemplateIdAndDistrictIds(Integer templateId, List<Integer> districtIds) {
-        baseMapper.deletedByTemplateIdAndDistrictIds(templateId, districtIds);
+        templateDistrictMapper.deletedByTemplateIdAndDistrictIds(templateId, districtIds);
     }
 
     /**
