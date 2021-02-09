@@ -233,6 +233,7 @@ public class StatService {
                                           .notificationId(15)
                                           .screeningNum(screeningNum)
                                           .actualScreeningNum(actualScreeningNum)
+                                          .validScreeningNum(actualScreeningNum - 1000)
                                           .screeningFinishedRatio(convertToRatio(
                                                   actualScreeningNum * 1f / screeningNum))
                                           .averageVisionLeft(0.5f)
