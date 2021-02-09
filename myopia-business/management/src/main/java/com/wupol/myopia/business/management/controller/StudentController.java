@@ -76,7 +76,7 @@ public class StudentController {
     }
 
     @PostMapping("/import")
-    public ApiResult importStudent(MultipartFile file) throws IOException, ParseException {
+    public ApiResult importStudent(MultipartFile file) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importStudent(currentUser.getId(), file);
         return ApiResult.success();
