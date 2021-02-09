@@ -92,9 +92,9 @@ public class SchoolController {
         return schoolService.getScreeningRecordLists(pageRequest, schoolId);
     }
 
-    @GetMapping("/checkSchoolNo/{schoolNo}")
-    public Object checkSchoolNo(@PathVariable("schoolNo") String schoolNo) {
-        return schoolService.checkSchoolNo(schoolNo);
+    @GetMapping("/checkSchoolNo/{schoolId}/{schoolNo}")
+    public Object checkSchoolNo(@PathVariable("schoolId") Integer schoolId, @PathVariable("schoolNo") String schoolNo) {
+        return schoolService.checkSchoolNo(schoolId, schoolNo);
     }
 
     @GetMapping("/getSchools/{schoolName}")
@@ -103,7 +103,7 @@ public class SchoolController {
     }
 
     @GetMapping("/getSchoolsByDistrictId/{districtId}")
-    public Object getSchoolsByDistrictId(@PathVariable("districtId")Integer districtId, SchoolQuery schoolQuery) {
+    public Object getSchoolsByDistrictId(@PathVariable("districtId") Integer districtId, SchoolQuery schoolQuery) {
         return schoolService.getByDistrictId(districtId);
     }
 
