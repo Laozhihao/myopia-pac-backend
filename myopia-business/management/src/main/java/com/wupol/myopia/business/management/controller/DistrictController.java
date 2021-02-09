@@ -56,10 +56,20 @@ public class DistrictController extends BaseController<DistrictService, District
     /**
      * 获取当前登录用户所属层级位置 - 层级链(从省开始到所属层级)
      *
-     * @return com.wupol.myopia.business.management.domain.model.District
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/current/position")
     public List<District> getCurrentUserPosition() {
         return baseService.getCurrentUserDistrictPositionDetail(CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 获取当前登录用户所属省级的行政区树
+     *
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    @GetMapping("/province")
+    public List<District> getCurrentUserProvinceTree() {
+        return baseService.getCurrentUserProvinceTree(CurrentUserUtil.getCurrentUser());
     }
 }
