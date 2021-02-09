@@ -153,7 +153,7 @@ public class UserService extends BaseService<UserMapper, User> {
         List<User> users = userList.stream().map(x -> {
             User user = new User();
             BeanUtils.copyProperties(x, user);
-            return user.setPassword(PasswordGenerator.getScreeningUserPwd(x.getPhone(), x.getIdCard())).setUsername(x.getPhone());
+            return user.setPassword(new BCryptPasswordEncoder().encode(x.getPassword()));
         }).collect(Collectors.toList());
         saveBatch(users);
         return users;
