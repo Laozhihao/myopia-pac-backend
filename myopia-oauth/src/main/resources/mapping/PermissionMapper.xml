@@ -35,11 +35,14 @@
         FROM
              o_permission p,
              o_role_permission rp,
-             o_user_role ur
+             o_user_role ur,
+             o_role r
         WHERE
                 ur.role_id = rp.role_id
           AND rp.permission_id = p.id
-          AND ur.user_id = #{userId};
+          AND ur.user_id = #{userId}
+          AND ur.role_id = r.id
+          AND r.status = 0
     </select>
 
     <resultMap id="PermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
