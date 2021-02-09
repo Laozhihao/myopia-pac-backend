@@ -8,10 +8,7 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.ExcelUtil;
-import com.wupol.myopia.base.util.IOUtils;
-import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -671,6 +668,8 @@ public class ExcelFacade {
                     .setPhone(item.get(3))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
+                    .setPassword(PasswordGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
+                    .setUsername(item.get(3))
                     .setOrgId(screeningOrgId)
                     .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
             if (null != item.get(4)) {
