@@ -22,4 +22,19 @@ public class HospitalResponseDTO extends Hospital {
      * 详细地址
      */
     private String addressDetail;
+
+    /**
+     * 是否重置密码
+     */
+    private Boolean updatePassword = false;
+
+    /**
+     * 账号
+     */
+    private String username;
+
+    /**
+     * 密码
+     */
+    private String password;
 }

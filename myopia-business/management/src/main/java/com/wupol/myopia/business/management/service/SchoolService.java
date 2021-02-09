@@ -132,15 +132,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
         }
-        baseMapper.updateById(school);
+
+        SchoolResponseDTO dto = new SchoolResponseDTO();
+        School checkSchool = baseMapper.selectById(school.getId());
 
         // 获取学校管理员
         SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(school.getId());
         // 更新OAuth账号
         updateOAuthName(admin.getUserId(), school.getName());
 
+        // 名字更新重置密码
+        if (!StringUtils.equals(checkSchool.getName(), school.getName())) {
+            dto.setUpdatePassword(Boolean.TRUE);
+            dto.setUsername(school.getName());
+            // 重置密码
+            String password = PasswordGenerator.getSchoolAdminPwd();
+            oauthService.resetPwd(admin.getUserId(), password);
+            dto.setPassword(password);
+        }
+        baseMapper.updateById(school);
         School s = baseMapper.selectById(school.getId());
-        SchoolResponseDTO dto = new SchoolResponseDTO();
         BeanUtils.copyProperties(s, dto);
         dto.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
         dto.setAddressDetail(districtService.getAddressDetails(

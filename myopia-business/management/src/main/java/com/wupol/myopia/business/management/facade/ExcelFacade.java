@@ -145,8 +145,9 @@ public class ExcelFacade {
         if (Objects.isNull(screeningOrgId)) {
             throw new BusinessException("筛查机构id不能为空");
         }
+        List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId);
         UserDTOQuery userQuery = new UserDTOQuery();
-        userQuery.setSize(11)
+        userQuery.setSize(staffLists.size())
                 .setCurrent(1)
                 .setOrgId(screeningOrgId)
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
@@ -169,7 +170,6 @@ public class ExcelFacade {
         // 构建数据
         List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
                 .map(item -> new ScreeningOrganizationStaffExportVo()
-                        .setId(item.getId())
                         .setName(item.getRealName())
                         .setGender(GenderEnum.getName(item.getGender()))
                         .setPhone(item.getPhone())
@@ -387,7 +387,6 @@ public class ExcelFacade {
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
             StudentExportVo exportVo = new StudentExportVo()
-                    .setId(item.getId())
                     .setNo(item.getSno())
                     .setName(item.getName())
                     .setSchoolNo(school.getSchoolNo())
@@ -446,7 +445,6 @@ public class ExcelFacade {
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
-            listMap.remove(1);
         }
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
@@ -455,7 +453,13 @@ public class ExcelFacade {
             throw new BusinessException("学校编号异常");
         }
 
-        List<String> idCards = listMap.stream().map(s -> s.get(8)).collect(Collectors.toList());
+        // 收集身份证号码
+        List<String> idCards = listMap.stream().map(s -> s.get(8))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (idCards.stream().distinct().count() < idCards.size()) {
+            throw new BusinessException("学生身份证号码重复");
+        }
         if (studentService.checkIdCards(idCards)) {
             throw new BusinessException("学生身份证号码重复");
         }
@@ -511,8 +515,8 @@ public class ExcelFacade {
                 throw new BusinessException("学生身份证异常");
             }
 
-            if (StringUtils.isBlank(item.get(9))) {
-                if (!Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(9))) {
+            if (StringUtils.isNotBlank(item.get(9))) {
+                if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
                     throw new BusinessException("学生手机号码异常");
                 }
             }

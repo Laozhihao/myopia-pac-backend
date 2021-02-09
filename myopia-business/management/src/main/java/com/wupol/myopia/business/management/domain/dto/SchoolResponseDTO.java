@@ -33,6 +33,21 @@ public class SchoolResponseDTO extends School {
     private String addressDetail;
 
     /**
+     * 是否重置密码
+     */
+    private Boolean updatePassword = false;
+
+    /**
+     * 账号
+     */
+    private String username;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
      * 是否已有计划
      */
     private Boolean alreadyHavePlan = false;
