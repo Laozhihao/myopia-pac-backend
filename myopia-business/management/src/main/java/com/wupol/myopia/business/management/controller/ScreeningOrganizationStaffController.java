@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * @Author HaoHao
@@ -83,7 +82,7 @@ public class ScreeningOrganizationStaffController {
 
 
     @PostMapping("/import/{screeningOrgId}")
-    public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) throws IOException {
+    public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
         return ApiResult.success();

@@ -436,12 +436,26 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
+    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws ParseException {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
-        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:",e);
+            throw new BusinessException("导入学生数据异常");
+        }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        List<Map<Integer, String>> listMap;
+        try {
+            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        }catch (Exception e) {
+            log.error("导入学生数据异常:",e);
+            throw new BusinessException("Excel解析异常");
+        }
+        if (CollectionUtils.isEmpty(listMap)) {
+            return;
+        }
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
@@ -582,14 +596,19 @@ public class ExcelFacade {
      * @throws BusinessException io异常
      */
     public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile,
-                                                 Integer screeningOrgId) throws IOException {
+                                                 Integer screeningOrgId) {
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
         }
 
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
-        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入人员数据异常:",e);
+            throw new BusinessException("导入人员数据异常");
+        }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         List<Map<Integer, String>> listMap;
         try {
