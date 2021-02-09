@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import javax.validation.Valid;
 import java.lang.reflect.GenericArrayType;
 import java.text.ParseException;
 import java.util.*;
@@ -336,5 +337,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         } catch (Exception e) {
             throw new BusinessException("学生数据有误，请检查");
         }
+    }
+
+    /**
+     * 根据年级班级ID获取筛查学生
+     * @param gradeId
+     * @param classId
+     * @return
+     */
+    public List<StudentDTO> getByGradeAndClass(Integer gradeId, Integer classId) {
+        return baseMapper.selectByGradeAndClass(gradeId, classId);
     }
 }

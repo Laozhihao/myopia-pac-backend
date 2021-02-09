@@ -11,6 +11,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
@@ -23,6 +24,8 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
+import net.bytebuddy.implementation.bind.annotation.Pipe;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +64,14 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private ResourceFileService resourceFileService;
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
@@ -135,13 +146,13 @@ public class ScreeningPlanController {
      * @param releaseStatus
      */
     private void validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
-        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        if (user.isGovDeptUser()) {
+        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
             // 政府部门，无法新增计划
             throw new ValidationException("无权限");
         }
+        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
@@ -318,21 +329,21 @@ public class ScreeningPlanController {
     @GetMapping("/export/QRCode")
     public Object downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         try {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
             // 1. 校验
+            validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
-            String classDisplay = "1年级1班";
+            SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
+            String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            List<StudentDTO> students = new ArrayList<>();
-            StudentDTO studentDTO = new StudentDTO();
-            studentDTO.setName("黄XX");
-            students.add(studentDTO.setGenderDesc("男").setQrCodeUrl(""));
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getName(), config, "jpg")));
+            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
+            // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
             models.put("classDisplay", classDisplay);
-            // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
+            // 4. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
             File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
@@ -352,12 +363,25 @@ public class ScreeningPlanController {
     @GetMapping("/export/notice")
     public Object downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         try {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
             // 1. 校验
+            validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
-            String fileName = "test";
+            School school = schoolService.getById(schoolClassInfo.getSchoolId());
+            SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
+            String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
+            String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(schoolClassInfo.getScreeningPlanId());
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
-            // 3. 生成并上传覆盖pdf。S3上路径：openapi/report/{thirdPartyAppId}/{file}。获取地址1天失效
+            models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
+            models.put("students", students);
+            models.put("classDisplay", classDisplay);
+            models.put("schoolName", school.getName());
+            models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+            // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
             File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));

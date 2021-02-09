@@ -188,13 +188,15 @@
         }
     </style>
 </head>
+
 <body>
+<#list students as student>
 <header id="header">
     <h1 class="report-title">
-        山西省疾控处告家长书
+        ${screeningOrgConfigs.title?if_exists}
     </h1>
     <h3 class="report-subtitle">
-        视力筛查报告
+        ${screeningOrgConfigs.subTitle?if_exists}
     </h3>
 </header>
 
@@ -203,29 +205,29 @@
         <div class="report-images">
             <div class="images-desc flex">
                 <div class="note-label">
-                    <label>学校名称：</label>这是学校名称
+                    <label>学校名称：</label>${schoolName?if_exists}
                 </div>
                 <div class="note-label">
-                    <label>年级班级：</label>6年级12班
+                    <label>年级班级：</label>${classDisplay?if_exists}
                 </div>
                 <div class="note-label">
-                    <label>学生姓名：</label>陈宇轩
+                    <label>学生姓名：</label>${student.name?if_exists}
                 </div>
             </div>
             <div class="images-desc">
                 <div class="images-wraper">
-                    <img crossorigin="anonymous" src="./img/code.png" />
+                    <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" />
                 </div>
             </div>
         </div>
         <div class="report-conclus">
-            <p class="title">亲爱的家长朋友：</p>
-            <p class="">您好！</p>
+            <p class="title">${screeningOrgConfigs.call?if_exists}</p>
+            <p class="">${screeningOrgConfigs.greetings?if_exists}</p>
             <div class="report-layout">
                 <div class="layout-row">
                     <div class="conclus-part">
                         <span contenteditable="true">
-                            人生是一个不断做减法的过程，具体表现在：钱包越来越空了，头发越来越少了，喜欢的人也不见了。 你的脸上云淡风轻，谁也不知道你的牙咬得有多紧。你走路带着风，谁也不知道你膝盖上仍有曾摔伤的淤青。你笑得没心没肺，没人知道你哭起来只能无声落泪。去交会让你开心的朋友，去爱不会让你流泪的人，去向自己想去的方向，去完成不论大小的梦想；生活应该是美好而又温柔的，你也是。情怀是，过期的凤梨罐头，不过期的食欲，过期的底片，不过期的创作欲，过期的旧书，不过期的求知欲。总有一天，会有一个人进入你的世界，陪你过每一个节日，陪你听你爱听的歌，每天有对你说不完的情话，只是想弥补他迟到的时光。当你特别想做某件事时，就去做吧，不要总是和那些人生的美好擦肩而过。冲动也许会付出代价，但错过付出的代价更让人追悔莫及。人生是一个不断做减法的过程，具体表现在：钱包越来越空了，头发越来越少了，喜欢的人也不见了。你的脸上云淡风轻，谁也不知道你的牙咬得有多紧。你走路带着风，谁也不知道你膝盖上仍有曾摔伤的淤青。你笑得没心没肺，没人知道你哭起来只能无声落泪。去交会让你开心的朋友，去爱不会让你流泪的人，去向自己想去的方向，去完成不论大小的梦想；生活应该是美好而又温柔的，你也是。情怀是，过期的凤梨罐头，不过期的食欲，过期的底片，不过期的创作欲，过期的旧书，不过期的求知欲。总有一天，会有一个人进入你的世界，陪你过每一个节日，陪你听你爱听的歌，每天有对你说不完的情话，只是想弥补他迟到的时光。当你特别想做某件事时，就去做吧，不要总是和那些人生的美好擦肩而过。冲动也许会付出代价，但错过付出的代价更让人追悔莫及。歌，每天有对你说不完的情话，只是想弥补他迟到的时光。当你特别想做某件事时，就去做吧，不要总是和那些人生的美好擦肩而过。冲动也许会付出代价，但错过付出的代价更让人追悔莫及。人生是一个不断做减法的过程，具体表现在：钱包越来越空了，头发越来越少了，喜欢的人也不见了。你的脸上云淡风轻，谁也不知
+                            ${screeningOrgConfigs.content?if_exists}
                         </span>
                     </div>
                 </div>
@@ -239,12 +241,11 @@
         </div>
         <div class="images-desc">
             <div class="images-wraper">
-                <img crossorigin="anonymous" src="./img/code.png" />
+                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}" />
             </div>
         </div>
     </footer>
-
+</#list>
 </body>
-
 </html>
 
