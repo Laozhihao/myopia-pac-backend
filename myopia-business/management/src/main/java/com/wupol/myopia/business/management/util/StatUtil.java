@@ -4,7 +4,7 @@ import com.wupol.myopia.business.management.domain.dto.stat.StatVerdict;
 
 public class StatUtil {
     /**
-     *
+     * 获取统计结论数据
      * @param sphericalLens 球镜
      * @param cylinderLens 柱镜
      * @return
@@ -15,6 +15,7 @@ public class StatUtil {
     }
 
     /**
+     * 获取统计结论数据
      * @param nakedVision 裸眼视力
      * @return
      */
@@ -40,20 +41,35 @@ public class StatUtil {
     }
 
     /**
-     * 是否近视
+     * 是否视力低下
      * @param nakedVision 裸眼视力
-     * @param age 年龄
      * @return
      */
-    public static boolean isMyopia(Float nakedVision, Integer age) {
-        if ((age >= 3 || age <= 5) && nakedVision <= 4.7) {
+    public static boolean isLowVision(Float nakedVision, Integer age) {
+        if ((age <= 5 && age >= 3) && nakedVision <= 4.7) {
             return true;
         }
-        if ((age >= 6 || age <= 7) && nakedVision <= 4.8) {
+        if ((age == 7 || age == 6) && nakedVision <= 4.8) {
             return true;
         }
-        if (age >= 8 && nakedVision <= 4.8) {
+        if (age >= 8 && nakedVision <= 4.9) {
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否屈光不正
+     * @param sphericalLens
+     * @param cylinderLens
+     * @param age
+     * @return
+     */
+    public static boolean isRefractiveError(Float sphericalLens, Float cylinderLens, Integer age) {
+        if (Math.abs((double) cylinderLens) > 0.5) {
+            return true;
+        }
+        if (age >= 3 || age <= 5) {
         }
         return false;
     }
