@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -699,8 +700,14 @@ public class ExcelFacade {
      */
     public File getStudentImportDemo() throws IOException {
         ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStudentTemplate.xlsx");
-        // 获取文件
-        return resource.getFile();
+        InputStream inputStream = resource.getInputStream();
+        File templateFile = File.createTempFile("ImportStudentTemplate", ".xlsx");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, templateFile);
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(inputStream);
+        }
+        return templateFile;
     }
 
     /**
@@ -709,6 +716,13 @@ public class ExcelFacade {
     public File getScreeningOrganizationStaffImportDemo() throws IOException {
         ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStaffTemplate.xlsx");
         // 获取文件
-        return resource.getFile();
+        InputStream inputStream = resource.getInputStream();
+        File templateFile = File.createTempFile("ImportStaffTemplate", ".xlsx");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, templateFile);
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(inputStream);
+        }
+        return templateFile;
     }
 }
