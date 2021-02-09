@@ -62,10 +62,11 @@ public interface OauthServiceClient {
      *
      * @param idCards 身份证号码集
      * @param systemCode 系统编号
+     * @param orgId 机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     @GetMapping("/oauth/user/batch/idCard")
-    ApiResult<List<UserDTO>> getUserBatchByIdCards(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode);
+    ApiResult<List<UserDTO>> getUserBatchByIdCards(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode, @RequestParam("orgId") Integer orgId);
 
     /**
      * 新增用户
