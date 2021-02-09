@@ -128,7 +128,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         }
         // 新增或更新筛查学校信息
         screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
-        if (needUpdateNoticeStatus) {
+        if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());
             if (Objects.isNull(screeningNotice)) {
@@ -146,11 +146,14 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public void removeWithSchools(CurrentUser user,Integer screeningPlanId) {
         // 1. 修改通知状态为已读
         ScreeningPlan screeningPlan = getById(screeningPlanId);
-        ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
-        if (Objects.isNull(screeningNotice)) {
-            throw new BusinessException("找不到对应任务通知");
+        if (!CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
+            //自己创建的screening_task_id默认0
+            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
+            if (Objects.isNull(screeningNotice)) {
+                throw new BusinessException("找不到对应任务通知");
+            }
+            screeningNoticeDeptOrgService.read(screeningNotice.getId(), screeningPlan.getScreeningOrgId(), user);
         }
-        screeningNoticeDeptOrgService.read(screeningNotice.getId(), screeningPlan.getScreeningOrgId(), user);
         // 2. 删除计划关联的学校信息
         screeningPlanSchoolStudentService.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, Collections.emptyList());
         screeningPlanSchoolService.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, Collections.emptyList());

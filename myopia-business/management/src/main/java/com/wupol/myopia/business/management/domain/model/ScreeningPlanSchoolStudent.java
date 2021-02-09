@@ -18,7 +18,7 @@ import javax.validation.constraints.Pattern;
 /**
  * 参与筛查计划的学生表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data
@@ -38,11 +38,13 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--计划id 
      */
+    @NotNull(message = "筛查计划ID不能为空")
     private Integer screeningPlanId;
 
     /**
      * 筛查计划--执行的学校id
      */
+    @NotNull(message = "筛查学校ID不能为空")
     private Integer schoolId;
 
     /**
@@ -53,11 +55,13 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--参与筛查的学生年级ID
      */
+    @NotNull(message = "筛查年级ID不能为空")
     private Integer gradeId;
 
     /**
      * 筛查计划--参与筛查的学生班级ID
      */
+    @NotNull(message = "筛查班级ID不能为空")
     private Integer classId;
 
     /**
@@ -69,7 +73,6 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生身份证号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "身份证号码不能为空")
     private String idCard;
 
     /**

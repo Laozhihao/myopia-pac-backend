@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: myopia-gateway
+
+  # 配置中心
+  cloud:
+    nacos:
+      config:
+        server-addr: 8.135.35.154:8848
+        # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
+        namespace: myopia-gateway
+        #group: prod
+        file-extension: yaml

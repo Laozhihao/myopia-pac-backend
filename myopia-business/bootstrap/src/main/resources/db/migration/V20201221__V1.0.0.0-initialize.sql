@@ -18,6 +18,7 @@ create table m_screening_organization
     town_code       bigint                              null comment '镇/乡代码',
     address         varchar(128)                        null comment '详细地址',
     remark          varchar(128)                        null comment '说明',
+    notificatioin_config   json                         null comment '告知书配置',
     status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
     create_time     timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time     timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'

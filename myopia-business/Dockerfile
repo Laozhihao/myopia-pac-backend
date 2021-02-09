@@ -8,8 +8,6 @@ ARG AWS_REGION
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
-COPY ./pom.xml /build/
-
 COPY ./pom.xml /build/pom.xml
 COPY ./base-service/pom.xml /build/base-service/pom.xml
 COPY ./myopia-business/pom.xml /build/myopia-business/pom.xml
@@ -34,7 +32,6 @@ COPY myopia-business/bootstrap/setting/env/* /build/myopia-business/bootstrap/sr
 
 RUN --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
-#RUN mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
 # application
 FROM openjdk:8-jre-alpine
