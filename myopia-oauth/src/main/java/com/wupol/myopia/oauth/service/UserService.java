@@ -153,7 +153,7 @@ public class UserService extends BaseService<UserMapper, User> {
         List<User> users = userList.stream().map(x -> {
             User user = new User();
             BeanUtils.copyProperties(x, user);
-            return user.setPassword(PasswordGenerator.getScreeningUserPwd(x.getPhone(), x.getIdCard())).setUsername(x.getPhone());
+            return user.setPassword(new BCryptPasswordEncoder().encode(x.getPassword()));
         }).collect(Collectors.toList());
         saveBatch(users);
         return users;
@@ -230,6 +230,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * 根据手机号码批量查询
      *
      * @param phones 手机号码集合
+     * @param systemCode 系统编号
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
     public List<User> getUserBatchByPhones(List<String> phones, Integer systemCode) {
@@ -244,15 +245,19 @@ public class UserService extends BaseService<UserMapper, User> {
     /**
      * 根据手机号码批量查询
      *
-     * @param idCards 手机号码集合
+     * @param idCards 身份证ID
+     * @param systemCode 系统编号
+     * @param orgId 机构ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    public List<User> getUserBatchByIdCards(List<String> idCards, Integer systemCode) {
+    public List<User> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {
         Assert.notEmpty(idCards, "身份证号码不能为空");
         Assert.notNull(systemCode, "系统编号不能为空");
+        Assert.notNull(orgId, "机构ID不能为空");
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
         queryParam.setIdCards(idCards);
+        queryParam.setOrgId(orgId);
         return baseMapper.selectUserList(queryParam);
     }
 }

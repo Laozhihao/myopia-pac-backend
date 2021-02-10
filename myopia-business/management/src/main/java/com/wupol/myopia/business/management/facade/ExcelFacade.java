@@ -8,10 +8,7 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.ExcelUtil;
-import com.wupol.myopia.base.util.IOUtils;
-import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -34,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -436,12 +434,26 @@ public class ExcelFacade {
      * @param multipartFile 导入文件
      * @throws BusinessException 异常
      */
-    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws IOException, ParseException {
+    public void importStudent(Integer createUserId, MultipartFile multipartFile) throws ParseException {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
-        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入学生数据异常:",e);
+            throw new BusinessException("导入学生数据异常");
+        }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        List<Map<Integer, String>> listMap;
+        try {
+            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        }catch (Exception e) {
+            log.error("导入学生数据异常:",e);
+            throw new BusinessException("Excel解析异常");
+        }
+        if (CollectionUtils.isEmpty(listMap)) {
+            return;
+        }
         if (listMap.size() != 0) {
             // 去头部
             listMap.remove(0);
@@ -582,14 +594,19 @@ public class ExcelFacade {
      * @throws BusinessException io异常
      */
     public void importScreeningOrganizationStaff(CurrentUser currentUser, MultipartFile multipartFile,
-                                                 Integer screeningOrgId) throws IOException {
+                                                 Integer screeningOrgId) {
         if (null == screeningOrgId) {
             throw new BusinessException("机构ID不能为空");
         }
 
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
-        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入人员数据异常:",e);
+            throw new BusinessException("导入人员数据异常");
+        }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         List<Map<Integer, String>> listMap;
         try {
@@ -611,7 +628,8 @@ public class ExcelFacade {
             throw new BusinessException("身份证号码重复");
         }
         // TODO: 身份证号码是否被使用
-        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards, SystemCode.SCREENING_CLIENT.getCode());
+        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards,
+                SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证号码已经被使用，请确认！");
         }
@@ -651,6 +669,8 @@ public class ExcelFacade {
                     .setPhone(item.get(3))
                     .setCreateUserId(currentUser.getId())
                     .setIsLeader(0)
+                    .setPassword(PasswordGenerator.getScreeningUserPwd(item.get(3), item.get(2)))
+                    .setUsername(item.get(3))
                     .setOrgId(screeningOrgId)
                     .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
             if (null != item.get(4)) {
@@ -681,18 +701,31 @@ public class ExcelFacade {
      * 获取学生的导入模版
      */
     public File getStudentImportDemo() throws IOException {
-        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "导入学生.xlsx");
-        // 获取文件
-        return resource.getFile();
+        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStudentTemplate.xlsx");
+        InputStream inputStream = resource.getInputStream();
+        File templateFile = File.createTempFile("ImportStudentTemplate", ".xlsx");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, templateFile);
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(inputStream);
+        }
+        return templateFile;
     }
 
     /**
      * 获取筛查机构人员的导入模版
      */
     public File getScreeningOrganizationStaffImportDemo() throws IOException {
-        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "导入筛查人员.xlsx");
+        ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStaffTemplate.xlsx");
         // 获取文件
-        return resource.getFile();
+        InputStream inputStream = resource.getInputStream();
+        File templateFile = File.createTempFile("ImportStaffTemplate", ".xlsx");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, templateFile);
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(inputStream);
+        }
+        return templateFile;
     }
 
     /**
