@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,29 +49,32 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
-    /** 根据地址名查code */
+    /** 根据地址名查code，查不到时直接返回emptyList */
     public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException{
-        Long provinceCode = null, cityCode = null, areaCode = null, townCode = null;
-        List<District> districtList = getAllDistrict();
-        for (District item : districtList) {
-            if (item.getName().equals(provinceName)) {
-                provinceCode = item.getCode();
-            } else if (item.getName().equals(cityName)) {
-                cityCode = item.getCode();
-            } else if (item.getName().equals(areaName)) {
-                areaCode = item.getCode();
-            } else if (item.getName().equals(townName)) {
-                townCode = item.getCode();
-            }
-            // 已成功匹配地址
-            if (Objects.nonNull(provinceCode) && Objects.nonNull(cityCode) & Objects.nonNull(areaCode) && Objects.nonNull(townCode)) {
-                break;
+        List<District> districtList = getWholeCountryDistrictTreePriorityCache();
+        TwoTuple<Long, List<District>> provinceCodeWithChild = findInChild(provinceName, districtList);
+        TwoTuple<Long, List<District>> cityCodeWithChild = findInChild(cityName, provinceCodeWithChild.getSecond());
+        TwoTuple<Long, List<District>> areaCodeWithChild = findInChild(areaName, cityCodeWithChild.getSecond());
+        TwoTuple<Long, List<District>> townCodeWithChild = findInChild(townName, areaCodeWithChild.getSecond());
+
+        if (Objects.isNull(provinceCodeWithChild.getFirst()) || Objects.isNull(cityCodeWithChild.getFirst())
+                || Objects.isNull(areaCodeWithChild.getFirst()) || Objects.isNull(townCodeWithChild.getFirst())) {
+            log.warn("根据地址名查无code, provinceName: {}, cityName: {}, areaName: {}, townName: {}", provinceName, cityName, areaName, townName);
+            return Collections.emptyList();
+        }
+        return Arrays.asList(provinceCodeWithChild.getFirst(), cityCodeWithChild.getFirst(), areaCodeWithChild.getFirst(), townCodeWithChild.getFirst());
+    }
+
+    private TwoTuple<Long, List<District>> findInChild(String name, List<District> districtList) {
+        if (CollectionUtils.isEmpty(districtList)) {
+            return new TwoTuple<>(null, Collections.emptyList());
+        }
+        for (District district : districtList) {
+            if (district.getName().equals(name)) {
+                return new TwoTuple<>(district.getCode(), district.getChild());
             }
         }
-        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
-            throw new BusinessException("未匹配到地址");
-        }
-        return Arrays.asList(provinceCode, cityCode, areaCode, townCode);
+        return new TwoTuple<>(null, Collections.emptyList());
     }
 
     /** 根据code获取对应的地址 */
@@ -101,17 +105,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
         List<String> list = getSplitAddress(provinceCode, cityCode, areaCode, townCode);
         return list.get(0) + list.get(1) + list.get(2) + list.get(3);
-    }
-
-    /** 获取所有地行政区域,带缓存 */
-    public List<District> getAllDistrict() {
-        String key = CacheKey.DISTRICT_ALL_LIST;
-        if (redisUtil.hasKey(key)) {
-            return (List<District>) redisUtil.get(key);
-        }
-        List<District> list = baseMapper.selectList(new QueryWrapper<>());
-        redisUtil.set(key, list);
-        return list;
     }
 
     /**

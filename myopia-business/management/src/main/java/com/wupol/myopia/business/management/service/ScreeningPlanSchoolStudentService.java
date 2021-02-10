@@ -134,7 +134,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
         Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
         IPage<StudentDTO> studentDTOIPage = baseMapper.selectPageByQuery(page, query);
-        studentDTOIPage.getRecords().forEach(studentDTO -> studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation())));
+        studentDTOIPage.getRecords().forEach(studentDTO -> studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation())).setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress())));
         return studentDTOIPage;
     }
 
@@ -175,7 +175,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             gradeNameSet.add(gradeName);
             gradeClassNameSet.add(String.format("%s-%s", gradeName, className));
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
-//                districtNameCodeMap.put(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
+                districtNameCodeMap.put(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
             }
         });
         Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
@@ -350,9 +350,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
             Student student = new Student();
             student.setName(StringUtils.getDefaultIfBlank(item.get(0), null))
-                    .setGender(StringUtils.isBlank(item.get(1)) ? null : GenderEnum.getType(item.get(2)))
-                    .setBirthday(StringUtils.isBlank(item.get(2)) ? null : DateFormatUtil.parseDate(item.get(3), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(StringUtils.isBlank(item.get(3)) ? null : Integer.parseInt(item.get(4)))
+                    .setGender(StringUtils.isBlank(item.get(1)) ? null : GenderEnum.getType(item.get(1)))
+                    .setBirthday(StringUtils.isBlank(item.get(2)) ? null : DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(StringUtils.isBlank(item.get(3)) ? null : NationEnum.getCode(item.get(3)))
                     .setSchoolNo(StringUtils.getDefaultIfBlank(item.get(4), null))
                     .setGradeId(gradeNameIdMap.get(item.get(5)))
                     .setClassId(gradeClassNameClassIdMap.get(String.format("%s-%s", item.get(5), item.get(6))))
@@ -366,11 +366,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             String townName = item.getOrDefault(13, null);
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
                 List<Long> codeList = districtNameCodeMap.get(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName));
-                student.setProvinceCode(codeList.get(0)).setCityCode(codeList.get(1)).setAreaCode(codeList.get(2)).setTownCode(codeList.get(3));
+                if (CollectionUtils.hasLength(codeList)) {
+                    student.setProvinceCode(codeList.get(0)).setCityCode(codeList.get(1)).setAreaCode(codeList.get(2)).setTownCode(codeList.get(3));
+                }
             }
             return student;
         } catch (Exception e) {
-            throw new BusinessException("学生数据有误，请检查");
+            throw new BusinessException("学生数据有误，请检查", e);
         }
     }
 
