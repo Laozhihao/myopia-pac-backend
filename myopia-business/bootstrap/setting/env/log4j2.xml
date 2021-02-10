@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="PATTERN">{"serviceName": "myopia-business", "host": "%host", "logger": "%logger", "level": "%level", "message": "[%thread] [%c:%L] --- %message"}%n</Property>
+        <Property name="PATTERN">{"serviceName": "myopia-business", "time": "%d{yyyy-MM-dd HH:mm:ss.SSS}", "host": "%host", "logger": "%logger", "level": "%level", "message": "[%thread] [%c{1}:%L] --- %message"}%n</Property>
     </Properties>
     <Appenders>
         <Console name="Console-Appender" target="SYSTEM_OUT">
