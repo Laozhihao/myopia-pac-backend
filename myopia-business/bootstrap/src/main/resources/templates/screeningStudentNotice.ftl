@@ -39,7 +39,7 @@
 
         @page {
             size: A4 portrait;
-            margin: 180px 50px 200px 50px;
+            margin: 170px 50px 200px 50px;
 
             @bottom-left {content: element(footer)  }
 
@@ -72,6 +72,7 @@
         /*生成pdf 96PPI*/
         .wraper .report-content {
             width: 694px;
+            height: 752.5px;
             position: relative;
             display: block;
             margin: 0 auto;
@@ -188,19 +189,27 @@
         }
     </style>
 </head>
-
 <body>
 <#list students as student>
-<header id="header">
-    <h1 class="report-title">
-        ${screeningOrgConfigs.title?if_exists}
-    </h1>
-    <h3 class="report-subtitle">
-        ${screeningOrgConfigs.subTitle?if_exists}
-    </h3>
-</header>
-
 <div class="wraper">
+    <div id="header">
+        <h1 class="report-title">
+        ${screeningOrgConfigs.title?if_exists}
+        </h1>
+        <h3 class="report-subtitle">
+        ${screeningOrgConfigs.subTitle?if_exists}
+        </h3>
+    </div>
+    <div id="footer" class="cf">
+        <div class="text-w">
+            关注公众号，绑定学生信息可随时查看学生的眼健康信息，查看最新的眼健康知识，随时与医生进行沟通互动。
+        </div>
+        <div class="images-desc">
+            <div class="images-wraper">
+                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}" />
+            </div>
+        </div>
+    </div>
     <div class="report-content">
         <div class="report-images">
             <div class="images-desc flex">
@@ -227,25 +236,16 @@
                 <div class="layout-row">
                     <div class="conclus-part">
                         <span contenteditable="true">
-                            ${screeningOrgConfigs.content?if_exists}
+                        ${screeningOrgConfigs.content?if_exists}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <footer id="footer" class="cf">
-        <div class="text-w">
-            关注公众号，绑定学生信息可随时查看学生的眼健康信息，查看最新的眼健康知识，随时与医生进行沟通互动。
-        </div>
-        <div class="images-desc">
-            <div class="images-wraper">
-                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}" />
-            </div>
-        </div>
-    </footer>
+</div>
 </#list>
 </body>
+
 </html>
 

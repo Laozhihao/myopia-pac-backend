@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 学校-学生表
@@ -204,11 +205,15 @@ public class Student implements Serializable {
         return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
                 !this.gender.equals(excelStudent.gender) ||
                 !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
-                !this.nation.equals(excelStudent.nation) ||
+                (Objects.nonNull(excelStudent.nation) && !this.nation.equals(excelStudent.nation)) ||
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
                 !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
-                !StringUtils.equalsIgnoreCase(this.address, excelStudent.address) ||
-                !StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone);
+                (Objects.nonNull(excelStudent.provinceCode) && !this.provinceCode.equals(excelStudent.provinceCode)) ||
+                (Objects.nonNull(excelStudent.cityCode) && !this.cityCode.equals(excelStudent.cityCode)) ||
+                (Objects.nonNull(excelStudent.areaCode) && !this.areaCode.equals(excelStudent.areaCode)) ||
+                (Objects.nonNull(excelStudent.townCode) && !this.townCode.equals(excelStudent.townCode)) ||
+                (StringUtils.isNotBlank(excelStudent.address) && !StringUtils.equalsIgnoreCase(this.address, excelStudent.address)) ||
+                (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
     }
 }

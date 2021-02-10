@@ -109,7 +109,11 @@ INSERT INTO `o_permission` VALUES (111, '医院导出', 'hospitalExport', 'get:/
 INSERT INTO `o_permission` VALUES (112, '学校导出', 'schoolExport', 'get:/management/school/export', 0, 0, 1, 7, 1, '2021-02-01 06:57:26', '2021-02-01 16:08:50');
 INSERT INTO `o_permission` VALUES (113, '学校编码规则', 'schoolNoRules', NULL, 0, 1, 1, 7, 1, '2021-02-02 11:51:41', '2021-02-02 20:33:55');
 INSERT INTO `o_permission` VALUES (114, '用户详情', NULL, 'get:/management/user/**', 0, 0, 1, 13, 1, '2021-02-02 16:39:25', '2021-02-02 20:34:01');
-
+INSERT INTO `o_permission` VALUES (173, '通用获取影像连接接口', 'fileUrl', 'get:/management/common/file/**', 0, 1, 1, 0, 1, '2021-02-09 23:07:41', '2021-02-10 10:42:09');
+INSERT INTO `o_permission` VALUES (172, '通用上传富文本影像接口', 'riceTextUpload', 'post:/management/common/richTextFileUpload', 0, 1, 1, 0, 1, '2021-02-09 23:06:25', '2021-02-10 10:42:09');
+INSERT INTO `o_permission` VALUES (171, '通用上传影像接口', 'upload', 'post:/management/common/fileUpload', 0, 1, 1, 0, 1, '2021-02-09 23:04:18', '2021-02-10 10:42:09');
+INSERT INTO `o_permission` VALUES (170, '导出筛查学生二维码/告知书', 'demo', 'get:/management/screeningPlan/export/**', 0, 0, 1, 27, 1, '2021-02-09 18:25:49', '2021-02-09 18:25:49');
+INSERT INTO `o_permission` VALUES (169, '下载筛查学生数据的上传模板', 'demo', 'get:/management/student/import/demo', 0, 0, 1, 27, 1, '2021-02-09 18:25:49', '2021-02-09 18:25:49');
 
 -- 初始化用户数据 - 超级管理员（密码：123456）
 -- 用户（org_id需要与business服务中的运营中心部门的ID保持一致，默认为1）

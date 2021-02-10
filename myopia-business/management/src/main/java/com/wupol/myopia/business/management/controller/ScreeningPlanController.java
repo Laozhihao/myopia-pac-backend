@@ -13,6 +13,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
+import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -24,8 +25,6 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
-import net.bytebuddy.implementation.bind.annotation.Pipe;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -38,8 +37,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 筛查计划相关接口
@@ -309,14 +310,13 @@ public class ScreeningPlanController {
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
     public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        // TODO
-//        //1. 发布成功后才能导入
-//        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
-//        //2. 校验计划学校是否已存在
-//        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
-//        if (Objects.isNull(planSchool)) {
-//            throw new ValidationException("该筛查学校不存在");
-//        }
+        //1. 发布成功后才能导入
+        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
+        //2. 校验计划学校是否已存在
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
+        if (Objects.isNull(planSchool)) {
+            throw new ValidationException("该筛查学校不存在");
+        }
         excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
     }
 
@@ -371,7 +371,7 @@ public class ScreeningPlanController {
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(schoolClassInfo.getScreeningPlanId());
+            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(schoolClassInfo.getScreeningPlanId());
             List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
