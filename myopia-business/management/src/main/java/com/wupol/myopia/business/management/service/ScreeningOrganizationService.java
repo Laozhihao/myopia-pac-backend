@@ -71,6 +71,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private SchoolService schoolService;
 
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
     /**
      * 保存筛查机构
      *
@@ -262,7 +265,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 根据部门ID获取筛查机构列表（带是否已有任务）
      *
-     * @param query       筛查机构列表请求体
+     * @param query 筛查机构列表请求体
      * @return List<ScreeningOrgResponse>
      */
     public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
@@ -403,7 +406,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
-        tasks.forEach(this::extractedDTO);
+        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
         return taskPages;
     }
 
@@ -411,12 +414,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 封装DTO
      *
      * @param taskResponse 筛查端-记录详情
+     * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+    private void extractedDTO(ScreeningTaskResponse taskResponse, Integer orgId) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<Integer> schoolIds = visionScreeningResultService.getSchoolIdByTaskId(taskResponse.getId());
+        List<Integer> schoolIds = visionScreeningResultService.getSchoolIdByTaskId(taskResponse.getId(), orgId);
         if (CollectionUtils.isEmpty(schoolIds)) {
             return;
         }
@@ -429,6 +433,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .getBySchoolIds(taskResponse.getId(), schoolIds);
         Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics
                 .stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
+
+        // 查找计划
+        List<Integer> planIds = schoolStatistics.stream()
+                .map(SchoolVisionStatistic::getScreeningPlanId).collect(Collectors.toList());
+        List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
+        Map<Integer, ScreeningPlan> planMaps = screeningPlans.stream()
+                .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
@@ -454,6 +465,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             if (null != schoolStatisticMaps.get(s)) {
                 detail.setPlanScreeningNumbers(schoolStatisticMaps.get(s).getPlanScreeningNumbers());
                 detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+                Integer planId = schoolStatisticMaps.get(s).getScreeningPlanId();
+                if (null != planId && null != planMaps.get(planId)) {
+                    detail.setScreeningPlanId(planId);
+                    detail.setStartTime(planMaps.get(planId).getStartTime());
+                    detail.setEndTime(planMaps.get(planId).getEndTime());
+                    detail.setPlanTitle(planMaps.get(planId).getTitle());
+                }
             }
             details.add(detail);
         });
