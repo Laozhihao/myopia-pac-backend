@@ -13,7 +13,12 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ResultDetails {
+public class StudentResultDetails {
+
+    /**
+     * 0 为左眼 1 为右眼
+     */
+    private Integer lateriality;
 
     /**
      * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}

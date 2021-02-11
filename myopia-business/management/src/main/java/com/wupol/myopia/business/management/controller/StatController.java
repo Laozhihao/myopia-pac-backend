@@ -49,10 +49,6 @@ public class StatController {
         return ApiResult.success(statService.getScreeningClassStat(notificationId));
     }
 
-    @GetMapping("tastStat")
-    public ApiResult getTaskStat(Integer nid) {
-        return ApiResult.success();
-    }
 
     /**
      * 重点视力对象

@@ -49,7 +49,7 @@
 
     <select id="selectPageByQuery" resultMap="StudentDTO" parameterType="java.util.Map">
         SELECT
-          ms.id, ms.sno, ms.name, ms.gender, ms.birthday, ms.address, ms.id_card, ms.nation, ms.parent_phone, msg.name as grade_name, msc.name as class_name
+          ms.id, ms.sno, ms.name, ms.gender, ms.birthday, ms.province_code, ms.city_code, ms.area_code, ms.town_code, ms.address, ms.id_card, ms.nation, ms.parent_phone, msg.name as grade_name, msc.name as class_name
         FROM
         m_screening_plan_school_student mspss
         LEFT JOIN m_student ms ON mspss.student_id = ms.id
