@@ -54,7 +54,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
         }
         // 判断是否分配角色
-        List<Role> roles = roleService.getRoleListByUserId(user.getId());
+        List<Role> roles = roleService.getUsableRoleByUserId(user.getId());
         if (CollectionUtils.isEmpty(roles)) {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
         }

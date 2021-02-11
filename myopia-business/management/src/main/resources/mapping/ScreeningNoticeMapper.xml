@@ -56,7 +56,7 @@
                     and `title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
                 <if test="param.createUserIds != null">
-                    and `creator_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and `create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>

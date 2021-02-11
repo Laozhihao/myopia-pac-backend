@@ -87,4 +87,11 @@
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
         and id_card in <foreach collection="idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
+
+    <select id="selectByGradeAndClass" resultMap="StudentDTO" parameterType="java.util.Map">
+        select mspss.student_name as name, mspss.student_no as sno, ms.gender
+        from m_screening_plan_school_student mspss
+        left join m_student ms on mspss.student_id = ms.id
+        where mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}
+    </select>
 </mapper>

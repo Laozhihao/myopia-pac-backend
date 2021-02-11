@@ -239,7 +239,7 @@ public class ScreeningNoticeController {
             throw new BusinessException("查无通知");
         }
         // 已读，直接返回
-        if (CommonConst.STATUS_NOTICE_READ.equals(noticeDeptOrg.getOperationStatus())) {
+        if (CommonConst.STATUS_NOTICE_READ.equals(noticeDeptOrg.getOperationStatus()) || CommonConst.STATUS_NOTICE_CREATED.equals(noticeDeptOrg.getOperationStatus())) {
             log.info("通知已读");
             return;
         }

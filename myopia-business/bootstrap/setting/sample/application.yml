@@ -125,10 +125,10 @@ oem:
 # 上传相关
 upload:
   # 保存到服务器地址
-  savePath:
+  savePath: /myopia/uploadPic
   # 可上传的文件类型后缀
-  suffixs:
+  suffixs: pdf,jpg,jpeg,png
   # 上传S3的bucket
-  bucketName:
+  bucketName: test.vistel.cn
   # S3链接失效时间（小时）
-  expiredHours:
+  expiredHours: 2

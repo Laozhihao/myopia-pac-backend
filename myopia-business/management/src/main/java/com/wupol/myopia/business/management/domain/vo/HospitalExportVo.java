@@ -28,8 +28,6 @@ public class HospitalExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     public static final String TOP_HEADER = "医院表";
-    @ExcelProperty({TOP_HEADER, "ID"})
-    private Integer id;
 
     @ExcelProperty({TOP_HEADER, "医院名称"})
     private String name;

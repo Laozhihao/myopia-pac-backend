@@ -26,8 +26,6 @@ import java.io.Serializable;
 public class StudentExportVo implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
     public static final String TOP_HEADER = "学生表";
-    @ExcelProperty({TOP_HEADER, "序号"})
-    private Integer id;
 
     @ExcelProperty({TOP_HEADER, "姓名"})
     private String name;

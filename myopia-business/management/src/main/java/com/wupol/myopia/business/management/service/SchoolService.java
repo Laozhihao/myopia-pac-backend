@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -60,9 +61,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private OauthService oauthService;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     @Resource
@@ -82,6 +80,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Resource
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 新增学校
@@ -131,15 +132,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
         }
-        baseMapper.updateById(school);
+
+        SchoolResponseDTO dto = new SchoolResponseDTO();
+        School checkSchool = baseMapper.selectById(school.getId());
 
         // 获取学校管理员
         SchoolAdmin admin = schoolAdminService.getAdminBySchoolId(school.getId());
         // 更新OAuth账号
         updateOAuthName(admin.getUserId(), school.getName());
 
+        // 名字更新重置密码
+        if (!StringUtils.equals(checkSchool.getName(), school.getName())) {
+            dto.setUpdatePassword(Boolean.TRUE);
+            dto.setUsername(school.getName());
+            // 重置密码
+            String password = PasswordGenerator.getSchoolAdminPwd();
+            oauthService.resetPwd(admin.getUserId(), password);
+            dto.setPassword(password);
+        }
+        baseMapper.updateById(school);
         School s = baseMapper.selectById(school.getId());
-        SchoolResponseDTO dto = new SchoolResponseDTO();
         BeanUtils.copyProperties(s, dto);
         dto.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
         dto.setAddressDetail(districtService.getAddressDetails(
@@ -214,11 +226,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
+        TwoTuple<Integer, Integer> a = packageList(currentUser, schoolQuery.getDistrictId());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), schoolQuery.getDistrictId(), userIds);
+                schoolQuery.getType(), a.getFirst(), userIds, a.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -250,6 +263,28 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         // 封装DTO
         schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
+    }
+
+    private TwoTuple<Integer, Integer> packageList(CurrentUser currentUser, Integer districtId) {
+        // 管理员看到全部
+        if (currentUser.isPlatformAdminUser()) {
+            // 不为空说明是搜索条件
+            if (null != districtId) {
+                return new TwoTuple<>(districtId, null);
+            }
+        } else if (currentUser.isScreeningUser()) {
+            if (null != districtId) {
+                // 不为空说明是搜索条件
+                return new TwoTuple<>(districtId, null);
+            }
+            // 只能看到所属的省级数据
+            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
+            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+            District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(org.getDistrictId()).getCode());
+            String pre = String.valueOf(district.getCode()).substring(0, 2);
+            return new TwoTuple<>(null, Integer.valueOf(pre));
+        }
+        return new TwoTuple<>(districtId, null);
     }
 
     /**
@@ -443,15 +478,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 学校编号是否被使用
      *
+     * @param schoolId 学校ID
      * @param schoolNo 学校编号
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
-    public Boolean checkSchoolNo(String schoolNo) {
-        List<School> schoolList = baseMapper.selectList(new QueryWrapper<School>().eq("school_no", schoolNo));
-        if (CollectionUtils.isEmpty(schoolList)) {
-            return Boolean.FALSE;
+    public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
+        QueryWrapper<School> query = new QueryWrapper<School>()
+                .eq("school_no", schoolNo);
+
+        if (-1 != schoolId) {
+            query.ne("id", schoolId);
         }
-        return Boolean.TRUE;
+        return baseMapper.selectList(query).size() > 0;
     }
 
     /**
@@ -482,7 +520,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("district_id", districtId));
+        return baseMapper.selectList(new QueryWrapper<School>().eq("district_id", districtId));
     }
 
     /**

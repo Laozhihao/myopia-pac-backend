@@ -57,19 +57,6 @@ public class AuthService {
     /**
      * 获取用户api权限
      *
-     * @param userName 用户名
-     * @param systemCode 系统编号
-     * @return java.util.List<java.lang.Object>
-     **/
-    public List<Object> getUserApiPermission(String userName, Integer systemCode) {
-        User user = userService.getByUsername(userName, systemCode);
-        List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(user.getId());
-        return getApiPermission(permissions);
-    }
-
-    /**
-     * 获取用户api权限
-     *
      * @param permissions 权限列表
      * @return java.util.List<java.lang.Object>
      **/

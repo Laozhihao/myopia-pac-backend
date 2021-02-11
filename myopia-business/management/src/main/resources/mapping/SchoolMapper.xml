@@ -50,10 +50,14 @@
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
-        select
-        <include refid="Base_Column_List"/>
-        from m_school ms
-                where ms.status != 2
+        select ms.*
+                from m_school ms
+        <if test="districtIdPre != null">
+            left join m_district d on ms.district_id = d.id
+            left join (select id, left(code, 2) as pre
+                       from m_district md) as re on re.id = d.id
+        </if>
+        where ms.status != 2
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
         </if>
@@ -65,6 +69,9 @@
         </if>
         <if test="districtId != null">
             and ms.district_id = #{districtId}
+        </if>
+        <if test="districtIdPre != null">
+            and re.pre = #{districtIdPre}
         </if>
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in

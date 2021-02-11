@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
@@ -62,6 +63,9 @@ public class ScreeningTaskController {
         if (user.isScreeningUser()) {
             throw new ValidationException("无权限");
         }
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+            throw new ValidationException("无筛查机构或筛查机构重复");
+        }
         if (user.isGovDeptUser()) {
             // 政府部门，设置为用户自身所在的部门层级
             GovDept govDept = govDeptService.getById(user.getOrgId());
@@ -93,10 +97,33 @@ public class ScreeningTaskController {
      */
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
-        validateExistWithReleaseStatus(screeningTaskDTO.getId(), CommonConst.STATUS_RELEASE);
+        validateExistAndAuthorize(screeningTaskDTO.getId(), CommonConst.STATUS_RELEASE);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        //TODO 校验部门
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+            throw new ValidationException("无筛查机构或筛查机构重复");
+        }
         screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, false);
+    }
+
+    /**
+     * 校验计划是否存在与发布状态
+     * 同时校验权限
+     *
+     * @param screeningTaskId
+     * @param releaseStatus
+     */
+    private void validateExistAndAuthorize(Integer screeningTaskId, Integer releaseStatus) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // 校验用户机构
+        if (user.isScreeningUser()) {
+            // 筛查机构，无权限处理
+            throw new ValidationException("无权限");
+        }
+        ScreeningTask screeningTask = validateExistWithReleaseStatus(screeningTaskId, releaseStatus);
+        if (user.isGovDeptUser()) {
+            // 政府部门人员，需校验是否同部门
+            Assert.isTrue(user.getOrgId().equals(screeningTask.getGovDeptId()), "无该部门权限");
+        }
     }
 
     /**
@@ -104,12 +131,13 @@ public class ScreeningTaskController {
      *
      * @param id
      */
-    private void validateExistWithReleaseStatus(Integer id, Integer releaseStatus) {
+    private ScreeningTask validateExistWithReleaseStatus(Integer id, Integer releaseStatus) {
         ScreeningTask screeningTask = validateExist(id);
         Integer taskStatus = screeningTask.getReleaseStatus();
         if (releaseStatus.equals(taskStatus)) {
             throw new BusinessException(String.format("该任务%s", CommonConst.STATUS_RELEASE.equals(taskStatus) ? "已发布" : "未发布"));
         }
+        return screeningTask;
     }
 
     /**
@@ -171,8 +199,8 @@ public class ScreeningTaskController {
         }
         // 任务状态判断
         validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_NOT_RELEASE);
-        // 是否已存在
-        screeningTaskOrgService.saveOrUpdateBatchByTaskId(screeningTaskId, screeningTaskOrgs);
+        // 新增
+        screeningTaskOrgService.saveOrUpdateBatchByTaskId(CurrentUserUtil.getCurrentUser(), screeningTaskId, screeningTaskOrgs, true);
     }
 
     /**
@@ -196,7 +224,7 @@ public class ScreeningTaskController {
     @DeleteMapping("{id}")
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
-        validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
+        validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
         screeningTaskService.removeWithOrgs(id, CurrentUserUtil.getCurrentUser());
     }
 
@@ -209,9 +237,7 @@ public class ScreeningTaskController {
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
-        validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
-        //TODO 非政府部门，直接报错
-
+        validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
         //没有筛查机构，直接报错
         if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(id))){
             throw new ValidationException("无筛查机构");

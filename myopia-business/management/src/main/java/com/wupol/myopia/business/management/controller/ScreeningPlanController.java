@@ -1,16 +1,21 @@
 package com.wupol.myopia.business.management.controller;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.utils.FreemarkerUtil;
+import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.GenderEnum;
+import com.wupol.myopia.business.management.constant.PDFTemplateConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
@@ -18,6 +23,9 @@ import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
+import com.wupol.myopia.business.management.util.S3Utils;
+import net.bytebuddy.implementation.bind.annotation.Pipe;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -26,10 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 筛查计划相关接口
@@ -53,7 +63,19 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private ResourceFileService resourceFileService;
+    @Autowired
     private ExcelFacade excelFacade;
+    @Autowired
+    private S3Utils s3Utils;
 
     /**
      * 新增
@@ -65,16 +87,15 @@ public class ScreeningPlanController {
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        // TODO 是否需要校验用户
-//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-//            // 政府部门，无法新增计划
-//            throw new ValidationException("无权限");
-//        }
+        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
         }
-        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有改筛查机构
+        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
                 throw new ValidationException("筛查计划已创建");
@@ -85,6 +106,10 @@ public class ScreeningPlanController {
             }
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+        } else {
+            // 用户自己新建的筛查计划需设置districtId
+            ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
+            screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
     }
@@ -121,14 +146,13 @@ public class ScreeningPlanController {
      * @param releaseStatus
      */
     private void validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
-        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        // TODO 是否需要校验用户
-//        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-//            // 政府部门，无法新增计划
-//            throw new ValidationException("无权限");
-//        }
+        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
+        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
@@ -177,7 +201,10 @@ public class ScreeningPlanController {
     @GetMapping("page")
     public IPage queryInfo(PageRequest page, ScreeningPlanQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (!user.isPlatformAdminUser()) {
+        if (user.isScreeningUser()) {
+            query.setScreeningOrgId(user.getOrgId());
+        }
+        if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
         return screeningPlanService.getPage(query, page);
@@ -291,5 +318,76 @@ public class ScreeningPlanController {
 //            throw new ValidationException("该筛查学校不存在");
 //        }
         excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
+    }
+
+    /**
+     * 导出筛查计划的学生二维码信息
+     *
+     * @param schoolClassInfo
+     * @throws IOException
+     */
+    @GetMapping("/export/QRCode")
+    public Object downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+        try {
+            // 1. 校验
+            validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
+            // 2. 处理参数
+            SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
+            String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
+            String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
+            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
+            // 3. 处理pdf报告参数
+            Map<String, Object> models = new HashMap<>(16);
+            models.put("students", students);
+            models.put("classDisplay", classDisplay);
+            // 4. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
+            Map<String, String> resultMap = new HashMap<>(16);
+            resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
+            return resultMap;
+        } catch (Exception e) {
+            throw new BusinessException("生成PDF文件失败", e);
+        }
+    }
+
+
+    /**
+     * 导出筛查计划的学生告知书
+     *
+     * @param schoolClassInfo
+     * @throws IOException
+     */
+    @GetMapping("/export/notice")
+    public Object downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+        try {
+            // 1. 校验
+            validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
+            // 2. 处理参数
+            School school = schoolService.getById(schoolClassInfo.getSchoolId());
+            SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
+            String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
+            String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(schoolClassInfo.getScreeningPlanId());
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
+            Map<String, Object> models = new HashMap<>(16);
+            models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
+            models.put("students", students);
+            models.put("classDisplay", classDisplay);
+            models.put("schoolName", school.getName());
+            models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+            // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), fileName);
+            Map<String, String> resultMap = new HashMap<>(16);
+            resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
+            return resultMap;
+        } catch (Exception e) {
+            throw new BusinessException("生成PDF文件失败", e);
+        }
     }
 }

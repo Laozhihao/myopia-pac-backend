@@ -1,6 +1,10 @@
 package com.wupol.myopia.business.management.constant;
 
+import com.wupol.myopia.business.management.domain.vo.SchoolAgeVO;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum SchoolAge {
     KINDERGARTEN(5, "幼儿园"),
@@ -26,5 +30,16 @@ public enum SchoolAge {
                 .filter(item -> item.code.equals(code))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static List<SchoolAgeVO> getSchoolAgeList() {
+        List<SchoolAgeVO> schoolAgeList = new ArrayList<>();
+        for (SchoolAge value : values()) {
+            SchoolAgeVO schoolAgeVO = new SchoolAgeVO();
+            schoolAgeVO.setCode(value.code);
+            schoolAgeVO.setDesc(value.desc);
+            schoolAgeList.add(schoolAgeVO);
+        }
+        return schoolAgeList;
     }
 }
