@@ -55,8 +55,8 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setAD(lAD).setAL(lAL).setCCT(lCCT).setLT(lLT).setLateriality(0);
-        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setAD(rAD).setAL(rAL).setCCT(rCCT).setLT(rLT).setLateriality(1);
+        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setLateriality(0);
+        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setLateriality(1);
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData);
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }

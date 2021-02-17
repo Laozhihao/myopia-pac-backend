@@ -1,21 +1,20 @@
 package com.wupol.myopia.business.screening.service;
 
-import com.myopia.common.constant.ScreeningConstant;
 import com.myopia.common.utils.JsonUtil;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.management.service.*;
-import com.wupol.myopia.business.management.domain.dto.VisionDataDTO;
+import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +40,8 @@ public class ScreeningAppService {
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
 
     /**
@@ -53,7 +54,7 @@ public class ScreeningAppService {
      */
     public List<String> getSchoolNameBySchoolNameLike(String nameLike, Integer screeningOrgId, Boolean isReview) {
         //TODO 管理端，待修改
-        // TODO 待增加复测的逻辑
+        //TODO 待增加复测的逻辑
         SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
         query.setGovDeptId(screeningOrgId);
         return schoolService.getBy(query).stream().map(School::getName).collect(Collectors.toList());
@@ -145,8 +146,8 @@ public class ScreeningAppService {
         }
     }
 
-/*
-    *//**
+    /*
+     *//**
      * 创建记录
      *
      * @param visionDataDTO
@@ -207,25 +208,6 @@ public class ScreeningAppService {
         return studentService.getById(id);
     }
 
-    /**
-     * 增加该学生的眼睛疾病
-     *
-     * @return
-     */
-    public Object addEyeDisease() {
-        //TODO 筛查端，待修改
-        return new Object();
-    }
-
-    /**
-     * 保存慢性病信息
-     *
-     * @return
-     */
-    public Object addChronic() {
-        //TODO 筛查端，待修改
-        return new Object();
-    }
 
     /**
      * 查询学生录入的最新一条数据(慢性病)
@@ -239,15 +221,6 @@ public class ScreeningAppService {
         return Collections.emptyList();
     }
 
-    /**
-     * 获取复测质控结果
-     *
-     * @return
-     */
-    public List<Object> getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
-        //TODO 筛查端，待修改
-        return Collections.emptyList();
-    }
 
     /**
      * 更新复测质控结果
@@ -291,4 +264,39 @@ public class ScreeningAppService {
         //TODO
         return new Object();
     }
+
+    /**
+     * 获取复测质控结果
+     *
+     * @return
+     */
+    public List<RescreeningResultVO> getAllReviewResult(ScreeningResultSearchDTO screeningResultDTO) {
+        //拿到班级信息或者学生信息之后，进行查询数据
+        List<StudentScreeningInfoWithResultDTO> studentInfoWithResult = screeningPlanSchoolStudentService.getStudentInfoWithResult(screeningResultDTO);
+        //先分组
+        Map<String, List<StudentScreeningInfoWithResultDTO>> stringListMap = this.groupByKey(screeningResultDTO.getStatisticType(), studentInfoWithResult);
+        //进行统计
+        Set<String> schoolIdSet = stringListMap.keySet();
+        List<RescreeningResultVO> rescreeningResultVOS = schoolIdSet.stream().map(keyId ->
+                RescreeningResultVO.getRescreeningResult(stringListMap.get(keyId))
+        ).collect(Collectors.toList());
+        return rescreeningResultVOS;
+    }
+
+    public Map<String, List<StudentScreeningInfoWithResultDTO>> groupByKey(RescreeningStatisticEnum statisticType, List<StudentScreeningInfoWithResultDTO> studentInfoWithResult) {
+        return studentInfoWithResult.stream().collect(Collectors.groupingBy(e -> e.getGroupKey(statisticType)));
+    }
+
+    /**
+     * 设置其他数据
+     *
+     * @param rescreeningResult
+     * @param studentClazzDTO
+     */
+    private void setOtherInfo(List<StudentInfoVO> rescreeningResult, StudentClazzDTO studentClazzDTO) {
+        rescreeningResult.stream().forEach(studentInfoVO -> {
+            studentInfoVO.addOtherInfo(studentClazzDTO);
+        });
+    }
+
 }

@@ -6,7 +6,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import java.util.List;
 public class VisionScreeningResultService extends BaseService<ScreeningResultMapper, VisionScreeningResult> {
 
     @Autowired
-    private ScreeningPlanService screeningPlanService;
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 通过StudentId获取筛查结果
@@ -61,19 +61,21 @@ public class VisionScreeningResultService extends BaseService<ScreeningResultMap
      * @return
      * @throws IOException
      */
-    public TwoTuple<VisionScreeningResult, ScreeningPlan> getScreeningResultAndScreeningPlan(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-        ScreeningPlan screeningPlan = screeningPlanService.getScreeningPlanDTO(screeningResultBasicData);
-        if (screeningPlan == null) {
-            throw new ManagementUncheckedException("");
+    public TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> getScreeningResultAndScreeningPlanSchoolStudent(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningPlanId(screeningResultBasicData.getDeptId()).setStudentId(screeningResultBasicData.getStudentId());
+        //倒叙取出来最新的一条
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQuery);
+        if (screeningPlanSchoolStudent == null) {
+            throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlan, screeningResultBasicData.getStudentId());
-        TwoTuple<VisionScreeningResult, ScreeningPlan> visionScreeningResultScreeningPlanTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlan);
-        return visionScreeningResultScreeningPlanTwoTuple;
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent, screeningResultBasicData.getStudentId());
+        TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
+        return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
     }
 
 
-    public VisionScreeningResult getScreeningResult(ScreeningPlan screeningPlan, Integer studentId) throws IOException {
-        return this.getScreeningResult(screeningPlan.getId(), screeningPlan.getScreeningOrgId(), studentId);
+    public VisionScreeningResult getScreeningResult(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer studentId) throws IOException {
+        return this.getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), studentId);
     }
 
     /**
@@ -98,9 +100,9 @@ public class VisionScreeningResultService extends BaseService<ScreeningResultMap
      * @throws IOException
      */
     public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-        TwoTuple<VisionScreeningResult, ScreeningPlan> screeningResultAndScreeningPlan = getScreeningResultAndScreeningPlan(screeningResultBasicData);
-        VisionScreeningResult screeningResult = screeningResultAndScreeningPlan.getFirst();
-        ScreeningPlan screeningPlan = screeningResultAndScreeningPlan.getSecond();
-        return new ScreeningResultBuilder().setVisionScreeningResult(screeningResult).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlan(screeningPlan).build();
+        TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> screeningResultAndScreeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
+        VisionScreeningResult visionScreeningResult = screeningResultAndScreeningPlanSchoolStudent.getFirst();
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
+        return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
     }
 }

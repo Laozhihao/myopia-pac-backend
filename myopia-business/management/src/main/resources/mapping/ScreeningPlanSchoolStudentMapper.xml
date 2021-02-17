@@ -14,6 +14,7 @@
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
                 <if test="@Ognl@isNotEmpty(graderId)">and `grader_id` = #{graderId}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
@@ -28,7 +29,29 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, school_id, school_name, grader_id, class_id, student_id, student_age, student_situation, student_no, student_name, create_time
+        id
+        , screening_plan_id, school_id,gradeName , school_name, grader_id, class_id, student_id, student_age, student_situation, student_no, student_name, create_time
     </sql>
+    <select id="selectStudentInfoWithResult"
+            resultType="com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO">
+        SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
+        , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.student_gender
+        , s.task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
+        , r.other_eye_diseases
+        FROM m_screening_plan_school_student s
+        LEFT JOIN m_vision_screening_result r ON s.id = r.screening_plan_school_student_id
+        WHERE
+        s.school_id = #{data.schoolId}
+        <if test="data.clazzName != null">
+            AND s.class_name = #{data.clazzName}
+        </if>
+        <if test="data.gradeName != null">
+            AND s.grade_name = #{data.gradeName}
+        </if>
+        <if test="data.depId != null">
+            AND s.screening_org_id = #{data.depId}
+        </if>
+    </select>
+
 
 </mapper>

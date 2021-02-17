@@ -2,7 +2,7 @@ package com.wupol.myopia.business.management.domain.builder;
 
 import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -17,13 +17,16 @@ import lombok.experimental.Accessors;
 public class ScreeningResultBuilder {
     private VisionScreeningResult visionScreeningResult;
     private ScreeningResultBasicData screeningResultBasicData;
-    private ScreeningPlan screeningPlan;
+    private ScreeningPlanSchoolStudent screeningPlanSchoolStudent;
     private boolean isEnd;
 
     public VisionScreeningResult build() {
         synchronized (this) {
             if (isEnd) {
                 throw new ManagementUncheckedException("ScreeningResultBuilder 已完成build，请新建builder构建另外的对象");
+            }
+            if (screeningPlanSchoolStudent == null || screeningPlanSchoolStudent == null) {
+                throw new ManagementUncheckedException("缺少参数，无法创建对象");
             }
             //校验参数
             if (visionScreeningResult == null || visionScreeningResult.getId() == null) {
@@ -41,12 +44,13 @@ public class ScreeningResultBuilder {
      * 设置其他信息
      */
     private VisionScreeningResult setOtherInfo() {
-        return visionScreeningResult.setTaskId(screeningPlan.getScreeningTaskId())
-                .setDistrictId(screeningPlan.getDistrictId())
-                .setPlanId(screeningPlan.getId())
+        return visionScreeningResult
+                .setTaskId(screeningPlanSchoolStudent.getScreeningTaskId())
+                .setDistrictId(screeningPlanSchoolStudent.getDistrictId())
+                .setPlanId(screeningPlanSchoolStudent.getScreeningPlanId())
                 .setSchoolId(screeningResultBasicData.getSchoolId())
                 .setStudentId(screeningResultBasicData.getStudentId())
-                .setScreeningOrgId(screeningPlan.getScreeningOrgId())
+                .setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId())
                 .setCreateUserId(screeningResultBasicData.getCreateUserId());
     }
 
@@ -60,8 +64,8 @@ public class ScreeningResultBuilder {
         return this;
     }
 
-    public ScreeningResultBuilder setScreeningPlan(ScreeningPlan screeningPlan) {
-        this.screeningPlan = screeningPlan;
+    public ScreeningResultBuilder setScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        this.screeningPlanSchoolStudent = screeningPlanSchoolStudent;
         return this;
     }
 }

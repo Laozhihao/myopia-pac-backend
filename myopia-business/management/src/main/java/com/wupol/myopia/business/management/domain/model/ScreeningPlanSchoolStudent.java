@@ -36,6 +36,20 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer screeningPlanId;
 
     /**
+     * 地区id
+     */
+    private Integer districtId;
+
+    /**
+     * 筛查任务id
+     */
+    private Integer screeningTaskId;
+
+    /**
+     * 筛查机构id
+     */
+    private Integer screeningOrgId;
+    /**
      * 筛查计划--执行的学校id
      */
     private Integer schoolId;
@@ -50,6 +64,10 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     private Integer graderId;
 
+    /**
+     * 筛查计划--年级名字
+     */
+    private String gradeName;
     /**
      * 筛查计划--参与筛查的学生班级ID
      */

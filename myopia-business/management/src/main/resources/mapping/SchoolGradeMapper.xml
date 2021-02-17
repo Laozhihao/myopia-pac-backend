@@ -46,6 +46,11 @@
         <include refid="Base_Where_Clause" />
     </select>
 
+    <select id="selectListBySchoolIdAndGradeId" resultType="com.wupol.myopia.business.management.domain.dto.StudentClazzDTO">
+        SELECT a.id AS classId,a.school_id, b.id AS gradeId FROM m_school_class a, m_school_grade b
+        WHERE a.grade_id = b.id and a.name = #{gradeName} AND a.school_id = #{schoolId} and a.name = #{clazzName}
+    </select>
+
     <select id="getByPage" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

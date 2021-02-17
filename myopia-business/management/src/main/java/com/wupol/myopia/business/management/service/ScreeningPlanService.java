@@ -31,33 +31,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * @param schoolId
-     * @param screeningOrgId
-     * @param screeningReleaseStatus
-     * @param currentTimeMillis
-     * @return
-     */
-    public ScreeningPlan getScreeningPlan(Integer schoolId, Integer screeningOrgId, int screeningReleaseStatus, long currentTimeMillis) {
-        ScreeningPlan screeningPlan = baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, screeningReleaseStatus, currentTimeMillis);
-        if (screeningPlan == null) {
-            throw new ManagementUncheckedException("获取ScreeningPlanDto失败，schoolId = " + schoolId + ",orgId = " + screeningOrgId + ",currentTimeMillis = " + currentTimeMillis);
-        }
-        return screeningPlan;
-    }
-
-    /**
      * @param screeningOrgId
      * @return
      */
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-       return baseMapper.selectScreeningSchoolIds(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
-    }
-    /**
-     * @return
-     */
-    public ScreeningPlan getScreeningPlanDTO(ScreeningResultBasicData screeningResultBasicData) {
-        ScreeningPlan screeningPlan = getScreeningPlan(screeningResultBasicData.getSchoolId(), screeningResultBasicData.getDeptId(), ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
-        getScreeningPlan(screeningResultBasicData.getSchoolId(), screeningResultBasicData.getDeptId(), ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
-        return screeningPlan;
+        return baseMapper.selectScreeningSchoolIds(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
     }
 }

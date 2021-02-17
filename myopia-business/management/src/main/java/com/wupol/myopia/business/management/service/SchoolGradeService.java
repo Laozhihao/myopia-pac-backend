@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
+import com.wupol.myopia.business.management.domain.dto.StudentClazzDTO;
 import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
@@ -155,12 +157,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .eq("status", CommonConst.STATUS_NOT_DELETED));
     }
 
-    /** 根据学校铝箔获取年级 */
+    /**
+     * 根据学校铝箔获取年级
+     */
     public List<SchoolGrade> getBySchoolName(String schoolName, Integer deptId) {
         SchoolQuery schoolQuery = new SchoolQuery();
         schoolQuery.setName(schoolName).setGovDeptId(deptId);
         Integer schoolId = schoolService.getBy(schoolQuery).stream()
-                .findFirst().orElseThrow(()-> new BusinessException("未找到该学校")).getId();
+                .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
         SchoolGradeQuery schoolGradeQuery = new SchoolGradeQuery();
         schoolGradeQuery.setSchoolId(schoolId);
         return getBy(schoolGradeQuery);
@@ -168,10 +172,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
     /**
      * 查询学校年级
+     *
      * @param query 查询条件
      * @return
      */
     public List<SchoolGrade> getBy(SchoolGradeQuery query) {
         return baseMapper.getBy(query);
     }
+
+
 }

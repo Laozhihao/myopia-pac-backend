@@ -12,14 +12,14 @@ import java.util.Optional;
  */
 @UtilityClass
 public class WearingGlassesSituation {
-    private final String NOT_WEARING_GLASSES_TYPE = "没有佩戴眼镜";
-    private final Integer NOT_WEARING_GLASSES_KEY = 0;
-    private final String WEARING_FRAME_GLASSES_TYPE = "佩戴框架眼镜";
-    private final Integer WEARING_FRAME_GLASSES_KEY = 1;
-    private final String WEARING_CONTACT_LENS_TYPE = "佩戴隐形眼睛";
-    private final Integer WEARING_CONTACT_LENS_KEY = 2;
-    private final String WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE = "夜戴角膜塑形镜";
-    private final Integer WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY = 3;
+    public final String NOT_WEARING_GLASSES_TYPE = "没有佩戴眼镜";
+    public final Integer NOT_WEARING_GLASSES_KEY = 0;
+    public final String WEARING_FRAME_GLASSES_TYPE = "佩戴框架眼镜";
+    public final Integer WEARING_FRAME_GLASSES_KEY = 1;
+    public final String WEARING_CONTACT_LENS_TYPE = "佩戴隐形眼睛";
+    public final Integer WEARING_CONTACT_LENS_KEY = 2;
+    public final String WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE = "夜戴角膜塑形镜";
+    public final Integer WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY = 3;
 
     private final ImmutableMap<Integer, String> typeDescriptionMap;
     private final ImmutableMap<String, Integer> descriptionMapType;
