@@ -75,8 +75,9 @@ private static StrategyConfig getStrategyConfig() {
 - 其他：Redis、MySQL数据库、Maven、JDK1.8
 
 #### 配置环境变量
-1. AWS_ACCESS_KEY_ID : S3的AccessKey
-2. AWS_SECRET_ACCESS_KEY : S3的SecretKey
+1. AWS_REGION : S3的REGION
+2. AWS_ACCESS_KEY_ID : S3的AccessKey
+3. AWS_SECRET_ACCESS_KEY : S3的SecretKey
 
 #### 修改配置文件
 1. copy对应微服务sample/setting目录下的配置文件到resource目录下

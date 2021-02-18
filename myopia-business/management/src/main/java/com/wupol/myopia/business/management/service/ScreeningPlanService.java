@@ -88,7 +88,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             query.setCreateUserIds(queryCreatorIds);
         }
         if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
-            //TODO 是否需要查特定部门下的机构
             List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
                 // 可以直接返回空

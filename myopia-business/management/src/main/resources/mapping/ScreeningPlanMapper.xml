@@ -63,6 +63,7 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(param.districtId)">and mst.`district_id` = #{param.districtId}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mst.`screening_org_id` = #{param.screeningOrgId}</if>
                 <if test="param.titleLike != null and param.titleLike != ''">
                     and mst.`title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
