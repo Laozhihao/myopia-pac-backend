@@ -46,4 +46,9 @@ public class SchoolResponseDTO extends School {
      * 密码
      */
     private String password;
+
+    /**
+     * 是否已有计划
+     */
+    private Boolean alreadyHavePlan = false;
 }

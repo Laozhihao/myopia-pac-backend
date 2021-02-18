@@ -21,12 +21,43 @@
         <module>bootstrap</module>
     </modules>
 
+    <properties>
+        <base-framework.version>1.00.004-RELEASE</base-framework.version>
+    </properties>
+
     <dependencies>
         <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>base-service</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- base framework -->
+        <dependency>
+            <groupId>com.wupol</groupId>
+            <artifactId>whole-framework</artifactId>
+            <version>${base-framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>database</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>cache</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--二维码-->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.1.0</version>
         </dependency>
     </dependencies>
 

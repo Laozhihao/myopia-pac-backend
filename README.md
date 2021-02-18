@@ -15,6 +15,7 @@
 - 服务远程调用：Openfeign
 - 服务负载均衡：Ribbon
 - 依赖：spring-cloud Hoxton.SR9、spring-cloud-alibaba 2.2.1.RELEASE
+- 对象存储服务：AWS S3
 
 ## 系统架构
 
@@ -72,6 +73,10 @@ private static StrategyConfig getStrategyConfig() {
  java -jar zipkin.jar
  ```
 - 其他：Redis、MySQL数据库、Maven、JDK1.8
+
+#### 配置环境变量
+1. AWS_ACCESS_KEY_ID : S3的AccessKey
+2. AWS_SECRET_ACCESS_KEY : S3的SecretKey
 
 #### 修改配置文件
 1. copy对应微服务sample/setting目录下的配置文件到resource目录下

@@ -1,8 +1,7 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 
@@ -23,7 +22,7 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
 
     List<OrgScreeningCountVO> countScreeningTimeByOrgId();
 
-    List<ScreeningTaskOrg> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
+    List<ScreeningTaskOrgVo> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
 
     List<ScreeningTaskOrgVo> selectVoListByScreeningTaskId(@Param("screeningTaskId") Integer screeningTaskId);
 }

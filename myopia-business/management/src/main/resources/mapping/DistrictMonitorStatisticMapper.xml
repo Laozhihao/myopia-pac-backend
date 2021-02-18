@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic">
     </resultMap>
 
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -14,19 +15,19 @@
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-                <if test="@Ognl@isNotEmpty(investigationNumbers)">and `investigation_numbers` = #{investigationNumbers}</if>
-                <if test="@Ognl@isNotEmpty(completionRatio)">and `completion_ratio` = #{completionRatio}</if>
-                <if test="@Ognl@isNotEmpty(passRatio)">and `pass_ratio` = #{passRatio}</if>
-                <if test="@Ognl@isNotEmpty(passNumbers)">and `pass_numbers` = #{passNumbers}</if>
+                <if test="@Ognl@isNotEmpty(investigationNumbers)">and `investigation_numbers` =
+                    #{investigationNumbers}
+                </if>
                 <if test="@Ognl@isNotEmpty(withoutGlassDsn)">and `without_glass_dsn` = #{withoutGlassDsn}</if>
-                <if test="@Ognl@isNotEmpty(withoutGlassDsr)">and `without_glass_dsr` = #{withoutGlassDsr}</if>
+                <if test="@Ognl@isNotEmpty(withoutGlassDsin)">and `without_glass_dsin` = #{withoutGlassDsin}</if>
                 <if test="@Ognl@isNotEmpty(wearingGlassDsn)">and `wearing_glass_dsn` = #{wearingGlassDsn}</if>
-                <if test="@Ognl@isNotEmpty(wearingGlassDsr)">and `wearing_glass_dsr` = #{wearingGlassDsr}</if>
+                <if test="@Ognl@isNotEmpty(wearingGlassDsin)">and `wearing_glass_dsin` = #{wearingGlassDsin}</if>
                 <if test="@Ognl@isNotEmpty(dsn)">and `dsn` = #{dsn}</if>
                 <if test="@Ognl@isNotEmpty(errorNumbers)">and `error_numbers` = #{errorNumbers}</if>
                 <if test="@Ognl@isNotEmpty(errorRatio)">and `error_ratio` = #{errorRatio}</if>
                 <if test="@Ognl@isNotEmpty(planNumbers)">and `plan_numbers` = #{planNumbers}</if>
                 <if test="@Ognl@isNotEmpty(screeningNumbers)">and `screening_numbers` = #{screeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -34,7 +35,9 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, screening_plan_id, district_id, investigation_numbers, completion_ratio, pass_ratio, pass_numbers, without_glass_dsn, without_glass_dsr, wearing_glass_dsn, wearing_glass_dsr, dsn, error_numbers, error_ratio, plan_numbers, screening_numbers, create_time
+        id
+        , screening_task_id, screening_plan_id, district_id, investigation_numbers, without_glass_dsn, without_glass_dsin, wearing_glass_dsn, wearing_glass_dsin, dsn, error_numbers, error_ratio, plan_numbers, screening_numbers, update_time, create_time
     </sql>
+
 
 </mapper>

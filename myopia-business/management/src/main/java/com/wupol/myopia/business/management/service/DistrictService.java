@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,29 +49,32 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
-    /** 根据地址名查code */
+    /** 根据地址名查code，查不到时直接返回emptyList */
     public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException{
-        Long provinceCode = null, cityCode = null, areaCode = null, townCode = null;
-        List<District> districtList = getAllDistrict();
-        for (District item : districtList) {
-            if (item.getName().equals(provinceName)) {
-                provinceCode = item.getCode();
-            } else if (item.getName().equals(cityName)) {
-                cityCode = item.getCode();
-            } else if (item.getName().equals(areaName)) {
-                areaCode = item.getCode();
-            } else if (item.getName().equals(townName)) {
-                townCode = item.getCode();
-            }
-            // 已成功匹配地址
-            if (Objects.nonNull(provinceCode) && Objects.nonNull(cityCode) & Objects.nonNull(areaCode) && Objects.nonNull(townCode)) {
-                break;
+        List<District> districtList = getWholeCountryDistrictTreePriorityCache();
+        TwoTuple<Long, List<District>> provinceCodeWithChild = findInChild(provinceName, districtList);
+        TwoTuple<Long, List<District>> cityCodeWithChild = findInChild(cityName, provinceCodeWithChild.getSecond());
+        TwoTuple<Long, List<District>> areaCodeWithChild = findInChild(areaName, cityCodeWithChild.getSecond());
+        TwoTuple<Long, List<District>> townCodeWithChild = findInChild(townName, areaCodeWithChild.getSecond());
+
+        if (Objects.isNull(provinceCodeWithChild.getFirst()) || Objects.isNull(cityCodeWithChild.getFirst())
+                || Objects.isNull(areaCodeWithChild.getFirst()) || Objects.isNull(townCodeWithChild.getFirst())) {
+            log.warn("根据地址名查无code, provinceName: {}, cityName: {}, areaName: {}, townName: {}", provinceName, cityName, areaName, townName);
+            return Collections.emptyList();
+        }
+        return Arrays.asList(provinceCodeWithChild.getFirst(), cityCodeWithChild.getFirst(), areaCodeWithChild.getFirst(), townCodeWithChild.getFirst());
+    }
+
+    private TwoTuple<Long, List<District>> findInChild(String name, List<District> districtList) {
+        if (CollectionUtils.isEmpty(districtList)) {
+            return new TwoTuple<>(null, Collections.emptyList());
+        }
+        for (District district : districtList) {
+            if (district.getName().equals(name)) {
+                return new TwoTuple<>(district.getCode(), district.getChild());
             }
         }
-        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
-            throw new BusinessException("未匹配到地址");
-        }
-        return Arrays.asList(provinceCode, cityCode, areaCode, townCode);
+        return new TwoTuple<>(null, Collections.emptyList());
     }
 
     /** 根据code获取对应的地址 */
@@ -103,28 +107,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return list.get(0) + list.get(1) + list.get(2) + list.get(3);
     }
 
-    /** 获取所有地行政区域,带缓存 */
-    public List<District> getAllDistrict() {
-        String key = CacheKey.DISTRICT_ALL_LIST;
-        if (redisUtil.hasKey(key)) {
-            return (List<District>) redisUtil.get(key);
-        }
-        List<District> list = baseMapper.selectList(new QueryWrapper<>());
-        redisUtil.set(key, list);
-        return list;
-    }
-
-    /** 获取所有地行政区域,带缓存 */
-    public Map<Integer, String> getAllDistrictIdNameMap() {
-        String key = CacheKey.DISTRICT_ID_NAME_MAP;
-        if (redisUtil.hasKey(key)) {
-            return (Map) redisUtil.get(key);
-        }
-        Map<Integer, String> districtIdNameMap = getAllDistrict().stream().collect(Collectors.toMap(District::getId, District::getName));
-        redisUtil.set(key, districtIdNameMap);
-        return districtIdNameMap;
-    }
-
     /**
      * 通过用户身份，过滤查询的行政区域ID
      *  - 如果是平台管理员，则将行政区域ID作为条件
@@ -155,6 +137,41 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name.toString();
         }
         List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {});
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtId 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictId(Integer districtId) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetailById(districtId);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
+     * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
+     *
+     * @param list 区域ID
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictPositionDetail(List<District> list) {
+        StringBuilder name = new StringBuilder();
         if (CollectionUtils.isEmpty(list)) {
             return name.toString();
         }
@@ -321,6 +338,20 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return Collections.emptyList();
         }
         District district = getNotPlatformAdminUserDistrict(currentUser);
+        return getDistrictPositionDetail(district.getCode());
+    }
+
+    /**
+     * 根据层级ID获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
+     *
+     * @param districtId 行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getDistrictPositionDetailById(Integer districtId) {
+        District district = getById(districtId);
+        if (Objects.isNull(district)) {
+            return Collections.emptyList();
+        }
         return getDistrictPositionDetail(district.getCode());
     }
 

@@ -2,16 +2,20 @@ package com.wupol.myopia.business.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.StringUtils;
+import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 学校-学生表
@@ -191,5 +195,25 @@ public class Student implements Serializable {
     @TableField(exist = false)
     private Integer seeDoctorCount;
 
-
+    /**
+     * 上传筛查学生时，判断学生需更新信息是否一致
+     * 由于只有部分字段，所以不使用equals
+     * @param excelStudent
+     * @return
+     */
+    public boolean checkNeedUpdate(Student excelStudent) {
+        return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
+                !this.gender.equals(excelStudent.gender) ||
+                !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
+                (Objects.nonNull(excelStudent.nation) && !this.nation.equals(excelStudent.nation)) ||
+                !this.gradeId.equals(excelStudent.gradeId) ||
+                !this.classId.equals(excelStudent.classId) ||
+                !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
+                (Objects.nonNull(excelStudent.provinceCode) && !this.provinceCode.equals(excelStudent.provinceCode)) ||
+                (Objects.nonNull(excelStudent.cityCode) && !this.cityCode.equals(excelStudent.cityCode)) ||
+                (Objects.nonNull(excelStudent.areaCode) && !this.areaCode.equals(excelStudent.areaCode)) ||
+                (Objects.nonNull(excelStudent.townCode) && !this.townCode.equals(excelStudent.townCode)) ||
+                (StringUtils.isNotBlank(excelStudent.address) && !StringUtils.equalsIgnoreCase(this.address, excelStudent.address)) ||
+                (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
+    }
 }

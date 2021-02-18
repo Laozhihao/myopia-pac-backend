@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO;
+import com.wupol.myopia.business.management.domain.vo.SchoolClassVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,5 +132,14 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
         return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    }
+
+    /**
+     * 根据学校Id获取所有班级
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
+        return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
     }
 }

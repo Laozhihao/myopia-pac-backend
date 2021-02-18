@@ -3,13 +3,17 @@ package com.wupol.myopia.business.management.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,6 +28,13 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper, ScreeningTaskOrg> {
+
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
 
     /**
      * 通过筛查机构ID获取筛查任务关联
@@ -69,11 +80,11 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * 判断筛查机构时间段是否已有发布的任务
      * 一个筛查机构在同一部门一个时间段内只能出现一次
      * @param orgId：机构ID
-     * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime，已有的会有screeningNoticeId
+     * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime。如果有要排除的任务可传id
      * @return
      */
-    public boolean checkHasTaskInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {
-        return baseMapper.selectHasTaskInPeriod(orgId, screeningTaskQuery).size() > 0;
+    public List<ScreeningTaskOrgVo> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {
+        return baseMapper.selectHasTaskInPeriod(orgId, screeningTaskQuery);
     }
 
     /**
@@ -87,22 +98,34 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     }
 
     /**
-     * 批量更新或新增筛查任务的机构信息
+     * 批量更新或新增筛查任务的机构信息（删除非列表中的筛查机构）
      * @param screeningTaskId
      * @param screeningOrgs
      */
-    public void saveOrUpdateBatchByTaskId(Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
+    public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
         // 删除掉已有的不存在的机构信息
         List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.EMPTY_LIST : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
         deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
         if (!CollectionUtils.isEmpty(screeningOrgs)) {
-            // 1. 查出剩余的
-            Map<Integer, Integer> orgIdMap = getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
-            // 2. 更新id，并批量新增或修改
-            screeningOrgs.forEach(taskOrg -> {
-                taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null));
-            });
-            saveOrUpdateBatch(screeningOrgs);
+            saveOrUpdateBatchByTaskId(user, screeningTaskId, screeningOrgs, false);
+        }
+    }
+
+    /**
+     * 批量更新或新增筛查任务的机构信息
+     * @param screeningTaskId
+     * @param screeningOrgs
+     */
+    public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, Boolean needNotice) {
+        // 1. 查出剩余的
+        Map<Integer, Integer> orgIdMap = getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
+        // 2. 更新id，并批量新增或修改
+        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));
+        saveOrUpdateBatch(screeningOrgs);
+        if (needNotice) {
+            ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
+            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningTaskId);
+            noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
         }
     }
 
@@ -132,5 +155,22 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         taskQuery.setGovDeptId(govDeptId);
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
         return baseMapper.selectHasTaskInPeriod(null, taskQuery).stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 批量通知
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @return
+     */
+    public Boolean noticeBatchByScreeningTask(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice) {
+        List<ScreeningTaskOrg> orgLists = getOrgListsByTaskId(screeningTask.getId());
+        return noticeBatch(user, screeningTask, screeningNotice, orgLists);
+    }
+
+    private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
+        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
+        return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
     }
 }

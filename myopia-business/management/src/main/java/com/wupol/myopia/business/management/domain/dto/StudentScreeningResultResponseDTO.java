@@ -1,21 +1,27 @@
 package com.wupol.myopia.business.management.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
 /**
- * 学生筛查档案
+ * 学生档案卡返回体
  *
  * @author Simple4H
  */
 @Getter
 @Setter
-public class StudentScreeningResultResponse {
+public class StudentScreeningResultResponseDTO {
 
+    /**
+     * 总数
+     */
     private Integer total;
 
-    private List<ScreeningResult> items;
+    /**
+     * 详情
+     */
+    private List<StudentScreeningResultItems> items;
+
 }

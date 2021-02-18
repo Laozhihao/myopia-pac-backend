@@ -24,6 +24,9 @@ public class ScreeningDataContrast {
     /** 屈光不正率 */
     private Float refractiveErrorRatio;
 
+    /** 戴镜率 */
+    private Float wearingGlassesRatio;
+
     /** 近视人数 */
     private Integer myopiaNum;
 
@@ -51,30 +54,6 @@ public class ScreeningDataContrast {
     /** 视力筛查完成率 */
     private Float screeningFinishedRatio;
 
-    /** 复测人数 */
-    private Integer rescreenNum;
-
-    /** 戴镜率 */
-    private Float wearingGlassesRatio;
-
-    /** 戴镜复测人数 */
-    private Integer wearingGlassesRescreenNum;
-
-    /** 戴镜复测指标数 */
-    private Integer wearingGlassesRescreenIndexNum;
-
-    /** 非戴镜复测人数 */
-    private Integer withoutGlassesRescreenNum;
-
-    /** 非戴镜复测指标数 */
-    private Integer withoutGlassesRescreenIndexNum;
-
-    /** 复测项次 */
-    private Integer rescreenItemNum;
-
-    /** 错误项次数 */
-    private Integer incorrectItemNum;
-
-    /** 错误率/发生率 */
-    private Float incorrectRatio;
+    /** 复测数据 */
+    private RescreenStat rescreenStat;
 }

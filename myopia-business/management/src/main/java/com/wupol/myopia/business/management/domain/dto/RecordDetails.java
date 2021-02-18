@@ -3,6 +3,8 @@ package com.wupol.myopia.business.management.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 /**
  * 筛查端-记录详情
  *
@@ -13,6 +15,16 @@ import lombok.Setter;
 public class RecordDetails {
 
     private Integer schoolId;
+
+    /**
+     * 筛查计划ID
+     */
+    private Integer screeningPlanId;
+
+    /**
+     * 筛查计划标题
+     */
+    private String planTitle;
 
     /**
      * 学校名称
@@ -28,4 +40,16 @@ public class RecordDetails {
      * 实际筛查的学生数量
      */
     private Integer realScreeningNumbers;
+
+    /**
+     * 计划开始时间
+     */
+    private Date startTime;
+
+    /**
+     * 计划结束时间
+     */
+    private Date endTime;
+
+
 }

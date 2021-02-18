@@ -67,6 +67,8 @@ public class ExcelFacade {
     private OauthService oauthService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 生成筛查机构Excel
@@ -724,5 +726,35 @@ public class ExcelFacade {
             org.apache.commons.io.IOUtils.closeQuietly(inputStream);
         }
         return templateFile;
+    }
+
+    /**
+     * 导入筛查学校的学生信息
+     * @param userId
+     * @param multipartFile
+     * @param screeningPlanId
+     * @param schoolId
+     * @throws IOException
+     */
+    public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, Integer screeningPlanId, Integer schoolId) throws IOException {
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
+        File file = new File(fileName);
+        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        List<Map<Integer, String>> listMap;
+        try {
+            listMap = EasyExcel.read(fileName).sheet().doReadSync();
+        } catch (ExcelAnalysisException excelAnalysisException) {
+            log.error("导入筛查学生数据异常", excelAnalysisException);
+            throw new BusinessException("解析文件格式异常");
+        } catch (Exception e) {
+            log.error("导入筛查学生数据异常", e);
+            throw new BusinessException("解析Excel文件异常");
+        }
+        if (listMap.size() != 0) {
+            // 去头部
+            listMap.remove(0);
+        }
+        screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
     }
 }

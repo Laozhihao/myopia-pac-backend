@@ -1,26 +1,27 @@
 DROP TABLE IF EXISTS m_screening_organization;
 create table m_screening_organization
 (
-    id              int auto_increment comment 'id'
+    id                  int auto_increment comment 'id'
         primary key,
-    create_user_id  int                                 null comment '创建人ID',
-    gov_dept_id     int                                 not null comment '部门ID',
-    district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(512)                        not null comment '行政区域json',
-    name            varchar(32)                         not null comment '筛查机构名称',
-    type            tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
-    type_desc       varchar(128)                        null default '' comment '机构类型描述',
-    config_type     tinyint                             not null comment '配置 0-省级配置 1-单点配置',
-    phone           varchar(32)                         null comment '联系方式',
-    province_code   bigint                              null comment '省代码',
-    city_code       bigint                              null comment '市代码',
-    area_code       bigint                              null comment '区代码',
-    town_code       bigint                              null comment '镇/乡代码',
-    address         varchar(128)                        null comment '详细地址',
-    remark          varchar(128)                        null comment '说明',
-    status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time     timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time     timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    create_user_id      int                                 null comment '创建人ID',
+    gov_dept_id         int                                 not null comment '部门ID',
+    district_id         int                                 not null comment '行政区域ID',
+    district_detail     varchar(512)                        not null comment '行政区域json',
+    name                varchar(32)                         not null comment '筛查机构名称',
+    type                tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
+    type_desc           varchar(128)                        null default '' comment '机构类型描述',
+    config_type         tinyint                             not null comment '配置 0-省级配置 1-单点配置',
+    phone               varchar(32)                         null comment '联系方式',
+    province_code       bigint                              null comment '省代码',
+    city_code           bigint                              null comment '市代码',
+    area_code           bigint                              null comment '区代码',
+    town_code           bigint                              null comment '镇/乡代码',
+    address             varchar(128)                        null comment '详细地址',
+    remark              varchar(128)                        null comment '说明',
+    notification_config json                                null comment '告知书配置',
+    status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
+    create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '筛查机构表';
 

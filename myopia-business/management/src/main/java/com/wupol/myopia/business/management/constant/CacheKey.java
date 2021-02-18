@@ -68,4 +68,9 @@ public interface CacheKey {
 
     String DISTRICT_CODE = "district:name:code_%s";
 
+    /**
+     * 文件访问地址
+     */
+    String FILE_URL = "file:url:key_%s";
+
 }

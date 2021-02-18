@@ -48,13 +48,11 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--开始时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 筛查任务--结束时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /**

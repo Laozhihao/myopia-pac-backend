@@ -20,4 +20,6 @@ public class ScreeningPlanVo extends ScreeningPlan {
     private String districtName;
     /** 部门名称 */
     private String govDeptName;
+    /** 筛查机构名称 */
+    private String screeningOrgName;
 }

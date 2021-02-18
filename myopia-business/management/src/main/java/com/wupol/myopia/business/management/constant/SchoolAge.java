@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum SchoolAge {
+    KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
     HIGH(2, "高中"),
     VOCATIONAL_HIGH(3, "职业高中"),
-    UNIVERSITY(4, "大学"),
-    KINDERGARTEN(5, "幼儿园");
+    UNIVERSITY(4, "大学");
 
     /** 学龄段ID */
     public final Integer code;

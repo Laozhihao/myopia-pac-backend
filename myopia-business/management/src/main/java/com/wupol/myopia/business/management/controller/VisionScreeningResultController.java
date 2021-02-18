@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.management.service.DistrictAttentiveObjectsStatisticService;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.service.VisionScreeningResultService;
 
 /**
  * @Author HaoHao
@@ -15,7 +15,7 @@ import com.wupol.myopia.business.management.service.DistrictAttentiveObjectsStat
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/districtAttentiveObjectsStatistic")
-public class DistrictAttentiveObjectsStatisticController extends BaseController<DistrictAttentiveObjectsStatisticService, DistrictAttentiveObjectsStatistic> {
+@RequestMapping("/management/screeningResult")
+public class VisionScreeningResultController extends BaseController<VisionScreeningResultService, VisionScreeningResult> {
 
 }

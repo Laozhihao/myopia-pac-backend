@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -33,9 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -241,6 +240,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolDtoIPage;
         }
 
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
         List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
@@ -259,7 +261,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, countMaps, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
     }
 
@@ -294,7 +296,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, List<Integer> havePlanSchoolIds, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
@@ -314,7 +316,23 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 详细地址
             s.setAddressDetail(districtService.getAddressDetails(
                     s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+
+            // 是否已有筛查计划
+            s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
         };
+    }
+
+    /**
+     * 根据是否需要查询学校是否已有计划，返回时间段内已有计划的学校id
+     *
+     * @param query
+     * @return
+     */
+    private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
+        if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -502,7 +520,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("district_id", districtId));
+        return baseMapper.selectList(new QueryWrapper<School>().eq("district_id", districtId));
     }
 
     /**
@@ -688,5 +706,31 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setId(userId)
                 .setUsername(username);
         oauthService.modifyUser(userDTO);
+    }
+
+    /**
+     * 根据层级Id获取学校列表（带是否有计划字段）
+     * @param schoolQuery
+     * @return
+     */
+    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQuery schoolQuery) {
+        Assert.notNull(schoolQuery.getDistrictId(), "层级id不能为空");
+        schoolQuery.setStatus(CommonConst.STATUS_NOT_DELETED);
+        // 查询
+        List<School> schoolList = getByDistrictId(schoolQuery.getDistrictId());
+        // 为空直接返回
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return Collections.emptyList();
+        }
+        // 获取已有计划的学校ID列表
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+
+        // 封装DTO
+        return schoolList.stream().map(school -> {
+            SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
+            BeanUtils.copyProperties(school, schoolResponseDTO);
+            schoolResponseDTO.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
+            return schoolResponseDTO;
+        }).collect(Collectors.toList());
     }
 }

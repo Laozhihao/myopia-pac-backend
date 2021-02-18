@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningResult;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2021-01-20
  */
-public interface ScreeningResultMapper extends BaseMapper<ScreeningResult> {
+public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningResult> {
 
-    List<Integer> getSchoolIdByTaskId(Integer taskId);
+    List<Integer> getSchoolIdByTaskId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 
     List<Integer> getCreateUserIdByTaskId(Integer taskId);
 

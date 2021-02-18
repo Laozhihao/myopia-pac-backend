@@ -38,4 +38,20 @@
       WHERE screening_plan_id = #{screeningPlanId}
     </select>
 
+    <select id="selectHasPlanInPeriod" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        msps.*
+        FROM m_screening_plan_school msps
+        LEFT JOIN m_screening_plan msp ON msps.screening_plan_id = msp.id
+        <where>
+            <trim prefixOverrides="and">
+                AND msp.release_status = 1
+                <if test="@Ognl@isNotEmpty(param.districtId)">and msp.`district_id` = #{param.districtId}</if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(msp.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
+
 </mapper>

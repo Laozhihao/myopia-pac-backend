@@ -56,7 +56,7 @@
                     and `title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
                 <if test="param.createUserIds != null">
-                    and `creator_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and `create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>
@@ -72,7 +72,7 @@
         m_screening_notice
         <where>
             <trim prefixOverrides="and">
-                and release_status = 1
+                and release_status = 1 and type = 0
                 <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startTime != null and param.endTime != null">

@@ -35,7 +35,6 @@ public class ScreeningTaskOrg implements Serializable {
     /**
      * 筛查任务--筛查任务id
      */
-    @NotNull
     private Integer screeningTaskId;
 
     /**
