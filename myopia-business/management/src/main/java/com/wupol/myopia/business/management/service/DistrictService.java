@@ -18,7 +18,6 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -40,8 +39,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /** 最小行政区域代码编号 */
     private static final long SMALLEST_PROVINCE_CODE = 110000000L;
 
-    @Value(value = "${oem.province.code}")
-    private Long oemProvinceCode;
     @Autowired
     private GovDeptService govDeptService;
     @Autowired

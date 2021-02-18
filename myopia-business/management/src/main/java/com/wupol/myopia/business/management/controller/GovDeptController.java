@@ -16,7 +16,6 @@ import com.wupol.myopia.business.management.service.UserService;
 import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -39,9 +38,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/management/govDept")
 public class GovDeptController {
-
-    @Value(value = "${oem.province.code}")
-    private Long oemProvinceCode;
 
     @Autowired
     private GovDeptService govDeptService;
