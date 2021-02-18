@@ -3,8 +3,8 @@ package com.wupol.myopia.business.management.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.service.StatService;
 import com.wupol.myopia.business.management.domain.dto.stat.*;
+import com.wupol.myopia.business.management.service.StatService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,7 +22,6 @@ import javax.validation.constraints.NotNull;
 public class StatController {
     @Autowired
     private StatService statService;
-
 
     @GetMapping("warningList")
     public ApiResult getWarningList() {
@@ -69,7 +68,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/district/screening-vision-result")
-    public ScreeningVisionStatisticDTO getDistrictVisionStatistic(@NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
+    public ScreeningVisionStatisticDTO getDistrictVisionStatistic(
+            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
         return new ScreeningVisionStatisticDTO();
     }
 
@@ -80,10 +80,10 @@ public class StatController {
      * @return
      */
     @GetMapping("/district/screening-monitor-result")
-    public ScreeningMonitorStatisticDTO getDistrictMonitorStatistic(@NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
+    public ScreeningMonitorStatisticDTO getDistrictMonitorStatistic(
+            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
         return new ScreeningMonitorStatisticDTO();
     }
-
 
     /**
      * 学校视力情况
@@ -92,7 +92,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticDTO getSchoolVisionStatistic(@NotNull Long schoolId, @NotNull Long taskId) throws JsonProcessingException {
+    public ScreeningSchoolVisionStatisticDTO getSchoolVisionStatistic(
+            @NotNull Long schoolId, @NotNull Long taskId) throws JsonProcessingException {
         return new ScreeningSchoolVisionStatisticDTO();
     }
 
@@ -103,8 +104,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/school/screening-monitor-result")
-    public ScreeningMonitorStatisticDTO getSchoolMonitorStatistic(@NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
+    public ScreeningMonitorStatisticDTO getSchoolMonitorStatistic(
+            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
         return new ScreeningMonitorStatisticDTO();
     }
-
 }
