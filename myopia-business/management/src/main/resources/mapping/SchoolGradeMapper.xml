@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolGrade">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(gradeCode)">and `grade_code` = #{gradeCode}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_user_id, school_id, grade_code, name, status, create_time, update_time
+    </sql>
+
+    <select id="getGradeBySchool" resultType="com.wupol.myopia.business.management.domain.dto.SchoolGradeItems">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade msg
+        where msg.status != 2
+          and msg.school_id = #{schoolId}
+    </select>
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_school_grade
+        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from m_school_grade
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade
+        <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getBySchoolIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO">
+        select *, ms.school_no as schoolNo
+        from m_school_grade msg
+                     left join m_school ms on msg.school_id = ms.id
+                where msg.school_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningOrganization">
+    </resultMap>
+
+    <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponseDTO">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
+                <if test="@Ognl@isNotEmpty(typeDesc)">and `type_desc` = #{typeDesc}</if>
+                <if test="@Ognl@isNotEmpty(configType)">and `config_type` = #{configType}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
+                <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
+                <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
+                <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
+                <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
+                <if test="@Ognl@isNotEmpty(address)">and `address` = #{address}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+                <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
+                <if test="orgIdLike != null">and cast(gov_dept_id as char) like CONCAT("%",#{orgIdLike},"%")</if>
+                <if test="code != null">
+                    and (city_code = #{code} or area_code = #{code} or town_code = #{code})
+                </if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_user_id, gov_dept_id, district_id, district_detail, name, type, type_desc,config_type, phone, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+    </sql>
+
+    <select id="getScreeningOrganizationListByCondition" resultMap="BaseResponseMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization mso
+<!--                where mso.gov_dept_id in-->
+<!--        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+        where id IS NOT NULL
+        <if test="name != null and name != ''">
+            and mso.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="type != null">
+            and mso.type = #{type}
+        </if>
+        <if test="configType != null">
+            and mso.config_type = #{configType}
+        </if>
+        <if test="districtId != null">
+            and mso.district_id = #{districtId}
+        </if>
+        <if test="govDeptId != null">
+            and mso.gov_dept_id = #{govDeptId}
+        </if>
+        <if test="phone != null and phone != ''">
+            and mso.phone like CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="status != null">
+            and mso.status = #{status}
+        </if>
+        order by mso.create_time desc
+    </select>
+
+    <select id="getLastOrgByNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization mso
+        where mso.org_no like CONCAT('%', #{code}, '%')
+        order by mso.org_no + 0 desc
+        limit 1
+    </select>
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from m_screening_organization
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getOrgById" resultMap="BaseResponseMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        where id = #{id}
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        <include refid="Base_Where_Clause"/>
+    </select>
+</mapper>
