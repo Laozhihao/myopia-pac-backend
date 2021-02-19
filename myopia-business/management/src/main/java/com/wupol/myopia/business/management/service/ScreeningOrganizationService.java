@@ -225,10 +225,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
         // 筛查次数
         List<OrgScreeningCountVO> orgScreeningCountVOS = screeningTaskOrgService.countScreeningTime();
-        Map<Integer, Integer> countMaps = orgScreeningCountVOS
-                .stream().collect(Collectors
-                        .toMap(OrgScreeningCountVO::getScreeningOrgId,
-                                OrgScreeningCountVO::getCount));
+        Map<Integer, Integer> countMaps = orgScreeningCountVOS.stream()
+                .collect(Collectors.toMap(OrgScreeningCountVO::getScreeningOrgId, OrgScreeningCountVO::getCount));
 
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
