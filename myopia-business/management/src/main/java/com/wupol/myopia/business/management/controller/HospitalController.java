@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -10,14 +12,10 @@ import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.HospitalService;
-import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 
 /**
@@ -79,7 +77,9 @@ public class HospitalController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getHospitalExportData(Integer districtId) throws IOException, ValidationException {
-        return FileUtils.getResponseEntity(excelFacade.generateHospital(districtId));
+    public Object getHospitalExportData(Integer districtId) throws IOException, UtilException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateHospital(currentUser.getId(), districtId);
+        return ApiResult.success();
     }
 }

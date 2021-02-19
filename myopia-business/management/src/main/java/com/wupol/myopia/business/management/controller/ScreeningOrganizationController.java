@@ -1,10 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
-import cn.hutool.core.lang.Assert;
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -12,10 +12,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -76,8 +73,10 @@ public class ScreeningOrganizationController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getOrganizationExportData(Integer districtId) throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganization(districtId));
+    public Object getOrganizationExportData(Integer districtId) throws IOException, UtilException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateScreeningOrganization(user.getId(), districtId);
+        return ApiResult.success();
     }
 
     @PostMapping("/reset")
