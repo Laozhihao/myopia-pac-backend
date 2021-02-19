@@ -197,5 +197,15 @@ public final class S3Utils {
         return responseHeaderOverrides;
     }
 
-
+    /**
+     * 上传文件到S3
+     * @param file 文件
+     * @return 文件URL
+     * @throws UtilException 异常
+     */
+    public String uploadFile(File file) throws UtilException {
+        // 上传
+        ResourceFile resourceFile = uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName());
+        return resourceFileService.getResourcePath(resourceFile.getId());
+    }
 }
