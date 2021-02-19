@@ -1,15 +1,16 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 地区层级某次筛查计划统计视力情况表
@@ -45,7 +46,10 @@ public class DistrictVisionStatistic implements Serializable {
      * 视力情况--所属的地区id
      */
     private Integer districtId;
-
+    /**
+     * 视力情况--是否 合计  0=否 1=是
+     */
+    private Integer isTotal;
     /**
      * 视力情况--平均左眼视力（小数点后一位，默认0.0）
      */
