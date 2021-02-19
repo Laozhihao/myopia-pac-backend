@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.query;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * 分页基类
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@Accessors(chain = true)
 public class PageRequest {
 
     private Integer current;

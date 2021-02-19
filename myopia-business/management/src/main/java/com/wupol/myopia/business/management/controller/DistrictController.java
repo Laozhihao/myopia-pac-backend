@@ -52,6 +52,16 @@ public class DistrictController extends BaseController<DistrictService, District
     public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
         return baseService.getChildDistrictByParentCodePriorityCache(code);
     }
+    /**
+     * 获取指定行政区域的下级区域
+     *
+     * @param id 行政区域的id
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    @GetMapping("/child/id/{id}")
+    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Integer id) throws IOException {
+        return baseService.getChildDistrictByParentIdPriorityCache(id);
+    }
 
     /**
      * 获取当前登录用户所属层级位置 - 层级链(从省开始到所属层级)

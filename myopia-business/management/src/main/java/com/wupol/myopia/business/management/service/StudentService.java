@@ -58,6 +58,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private SchoolService schoolService;
 
     /**
+     * 根据学生id列表获取学生信息
+     * @param ids id列表
+     * @return
+     */
+    public List<Student> getByIds(List<Integer> ids) {
+        QueryWrapper<Student> queryWrapper = new QueryWrapper();
+        InQueryAppend(queryWrapper, "id", ids);
+        return list(queryWrapper);
+    }
+
+    /**
      * 通过年级id查找学生
      *
      * @param gradeId 年级Id
@@ -100,7 +111,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
-
+        // TODO 新增也需要检查身份证唯一性
         // 检查学生身份证是否重复
         if (checkIdCard(student.getIdCard(), null)) {
             throw new BusinessException("学生身份证重复");
@@ -161,7 +172,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
-                .setSeeDoctorCount(student.getSeeDoctorCount());
+                .setNumOfVisits(student.getNumOfVisits());
         return studentDTO;
     }
 
@@ -214,7 +225,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             // 筛查次数
             s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
             // TODO: 就诊次数
-            s.setSeeDoctorCount(0);
+            s.setNumOfVisits(0);
             // TODO: 设置问卷数
             s.setQuestionnaireCount(0);
         }

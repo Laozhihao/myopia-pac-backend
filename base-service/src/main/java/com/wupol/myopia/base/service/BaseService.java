@@ -54,7 +54,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 查询实体参数
      * @return java.util.List<T>
      **/
-    public List<T> findByListOrderByIdAsc(T entity) throws IOException {
+    public List<T> findByListOrderByIdDesc(T entity) throws IOException {
         return list(getQueryWrapper(entity).orderByDesc("id"));
     }
 

@@ -46,6 +46,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
+    /** 根据code查地址 */
+    public District getByCode(Long code) throws BusinessException{
+        return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
+    }
+
     /** 根据地址名查code，查不到时直接返回emptyList */
     public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException{
         List<District> districtList = getWholeCountryDistrictTreePriorityCache();
@@ -274,6 +279,21 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     public List<District> getWholeCountryDistrictTree() {
         return baseMapper.selectChildNodeByParentCode(PROVINCE_PARENT_CODE);
+    }
+
+    /**
+     * 根据指定code，获取其下级行政区域集
+     *
+     * @param parentId 行政区域的id
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer parentId) throws IOException {
+        Assert.notNull(parentId, "行政区域代码编号不能为空");
+        District parentDistrict = getById(parentId);
+        if (Objects.isNull(parentDistrict)) {
+            throw new BusinessException("未找到该地址");
+        }
+        return getChildDistrictByParentCodePriorityCache(parentDistrict.getCode());
     }
 
     /**
