@@ -63,7 +63,7 @@ public class ScreeningTaskController {
         if (user.isScreeningUser()) {
             throw new ValidationException("无权限");
         }
-        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
             throw new ValidationException("无筛查机构或筛查机构重复");
         }
         if (user.isGovDeptUser()) {
