@@ -104,7 +104,9 @@ public class ExcelFacade {
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
-            noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", s3Utils.uploadFile(file));
+            noticeService.createExportNotice(userId, "生成筛查机构Excel",
+                    String.format(CommonConst.CONTENT, district.getName(), "筛查数据", new Date()),
+                    s3Utils.uploadFile(file));
         }
 
         // 创建人姓名
@@ -143,7 +145,9 @@ public class ExcelFacade {
         }
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
-        noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", s3Utils.uploadFile(file));
+        noticeService.createExportNotice(userId, "生成筛查机构Excel",
+                String.format(CommonConst.CONTENT, district.getName(), "筛查数据", new Date()),
+                s3Utils.uploadFile(file));
     }
 
     /**
@@ -172,7 +176,9 @@ public class ExcelFacade {
 
         if (CollectionUtils.isEmpty(userList)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
-            noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", s3Utils.uploadFile(file));
+            noticeService.createExportNotice(userId, "生成筛查机构人员Excel",
+                    String.format(CommonConst.CONTENT, orgName, "筛查机构人员数据", new Date()),
+                    s3Utils.uploadFile(file));
         }
 
         // 获取完整的用户信息
@@ -189,7 +195,9 @@ public class ExcelFacade {
                         .setOrganization(orgName)).collect(Collectors.toList());
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
-        noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", s3Utils.uploadFile(file));
+        noticeService.createExportNotice(userId, "生成筛查机构人员Excel",
+                String.format(CommonConst.CONTENT, orgName, "筛查机构人员数据", new Date()),
+                s3Utils.uploadFile(file));
     }
 
     /**
@@ -219,7 +227,9 @@ public class ExcelFacade {
 
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
-            noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", s3Utils.uploadFile(file));
+            noticeService.createExportNotice(userId, "生成医院Excel",
+                    String.format(CommonConst.CONTENT, district.getName(), "医院数据", new Date()),
+                    s3Utils.uploadFile(file));
         }
 
         // 创建人姓名
@@ -253,7 +263,9 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
-        noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", s3Utils.uploadFile(file));
+        noticeService.createExportNotice(userId, "生成医院Excel",
+                String.format(CommonConst.CONTENT, district.getName(), "医院数据", new Date()),
+                s3Utils.uploadFile(file));
     }
 
     /**
@@ -282,7 +294,9 @@ public class ExcelFacade {
 
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
-            noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", s3Utils.uploadFile(file));
+            noticeService.createExportNotice(userId, "生成学校Excel",
+                    String.format(CommonConst.CONTENT, district.getName(), "学校数据", new Date()),
+                    s3Utils.uploadFile(file));
         }
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
@@ -362,7 +376,9 @@ public class ExcelFacade {
         }
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
-        noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", s3Utils.uploadFile(file));
+        noticeService.createExportNotice(userId, "生成学校Excel",
+                String.format(CommonConst.CONTENT, district.getName(), "学校数据", new Date()),
+                s3Utils.uploadFile(file));
     }
 
     /**
@@ -394,7 +410,9 @@ public class ExcelFacade {
         // 为空直接导出
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
-            noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", s3Utils.uploadFile(file));
+            noticeService.createExportNotice(userId, "生成学生Excel",
+                    String.format(CommonConst.CONTENT, schoolName, "学生数据", new Date()),
+                    s3Utils.uploadFile(file));
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -445,7 +463,9 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         File file = ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
-        noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", s3Utils.uploadFile(file));
+        noticeService.createExportNotice(userId, "生成学生Excel",
+                String.format(CommonConst.CONTENT, schoolName, "学生数据", new Date()),
+                s3Utils.uploadFile(file));
     }
 
 
