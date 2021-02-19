@@ -5,11 +5,13 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.management.client.OauthService;
+import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -19,11 +21,16 @@ import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQu
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
+import com.wupol.myopia.business.management.util.S3Utils;
+import com.wupol.myopia.business.management.util.TwoTuple;
+import com.wupol.myopia.business.management.util.UploadUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,12 +77,26 @@ public class ExcelFacade {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    @Autowired
+    private NoticeService noticeService;
+
+    @Autowired
+    private S3Utils s3Utils;
+
+    @Autowired
+    private UploadConfig uploadConfig;
+
+    @Autowired
+    private ResourceFileService resourceFileService;
+
     /**
      * 生成筛查机构Excel
      *
+     * @param userId     创建人
      * @param districtId 地区id
      **/
-    public File generateScreeningOrganization(Integer districtId) throws IOException {
+    @Async
+    public void generateScreeningOrganization(Integer userId, Integer districtId) throws IOException, UtilException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
@@ -93,7 +114,8 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         if (CollectionUtils.isEmpty(list)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
+            noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", upload(file));
         }
 
         // 创建人姓名
@@ -131,15 +153,17 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
+        noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", upload(file));
     }
 
     /**
      * 生成筛查机构人员Excel
      *
+     * @param userId         创建人
      * @param screeningOrgId 机构id
      **/
-    public File generateScreeningOrganizationStaff(Integer screeningOrgId) throws IOException {
+    public void generateScreeningOrganizationStaff(Integer userId, Integer screeningOrgId) throws IOException, UtilException {
         if (Objects.isNull(screeningOrgId)) {
             throw new BusinessException("筛查机构id不能为空");
         }
@@ -158,7 +182,8 @@ public class ExcelFacade {
         String fileName = builder.toString();
 
         if (CollectionUtils.isEmpty(userList)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
+            noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", upload(file));
         }
 
         // 获取完整的用户信息
@@ -174,15 +199,17 @@ public class ExcelFacade {
                         .setIdCard(item.getIdCard())
                         .setOrganization(orgName)).collect(Collectors.toList());
         log.info("导出文件: {}", fileName);
-        return ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
+        noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", upload(file));
     }
 
     /**
      * 生成医院Excel
      *
+     * @param userId     创建人
      * @param districtId 地区id
      **/
-    public File generateHospital(Integer districtId) throws IOException {
+    public void generateHospital(Integer userId, Integer districtId) throws IOException, UtilException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
@@ -202,7 +229,8 @@ public class ExcelFacade {
         List<Hospital> list = hospitalService.getBy(query);
 
         if (CollectionUtils.isEmpty(list)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+            noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", upload(file));
         }
 
         // 创建人姓名
@@ -235,15 +263,17 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        return ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+        noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", upload(file));
     }
 
     /**
      * 生成学校Excel
      *
+     * @param userId     创建人
      * @param districtId 地区id
      **/
-    public File generateSchool(Integer districtId) throws IOException {
+    public void generateSchool(Integer userId, Integer districtId) throws IOException, UtilException {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
@@ -262,7 +292,8 @@ public class ExcelFacade {
         List<School> list = schoolService.getBy(query);
 
         if (CollectionUtils.isEmpty(list)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+            noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", upload(file));
         }
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
@@ -343,16 +374,18 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        return ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+        noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", upload(file));
     }
 
     /**
      * 生成学生Excel
      *
+     * @param userId   创建人
      * @param schoolId 学校id
      * @param gradeId  年级id
      **/
-    public File generateStudent(Integer schoolId, Integer gradeId) throws IOException, ValidationException {
+    public void generateStudent(Integer userId, Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
         if (Objects.isNull(schoolId)) {
             throw new BusinessException("学校id不能为空");
         }
@@ -373,7 +406,8 @@ public class ExcelFacade {
 
         // 为空直接导出
         if (CollectionUtils.isEmpty(list)) {
-            return ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
+            noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", upload(file));
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -423,7 +457,8 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        return ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
+        noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", upload(file));
     }
 
 
@@ -440,15 +475,15 @@ public class ExcelFacade {
         try {
             FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
         } catch (IOException e) {
-            log.error("导入学生数据异常:",e);
+            log.error("导入学生数据异常:", e);
             throw new BusinessException("导入学生数据异常");
         }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         List<Map<Integer, String>> listMap;
         try {
             listMap = EasyExcel.read(fileName).sheet().doReadSync();
-        }catch (Exception e) {
-            log.error("导入学生数据异常:",e);
+        } catch (Exception e) {
+            log.error("导入学生数据异常:", e);
             throw new BusinessException("Excel解析异常");
         }
         if (CollectionUtils.isEmpty(listMap)) {
@@ -604,7 +639,7 @@ public class ExcelFacade {
         try {
             FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
         } catch (IOException e) {
-            log.error("导入人员数据异常:",e);
+            log.error("导入人员数据异常:", e);
             throw new BusinessException("导入人员数据异常");
         }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
@@ -730,6 +765,7 @@ public class ExcelFacade {
 
     /**
      * 导入筛查学校的学生信息
+     *
      * @param userId
      * @param multipartFile
      * @param screeningPlanId
@@ -757,4 +793,19 @@ public class ExcelFacade {
         }
         screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
     }
+
+    private String upload(File file) throws UtilException {
+        String savePath = uploadConfig.getSavePath();
+        TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
+        String tempPath = uploadToServerResults.getSecond();
+        // 上传
+        ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
+        return resourceFileService.getResourcePath(resourceFile.getId());
+    }
+
+    private String genNewFileName(File file) {
+        String extension = FilenameUtils.getExtension(file.getName());
+        return String.format("%s.%s", UUID.randomUUID(), extension);
+    }
+
 }

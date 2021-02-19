@@ -5,6 +5,7 @@ import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,4 +21,14 @@ public class StudentScreeningResultItems {
      * 详情
      */
     private List<StudentResultDetails> details;
+
+    /**
+     * 筛查时间
+     */
+    private Date screeningDate;
+
+    /**
+     * 眼睛类型
+     */
+    private String glassesType;
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -70,9 +71,10 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException {
-        //TODO 待检验日期范围
-        return FileUtils.getResponseEntity(excelFacade.generateStudent(schoolId, gradeId));
+    public Object getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateStudent(user.getId(), schoolId, gradeId);
+        return ApiResult.success();
     }
 
     @PostMapping("/import")
