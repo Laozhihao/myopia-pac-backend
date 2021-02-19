@@ -46,32 +46,6 @@ public class UploadUtil {
         String path = savePath + "/" + fileName;
         return new TwoTuple<>(orgFileName, path);
     }
-
-    /**
-     * 处理文件上传
-     *
-     * @param file     文件流
-     * @param savePath 配置中存放文件的目录的绝对路径
-     * @return TwoTuple(文件原始名称, 文件临时路径)
-     */
-    public static TwoTuple<String, String> upload(File file, String savePath) {
-        String orgFileName = file.getName();
-        String imgUUID = UUID.randomUUID().toString();
-        String fileName = imgUUID + "." + FilenameUtils.getExtension(orgFileName);
-        try {
-            File targetFile = new File(savePath, fileName);
-            //把文件拷贝到服务器下面
-            InputStream input = new FileInputStream(file);
-            byte[] byt = new byte[input.available()];
-            FileUtils.writeByteArrayToFile(targetFile, byt);
-        } catch (IOException e) {
-            log.error("文件保存到服务器失败:\n文件名: " + orgFileName, e);
-            throw new UploadException("文件保存到服务器失败:\n文件名: " + orgFileName, e);
-        }
-        String path = savePath + "/" + fileName;
-        return new TwoTuple<>(orgFileName, path);
-    }
-
     public static void validateFileIsOverSize(MultipartFile file, Long sizeLimit) {
         if (file == null || file.getSize() == 0) {
             throw new UploadException("上传文件为空");
