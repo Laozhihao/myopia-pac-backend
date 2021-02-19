@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
@@ -12,14 +13,10 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 
 /**
@@ -83,8 +80,10 @@ public class SchoolController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getSchoolExportData(Integer districtId) throws IOException, ValidationException {
-        return FileUtils.getResponseEntity(excelFacade.generateSchool(districtId));
+    public Object getSchoolExportData(Integer districtId) throws IOException, UtilException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateSchool(currentUser.getId(), districtId);
+        return ApiResult.success();
     }
 
     @GetMapping("screening/record/lists/{schoolId}")

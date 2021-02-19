@@ -268,7 +268,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         for (VisionScreeningResult r : resultList) {
             StudentScreeningResultItems item = new StudentScreeningResultItems();
-            item.setDetails(packageDTO(r));
+            List<StudentResultDetails> result = packageDTO(r);
+            item.setDetails(result);
+            item.setScreeningDate(r.getCreateTime());
+            item.setGlassesType("TODO");
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
