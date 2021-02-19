@@ -403,7 +403,8 @@ public class ExcelFacade {
         List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
 
         // 为空直接导出
-        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "学生数据表", new Date());
+        String content = String.format(CommonConst.CONTENT,
+                districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName, "学生数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
             noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
