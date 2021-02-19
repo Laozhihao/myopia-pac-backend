@@ -237,7 +237,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 封装DTO
         records.forEach(r -> {
             // 同一部门才能更新
-            r.setCanUpdate(r.getGovDeptId().equals(orgId));
+            if (currentUser.isPlatformAdminUser()) {
+                r.setCanUpdate(true);
+            } else if(r.getCreateUserId().equals(currentUser.getId())) {
+                r.setCanUpdate(true);
+            }
 
             // 筛查人员
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());

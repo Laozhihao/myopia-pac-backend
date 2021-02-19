@@ -48,7 +48,7 @@
                 AND msp.release_status = 1
                 <if test="@Ognl@isNotEmpty(param.districtId)">and msp.`district_id` = #{param.districtId}</if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(msp.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                    and <![CDATA[ DATE(msp.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
             </trim>
         </where>

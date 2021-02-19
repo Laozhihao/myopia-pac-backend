@@ -68,7 +68,7 @@
                     and mst.`create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(mst.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                    and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
             </trim>
         </where>

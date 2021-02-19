@@ -62,6 +62,18 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     }
 
     /**
+     * 根据通知ID查询
+     *
+     * @param screeningNoticeId
+     * @return
+     */
+    public List<ScreeningNoticeDeptOrg> getByScreeningNoticeId(Integer screeningNoticeId) {
+        QueryWrapper<ScreeningNoticeDeptOrg> query = new QueryWrapper<>();
+        query.eq("screening_notice_id", screeningNoticeId);
+        return baseMapper.selectList(query);
+    }
+
+    /**
      * 分页查询
      * @param query
      * @param pageRequest
