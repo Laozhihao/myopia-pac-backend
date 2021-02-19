@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.util;
 
-import com.wupol.myopia.business.management.domain.dto.stat.StatVerdict;
+import com.wupol.myopia.business.management.domain.dto.stat.StatConclusion;
 
 public class StatUtil {
     /**
@@ -9,9 +9,9 @@ public class StatUtil {
      * @param cylinderLens 柱镜
      * @return
      */
-    public static StatVerdict getStatVerdict(
+    public static StatConclusion getStatVerdict(
             Float sphericalLens, Float cylinderLens, Boolean isWearingGlasses, Integer age) {
-        return StatVerdict.builder().isWearingGlasses(isWearingGlasses).build();
+        return StatConclusion.builder().isWearingGlasses(isWearingGlasses).build();
     }
 
     /**
@@ -19,9 +19,9 @@ public class StatUtil {
      * @param nakedVision 裸眼视力
      * @return
      */
-    public static StatVerdict getStatVerdict(
+    public static StatConclusion getStatVerdict(
             Float nakedVision, Boolean isWearingGlasses, Integer age) {
-        return StatVerdict
+        return StatConclusion
                 .builder()
                 // .isAstigmatism(isAstigmatism)
                 .isWearingGlasses(isWearingGlasses)
@@ -41,11 +41,61 @@ public class StatUtil {
     }
 
     /**
+     * 是否远视
+     */
+    public static boolean isHyperopia(Float sphericalLens, Integer age)
+            throws NumberFormatException {
+        if (age == null || age < 0) {
+            throw new NumberFormatException("wrong number");
+        }
+        switch (age) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                if (sphericalLens > 3.5f) {
+                    return true;
+                }
+            case 4:
+            case 5:
+                if (sphericalLens > 2.5f) {
+                    return true;
+                }
+            case 6:
+            case 7:
+                if (sphericalLens > 2.0f) {
+                    return true;
+                }
+            case 8:
+                if (sphericalLens > 1.0f) {
+                    return true;
+                }
+            case 9:
+                if (sphericalLens > 0.75f) {
+                    return true;
+                }
+            case 10:
+            case 11:
+                if (sphericalLens > 0.5f) {
+                    return true;
+                }
+            default:
+                if (sphericalLens > 0.25f) {
+                    return true;
+                }
+        }
+        return false;
+    }
+
+    /**
      * 是否视力低下
      * @param nakedVision 裸眼视力
      * @return
      */
     public static boolean isLowVision(Float nakedVision, Integer age) {
+        if (age < 3 && nakedVision <= 4.6) {
+            return true;
+        }
         if ((age <= 5 && age >= 3) && nakedVision <= 4.7) {
             return true;
         }

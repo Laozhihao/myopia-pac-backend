@@ -3,9 +3,12 @@ package com.wupol.myopia.business.management.domain.dto.stat;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * 统计结论
+ */
 @Data
 @Builder
-public class StatVerdict {
+public class StatConclusion {
     /** 是否视力低下 */
     private Boolean isLowVision;
 
