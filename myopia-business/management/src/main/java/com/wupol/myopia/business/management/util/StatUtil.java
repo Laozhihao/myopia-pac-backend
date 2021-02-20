@@ -89,6 +89,7 @@ public class StatUtil {
         return false;
     }
 
+
     /**
      * 是否视力低下
      * @param nakedVision 裸眼视力
