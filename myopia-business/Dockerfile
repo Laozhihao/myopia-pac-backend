@@ -23,8 +23,8 @@ COPY ./myopia-device/pom.xml /build/myopia-device/pom.xml
 COPY ./myopia-gateway/pom.xml /build/myopia-gateway/pom.xml
 COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
 
-#RUN --mount=type=cache,target=/root/.m2 \
-#    mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
+RUN --mount=type=cache,target=/root/.cache/.m2 \
+    mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
 #RUN mvn dependency:resolve dependency:resolve-plugins dependency:go-offline clean
 
 COPY . .
