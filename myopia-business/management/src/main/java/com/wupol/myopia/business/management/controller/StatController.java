@@ -37,17 +37,32 @@ public class StatController {
     @Autowired
     private ScreeningTaskService screeningTaskService;
 
+    /**
+     * 获取预警信息
+     */
     @GetMapping("warningList")
     public ApiResult getWarningList() {
         // TODO: Mocking Data
         return ApiResult.success(statService.getWarningList());
     }
 
+    /**
+     * 获取年度通知列表
+     */
     @GetMapping("briefNotificationList")
     public ApiResult getBriefNotificationList() {
         return ApiResult.success(statService.getBriefNotificationList());
     }
 
+    /**
+     * 获取筛查对比数据
+     * @param contrastTypeCode 对比类型
+     * @param notificationId1 1号通知ID
+     * @param notificationId2 2号通知ID
+     * @param districtId 区域ID
+     * @param schoolAge 学龄代码
+     * @return
+     */
     @GetMapping("/dataContrast")
     public ApiResult getScreeningDataContrast(
             @RequestParam("contrastType") Integer contrastTypeCode,
@@ -58,11 +73,15 @@ public class StatController {
                 contrastTypeCode, notificationId1, notificationId2, districtId, schoolAge));
     }
 
+    /**
+     * 分类统计数据
+     * @param notificationId 通知ID
+     * @return
+     */
     @GetMapping("/dataClass")
     public ApiResult getScreeningClassStat(@RequestParam("nid") Integer notificationId) {
         return ApiResult.success(statService.getScreeningClassStat(notificationId));
     }
-
 
     /**
      * 重点视力对象

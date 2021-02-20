@@ -31,4 +31,9 @@ public class StudentScreeningResultItems {
      * 眼睛类型
      */
     private String glassesType;
+
+    /**
+     * 筛查结果表ID
+     */
+    private Integer resultId;
 }
