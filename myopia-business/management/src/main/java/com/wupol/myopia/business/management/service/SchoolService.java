@@ -84,6 +84,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
+    @Resource
+    private GovDeptService govDeptService;
+
     /**
      * 新增学校
      *
@@ -270,7 +273,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             if (null != districtId) {
                 return new TwoTuple<>(districtId, null);
             }
-        } else {
+        } else if (currentUser.isScreeningUser()) {
             if (null != districtId) {
                 // 不为空说明是搜索条件
                 return new TwoTuple<>(districtId, null);
@@ -279,6 +282,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
             District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(org.getDistrictId()).getCode());
+            String pre = String.valueOf(district.getCode()).substring(0, 2);
+            return new TwoTuple<>(null, Integer.valueOf(pre));
+        } else if (currentUser.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+            District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(govDept.getDistrictId()).getCode());
             String pre = String.valueOf(district.getCode()).substring(0, 2);
             return new TwoTuple<>(null, Integer.valueOf(pre));
         }
