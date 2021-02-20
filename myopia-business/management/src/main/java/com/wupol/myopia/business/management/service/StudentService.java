@@ -9,10 +9,9 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentResultDetails;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultItems;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -56,6 +55,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolService schoolService;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 通过年级id查找学生
@@ -264,7 +266,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         List<StudentScreeningResultItems> items = new ArrayList<>();
 
         // 通过计划Ids查询学生的结果
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentId);
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
         for (VisionScreeningResult r : resultList) {
             StudentScreeningResultItems item = new StudentScreeningResultItems();
@@ -272,6 +274,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             item.setDetails(result);
             item.setScreeningDate(r.getCreateTime());
             item.setGlassesType("TODO");
+            item.setResultId(r.getId());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
@@ -340,7 +343,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Boolean checkIdCard(String IdCard, Integer id) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
                 .eq("id_card", IdCard)
-                .ne("status",CommonConst.STATUS_IS_DELETED);
+                .ne("status", CommonConst.STATUS_IS_DELETED);
 
         if (null != id) {
             queryWrapper.ne("id", id);
@@ -351,8 +354,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 根据身份证列表获取学生
      *
-     * @param idCardList
-     * @return
+     * @param idCardList 身份证list
+     * @return List<Student>
      */
     public List<Student> getByIdCards(List<String> idCardList) {
         StudentQuery studentQuery = new StudentQuery();
@@ -371,7 +374,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Boolean checkIdCards(List<String> IdCards) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
                 .in("id_card", IdCards)
-                .ne("status",CommonConst.STATUS_IS_DELETED);
+                .ne("status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(queryWrapper).size() > 0;
     }
 
@@ -415,5 +418,132 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         rightDetails.setLateriality(1);
         return Lists.newArrayList(leftDetails, rightDetails);
+    }
+
+    /**
+     * 获取学生档案卡
+     *
+     * @param resultId 筛查结果
+     * @return StudentCardResponseDTO
+     */
+    public StudentCardResponseDTO getCardDetails(Integer resultId) {
+        StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
+
+        VisionScreeningResult result = visionScreeningResultService.getById(resultId);
+        Integer studentId = result.getStudentId();
+
+        Student student = baseMapper.selectById(studentId);
+        // 获取学生基本信息
+        CardInfo cardInfo = getCardInfo(student);
+        cardInfo.setScreeningDate(result.getCreateTime());
+        responseDTO.setInfo(cardInfo);
+
+        // 获取结果记录
+        CardDetails cardDetails = getCardDetails(result);
+        responseDTO.setDetails(cardDetails);
+        return responseDTO;
+    }
+
+    /**
+     * 设置学生基本信息
+     *
+     * @param student 学生
+     * @return CardInfo
+     */
+    private CardInfo getCardInfo(Student student) {
+        CardInfo cardInfo = new CardInfo();
+
+        cardInfo.setName(student.getName());
+        cardInfo.setBirthday(student.getBirthday());
+        cardInfo.setIdCard(student.getIdCard());
+        cardInfo.setGender(student.getGender());
+
+        String schoolNo = student.getSchoolNo();
+        if (StringUtils.isNotBlank(schoolNo)) {
+            School school = schoolService.getBySchoolNo(schoolNo);
+            SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
+            SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+            cardInfo.setSchoolName(school.getName());
+            cardInfo.setClassName(schoolClass.getName());
+            cardInfo.setGradeName(schoolGrade.getName());
+            cardInfo.setProvinceName(districtService.getDistrictName(school.getProvinceCode()));
+            cardInfo.setCityName(districtService.getDistrictName(school.getCityCode()));
+            cardInfo.setAreaName(districtService.getDistrictName(school.getAreaCode()));
+            cardInfo.setTownName(districtService.getDistrictName(school.getTownCode()));
+        }
+        return cardInfo;
+    }
+
+    /**
+     * 设置视力信息
+     *
+     * @param result 筛查结果
+     * @return CardDetails
+     */
+    private CardDetails getCardDetails(VisionScreeningResult result) {
+        CardDetails details = new CardDetails();
+        details.setGlassesType("TODO");
+        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
+        details.setCrossMirrorResults(setCrossMirrorResults());
+        return details;
+    }
+
+    /**
+     * 设置视力检查结果
+     *
+     * @param result 筛查结果
+     * @return List<VisionResult>
+     */
+    private List<VisionResult> setVisionResult(VisionDataDO result) {
+        VisionResult left = new VisionResult();
+        left.setLateriality(0);
+        left.setCorrectedVision(result.getLeftEyeData().getCorrectedVision());
+        left.setNakedVision(result.getLeftEyeData().getNakedVision());
+
+        VisionResult right = new VisionResult();
+        right.setLateriality(1);
+        right.setCorrectedVision(result.getRightEyeData().getCorrectedVision());
+        right.setNakedVision(result.getRightEyeData().getNakedVision());
+        return Lists.newArrayList(left, right);
+    }
+
+    /**
+     * 设置验光仪检查结果
+     *
+     * @param result 筛查结果
+     * @return List<RefractoryResult>
+     */
+    private List<RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
+        RefractoryResult left = new RefractoryResult();
+        left.setLateriality(0);
+        left.setAxial(result.getLeftEyeData().getAxial());
+        left.setSph(result.getLeftEyeData().getSph());
+        left.setCyl(result.getLeftEyeData().getCyl());
+
+        RefractoryResult right = new RefractoryResult();
+        right.setLateriality(1);
+        right.setAxial(result.getRightEyeData().getAxial());
+        right.setSph(result.getRightEyeData().getSph());
+        right.setCyl(result.getRightEyeData().getCyl());
+        return Lists.newArrayList(left, right);
+    }
+
+    /**
+     * 设置串镜检查结果
+     *
+     * @return List<CrossMirrorResult>
+     */
+    private List<CrossMirrorResult> setCrossMirrorResults() {
+        CrossMirrorResult left = new CrossMirrorResult();
+        left.setLateriality(0);
+        left.setMyopia(true);
+        left.setFarsightedness(true);
+
+        CrossMirrorResult right = new CrossMirrorResult();
+        right.setLateriality(1);
+        right.setMyopia(true);
+        right.setFarsightedness(true);
+        return Lists.newArrayList(left, right);
     }
 }
