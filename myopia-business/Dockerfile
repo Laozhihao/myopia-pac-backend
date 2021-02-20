@@ -30,7 +30,7 @@ COPY ./myopia-oauth/pom.xml /build/myopia-oauth/pom.xml
 COPY . .
 COPY myopia-business/bootstrap/setting/env/* /build/myopia-business/bootstrap/src/main/resources/
 
-RUN --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,target=/root/.cache/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
 # application
