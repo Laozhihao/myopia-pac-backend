@@ -2,6 +2,8 @@ package com.wupol.myopia.business.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -86,17 +88,17 @@ public class DistrictMonitorStatistic implements Serializable {
     /**
      * 监测情况--筛查错误率（默认0，单位%）
      */
-    private Integer errorRatio;
+    private BigDecimal errorRatio;
 
     /**
      * 监测情况--计划的学生数量（默认0）
      */
-    private Integer planNumbers;
+    private Integer planScreeningNumbers;
 
     /**
      * 监测情况--实际筛查的学生数量（默认0）
      */
-    private Integer screeningNumbers;
+    private Integer realScreeningNumbers;
 
     /**
      * 监测情况--更新时间

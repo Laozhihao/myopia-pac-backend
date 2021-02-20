@@ -11,6 +11,7 @@ import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
+import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
@@ -170,4 +171,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.selectCount(query) > 0;
     }
 
+    /**
+     * 获取筛查计划id
+     * @param districtId
+     * @param taskId
+     * @return
+     */
+    public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
+         return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+    }
 }

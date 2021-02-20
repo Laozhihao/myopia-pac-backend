@@ -3,17 +3,21 @@ package com.wupol.myopia.business.management.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.domain.dto.stat.*;
-import com.wupol.myopia.business.management.service.StatService;
-
+import com.wupol.myopia.business.management.domain.dto.stat.FocusObjectsStatisticVO;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningMonitorStatisticVO;
+import com.wupol.myopia.business.management.domain.dto.stat.ScreeningVisionStatisticVO;
+import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.service.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ResponseResultBody
 @CrossOrigin
@@ -22,6 +26,16 @@ import javax.validation.constraints.NotNull;
 public class StatController {
     @Autowired
     private StatService statService;
+    @Autowired
+    private DistrictService districtService;
+    @Autowired
+    private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
+    @Autowired
+    private DistrictVisionStatisticService districtVisionStatisticService;
+    @Autowired
+    private DistrictMonitorStatisticService districtMonitorStatisticService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
 
     @GetMapping("warningList")
     public ApiResult getWarningList() {
@@ -57,8 +71,25 @@ public class StatController {
      * @return
      */
     @GetMapping("/attentive-objects-statistic")
-    public FocusObjectsStatisticDTO getAttenticeObjectsStatistic(Long districtId) {
-        return new FocusObjectsStatisticDTO();
+    public FocusObjectsStatisticVO getAttenticeObjectsStatistic(Integer districtId, Integer taskId) throws IOException {
+        //下级层级
+        List<District> districts = districtService.getChildDistrictByParentCodePriorityCache(districtId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(districtId);
+        //根据层级获取数据(当前层级，下级层级，汇总数据）
+        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(districtIds, taskId);
+        if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics))  {
+            return  FocusObjectsStatisticVO.getEmptyInstance();
+        }
+        //获取task详情
+        ScreeningTask screeningTask = screeningTaskService.getById(taskId);
+        //获取当前范围名
+        String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
+        // 获取districtIds 的所有名字
+        Map<Integer, String> districtIdNameMap = districts.stream().collect(Collectors.toMap(District::getId, District::getName));
+        districtIdNameMap.put(districtId,currentRangeName);
+        //获取数据
+        return FocusObjectsStatisticVO.getInstance(districtAttentiveObjectsStatistics, districtId, currentRangeName, screeningTask,districtIdNameMap);
     }
 
     /**
@@ -68,9 +99,26 @@ public class StatController {
      * @return
      */
     @GetMapping("/district/screening-vision-result")
-    public ScreeningVisionStatisticDTO getDistrictVisionStatistic(
-            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
-        return new ScreeningVisionStatisticDTO();
+    public ScreeningVisionStatisticVO getDistrictVisionStatistic(
+            @NotNull Integer districtId, @NotNull Long taskId) throws IOException {
+        //下级层级
+        List<District> districts = districtService.getChildDistrictByParentCodePriorityCache(districtId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(districtId);
+        //根据层级获取数据(当前层级，下级层级，汇总数据）
+        List<DistrictVisionStatistic> districtVisionStatistics = districtVisionStatisticService.getStatisticDtoByDistrictIdAndTaskId(districtIds, taskId);
+        if (CollectionUtils.isEmpty(districtVisionStatistics))  {
+            return  ScreeningVisionStatisticVO.getEmptyInstance();
+        }
+        //获取task详情
+        ScreeningTask screeningTask = screeningTaskService.getById(taskId);
+        //获取当前范围名
+        String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
+        // 获取districtIds 的所有名字
+        Map<Integer, String> districtIdNameMap = districts.stream().collect(Collectors.toMap(District::getId, District::getName));
+        districtIdNameMap.put(districtId,currentRangeName);
+        //获取数据
+        return ScreeningVisionStatisticVO.getInstance(districtVisionStatistics, districtId, currentRangeName, screeningTask,districtIdNameMap);
     }
 
     /**
@@ -80,32 +128,28 @@ public class StatController {
      * @return
      */
     @GetMapping("/district/screening-monitor-result")
-    public ScreeningMonitorStatisticDTO getDistrictMonitorStatistic(
-            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
-        return new ScreeningMonitorStatisticDTO();
+    public ScreeningMonitorStatisticVO getDistrictMonitorStatistic(
+           Integer districtId, Long taskId) throws IOException {
+        //下级层级
+        List<District> districts = districtService.getChildDistrictByParentCodePriorityCache(districtId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(districtId);
+        //根据层级获取数据(当前层级，下级层级，汇总数据）
+        List<DistrictMonitorStatistic> districtMonitorStatistics = districtMonitorStatisticService.getStatisticDtoByDistrictIdAndTaskId(districtIds, taskId);
+        if (CollectionUtils.isEmpty(districtMonitorStatistics))  {
+            return  ScreeningMonitorStatisticVO.getEmptyInstance();
+        }
+        //获取task详情
+        ScreeningTask screeningTask = screeningTaskService.getById(taskId);
+        //获取当前范围名
+        String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
+        // 获取districtIds 的所有名字
+        Map<Integer, String> districtIdNameMap = districts.stream().collect(Collectors.toMap(District::getId, District::getName));
+        districtIdNameMap.put(districtId,currentRangeName);
+        //获取数据
+        return ScreeningMonitorStatisticVO.getInstance(districtMonitorStatistics, districtId, currentRangeName, screeningTask,districtIdNameMap);
     }
 
-    /**
-     * 学校视力情况
-     *
-     * @param schoolId
-     * @return
-     */
-    @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticDTO getSchoolVisionStatistic(
-            @NotNull Long schoolId, @NotNull Long taskId) throws JsonProcessingException {
-        return new ScreeningSchoolVisionStatisticDTO();
-    }
 
-    /**
-     * 学校监控情况
-     *
-     * @param districtId
-     * @return
-     */
-    @GetMapping("/school/screening-monitor-result")
-    public ScreeningMonitorStatisticDTO getSchoolMonitorStatistic(
-            @NotNull Long districtId, @NotNull Long taskId) throws JsonProcessingException {
-        return new ScreeningMonitorStatisticDTO();
-    }
+
 }
