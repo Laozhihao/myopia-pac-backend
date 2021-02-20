@@ -47,7 +47,7 @@
                 AND mst.release_status = 1
                 <if test="@Ognl@isNotEmpty(orgId)">and msto.`screening_org_id` = #{orgId}</if>
                 <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ msto.`screening_task_id` <> #{param.id}]]></if>
-                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>

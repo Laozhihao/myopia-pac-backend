@@ -5,9 +5,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @MapperScan("com.wupol.myopia.business.**.domain.mapper")
 @EnableDiscoveryClient
+@EnableScheduling
 @EnableFeignClients(basePackages = "com.wupol.myopia.business.**.client")
 @SpringBootApplication(scanBasePackages = { "com.wupol.myopia" })
 public class MyopiaBusinessApplication {

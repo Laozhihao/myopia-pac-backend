@@ -204,8 +204,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (Objects.isNull(school)) {
             throw new BusinessException("不存在该学校");
         }
+        // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         if (listMap.stream().anyMatch(map -> ObjectsUtil.hasNull(map.getOrDefault(0, null), map.getOrDefault(1, null), map.getOrDefault(2, null), map.getOrDefault(4, null),map.getOrDefault(5, null), map.getOrDefault(6, null), map.getOrDefault(7, null), map.getOrDefault(8, null)))) {
             throw new BusinessException("存在必填项无填写");
+        }
+        List<String> schoolNoList = listMap.stream().map(map -> map.get(4)).distinct().collect(Collectors.toList());
+        if (schoolNoList.size() > 1 || !school.getSchoolNo().equalsIgnoreCase(schoolNoList.get(0))) {
+            throw new BusinessException("学校编号填写错误或不匹配");
         }
     }
 

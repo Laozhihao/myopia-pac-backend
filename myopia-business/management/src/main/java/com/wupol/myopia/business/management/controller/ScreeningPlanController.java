@@ -10,6 +10,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
@@ -37,6 +38,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 
@@ -94,6 +96,10 @@ public class ScreeningPlanController {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
         }
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
@@ -132,7 +138,11 @@ public class ScreeningPlanController {
      */
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) throws AccessDeniedException {
-        validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
+        ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
     }
@@ -144,11 +154,11 @@ public class ScreeningPlanController {
      * @param screeningPlanId
      * @param releaseStatus
      */
-    private void validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
+    private ScreeningPlan validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
-        if (user.isGovDeptUser() || user.isPlatformAdminUser()) {
-            // 政府部门，无法新增计划
+        if (user.isGovDeptUser()) {
+            // 政府部门，无法新增修改计划
             throw new ValidationException("无权限");
         }
         ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, releaseStatus);
@@ -156,6 +166,7 @@ public class ScreeningPlanController {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlan.getScreeningOrgId()), "无该筛查机构权限");
         }
+        return screeningPlan;
     }
 
     /**
@@ -200,11 +211,11 @@ public class ScreeningPlanController {
     @GetMapping("page")
     public IPage queryInfo(PageRequest page, ScreeningPlanQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isGovDeptUser()) {
+            throw new ValidationException("无权限");
+        }
         if (user.isScreeningUser()) {
             query.setScreeningOrgId(user.getOrgId());
-        }
-        if (user.isGovDeptUser()) {
-            query.setGovDeptId(user.getOrgId());
         }
         return screeningPlanService.getPage(query, page);
     }
@@ -239,19 +250,19 @@ public class ScreeningPlanController {
     /**
      * 新增筛查学校
      *
-     * @param screeningPlanSchool 新增参数
+     * @param screeningPlanId 筛查计划ID
+     * @param screeningPlanSchools 新增的学校列表
      * @return Object
      */
-    @PostMapping("schools")
-    public void addSchoolsInfo(@RequestBody @Valid ScreeningPlanSchool screeningPlanSchool) {
-        // 任务状态判断：已发布才能新增
-        validateExistWithReleaseStatusAndReturn(screeningPlanSchool.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
-        // 是否已存在
-        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanSchool.getScreeningPlanId(), screeningPlanSchool.getSchoolId());
-        if (Objects.nonNull(planSchool)) {
-            screeningPlanSchool.setId(planSchool.getId());
+    @PostMapping("schools/{screeningPlanId}")
+    public void addSchoolsInfo(@PathVariable Integer screeningPlanId, @RequestBody @Valid List<ScreeningPlanSchool> screeningPlanSchools) {
+        if (CollectionUtils.isEmpty(screeningPlanSchools)) {
+            return;
         }
-        screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
+        // 任务状态判断：已发布才能新增
+        ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
+        validateSchoolLegal(screeningPlan, screeningPlanSchools);
+        screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanId, screeningPlanSchools);
     }
 
     /**
@@ -276,12 +287,33 @@ public class ScreeningPlanController {
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) throws AccessDeniedException {
         // 已发布，直接返回
-        validateExistWithReleaseStatusAndReturn(id, CommonConst.STATUS_RELEASE);
+        ScreeningPlan screeningPlan = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         // 没有学校，直接报错
-        if (CollectionUtils.isEmpty(screeningPlanSchoolService.getSchoolListsByPlanId(id))) {
+        List<ScreeningPlanSchool> schoolListsByPlanId = screeningPlanSchoolService.getSchoolListsByPlanId(id);
+        if (CollectionUtils.isEmpty(schoolListsByPlanId)) {
             throw new ValidationException("无筛查的学校");
         }
+        validateSchoolLegal(screeningPlan, schoolListsByPlanId);
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 校验学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
+     * @param screeningPlan
+     * @param schoolListsByPlanId
+     */
+    private void validateSchoolLegal(ScreeningPlan screeningPlan, List<ScreeningPlanSchool> schoolListsByPlanId) {
+        // 学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
+        LocalDate startTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getStartTime());
+        LocalDate endTime = com.wupol.framework.core.util.DateUtil.fromDate(screeningPlan.getEndTime());
+        List<Integer> havePlanSchoolIds = screeningPlanSchoolService.getHavePlanSchoolIds(null, screeningPlan.getId(), screeningPlan.getScreeningOrgId(), startTime, endTime);
+        if (schoolListsByPlanId.stream().anyMatch(screeningPlanSchool -> havePlanSchoolIds.contains(screeningPlanSchool.getSchoolId()))) {
+            throw new ValidationException("该筛查机构相同时间段内计划已存在学校");
+        }
     }
 
     /**
@@ -309,7 +341,7 @@ public class ScreeningPlanController {
     public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         //1. 发布成功后才能导入
-        validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
+        validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         //2. 校验计划学校是否已存在
         ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
         if (Objects.isNull(planSchool)) {

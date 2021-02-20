@@ -56,6 +56,14 @@ public class ScreeningPlanQuery extends ScreeningPlan {
      * 筛查计划--操作状态（0未读 1 是已读 3是已创建）
      */
     private Integer operationStatus;
+    /**
+     * 层级ID列表
+     */
+    private List<Integer> districtIds;
+    /**
+     * 排除的计划ID
+     */
+    private Integer excludedScreeningPlanId;
 
     public LocalDate getEndCreateTime() {
         return Objects.isNull(endCreateTime) ? null : endCreateTime.plusDays(1L);

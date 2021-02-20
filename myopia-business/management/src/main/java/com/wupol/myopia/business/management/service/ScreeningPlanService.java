@@ -16,7 +16,6 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -110,9 +109,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
-        ScreeningPlan sscreeningPlan = getById(id);
-        sscreeningPlan.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        return updateById(sscreeningPlan, user.getId());
+        ScreeningPlan screeningPlan = getById(id);
+        screeningPlan.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
+        return updateById(screeningPlan, user.getId());
     }
 
     /**
@@ -126,7 +125,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查学校信息
-        screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
+        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());

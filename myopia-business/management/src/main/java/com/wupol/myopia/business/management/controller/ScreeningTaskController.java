@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.model.GovDept;
@@ -123,6 +124,10 @@ public class ScreeningTaskController {
         if (user.isGovDeptUser()) {
             // 政府部门人员，需校验是否同部门
             Assert.isTrue(user.getOrgId().equals(screeningTask.getGovDeptId()), "无该部门权限");
+        }
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTask.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
         }
     }
 
