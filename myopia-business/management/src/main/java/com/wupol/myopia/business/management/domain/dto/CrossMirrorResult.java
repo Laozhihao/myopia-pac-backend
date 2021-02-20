@@ -26,4 +26,9 @@ public class CrossMirrorResult {
      * 是否远视
      */
     private Boolean farsightedness;
+
+    /**
+     * 是否有其他
+     */
+    private Boolean other = false;
 }
