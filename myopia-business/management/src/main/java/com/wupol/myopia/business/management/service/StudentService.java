@@ -400,7 +400,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLT());
         leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWTW());
         leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
-        leftDetails.setLateriality(0);
+        leftDetails.setLateriality(CommonConst.LEFT_EYE);
 
         //设置右眼
         StudentResultDetails rightDetails = new StudentResultDetails();
@@ -416,8 +416,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setLT(result.getBiometricData().getRightEyeData().getLT());
         rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWTW());
         rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
-        rightDetails.setLateriality(1);
-        return Lists.newArrayList(leftDetails, rightDetails);
+        rightDetails.setLateriality(CommonConst.RIGHT_EYE);
+        return Lists.newArrayList(rightDetails,leftDetails);
     }
 
     /**
@@ -497,15 +497,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private List<VisionResult> setVisionResult(VisionDataDO result) {
         VisionResult left = new VisionResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setCorrectedVision(result.getLeftEyeData().getCorrectedVision());
         left.setNakedVision(result.getLeftEyeData().getNakedVision());
 
         VisionResult right = new VisionResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setCorrectedVision(result.getRightEyeData().getCorrectedVision());
         right.setNakedVision(result.getRightEyeData().getNakedVision());
-        return Lists.newArrayList(left, right);
+        return Lists.newArrayList(right, left);
     }
 
     /**
@@ -516,17 +516,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private List<RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
         RefractoryResult left = new RefractoryResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setAxial(result.getLeftEyeData().getAxial());
         left.setSph(result.getLeftEyeData().getSph());
         left.setCyl(result.getLeftEyeData().getCyl());
 
         RefractoryResult right = new RefractoryResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setAxial(result.getRightEyeData().getAxial());
         right.setSph(result.getRightEyeData().getSph());
         right.setCyl(result.getRightEyeData().getCyl());
-        return Lists.newArrayList(left, right);
+        return Lists.newArrayList(right, left);
     }
 
     /**
@@ -536,14 +536,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private List<CrossMirrorResult> setCrossMirrorResults() {
         CrossMirrorResult left = new CrossMirrorResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setMyopia(true);
         left.setFarsightedness(true);
 
         CrossMirrorResult right = new CrossMirrorResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setMyopia(true);
         right.setFarsightedness(true);
-        return Lists.newArrayList(left, right);
+        return Lists.newArrayList(right, left);
     }
 }
