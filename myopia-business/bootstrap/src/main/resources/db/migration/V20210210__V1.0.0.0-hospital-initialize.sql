@@ -21,8 +21,8 @@ CREATE TABLE `h_department`
     INDEX `hospital_id_index` (`hospital_id`)
 ) COMMENT ='医院-科室';
 
-DROP TABLE IF EXISTS `h_doctor `;
-CREATE TABLE `h_doctor `
+DROP TABLE IF EXISTS `h_doctor`;
+CREATE TABLE `h_doctor`
 (
     `id`              int          NOT NULL AUTO_INCREMENT,
     `gender`          tinyint      NOT NULL DEFAULT 0 COMMENT '状态 0-男 1-女',
@@ -77,8 +77,8 @@ CREATE TABLE `h_medical_record`
     INDEX `doctor_id_index` (`doctor_id`)
 ) COMMENT ='医院-检查单';
 
-DROP TABLE IF EXISTS `h_medical_report `;
-CREATE TABLE `h_medical_report `
+DROP TABLE IF EXISTS `h_medical_report`;
+CREATE TABLE `h_medical_report`
 (
     `id`                int                                 NOT NULL AUTO_INCREMENT,
     `hospital_id`       int                                 NULL COMMENT '医院id',
