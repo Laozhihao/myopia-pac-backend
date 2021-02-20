@@ -1,15 +1,16 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 地区层级某次筛查计划统计视力情况表
@@ -45,7 +46,10 @@ public class DistrictVisionStatistic implements Serializable {
      * 视力情况--所属的地区id
      */
     private Integer districtId;
-
+    /**
+     * 视力情况--是否 合计  0=否 1=是
+     */
+    private Integer isTotal;
     /**
      * 视力情况--平均左眼视力（小数点后一位，默认0.0）
      */
@@ -64,7 +68,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--视力低下比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer lowVisionRatio;
+    private BigDecimal lowVisionRatio;
 
     /**
      * 视力情况--戴镜人数（默认0）
@@ -74,7 +78,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--戴镜人数（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer wearingGlassesRatio;
+    private BigDecimal wearingGlassesRatio;
 
     /**
      * 视力情况--近视人数（默认0）
@@ -84,7 +88,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--近视比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer myopiaRatio;
+    private BigDecimal myopiaRatio;
 
     /**
      * 视力情况--屈光不正人数（默认0）
@@ -94,7 +98,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--屈光不正比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer ametropiaRatios;
+    private BigDecimal ametropiaRatio;
 
     /**
      * 视力情况--零级预警人数（默认0）
@@ -104,7 +108,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel0Ratio;
+    private BigDecimal visionLabel0Ratio;
 
     /**
      * 视力情况--一级预警人数（默认0）
@@ -114,7 +118,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel1Ratio;
+    private BigDecimal visionLabel1Ratio;
 
     /**
      * 视力情况--二级预警人数（默认0）
@@ -124,7 +128,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel2Ratio;
+    private BigDecimal visionLabel2Ratio;
 
     /**
      * 视力情况--三级预警人数（默认0）
@@ -134,7 +138,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel3Ratio;
+    private BigDecimal visionLabel3Ratio;
 
     /**
      * 视力情况--重点视力对象数量（默认0）
@@ -149,7 +153,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer treatmentAdviceRatio;
+    private BigDecimal treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）

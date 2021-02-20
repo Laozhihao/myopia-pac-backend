@@ -1,14 +1,15 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 某个地区层级最新统计的重点视力对象情况表
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @TableName("m_district_attentive_objects_statistic")
 public class DistrictAttentiveObjectsStatistic implements Serializable {
     private static final long serialVersionUID = 1L;
+
 
     /**
      * 主键id
@@ -48,12 +50,14 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
      * 重点视力对象--零级预警人数（默认0）
      */
     private Integer visionLabel0Numbers;
-
+    /**
+     * 重点视力对象--是否 合计  0=否 1=是
+     */
+    private Integer isTotal;
     /**
      * 重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
     private Integer visionLabel0Ratio;
-
     /**
      * 重点视力对象--一级预警人数（默认0）
      */

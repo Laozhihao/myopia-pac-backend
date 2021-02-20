@@ -7,8 +7,8 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -83,9 +83,12 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     private List<Integer> getNextGov(List<Integer> resultIds, List<Integer> ids) {
         QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("pid", ids).ne("status", CommonConst.STATUS_IS_DELETED);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            queryWrapper.in("pid", ids);
+        }
+        queryWrapper.ne("status", CommonConst.STATUS_IS_DELETED);
         List<GovDept> govDeptLists = baseMapper.selectList(queryWrapper);
-        if (!govDeptLists.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(govDeptLists)) {
             List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());
             resultIds.addAll(govDeptIds);
             getNextGov(resultIds, govDeptIds);
@@ -108,7 +111,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * 遍历获取部门id
      *
      * @param result 结果集合
-     * @param ids       入参
+     * @param ids    入参
      * @return List<Integer>
      */
     private List<GovDept> getNextGovWithDistrictId(List<GovDept> result, List<Integer> ids) {
@@ -169,6 +172,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         List<GovDeptVo> govDeptList = getGovDeptWithDistrictByIds(govDeptIds);
         return govDeptList.stream().collect(Collectors.toMap(GovDept::getId, Function.identity()));
     }
+
     /**
      * 获取部门列表
      *
@@ -191,4 +195,5 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         }
         return baseMapper.selectBatchIds(govDeptIds);
     }
+
 }
