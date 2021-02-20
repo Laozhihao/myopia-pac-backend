@@ -215,8 +215,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-//        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
-
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
@@ -226,12 +224,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
-        TwoTuple<Integer, Integer> a = packageList(currentUser, schoolQuery.getDistrictId());
+        TwoTuple<Integer, Integer> resultDistrictId = packageList(currentUser, schoolQuery.getDistrictId());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), a.getFirst(), userIds, a.getSecond());
+                schoolQuery.getType(), resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -272,7 +270,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             if (null != districtId) {
                 return new TwoTuple<>(districtId, null);
             }
-        } else if (currentUser.isScreeningUser()) {
+        } else {
             if (null != districtId) {
                 // 不为空说明是搜索条件
                 return new TwoTuple<>(districtId, null);
