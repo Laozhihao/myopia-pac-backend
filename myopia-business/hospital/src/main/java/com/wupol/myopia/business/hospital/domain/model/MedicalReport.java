@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.business.hospital.domain.dos.ReportConclusionDataDO;
 import com.wupol.myopia.business.hospital.domain.handler.VisionMedicalRecordTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +60,9 @@ public class MedicalReport implements Serializable {
     private List<Integer> fileIdList;
     /** 医生诊断内容 */
     private String medicalContent;
+    /** 固化的结论数据*/
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ReportConclusionDataDO reportConclusionData;
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

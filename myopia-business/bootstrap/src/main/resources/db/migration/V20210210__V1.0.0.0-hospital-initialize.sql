@@ -4,6 +4,7 @@ CREATE TABLE `h_hospital_student`
     `id`          int NOT NULL AUTO_INCREMENT,
     `hospital_id` int NOT NULL COMMENT '医院id',
     `student_id`  int NOT NULL COMMENT '学生id',
+    `create_time` timestamp default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`),
     INDEX `hospital_id_index` (`hospital_id`),
     INDEX `student_id_index` (`student_id`)

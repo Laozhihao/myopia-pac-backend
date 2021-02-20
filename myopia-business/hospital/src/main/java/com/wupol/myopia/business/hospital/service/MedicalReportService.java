@@ -2,22 +2,18 @@ package com.wupol.myopia.business.hospital.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
+import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.model.Consultation;
+import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
-import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 医院-检查报告
@@ -30,6 +26,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     @Autowired
     private MedicalRecordService medicalRecordService;
+
+    @Autowired
+    private ConsultationService consultationService;
 
 
     /**
@@ -82,4 +81,27 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     }
 
+    /**
+     * 获取学生的就诊档案（报告）
+     *
+     * @param reportId 报告ID
+     * @return responseDTO
+     */
+    public StudentReportResponseDTO getReport(Integer reportId) {
+
+        StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
+        // 报告
+        MedicalReport report = baseMapper.selectById(reportId);
+        responseDTO.setReport(report);
+
+        // 病种
+        Consultation consultation = consultationService.getTodayLastConsultation(report.getHospitalId(), report.getStudentId());
+        responseDTO.setConsultation(consultation);
+
+        // 检查单
+        MedicalRecord record = medicalRecordService.getTodayLastMedicalRecord(report.getHospitalId(), report.getStudentId());
+        responseDTO.setRecord(record);
+
+        return responseDTO;
+    }
 }
