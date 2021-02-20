@@ -33,5 +33,10 @@ public class CardDetails {
      */
     private List<CrossMirrorResult> crossMirrorResults;
 
+    /**
+     * 其他眼病
+     */
+    private List<EyeDiseasesResult> eyeDiseasesResult;
+
 
 }
