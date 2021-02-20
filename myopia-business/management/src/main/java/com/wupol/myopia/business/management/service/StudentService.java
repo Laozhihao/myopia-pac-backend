@@ -166,7 +166,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
             School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
             studentDTO.setSchoolName(school.getName());
-            studentDTO.setSchoolId(school.getId());//
+            studentDTO.setSchoolId(school.getId());
 
             // 查询年级和班级
             SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
@@ -285,7 +285,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             List<StudentResultDetails> result = packageDTO(r);
             item.setDetails(result);
             item.setScreeningDate(r.getCreateTime());
-            item.setGlassesType("TODO");
+            // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
+            item.setGlassesType(r.getVisionData().getLeftEyeData().getGlassesType());
             item.setResultId(r.getId());
             items.add(item);
         }
@@ -494,7 +495,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private CardDetails getCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        details.setGlassesType("TODO");
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
+        details.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result));
