@@ -31,9 +31,11 @@
     </sql>
 
     <select id="countScreeningTimeByOrgId" resultType="com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO">
-        select count(1) as count , screening_org_id
-        from m_screening_task_org
-        group by screening_org_id
+        select count(1) as count, msto.screening_org_id
+        from m_screening_task_org msto
+                     left join m_screening_task mst on msto.screening_task_id = mst.id
+        where mst.release_status = 1
+        group by msto.screening_org_id
     </select>
     <select id="selectHasTaskInPeriod" resultMap="VoResultMap" parameterType="java.util.Map">
         SELECT
@@ -47,7 +49,7 @@
                 <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ msto.`screening_task_id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(mst.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                    and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
             </trim>
         </where>

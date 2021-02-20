@@ -117,7 +117,13 @@ feign:
         connectTimeout: 60000
         readTimeout: 60000
 
-# 部署的省份的行政区编号
-oem:
-  province:
-    code: 14000000
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath: /myopia/uploadPic
+  # 可上传的文件类型后缀
+  suffixs: pdf,jpg,jpeg,png,xlsx
+  # 上传S3的bucket
+  bucketName: test.vistel.cn
+  # S3链接失效时间（小时）
+  expiredHours: 2

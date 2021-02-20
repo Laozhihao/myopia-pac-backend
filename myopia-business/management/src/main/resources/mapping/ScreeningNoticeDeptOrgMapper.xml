@@ -56,7 +56,7 @@
                     and msn.`title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(msn.`start_time`) <= DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msn.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                    and <![CDATA[ DATE(msn.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msn.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
             </trim>
         </where>

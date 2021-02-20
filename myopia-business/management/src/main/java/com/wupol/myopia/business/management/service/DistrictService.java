@@ -18,7 +18,6 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -40,8 +39,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /** 最小行政区域代码编号 */
     private static final long SMALLEST_PROVINCE_CODE = 110000000L;
 
-    @Value(value = "${oem.province.code}")
-    private Long oemProvinceCode;
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
@@ -75,36 +72,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             }
         }
         return new TwoTuple<>(null, Collections.emptyList());
-    }
-
-    /** 根据code获取对应的地址 */
-    public List<String> getSplitAddress(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
-        if (Objects.isNull(provinceCode) || Objects.isNull(cityCode) || Objects.isNull(areaCode) || Objects.isNull(townCode)) {
-            return Collections.emptyList();
-        }
-        String province = null, city = null, area = null, town = null;
-        List<District> districtList = baseMapper.findByCodeList(provinceCode, cityCode, areaCode, townCode);
-        for (District item : districtList) {
-            if (item.getCode().equals(provinceCode)) {
-                province = item.getName();
-            } else if (item.getCode().equals(cityCode)) {
-                city = item.getName();
-            } else if (item.getCode().equals(areaCode)) {
-                area = item.getName();
-            } else if (item.getCode().equals(townCode)) {
-                town = item.getName();
-            }
-        }
-        if (StringUtils.isBlank(province) || StringUtils.isBlank(city) || StringUtils.isBlank(area) || StringUtils.isBlank(town)) {
-            throw new ValidationException(String.format("未匹配到地址: province=%s, city=%s, area=%s, town=%s",
-                    provinceCode, cityCode, areaCode, townCode));
-        }
-        return Arrays.asList(province, city, area, town);
-    }
-    /** 根据code获取对应的地址 */
-    public String getAddressPrefix(Long provinceCode, Long cityCode, Long areaCode, Long townCode) throws ValidationException {
-        List<String> list = getSplitAddress(provinceCode, cityCode, areaCode, townCode);
-        return list.get(0) + list.get(1) + list.get(2) + list.get(3);
     }
 
     /**

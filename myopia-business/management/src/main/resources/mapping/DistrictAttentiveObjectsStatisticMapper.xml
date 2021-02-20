@@ -24,6 +24,7 @@
                 <if test="@Ognl@isNotEmpty(visionLabel3Ratio)">and `vision_label_3_ratio` = #{visionLabel3Ratio}</if>
                 <if test="@Ognl@isNotEmpty(keyWarningNumbers)">and `key_warning_numbers` = #{keyWarningNumbers}</if>
                 <if test="@Ognl@isNotEmpty(studentNumbers)">and `student_numbers` = #{studentNumbers}</if>
+                <if test="@Ognl@isNotEmpty(isTotal)">and `is_total` = #{isTotal}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -32,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_task_id, screening_plan_id, district_id, vision_label_0_numbers, vision_label_0_ratio, vision_label_1_numbers, vision_label_1_ratio, vision_label_2_numbers, vision_label_2_ratio, vision_label_3_numbers, vision_label_3_ratio, key_warning_numbers, student_numbers, update_time, create_time
+        id, is_total, screening_task_id, screening_plan_id, district_id, vision_label_0_numbers, vision_label_0_ratio, vision_label_1_numbers, vision_label_1_ratio, vision_label_2_numbers, vision_label_2_ratio, vision_label_3_numbers, vision_label_3_ratio, key_warning_numbers, student_numbers, update_time, create_time
     </sql>
 
 </mapper>

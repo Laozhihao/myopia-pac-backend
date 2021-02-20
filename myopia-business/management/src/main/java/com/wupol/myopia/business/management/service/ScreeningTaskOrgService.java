@@ -169,8 +169,17 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         return noticeBatch(user, screeningTask, screeningNotice, orgLists);
     }
 
+    /**
+     * 批量通知（已通知的不重复通知）
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @param orgLists
+     * @return
+     */
     private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
-        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
+        List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
+        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
         return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
     }
 }

@@ -117,11 +117,6 @@ feign:
         connectTimeout: 60000
         readTimeout: 60000
 
-# 部署的省份的行政区编号
-oem:
-  province:
-    code: 14000000
-
 # 上传相关
 upload:
   # 保存到服务器地址

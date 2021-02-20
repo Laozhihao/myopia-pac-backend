@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -76,8 +77,10 @@ public class ScreeningOrganizationStaffController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getOrganizationStaffExportData(Integer screeningOrgId) throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganizationStaff(screeningOrgId));
+    public Object getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateScreeningOrganizationStaff(currentUser.getId(), screeningOrgId);
+        return ApiResult.success();
     }
 
 
