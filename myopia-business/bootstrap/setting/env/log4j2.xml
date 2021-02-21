@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="PATTERN">{"serviceName": "myopia-business", "thread": "%thread", "trace": "%X{traceId}", "span": "%X{spanId}", "logger": "%logger","level": "%level","message": "[%c{2}:%L] - %message"}%n</Property>
+        <Property name="PATTERN">{
+            "serviceName": "myopia-business",
+            "thread": "%thread",
+            "trace": "%X{traceId}",
+            "span": "%X{spanId}",
+            "logger": "%logger",
+            "level": "%level",
+            "method": "%c{2}:%L",
+            "message": "%message %n %ex"
+            }%n
+        </Property>
     </Properties>
     <Appenders>
         <Console name="Console-Appender" target="SYSTEM_OUT">
