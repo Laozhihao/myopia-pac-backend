@@ -2,6 +2,9 @@ package com.wupol.myopia.business.management.util;
 
 import com.wupol.myopia.business.management.constant.WarningLevel;
 
+/**
+ * 筛查结论计算工具
+ */
 public class StatUtil {
     /**
      * 是否近视
