@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.management.domain.dto.stat;
+package com.wupol.myopia.business.management.domain.model;
 
 import java.util.Date;
 
@@ -13,7 +13,6 @@ import lombok.Data;
 @Data
 @Builder
 public class StatConclusion {
-
     /** id */
     private Integer id;
 
@@ -74,5 +73,4 @@ public class StatConclusion {
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 }
