@@ -10,11 +10,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isMyopia(Float sphere, Float cylinder) {
-        Float se = getSphericalEquivalent(sphere, cylinder);
-        if (se < -0.5f) {
-            return true;
-        }
-        return false;
+        return getMyopiaWarningLevel(sphere, cylinder) > 0 ? true : false;
     }
 
     /**
@@ -176,6 +172,19 @@ public class StatUtil {
         if (cylinderAbs > 4.0f) return WarningLevel.THREE.code;
         return WarningLevel.NORMAL.code;
     }
+
+    /**
+     * 是否屈光不正
+     * @param sphere 球镜
+     * @param cylinder 柱镜
+     * @param age
+     * @return
+     */
+    public static boolean isRefractiveError(
+            boolean isAstigmatism, boolean isMyopia, boolean isHyperopia) {
+        return isAstigmatism && isMyopia && isHyperopia;
+    }
+
     /**
      * 是否屈光不正
      * @param sphere 球镜
