@@ -84,6 +84,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
+    @Resource
+    private GovDeptService govDeptService;
+
     /**
      * 新增学校
      *
@@ -215,8 +218,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String createUser = schoolQuery.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-//        Integer districtId = districtService.filterQueryDistrictId(currentUser, schoolQuery.getDistrictId());
-
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
             UserDTOQuery query = new UserDTOQuery();
@@ -226,12 +227,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
-        TwoTuple<Integer, Integer> a = packageList(currentUser, schoolQuery.getDistrictId());
+        TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQuery.getDistrictId());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
                 schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), a.getFirst(), userIds, a.getSecond());
+                schoolQuery.getType(), resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -239,10 +240,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schools)) {
             return schoolDtoIPage;
         }
-
-        // 获取已有计划的学校ID列表
-        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
-
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
         List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
@@ -261,11 +258,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, havePlanSchoolIds, userDTOMap, countMaps, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, countMaps, studentCountMaps));
         return schoolDtoIPage;
     }
 
-    private TwoTuple<Integer, Integer> packageList(CurrentUser currentUser, Integer districtId) {
+    /**
+     * 行政区域搜索条件
+     *
+     * @param currentUser 当前用户
+     * @param districtId  行政区域ID
+     * @return TwoTuple<Integer, Integer>
+     */
+    private TwoTuple<Integer, Integer> packageSearchList(CurrentUser currentUser, Integer districtId) {
         // 管理员看到全部
         if (currentUser.isPlatformAdminUser()) {
             // 不为空说明是搜索条件
@@ -280,11 +284,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 只能看到所属的省级数据
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            District district = districtService.getProvinceDistrictTreePriorityCache(districtService.getById(org.getDistrictId()).getCode());
-            String pre = String.valueOf(district.getCode()).substring(0, 2);
-            return new TwoTuple<>(null, Integer.valueOf(pre));
+            return getTwoTuple(org.getDistrictId());
+        } else if (currentUser.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+            return getTwoTuple(govDept.getDistrictId());
         }
         return new TwoTuple<>(districtId, null);
+    }
+
+    /**
+     * 获取前缀
+     *
+     * @param districtId 行政区域ID
+     * @return TwoTuple<Integer, Integer>
+     */
+    private TwoTuple<Integer, Integer> getTwoTuple(Integer districtId) {
+        District district = districtService
+                .getProvinceDistrictTreePriorityCache(districtService
+                        .getById(districtId).getCode());
+        String pre = String.valueOf(district.getCode()).substring(0, 2);
+        return new TwoTuple<>(null, Integer.valueOf(pre));
     }
 
     /**
@@ -296,7 +315,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, List<Integer> havePlanSchoolIds, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
@@ -316,21 +335,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 详细地址
             s.setAddressDetail(districtService.getAddressDetails(
                     s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
-
-            // 是否已有筛查计划
-            s.setAlreadyHavePlan(havePlanSchoolIds.contains(s.getId()));
         };
     }
 
     /**
      * 根据是否需要查询学校是否已有计划，返回时间段内已有计划的学校id
      *
-     * @param query
-     * @return
+     * @param query 条件
+     * @return List<Integer>
      */
     private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
         if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
-            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictId(), query.getStartTime(), query.getEndTime());
+            return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();
     }
@@ -710,21 +726,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
-     * @param schoolQuery
-     * @return
+     *
+     * @param schoolQuery 条件
+     * @return List<SchoolResponseDTO>
      */
     public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQuery schoolQuery) {
         Assert.notNull(schoolQuery.getDistrictId(), "层级id不能为空");
+        schoolQuery.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQuery.getDistrictId())).setDistrictId(null);
         schoolQuery.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
-        List<School> schoolList = getByDistrictId(schoolQuery.getDistrictId());
+        List<School> schoolList = getBy(schoolQuery);
         // 为空直接返回
         if (CollectionUtils.isEmpty(schoolList)) {
             return Collections.emptyList();
         }
         // 获取已有计划的学校ID列表
         List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
-
         // 封装DTO
         return schoolList.stream().map(school -> {
             SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();

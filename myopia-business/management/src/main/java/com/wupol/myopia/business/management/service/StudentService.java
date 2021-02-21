@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
@@ -273,7 +274,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             List<StudentResultDetails> result = packageDTO(r);
             item.setDetails(result);
             item.setScreeningDate(r.getCreateTime());
-            item.setGlassesType("TODO");
+            // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
+            item.setGlassesType(r.getVisionData().getLeftEyeData().getGlassesType());
             item.setResultId(r.getId());
             items.add(item);
         }
@@ -400,7 +402,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLT());
         leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWTW());
         leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
-        leftDetails.setLateriality(0);
+        leftDetails.setLateriality(CommonConst.LEFT_EYE);
 
         //设置右眼
         StudentResultDetails rightDetails = new StudentResultDetails();
@@ -416,8 +418,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setLT(result.getBiometricData().getRightEyeData().getLT());
         rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWTW());
         rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
-        rightDetails.setLateriality(1);
-        return Lists.newArrayList(leftDetails, rightDetails);
+        rightDetails.setLateriality(CommonConst.RIGHT_EYE);
+        return Lists.newArrayList(rightDetails, leftDetails);
     }
 
     /**
@@ -482,10 +484,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private CardDetails getCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        details.setGlassesType("TODO");
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
+        details.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
-        details.setCrossMirrorResults(setCrossMirrorResults());
+        details.setCrossMirrorResults(setCrossMirrorResults(result));
+        details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
 
@@ -497,15 +501,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private List<VisionResult> setVisionResult(VisionDataDO result) {
         VisionResult left = new VisionResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setCorrectedVision(result.getLeftEyeData().getCorrectedVision());
         left.setNakedVision(result.getLeftEyeData().getNakedVision());
 
         VisionResult right = new VisionResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setCorrectedVision(result.getRightEyeData().getCorrectedVision());
         right.setNakedVision(result.getRightEyeData().getNakedVision());
-        return Lists.newArrayList(left, right);
+        return Lists.newArrayList(right, left);
     }
 
     /**
@@ -516,17 +520,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private List<RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
         RefractoryResult left = new RefractoryResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setAxial(result.getLeftEyeData().getAxial());
         left.setSph(result.getLeftEyeData().getSph());
         left.setCyl(result.getLeftEyeData().getCyl());
 
         RefractoryResult right = new RefractoryResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setAxial(result.getRightEyeData().getAxial());
         right.setSph(result.getRightEyeData().getSph());
         right.setCyl(result.getRightEyeData().getCyl());
-        return Lists.newArrayList(left, right);
+        return Lists.newArrayList(right, left);
     }
 
     /**
@@ -534,16 +538,39 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      *
      * @return List<CrossMirrorResult>
      */
-    private List<CrossMirrorResult> setCrossMirrorResults() {
+    private List<CrossMirrorResult> setCrossMirrorResults(VisionScreeningResult result) {
         CrossMirrorResult left = new CrossMirrorResult();
-        left.setLateriality(0);
+        left.setLateriality(CommonConst.LEFT_EYE);
         left.setMyopia(true);
         left.setFarsightedness(true);
+        if (CollectionUtils.isEmpty(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases())) {
+            left.setOther(true);
+        }
 
         CrossMirrorResult right = new CrossMirrorResult();
-        right.setLateriality(1);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         right.setMyopia(true);
         right.setFarsightedness(true);
-        return Lists.newArrayList(left, right);
+        if (CollectionUtils.isEmpty(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases())) {
+            right.setOther(true);
+        }
+        return Lists.newArrayList(right, left);
+    }
+
+    /**
+     * 其他眼部疾病
+     *
+     * @param result 其他眼部疾病
+     * @return List<EyeDiseasesResult>
+     */
+    private List<EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
+        EyeDiseasesResult left = new EyeDiseasesResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        left.setEyeDiseases(result.getLeftEyeData().getEyeDiseases());
+
+        EyeDiseasesResult right = new EyeDiseasesResult();
+        right.setLateriality(CommonConst.RIGHT_EYE);
+        right.setEyeDiseases(result.getRightEyeData().getEyeDiseases());
+        return Lists.newArrayList(right, left);
     }
 }

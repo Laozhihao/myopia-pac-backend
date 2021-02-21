@@ -1,13 +1,16 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -18,6 +21,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningTaskNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -25,10 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,9 +50,12 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private GovDeptService govDeptService;
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -74,6 +78,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -122,9 +127,9 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     }
 
 
-
     /**
      * 新增或更新
+     *
      * @param screeningTaskDTO
      */
     public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, Boolean needUpdateNoticeStatus) {
@@ -144,6 +149,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     /**
      * 删除，并删除关联的机构信息
      * 需修改通知状态为已读
+     *
      * @param screeningTaskId
      * @return
      */
@@ -159,6 +165,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
 
     /**
      * 校验部门是否已创建
+     *
      * @param screeningNoticeId
      * @param govDeptId
      */
@@ -170,6 +177,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
 
     /**
      * 获取任务DTO（带行政区明细）
+     *
      * @param screeningTaskId
      * @return
      */
@@ -177,5 +185,46 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         ScreeningTaskDTO screeningTaskDTO = ScreeningTaskDTO.build(getById(screeningTaskId));
         screeningTaskDTO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningTaskDTO.getDistrictId()));
         return screeningTaskDTO;
+    }
+
+    /**
+     * 获取年度
+     *
+     * @return
+     */
+    public List<Integer> getYears(List<ScreeningTask> govDeptLists) {
+        List<Integer> years = govDeptLists.stream().map(screeningTask ->
+                this.getYear(screeningTask.getStartTime())
+        ).distinct().sorted().collect(Collectors.toList());
+        return years;
+    }
+
+    /**
+     * 根据时间获取年份
+     *
+     * @param date
+     * @return
+     */
+    public Integer getYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        return year;
+    }
+
+    /**
+     * 获取多个部门id创建的任务
+     *
+     * @param allSubordinateOrgIds
+     * @return
+     */
+    public List<ScreeningTask> getTaskByAllSubordinateGovDeptIds(List<Integer> allSubordinateOrgIds) {
+        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
+        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
+            queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
+        }
+        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningTask> govDeptLists = baseMapper.selectList(queryWrapper);
+        return govDeptLists;
     }
 }

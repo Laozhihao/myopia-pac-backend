@@ -44,7 +44,6 @@ public class ScreeningOrganizationController {
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
         return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
     }
 
