@@ -12,12 +12,12 @@
             </PatternLayout>
         </Console>
         <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
-            <PatternLayout pattern="${PATTERN}" />
-            <!--<PatternLayout>
+            <!--<PatternLayout pattern="${PATTERN}" />-->
+            <PatternLayout>
                 <pattern>
-                    [%-5level] %c{2}:%L - %msg%n
+                    [myopia-business] [%X{traceId}] [%X{spanId}] [%thread] [%-5level] [%X{traceId}] %c{2}:%L - %msg%n
                 </pattern>>
-            </PatternLayout>-->
+            </PatternLayout>
         </Socket>
     </Appenders>
     <Loggers>
