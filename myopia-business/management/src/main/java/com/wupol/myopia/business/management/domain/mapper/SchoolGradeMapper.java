@@ -28,4 +28,6 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
     IPage<SchoolGrade> getByPage(@Param("page") Page<?> page, @Param("query") SchoolGradeQuery query);
 
     List<SchoolGradeExportVO> getBySchoolIds(@Param("ids") List<Integer> ids);
+
+    List<SchoolGradeItems> getAllBySchoolId(@Param("schoolId") Integer schoolId);
 }

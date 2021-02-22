@@ -92,7 +92,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(new Page<>(1,100), schoolId);
+        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(new Page<>(1, 100), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }
@@ -106,6 +106,29 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .collect(Collectors.groupingBy(SchoolClass::getGradeId));
 
         schoolGrades.getRecords().forEach(g -> g.setChild(classMaps.get(g.getId())));
+        return schoolGrades;
+    }
+
+    /**
+     * 年级列表(没有分页)
+     *
+     * @param schoolId 学校id
+     * @return List<SchoolGradeItems> 返回体
+     */
+    public List<SchoolGradeItems> getAllGradeList(Integer schoolId) {
+
+        // 获取年级
+        List<SchoolGradeItems> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+
+        // 获取班级，并且封装成Map
+        Map<Integer, List<SchoolClass>> classMaps = schoolClassService
+                .getSchoolClassByGradeIds(schoolGrades
+                        .stream()
+                        .map(SchoolGradeItems::getId)
+                        .collect(Collectors.toList()), schoolId).stream()
+                .collect(Collectors.groupingBy(SchoolClass::getGradeId));
+
+        schoolGrades.forEach(g -> g.setChild(classMaps.get(g.getId())));
         return schoolGrades;
     }
 
@@ -201,12 +224,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return baseMapper.getBySchoolIds(schoolIds);
     }
 
-    public List<Integer> batchInsertGrade( ) {
+    public List<Integer> batchInsertGrade() {
         return null;
     }
 
     /**
      * 根据学校Id获取所有年级
+     *
      * @param schoolId
      * @return
      */
