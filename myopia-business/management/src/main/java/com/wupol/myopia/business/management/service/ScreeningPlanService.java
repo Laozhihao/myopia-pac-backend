@@ -180,4 +180,16 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
          return baseMapper.selectSchoolInfo(districtId, taskId, 1);
     }
+
+    /**
+     * 更新筛查学生数量
+     * @param userId
+     * @param screeningPlanId
+     * @param studentNumbers
+     */
+    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
+        return updateById(screeningPlan, userId);
+    }
 }

@@ -86,6 +86,7 @@ DROP TABLE IF EXISTS `m_screening_plan`;
 CREATE TABLE `m_screening_plan`
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+    `src_screening_notice_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查源通知id（也即task的来源通知id），自己创建时默认0',
     `screening_task_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查任务id，自己创建时默认0',
     `title`             varchar(25)    NOT NULL COMMENT '筛查计划--标题',
     `content`           varchar(10000) NOT NULL COMMENT '筛查计划--内容',
@@ -94,6 +95,7 @@ CREATE TABLE `m_screening_plan`
     `gov_dept_id`       int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所处部门id',
     `district_id`       int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所处区域id',
     `screening_org_id`  int(10) unsigned NOT NULL COMMENT '筛查计划--指定的筛查机构id',
+    `student_numbers`   int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--计划的学生总数',
     `release_status`    tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--发布状态 （0未发布 1已发布）',
     `release_time`      timestamp NULL DEFAULT NULL COMMENT '筛查计划--发布时间（时间戳）',
     `create_user_id`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--创建者ID',

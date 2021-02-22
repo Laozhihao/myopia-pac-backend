@@ -71,10 +71,10 @@ public class ExcelFacade {
     private UserService userService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private NoticeService noticeService;
-
     @Autowired
     private S3Utils s3Utils;
 
@@ -792,5 +792,6 @@ public class ExcelFacade {
             listMap.remove(0);
         }
         screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
+        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
     }
 }
