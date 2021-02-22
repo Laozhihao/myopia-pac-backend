@@ -1,31 +1,28 @@
 package com.wupol.myopia.business.management.controller;
 
-import com.vistel.Interface.aws.S3Client;
-import com.vistel.Interface.domain.UploadFileInfo;
-import com.vistel.Interface.exception.UtilException;
-import com.wupol.framework.core.util.DateFormatUtil;
-import com.wupol.framework.core.util.DateUtil;
 import com.wupol.myopia.base.controller.BaseController;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.domain.model.DataCommit;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
-import com.wupol.myopia.business.management.exception.UploadException;
 import com.wupol.myopia.business.management.service.DataCommitService;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.util.S3Utils;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.util.UploadUtil;
-import jodd.io.FileNameUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 公共的API接口
@@ -53,10 +50,10 @@ public class CommonController extends BaseController<DataCommitService, DataComm
      */
     @PostMapping("/fileUpload")
     public Object fileUpload(MultipartFile file) throws AccessDeniedException {
-//        CurrentUser user = CurrentUserUtil.getCurrentUser();
-//        if (Objects.isNull(user)) {
-//            throw new AccessDeniedException("请先登录");
-//        }
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.isNull(user)) {
+            throw new AccessDeniedException("请先登录");
+        }
         try {
             String savePath = uploadConfig.getSavePath();
             TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
@@ -71,7 +68,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             resultMap.put("fileId", resourceFile.getId());
             return resultMap;
         } catch (Exception e) {
-            throw new UploadException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
+            throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
         }
     }
 
@@ -85,10 +82,10 @@ public class CommonController extends BaseController<DataCommitService, DataComm
      */
     @GetMapping("/file/{fileId}")
     public Object file(@PathVariable Integer fileId) throws AccessDeniedException {
-//        CurrentUser user = CurrentUserUtil.getCurrentUser();
-//        if (Objects.isNull(user)) {
-//            throw new AccessDeniedException("请先登录");
-//        }
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.isNull(user)) {
+            throw new AccessDeniedException("请先登录");
+        }
         Map<String, String> resultMap = new HashMap<>(16);
         resultMap.put("url", resourceFileService.getResourcePath(fileId));
         return resultMap;
@@ -100,10 +97,10 @@ public class CommonController extends BaseController<DataCommitService, DataComm
      */
     @PostMapping("/richTextFileUpload")
     public Object richTextFileUpload(MultipartFile file) throws AccessDeniedException {
-//        CurrentUser user = CurrentUserUtil.getCurrentUser();
-//        if (Objects.isNull(user)) {
-//            throw new AccessDeniedException("请先登录");
-//        }
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.isNull(user)) {
+            throw new AccessDeniedException("请先登录");
+        }
         try {
             String savePath = uploadConfig.getSavePath();
             TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
@@ -118,7 +115,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             resultMap.put("url", s3Utils.getResourcePathWithExpiredHours(resourceFile.getBucket(), resourceFile.getS3Key(), 6*24));
             return resultMap;
         } catch (Exception e) {
-            throw new UploadException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
+            throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
         }
     }
 }
