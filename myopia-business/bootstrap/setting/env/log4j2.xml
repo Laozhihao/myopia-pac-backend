@@ -15,7 +15,7 @@
             <PatternLayout>
                 <pattern>
                     [myopia-business] [%-5level] %c{2}:%L - %msg%n
-                </pattern>>
+                </pattern>
             </PatternLayout>
         </Socket>
     </Appenders>
