@@ -240,6 +240,31 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定行政区域所属省份的所有行政区域的id列表
+     *
+     * @param districtId 行政区域ID
+     * @return List
+     **/
+    public List<Integer> getProvinceAllDistrictIds(Integer districtId) {
+        District district = getById(districtId);
+        Assert.notNull(district, "无效行政区域ID：" + districtId);
+        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        List<Integer> districtIds = new ArrayList<>();
+        districtIds.add(provinceDistrictTreePriorityCache.getId());
+        getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
+        return districtIds;
+    }
+
+    private void getAllIds(List<Integer> districtIds, List<District> childs) {
+        if (CollectionUtils.isEmpty(childs)) {
+            return;
+        }
+        districtIds.addAll(childs.stream().map(District::getId).collect(Collectors.toList()));
+        childs.forEach(district -> getAllIds(districtIds, district.getChild()));
+    }
+
+
+    /**
      * 获取指定的行政区及其子区域组成的区域树
      *
      * @param districts 行政区域集合

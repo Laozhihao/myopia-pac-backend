@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.io.IOException;
 
 /**
@@ -106,8 +107,18 @@ public class SchoolController {
         return schoolService.getByDistrictId(districtId);
     }
 
+    /**
+     * 筛查计划新增学校：机构所在省份全省学校
+     * @param schoolQuery
+     * @return
+     */
     @GetMapping("/listByDistrict")
     public Object getSchoolListByDistctId(SchoolQuery schoolQuery) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isGovDeptUser()) {
+            // 政府部门，无法新增计划
+            throw new ValidationException("无权限");
+        }
         return schoolService.getSchoolListByDistrictId(schoolQuery);
     }
 

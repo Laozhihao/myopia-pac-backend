@@ -78,6 +78,7 @@
                 </if>
             </trim>
         </where>
+        order by mst.create_time desc
     </select>
 
     <select id="selectSchoolInfo" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO">
