@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
 import com.wupol.myopia.business.management.constant.StatClassLabel;
@@ -11,42 +13,113 @@ import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContras
 import com.wupol.myopia.business.management.domain.dto.stat.TaskBriefNotification;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
+import com.wupol.myopia.business.management.domain.model.District;
+import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.StatConclusion;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class StatService {
+    @Autowired
+    private StatConclusionService statConclusionService;
+
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
+
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
+    @Autowired
+    private DistrictService districtService;
+
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Autowired
+    private GovDeptService govDeptService;
+
     /**
      * 预警信息
      * @return
+     * @throws IOException
      */
     public WarningInfo getWarningList() {
-        Integer total = 617225;
-        Integer normalTotal = 493824;
-        Integer focusTargetsNum = 123455;
-        Integer lastFocusTargetsNum = 164321;
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+        District userDistrict = districtService.getById(govDept.getDistrictId());
+        List<District> districts;
+        try {
+            districts =
+                    districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
+        } catch (IOException e) {
+            //  TODO: add log
+            return null;
+        }
+        districts.add(userDistrict);
+        List<Integer> districtIds =
+                districts.stream().map(District::getId).collect(Collectors.toList());
+
+        StatConclusion lastConclusion = statConclusionService.getLastOne(districtIds);
+        Date endDate = lastConclusion.getCreateTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.YEAR, -1);
+        Date startDate = calendar.getTime();
+
+        // DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+        // String startDateStr = dateFormat.format(startDate);
+        // String endDateStr = dateFormat.format(endDate);
+
+        List<StatConclusion> statConclusions =
+                statConclusionService.listByDateRange(districtIds, startDate, endDate);
+
+        long total = statConclusions.size();
+        long warningZeroNum = statConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
+        long warningOneNum = statConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
+        long warningTwoNum = statConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
+        long warningThreeNum = statConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+        long focusTargetsNum = warningOneNum + warningTwoNum + warningThreeNum;
+
         return WarningInfo.builder()
-                .statTime(System.currentTimeMillis())
+                .statTime(startDate.getTime())
+                .endTime(endDate.getTime())
                 .focusTargetsNum(focusTargetsNum)
-                .focusTargetsPercentage(convertToRatio(focusTargetsNum * 1f / normalTotal))
-                .lastStatTime(getYearMillis(-1))
-                .lastFocusTargetsNum(lastFocusTargetsNum)
-                .lastFocusTargetsPercentage(convertToRatio(lastFocusTargetsNum * 1f / normalTotal))
+                .focusTargetsPercentage(convertToRatio(focusTargetsNum * 1f / total))
                 .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
                     {
-                        add(new WarningLevelInfo(0, 123443, convertToRatio(123443 * 1f / total)));
-                        add(new WarningLevelInfo(1, 123278, convertToRatio(123278 * 1f / total)));
-                        add(new WarningLevelInfo(2, 113445, convertToRatio(113445 * 1f / total)));
-                        add(new WarningLevelInfo(3, 33445, convertToRatio(33445 * 1f / total)));
+                        add(new WarningLevelInfo(
+                                0, warningZeroNum, convertToRatio(warningZeroNum * 1f / total)));
+                        add(new WarningLevelInfo(
+                                1, warningOneNum, convertToRatio(warningOneNum * 1f / total)));
+                        add(new WarningLevelInfo(
+                                2, warningTwoNum, convertToRatio(warningTwoNum * 1f / total)));
+                        add(new WarningLevelInfo(
+                                3, warningThreeNum, convertToRatio(warningThreeNum * 1f / total)));
                     }
                 })
                 .build();

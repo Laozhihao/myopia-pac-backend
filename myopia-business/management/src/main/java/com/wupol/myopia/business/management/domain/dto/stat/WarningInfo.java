@@ -13,23 +13,17 @@ import lombok.experimental.Accessors;
 @Builder
 @Accessors(chain = true)
 public class WarningInfo {
-    /** 当前统计时间 */
+    /** 统计起始时间 */
     private Long statTime;
 
+    /** 统计终止时间 */
+    private Long endTime;
+
     /** 总重点视力对象数 */
-    private Integer focusTargetsNum;
+    private Long focusTargetsNum;
 
     /** 总视力对象数在总学生数中的占比 */
     private Float focusTargetsPercentage;
-
-    /** 去年今日的时间 */
-    private Long lastStatTime;
-
-    /** 去年今日的总重点视力对象数 */
-    private Integer lastFocusTargetsNum;
-
-    /** 去年今日的总视力对象数在总学生数中的占比 */
-    private Float lastFocusTargetsPercentage;
 
     /** 分级预警信息 */
     private List<WarningLevelInfo> warningLevelInfoList;
@@ -41,12 +35,12 @@ public class WarningInfo {
         private Integer warningLevel;
 
         /** 人数 */
-        private Integer num;
+        private Long num;
 
         /** 人数比例 */
         private Float percentage;
 
-        public WarningLevelInfo(Integer warningLevel, Integer num, Float percentage) {
+        public WarningLevelInfo(Integer warningLevel, Long num, Float percentage) {
             this.warningLevel = warningLevel;
             this.num = num;
             this.percentage = percentage;
