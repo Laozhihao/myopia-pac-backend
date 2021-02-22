@@ -178,9 +178,9 @@ public class StatUtil {
 
     /**
      * 是否屈光不正
-     * @param sphere 球镜
-     * @param cylinder 柱镜
-     * @param age
+     * @param isAstigmatism 是否散光
+     * @param isMyopia 是否近视
+     * @param isHyperopia 是否远视
      * @return
      */
     public static boolean isRefractiveError(
