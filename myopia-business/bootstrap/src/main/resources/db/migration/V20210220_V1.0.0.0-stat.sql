@@ -12,7 +12,7 @@ CREATE TABLE `m_stat_conclusion` (
     `warning_level` int DEFAULT NULL COMMENT '预警级别',
     `vision_l` int DEFAULT NULL COMMENT '左眼视力',
     `vision_r` int DEFAULT NULL COMMENT '右眼视力',
-    `is_low_vision` int DEFAULT NULL COMMENT '是否视力低下',
+    `is_low_vision` tinyint(1) DEFAULT NULL COMMENT '是否视力低下',
     `is_refractive_error` tinyint(1) DEFAULT NULL COMMENT '是否屈光不正',
     `is_myopia` tinyint(1) DEFAULT NULL COMMENT '是否近视',
     `is_hyperopia` tinyint(1) DEFAULT NULL COMMENT '是否远视',
