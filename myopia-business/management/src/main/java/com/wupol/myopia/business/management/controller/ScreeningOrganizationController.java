@@ -39,6 +39,7 @@ public class ScreeningOrganizationController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
+        screeningOrganization.setConfigType(0);
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
     }
 
