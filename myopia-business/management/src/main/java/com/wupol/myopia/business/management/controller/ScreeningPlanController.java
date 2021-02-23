@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 筛查计划相关接口
@@ -79,6 +80,10 @@ public class ScreeningPlanController {
     private ExcelFacade excelFacade;
     @Autowired
     private S3Utils s3Utils;
+    @Autowired
+    private NoticeService noticeService;
+    @Autowired
+    private SchoolAdminService schoolAdminService;
 
     /**
      * 新增
@@ -287,7 +292,8 @@ public class ScreeningPlanController {
      * @return void
      */
     @PostMapping("{id}")
-    public void release(@PathVariable Integer id) throws AccessDeniedException {
+    public void release(@PathVariable Integer id) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 已发布，直接返回
         ScreeningPlan screeningPlan = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
@@ -300,6 +306,11 @@ public class ScreeningPlanController {
             throw new ValidationException("无筛查的学校");
         }
         validateSchoolLegal(screeningPlan, schoolListsByPlanId);
+        // 查询学校的userId
+        List<SchoolAdmin> schoolAdmins = schoolAdminService.getBySchoolIds(schoolListsByPlanId.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
+        // 为消息中心创建通知
+        List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+        noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, screeningPlan.getTitle(), screeningPlan.getTitle());
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }
 

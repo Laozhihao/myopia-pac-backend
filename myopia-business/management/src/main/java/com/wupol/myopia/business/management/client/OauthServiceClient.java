@@ -211,4 +211,14 @@ public interface OauthServiceClient {
      **/
     @PutMapping("/oauth/districtPermission/{templateType}")
     ApiResult<Boolean> updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionIds);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/orgIds")
+    ApiResult<List<UserDTO>> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
 }
