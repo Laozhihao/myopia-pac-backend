@@ -11,5 +11,5 @@ public class BasicStatParams {
     /** 占比 */
     private Float ratio;
     /** 数量 */
-    private Integer num;
+    private Long num;
 }
