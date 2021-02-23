@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,5 +67,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<StudentScreeningCountVO> countScreeningTime() {
         return baseMapper.countScreeningTime();
+    }
+
+    /**
+     * 获取昨天筛查数据的筛查计划Id
+     * @return
+     */
+    public List<Integer> getYesterdayScreeningPlanIds() {
+        return Collections.emptyList();
     }
 }
