@@ -353,7 +353,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache2(Integer districtId) throws IOException {
         District district = getById(districtId);
         return this.getChildDistrictByParentCodePriorityCache(district.getCode());
     }

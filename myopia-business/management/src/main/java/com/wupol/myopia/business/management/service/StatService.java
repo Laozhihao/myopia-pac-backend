@@ -75,7 +75,7 @@ public class StatService {
         List<District> districts;
         try {
             districts =
-                    districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
+                    districtService.getChildDistrictByParentIdPriorityCache2(userDistrict.getId());
         } catch (IOException e) {
             //  TODO: add log
             return null;
