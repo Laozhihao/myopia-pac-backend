@@ -33,14 +33,14 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer id;
 
     /**
+     * 视力情况--所属的通知id
+     */
+    private Integer screeningNoticeId;
+
+    /**
      * 视力情况--所属的任务id
      */
     private Integer screeningTaskId;
-
-    /**
-     * 视力情况--关联的筛查计划id
-     */
-    private Integer screeningPlanId;
 
     /**
      * 视力情况--所属的地区id

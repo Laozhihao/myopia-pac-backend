@@ -12,8 +12,8 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
-                <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(investigationNumbers)">and `investigation_numbers` =
                     #{investigationNumbers}
@@ -36,7 +36,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, is_total, screening_task_id, screening_plan_id, district_id, investigation_numbers, without_glass_dsn, without_glass_dsin, wearing_glass_dsn, wearing_glass_dsin, dsn, error_numbers, error_ratio, plan_real_screening_numbers, real_screening_numbers, update_time, create_time
+        id, is_total, screening_notice_id, screening_task_id, district_id, investigation_numbers, without_glass_dsn, without_glass_dsin, wearing_glass_dsn, wearing_glass_dsin, dsn, error_numbers, error_ratio, plan_real_screening_numbers, real_screening_numbers, update_time, create_time
     </sql>
 
 

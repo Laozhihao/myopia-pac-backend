@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
-    <Properties>
-        <Property name="PATTERN">{"serviceName": "myopia-oauth", "thread": "%thread", "host": "%host", "logger": "%logger", "level": "%level", "message": "[%c{2}:%L] - %message"}%n</Property>
-    </Properties>
     <Appenders>
         <Console name="Console-Appender" target="SYSTEM_OUT">
             <PatternLayout>
@@ -12,7 +9,11 @@
             </PatternLayout>
         </Console>
         <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
-            <PatternLayout pattern="${PATTERN}" />
+            <PatternLayout>
+                <pattern>
+                    [myopia-oauth] [%X{traceId}] [%X{spanId}] [%thread] [%-5level] [%X{traceId}] %c{2}:%L - %msg%n
+                </pattern>>
+            </PatternLayout>
         </Socket>
     </Appenders>
     <Loggers>

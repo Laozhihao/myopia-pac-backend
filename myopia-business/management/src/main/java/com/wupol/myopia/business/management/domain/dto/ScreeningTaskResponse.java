@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ScreeningTaskResponse extends ScreeningTask {
+public class ScreeningTaskResponse extends ScreeningPlan {
 
     private ScreeningRecordItems items;
 }

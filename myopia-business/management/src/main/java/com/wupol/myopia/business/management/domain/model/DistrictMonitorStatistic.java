@@ -33,6 +33,10 @@ public class DistrictMonitorStatistic implements Serializable {
     private Integer id;
 
     /**
+     * 监测情况--所属的通知id
+     */
+    private Integer screeningNoticeId;
+    /**
      * 监测情况--关联的任务id
      */
     private Integer screeningTaskId;
@@ -40,11 +44,6 @@ public class DistrictMonitorStatistic implements Serializable {
      * 监测情况--是否 合计 0=否 1=是
      */
     private Integer isTotal;
-    /**
-     * 监测情况--关联的筛查计划id
-     */
-    private Integer screeningPlanId;
-
     /**
      * 监测情况--所属的地区id（筛查范围）
      */
