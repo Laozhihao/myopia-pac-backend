@@ -22,9 +22,6 @@ import lombok.experimental.Accessors;
 @TableName("m_stat_conclusion")
 @Builder
 public class StatConclusion implements Serializable {
-
-    public static final Integer NO = 0;
-    public static final Integer YES = 1;
     /** id */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -60,34 +57,34 @@ public class StatConclusion implements Serializable {
     private Float visionR;
 
     /** 是否视力低下 */
-    private Integer isLowVision;
+    private Boolean isLowVision;
 
     /** 是否屈光不正 */
-    private Integer isRefractiveError;
+    private Boolean isRefractiveError;
 
     /** 是否近视 */
-    private Integer isMyopia;
+    private Boolean isMyopia;
 
     /** 是否远视 */
-    private Integer isHyperopia;
+    private Boolean isHyperopia;
 
     /** 是否散光 */
-    private Integer isAstigmatism;
+    private Boolean isAstigmatism;
 
     /** 是否戴镜 */
-    private Integer isWearingGlasses;
+    private Boolean isWearingGlasses;
 
     /** 是否建议就诊 */
-    private Integer isRecommendVisit;
+    private Boolean isRecommendVisit;
 
     /** 是否复测 */
-    private Integer isRescreen;
+    private Boolean isRescreen;
 
     /** 复测错误项次 */
     private Integer rescreenErrorNum;
 
     /** 是否有效数据 */
-    private Integer isValid;
+    private Boolean isValid;
 
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
