@@ -446,7 +446,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 封装DTO
             plans.forEach(p -> {
                 p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
-                p.setItems(Lists.newArrayList(statisticMaps.get(p.getId())));
+                SchoolVisionStatistic schoolVisionStatistic = statisticMaps.get(p.getId());
+                if (null == schoolVisionStatistic) {
+                    p.setItems(new ArrayList<>());
+                } else {
+                    p.setItems(Lists.newArrayList(schoolVisionStatistic));
+                }
+
             });
 
         }
