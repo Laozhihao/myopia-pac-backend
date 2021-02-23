@@ -473,6 +473,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             }
             if (null != schoolStatisticMaps.get(s)) {
                 detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+            } else {
+                detail.setRealScreeningNumbers(0);
             }
             detail.setPlanScreeningNumbers(planStudentMaps.get(s));
             detail.setScreeningPlanId(taskResponse.getId());
