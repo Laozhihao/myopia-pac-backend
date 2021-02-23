@@ -72,20 +72,11 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         List<Notice> notices = baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
         response.setTotal(notices.size());
 
-        // 通过类型分组
-        Map<Byte, List<Notice>> noticeMaps = notices.stream()
-                .collect(Collectors.groupingBy(Notice::getType));
-
-        // 站内信
-        List<Notice> stationLetters = noticeMaps.get(CommonConst.NOTICE_STATION_LETTER);
-        if (!CollectionUtils.isEmpty(stationLetters)) {
-            response.setStationLetter(stationLetters);
-        }
-
-        // 筛查通知
-        List<Notice> screeningNotices = noticeMaps.get(CommonConst.NOTICE_SCREENING_NOTICE);
-        if (!CollectionUtils.isEmpty(screeningNotices)) {
-            response.setScreeningNotice(screeningNotices);
+        if (!CollectionUtils.isEmpty(notices)) {
+            // 站内信
+            response.setStationLetter(notices.stream().filter(notice -> notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
+            // 筛查通知
+            response.setScreeningNotice(notices.stream().filter(notice-> !notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
         }
         return response;
     }
