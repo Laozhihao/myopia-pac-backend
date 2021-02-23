@@ -29,5 +29,5 @@ public class UnreadNoticeResponse {
     /**
      * 筛查通知
      */
-    private List<ScreeningNotice> screeningNotice;
+    private List<Notice> screeningNotice;
 }

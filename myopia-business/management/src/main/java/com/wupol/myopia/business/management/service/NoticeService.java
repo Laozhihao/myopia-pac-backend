@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +25,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
-
-    @Resource
-    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取通知列表
@@ -88,9 +84,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         // 筛查通知
         List<Notice> screeningNotices = noticeMaps.get(CommonConst.NOTICE_SCREENING_NOTICE);
         if (!CollectionUtils.isEmpty(screeningNotices)) {
-            // 查找筛查通知详情
-            List<Integer> screeningNoticeIds = screeningNotices.stream().map(Notice::getLinkId).collect(Collectors.toList());
-            response.setScreeningNotice(screeningNoticeService.getByIds(screeningNoticeIds));
+            response.setScreeningNotice(screeningNotices);
         }
         return response;
     }
