@@ -2,7 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
 import com.wupol.myopia.business.management.constant.StatClassLabel;
 import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
@@ -15,20 +15,12 @@ import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 
 @Service
@@ -69,21 +63,8 @@ public class StatService {
      * @throws IOException
      */
     public WarningInfo getWarningList() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-        District userDistrict = districtService.getById(govDept.getDistrictId());
-        List<District> districts;
-        try {
-            districts =
-                    districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
-        } catch (IOException e) {
-            //  TODO: add log
-            return null;
-        }
-        districts.add(userDistrict);
-        List<Integer> districtIds =
-                districts.stream().map(District::getId).collect(Collectors.toList());
-
+        // List<Integer> districtIds = this.getCurrentUserDistrictIds();
+        List<Integer> districtIds = null;
         StatConclusion lastConclusion = statConclusionService.getLastOne(districtIds);
         Date endDate = lastConclusion.getCreateTime();
         Calendar calendar = Calendar.getInstance();
@@ -128,6 +109,7 @@ public class StatService {
     /**
      * 通知列表
      * @return
+     * @deprecated
      */
     public List<TaskBriefNotification> getBriefNotificationList() {
         // TODO: get notification list
@@ -263,94 +245,79 @@ public class StatService {
      * @return
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) {
-        int screeningNum = 123456;
-        int actualScreeningNum = 111321;
-        int rescreenNum = 44498;
-        int wearingGlassesRescreenNum = 35898;
-        int wearingGlassesRescreenIndexNum = 6;
-        int withoutGlassesRescreenNum = 23898;
-        int withoutGlassesRescreenIndexNum = 4;
-        int rescreenItemNum = wearingGlassesRescreenNum * wearingGlassesRescreenIndexNum
-                + withoutGlassesRescreenNum * withoutGlassesRescreenIndexNum;
-        int incorrectItemNum = 12345;
-        float incorrectRatio = convertToRatio(incorrectItemNum * 1f / actualScreeningNum);
-        int maleNum = 54498;
-        int lowVisionNum = 67789;
+        List<Integer> districtIds = this.getCurrentUserDistrictIds();
+        List<StatConclusion> statConclusions =
+                statConclusionService.listByNoticeId(notificationId, districtIds);
 
-        BasicStatParams male = new BasicStatParams(
-                "男", convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
-        BasicStatParams female = new BasicStatParams(
-                "女", convertToRatio(maleNum * 1f / actualScreeningNum), maleNum);
+        List<StatConclusion> firstScreenConclusions =
+                statConclusions.stream()
+                        .filter(x -> x.getIsRescreen() == false)
+                        .collect(Collectors.toList());
 
+        List<StatConclusion> lowVisionConclusions = firstScreenConclusions.stream()
+                                                            .filter(x -> x.getIsLowVision() == true)
+                                                            .collect(Collectors.toList());
+
+        List<StatConclusion> refractiveErrorConclusions =
+                firstScreenConclusions.stream()
+                        .filter(x -> x.getIsRefractiveError() == true)
+                        .collect(Collectors.toList());
+
+        List<StatConclusion> wearingGlassesConclusions =
+                firstScreenConclusions.stream()
+                        .filter(x -> x.getIsWearingGlasses() == true)
+                        .collect(Collectors.toList());
+
+        List<StatConclusion> myopiaConclusions = firstScreenConclusions.stream()
+                                                         .filter(x -> x.getIsMyopia() == true)
+                                                         .collect(Collectors.toList());
+
+        int totalFirstScreeningNum = firstScreenConclusions.size();
         List<ClassStat> tabGender = new ArrayList<ClassStat>() {
             {
-                for (StatClassLabel label : StatClassLabel.values()) {
-                    add(ClassStat.builder()
-                                    .title(label.name())
-                                    .num(lowVisionNum)
-                                    .ratio(convertToRatio(lowVisionNum * 1f / actualScreeningNum))
-                                    .items(new ArrayList() {
-                                        {
-                                            add(male);
-                                            add(female);
-                                        }
-                                    })
-                                    .build());
-                }
+                add(composeGenderClassStat(
+                        StatClassLabel.LOW_VISION, totalFirstScreeningNum, lowVisionConclusions));
+                add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, totalFirstScreeningNum,
+                        refractiveErrorConclusions));
+                add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, totalFirstScreeningNum,
+                        wearingGlassesConclusions));
+                add(composeGenderClassStat(
+                        StatClassLabel.MYOPIA, totalFirstScreeningNum, myopiaConclusions));
             }
         };
 
         List<ClassStat> tabSchoolAge = new ArrayList<ClassStat>() {
             {
-                for (StatClassLabel label : StatClassLabel.values()) {
-                    add(ClassStat.builder()
-                                    .title(label.name())
-                                    .num(lowVisionNum)
-                                    .ratio(convertToRatio(lowVisionNum * 1f / actualScreeningNum))
-                                    .items(new ArrayList() {
-                                        {
-                                            for (SchoolAge age : SchoolAge.values()) {
-                                                if (age.equals(SchoolAge.UNIVERSITY)) {
-                                                    continue;
-                                                }
-                                                add(new BasicStatParams(age.desc,
-                                                        convertToRatio(
-                                                                maleNum * 1f / actualScreeningNum),
-                                                        maleNum));
-                                            }
-                                        }
-                                    })
-                                    .build());
-                }
+                add(composeSchoolAgeClassStat(
+                        StatClassLabel.LOW_VISION, totalFirstScreeningNum, lowVisionConclusions));
+                add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
+                        totalFirstScreeningNum, refractiveErrorConclusions));
+                add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
+                        totalFirstScreeningNum, wearingGlassesConclusions));
+                add(composeSchoolAgeClassStat(
+                        StatClassLabel.MYOPIA, totalFirstScreeningNum, myopiaConclusions));
             }
         };
 
-        RescreenStat rescreenStat =
-                RescreenStat.builder()
-                        .rescreenNum(rescreenNum)
-                        .wearingGlassesRescreenNum(wearingGlassesRescreenNum)
-                        .wearingGlassesRescreenIndexNum(wearingGlassesRescreenIndexNum)
-                        .withoutGlassesRescreenNum(withoutGlassesRescreenNum)
-                        .withoutGlassesRescreenIndexNum(withoutGlassesRescreenIndexNum)
-                        .rescreenItemNum(rescreenItemNum)
-                        .incorrectItemNum(incorrectItemNum)
-                        .incorrectRatio(incorrectRatio)
-                        .build();
+        List<StatConclusion> rescreenConclusions = statConclusions.stream()
+                                                           .filter(x -> x.getIsRescreen() == true)
+                                                           .collect(Collectors.toList());
+        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
+        AverageVision averageVision = this.calculateAverageVision(firstScreenConclusions);
 
-        ScreeningClassStat stat = ScreeningClassStat.builder()
-                                          .notificationId(15)
-                                          .screeningNum(screeningNum)
-                                          .actualScreeningNum(actualScreeningNum)
-                                          .validScreeningNum(actualScreeningNum - 1000)
-                                          .screeningFinishedRatio(convertToRatio(
-                                                  actualScreeningNum * 1f / screeningNum))
-                                          .averageVisionLeft(0.5f)
-                                          .averageVisionRight(0.48f)
-                                          .tabGender(tabGender)
-                                          .tabSchoolAge(tabSchoolAge)
-                                          .rescreenStat(rescreenStat)
-                                          .build();
-        return stat;
+        return ScreeningClassStat.builder()
+                .notificationId(notificationId)
+                .screeningNum(totalFirstScreeningNum)
+                .actualScreeningNum(totalFirstScreeningNum)
+                .validScreeningNum(totalFirstScreeningNum - 1000)
+                // .screeningFinishedRatio(convertToRatio(
+                // totalFirstScreeningNum * 1f / screeningNum))
+                .averageVisionLeft(averageVision.averageVisionLeft)
+                .averageVisionRight(averageVision.getAverageVisionRight())
+                .tabGender(tabGender)
+                .tabSchoolAge(tabSchoolAge)
+                .rescreenStat(rescreenStat)
+                .build();
     }
 
     /**
@@ -363,6 +330,15 @@ public class StatService {
     }
 
     /**
+     * 保留2位小数
+     * @param num
+     * @return
+     */
+    private Float roundDigits(Double num) {
+        return Math.round(num * 100) / 100f;
+    }
+
+    /**
      * 获取当前时间增加的年份时间戳
      * @param year
      * @return
@@ -371,5 +347,135 @@ public class StatService {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.YEAR, year);
         return cal.getTimeInMillis();
+    }
+
+    /**
+     * 获取当前用户所有权限的区域ID
+     * @return
+     */
+    private List<Integer> getCurrentUserDistrictIds() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+        District userDistrict = districtService.getById(govDept.getDistrictId());
+        List<District> districts;
+        try {
+            districts =
+                    districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
+        } catch (IOException e) {
+            //  TODO: add log
+            return null;
+        }
+        districts.add(userDistrict);
+        return districts.stream().map(District::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * 按性别统计数据
+     * @param label 统计标签
+     * @param totalFirstScreeningNum 实际筛查统计总数
+     * @param statConclusions 对应分类统计结论
+     * @return
+     */
+    private ClassStat composeGenderClassStat(StatClassLabel label, long totalFirstScreeningNum,
+            List<StatConclusion> statConclusions) {
+        long statNum = statConclusions.size();
+        long statMaleNum =
+                statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
+        long statFemaleNum = statConclusions.size() - statMaleNum;
+        BasicStatParams statMaleStatParams = new BasicStatParams(
+                GenderEnum.MALE.name, convertToRatio(statMaleNum * 1f / statNum), statMaleNum);
+        BasicStatParams statFemaleStatParams = new BasicStatParams(
+                GenderEnum.FEMALE.name, convertToRatio(statFemaleNum * 1f / statNum), statMaleNum);
+        return ClassStat.builder()
+                .title(label.desc)
+                .num(statNum)
+                .ratio(convertToRatio(statNum * 1f / totalFirstScreeningNum))
+                .items(new ArrayList<BasicStatParams>() {
+                    {
+                        add(statMaleStatParams);
+                        add(statFemaleStatParams);
+                    }
+                })
+                .build();
+    }
+
+    /**
+     * 按学龄统计数据
+     * @param label 统计标签
+     * @param totalFirstScreeningNum 实际筛查统计总数
+     * @param statConclusions 对应分类统计结论
+     * @return
+     */
+    private ClassStat composeSchoolAgeClassStat(StatClassLabel label, int totalFirstScreeningNum,
+            List<StatConclusion> statConclusions) {
+        long statNum = statConclusions.size();
+        long statMaleNum =
+                statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
+        long statFemaleNum = statConclusions.size() - statMaleNum;
+        BasicStatParams statMaleStatParams = new BasicStatParams(
+                GenderEnum.MALE.name, convertToRatio(statMaleNum * 1f / statNum), statMaleNum);
+        BasicStatParams statFemaleStatParams = new BasicStatParams(
+                GenderEnum.FEMALE.name, convertToRatio(statFemaleNum * 1f / statNum), statMaleNum);
+        return ClassStat.builder()
+                .title(label.desc)
+                .num(statNum)
+                .ratio(convertToRatio(statNum * 1f / totalFirstScreeningNum))
+                .items(new ArrayList<BasicStatParams>() {
+                    {
+                        add(statMaleStatParams);
+                        add(statFemaleStatParams);
+                    }
+                })
+                .build();
+    }
+
+    /**
+     * 获取复查统计汇总
+     * @param rescreenConclusions 复查统计记录
+     * @return
+     */
+    private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
+        long totalScreeningNum = rescreenConclusions.size();
+        long wearingGlassesNum =
+                rescreenConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+        long wearingGlassesIndexNum = wearingGlassesNum * 6;
+        long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
+        long withoutGlassesIndexNum = withoutGlassesNum * 4;
+        long errorIndexNum =
+                rescreenConclusions.stream().mapToLong(x -> x.getRescreenErrorNum()).sum();
+        return RescreenStat.builder()
+                .rescreenNum(rescreenConclusions.size())
+                .wearingGlassesRescreenNum(wearingGlassesNum)
+                .wearingGlassesRescreenIndexNum(wearingGlassesIndexNum)
+                .withoutGlassesRescreenNum(withoutGlassesNum)
+                .withoutGlassesRescreenIndexNum(withoutGlassesIndexNum)
+                .rescreenItemNum(wearingGlassesIndexNum + withoutGlassesIndexNum)
+                .incorrectItemNum(errorIndexNum)
+                .incorrectRatio(convertToRatio(
+                        errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)))
+                .build();
+    }
+
+    /**
+     * 计算平均筛查视力
+     * @param statConclusions
+     * @return
+     */
+    private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
+        int size = statConclusions.size();
+        double sumVisionL = statConclusions.stream().mapToDouble(x -> x.getVisionL()).sum();
+        double sumVisionR = statConclusions.stream().mapToDouble(x -> x.getVisionR()).sum();
+        float avgVisionL = roundDigits(sumVisionL / size);
+        float avgVisionR = roundDigits(sumVisionR / size);
+        return AverageVision.builder()
+                .averageVisionLeft(avgVisionL)
+                .averageVisionRight(avgVisionR)
+                .build();
+    }
+    @Data
+    @Builder
+    public static class AverageVision {
+        private float averageVisionLeft;
+        private float averageVisionRight;
     }
 }

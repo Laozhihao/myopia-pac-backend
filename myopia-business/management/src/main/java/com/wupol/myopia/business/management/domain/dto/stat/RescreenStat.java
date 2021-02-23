@@ -7,26 +7,26 @@ import lombok.Data;
 @Builder
 public class RescreenStat {
     /** 复测人数 */
-    private Integer rescreenNum;
+    private long rescreenNum;
 
     /** 戴镜复测人数 */
-    private Integer wearingGlassesRescreenNum;
+    private long wearingGlassesRescreenNum;
 
     /** 戴镜复测指标数 */
-    private Integer wearingGlassesRescreenIndexNum;
+    private long wearingGlassesRescreenIndexNum;
 
     /** 非戴镜复测人数 */
-    private Integer withoutGlassesRescreenNum;
+    private long withoutGlassesRescreenNum;
 
     /** 非戴镜复测指标数 */
-    private Integer withoutGlassesRescreenIndexNum;
+    private long withoutGlassesRescreenIndexNum;
 
     /** 复测项次 */
-    private Integer rescreenItemNum;
+    private long rescreenItemNum;
 
     /** 错误项次数 */
-    private Integer incorrectItemNum;
+    private long incorrectItemNum;
 
     /** 错误率/发生率 */
-    private Float incorrectRatio;
+    private float incorrectRatio;
 }

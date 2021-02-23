@@ -35,18 +35,6 @@ public class ScreeningClassStat {
     /** 按学龄统计 */
     private List<ClassStat> tabSchoolAge;
 
-    // /** 视力低下率 */
-    // private ClassStat lowVision;
-
-    // /** 屈光不正率 */
-    // private ClassStat refractiveError;
-
-    // /** 戴镜情况 */
-    // private ClassStat wearingGlasses;
-
-    // /** 近视情况 */
-    // private ClassStat myopia;
-
     /** 复测数据 */
     private RescreenStat rescreenStat;
 }

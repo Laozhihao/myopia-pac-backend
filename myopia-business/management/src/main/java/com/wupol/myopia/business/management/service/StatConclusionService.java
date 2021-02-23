@@ -29,4 +29,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
             List<Integer> districtIds, Date startDate, Date endDate) {
         return statConclusionMapper.listByDateRange(districtIds, startDate, endDate);
     }
+
+    public List<StatConclusion> listByNoticeId(int noticeId, List<Integer> districtIds) {
+        return statConclusionMapper.listByNoticeId(noticeId, districtIds);
+    }
 }
