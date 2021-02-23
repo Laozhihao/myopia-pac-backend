@@ -91,7 +91,7 @@
     <select id="getByTaskIds" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">
         select
         <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.id in
+        from m_screening_plan msp where msp.screening_task_id in
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>

@@ -416,7 +416,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
-        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
+        tasks.forEach(this::extractedDTO);
         return taskPages;
     }
 
@@ -424,9 +424,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * 封装DTO
      *
      * @param taskResponse 筛查端-记录详情
-     * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse, Integer orgId) {
+    private void extractedDTO(ScreeningTaskResponse taskResponse) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
@@ -473,9 +472,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 detail.setSchoolName(schoolMaps.get(s).getName());
             }
             if (null != schoolStatisticMaps.get(s)) {
-                detail.setPlanScreeningNumbers(planStudentMaps.get(s));
                 detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
             }
+            detail.setPlanScreeningNumbers(planStudentMaps.get(s));
             detail.setScreeningPlanId(taskResponse.getId());
             detail.setStartTime(taskResponse.getStartTime());
             detail.setEndTime(taskResponse.getEndTime());

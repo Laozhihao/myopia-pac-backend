@@ -180,7 +180,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer deletedStudent(Integer id) {
         if (checkStudentHavePlan(id)) {
-            throw new BusinessException("学生存在筛查计划，不能删除");
+            throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
         }
         Student student = new Student();
         student.setId(id);
