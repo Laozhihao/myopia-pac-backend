@@ -95,12 +95,13 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
             List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
             //2. 为下属部门创建通知
-            screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+            boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
             // 3. 为消息中心创建通知
             List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
             ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.SCREENING_CLIENT.getCode());
             List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
             noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, notice.getTitle(), notice.getTitle());
+            return result;
         }
         throw new BusinessException("发布失败");
     }
