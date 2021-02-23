@@ -7,12 +7,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -179,5 +176,21 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
          return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+    }
+
+    /**
+     * 更新筛查学生数量
+     * @param userId
+     * @param screeningPlanId
+     * @param studentNumbers
+     */
+    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
+        return updateById(screeningPlan, userId);
+    }
+
+    public IPage<ScreeningTaskResponse> getByTaskIds(PageRequest pageRequest, List<Integer> ids) {
+        return baseMapper.getByTaskIds(pageRequest.toPage(), ids);
     }
 }

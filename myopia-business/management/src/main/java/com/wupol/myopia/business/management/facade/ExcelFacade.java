@@ -71,10 +71,10 @@ public class ExcelFacade {
     private UserService userService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private NoticeService noticeService;
-
     @Autowired
     private S3Utils s3Utils;
 
@@ -791,6 +791,11 @@ public class ExcelFacade {
             // 去头部
             listMap.remove(0);
         }
+        if (CollectionUtils.isEmpty(listMap)) {
+            // 无数据，直接返回
+            return;
+        }
         screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
+        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
     }
 }

@@ -110,7 +110,7 @@ public class ScreeningPlanController {
                 throw new ValidationException("筛查任务查无该机构");
             }
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
-            screeningPlanDTO.setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+            screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
             // 用户自己新建的筛查计划需设置districtId
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());

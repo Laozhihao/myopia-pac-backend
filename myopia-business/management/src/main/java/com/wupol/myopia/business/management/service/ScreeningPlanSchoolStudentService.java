@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,6 +10,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.GenderEnum;
+import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
@@ -27,8 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.validation.Valid;
-import java.lang.reflect.GenericArrayType;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -86,6 +84,26 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
         return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId));
+    }
+
+    /**
+     * 根据计划ID和学校ID获取所有筛查学生
+     *
+     * @param screeningPlanId
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId).eq("school_id", schoolId));
+    }
+
+    /**
+     * 根据计划ID获取所有筛查学生数量
+     *
+     * @param screeningPlanId
+     * @return
+     */
+    public Integer getCountByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.selectCount(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId));
     }
 
     /**
@@ -158,20 +176,21 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public void insertByUpload(Integer userId, List<Map<Integer, String>> listMap, Integer screeningPlanId, Integer schoolId) {
         School school = schoolService.getById(schoolId);
-        checkSchoolExistAndListMapNeededExist(school, listMap);
+        // 校验学校是否存在，表格中必填项是否都有
+        List<String> snoList = checkSchoolAndNeededExistWithReturnSnoList(school, listMap);
         // 获取所有身份证号
         Set<String> idCardSet = new HashSet<>();
         Set<String> gradeNameSet = new HashSet<>();
         Set<String> gradeClassNameSet = new HashSet<>();
         Map<String, List<Long>> districtNameCodeMap = new HashMap<>(16);
         listMap.forEach(item -> {
-            String gradeName = item.getOrDefault(5, null);
-            String className = item.getOrDefault(6, null);
-            String idCard = item.getOrDefault(8, null);
-            String provinceName = item.getOrDefault(10, null);
-            String cityName = item.getOrDefault(11, null);
-            String areaName = item.getOrDefault(12, null);
-            String townName = item.getOrDefault(13, null);
+            String gradeName = item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null);
+            String className = item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null);
+            String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
+            String provinceName = item.getOrDefault(ImportExcelEnum.PROVINCE.getIndex(), null);
+            String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
+            String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
+            String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
             idCardSet.add(idCard);
             gradeNameSet.add(gradeName);
             gradeClassNameSet.add(String.format("%s-%s", gradeName, className));
@@ -179,13 +198,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 districtNameCodeMap.put(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
             }
         });
+        Map<Boolean, List<ScreeningPlanSchoolStudent>> alreadyExistOrNotStudents = getByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId).stream().collect(Collectors.groupingBy(planStudent -> idCardSet.contains(planStudent.getIdCard())));
         Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
         Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format("%s-%s", schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
-        checkExcelDataLegal(idCardSet, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap);
+        // 校验数据是否合法
+        checkExcelDataLegal(idCardSet, snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false));
         // 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        // 根据身份证号分批获取已有的筛查学生数据
-        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = getByIdCards(screeningPlanId, schoolId, new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        // 获取已有的筛查学生数据
+        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ? Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
         List<Student> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap);
         Map<String, Student> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 1. 筛选出需新增的学生并新增
@@ -201,18 +222,23 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param school
      * @param listMap
      */
-    private void checkSchoolExistAndListMapNeededExist(School school, List<Map<Integer, String>> listMap) {
+    private List<String> checkSchoolAndNeededExistWithReturnSnoList(School school, List<Map<Integer, String>> listMap) {
         if (Objects.isNull(school)) {
             throw new BusinessException("不存在该学校");
         }
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
-        if (listMap.stream().anyMatch(map -> ObjectsUtil.hasNull(map.getOrDefault(0, null), map.getOrDefault(1, null), map.getOrDefault(2, null), map.getOrDefault(4, null),map.getOrDefault(5, null), map.getOrDefault(6, null), map.getOrDefault(7, null), map.getOrDefault(8, null)))) {
+        if (listMap.stream().anyMatch(map -> ObjectsUtil.hasNull(map.getOrDefault(ImportExcelEnum.NAME.getIndex(), null), map.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null), map.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null), map.getOrDefault(ImportExcelEnum.SCHOOL_NO.getIndex(), null),map.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null), map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null), map.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null), map.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
         }
-        List<String> schoolNoList = listMap.stream().map(map -> map.get(4)).distinct().collect(Collectors.toList());
+        List<String> schoolNoList = listMap.stream().map(map -> map.get(ImportExcelEnum.SCHOOL_NO.getIndex())).distinct().collect(Collectors.toList());
         if (schoolNoList.size() > 1 || !school.getSchoolNo().equalsIgnoreCase(schoolNoList.get(0))) {
             throw new BusinessException("学校编号填写错误或不匹配");
         }
+        List<String> studentNoList = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).distinct().collect(Collectors.toList());
+        if (studentNoList.size() != listMap.size()) {
+            throw new BusinessException("学号存在重复");
+        }
+        return studentNoList;
     }
 
     /**
@@ -299,12 +325,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * 3. 班级
      *
      * @param idCardList
+     * @param snoList
      * @param gradeNameSet
      * @param gradeClassNameSet
      * @param gradeNameIdMap
      * @param gradeClassNameClassIdMap
+     * @param notUploadStudents 已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
      */
-    private void checkExcelDataLegal(Set<String> idCardList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap) {
+    private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
         if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
             throw new BusinessException("存在不正确的身份证号");
@@ -316,6 +344,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 班级名是否都存在
         if (gradeClassNameSet.stream().anyMatch(gradeClassName -> StringUtils.isEmpty(gradeClassName) || !gradeClassNameClassIdMap.keySet().contains(gradeClassName))) {
             throw new BusinessException("存在不正确的班级名称");
+        }
+        // 上传的学号与已有的学号校验
+
+        List<String> notUploadSno = CollectionUtils.isEmpty(notUploadStudents) ? Collections.emptyList() : notUploadStudents.stream().map(ScreeningPlanSchoolStudent::getStudentNo).collect(Collectors.toList());
+        if (CollectionUtils.hasLength(CompareUtil.getRetain(snoList, notUploadSno))) {
+            throw new BusinessException("上传数据与已有筛查学生有学号存在重复");
         }
     }
 
@@ -355,21 +389,21 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         try {
             // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
             Student student = new Student();
-            student.setName(StringUtils.getDefaultIfBlank(item.get(0), null))
-                    .setGender(StringUtils.isBlank(item.get(1)) ? null : GenderEnum.getType(item.get(1)))
-                    .setBirthday(StringUtils.isBlank(item.get(2)) ? null : DateFormatUtil.parseDate(item.get(2), DateFormatUtil.FORMAT_ONLY_DATE2))
-                    .setNation(StringUtils.isBlank(item.get(3)) ? null : NationEnum.getCode(item.get(3)))
-                    .setSchoolNo(StringUtils.getDefaultIfBlank(item.get(4), null))
-                    .setGradeId(gradeNameIdMap.get(item.get(5)))
-                    .setClassId(gradeClassNameClassIdMap.get(String.format("%s-%s", item.get(5), item.get(6))))
-                    .setSno(StringUtils.getDefaultIfBlank(item.get(7), null))
-                    .setIdCard(StringUtils.getDefaultIfBlank(item.get(8), null))
-                    .setParentPhone(StringUtils.getDefaultIfBlank(item.get(9), null))
-                    .setAddress(StringUtils.getDefaultIfBlank(item.get(14), null));
-            String provinceName = item.getOrDefault(10, null);
-            String cityName = item.getOrDefault(11, null);
-            String areaName = item.getOrDefault(12, null);
-            String townName = item.getOrDefault(13, null);
+            student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
+                    .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))
+                    .setBirthday(StringUtils.isBlank(item.get(ImportExcelEnum.BIRTHDAY.getIndex())) ? null : DateFormatUtil.parseDate(item.get(ImportExcelEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2))
+                    .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
+                    .setSchoolNo(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.SCHOOL_NO.getIndex()), null))
+                    .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
+                    .setClassId(gradeClassNameClassIdMap.get(String.format("%s-%s", item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
+                    .setSno(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.STUDENT_NO.getIndex()), null))
+                    .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
+                    .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
+                    .setAddress(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ADDRESS.getIndex()), null));
+            String provinceName = item.getOrDefault(ImportExcelEnum.PROVINCE.getIndex(), null);
+            String cityName = item.getOrDefault(ImportExcelEnum.CITY.getIndex(), null);
+            String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
+            String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
                 List<Long> codeList = districtNameCodeMap.get(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName));
                 if (CollectionUtils.hasLength(codeList)) {
