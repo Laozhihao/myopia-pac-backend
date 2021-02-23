@@ -310,7 +310,7 @@ public class ScreeningPlanController {
         List<SchoolAdmin> schoolAdmins = schoolAdminService.getBySchoolIds(schoolListsByPlanId.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
         // 为消息中心创建通知
         List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
-        noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, screeningPlan.getTitle(), screeningPlan.getTitle());
+        noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }
 

@@ -100,7 +100,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
             ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.SCREENING_CLIENT.getCode());
             List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, notice.getTitle(), notice.getTitle());
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
             return result;
         }
         throw new BusinessException("发布失败");

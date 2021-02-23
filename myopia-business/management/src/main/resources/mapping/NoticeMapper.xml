@@ -79,9 +79,9 @@
     </update>
 
     <insert id="batchCreateScreeningNotice">
-        insert into m_notice (create_user_id, link_id, notice_user_id, type, title, content) values
+        insert into m_notice (create_user_id, link_id, notice_user_id, type, title, content, start_time, end_time) values
         <foreach collection="toUserIds" item="toUserId" index="index" separator=",">
-            (#{createUserId}, #{linkId}, #{toUserId}, #{type}, #{title}, #{content})
+            (#{createUserId}, #{linkId}, #{toUserId}, #{type}, #{title}, #{content}, #{startTime}, #{endTime})
         </foreach>
     </insert>
 </mapper>

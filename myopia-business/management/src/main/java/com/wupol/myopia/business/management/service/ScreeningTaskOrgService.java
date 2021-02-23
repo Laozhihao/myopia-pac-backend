@@ -188,7 +188,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
 
         List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
         // 为消息中心创建通知
-        noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds,screeningTask.getTitle(),screeningTask.getTitle());
+        noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds,screeningTask.getTitle(),screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
         return result;
     }
 }
