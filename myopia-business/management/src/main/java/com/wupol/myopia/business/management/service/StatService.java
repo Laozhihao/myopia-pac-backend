@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.GenderEnum;
+import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.ScreeningDataContrastType;
 import com.wupol.myopia.business.management.constant.StatClassLabel;
 import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
@@ -40,22 +41,13 @@ public class StatService {
     private StatConclusionService statConclusionService;
 
     @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-
-    @Autowired
-    private ScreeningTaskService screeningTaskService;
-
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
-
-    @Autowired
     private DistrictService districtService;
 
     @Autowired
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    private GovDeptService govDeptService;
 
     @Autowired
-    private GovDeptService govDeptService;
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 预警信息
@@ -63,44 +55,39 @@ public class StatService {
      * @throws IOException
      */
     public WarningInfo getWarningList() {
-        // List<Integer> districtIds = this.getCurrentUserDistrictIds();
-        List<Integer> districtIds = null;
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
         StatConclusion lastConclusion = statConclusionService.getLastOne(districtIds);
         Date endDate = lastConclusion.getCreateTime();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(endDate);
         calendar.add(Calendar.YEAR, -1);
         Date startDate = calendar.getTime();
-
-        // DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-        // String startDateStr = dateFormat.format(startDate);
-        // String endDateStr = dateFormat.format(endDate);
-
         List<StatConclusion> statConclusions =
                 statConclusionService.listByDateRange(districtIds, startDate, endDate);
 
         long total = statConclusions.size();
-        long warningZeroNum = statConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
-        long warningOneNum = statConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
-        long warningTwoNum = statConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
-        long warningThreeNum = statConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
-        long focusTargetsNum = warningOneNum + warningTwoNum + warningThreeNum;
+        long warning0Num = statConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
+        long warning1Num = statConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
+        long warning2Num = statConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
+        long warning3Num = statConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+        long focusTargetsNum = warning1Num + warning2Num + warning3Num;
 
         return WarningInfo.builder()
                 .statTime(startDate.getTime())
                 .endTime(endDate.getTime())
                 .focusTargetsNum(focusTargetsNum)
-                .focusTargetsPercentage(convertToRatio(focusTargetsNum * 1f / total))
+                .focusTargetsPercentage(convertToPercentage(focusTargetsNum * 1f / total))
                 .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
                     {
                         add(new WarningLevelInfo(
-                                0, warningZeroNum, convertToRatio(warningZeroNum * 1f / total)));
+                                0, warning0Num, convertToPercentage(warning0Num * 1f / total)));
                         add(new WarningLevelInfo(
-                                1, warningOneNum, convertToRatio(warningOneNum * 1f / total)));
+                                1, warning1Num, convertToPercentage(warning1Num * 1f / total)));
                         add(new WarningLevelInfo(
-                                2, warningTwoNum, convertToRatio(warningTwoNum * 1f / total)));
+                                2, warning2Num, convertToPercentage(warning2Num * 1f / total)));
                         add(new WarningLevelInfo(
-                                3, warningThreeNum, convertToRatio(warningThreeNum * 1f / total)));
+                                3, warning3Num, convertToPercentage(warning3Num * 1f / total)));
                     }
                 })
                 .build();
@@ -171,7 +158,7 @@ public class StatService {
                         .rescreenItemNum(Math.round(actualScrNum * 0.25f * 0.35f) * 4
                                 + Math.round(actualScrNum * 0.25f * 0.65f) * 6)
                         .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
-                        .incorrectRatio(convertToRatio(0.0015f))
+                        .incorrectRatio(convertToPercentage(0.0015f))
                         .build();
         ScreeningDataContrast data1 =
                 ScreeningDataContrast.builder()
@@ -179,18 +166,18 @@ public class StatService {
                         .actualScreeningNum(actualScrNum)
                         .averageVisionLeft(0.83f)
                         .averageVisionRight(0.85f)
-                        .lowVisionRatio(convertToRatio(350000f / actualScrNum))
-                        .refractiveErrorRatio(convertToRatio(0.23f))
-                        .wearingGlassesRatio(convertToRatio(0.53f))
+                        .lowVisionRatio(convertToPercentage(350000f / actualScrNum))
+                        .refractiveErrorRatio(convertToPercentage(0.23f))
+                        .wearingGlassesRatio(convertToPercentage(0.53f))
                         .myopiaNum(350000)
-                        .myopiaRatio(convertToRatio(350000f / actualScrNum))
+                        .myopiaRatio(convertToPercentage(350000f / actualScrNum))
                         .focusTargetsNum(350000)
-                        .warningLevelZeroRatio(convertToRatio(123430f / actualScrNum))
-                        .warningLevelOneRatio(convertToRatio(23430f / actualScrNum))
-                        .warningLevelTwoRatio(convertToRatio(10020f / actualScrNum))
-                        .warningLevelThreeRatio(convertToRatio(8430f / actualScrNum))
+                        .warningLevelZeroRatio(convertToPercentage(123430f / actualScrNum))
+                        .warningLevelOneRatio(convertToPercentage(23430f / actualScrNum))
+                        .warningLevelTwoRatio(convertToPercentage(10020f / actualScrNum))
+                        .warningLevelThreeRatio(convertToPercentage(8430f / actualScrNum))
                         .recommendVisitNum(123430)
-                        .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum))
+                        .screeningFinishedRatio(convertToPercentage(123430 * 0.2f / actualScrNum))
                         .rescreenStat(rescreenStat)
                         .build();
 
@@ -207,7 +194,7 @@ public class StatService {
                         .rescreenItemNum(Math.round(actualScrNum2 * 0.25f * 0.35f) * 4
                                 + Math.round(actualScrNum2 * 0.25f * 0.65f) * 6)
                         .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
-                        .incorrectRatio(convertToRatio(0.0015f))
+                        .incorrectRatio(convertToPercentage(0.0015f))
                         .build();
         ScreeningDataContrast data2 =
                 ScreeningDataContrast.builder()
@@ -215,18 +202,18 @@ public class StatService {
                         .actualScreeningNum(actualScrNum2)
                         .averageVisionLeft(0.83f)
                         .averageVisionRight(0.85f)
-                        .lowVisionRatio(convertToRatio(0.43f))
-                        .refractiveErrorRatio(convertToRatio(0.23f))
-                        .wearingGlassesRatio(convertToRatio(0.53f))
+                        .lowVisionRatio(convertToPercentage(0.43f))
+                        .refractiveErrorRatio(convertToPercentage(0.23f))
+                        .wearingGlassesRatio(convertToPercentage(0.53f))
                         .myopiaNum(350000)
-                        .myopiaRatio(convertToRatio(350000 * 1.0f / actualScrNum2))
+                        .myopiaRatio(convertToPercentage(350000 * 1.0f / actualScrNum2))
                         .focusTargetsNum(350000)
-                        .warningLevelZeroRatio(convertToRatio(123430 * 1f / actualScrNum2))
-                        .warningLevelOneRatio(convertToRatio(23430 * 1f / actualScrNum2))
-                        .warningLevelTwoRatio(convertToRatio(10020 * 1f / actualScrNum2))
-                        .warningLevelThreeRatio(convertToRatio(8430 * 1f / actualScrNum2))
+                        .warningLevelZeroRatio(convertToPercentage(123430 * 1f / actualScrNum2))
+                        .warningLevelOneRatio(convertToPercentage(23430 * 1f / actualScrNum2))
+                        .warningLevelTwoRatio(convertToPercentage(10020 * 1f / actualScrNum2))
+                        .warningLevelThreeRatio(convertToPercentage(8430 * 1f / actualScrNum2))
                         .recommendVisitNum(123430)
-                        .screeningFinishedRatio(convertToRatio(123430 * 0.2f / actualScrNum2))
+                        .screeningFinishedRatio(convertToPercentage(123430 * 0.2f / actualScrNum2))
                         .rescreenStat(rescreenStat2)
                         .build();
         return new HashMap() {
@@ -245,7 +232,8 @@ public class StatService {
      * @return
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) {
-        List<Integer> districtIds = this.getCurrentUserDistrictIds();
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
         List<StatConclusion> statConclusions =
                 statConclusionService.listByNoticeId(notificationId, districtIds);
 
@@ -255,8 +243,8 @@ public class StatService {
                         .collect(Collectors.toList());
 
         List<StatConclusion> lowVisionConclusions = firstScreenConclusions.stream()
-                                                            .filter(x -> x.getIsLowVision() == true)
-                                                            .collect(Collectors.toList());
+                        .filter(x -> x.getIsLowVision() == true)
+                        .collect(Collectors.toList());
 
         List<StatConclusion> refractiveErrorConclusions =
                 firstScreenConclusions.stream()
@@ -305,13 +293,15 @@ public class StatService {
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
         AverageVision averageVision = this.calculateAverageVision(firstScreenConclusions);
 
+        int planScreeningNum =
+                screeningPlanService.getScreeningPlanStudentNum(notificationId, currentUser);
         return ScreeningClassStat.builder()
                 .notificationId(notificationId)
                 .screeningNum(totalFirstScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(totalFirstScreeningNum - 1000)
-                // .screeningFinishedRatio(convertToRatio(
-                // totalFirstScreeningNum * 1f / screeningNum))
+                .screeningFinishedRatio(
+                        convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
                 .averageVisionLeft(averageVision.averageVisionLeft)
                 .averageVisionRight(averageVision.getAverageVisionRight())
                 .tabGender(tabGender)
@@ -321,12 +311,12 @@ public class StatService {
     }
 
     /**
-     * 转换为百分比并保留4位小数
+     * 转换为百分比并保留2位小数
      * @param num
      * @return
      */
-    private Float convertToRatio(Float num) {
-        return Math.round(num * 1000000) / 10000f;
+    private Float convertToPercentage(Float num) {
+        return Math.round(num * 10000) / 100f;
     }
 
     /**
@@ -334,7 +324,7 @@ public class StatService {
      * @param num
      * @return
      */
-    private Float roundDigits(Double num) {
+    private Float round2Digits(Double num) {
         return Math.round(num * 100) / 100f;
     }
 
@@ -353,8 +343,7 @@ public class StatService {
      * 获取当前用户所有权限的区域ID
      * @return
      */
-    private List<Integer> getCurrentUserDistrictIds() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+    private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) {
         GovDept govDept = govDeptService.getById(currentUser.getOrgId());
         District userDistrict = districtService.getById(govDept.getDistrictId());
         List<District> districts;
@@ -362,7 +351,7 @@ public class StatService {
             districts =
                     districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
         } catch (IOException e) {
-            //  TODO: add log
+            log.error("Fail to get user districts", e);
             return null;
         }
         districts.add(userDistrict);
@@ -379,21 +368,17 @@ public class StatService {
     private ClassStat composeGenderClassStat(StatClassLabel label, long totalFirstScreeningNum,
             List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
-        long statMaleNum =
+        long maleNum =
                 statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
-        long statFemaleNum = statConclusions.size() - statMaleNum;
-        BasicStatParams statMaleStatParams = new BasicStatParams(
-                GenderEnum.MALE.name, convertToRatio(statMaleNum * 1f / statNum), statMaleNum);
-        BasicStatParams statFemaleStatParams = new BasicStatParams(
-                GenderEnum.FEMALE.name, convertToRatio(statFemaleNum * 1f / statNum), statMaleNum);
+        long femaleNum = statConclusions.size() - maleNum;
         return ClassStat.builder()
                 .title(label.desc)
                 .num(statNum)
-                .ratio(convertToRatio(statNum * 1f / totalFirstScreeningNum))
+                .ratio(convertToPercentage(statNum * 1f / totalFirstScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
-                        add(statMaleStatParams);
-                        add(statFemaleStatParams);
+                        add(composeBasicParams(GenderEnum.MALE.name, maleNum, statNum));
+                        add(composeBasicParams(GenderEnum.FEMALE.name, femaleNum, statNum));
                     }
                 })
                 .build();
@@ -409,21 +394,35 @@ public class StatService {
     private ClassStat composeSchoolAgeClassStat(StatClassLabel label, int totalFirstScreeningNum,
             List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
-        long statMaleNum =
-                statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
-        long statFemaleNum = statConclusions.size() - statMaleNum;
-        BasicStatParams statMaleStatParams = new BasicStatParams(
-                GenderEnum.MALE.name, convertToRatio(statMaleNum * 1f / statNum), statMaleNum);
-        BasicStatParams statFemaleStatParams = new BasicStatParams(
-                GenderEnum.FEMALE.name, convertToRatio(statFemaleNum * 1f / statNum), statMaleNum);
+        long kindergartenNum = statConclusions.stream()
+                                       .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
+                                       .count();
+        long primaryNum = statConclusions.stream()
+                                  .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
+                                  .count();
+        long juniorNum = statConclusions.stream()
+                                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
+                                 .count();
+        long highNum = statConclusions.stream()
+                               .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
+                               .count();
+        long vocationalHighNum =
+                statConclusions.stream()
+                        .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
+                        .count();
         return ClassStat.builder()
                 .title(label.desc)
                 .num(statNum)
-                .ratio(convertToRatio(statNum * 1f / totalFirstScreeningNum))
+                .ratio(convertToPercentage(statNum * 1f / totalFirstScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
-                        add(statMaleStatParams);
-                        add(statFemaleStatParams);
+                        add(composeBasicParams(
+                                SchoolAge.KINDERGARTEN.desc, kindergartenNum, statNum));
+                        add(composeBasicParams(SchoolAge.PRIMARY.desc, primaryNum, statNum));
+                        add(composeBasicParams(SchoolAge.JUNIOR.desc, juniorNum, statNum));
+                        add(composeBasicParams(SchoolAge.HIGH.desc, highNum, statNum));
+                        add(composeBasicParams(
+                                SchoolAge.VOCATIONAL_HIGH.desc, vocationalHighNum, statNum));
                     }
                 })
                 .build();
@@ -451,7 +450,7 @@ public class StatService {
                 .withoutGlassesRescreenIndexNum(withoutGlassesIndexNum)
                 .rescreenItemNum(wearingGlassesIndexNum + withoutGlassesIndexNum)
                 .incorrectItemNum(errorIndexNum)
-                .incorrectRatio(convertToRatio(
+                .incorrectRatio(convertToPercentage(
                         errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)))
                 .build();
     }
@@ -465,13 +464,19 @@ public class StatService {
         int size = statConclusions.size();
         double sumVisionL = statConclusions.stream().mapToDouble(x -> x.getVisionL()).sum();
         double sumVisionR = statConclusions.stream().mapToDouble(x -> x.getVisionR()).sum();
-        float avgVisionL = roundDigits(sumVisionL / size);
-        float avgVisionR = roundDigits(sumVisionR / size);
+        float avgVisionL = round2Digits(sumVisionL / size);
+        float avgVisionR = round2Digits(sumVisionR / size);
         return AverageVision.builder()
                 .averageVisionLeft(avgVisionL)
                 .averageVisionRight(avgVisionR)
                 .build();
     }
+
+    private BasicStatParams composeBasicParams(String desc, long statSchoolAgeNum, long statNum) {
+        return new BasicStatParams(
+                desc, convertToPercentage(statSchoolAgeNum * 1f / statNum), statSchoolAgeNum);
+    }
+
     @Data
     @Builder
     public static class AverageVision {
