@@ -151,8 +151,8 @@ DROP TABLE IF EXISTS `m_district_attentive_objects_statistic`;
 CREATE TABLE `m_district_attentive_objects_statistic`
 (
     `id`                     int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_task_id`      int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的任务id',
-    `screening_plan_id`      int(10) unsigned NOT NULL COMMENT '重点视力对象--关联的计划id',
+    `screening_notice_id`    int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的通知id',
+    `screening_task_id`      int(10) unsigned NOT NULL DEFAULT 0 COMMENT '重点视力对象--关联的任务id（is_total情况下，可能为0）',
     `district_id`            int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的地区id',
     `vision_label_0_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警人数（默认0）',
     `vision_label_0_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）',
@@ -177,8 +177,8 @@ DROP TABLE IF EXISTS `m_district_monitor_statistic`;
 CREATE TABLE `m_district_monitor_statistic`
 (
     `id`                    int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_task_id`     int(10) unsigned NOT NULL COMMENT '监测情况--关联的任务id',
-    `screening_plan_id`     int(10) unsigned NOT NULL COMMENT '监测情况--关联的筛查计划id',
+    `screening_notice_id`   int(10) unsigned NOT NULL COMMENT '监测情况--所属的通知id',
+    `screening_task_id`     int(10) unsigned NOT NULL DEFAULT 0 COMMENT '监测情况--关联的任务id（is_total情况下，可能为0）',
     `district_id`           int(10) unsigned NOT NULL COMMENT '监测情况--所属的地区id（筛查范围）',
     `investigation_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--戴镜人数（默认0）',
     `without_glass_dsn`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--脱镜复测数量（默认0）',
@@ -203,8 +203,8 @@ DROP TABLE IF EXISTS `m_district_vision_statistic`;
 CREATE TABLE `m_district_vision_statistic`
 (
     `id`                       int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_task_id`        int(10) unsigned NOT NULL COMMENT '视力情况--所属的任务id',
-    `screening_plan_id`        int(10) unsigned NOT NULL COMMENT '视力情况--关联的筛查计划id',
+    `screening_notice_id`      int(10) unsigned NOT NULL COMMENT '视力情况--所属的通知id',
+    `screening_task_id`        int(10) unsigned NOT NULL DEFAULT 0 COMMENT '视力情况--关联的任务id（is_total情况下，可能为0）',
     `district_id`              int(10) unsigned NOT NULL COMMENT '视力情况--所属的地区id',
     `avg_left_vision`          decimal(10, 0) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--平均左眼视力（小数点后一位，默认0.0）',
     `avg_right_vision`         decimal(10, 0) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--平均右眼视力（小数点后一位，默认0.0）',
@@ -243,6 +243,7 @@ CREATE TABLE `m_school_vision_statistic`
 (
     `id`                       int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `school_id`                int(10) unsigned NOT NULL COMMENT '视力情况--所属的学校id',
+    `screening_notice_id`      int(10) unsigned NOT NULL COMMENT '视力情况--所属的通知id',
     `screening_task_id`        int(10) unsigned NOT NULL COMMENT '视力情况--所属的任务id',
     `screening_plan_id`        int(10) unsigned NOT NULL COMMENT '视力情况--关联的筛查计划id',
     `district_id`              int(10) unsigned NOT NULL COMMENT '视力情况--所属的地区id',
