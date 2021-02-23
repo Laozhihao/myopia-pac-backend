@@ -63,7 +63,6 @@
         WHERE district_id IN
         <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
         and src_screening_notice_id=#{noticeId}
-        and is_valid=1
     </select>
 
 </mapper>

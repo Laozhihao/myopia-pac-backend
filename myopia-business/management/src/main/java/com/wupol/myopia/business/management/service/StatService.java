@@ -242,48 +242,54 @@ public class StatService {
                         .filter(x -> x.getIsRescreen() == false)
                         .collect(Collectors.toList());
 
-        List<StatConclusion> lowVisionConclusions = firstScreenConclusions.stream()
-                        .filter(x -> x.getIsLowVision() == true)
-                        .collect(Collectors.toList());
+        List<StatConclusion> validScreenConclusions = firstScreenConclusions.stream()
+                                                              .filter(x -> x.getIsValid() == true)
+                                                              .collect(Collectors.toList());
+
+        List<StatConclusion> lowVisionConclusions = validScreenConclusions.stream()
+                                                            .filter(x -> x.getIsLowVision() == true)
+                                                            .collect(Collectors.toList());
 
         List<StatConclusion> refractiveErrorConclusions =
-                firstScreenConclusions.stream()
+                validScreenConclusions.stream()
                         .filter(x -> x.getIsRefractiveError() == true)
                         .collect(Collectors.toList());
 
         List<StatConclusion> wearingGlassesConclusions =
-                firstScreenConclusions.stream()
+                validScreenConclusions.stream()
                         .filter(x -> x.getIsWearingGlasses() == true)
                         .collect(Collectors.toList());
 
-        List<StatConclusion> myopiaConclusions = firstScreenConclusions.stream()
+        List<StatConclusion> myopiaConclusions = validScreenConclusions.stream()
                                                          .filter(x -> x.getIsMyopia() == true)
                                                          .collect(Collectors.toList());
 
-        int totalFirstScreeningNum = firstScreenConclusions.size();
+        long totalFirstScreeningNum = firstScreenConclusions.size();
+        long validFirstScreeningNum = validScreenConclusions.size();
+
         List<ClassStat> tabGender = new ArrayList<ClassStat>() {
             {
                 add(composeGenderClassStat(
-                        StatClassLabel.LOW_VISION, totalFirstScreeningNum, lowVisionConclusions));
-                add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, totalFirstScreeningNum,
+                        StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+                add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum,
                         refractiveErrorConclusions));
-                add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, totalFirstScreeningNum,
-                        wearingGlassesConclusions));
                 add(composeGenderClassStat(
-                        StatClassLabel.MYOPIA, totalFirstScreeningNum, myopiaConclusions));
+                        StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+                add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum,
+                        wearingGlassesConclusions));
             }
         };
 
         List<ClassStat> tabSchoolAge = new ArrayList<ClassStat>() {
             {
                 add(composeSchoolAgeClassStat(
-                        StatClassLabel.LOW_VISION, totalFirstScreeningNum, lowVisionConclusions));
+                        StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
                 add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
-                        totalFirstScreeningNum, refractiveErrorConclusions));
-                add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
-                        totalFirstScreeningNum, wearingGlassesConclusions));
+                        validFirstScreeningNum, refractiveErrorConclusions));
                 add(composeSchoolAgeClassStat(
-                        StatClassLabel.MYOPIA, totalFirstScreeningNum, myopiaConclusions));
+                        StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+                add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
+                        validFirstScreeningNum, wearingGlassesConclusions));
             }
         };
 
@@ -297,46 +303,17 @@ public class StatService {
                 screeningPlanService.getScreeningPlanStudentNum(notificationId, currentUser);
         return ScreeningClassStat.builder()
                 .notificationId(notificationId)
-                .screeningNum(totalFirstScreeningNum)
+                .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
-                .validScreeningNum(totalFirstScreeningNum - 1000)
+                .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
-                .averageVisionLeft(averageVision.averageVisionLeft)
+                .averageVisionLeft(averageVision.getAverageVisionLeft())
                 .averageVisionRight(averageVision.getAverageVisionRight())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
                 .build();
-    }
-
-    /**
-     * 转换为百分比并保留2位小数
-     * @param num
-     * @return
-     */
-    private Float convertToPercentage(Float num) {
-        return Math.round(num * 10000) / 100f;
-    }
-
-    /**
-     * 保留2位小数
-     * @param num
-     * @return
-     */
-    private Float round2Digits(Double num) {
-        return Math.round(num * 100) / 100f;
-    }
-
-    /**
-     * 获取当前时间增加的年份时间戳
-     * @param year
-     * @return
-     */
-    private Long getYearMillis(Integer year) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, year);
-        return cal.getTimeInMillis();
     }
 
     /**
@@ -391,7 +368,7 @@ public class StatService {
      * @param statConclusions 对应分类统计结论
      * @return
      */
-    private ClassStat composeSchoolAgeClassStat(StatClassLabel label, int totalFirstScreeningNum,
+    private ClassStat composeSchoolAgeClassStat(StatClassLabel label, long totalFirstScreeningNum,
             List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
         long kindergartenNum = statConclusions.stream()
@@ -410,6 +387,7 @@ public class StatService {
                 statConclusions.stream()
                         .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
                         .count();
+
         return ClassStat.builder()
                 .title(label.desc)
                 .num(statNum)
@@ -456,6 +434,47 @@ public class StatService {
     }
 
     /**
+     * 转换为百分比并保留2位小数
+     * @param num
+     * @return
+     */
+    private Float convertToPercentage(Float num) {
+        return Math.round(num * 10000) / 100f;
+    }
+
+    /**
+     * 保留2位小数
+     * @param num
+     * @return
+     */
+    private Float round2Digits(Double num) {
+        return Math.round(num * 100) / 100f;
+    }
+
+    /**
+     * 获取当前时间增加的年份时间戳
+     * @param year
+     * @return
+     */
+    private Long getYearMillis(Integer year) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.YEAR, year);
+        return cal.getTimeInMillis();
+    }
+
+    /**
+     * 构造分类统计数据
+     * @param desc 分类描述
+     * @param statNum 分类统计数量
+     * @param totalStatNum 统计总量
+     * @return
+     */
+    private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
+        return new BasicStatParams(
+                desc, convertToPercentage(totalStatNum * 1f / totalStatNum), totalStatNum);
+    }
+
+    /**
      * 计算平均筛查视力
      * @param statConclusions
      * @return
@@ -470,11 +489,6 @@ public class StatService {
                 .averageVisionLeft(avgVisionL)
                 .averageVisionRight(avgVisionR)
                 .build();
-    }
-
-    private BasicStatParams composeBasicParams(String desc, long statSchoolAgeNum, long statNum) {
-        return new BasicStatParams(
-                desc, convertToPercentage(statSchoolAgeNum * 1f / statNum), statSchoolAgeNum);
     }
 
     @Data
