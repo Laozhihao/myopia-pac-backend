@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
@@ -22,8 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
+import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 /**
  * @author Alix
@@ -74,12 +76,17 @@ public class ScreeningNoticeController {
 
     /**
      * 创建筛查通知或发布时校验
-     * 1. 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
-     * 2. 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
+     * 1. 开始时间只能在今天或以后
+     * 2. 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     * 3. 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
      *
      * @param screeningNotice
      */
     private void createOrReleaseValidate(ScreeningNotice screeningNotice) {
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningNotice.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         // 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
         if (screeningNoticeService.checkTimeLegal(screeningNotice)) {
             throw new ValidationException("该部门该时间段已存在筛查通知");

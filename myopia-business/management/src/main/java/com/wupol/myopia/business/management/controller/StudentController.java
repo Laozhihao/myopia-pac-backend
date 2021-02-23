@@ -103,4 +103,9 @@ public class StudentController {
     public Object getScreeningList(@PathVariable("id") Integer id) {
         return studentService.getScreeningList(id);
     }
+
+    @GetMapping("/screening/card/{resultId}")
+    public Object getCardDetails(@PathVariable("resultId") Integer resultId) {
+        return studentService.getCardDetails(resultId);
+    }
 }

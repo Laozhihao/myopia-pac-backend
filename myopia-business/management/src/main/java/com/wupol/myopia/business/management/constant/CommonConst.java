@@ -71,4 +71,19 @@ public interface CommonConst {
      * 通知-筛查通知
      */
     Byte NOTICE_SCREENING_NOTICE = 1;
+
+    /**
+     * 通知-导出内容
+     */
+    String CONTENT = "%s-%s已经导出，点击下载，申请时间：%tF%n";
+
+    /**
+     * 左眼
+     */
+    Integer LEFT_EYE = 0;
+
+    /**
+     * 右眼
+     */
+    Integer RIGHT_EYE = 1;
 }

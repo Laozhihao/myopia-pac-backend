@@ -23,15 +23,15 @@
                 <if test="@Ognl@isNotEmpty(myopiaNumbers)">and `myopia_numbers` = #{myopiaNumbers}</if>
                 <if test="@Ognl@isNotEmpty(myopiaRatios)">and `myopia_ratios` = #{myopiaRatios}</if>
                 <if test="@Ognl@isNotEmpty(ametropiaNumbers)">and `ametropia_numbers` = #{ametropiaNumbers}</if>
-                <if test="@Ognl@isNotEmpty(ametropiaRatio)">and `ametropia_ratios` = #{ametropiaRatio}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label_0_numbers` = #{visionLabel0Numbers}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label_0_ratio` = #{visionLabel0Ratio}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel1Numbers)">and `vision_label_1_numbers` = #{visionLabel1Numbers}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel1Ratio)">and `vision_label_1_ratio` = #{visionLabel1Ratio}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel2Numbers)">and `vision_label_2_numbers` = #{visionLabel2Numbers}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel2Ratio)">and `vision_label_2_ratio` = #{visionLabel2Ratio}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel3Numbers)">and `vision_label_3_numbers` = #{visionLabel3Numbers}</if>
-                <if test="@Ognl@isNotEmpty(visionLabel3Ratio)">and `vision_label_3_ratio` = #{visionLabel3Ratio}</if>
+                <if test="@Ognl@isNotEmpty(ametropiaRatio)">and `ametropia_ratio` = #{ametropiaRatio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label0_numbers` = #{visionLabel0Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label0_ratio` = #{visionLabel0Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel1Numbers)">and `vision_label1_numbers` = #{visionLabel1Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel1Ratio)">and `vision_label1_ratio` = #{visionLabel1Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel2Numbers)">and `vision_label2_numbers` = #{visionLabel2Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel2Ratio)">and `vision_label2_ratio` = #{visionLabel2Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel3Numbers)">and `vision_label3_numbers` = #{visionLabel3Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel3Ratio)">and `vision_label3_ratio` = #{visionLabel3Ratio}</if>
                 <if test="@Ognl@isNotEmpty(keyWarningNumbers)">and `key_warning_numbers` = #{keyWarningNumbers}</if>
                 <if test="@Ognl@isNotEmpty(treatmentAdviceNumbers)">and `treatment_advice_numbers` = #{treatmentAdviceNumbers}</if>
                 <if test="@Ognl@isNotEmpty(treatmentAdviceRatio)">and `treatment_advice_ratio` = #{treatmentAdviceRatio}</if>
@@ -46,7 +46,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, is_total, screening_task_id, screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratios, ametropia_numbers, ametropia_ratios, vision_label_0_numbers, vision_label_0_ratio, vision_label_1_numbers, vision_label_1_ratio, vision_label_2_numbers, vision_label_2_ratio, vision_label_3_numbers, vision_label_3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numners, update_time, create_time
+        id, is_total, screening_task_id, screening_plan_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratios, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numners, update_time, create_time
     </sql>
 
 
