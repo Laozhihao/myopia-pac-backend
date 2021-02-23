@@ -3,7 +3,9 @@ DROP TABLE IF EXISTS `m_stat_conclusion`;
 CREATE TABLE `m_stat_conclusion` (
     `id` int NOT NULL AUTO_INCREMENT,
     `result_id` int NOT NULL COMMENT '源筛查数据id',
+    `src_screening_notice_id` int NOT NULL COMMENT '通知id',
     `task_id` int NOT NULL COMMENT '任务id',
+    `plan_id` int NOT NULL COMMENT '计划ID',
     `district_id` int NOT NULL COMMENT '所属地区id',
     `school_age` int NOT NULL COMMENT '学龄',
     `gender` int NOT NULL COMMENT '性别',

@@ -39,4 +39,29 @@
         id, result_id, task_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism, is_wearing_glasses, is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time
     </sql>
 
+    <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        WHERE district_id IN
+        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        ORDER by id desc
+        LIMIT 0, 1
+    </select>
+
+    <select id="listByDateRange" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        WHERE district_id IN
+        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        and create_time between #{startDate} and #{endDate}
+    </select>
+
+    <select id="listByNoticeId" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        WHERE district_id IN
+        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        and src_screening_notice_id=#{noticeId}
+    </select>
+
 </mapper>

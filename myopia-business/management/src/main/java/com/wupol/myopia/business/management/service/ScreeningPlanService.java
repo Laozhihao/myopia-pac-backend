@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Alix
@@ -44,6 +46,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private GovDeptService govDeptService;
+
     /**
      * 通过ids获取
      *
@@ -57,6 +62,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -68,6 +74,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -114,6 +121,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 新增或更新
+     *
      * @param screeningPlanDTO
      */
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
@@ -136,10 +144,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 删除，并删除关联的学校信息
+     *
      * @param screeningPlanId
      * @return
      */
-    public void removeWithSchools(CurrentUser user,Integer screeningPlanId) {
+    public void removeWithSchools(CurrentUser user, Integer screeningPlanId) {
         // 1. 修改通知状态为已读
         ScreeningPlan screeningPlan = getById(screeningPlanId);
         if (!CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
@@ -159,6 +168,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 校验筛查机构是否已创建计划
+     *
      * @param screeningTaskId
      * @param screeningOrgId
      */
@@ -209,5 +219,25 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
+    }
+    /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public Integer getScreeningPlanStudentNum(Integer noticeId, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
     }
 }
