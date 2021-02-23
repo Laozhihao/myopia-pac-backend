@@ -60,6 +60,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
     /**
      * 通过年级id查找学生
      *
@@ -176,6 +179,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer deletedStudent(Integer id) {
+        if (checkStudentHavePlan(id)) {
+            throw new BusinessException("学生存在筛查计划，不能删除");
+        }
         Student student = new Student();
         student.setId(id);
         student.setStatus(CommonConst.STATUS_IS_DELETED);
@@ -572,5 +578,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         right.setLateriality(CommonConst.RIGHT_EYE);
         right.setEyeDiseases(result.getRightEyeData().getEyeDiseases());
         return Lists.newArrayList(right, left);
+    }
+
+    /**
+     * 检查学生是否有筛查计划
+     *
+     * @param studentId 学生ID
+     * @return true-存在筛查计划 false-不存在
+     */
+    private boolean checkStudentHavePlan(Integer studentId) {
+        return !CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByStudentId(studentId));
     }
 }
