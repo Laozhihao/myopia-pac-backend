@@ -49,7 +49,6 @@
         from m_notice mn
         where mn.notice_user_id = #{userId}
           and mn.status != 2
-          and mn.type = 0
         order by mn.create_time desc
     </select>
 
