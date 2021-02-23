@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -190,7 +190,24 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return updateById(screeningPlan, userId);
     }
 
+    /**
+     * 分页获取筛查计划
+     *
+     * @param pageRequest 分页请求
+     * @param ids         taskIds
+     * @return IPage<ScreeningTaskResponse>
+     */
     public IPage<ScreeningTaskResponse> getByTaskIds(PageRequest pageRequest, List<Integer> ids) {
         return baseMapper.getByTaskIds(pageRequest.toPage(), ids);
+    }
+
+    /**
+     * 通过orgId获取计划
+     *
+     * @param orgId 机构ID
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByOrgId(Integer orgId) {
+        return baseMapper.getByOrgId(orgId);
     }
 }

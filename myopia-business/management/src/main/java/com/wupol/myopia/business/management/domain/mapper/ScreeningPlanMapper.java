@@ -33,4 +33,6 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
 
     IPage<ScreeningTaskResponse> getByTaskIds(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+
+    List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
 }

@@ -98,4 +98,12 @@
         and release_status = 1
         order by msp.create_time desc
     </select>
+
+    <select id="getByOrgId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan msp
+                     left join m_screening_task_org msto on msp.screening_task_id = msto.screening_task_id
+        where msto.screening_org_id = #{orgId}
+          and msp.release_status = 1
+    </select>
 </mapper>

@@ -109,6 +109,11 @@ public class ExcelFacade {
             return;
         }
 
+        // 获取筛查人员信息
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
+                .getOrgStaffMapByIds(list.stream().map(ScreeningOrganization::getId)
+                        .collect(Collectors.toList()));
+
         // 创建人姓名
         Set<Integer> createUserIds = list.stream()
                 .map(ScreeningOrganization::getCreateUserId)
@@ -122,13 +127,22 @@ public class ExcelFacade {
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                     .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
                     .setPhone(item.getPhone())
-                    .setPersonSituation("886")
                     .setRemark(item.getRemark())
-                    .setScreeningCount(886)
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            List<ScreeningPlan> planResult = screeningPlanService.getByOrgId(item.getId());
+            if (CollectionUtils.isEmpty(planResult)) {
+                exportVo.setScreeningCount(0);
+            } else {
+                exportVo.setScreeningCount(planResult.size());
+            }
+            if (null != staffMaps.get(item.getId())) {
+                exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
+            } else {
+                exportVo.setPersonSituation(0);
+            }
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
