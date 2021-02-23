@@ -45,7 +45,7 @@ public class ScreeningOrganizationExportVo implements Serializable {
     private String phone;
 
     @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
-    private String personSituation;
+    private Integer personSituation;
 
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;

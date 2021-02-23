@@ -61,9 +61,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private ScreeningTaskOrgService screeningTaskOrgService;
 
     @Resource
-    private ScreeningTaskService screeningTaskService;
-
-    @Resource
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
@@ -77,9 +74,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 保存筛查机构
@@ -216,7 +210,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
                                                                        ScreeningOrganizationQuery query,
                                                                        CurrentUser currentUser) {
-        Integer orgId = currentUser.getOrgId();
         Integer districtId = districtService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
         // 查询
@@ -229,11 +222,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (CollectionUtils.isEmpty(records)) {
             return orgLists;
         }
-
-        // 筛查次数
-        List<OrgScreeningCountVO> orgScreeningCountVOS = screeningTaskOrgService.countScreeningTime();
-        Map<Integer, Integer> countMaps = orgScreeningCountVOS.stream()
-                .collect(Collectors.toMap(OrgScreeningCountVO::getScreeningOrgId, OrgScreeningCountVO::getCount));
 
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
@@ -261,7 +249,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
 
             // 筛查次数
-            r.setScreeningTime(countMaps.getOrDefault(r.getId(), 0));
+            r.setScreeningTime(screeningPlanService.getByOrgId(r.getId()).size());
             r.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
 
             // 详细地址
@@ -462,6 +450,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             response.setStaffCount(createUserIds.size());
             response.setStaffName(userDTOS
                     .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
+        } else {
+            response.setStaffCount(0);
         }
 
         // 封装DTO
@@ -473,6 +463,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             }
             if (null != schoolStatisticMaps.get(s)) {
                 detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+            } else {
+                detail.setRealScreeningNumbers(0);
             }
             detail.setPlanScreeningNumbers(planStudentMaps.get(s));
             detail.setScreeningPlanId(taskResponse.getId());
