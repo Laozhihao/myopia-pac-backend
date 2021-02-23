@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.model.Notice;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,5 +26,6 @@ public interface NoticeMapper extends BaseMapper<Notice> {
 
     void batchCreateScreeningNotice(@Param("createUserId") Integer createUserId, @Param("linkId") Integer linkId,
                                     @Param("toUserIds") List<Integer> toUserIds, @Param("type") Byte type,
-                                    @Param("title") String title, @Param("content") String content);
+                                    @Param("title") String title, @Param("content") String content,
+                                    @Param("startTime")Date startTime, @Param("endTime")Date endTime);
 }

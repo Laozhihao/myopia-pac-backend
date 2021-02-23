@@ -172,4 +172,19 @@ public class UserController {
     public Integer count(UserDTO queryParam) throws IOException {
         return userService.count(queryParam);
     }
+
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param orgIds     机构ID
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch/orgIds")
+    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode) {
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return new ArrayList<>();
+        }
+        return userService.getIdsByOrgIds(orgIds, systemCode);
+    }
 }

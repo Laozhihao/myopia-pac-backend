@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +26,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
-
-    @Resource
-    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取通知列表
@@ -75,22 +72,11 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         List<Notice> notices = baseMapper.unreadCount(CommonConst.STATUS_NOTICE_UNREAD, currentUser.getId());
         response.setTotal(notices.size());
 
-        // 通过类型分组
-        Map<Byte, List<Notice>> noticeMaps = notices.stream()
-                .collect(Collectors.groupingBy(Notice::getType));
-
-        // 站内信
-        List<Notice> stationLetters = noticeMaps.get(CommonConst.NOTICE_STATION_LETTER);
-        if (!CollectionUtils.isEmpty(stationLetters)) {
-            response.setStationLetter(stationLetters);
-        }
-
-        // 筛查通知
-        List<Notice> screeningNotices = noticeMaps.get(CommonConst.NOTICE_SCREENING_NOTICE);
-        if (!CollectionUtils.isEmpty(screeningNotices)) {
-            // 查找筛查通知详情
-            List<Integer> screeningNoticeIds = screeningNotices.stream().map(Notice::getLinkId).collect(Collectors.toList());
-            response.setScreeningNotice(screeningNoticeService.getByIds(screeningNoticeIds));
+        if (!CollectionUtils.isEmpty(notices)) {
+            // 站内信
+            response.setStationLetter(notices.stream().filter(notice -> notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
+            // 筛查通知
+            response.setScreeningNotice(notices.stream().filter(notice-> !notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
         }
         return response;
     }
@@ -133,12 +119,15 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param createUserId 创建人
      * @param linkId       关联ID(比如：筛查通知的表ID)
      * @param toUserIds    需要通知的用户
+     * @param type         类型
      * @param title        标题
      * @param content      内容
+     * @param startTime    开始时间
+     * @param endTime      结束时间
      */
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, String title, String content) {
+    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, Byte type, String title, String content, Date startTime, Date endTime) {
         baseMapper.batchCreateScreeningNotice(createUserId, linkId, toUserIds,
-                CommonConst.NOTICE_SCREENING_NOTICE, title, content);
+                type, title, content, startTime, endTime);
     }
 }

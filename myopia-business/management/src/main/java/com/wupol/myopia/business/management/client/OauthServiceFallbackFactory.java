@@ -168,6 +168,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             public ApiResult<Boolean> updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
                 return respData;
             }
+
+            @Override
+            public ApiResult<List<UserDTO>> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
+                return respData;
+            }
         };
     }
 

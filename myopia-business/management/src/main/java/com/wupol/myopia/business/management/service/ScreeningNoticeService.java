@@ -3,6 +3,8 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -41,6 +43,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private NoticeService noticeService;
 
     /**
      * 设置操作人再更新
@@ -91,7 +95,13 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
             List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
             //2. 为下属部门创建通知
-            return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+            boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+            // 3. 为消息中心创建通知
+            List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
+            ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.SCREENING_CLIENT.getCode());
+            List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+            return result;
         }
         throw new BusinessException("发布失败");
     }
