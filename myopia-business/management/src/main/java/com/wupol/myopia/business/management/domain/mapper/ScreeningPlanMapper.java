@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
+import com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
@@ -29,4 +31,8 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     IPage<ScreeningPlanVo> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQuery query);
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
+
+    IPage<ScreeningTaskResponse> getByTaskIds(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+
+    List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
 }
