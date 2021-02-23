@@ -11,8 +11,8 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
-                <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label0_numbers` = #{visionLabel0Numbers}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label0_ratio` = #{visionLabel0Ratio}</if>
@@ -33,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, is_total, screening_task_id, screening_plan_id, district_id, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, student_numbers, update_time, create_time
+        id, is_total, screening_notice_id, screening_task_id, district_id, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, student_numbers, update_time, create_time
     </sql>
 
 </mapper>
