@@ -3,8 +3,7 @@
 <mapper namespace="com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.StatConclusion">
-    </resultMap>
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.StatConclusion"></resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -44,8 +43,11 @@
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
-        WHERE district_id IN
-        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        WHERE
+        <if test="@Ognl@isNotEmpty(districtIds)">
+            district_id IN
+            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        </if>
         ORDER by id desc
         LIMIT 0, 1
     </select>
@@ -53,18 +55,33 @@
     <select id="listByDateRange" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
-        WHERE district_id IN
-        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        WHERE is_valid=1 and is_rescreen=0
         and create_time between #{startDate} and #{endDate}
-        and is_valid=1 and is_rescreen=0
+        <if test="@Ognl@isNotEmpty(districtIds)">
+            and district_id IN
+            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        </if>
     </select>
 
     <select id="listByNoticeId" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
-        WHERE district_id IN
-        <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        and src_screening_notice_id=#{noticeId}
+        WHERE src_screening_notice_id=#{noticeId}
+        <if test="@Ognl@isNotEmpty(districtIds)">
+            and district_id IN
+            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        </if>
     </select>
 
+    <select id="listValid" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        WHERE src_screening_notice_id=#{noticeId} and is_valid=1
+        <if test="@Ognl@isNotEmpty(districtIds)">
+            and district_id IN
+            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+        </if>
+        <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+        <if test="@Ognl@isNotEmpty(schoolAge)">and `school_age` = #{schoolAge}</if>
+    </select>
 </mapper>

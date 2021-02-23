@@ -135,9 +135,10 @@ public class StatService {
         if (contrastType == null) {
             return null;
         }
-        // TODO: Deal according different params
+
         switch (contrastType) {
             case TIME:
+
                 break;
             case TIME_N_DISTRICT:
                 break;
@@ -145,6 +146,7 @@ public class StatService {
                 break;
             case TIME_N_DISTRICT_N_SCHOOL_AGE:
         }
+
         Integer actualScrNum = 1111111;
         RescreenStat rescreenStat =
                 RescreenStat.builder()
@@ -160,6 +162,7 @@ public class StatService {
                         .incorrectItemNum(Math.round(actualScrNum * 0.0015f))
                         .incorrectRatio(convertToPercentage(0.0015f))
                         .build();
+
         ScreeningDataContrast data1 =
                 ScreeningDataContrast.builder()
                         .screeningNum(1234565)
@@ -196,6 +199,7 @@ public class StatService {
                         .incorrectItemNum(Math.round(actualScrNum2 * 0.0015f))
                         .incorrectRatio(convertToPercentage(0.0015f))
                         .build();
+
         ScreeningDataContrast data2 =
                 ScreeningDataContrast.builder()
                         .screeningNum(2234565)
