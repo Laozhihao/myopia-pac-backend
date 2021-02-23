@@ -9,16 +9,16 @@ import lombok.Data;
 @Builder
 public class ScreeningClassStat {
     /** 筛查通知ID */
-    private Integer notificationId;
+    private int notificationId;
 
     /** 筛查学生数 */
-    private Integer screeningNum;
+    private long screeningNum;
 
     /** 实际筛查学生数 */
-    private Integer actualScreeningNum;
+    private long actualScreeningNum;
 
     /** 有效筛查学生数 */
-    private Integer validScreeningNum;
+    private long validScreeningNum;
 
     /** 视力筛查完成率 */
     private Float screeningFinishedRatio;
