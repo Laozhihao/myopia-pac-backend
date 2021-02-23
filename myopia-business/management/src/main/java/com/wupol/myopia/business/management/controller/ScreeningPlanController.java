@@ -14,6 +14,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
+import com.wupol.myopia.business.management.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
@@ -95,6 +96,8 @@ public class ScreeningPlanController {
         if (user.isScreeningUser()) {
             // 筛查机构人员，需校验是否同机构
             Assert.isTrue(user.getOrgId().equals(screeningPlanDTO.getScreeningOrgId()), "无该筛查机构权限");
+            ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
+            Assert.isTrue(ScreeningOrgConfigTypeEnum.config_type_2.getType().equals(organization.getConfigType()), "无新增权限");
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
