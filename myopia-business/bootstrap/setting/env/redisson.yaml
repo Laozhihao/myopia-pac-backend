@@ -2,7 +2,7 @@ singleServerConfig:
   idleConnectionTimeout: 10000
   connectTimeout: 10000
   timeout: 3000
-  retryAttempts: 8
+  retryAttempts: 3
   retryInterval: 1500
   password:
   subscriptionsPerConnection: 5
@@ -11,10 +11,10 @@ singleServerConfig:
   subscriptionConnectionMinimumIdleSize: 1
   subscriptionConnectionPoolSize: 50
   connectionMinimumIdleSize: 32
-  connectionPoolSize: 128
+  connectionPoolSize: 64
   database: 0
   dnsMonitoringInterval: 5000
-threads: 0
-nettyThreads: 0
+threads: 8
+nettyThreads: 8
 codec: !<org.redisson.codec.JsonJacksonCodec> { }
 "transportMode": "NIO"
