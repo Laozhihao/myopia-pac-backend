@@ -450,6 +450,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             response.setStaffCount(createUserIds.size());
             response.setStaffName(userDTOS
                     .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
+        } else {
+            response.setStaffCount(0);
         }
 
         // 封装DTO
