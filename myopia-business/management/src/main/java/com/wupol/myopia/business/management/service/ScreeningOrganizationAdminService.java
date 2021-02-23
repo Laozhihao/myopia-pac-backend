@@ -8,6 +8,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 筛查机构管理员
  *
@@ -45,5 +47,15 @@ public class ScreeningOrganizationAdminService extends BaseService<ScreeningOrga
         return baseMapper
                 .selectOne(new QueryWrapper<ScreeningOrganizationAdmin>()
                         .eq("screening_org_id", orgId));
+    }
+
+    /**
+     * 通过筛查ID获取筛查ADMIN
+     *
+     * @param orgIds 筛查机构Ids
+     * @return List<ScreeningOrganizationAdmin>
+     */
+    public List<ScreeningOrganizationAdmin> getByOrgIds(List<Integer> orgIds) {
+        return baseMapper.selectBatchIds(orgIds);
     }
 }

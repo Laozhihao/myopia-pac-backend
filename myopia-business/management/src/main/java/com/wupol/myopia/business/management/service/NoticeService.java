@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +26,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
-
-    @Resource
-    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 获取通知列表
@@ -88,9 +85,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         // 筛查通知
         List<Notice> screeningNotices = noticeMaps.get(CommonConst.NOTICE_SCREENING_NOTICE);
         if (!CollectionUtils.isEmpty(screeningNotices)) {
-            // 查找筛查通知详情
-            List<Integer> screeningNoticeIds = screeningNotices.stream().map(Notice::getLinkId).collect(Collectors.toList());
-            response.setScreeningNotice(screeningNoticeService.getByIds(screeningNoticeIds));
+            response.setScreeningNotice(screeningNotices);
         }
         return response;
     }
@@ -129,16 +124,17 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
     /**
      * 批量创建筛查通知
-     *
-     * @param createUserId 创建人
+     *  @param createUserId 创建人
      * @param linkId       关联ID(比如：筛查通知的表ID)
      * @param toUserIds    需要通知的用户
      * @param title        标题
      * @param content      内容
+     * @param startTime
+     * @param endTime
      */
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, String title, String content) {
+    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, String title, String content, Date startTime, Date endTime) {
         baseMapper.batchCreateScreeningNotice(createUserId, linkId, toUserIds,
-                CommonConst.NOTICE_SCREENING_NOTICE, title, content);
+                CommonConst.NOTICE_SCREENING_NOTICE, title, content, startTime, endTime);
     }
 }

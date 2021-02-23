@@ -66,7 +66,28 @@ public final class S3Utils {
     /**
      * 文件路径key
      */
-    private static final String S3_KEY_FORMAT = "myopia/upload/%s/%s";
+    private static final String S3_STATIC_KEY_FORMAT = "%s/%s";
+    /**
+     * 文件路径key
+     */
+    private static final String S3_KEY_FORMAT = "%s/%s/%s";
+
+    /**
+     * 上传文件到S3静态bucket
+     *
+     * @param fileTempPath
+     * @param fileName
+     * @return
+     * @throws UtilException
+     */
+    public String uploadStaticS3(String fileTempPath, String fileName) throws UtilException {
+        String bucket = uploadConfig.getBucketName();
+        String prefix = uploadConfig.getStaticPrefix();
+        String key = String.format(S3_STATIC_KEY_FORMAT, prefix, fileName);
+        s3Client.uploadFile(bucket, key, new File(fileTempPath));
+        String host = uploadConfig.getStaticHost();
+        return String.format("%s/%s", host, key);
+    }
 
     /**
      * 上传文件到S3并保存到resourceFile表
@@ -78,7 +99,8 @@ public final class S3Utils {
      */
     public ResourceFile uploadS3AndGetResourceFile(String fileTempPath, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
-        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
+        String prefix = uploadConfig.getPrefix();
+        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
         s3Client.uploadFile(bucket, key, new File(fileTempPath));
         ResourceFile file = new ResourceFile().setBucket(bucket).setS3Key(key).setFileName(fileName);
         resourceFileService.save(file);
@@ -95,7 +117,8 @@ public final class S3Utils {
      */
     public void uploadS3(String fileTempPath, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
-        String key = String.format(S3_KEY_FORMAT, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
+        String prefix = uploadConfig.getPrefix();
+        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
         s3Client.uploadFile(bucket, key,new File(fileTempPath));
     }
 
