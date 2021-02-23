@@ -74,7 +74,6 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 配置 0-省级配置 1-单点配置
      */
-    @NotNull(message = "配置不能为空")
     private Integer configType;
 
     /**
