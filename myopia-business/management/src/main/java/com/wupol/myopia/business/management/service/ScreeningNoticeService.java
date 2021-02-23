@@ -104,7 +104,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
-        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("gov_dept_id", govDeptId).eq("title", title);
+        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("gov_dept_id", govDeptId).eq("title", title).eq("release_status", CommonConst.STATUS_RELEASE).eq("type", ScreeningNotice.TYPE_GOV_DEPT);
         if (Objects.nonNull(screeningNoticeId)) {
             queryWrapper.ne("id", screeningNoticeId);
         }
@@ -143,4 +143,14 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("screening_task_id", screeningTaskId).eq("type", ScreeningNotice.TYPE_ORG);
         return baseMapper.selectOne(queryWrapper);
     }
+
+    /**
+     * 根据任务ID获取通知（type为1）
+     * @param screeningTaskId
+     * @return
+     */
+    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId,Set<Integer> govDeptIds) {
+        return baseMapper.selectDistrictIds(screeningTaskId, ScreeningNotice.TYPE_GOV_DEPT, govDeptIds);
+    }
+
 }

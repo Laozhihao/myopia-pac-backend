@@ -34,9 +34,13 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class DistrictService extends BaseService<DistrictMapper, District> {
-    /** 省级行政区域的父节点code */
+    /**
+     * 省级行政区域的父节点code
+     */
     private static final long PROVINCE_PARENT_CODE = 100000000L;
-    /** 最小行政区域代码编号 */
+    /**
+     * 最小行政区域代码编号
+     */
     private static final long SMALLEST_PROVINCE_CODE = 110000000L;
 
     @Autowired
@@ -46,8 +50,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
-    /** 根据地址名查code，查不到时直接返回emptyList */
-    public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException{
+    /**
+     * 根据地址名查code，查不到时直接返回emptyList
+     */
+    public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException {
         List<District> districtList = getWholeCountryDistrictTreePriorityCache();
         TwoTuple<Long, List<District>> provinceCodeWithChild = findInChild(provinceName, districtList);
         TwoTuple<Long, List<District>> cityCodeWithChild = findInChild(cityName, provinceCodeWithChild.getSecond());
@@ -76,8 +82,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 通过用户身份，过滤查询的行政区域ID
-     *  - 如果是平台管理员，则将行政区域ID作为条件
-     *  - 如果非平台管理员，则返回当前用户的行政区域ID
+     * - 如果是平台管理员，则将行政区域ID作为条件
+     * - 如果非平台管理员，则返回当前用户的行政区域ID
      *
      * @param currentUser 当前用户
      * @param districtId  行政区域ID
@@ -103,7 +109,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (StringUtils.isBlank(districtDetail)) {
             return name.toString();
         }
-        List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {});
+        List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {
+        });
         if (CollectionUtils.isEmpty(list)) {
             return name.toString();
         }
@@ -193,7 +200,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(CacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         // 缓存没有，则从rootCode所属的省份中遍历查找
         District district = getProvinceDistrictTreePriorityCache(rootCode);
@@ -227,10 +235,35 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定行政区域所属省份的所有行政区域的id列表
+     *
+     * @param districtId 行政区域ID
+     * @return List
+     **/
+    public List<Integer> getProvinceAllDistrictIds(Integer districtId) {
+        District district = getById(districtId);
+        Assert.notNull(district, "无效行政区域ID：" + districtId);
+        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        List<Integer> districtIds = new ArrayList<>();
+        districtIds.add(provinceDistrictTreePriorityCache.getId());
+        getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
+        return districtIds;
+    }
+
+    private void getAllIds(List<Integer> districtIds, List<District> childs) {
+        if (CollectionUtils.isEmpty(childs)) {
+            return;
+        }
+        districtIds.addAll(childs.stream().map(District::getId).collect(Collectors.toList()));
+        childs.forEach(district -> getAllIds(districtIds, district.getChild()));
+    }
+
+
+    /**
      * 获取指定的行政区及其子区域组成的区域树
      *
      * @param districts 行政区域集合
-     * @param rootCode 指定的行政区域代码编号
+     * @param rootCode  指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public District getSpecificDistrictTree(List<District> districts, long rootCode) throws IOException {
@@ -260,7 +293,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public List<District> getWholeCountryDistrictTreePriorityCache() {
         Object cacheList = redisUtil.get(CacheKey.DISTRICT_ALL_TREE);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         List<District> districts = getWholeCountryDistrictTree();
         redisUtil.set(CacheKey.DISTRICT_ALL_TREE, districts);
@@ -287,7 +321,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(CacheKey.DISTRICT_CHILD_TREE, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
@@ -364,7 +399,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 查找上级行政区域
      *
-     * @param districtList 行政区域集
+     * @param districtList    行政区域集
      * @param currentDistrict 当前行政区域
      * @return void
      **/
@@ -388,6 +423,18 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     private List<District> getDistrictTree(Long districtCode) {
         return baseMapper.selectDistrictTree(districtCode);
+    }
+
+
+    /**
+     * 根据行政区域代码编号，获取以其作为根节点的行政区区域树
+     *
+     * @param districtId 行政区域代码
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getDistrictTree(Integer districtId) {
+        District district = getById(districtId);
+        return getDistrictTree(district.getCode());
     }
 
     /**
@@ -550,4 +597,31 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return Collections.singletonList(getProvinceDistrictTreePriorityCache(district.getCode()));
     }
 
+    /**
+     * @param districtId
+     * @return
+     */
+    public List<District> getChildDistrictByParentCodePriorityCache(Integer districtId) throws IOException {
+        District district = getById(districtId);
+        return this.getChildDistrictByParentCodePriorityCache(district.getCode());
+    }
+
+    /**
+     * 获取地区树
+     *
+     * @param districtTree
+     * @param districtIds
+     * @return
+     */
+    public List<District> getDistrictTree(List<District> districtTree, Set<Integer> districtIds) {
+        return districtTree.stream().filter(district -> {
+                    boolean isContain = districtIds.contains(district.getId());
+                    if (isContain) {
+                        districtIds.remove(district.getId());
+                        this.getDistrictTree(district.getChild(), districtIds);
+                    }
+                    return isContain;
+                }
+        ).collect(Collectors.toList());
+    }
 }

@@ -73,4 +73,11 @@
         where mn.notice_user_id = #{noticeUserId}
           and mn.link_id = #{linkId};
     </update>
+
+    <insert id="batchCreateScreeningNotice">
+        insert into m_notice (create_user_id, link_id, notice_user_id, type, title, content) values
+        <foreach collection="toUserIds" item="toUserId" index="index" separator=",">
+            (#{createUserId}, #{linkId}, #{toUserId}, #{type}, #{title}, #{content})
+        </foreach>
+    </insert>
 </mapper>

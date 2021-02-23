@@ -141,20 +141,7 @@ CREATE TABLE `m_screening_plan_school_student`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='参与筛查计划的学生表';
 
--- ----------------------------
--- Table structure for m_data_commit
--- ----------------------------
-DROP TABLE IF EXISTS `m_data_commit`;
-CREATE TABLE `m_data_commit`
-(
-    `id`                 int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-    `screening_plan_id`  int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划id',
-    `commit_district_id` int(10) unsigned NOT NULL COMMENT '数据提交地区',
-    `src_district_id`    int(10) unsigned NOT NULL COMMENT '数据所在地区',
-    `committer_id`       int(10) unsigned NOT NULL DEFAULT '0' COMMENT '提交人id',
-    `create_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查统计--创建时间（时间戳  not null）',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据上交情况表';
+
 
 
 -- ----------------------------
@@ -178,7 +165,7 @@ CREATE TABLE `m_district_attentive_objects_statistic`
     `key_warning_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--重点视力对象数量（默认0）',
     `student_numbers`        int(10) unsigned NOT NULL COMMENT '重点视力对象--学生总数 ',
     `update_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '重点视力对象--更新时间',
-    `is_total` tinyint(3) unsigned NOT NULL COMMENT '是否合计数据',
+    `is_total`               tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
     `create_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='某个地区层级最新统计的重点视力对象情况表';
@@ -201,9 +188,9 @@ CREATE TABLE `m_district_monitor_statistic`
     `dsn`                   int(11) NOT NULL DEFAULT '0' COMMENT '监测情况--复测数量（默认0）',
     `error_numbers`         int(10) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--筛查错误数（默认0）',
     `error_ratio`           tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--筛查错误率（默认0，单位%）',
-    `plan_numbers`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--计划的学生数量（默认0）',
+    `plan_screening_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '监测情况--计划的学生数量（默认0）',
     `screening_numbers`     int(11) NOT NULL DEFAULT '0' COMMENT '监测情况--实际筛查的学生数量（默认0）',
-    `is_total` tinyint(3) unsigned NOT NULL COMMENT '是否合计数据',
+    `is_total`              tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
     `update_time`           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '监测情况--更新时间',
     `create_time`           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
@@ -242,7 +229,7 @@ CREATE TABLE `m_district_vision_statistic`
     `treatment_advice_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
     `plan_screening_numbers`   int(10) unsigned DEFAULT '0' COMMENT '视力情况--计划的学生数量（默认0）',
     `real_screening_numners`   int(10) COMMENT '视力情况--实际筛查的学生数量（默认0）',
-    `is_total` tinyint(3) unsigned NOT NULL COMMENT '是否合计数据',
+    `is_total`                 tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
     `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
     `create_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)

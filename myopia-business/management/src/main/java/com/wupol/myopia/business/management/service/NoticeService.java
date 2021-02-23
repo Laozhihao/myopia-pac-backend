@@ -126,4 +126,19 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         notice.setDownloadUrl(downloadUrl);
         baseMapper.insert(notice);
     }
+
+    /**
+     * 批量创建筛查通知
+     *
+     * @param createUserId 创建人
+     * @param linkId       关联ID(比如：筛查通知的表ID)
+     * @param toUserIds    需要通知的用户
+     * @param title        标题
+     * @param content      内容
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void batchCreateScreeningNotice(Integer createUserId, Integer linkId, List<Integer> toUserIds, String title, String content) {
+        baseMapper.batchCreateScreeningNotice(createUserId, linkId, toUserIds,
+                CommonConst.NOTICE_SCREENING_NOTICE, title, content);
+    }
 }

@@ -22,7 +22,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId id
      * @return List<ScreeningResult>
      */
-    public List<VisionScreeningResult> getByStudentIds(Integer studentId) {
+    public List<VisionScreeningResult> getByStudentId(Integer studentId) {
         return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
                 .eq("student_id", studentId)
                 .orderByDesc("create_time"));

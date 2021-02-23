@@ -11,7 +11,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
@@ -22,11 +21,8 @@ import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import com.wupol.myopia.business.management.util.UploadUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -35,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,18 +71,12 @@ public class ExcelFacade {
     private UserService userService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private NoticeService noticeService;
-
     @Autowired
     private S3Utils s3Utils;
-
-    @Autowired
-    private UploadConfig uploadConfig;
-
-    @Autowired
-    private ResourceFileService resourceFileService;
 
     /**
      * 生成筛查机构Excel
@@ -113,9 +102,11 @@ public class ExcelFacade {
         ScreeningOrganizationQuery query = new ScreeningOrganizationQuery();
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
+        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "筛查机构数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
-            noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", upload(file));
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+            return;
         }
 
         // 创建人姓名
@@ -153,8 +144,8 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
-        noticeService.createExportNotice(userId, "生成筛查机构Excel", "生成筛查机构Excel", upload(file));
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 
     /**
@@ -181,9 +172,11 @@ public class ExcelFacade {
         builder.append("-").append(orgName);
         String fileName = builder.toString();
 
+        String content = String.format(CommonConst.CONTENT, orgName, "筛查机构人员数据表", new Date());
         if (CollectionUtils.isEmpty(userList)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
-            noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", upload(file));
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+            return;
         }
 
         // 获取完整的用户信息
@@ -200,7 +193,7 @@ public class ExcelFacade {
                         .setOrganization(orgName)).collect(Collectors.toList());
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
-        noticeService.createExportNotice(userId, "生成筛查机构人员Excel", "生成筛查机构人员Excel", upload(file));
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 
     /**
@@ -228,9 +221,11 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
 
+        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "医院数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
-            noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", upload(file));
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+            return;
         }
 
         // 创建人姓名
@@ -263,8 +258,8 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
-        noticeService.createExportNotice(userId, "生成医院Excel", "生成医院Excel", upload(file));
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 
     /**
@@ -291,9 +286,11 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
 
+        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "学校数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
-            noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", upload(file));
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+            return;
         }
 
         List<Integer> schoolIds = list.stream().map(School::getId).collect(Collectors.toList());
@@ -303,7 +300,6 @@ public class ExcelFacade {
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
 
         // 学生统计
-        // TODO: 优化查询，传入学校编号，有空再弄（留给有缘人）
         List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
@@ -337,7 +333,6 @@ public class ExcelFacade {
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
 
-            // TODO: 留给有缘人
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportVO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
@@ -374,8 +369,8 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
-        noticeService.createExportNotice(userId, "生成学校Excel", "生成学校Excel", upload(file));
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 
     /**
@@ -385,7 +380,7 @@ public class ExcelFacade {
      * @param schoolId 学校id
      * @param gradeId  年级id
      **/
-    public void generateStudent(Integer userId, Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+    public void generateStudent(Integer userId, Integer schoolId, Integer gradeId) throws IOException, UtilException {
         if (Objects.isNull(schoolId)) {
             throw new BusinessException("学校id不能为空");
         }
@@ -401,13 +396,19 @@ public class ExcelFacade {
         builder.append("-").append(gradeName);
         String fileName = builder.toString();
 
+        // 行政区域
+        District district = districtService.findOne(new District().setId(school.getDistrictId()));
+
         // 查询学生
         List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
 
         // 为空直接导出
+        String content = String.format(CommonConst.CONTENT,
+                districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName, "学生数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
-            noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", upload(file));
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+            return;
         }
         // 获取年级班级信息
         List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
@@ -457,8 +458,8 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
-        noticeService.createExportNotice(userId, "生成学生Excel", "生成学生Excel", upload(file));
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 
 
@@ -662,7 +663,6 @@ public class ExcelFacade {
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
-        // TODO: 身份证号码是否被使用
         List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards,
                 SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
         if (!CollectionUtils.isEmpty(checkIdCards)) {
@@ -791,21 +791,11 @@ public class ExcelFacade {
             // 去头部
             listMap.remove(0);
         }
+        if (CollectionUtils.isEmpty(listMap)) {
+            // 无数据，直接返回
+            return;
+        }
         screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
+        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
     }
-
-    private String upload(File file) throws UtilException {
-        String savePath = uploadConfig.getSavePath();
-        TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
-        String tempPath = uploadToServerResults.getSecond();
-        // 上传
-        ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
-        return resourceFileService.getResourcePath(resourceFile.getId());
-    }
-
-    private String genNewFileName(File file) {
-        String extension = FilenameUtils.getExtension(file.getName());
-        return String.format("%s.%s", UUID.randomUUID(), extension);
-    }
-
 }

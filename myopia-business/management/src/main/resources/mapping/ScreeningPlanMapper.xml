@@ -82,4 +82,9 @@
         </where>
         order by mst.create_time desc
     </select>
+
+    <select id="selectSchoolInfo" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO">
+        select student.name, student.id from  m_screening_plan msp inner join m_screening_plan_school_student student on  msp.id = student.screening_plan_id
+        where msp.district_id = #{districtId} and msp.screening_task_id = #{taskId} and msp.release_status = #{releaseStatus}
+    </select>
 </mapper>

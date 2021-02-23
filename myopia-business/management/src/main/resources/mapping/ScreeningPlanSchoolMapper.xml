@@ -46,7 +46,14 @@
         <where>
             <trim prefixOverrides="and">
                 AND msp.release_status = 1
-                <if test="@Ognl@isNotEmpty(param.districtId)">and msp.`district_id` = #{param.districtId}</if>
+                <if test="param.districtIds != null and param.districtIds.size() != 0">
+                    and msp.`district_id` in
+                    <foreach collection="param.districtIds" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and msp.`screening_org_id` = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.excludedScreeningPlanId)">and msp.`id` != #{param.excludedScreeningPlanId}</if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(msp.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>

@@ -241,7 +241,7 @@ create table m_notice
     notice_user_id int                                 null comment '通知的userId',
     type           tinyint                             not null comment '类型 0-站内信 1-筛查通知',
     status         tinyint   default 0                 not null comment '状态 0-未读 1-已读 2-删除',
-    title          varchar(32)                         null comment '标题',
+    title          varchar(128)                        null comment '标题',
     content        varchar(512)                        not null comment '内容',
     download_url   varchar(1024)                       null comment '文件url',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',

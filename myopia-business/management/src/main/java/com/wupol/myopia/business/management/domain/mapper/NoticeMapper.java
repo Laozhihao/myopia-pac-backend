@@ -22,4 +22,8 @@ public interface NoticeMapper extends BaseMapper<Notice> {
     List<Notice> unreadCount(@Param("status") Integer status, @Param("userId") Integer userId);
 
     Integer updateScreeningNotice(@Param("noticeUserId") Integer noticeUserId, @Param("linkId") Integer linkId);
+
+    void batchCreateScreeningNotice(@Param("createUserId") Integer createUserId, @Param("linkId") Integer linkId,
+                                    @Param("toUserIds") List<Integer> toUserIds, @Param("type") Byte type,
+                                    @Param("title") String title, @Param("content") String content);
 }

@@ -8,10 +8,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
+import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
+import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Alix
@@ -116,9 +116,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
-        ScreeningPlan sscreeningPlan = getById(id);
-        sscreeningPlan.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        return updateById(sscreeningPlan, user.getId());
+        ScreeningPlan screeningPlan = getById(id);
+        screeningPlan.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
+        return updateById(screeningPlan, user.getId());
     }
 
     /**
@@ -133,7 +133,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查学校信息
-        screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
+        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());
@@ -180,6 +180,27 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.selectCount(query) > 0;
     }
 
+    /**
+     * 获取筛查计划id
+     * @param districtId
+     * @param taskId
+     * @return
+     */
+    public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
+         return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+    }
+
+    /**
+     * 更新筛查学生数量
+     * @param userId
+     * @param screeningPlanId
+     * @param studentNumbers
+     */
+    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
+        return updateById(screeningPlan, userId);
+    }
     /**
      * 通过筛查通知id获取实际筛查学生数
      *
