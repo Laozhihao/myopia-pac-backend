@@ -31,6 +31,22 @@
                 <if test="@Ognl@isNotEmpty(rescreenErrorNum)">and `rescreen_error_num` = #{rescreenErrorNum}</if>
                 <if test="@Ognl@isNotEmpty(isValid)">and `is_valid` = #{isValid}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">
+                    and `create_time`
+                    <![CDATA[>=]]>
+                    #{startTime}
+                </if>
+                <if test="@Ognl@isNotEmpty(endTime)">
+                    and `create_time`
+                    <![CDATA[<=]]>
+                    #{endTime}
+                </if>
+                <if test="districtIds != null and districtIds.size() != 0">
+                    and `district_id` in
+                    <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
             </trim>
         </where>
     </sql>
@@ -43,45 +59,14 @@
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
-        WHERE
-        <if test="@Ognl@isNotEmpty(districtIds)">
-            district_id IN
-            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        </if>
+        <include refid="Base_Where_Clause" />
         ORDER by id desc
         LIMIT 0, 1
     </select>
 
-    <select id="listByDateRange" resultMap="BaseResultMap" parameterType="java.util.Map">
+    <select id="getByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
-        WHERE is_valid=1 and is_rescreen=0
-        and create_time between #{startDate} and #{endDate}
-        <if test="@Ognl@isNotEmpty(districtIds)">
-            and district_id IN
-            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        </if>
-    </select>
-
-    <select id="listByNoticeId" resultMap="BaseResultMap" parameterType="java.util.Map">
-        SELECT *
-        FROM m_stat_conclusion
-        WHERE src_screening_notice_id=#{noticeId}
-        <if test="@Ognl@isNotEmpty(districtIds)">
-            and district_id IN
-            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        </if>
-    </select>
-
-    <select id="listValid" resultMap="BaseResultMap" parameterType="java.util.Map">
-        SELECT *
-        FROM m_stat_conclusion
-        WHERE src_screening_notice_id=#{noticeId} and is_valid=1
-        <if test="@Ognl@isNotEmpty(districtIds)">
-            and district_id IN
-            <foreach collection="districtIds" open="(" close=")" separator="," item="item">#{item}</foreach>
-        </if>
-        <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-        <if test="@Ognl@isNotEmpty(schoolAge)">and `school_age` = #{schoolAge}</if>
+        <include refid="Base_Where_Clause" />
     </select>
 </mapper>

@@ -1,45 +1,31 @@
 package com.wupol.myopia.business.management.domain.query;
 
-import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 学校查询
+ * 筛查结论查询
  *
- * @Author Chikong
- * @Date 2020-12-22
+ * @Author Bain
+ * @Date 2021-02-24
  */
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SchoolQuery extends School {
-    /** id */
-    private String noLike;
-    /** 名称 */
-    private String nameLike;
-    /** 地区编码 */
-    private Long code;
+public class StatConclusionQuery extends StatConclusion {
+    private static final long serialVersionUID = -221210415537729707L;
 
-    /**
-     * 创建人
-     */
-    private String createUser;
     /** 层级ID列表 **/
     private List<Integer> districtIds;
-    /** 筛查机构ID **/
-    private Integer screeningOrgId;
     /** 查询开始时间 */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startTime;
     /** 查询结束时间 */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endTime;
-    /** 是否需要查询是否有计划（配合开始结束时间） **/
-    private Boolean needCheckHavePlan = false;
 }

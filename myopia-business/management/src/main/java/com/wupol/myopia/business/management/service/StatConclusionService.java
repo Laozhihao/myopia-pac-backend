@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
+import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,17 +20,17 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     @Autowired
     private StatConclusionMapper statConclusionMapper;
 
-    public StatConclusion getLastOne(List<Integer> districtIds) {
-        return statConclusionMapper.selectLastOne(districtIds);
+    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
+        return statConclusionMapper.selectLastOne(statConclusionQuery);
     }
 
-    public List<StatConclusion> listByDateRange(
-            List<Integer> districtIds, Date startDate, Date endDate) {
-        return statConclusionMapper.listByDateRange(districtIds, startDate, endDate);
-    }
-
-    public List<StatConclusion> listByNoticeId(int noticeId, List<Integer> districtIds) {
-        return statConclusionMapper.listByNoticeId(noticeId, districtIds);
+    /**
+     * 获取筛查结论列表
+     * @param statConclusionQuery
+     * @return
+     */
+    public List<StatConclusion> listByQuery(StatConclusionQuery statConclusionQuery) {
+        return statConclusionMapper.listByQuery(statConclusionQuery);
     }
 
     /**
@@ -39,7 +40,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusion> getBySrcScreeningNoticeId(Integer screeningNoticeId) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId).eq(StatConclusion::getIsValid, true);
+        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
+                .eq(StatConclusion::getIsValid, true);
         return statConclusionMapper.selectList(queryWrapper);
     }
 }

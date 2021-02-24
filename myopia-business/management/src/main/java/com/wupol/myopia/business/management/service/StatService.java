@@ -17,11 +17,16 @@ import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningL
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
+import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,25 +62,30 @@ public class StatService {
     public WarningInfo getWarningList() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
-        StatConclusion lastConclusion = statConclusionService.getLastOne(districtIds);
-        Date endDate = lastConclusion.getCreateTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endDate);
-        calendar.add(Calendar.YEAR, -1);
-        Date startDate = calendar.getTime();
-        List<StatConclusion> statConclusions =
-                statConclusionService.listByDateRange(districtIds, startDate, endDate);
-
-        long total = statConclusions.size();
-        long warning0Num = statConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
-        long warning1Num = statConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
-        long warning2Num = statConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
-        long warning3Num = statConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+        StatConclusionQuery lastOneQuery = new StatConclusionQuery();
+        lastOneQuery.setDistrictIds(districtIds);
+        lastOneQuery.setIsValid(true);
+        lastOneQuery.setIsRescreen(false);
+        StatConclusion lastConclusion = statConclusionService.getLastOne(lastOneQuery);
+        LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), ZoneId.of("UTC+8"));
+        LocalDate startDate = endDate.plusYears(-1);
+        StatConclusionQuery warningListQuery = new StatConclusionQuery();
+        warningListQuery.setDistrictIds(districtIds);
+        warningListQuery.setIsValid(true);
+        warningListQuery.setIsRescreen(false);
+        warningListQuery.setStartTime(startDate);
+        warningListQuery.setEndTime(endDate);
+        List<StatConclusion> warningConclusions =
+                statConclusionService.listByQuery(warningListQuery);
+        long total = warningConclusions.size();
+        long warning0Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
+        long warning1Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
+        long warning2Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
+        long warning3Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
         long focusTargetsNum = warning1Num + warning2Num + warning3Num;
-
         return WarningInfo.builder()
-                .statTime(startDate.getTime())
-                .endTime(endDate.getTime())
+                .statTime(startDate.toEpochDay())
+                .endTime(endDate.toEpochDay())
                 .focusTargetsNum(focusTargetsNum)
                 .focusTargetsPercentage(convertToPercentage(focusTargetsNum * 1f / total))
                 .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
@@ -238,8 +248,10 @@ public class StatService {
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
-        List<StatConclusion> statConclusions =
-                statConclusionService.listByNoticeId(notificationId, districtIds);
+        StatConclusionQuery query = new StatConclusionQuery();
+        query.setDistrictIds(districtIds);
+        query.setSrcScreeningNoticeId(notificationId);
+        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
 
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
@@ -500,5 +512,17 @@ public class StatService {
     public static class AverageVision {
         private float averageVisionLeft;
         private float averageVisionRight;
+    }
+
+    /**
+     * Date to LocalDate
+     * @param date 日期
+     * @param zoneId 时区ID
+     * @return
+     */
+    private LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zdt = instant.atZone(zoneId);
+        return zdt.toLocalDate();
     }
 }
