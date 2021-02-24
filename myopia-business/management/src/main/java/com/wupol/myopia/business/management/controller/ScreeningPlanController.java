@@ -123,6 +123,7 @@ public class ScreeningPlanController {
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
+        screeningPlanDTO.setCreateUserId(user.getId());
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, true);
     }
 
@@ -382,7 +383,7 @@ public class ScreeningPlanController {
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
             // 3. 处理pdf报告参数
@@ -417,8 +418,9 @@ public class ScreeningPlanController {
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(schoolClassInfo.getScreeningPlanId());
-            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
+            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
