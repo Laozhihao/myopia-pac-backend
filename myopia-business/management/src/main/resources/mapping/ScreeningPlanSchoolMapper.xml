@@ -61,4 +61,11 @@
         </where>
     </select>
 
+    <select id="countBySchoolId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school msps
+                     left join m_screening_plan msp on msp.id = msps.screening_plan_id
+        where msps.school_id = #{schoolId}
+          and msp.release_status = 1
+    </select>
 </mapper>
