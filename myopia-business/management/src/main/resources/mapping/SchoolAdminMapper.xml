@@ -26,4 +26,13 @@
         id, create_user_id, school_id, userId, gov_dept_id, create_time, update_time
     </sql>
 
+    <select id="getBySchoolIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_admin
+                where m_school_admin.school_id in
+        <foreach collection="schoolIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

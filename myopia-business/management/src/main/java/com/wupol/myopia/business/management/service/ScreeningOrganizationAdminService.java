@@ -56,6 +56,6 @@ public class ScreeningOrganizationAdminService extends BaseService<ScreeningOrga
      * @return List<ScreeningOrganizationAdmin>
      */
     public List<ScreeningOrganizationAdmin> getByOrgIds(List<Integer> orgIds) {
-        return baseMapper.selectBatchIds(orgIds);
+        return baseMapper.getByOrgIds(orgIds);
     }
 }

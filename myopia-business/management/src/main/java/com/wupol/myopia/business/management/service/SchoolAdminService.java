@@ -41,13 +41,13 @@ public class SchoolAdminService extends BaseService<SchoolAdminMapper, SchoolAdm
     }
 
     /**
-     * 批量通过id查询学校
+     * 批量通过schoolId查询学校
      *
-     * @param ids 学校ID
+     * @param schoolIds 学校ID
      * @return List<SchoolAdmin>
      */
-    public List<SchoolAdmin> getBySchoolIds(List<Integer> ids) {
-        return baseMapper.selectBatchIds(ids);
+    public List<SchoolAdmin> getBySchoolIds(List<Integer> schoolIds) {
+        return baseMapper.getBySchoolIds(schoolIds);
     }
 
 }
