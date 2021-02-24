@@ -259,5 +259,16 @@ public class OauthService {
         return null;
     }
 
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
+        return null;
+    }
 
 }

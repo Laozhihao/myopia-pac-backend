@@ -178,7 +178,7 @@ create table m_student
     grade_id            int                                 null comment '年级ID',
     grade_type          tinyint                             null comment '学龄段',
     class_id            int                                 null comment '班级ID',
-    name                varchar(8)                          not null comment '学生姓名',
+    name                varchar(32)                         not null comment '学生姓名',
     gender              tinyint(1)                          not null comment '性别 1-男 2-女',
     birthday            timestamp                           null comment '出生日期',
     nation              tinyint                             null comment '民族 0-汉族',
@@ -244,10 +244,12 @@ create table m_notice
     title          varchar(128)                        null comment '标题',
     content        varchar(512)                        not null comment '内容',
     download_url   varchar(1024)                       null comment '文件url',
+    start_time     timestamp                           null comment '开时时间',
+    end_time       timestamp                           null comment '结束时间',
     create_time    timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
-    comment '消息表';
+    comment '消息表' charset = utf8mb4;
 
 DROP TABLE IF EXISTS m_template;
 create table m_template

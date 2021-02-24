@@ -129,6 +129,12 @@ upload:
   # 可上传的文件类型后缀
   suffixs: pdf,jpg,jpeg,png,xlsx
   # 上传S3的bucket
-  bucketName: test.vistel.cn
+  bucketName: vistel-development
+  # 文件上传S3的prefix
+  prefix: vistel-appdata-myopia/upload
+  # 静态文件上传S3的prefix
+  staticPrefix: vistel-appdata-myopia/public
+  # 静态文件访问的host
+  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2

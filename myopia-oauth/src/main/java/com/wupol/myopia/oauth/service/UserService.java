@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.mapper.UserMapper;
 import com.wupol.myopia.oauth.domain.model.Role;
@@ -258,6 +257,22 @@ public class UserService extends BaseService<UserMapper, User> {
         queryParam.setSystemCode(systemCode);
         queryParam.setIdCards(idCards);
         queryParam.setOrgId(orgId);
+        return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    public List<User> getIdsByOrgIds(List<Integer> orgIds, Integer systemCode) {
+        Assert.notEmpty(orgIds, "机构orgId不能为空");
+        Assert.notNull(systemCode, "系统编号不能为空");
+        UserDTO queryParam = new UserDTO();
+        queryParam.setSystemCode(systemCode);
+        queryParam.setOrgIds(orgIds);
         return baseMapper.selectUserList(queryParam);
     }
 }

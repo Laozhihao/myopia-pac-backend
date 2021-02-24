@@ -16,5 +16,8 @@ public class UploadConfig {
     private String savePath;
     private String suffixs;
     private String bucketName;
+    private String prefix;
+    private String staticPrefix;
+    private String staticHost;
     private Integer expiredHours;
 }

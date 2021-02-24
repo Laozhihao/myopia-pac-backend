@@ -73,6 +73,16 @@ public interface CommonConst {
     Byte NOTICE_SCREENING_NOTICE = 1;
 
     /**
+     * 通知-筛查任务
+     */
+    Byte NOTICE_SCREENING_DUTY = 2;
+
+    /**
+     * 通知-筛查计划
+     */
+    Byte NOTICE_SCREENING_PLAN = 3;
+
+    /**
      * 通知-导出内容
      */
     String CONTENT = "%s-%s已经导出，点击下载，申请时间：%tF%n";

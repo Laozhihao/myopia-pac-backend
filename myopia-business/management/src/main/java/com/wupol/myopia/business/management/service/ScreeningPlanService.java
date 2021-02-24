@@ -8,12 +8,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -129,7 +126,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
-        screeningPlanDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        screeningPlanDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningPlanDTO)) {
             throw new BusinessException("创建失败");
         }
@@ -272,4 +269,25 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return screeningPlanNameVOs;
     }
 
+
+    /**
+     * 分页获取筛查计划
+     *
+     * @param pageRequest 分页请求
+     * @param ids         taskIds
+     * @return IPage<ScreeningTaskResponse>
+     */
+    public IPage<ScreeningTaskResponse> getByTaskIds(PageRequest pageRequest, List<Integer> ids) {
+        return baseMapper.getByTaskIds(pageRequest.toPage(), ids);
+    }
+
+    /**
+     * 通过orgId获取计划
+     *
+     * @param orgId 机构ID
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByOrgId(Integer orgId) {
+        return baseMapper.getByOrgId(orgId);
+    }
 }

@@ -32,14 +32,14 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     private Integer id;
 
     /**
+     * 重点视力对象--所属的通知id
+     */
+    private Integer screeningNoticeId;
+
+    /**
      * 重点视力对象--所属的任务id
      */
     private Integer screeningTaskId;
-
-    /**
-     * 重点视力对象--关联的计划id
-     */
-    private Integer screeningPlanId;
 
     /**
      * 重点视力对象--所属的地区id
