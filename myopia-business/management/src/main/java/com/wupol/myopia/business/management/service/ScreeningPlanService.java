@@ -126,7 +126,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
-        screeningPlanDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        screeningPlanDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningPlanDTO)) {
             throw new BusinessException("创建失败");
         }

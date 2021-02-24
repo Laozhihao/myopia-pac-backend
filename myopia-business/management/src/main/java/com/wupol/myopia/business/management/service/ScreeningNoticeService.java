@@ -99,7 +99,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             // 3. 为消息中心创建通知
             List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(govOrgIds)){
-                ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.SCREENING_CLIENT.getCode());
+                ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
                 List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
                 noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
             }
