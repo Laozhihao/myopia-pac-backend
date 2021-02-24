@@ -80,6 +80,7 @@ public class ScreeningTaskController {
         if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
             throw new ValidationException("该部门任务已创建");
         }
+        screeningTaskDTO.setCreateUserId(user.getId());
         screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 

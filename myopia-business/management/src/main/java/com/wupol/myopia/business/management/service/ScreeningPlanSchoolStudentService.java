@@ -426,7 +426,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param classId
      * @return
      */
-    public List<StudentDTO> getByGradeAndClass(Integer gradeId, Integer classId) {
-        return baseMapper.selectByGradeAndClass(gradeId, classId);
+    public List<StudentDTO> getByGradeAndClass(Integer screeningPlanId, Integer gradeId, Integer classId) {
+        return baseMapper.selectByGradeAndClass(screeningPlanId, gradeId, classId);
     }
 }

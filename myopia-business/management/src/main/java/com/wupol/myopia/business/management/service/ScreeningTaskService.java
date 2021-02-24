@@ -134,7 +134,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
-        screeningTaskDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        screeningTaskDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningTaskDTO)) {
             throw new BusinessException("创建失败");
         }
