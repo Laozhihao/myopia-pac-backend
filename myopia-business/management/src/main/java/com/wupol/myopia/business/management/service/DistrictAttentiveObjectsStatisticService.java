@@ -26,12 +26,11 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
      * 获取统计数据
      *
      * @param districtIds
-     * @param taskId
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds, Integer taskId) {
+    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds) {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds).eq(DistrictAttentiveObjectsStatistic::getScreeningTaskId, taskId);
+        queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }

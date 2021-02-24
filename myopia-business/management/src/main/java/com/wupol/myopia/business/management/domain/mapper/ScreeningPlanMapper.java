@@ -13,6 +13,7 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -29,4 +30,12 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     IPage<ScreeningPlanVo> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQuery query);
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
+
+    /**
+     * 查找学校的id
+     * @param districtIds
+     * @param taskId
+     * @return
+     */
+    Set<Integer> selectSchoolIds(Set<Integer> districtIds, Integer taskId);
 }

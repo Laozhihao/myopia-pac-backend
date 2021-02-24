@@ -16,9 +16,9 @@ import java.util.Set;
 @Service
 public class DistrictMonitorStatisticService extends BaseService<DistrictMonitorStatisticMapper, DistrictMonitorStatistic> {
 
-    public List<DistrictMonitorStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds, Long taskId) {
+    public List<DistrictMonitorStatistic> getStatisticDtoByTaskIds(Set<Integer> screeningTaskIds) {
         LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIds).eq(DistrictMonitorStatistic::getScreeningTaskId, taskId);
+        queryWrapper.in(DistrictMonitorStatistic::getScreeningTaskId, screeningTaskIds);
         List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
         return districtMonitorStatistics;
     }

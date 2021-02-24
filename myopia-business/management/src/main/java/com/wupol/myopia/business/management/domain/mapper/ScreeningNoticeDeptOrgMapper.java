@@ -10,6 +10,8 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.context.annotation.PropertySource;
 
+import java.util.List;
+
 /**
  * 筛查通知通知到的部门或者机构表Mapper接口
  *
@@ -21,4 +23,6 @@ public interface ScreeningNoticeDeptOrgMapper extends BaseMapper<ScreeningNotice
     IPage<ScreeningNoticeVo> selectPageByQuery(@Param("page")IPage<ScreeningNotice> page, @Param("param")ScreeningNoticeQuery query);
 
     Integer updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer acceptOrgId, @Param("screeningTaskPlanId") Integer genTaskOrPlanId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
+
+    List<ScreeningNotice> selectByAcceptIdAndType(Integer type, Integer acceptOrgId);
 }

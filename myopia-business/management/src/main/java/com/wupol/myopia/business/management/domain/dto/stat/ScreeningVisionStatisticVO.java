@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,13 +46,13 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
      */
     private Set<Item> subordinateDatas;
 
-    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask, Map<Integer, String> districtIdNameMap) {
+    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return null;
         }
         ScreeningVisionStatisticVO screeningVisionStatisticVO = new ScreeningVisionStatisticVO();
         //设置基础数据
-        screeningVisionStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningTask);
+        screeningVisionStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
         //设置统计数据
         screeningVisionStatisticVO.setItemData(currentDistrictId, districtVisionStatistics, districtIdNameMap);
         return screeningVisionStatisticVO;
@@ -115,10 +115,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
     }
 
 
-    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask) {
+    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice) {
         this.districtId = currentDistrictId;
         this.rangeName = currentRangeName;
-        super.setDataByScreeningTask(screeningTask);
+        super.setDataByScreeningNotice(screeningNotice);
     }
 
     @Data

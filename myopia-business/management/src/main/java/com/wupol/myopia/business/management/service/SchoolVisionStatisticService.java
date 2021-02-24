@@ -1,12 +1,17 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -52,5 +57,25 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
                 .selectList(new QueryWrapper<SchoolVisionStatistic>()
                         .eq("screening_task_id", taskId)
                         .in("school_id", schoolIds));
+    }
+
+    /**
+     * 根据条件查找所有数据
+     *
+     * @param taskIds
+     * @param user
+     * @return
+     */
+    public List<SchoolVisionStatistic> getStatisticDtoByTaskIdsAndOrgId(Set<Integer> taskIds, CurrentUser user) {
+        if (CollectionUtils.isEmpty(taskIds)) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SchoolVisionStatistic::getScreeningTaskId, taskIds);
+        if (user.isScreeningUser()) {
+            queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId,user.getOrgId());
+        }
+        List<SchoolVisionStatistic> schoolVisionStatistics = baseMapper.selectList(queryWrapper);
+        return schoolVisionStatistics;
     }
 }
