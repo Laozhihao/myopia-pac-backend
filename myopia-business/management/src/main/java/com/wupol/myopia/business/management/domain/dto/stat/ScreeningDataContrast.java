@@ -7,10 +7,10 @@ import lombok.Data;
 @Builder
 public class ScreeningDataContrast {
     /** 筛查学生数 */
-    private Integer screeningNum;
+    private long screeningNum;
 
     /** 实际筛查学生数 */
-    private Integer actualScreeningNum;
+    private long actualScreeningNum;
 
     /** 左眼平均视力 */
     private Float averageVisionLeft;
@@ -28,13 +28,13 @@ public class ScreeningDataContrast {
     private Float wearingGlassesRatio;
 
     /** 近视人数 */
-    private Integer myopiaNum;
+    private long myopiaNum;
 
     /** 近视率 */
     private Float myopiaRatio;
 
     /** 重点视力对象数量 */
-    private Integer focusTargetsNum;
+    private long focusTargetsNum;
 
     /** 0级预警率 */
     private Float warningLevelZeroRatio;
@@ -49,7 +49,7 @@ public class ScreeningDataContrast {
     private Float warningLevelThreeRatio;
 
     /** 建议就诊数 */
-    private Integer recommendVisitNum;
+    private long recommendVisitNum;
 
     /** 视力筛查完成率 */
     private Float screeningFinishedRatio;
