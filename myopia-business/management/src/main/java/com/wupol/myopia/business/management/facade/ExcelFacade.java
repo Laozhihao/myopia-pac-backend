@@ -77,6 +77,8 @@ public class ExcelFacade {
     private NoticeService noticeService;
     @Autowired
     private S3Utils s3Utils;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 生成筛查机构Excel
@@ -431,6 +433,12 @@ public class ExcelFacade {
             classMap = schoolClassService.getClassMapByIds(classIdList);
         }
 
+        // 筛查次数
+        List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountVO::getStudentId,
+                        StudentScreeningCountVO::getCount));
+
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
             StudentExportVo exportVo = new StudentExportVo()
@@ -448,7 +456,7 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setLabel(item.getVisionLabel())
                     .setSituation(item.getCurrentSituation())
-                    .setScreeningCount(886)
+                    .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     //TODO 就诊次数
                     .setVisitsCount(886)
                     .setQuestionCount(886)
