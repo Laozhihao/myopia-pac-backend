@@ -11,10 +11,7 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskNameVO;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,8 +25,6 @@ import java.util.stream.Collectors;
 public class StatManagementController {
     @Autowired
     private ScreeningTaskService screeningTaskService;
-    @Autowired
-    private GovDeptService govDeptService;
     @Autowired
     private DistrictService districtService;
     @Autowired
@@ -59,7 +54,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/task")
-    public Set<ScreeningTaskNameVO> getTaskDetailByYearAndUser(Integer year) {
+    public Set<ScreeningTaskNameVO> getTaskDetailByYearAndUser(@RequestParam Integer year) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //找到筛查通知year的所有相关的screeningNotice
         List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
@@ -75,7 +70,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/plan")
-    public Set<ScreeningPlanNameVO> getPlanDetailByYearAndUser(Integer year) {
+    public Set<ScreeningPlanNameVO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
@@ -90,7 +85,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/district")
-    public List<District> getDistrictByTaskId(Integer noticeId) throws IOException {
+    public List<District> getDistrictByTaskId(@RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
             throw new BusinessException("无法找到该通知");
@@ -112,7 +107,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/school")
-    public Set<ScreeningPlanSchoolInfoDTO> getSchoolByDistrictId(Integer districtId, Integer taskId) {
+    public Set<ScreeningPlanSchoolInfoDTO> getSchoolByDistrictId(@RequestParam Integer districtId, @RequestParam Integer taskId) {
         return screeningPlanService.getByDistrictIdAndTaskId(districtId, taskId);
     }
 

@@ -429,19 +429,26 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return StudentCardResponseDTO
      */
     public StudentCardResponseDTO getCardDetails(Integer resultId) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        return getStudentCardResponseDTO(visionScreeningResult);
+    }
+
+    /**
+     * 根据筛查接口获取档案卡所需要的数据
+     * @param visionScreeningResult
+     * @return
+     */
+    public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult ){
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
-
-        VisionScreeningResult result = visionScreeningResultService.getById(resultId);
-        Integer studentId = result.getStudentId();
-
+        Integer studentId = visionScreeningResult.getStudentId();
         Student student = baseMapper.selectById(studentId);
         // 获取学生基本信息
         CardInfo cardInfo = getCardInfo(student);
-        cardInfo.setScreeningDate(result.getCreateTime());
+        cardInfo.setScreeningDate(visionScreeningResult.getCreateTime());
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(result);
+        CardDetails cardDetails = getCardDetails(visionScreeningResult);
         responseDTO.setDetails(cardDetails);
         return responseDTO;
     }
