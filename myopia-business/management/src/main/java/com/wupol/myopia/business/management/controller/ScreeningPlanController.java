@@ -412,7 +412,6 @@ public class ScreeningPlanController {
     @GetMapping("/export/notice")
     public Object downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         try {
-            log.info("1");
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
@@ -420,15 +419,12 @@ public class ScreeningPlanController {
             SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
-            log.info("2");
             String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-            log.info("3");
             List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(student.getSno(), config, "jpg")));
-            log.info("4");
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);
@@ -436,11 +432,9 @@ public class ScreeningPlanController {
             models.put("schoolName", school.getName());
             models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            log.info("5");
             File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
-            log.info("6");
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
