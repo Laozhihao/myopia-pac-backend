@@ -24,7 +24,7 @@ public class PageRequest {
             current = 1;
         }
         if (null == size) {
-            size = 5;
+            size = 10;
         }
         return new Page<>(getCurrent(), getSize());
     }

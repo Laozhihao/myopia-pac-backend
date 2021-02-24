@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Alix
@@ -152,6 +153,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         Assert.notNull(query.getScreeningPlanId(), "筛查计划ID不能为空");
         Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
         Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
+        if (StringUtils.hasLength(query.getGradeIds())) {
+            query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
+        }
         IPage<StudentDTO> studentDTOIPage = baseMapper.selectPageByQuery(page, query);
         studentDTOIPage.getRecords().forEach(studentDTO -> studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation())).setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress())));
         return studentDTOIPage;
