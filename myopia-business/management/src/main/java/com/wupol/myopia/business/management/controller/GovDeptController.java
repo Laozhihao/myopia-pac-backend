@@ -174,4 +174,13 @@ public class GovDeptController {
         return govDeptService.updateById(new GovDept().setId(govDeptId).setStatus(status));
     }
 
+    @GetMapping("/getDistrictId")
+    public GovDept getDistrictId() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isGovDeptUser()) {
+            return govDeptService.getById(currentUser.getOrgId());
+        }
+        return null;
+    }
+
 }
