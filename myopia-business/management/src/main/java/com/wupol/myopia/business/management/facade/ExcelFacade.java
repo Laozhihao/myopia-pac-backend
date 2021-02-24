@@ -820,4 +820,21 @@ public class ExcelFacade {
         screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
     }
+
+    /**
+     * 导出统计报表 - 数据对比表
+     * @param userId 用户ID
+     * @param exportList 导出数据
+     * @param template 导出模板
+     * @throws IOException
+     * @throws UtilException
+     */
+    public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
+            InputStream template) throws IOException, UtilException {
+        String fileName = "统计对比报表";
+        log.info("导出文件: {}", fileName);
+        File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
+        String content = String.format(CommonConst.CONTENT, "统计报表", "数据对比表", new Date());
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
+    }
 }

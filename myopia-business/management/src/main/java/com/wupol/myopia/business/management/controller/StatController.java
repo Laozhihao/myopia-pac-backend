@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.dto.stat.FocusObjectsStatisticVO;
@@ -54,7 +55,6 @@ public class StatController {
 
     /**
      * 获取筛查对比数据
-     * @param contrastTypeCode 对比类型
      * @param notificationId1 1号通知ID
      * @param notificationId2 2号通知ID
      * @param districtId 区域ID
@@ -62,9 +62,7 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataContrast")
-    public ApiResult getScreeningDataContrast(
-            @RequestParam("contrastType") Integer contrastTypeCode,
-            @RequestParam("nid1") Integer notificationId1,
+    public ApiResult getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
             @RequestParam(value = "nid2", required = false) Integer notificationId2,
             Integer districtId, Integer schoolAge) {
         try {
@@ -76,6 +74,28 @@ public class StatController {
         return ApiResult.failure("internal error");
     }
 
+    /**
+     * 导出筛查对比数据
+     * @param notificationId1 1号通知ID
+     * @param notificationId2 2号通知ID
+     * @param districtId 区域ID
+     * @param schoolAge 学龄代码
+     * @return
+     */
+    @GetMapping("/exportContrast")
+    public ApiResult exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
+            @RequestParam(value = "nid2", required = false) Integer notificationId2,
+            Integer districtId, Integer schoolAge) {
+        try {
+            statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
+            return ApiResult.success();
+        } catch (IOException e) {
+            log.error(e);
+        } catch (UtilException e) {
+            log.error(e);
+        }
+        return ApiResult.failure("internal error");
+    }
     /**
      * 分类统计数据
      * @param notificationId 通知ID
