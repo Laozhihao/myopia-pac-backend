@@ -5,11 +5,9 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
@@ -35,6 +33,10 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private NoticeService noticeService;
+    @Autowired
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 通过筛查机构ID获取筛查任务关联
@@ -180,6 +182,15 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
         List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+        boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+
+        // 查找org的userId
+        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList()));
+        if (!org.springframework.util.CollectionUtils.isEmpty(adminLists)) {
+            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+            // 为消息中心创建通知
+            noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+        }
+        return result;
     }
 }

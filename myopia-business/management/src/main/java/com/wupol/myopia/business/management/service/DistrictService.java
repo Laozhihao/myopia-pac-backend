@@ -524,13 +524,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
         if (null != townCode) {
-            return getTopDistrictName(townCode) + "  " + address;
+            return getTopDistrictName(townCode) + "  " + StringUtils.defaultString(address);
         } else if (null != areaCode) {
-            return getTopDistrictName(areaCode) + "  " + address;
+            return getTopDistrictName(areaCode) + "  " + StringUtils.defaultString(address);
         } else if (null != cityCode) {
-            return getTopDistrictName(cityCode) + "  " + address;
+            return getTopDistrictName(cityCode) + "  " + StringUtils.defaultString(address);
         } else if (null != provinceCode) {
-            return getTopDistrictName(provinceCode) + "  " + address;
+            return getTopDistrictName(provinceCode) + "  " + StringUtils.defaultString(address);
         }
         return "";
     }

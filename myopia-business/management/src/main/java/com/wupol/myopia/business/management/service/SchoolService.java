@@ -245,20 +245,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
         Map<Integer, UserDTO> userDTOMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
 
-        // 筛查统计
-        List<SchoolScreeningCountVO> countVOS = screeningPlanSchoolService.countScreeningTime();
-        Map<Integer, Integer> countMaps = countVOS.stream()
-                .collect(Collectors
-                        .toMap(SchoolScreeningCountVO::getSchoolId,
-                                SchoolScreeningCountVO::getCount));
-
         // 学生统计
         List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, countMaps, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps));
         return schoolDtoIPage;
     }
 
@@ -311,11 +304,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param currentUser      当前登录用户
      * @param userDTOMap       用户信息
-     * @param countMaps        筛查统计
      * @param studentCountMaps 学生统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<Integer, Integer> countMaps, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<String, Integer> studentCountMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
@@ -327,7 +319,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
 
             // 筛查次数
-            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+            List<ScreeningPlanSchool> countPlans = screeningPlanSchoolService.countBySchoolId(s.getId());
+            if (CollectionUtils.isEmpty(countPlans)) {
+                s.setScreeningCount(0);
+            } else {
+                s.setScreeningCount(countPlans.size());
+            }
 
             // 学生统计
             s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
@@ -446,7 +443,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             // 封装DTO
             plans.forEach(p -> {
                 p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
-                p.setItems(Lists.newArrayList(statisticMaps.get(p.getId())));
+                SchoolVisionStatistic schoolVisionStatistic = statisticMaps.get(p.getId());
+                if (null == schoolVisionStatistic) {
+                    p.setItems(new ArrayList<>());
+                } else {
+                    p.setItems(Lists.newArrayList(schoolVisionStatistic));
+                }
+
             });
 
         }

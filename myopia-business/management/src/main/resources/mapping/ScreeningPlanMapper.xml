@@ -49,6 +49,7 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        and msp.release_status = 1
         order by msp.create_time desc
     </select>
 
