@@ -62,6 +62,16 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     }
 
     /**
+     * 查找通过 某个orgId 接受的通知
+     * @param type
+     * @param acceptOrgId
+     * @return
+     */
+    public List<ScreeningNotice> selectByAcceptIdAndType(Integer acceptOrgId,Integer type) {
+        return baseMapper.selectByAcceptIdAndType(type,acceptOrgId);
+    }
+
+    /**
      * 根据通知ID查询
      *
      * @param screeningNoticeId

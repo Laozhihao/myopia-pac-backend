@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,7 +14,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-public class ScreeningTaskNameVO{
+public class ScreeningPlanNameVO {
     /**
      * 筛查任务开始时间
      */
@@ -25,11 +24,11 @@ public class ScreeningTaskNameVO{
      */
     private Date screeningEndTime;
     /**
-     * 任务id
+     * 计划id
      */
-    private Integer taskId;
+    private Integer planId;
     /**
-     * 任务名称
+     * 计划名称
      */
-    private String taskName;
+    private String planName;
 }

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -33,7 +33,7 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
     /**
      * 筛查范围 范围名称
      */
-    private String rangeName;
+    private String screeningRangeName;
     /**
      * 当前级的数据
      */
@@ -51,13 +51,13 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
         return new ScreeningMonitorStatisticVO();
     }
 
-    public static ScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask, Map<Integer, String> districtIdNameMap) {
+    public static ScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return null;
         }
         ScreeningMonitorStatisticVO screeningMonitorStatisticVO = new ScreeningMonitorStatisticVO();
         //设置基础数据
-        screeningMonitorStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningTask);
+        screeningMonitorStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
         //设置统计数据
         screeningMonitorStatisticVO.setItemData(currentDistrictId, districtMonitorStatistics, districtIdNameMap);
         return screeningMonitorStatisticVO;
@@ -91,7 +91,7 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
 
     private Item getItem(Integer districtId, String rangeName, DistrictMonitorStatistic districtMonitorStatistic) {
         ScreeningMonitorStatisticVO.Item item = new ScreeningMonitorStatisticVO.Item();
-        item.setRangeName(rangeName)
+        item.setScreeningRangeName(rangeName)
                 .setRescreenItemNum(10)
                 .setRescreenNum(districtMonitorStatistic.getPlanScreeningNumbers())
                 .setActualScreeningNum(districtMonitorStatistic.getRealScreeningNumbers())
@@ -108,10 +108,10 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
 
     }
 
-    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask) {
+    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice) {
         this.districtId = currentDistrictId;
-        this.rangeName = currentRangeName;
-        super.setDataByScreeningTask(screeningTask);
+        this.screeningRangeName = currentRangeName;
+        super.setDataByScreeningNotice(screeningNotice);
     }
 
 
@@ -120,7 +120,7 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
     @Accessors(chain = true)
     public static class Item {
 
-        private String rangeName;
+        private String screeningRangeName;
         /**
          * screeningNum
          */

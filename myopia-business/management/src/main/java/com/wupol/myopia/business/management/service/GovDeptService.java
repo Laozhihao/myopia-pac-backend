@@ -96,6 +96,27 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return resultIds;
     }
 
+    /**
+     * 所在部门的所有上级部门
+     *
+     * @param id 部门id
+     * @return List<Integer>
+     */
+    public Set<Integer> getSuperiorGovIds(Integer id) {
+        Set<Integer> resultIds = new HashSet<>();
+        if (id == null) {
+            return resultIds;
+        }
+        QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", id);
+        queryWrapper.ne("status", CommonConst.STATUS_IS_DELETED);
+        GovDept govDept = baseMapper.selectOne(queryWrapper);
+        if (govDept != null) {
+            resultIds.add(govDept.getPid());
+            getSuperiorGovIds(govDept.getPid());
+        }
+        return resultIds;
+    }
 
     /**
      * 获取当前id下的所属部门（子孙）

@@ -644,4 +644,52 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
                 }
         ).collect(Collectors.toList());
     }
+
+    /**
+     * 获取当前用户地区树 与 districts 的交集
+     * @param user
+     * @param districts
+     * @return
+     */
+    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districts) throws IOException {
+        List<District> districtTree = getCurrentUserDistrictTree(user);
+        return filterDistrictTree(districtTree,districts);
+    }
+
+    /**
+     * 过滤该地区树没在districts
+     * @param districtTree
+     * @param districts
+     * @return
+     */
+    private List<District> filterDistrictTree(List<District> districtTree, Set<Integer> districts) {
+        if (CollectionUtils.isEmpty(districtTree) || CollectionUtils.isEmpty(districts)) {
+            return new ArrayList<>();
+        }
+         return districtTree.stream().map(district ->
+            filterDistrict(district,districts)
+         ).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 过滤地区
+     * @param district
+     * @param districts
+     * @return
+     */
+    private District filterDistrict(District district, Set<Integer> districts) {
+        if (district == null || CollectionUtils.isEmpty(districts)) {
+            return null;
+        }
+        boolean isContain = districts.contains(district.getId());
+        if (isContain) {
+            districts.remove(district.getId());
+        }
+        district.setChild(filterDistrictTree(district.getChild(), districts));
+        if (!isContain && CollectionUtils.isEmpty(district.getChild())) {
+            return null;
+        }
+        return district;
+    }
+
 }

@@ -55,8 +55,10 @@
 
     <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
         SELECT
-        mst.id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time, mst.end_time, mst.content, mst.release_time, mst.release_status,
-        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id, mst.create_time
+        mst.id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,
+        mst.end_time, mst.content, mst.release_time, mst.release_status,
+        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id,
+        mst.create_time
         FROM
         m_screening_plan mst
         LEFT JOIN m_district md ON mst.district_id = md.id
@@ -66,27 +68,47 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(param.districtId)">and mst.`district_id` = #{param.districtId}</if>
-                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mst.`screening_org_id` = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mst.`screening_org_id` = #{param.screeningOrgId}
+                </if>
                 <if test="param.titleLike != null and param.titleLike != ''">
                     and mst.`title` like CONCAT('%',#{param.titleLike},'%')
                 </if>
                 <if test="param.createUserIds != null">
-                    and mst.`create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and mst.`create_user_id` in
+                    <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}
+                    </foreach>
                 </if>
                 <if test="param.screeningOrgIds != null">
-                    and mst.`screening_org_id` in <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and mst.`screening_org_id` in
+                    <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}
+                    </foreach>
                 </if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
-                    and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                    and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and
+                    <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
                 </if>
             </trim>
         </where>
         order by mst.create_time desc
     </select>
 
-    <select id="selectSchoolInfo" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO">
-        select student.name, student.id from  m_screening_plan msp inner join m_screening_plan_school_student student on  msp.id = student.screening_plan_id
-        where msp.district_id = #{districtId} and msp.screening_task_id = #{taskId} and msp.release_status = #{releaseStatus}
+    <select id="selectSchoolInfo"
+            resultType="com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO">
+        select student.name, student.id
+        from m_screening_plan msp
+                 inner join m_screening_plan_school_student student on msp.id = student.screening_plan_id
+        where msp.district_id = #{districtId}
+          and msp.screening_task_id = #{taskId}
+          and msp.release_status = #{releaseStatus}
+    </select>
+
+    <select id="selectSchoolIds" resultType="java.lang.Integer">
+        SELECT msps.school_id FROM m_screening_plan msp INNER JOIN m_screening_plan_school msps ON msp.id =
+        msps.screening_plan_id
+        WHERE screening_task_id = #{taskId} and msp.district_id IN
+        <foreach collection="districtIds" item="districtId" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
     </select>
 
     <select id="getByTaskIds" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">

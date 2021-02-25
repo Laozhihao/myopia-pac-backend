@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -48,6 +49,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -59,6 +61,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -84,6 +87,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 发布通知
+     *
      * @param id
      * @return
      */
@@ -110,9 +114,10 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 部门是否已存在该标题
+     *
      * @param screeningNoticeId 已有的ID，更新时使用。新增时可为null
-     * @param govDeptId 部门ID
-     * @param title 标题
+     * @param govDeptId         部门ID
+     * @param title             标题
      * @return
      */
     public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
@@ -126,6 +131,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     /**
      * 发布筛查通知时，判断时间段是否合法（只查看已发布的且校验type为0）
      * 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     *
      * @param screeningNotice：必须存在govDeptId、startTime、endTime
      * @return
      */
@@ -148,6 +154,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 根据任务ID获取通知（type为1）
+     *
      * @param screeningTaskId
      * @return
      */
@@ -158,11 +165,99 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 根据任务ID获取通知（type为1）
+     *
      * @param screeningTaskId
      * @return
      */
-    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId,Set<Integer> govDeptIds) {
+    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId, Set<Integer> govDeptIds) {
         return baseMapper.selectDistrictIds(screeningTaskId, ScreeningNotice.TYPE_GOV_DEPT, govDeptIds);
+    }
+
+    /**
+     * 获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
+     *
+     * @param user
+     * @return
+     */
+    public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = new ArrayList<>();
+        if (user.isGovDeptUser()) {
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+        } else if (user.isPlatformAdminUser()) {
+            screeningNotices = this.getAllReleaseNotice();
+        } else if (user.isScreeningUser()) {
+            //该部门发布的通知
+            Set<Integer> screeningOrgs = new HashSet<>();
+            screeningOrgs.add(user.getOrgId());
+            screeningNotices = this.getNoticeByReleaseOrgId(screeningOrgs, ScreeningNotice.TYPE_ORG);
+            //该部门接收到的通知
+            screeningNotices.addAll(screeningNoticeDeptOrgService.selectByAcceptIdAndType(user.getOrgId(), ScreeningNotice.TYPE_ORG));
+        }
+        return screeningNotices;
+    }
+
+    /**
+     * 获取所有已经发布的通知
+     *
+     * @return
+     */
+    private List<ScreeningNotice> getAllReleaseNotice() {
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+        return screeningNotices;
+    }
+
+    /**
+     * 根据发布部门获取通知
+     *
+     * @param orgIds
+     * @param orgType
+     * @return
+     */
+    private List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
+        if (CollectionUtils.isEmpty(orgIds) || orgType == null) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getType, orgType);
+        screeningNoticeLambdaQueryWrapper.in(ScreeningNotice::getGovDeptId, orgIds);
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+    }
+
+    /**
+     * 获取年度
+     *
+     * @return
+     */
+    public List<Integer> getYears(List<ScreeningNotice> screeningNotices) {
+        List<Integer> yearList = new ArrayList<>();
+        screeningNotices.forEach(screeningTask -> {
+            Integer startYear = this.getYear(screeningTask.getStartTime());
+            Integer endYear = this.getYear(screeningTask.getStartTime());
+            yearList.add(startYear);
+            yearList.add(endYear);
+        });
+        yearList.stream().sorted();
+        return yearList;
+    }
+
+    /**
+     * 根据时间获取年份 todo 待抽取
+     *
+     * @param date
+     * @return
+     */
+    public Integer getYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        return year;
     }
 
 }

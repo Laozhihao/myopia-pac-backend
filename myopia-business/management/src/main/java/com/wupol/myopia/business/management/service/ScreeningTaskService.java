@@ -188,18 +188,6 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     }
 
     /**
-     * 获取年度
-     *
-     * @return
-     */
-    public List<Integer> getYears(List<ScreeningTask> govDeptLists) {
-        List<Integer> years = govDeptLists.stream().map(screeningTask ->
-                this.getYear(screeningTask.getStartTime())
-        ).distinct().sorted().collect(Collectors.toList());
-        return years;
-    }
-
-    /**
      * 根据时间获取年份
      *
      * @param date
@@ -224,7 +212,38 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
         }
         queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningTask> govDeptLists = baseMapper.selectList(queryWrapper);
-        return govDeptLists;
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 根据通知id获取筛查任务
+     *
+     * @param screeningNoticeIds
+     * @return
+     */
+    public List<ScreeningTask> getTaskByNoticeIds(Set<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningTask::getScreeningNoticeId,screeningNoticeIds);
+        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 获取筛查任务名字
+     * @param screeningNoticeIds
+     * @param year
+     */
+    public  Set<ScreeningTaskNameVO> getScreeningTaskNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+        List<ScreeningTask> screeningTasks = getTaskByNoticeIds(screeningNoticeIds);
+        Set<ScreeningTaskNameVO> screeningTaskNameVOs = screeningTasks.stream().filter(screeningTask ->
+            year.equals(getYear(screeningTask.getStartTime())) || year.equals(getYear(screeningTask.getEndTime()))
+        ).map(screeningTask -> {
+            ScreeningTaskNameVO screeningTaskNameVO = new ScreeningTaskNameVO();
+            screeningTaskNameVO.setTaskName(screeningTask.getTitle()).setTaskId(screeningTask.getId()).setScreeningStartTime(screeningTask.getStartTime()).setScreeningEndTime(screeningTask.getEndTime());
+            return screeningTaskNameVO;
+        }).collect(Collectors.toSet());
+        return screeningTaskNameVOs;
     }
 }
