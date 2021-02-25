@@ -540,6 +540,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (nowDate.before(startDate)) {
             return 0;
         }
+        if (nowDate.after(startDate) && nowDate.before(endDate)) {
+            return 1;
+        }
         if (nowDate.after(endDate)) {
             return 2;
         }
