@@ -92,7 +92,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(new Page<>(1, 100), schoolId);
+        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }

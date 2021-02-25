@@ -140,11 +140,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 更新筛查机构
      *
+     * @param currentUser           当前登录用户
      * @param screeningOrganization 筛查机构实体咧
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganization screeningOrganization) {
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
@@ -181,6 +182,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
+        // 是否能更新
+        if (currentUser.isPlatformAdminUser()) {
+            response.setCanUpdate(true);
+        } else if (response.getCreateUserId().equals(currentUser.getId())) {
+            response.setCanUpdate(true);
+        }
         return response;
     }
 
@@ -532,6 +539,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Date nowDate = new Date();
         if (nowDate.before(startDate)) {
             return 0;
+        }
+        if (nowDate.after(startDate) && nowDate.before(endDate)) {
+            return 1;
         }
         if (nowDate.after(endDate)) {
             return 2;
