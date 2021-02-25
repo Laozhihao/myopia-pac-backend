@@ -32,11 +32,11 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
 
     /**
-     * 获取报告列表
+     * 获取学生报告列表
      * @param studentId 学生id
-     * @return
+     * @return List<MedicalReportVo>
      */
-    public List<MedicalReportVo> getReportList(Integer studentId) {
+    public List<MedicalReportVo> getReportListByStudentId(Integer studentId) {
         return baseMapper.getVoBy(new MedicalReport().setStudentId(studentId));
     }
 
@@ -103,5 +103,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         responseDTO.setRecord(record);
 
         return responseDTO;
+    }
+
+    /**
+     * 统计就诊档案
+     *
+     * @param studentId 学生ID
+     * @return 个数
+     */
+    public Integer countReport(Integer studentId) {
+        return baseMapper.countReportBySchoolId(studentId);
     }
 }

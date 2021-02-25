@@ -9,7 +9,6 @@ import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -33,9 +32,9 @@ public class MedicalReportController {
         return true;
     }
 
-    @GetMapping("/list")
-    public List<MedicalReportVo> getReportList(Integer studentId) {
-        return medicalReportService.getReportList(studentId);
+    @GetMapping("/list/{studentId}")
+    public List<MedicalReportVo> getStudentReportList(@PathVariable("studentId") Integer studentId) {
+        return medicalReportService.getReportListByStudentId(studentId);
     }
 
     @GetMapping("/{reportId}")

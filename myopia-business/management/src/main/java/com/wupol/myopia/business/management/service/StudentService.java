@@ -63,6 +63,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+//    @Resource
+//    private MedicalReportService medicalReportService;
+
     /**
      * 根据学生id列表获取学生信息
      * @param ids id列表
@@ -178,7 +181,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
-                .setNumOfVisits(student.getNumOfVisits());
+                .setNumOfVisits(0);
         return studentDTO;
     }
 

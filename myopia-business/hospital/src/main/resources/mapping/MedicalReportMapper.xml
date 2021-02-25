@@ -35,11 +35,17 @@
         <include refid="Base_Where_Clause"/>
     </select>
     <select id="getVoBy" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
-        select mr.*, h.name as hospitalName
+        select mr.*, h.name as hospitalName, hmr.create_time as visitDate
         from h_medical_report mr
         left join m_hospital h on mr.hospital_id = h.id
+        left join h_medical_record hmr on hmr.id = mr.medical_record_id
         <include refid="Base_Where_Clause"/>
 
     </select>
 
+    <select id="countReportBySchoolId" resultType="java.lang.Integer">
+        select count(1)
+        from h_medical_report
+        where student_id = #{studentId};
+    </select>
 </mapper>

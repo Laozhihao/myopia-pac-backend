@@ -19,7 +19,10 @@ import java.util.List;
 public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     List<MedicalReport> getBy(MedicalReport query);
+
     IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReport query);
 
     List<MedicalReportVo> getVoBy(MedicalReport query);
+
+    Integer countReportBySchoolId(@Param("studentId") Integer studentId);
 }
