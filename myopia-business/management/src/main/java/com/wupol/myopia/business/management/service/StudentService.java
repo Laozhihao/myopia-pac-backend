@@ -316,6 +316,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setSchoolId(school.getId());
             student.setSchoolNo(school.getSchoolNo());
             student.setSchoolName(school.getName());
+            if (null != student.getClassId() && null != student.getGradeId()) {
+                SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+                SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
+                student.setClassName(schoolClass.getName());
+                student.setGradeName(schoolGrade.getName());
+            }
         }
         return student;
     }
