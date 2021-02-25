@@ -73,6 +73,9 @@ public class StatService {
         lastOneQuery.setIsValid(true);
         lastOneQuery.setIsRescreen(false);
         StatConclusion lastConclusion = statConclusionService.getLastOne(lastOneQuery);
+        if (lastConclusion == null) {
+            return WarningInfo.builder().build();
+        }
         LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), ZoneId.of("UTC+8"));
         LocalDate startDate = endDate.plusYears(-1);
         StatConclusionQuery warningListQuery = new StatConclusionQuery();
@@ -128,19 +131,19 @@ public class StatService {
 
         StatConclusionQuery query = new StatConclusionQuery();
         query.setSrcScreeningNoticeId(notificationId1);
-        List<Integer> districtIds = getCurrentUserDistrictIds(currentUser);
+        List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
         if (districtId != null && districtId > 0) {
-            if (districtIds.contains(districtId)) {
-                List<District> districts =
-                        districtService.getChildDistrictByParentCodePriorityCache(districtId);
-                List<Integer> userDistrictIds =
-                        districts.stream().map(District::getId).collect(Collectors.toList());
-                userDistrictIds.add(districtId);
-                userDistrictIds.retainAll(districtIds);
-                query.setDistrictIds(userDistrictIds);
+            List<District> districts =
+                    districtService.getChildDistrictByParentCodePriorityCache(districtId);
+            List<Integer> selectDistrictIds =
+                    districts.stream().map(District::getId).collect(Collectors.toList());
+            selectDistrictIds.add(districtId);
+            if (userDistrictIds != null) {
+                selectDistrictIds.retainAll(userDistrictIds);
             }
+            query.setDistrictIds(selectDistrictIds);
         } else {
-            query.setDistrictIds(districtIds);
+            query.setDistrictIds(userDistrictIds);
         }
 
         if (schoolAge != null && schoolAge > 0) {
@@ -175,11 +178,16 @@ public class StatService {
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
+        List<Integer> districtIds = currentUser.isPlatformAdminUser()
+                ? null
+                : this.getCurrentUserDistrictIds(currentUser);
         StatConclusionQuery query = new StatConclusionQuery();
         query.setDistrictIds(districtIds);
         query.setSrcScreeningNoticeId(notificationId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        if (statConclusions == null) {
+            return null;
+        }
 
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
@@ -319,12 +327,15 @@ public class StatService {
                 .build();
     }
 
-        /**
-         * 获取当前用户所有权限的区域ID
-         * @return
-         * @throws IOException
-         */
+    /**
+     * 获取当前用户所有权限的区域ID
+     * @return
+     * @throws IOException
+     */
     private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) throws IOException {
+        if (currentUser.isPlatformAdminUser() || currentUser.getOrgId() == null) {
+            return null;
+        }
         GovDept govDept = govDeptService.getById(currentUser.getOrgId());
         District userDistrict = districtService.getById(govDept.getDistrictId());
         List<District> districts =
@@ -333,13 +344,13 @@ public class StatService {
         return districts.stream().map(District::getId).collect(Collectors.toList());
     }
 
-        /**
-         * 按性别统计数据
-         * @param label 统计标签
-         * @param validScreeningNum 有效筛查统计总数
-         * @param statConclusions 对应分类统计结论
-         * @return
-         */
+    /**
+     * 按性别统计数据
+     * @param label 统计标签
+     * @param validScreeningNum 有效筛查统计总数
+     * @param statConclusions 对应分类统计结论
+     * @return
+     */
     private ClassStat composeGenderClassStat(
             StatClassLabel label, long validScreeningNum, List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
@@ -359,13 +370,13 @@ public class StatService {
                 .build();
     }
 
-        /**
-         * 按学龄统计数据
-         * @param label 统计标签
-         * @param validScreeningNum 实际有效筛查统计总数
-         * @param statConclusions 对应分类统计结论
-         * @return
-         */
+    /**
+     * 按学龄统计数据
+     * @param label 统计标签
+     * @param validScreeningNum 实际有效筛查统计总数
+     * @param statConclusions 对应分类统计结论
+     * @return
+     */
     private ClassStat composeSchoolAgeClassStat(
             StatClassLabel label, long validScreeningNum, List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
@@ -404,162 +415,161 @@ public class StatService {
                 .build();
     }
 
-        /**
-         * 获取复查统计汇总
-         * @param rescreenConclusions 复查统计记录
-         * @return
-         */
-        private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
-            long totalScreeningNum = rescreenConclusions.size();
-            long wearingGlassesNum = rescreenConclusions.stream()
-                                             .filter(x -> x.getIsWearingGlasses() == true)
-                                             .count();
-            long wearingGlassesIndexNum = wearingGlassesNum * 6;
-            long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
-            long withoutGlassesIndexNum = withoutGlassesNum * 4;
-            long errorIndexNum =
-                    rescreenConclusions.stream().mapToLong(x -> x.getRescreenErrorNum()).sum();
-            return RescreenStat.builder()
-                    .rescreenNum(rescreenConclusions.size())
-                    .wearingGlassesRescreenNum(wearingGlassesNum)
-                    .wearingGlassesRescreenIndexNum(wearingGlassesIndexNum)
-                    .withoutGlassesRescreenNum(withoutGlassesNum)
-                    .withoutGlassesRescreenIndexNum(withoutGlassesIndexNum)
-                    .rescreenItemNum(wearingGlassesIndexNum + withoutGlassesIndexNum)
-                    .incorrectItemNum(errorIndexNum)
-                    .incorrectRatio(convertToPercentage(
-                            errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)))
-                    .build();
-        }
+    /**
+     * 获取复查统计汇总
+     * @param rescreenConclusions 复查统计记录
+     * @return
+     */
+    private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
+        long totalScreeningNum = rescreenConclusions.size();
+        long wearingGlassesNum =
+                rescreenConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+        long wearingGlassesIndexNum = wearingGlassesNum * 6;
+        long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
+        long withoutGlassesIndexNum = withoutGlassesNum * 4;
+        long errorIndexNum =
+                rescreenConclusions.stream().mapToLong(x -> x.getRescreenErrorNum()).sum();
+        return RescreenStat.builder()
+                .rescreenNum(rescreenConclusions.size())
+                .wearingGlassesRescreenNum(wearingGlassesNum)
+                .wearingGlassesRescreenIndexNum(wearingGlassesIndexNum)
+                .withoutGlassesRescreenNum(withoutGlassesNum)
+                .withoutGlassesRescreenIndexNum(withoutGlassesIndexNum)
+                .rescreenItemNum(wearingGlassesIndexNum + withoutGlassesIndexNum)
+                .incorrectItemNum(errorIndexNum)
+                .incorrectRatio(convertToPercentage(
+                        errorIndexNum * 1f / (wearingGlassesIndexNum + withoutGlassesIndexNum)))
+                .build();
+    }
 
-        /**
-         * 构造对比数据
-         * @param resultConclusion
-         * @param planScreeningNum
-         * @return
-         */
-        private ScreeningDataContrast composeScreeningDataContrast(
-                List<StatConclusion> resultConclusion, int planScreeningNum) {
-            List<StatConclusion> firstScreeningConclusions =
-                    resultConclusion.stream()
-                            .filter(x -> x.getIsRescreen() == false)
-                            .collect(Collectors.toList());
-            List<StatConclusion> validConclusions = firstScreeningConclusions.stream()
-                                                            .filter(x -> x.getIsValid() == true)
-                                                            .collect(Collectors.toList());
-            long lowVisionNum =
-                    validConclusions.stream().filter(x -> x.getIsLowVision() == true).count();
-            long refractiveErrorNum =
-                    validConclusions.stream().filter(x -> x.getIsRefractiveError() == true).count();
-            long wearingGlassesNum =
-                    validConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
-            long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() == true).count();
-            long totalFirstScreeningNum = firstScreeningConclusions.size();
-            long validFirstScreeningNum = validConclusions.size();
-            long recommendVisitNum =
-                    validConclusions.stream().filter(x -> x.getIsRecommendVisit() == true).count();
-            long warning0Num = validConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
-            long warning1Num = validConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
-            long warning2Num = validConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
-            long warning3Num = validConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+    /**
+     * 构造对比数据
+     * @param resultConclusion
+     * @param planScreeningNum
+     * @return
+     */
+    private ScreeningDataContrast composeScreeningDataContrast(
+            List<StatConclusion> resultConclusion, int planScreeningNum) {
+        List<StatConclusion> firstScreeningConclusions =
+                resultConclusion.stream()
+                        .filter(x -> x.getIsRescreen() == false)
+                        .collect(Collectors.toList());
+        List<StatConclusion> validConclusions = firstScreeningConclusions.stream()
+                                                        .filter(x -> x.getIsValid() == true)
+                                                        .collect(Collectors.toList());
+        long lowVisionNum =
+                validConclusions.stream().filter(x -> x.getIsLowVision() == true).count();
+        long refractiveErrorNum =
+                validConclusions.stream().filter(x -> x.getIsRefractiveError() == true).count();
+        long wearingGlassesNum =
+                validConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() == true).count();
+        long totalFirstScreeningNum = firstScreeningConclusions.size();
+        long validFirstScreeningNum = validConclusions.size();
+        long recommendVisitNum =
+                validConclusions.stream().filter(x -> x.getIsRecommendVisit() == true).count();
+        long warning0Num = validConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
+        long warning1Num = validConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
+        long warning2Num = validConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
+        long warning3Num = validConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
 
-            List<StatConclusion> rescreenConclusions =
-                    resultConclusion.stream()
-                            .filter(x -> x.getIsRescreen() == true && x.getIsValid() == true)
-                            .collect(Collectors.toList());
-            AverageVision averageVision = this.calculateAverageVision(validConclusions);
-            RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-            return ScreeningDataContrast.builder()
-                    .screeningNum(planScreeningNum)
-                    .actualScreeningNum(totalFirstScreeningNum)
-                    .averageVisionLeft(averageVision.getAverageVisionLeft())
-                    .averageVisionRight(averageVision.getAverageVisionRight())
-                    .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
-                    .refractiveErrorRatio(
-                            convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
-                    .wearingGlassesRatio(
-                            convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
-                    .myopiaNum(myopiaNum)
-                    .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
-                    .focusTargetsNum(warning1Num + warning2Num + warning3Num)
-                    .warningLevelZeroRatio(
-                            convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
-                    .warningLevelOneRatio(
-                            convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
-                    .warningLevelTwoRatio(
-                            convertToPercentage(warning2Num * 1f / validFirstScreeningNum))
-                    .warningLevelThreeRatio(
-                            convertToPercentage(warning3Num * 1f / validFirstScreeningNum))
-                    .recommendVisitNum(recommendVisitNum)
-                    .screeningFinishedRatio(
-                            convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
-                    .rescreenStat(rescreenStat)
-                    .build();
-        }
+        List<StatConclusion> rescreenConclusions =
+                resultConclusion.stream()
+                        .filter(x -> x.getIsRescreen() == true && x.getIsValid() == true)
+                        .collect(Collectors.toList());
+        AverageVision averageVision = this.calculateAverageVision(validConclusions);
+        RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
+        return ScreeningDataContrast.builder()
+                .screeningNum(planScreeningNum)
+                .actualScreeningNum(totalFirstScreeningNum)
+                .averageVisionLeft(averageVision.getAverageVisionLeft())
+                .averageVisionRight(averageVision.getAverageVisionRight())
+                .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
+                .refractiveErrorRatio(
+                        convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
+                .wearingGlassesRatio(
+                        convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
+                .myopiaNum(myopiaNum)
+                .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
+                .focusTargetsNum(warning1Num + warning2Num + warning3Num)
+                .warningLevelZeroRatio(
+                        convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
+                .warningLevelOneRatio(
+                        convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
+                .warningLevelTwoRatio(
+                        convertToPercentage(warning2Num * 1f / validFirstScreeningNum))
+                .warningLevelThreeRatio(
+                        convertToPercentage(warning3Num * 1f / validFirstScreeningNum))
+                .recommendVisitNum(recommendVisitNum)
+                .screeningFinishedRatio(
+                        convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
+                .rescreenStat(rescreenStat)
+                .build();
+    }
 
-        /**
-         * 转换为百分比并保留2位小数
-         * @param num
-         * @return
-         */
-        private Float convertToPercentage(Float num) {
-            return Math.round(num * 10000) / 100f;
-        }
+    /**
+     * 转换为百分比并保留2位小数
+     * @param num
+     * @return
+     */
+    private Float convertToPercentage(Float num) {
+        return Math.round(num * 10000) / 100f;
+    }
 
-        /**
-         * 保留2位小数
-         * @param num
-         * @return
-         */
-        private Float round2Digits(Double num) {
-            return Math.round(num * 100) / 100f;
-        }
+    /**
+     * 保留2位小数
+     * @param num
+     * @return
+     */
+    private Float round2Digits(Double num) {
+        return Math.round(num * 100) / 100f;
+    }
 
-        /**
-         * 构造分类统计数据
-         * @param desc 分类描述
-         * @param statNum 分类统计数量
-         * @param totalStatNum 统计总量
-         * @return
-         */
-        private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
-            return new BasicStatParams(
-                    desc, convertToPercentage(totalStatNum * 1f / totalStatNum), totalStatNum);
-        }
+    /**
+     * 构造分类统计数据
+     * @param desc 分类描述
+     * @param statNum 分类统计数量
+     * @param totalStatNum 统计总量
+     * @return
+     */
+    private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
+        return new BasicStatParams(
+                desc, convertToPercentage(totalStatNum * 1f / totalStatNum), totalStatNum);
+    }
 
-        /**
-         * 计算平均筛查视力
-         * @param statConclusions
-         * @return
-         */
-        private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
-            int size = statConclusions.size();
-            double sumVisionL = statConclusions.stream().mapToDouble(x -> x.getVisionL()).sum();
-            double sumVisionR = statConclusions.stream().mapToDouble(x -> x.getVisionR()).sum();
-            float avgVisionL = round2Digits(sumVisionL / size);
-            float avgVisionR = round2Digits(sumVisionR / size);
-            return AverageVision.builder()
-                    .averageVisionLeft(avgVisionL)
-                    .averageVisionRight(avgVisionR)
-                    .build();
-        }
+    /**
+     * 计算平均筛查视力
+     * @param statConclusions
+     * @return
+     */
+    private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
+        int size = statConclusions.size();
+        double sumVisionL = statConclusions.stream().mapToDouble(x -> x.getVisionL()).sum();
+        double sumVisionR = statConclusions.stream().mapToDouble(x -> x.getVisionR()).sum();
+        float avgVisionL = round2Digits(sumVisionL / size);
+        float avgVisionR = round2Digits(sumVisionR / size);
+        return AverageVision.builder()
+                .averageVisionLeft(avgVisionL)
+                .averageVisionRight(avgVisionR)
+                .build();
+    }
 
-        /**
-         * Date to LocalDate
-         * @param date 日期
-         * @param zoneId 时区ID
-         * @return
-         */
-        private LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
-            Instant instant = date.toInstant();
-            ZonedDateTime zdt = instant.atZone(zoneId);
-            return zdt.toLocalDate();
-        }
+    /**
+     * Date to LocalDate
+     * @param date 日期
+     * @param zoneId 时区ID
+     * @return
+     */
+    private LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zdt = instant.atZone(zoneId);
+        return zdt.toLocalDate();
+    }
 
-        @Data
-        @Builder
-        public static class AverageVision {
-            private float averageVisionLeft;
-            private float averageVisionRight;
-        }
+    @Data
+    @Builder
+    public static class AverageVision {
+        private float averageVisionLeft;
+        private float averageVisionRight;
+    }
 }

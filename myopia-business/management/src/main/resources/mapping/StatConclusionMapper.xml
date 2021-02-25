@@ -64,7 +64,7 @@
         LIMIT 0, 1
     </select>
 
-    <select id="getByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
+    <select id="listByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT *
         FROM m_stat_conclusion
         <include refid="Base_Where_Clause" />
