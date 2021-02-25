@@ -89,22 +89,19 @@
         where msp.district_id = #{districtId} and msp.screening_task_id = #{taskId} and msp.release_status = #{releaseStatus}
     </select>
 
-    <select id="getByTaskIds" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">
+    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse">
         select
         <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.screening_task_id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        and release_status = 1
+        from m_screening_plan msp
+        where release_status = 1
+          and msp.screening_org_id = #{orgId}
         order by msp.create_time desc
     </select>
 
     <select id="getByOrgId" resultMap="BaseResultMap">
         select *
         from m_screening_plan msp
-                     left join m_screening_task_org msto on msp.screening_task_id = msto.screening_task_id
-        where msto.screening_org_id = #{orgId}
-          and msp.release_status = 1
+        where screening_org_id = #{orgId}
+          and release_status = 1
     </select>
 </mapper>

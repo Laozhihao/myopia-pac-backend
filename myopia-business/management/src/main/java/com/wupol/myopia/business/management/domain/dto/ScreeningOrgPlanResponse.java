@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ScreeningTaskResponse extends ScreeningPlan {
+public class ScreeningOrgPlanResponse extends ScreeningPlan {
 
     private ScreeningRecordItems items;
 

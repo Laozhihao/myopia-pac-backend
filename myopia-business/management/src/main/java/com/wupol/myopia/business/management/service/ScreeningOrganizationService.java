@@ -385,21 +385,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningTaskResponse> getRecordLists(PageRequest request, Integer orgId) {
-        // 查询筛查任务关联的机构表
-        List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
-
-        // 为空直接返回
-        if (CollectionUtils.isEmpty(taskOrgLists)) {
-            return new Page<>();
-        }
+    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningTaskResponse> taskPages = screeningPlanService.getByTaskIds(request, taskOrgLists
-                .stream()
-                .map(ScreeningTaskOrg::getScreeningTaskId)
-                .collect(Collectors.toList()));
-        List<ScreeningTaskResponse> tasks = taskPages.getRecords();
+        IPage<ScreeningOrgPlanResponse> taskPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponse> tasks = taskPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
@@ -412,7 +402,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param taskResponse 筛查端-记录详情
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+    private void extractedDTO(ScreeningOrgPlanResponse taskResponse) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
