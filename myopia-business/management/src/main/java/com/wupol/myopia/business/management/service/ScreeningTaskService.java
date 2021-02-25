@@ -233,15 +233,16 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param screeningNoticeIds
      * @param year
      */
-    public  Set<ScreeningTaskNameVO> getScreeningTaskNameVO(Set<Integer> screeningNoticeIds, Integer year) {
-        List<ScreeningTask> screeningTasks = getTaskByNoticeIds(screeningNoticeIds);
-        Set<ScreeningTaskNameVO> screeningTaskNameVOs = screeningTasks.stream().filter(screeningTask ->
-            year.equals(getYear(screeningTask.getStartTime())) || year.equals(getYear(screeningTask.getEndTime()))
-        ).map(screeningTask -> {
-            ScreeningTaskNameVO screeningTaskNameVO = new ScreeningTaskNameVO();
-            screeningTaskNameVO.setTaskName(screeningTask.getTitle()).setTaskId(screeningTask.getId()).setScreeningStartTime(screeningTask.getStartTime()).setScreeningEndTime(screeningTask.getEndTime());
-            return screeningTaskNameVO;
-        }).collect(Collectors.toSet());
-        return screeningTaskNameVOs;
-    }
+    // TODO: 解决链峰未提交冲突，放开注释
+//    public  Set<ScreeningTaskNameVO> getScreeningTaskNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+//        List<ScreeningTask> screeningTasks = getTaskByNoticeIds(screeningNoticeIds);
+//        Set<ScreeningTaskNameVO> screeningTaskNameVOs = screeningTasks.stream().filter(screeningTask ->
+//            year.equals(getYear(screeningTask.getStartTime())) || year.equals(getYear(screeningTask.getEndTime()))
+//        ).map(screeningTask -> {
+//            ScreeningTaskNameVO screeningTaskNameVO = new ScreeningTaskNameVO();
+//            screeningTaskNameVO.setTaskName(screeningTask.getTitle()).setTaskId(screeningTask.getId()).setScreeningStartTime(screeningTask.getStartTime()).setScreeningEndTime(screeningTask.getEndTime());
+//            return screeningTaskNameVO;
+//        }).collect(Collectors.toSet());
+//        return screeningTaskNameVOs;
+//    }
 }

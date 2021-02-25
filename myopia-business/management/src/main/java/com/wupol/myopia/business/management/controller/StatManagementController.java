@@ -53,14 +53,15 @@ public class StatManagementController {
      * @param
      * @return
      */
-    @GetMapping("/task")
-    public Set<ScreeningTaskNameVO> getTaskDetailByYearAndUser(@RequestParam Integer year) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        //找到筛查通知year的所有相关的screeningNotice
-        List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
-        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
-        return screeningTaskService.getScreeningTaskNameVO(screeningNoticeIds, year);
-    }
+    // TODO: 解决链峰未提交冲突，放开注释
+//    @GetMapping("/task")
+//    public Set<ScreeningTaskNameVO> getTaskDetailByYearAndUser(@RequestParam Integer year) {
+//        CurrentUser user = CurrentUserUtil.getCurrentUser();
+//        //找到筛查通知year的所有相关的screeningNotice
+//        List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
+//        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
+//        return screeningTaskService.getScreeningTaskNameVO(screeningNoticeIds, year);
+//    }
 
 
     /**
