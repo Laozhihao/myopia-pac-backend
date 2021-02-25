@@ -39,7 +39,7 @@ public class MedicalReportController {
 
     @GetMapping("/{reportId}")
     public Object getReport(@PathVariable("reportId") Integer reportId) {
-        return medicalReportService.getReport(reportId);
+        return medicalReportService.getStudentReport(reportId);
     }
 
 }

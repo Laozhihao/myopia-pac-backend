@@ -82,12 +82,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
-     * 获取学生的就诊档案（报告）
+     * 获取学生的就诊档案详情（报告）
      *
      * @param reportId 报告ID
      * @return responseDTO
      */
-    public StudentReportResponseDTO getReport(Integer reportId) {
+    public StudentReportResponseDTO getStudentReport(Integer reportId) {
 
         StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
         // 报告
