@@ -140,6 +140,12 @@ public class Student implements Serializable {
     private String address;
 
     /**
+     * 头像
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String avatar;
+
+    /**
      * 当前情况
      */
     private String currentSituation;
