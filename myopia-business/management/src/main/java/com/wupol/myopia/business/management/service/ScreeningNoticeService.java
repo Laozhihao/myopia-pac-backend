@@ -19,6 +19,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,16 +235,19 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public List<Integer> getYears(List<ScreeningNotice> screeningNotices) {
-        List<Integer> yearList = new ArrayList<>();
+        Set<Integer> yearSet = new HashSet<>();
         screeningNotices.forEach(screeningTask -> {
             Integer startYear = this.getYear(screeningTask.getStartTime());
             Integer endYear = this.getYear(screeningTask.getStartTime());
-            yearList.add(startYear);
-            yearList.add(endYear);
+            yearSet.add(startYear);
+            yearSet.add(endYear);
         });
+        List<Integer> yearList = new ArrayList<>(yearSet);
         yearList.stream().sorted();
+        Collections.reverse(yearList);
         return yearList;
     }
+
 
     /**
      * 根据时间获取年份 todo 待抽取
@@ -258,4 +262,37 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         return year;
     }
 
+    /**
+     * 获取已经发布的通知
+     * @param noticeId
+     * @return
+     */
+    public ScreeningNotice getReleasedNoticeById(Integer noticeId){
+        ScreeningNotice screeningNotice = getById(noticeId);
+        if (screeningNotice == null) {
+            throw new BusinessException("无法找到该通知");
+        }
+        if (screeningNotice.getReleaseStatus() != CommonConst.STATUS_RELEASE) {
+            throw new BusinessException("该通知未发布");
+        }
+        return screeningNotice;
+    }
+
+
+    /**
+     * 获取筛查任务名字
+     * @param screeningNoticeIds
+     * @param year
+     */
+    public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+        List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
+        Set<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
+        ).map(screeningNotice -> {
+            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
+            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return screeningNoticeNameVO;
+        }).collect(Collectors.toSet());
+        return screeningNoticeNameVOS;
+    }
 }

@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -497,8 +498,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private CardDetails getCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-        details.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        //todo result.getVisionData().getLeftEyeData().getGlassesType()
+        glassesTypeObj.setType("1");
+        glassesTypeObj.setLeftVision(new BigDecimal(4.5));
+        glassesTypeObj.setRightVision(new BigDecimal(4.7));
+        details.setGlassesTypeObj(glassesTypeObj);
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result));
