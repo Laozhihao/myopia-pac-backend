@@ -17,7 +17,6 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationM
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
-import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -141,11 +140,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 更新筛查机构
      *
+     * @param currentUser           当前登录用户
      * @param screeningOrganization 筛查机构实体咧
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganization screeningOrganization) {
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
@@ -182,6 +182,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
+        // 是否能更新
+        if (currentUser.isPlatformAdminUser()) {
+            response.setCanUpdate(true);
+        } else if (response.getCreateUserId().equals(currentUser.getId())) {
+            response.setCanUpdate(true);
+        }
         return response;
     }
 
@@ -386,21 +392,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningTaskResponse> getRecordLists(PageRequest request, Integer orgId) {
-        // 查询筛查任务关联的机构表
-        List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
-
-        // 为空直接返回
-        if (CollectionUtils.isEmpty(taskOrgLists)) {
-            return new Page<>();
-        }
+    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningTaskResponse> taskPages = screeningPlanService.getByTaskIds(request, taskOrgLists
-                .stream()
-                .map(ScreeningTaskOrg::getScreeningTaskId)
-                .collect(Collectors.toList()));
-        List<ScreeningTaskResponse> tasks = taskPages.getRecords();
+        IPage<ScreeningOrgPlanResponse> taskPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponse> tasks = taskPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
@@ -413,12 +409,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param taskResponse 筛查端-记录详情
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+    private void extractedDTO(ScreeningOrgPlanResponse taskResponse) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
         List<ScreeningPlanSchoolVo> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(taskResponse.getId());
 
+        // 设置筛查状态
+        taskResponse.setScreeningStatus(getScreeningStatus(taskResponse.getStartTime(), taskResponse.getEndTime()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
@@ -527,5 +525,27 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             queryWrapper.ne("id", id);
         }
         return baseMapper.selectList(queryWrapper).size() > 0;
+    }
+
+    /**
+     * 获取筛查状态
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     * @return 筛查状态 0-未开始 1-进行中 2-已结束
+     */
+    private Integer getScreeningStatus(Date startDate, Date endDate) {
+
+        Date nowDate = new Date();
+        if (nowDate.before(startDate)) {
+            return 0;
+        }
+        if (nowDate.after(startDate) && nowDate.before(endDate)) {
+            return 1;
+        }
+        if (nowDate.after(endDate)) {
+            return 2;
+        }
+        return 1;
     }
 }

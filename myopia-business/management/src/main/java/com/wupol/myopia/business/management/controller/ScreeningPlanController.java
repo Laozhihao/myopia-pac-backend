@@ -311,9 +311,12 @@ public class ScreeningPlanController {
         validateSchoolLegal(screeningPlan, schoolListsByPlanId);
         // 查询学校的userId
         List<SchoolAdmin> schoolAdmins = schoolAdminService.getBySchoolIds(schoolListsByPlanId.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
-        // 为消息中心创建通知
-        List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
-        noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_PLAN, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
+
+        if (!CollectionUtils.isEmpty(schoolAdmins)) {
+            // 为消息中心创建通知
+            List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_PLAN, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
+        }
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }
 

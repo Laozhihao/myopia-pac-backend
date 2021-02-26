@@ -274,11 +274,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * 分页获取筛查计划
      *
      * @param pageRequest 分页请求
-     * @param ids         taskIds
+     * @param orgId       机构ID
      * @return IPage<ScreeningTaskResponse>
      */
-    public IPage<ScreeningTaskResponse> getByTaskIds(PageRequest pageRequest, List<Integer> ids) {
-        return baseMapper.getByTaskIds(pageRequest.toPage(), ids);
+    public IPage<ScreeningOrgPlanResponse> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
+        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId);
     }
 
     /**

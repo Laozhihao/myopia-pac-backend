@@ -7,10 +7,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
+import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,9 @@ public class ScreeningOrganizationController {
     @Autowired
     private ExcelFacade excelFacade;
 
+    @Autowired
+    private GovDeptService govDeptService;
+
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
@@ -47,7 +52,8 @@ public class ScreeningOrganizationController {
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return saveScreeningOrganization.updateScreeningOrganization(user, screeningOrganization);
     }
 
     @GetMapping("{id}")
@@ -99,5 +105,14 @@ public class ScreeningOrganizationController {
     public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
 
         return saveScreeningOrganization.getScreeningOrganizationListByGovDeptId(query);
+    }
+
+    @GetMapping("/getDistrictId")
+    public GovDept getDistrictId() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isGovDeptUser()) {
+            return govDeptService.getById(currentUser.getOrgId());
+        }
+        return null;
     }
 }
