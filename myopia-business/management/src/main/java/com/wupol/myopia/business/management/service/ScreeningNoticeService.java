@@ -202,13 +202,15 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 获取所有已经发布的通知
+     * 获取所有已经发布的政府通知
      *
      * @return
      */
     private List<ScreeningNotice> getAllReleaseNotice() {
         LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        screeningNoticeLambdaQueryWrapper
+                .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)
+        .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
         List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
         return screeningNotices;
     }
