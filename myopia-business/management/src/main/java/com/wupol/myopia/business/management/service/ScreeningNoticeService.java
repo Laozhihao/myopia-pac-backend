@@ -240,7 +240,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         Set<Integer> yearSet = new HashSet<>();
         screeningNotices.forEach(screeningTask -> {
             Integer startYear = this.getYear(screeningTask.getStartTime());
-            Integer endYear = this.getYear(screeningTask.getStartTime());
+            Integer endYear = this.getYear(screeningTask.getEndTime());
             yearSet.add(startYear);
             yearSet.add(endYear);
         });
