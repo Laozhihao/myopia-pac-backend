@@ -200,13 +200,15 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 获取所有已经发布的通知
+     * 获取所有已经发布的政府通知
      *
      * @return
      */
     private List<ScreeningNotice> getAllReleaseNotice() {
         LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        screeningNoticeLambdaQueryWrapper
+                .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)
+        .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
         List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
         return screeningNotices;
     }
@@ -238,7 +240,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         Set<Integer> yearSet = new HashSet<>();
         screeningNotices.forEach(screeningTask -> {
             Integer startYear = this.getYear(screeningTask.getStartTime());
-            Integer endYear = this.getYear(screeningTask.getStartTime());
+            Integer endYear = this.getYear(screeningTask.getEndTime());
             yearSet.add(startYear);
             yearSet.add(endYear);
         });
