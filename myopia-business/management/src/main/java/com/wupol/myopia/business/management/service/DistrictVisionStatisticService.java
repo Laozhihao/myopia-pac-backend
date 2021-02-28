@@ -55,6 +55,7 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
         queryWrapper.eq(DistrictVisionStatistic::getScreeningNoticeId, noticeId);
         if (user.isGovDeptUser()) {
             Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
+            districtIds.add(districtId);
             queryWrapper.in(DistrictVisionStatistic::getDistrictId,districtIds);
         }
         List<DistrictVisionStatistic> districtVisionStatistics = baseMapper.selectList(queryWrapper);

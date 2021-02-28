@@ -8,7 +8,9 @@ import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObject
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +51,9 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
         // 所有能看到的通知
         List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(screeningNoticeIds)) {
+            return new ArrayList<>();
+        }
         queryWrapper.in(DistrictAttentiveObjectsStatistic::getScreeningNoticeId, screeningNoticeIds);
         // 查找这些通知的所有数据
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);

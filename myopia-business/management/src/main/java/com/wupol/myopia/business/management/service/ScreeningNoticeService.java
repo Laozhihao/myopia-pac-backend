@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -13,9 +14,7 @@ import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -47,6 +46,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private NoticeService noticeService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
 
     /**
      * 设置操作人再更新
@@ -180,7 +181,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = new ArrayList<>();
-        if (user.isGovDeptUser()) {
+        //todo 待确认再删除
+/*        if (user.isGovDeptUser()) {
             //查找所有的上级部门
             Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
             superiorGovIds.add(user.getOrgId());
@@ -195,8 +197,45 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             screeningNotices = this.getNoticeByReleaseOrgId(screeningOrgs, ScreeningNotice.TYPE_ORG);
             //该部门接收到的通知
             screeningNotices.addAll(screeningNoticeDeptOrgService.selectByAcceptIdAndType(user.getOrgId(), ScreeningNotice.TYPE_ORG));
+        }*/
+        if (user.isGovDeptUser()) {
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+        } else if (user.isPlatformAdminUser()) {
+            //这里只是查找政府的通知
+            screeningNotices = this.getAllReleaseNotice();
+        } else if (user.isScreeningUser()) {
+            //该部门发布的通知
+            screeningNotices = this.getNoticeBySreeningUser(user.getOrgId());
         }
         return screeningNotices;
+    }
+
+    /**
+     * 获取筛查机构发布的筛查计划所对应的通知
+     *
+     * @return
+     */
+    private List<ScreeningNotice> getNoticeBySreeningUser(Integer screeningOrgId) {
+        if (screeningOrgId == null) {
+            return new ArrayList<>();
+        }
+        // 1.筛查机构自己创建的筛查计划(无论发布与否）
+        List<ScreeningNotice> screeningNotices = screeningNoticeDeptOrgService.selectByAcceptIdAndType(screeningOrgId, ScreeningNotice.TYPE_ORG);
+        Set<Integer> taskIds = screeningNotices.stream().map(ScreeningNotice::getScreeningTaskId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(taskIds)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningTask> screeningTasks = screeningTaskService.listByIds(taskIds);
+        Set<Integer> noticeIds = screeningTasks.stream().map(ScreeningTask::getScreeningNoticeId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(noticeIds)) {
+            return new ArrayList<>();
+        }
+        // 从 第一点注释 中发现，政府的筛查通知一定已经发布
+        return listByIds(noticeIds);
     }
 
     /**
@@ -208,7 +247,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningNoticeLambdaQueryWrapper
                 .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)
-        .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
+                .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
         List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
         return screeningNotices;
     }
@@ -266,10 +305,11 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 获取已经发布的通知
+     *
      * @param noticeId
      * @return
      */
-    public ScreeningNotice getReleasedNoticeById(Integer noticeId){
+    public ScreeningNotice getReleasedNoticeById(Integer noticeId) {
         ScreeningNotice screeningNotice = getById(noticeId);
         if (screeningNotice == null) {
             throw new BusinessException("无法找到该通知");
@@ -283,10 +323,11 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 获取筛查任务名字
+     *
      * @param screeningNoticeIds
      * @param year
      */
-    public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+    public Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
         List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
         Set<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
                 year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
@@ -297,4 +338,5 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         }).collect(Collectors.toSet());
         return screeningNoticeNameVOS;
     }
+
 }
