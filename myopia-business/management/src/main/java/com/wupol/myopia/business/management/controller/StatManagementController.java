@@ -40,6 +40,9 @@ public class StatManagementController {
 
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+
     /**
      * 根据查找当前用户所处层级能够查找到的年度
      *
@@ -104,7 +107,6 @@ public class StatManagementController {
         Set<Integer> districts = screeningPlans.stream().map(ScreeningPlan::getDistrictId).collect(Collectors.toSet());
         return districtService.getValidDistrictTree(currentUser, districts);
     }
-
 
 
     /**

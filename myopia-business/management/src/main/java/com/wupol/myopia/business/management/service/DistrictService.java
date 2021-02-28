@@ -623,6 +623,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return
      */
     public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+        if (user == null || CollectionUtils.isEmpty(districtIds)) {
+            return new ArrayList<>();
+        }
         List<District> districtTree = getCurrentUserDistrictTree(user);
         return filterDistrictTree(districtTree,districtIds);
     }

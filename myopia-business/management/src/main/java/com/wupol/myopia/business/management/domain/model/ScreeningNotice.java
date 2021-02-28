@@ -121,4 +121,5 @@ public class ScreeningNotice implements Serializable {
      * 筛查通知--最后操作时间（时间戳）
      */
     private Date operateTime;
+
 }
