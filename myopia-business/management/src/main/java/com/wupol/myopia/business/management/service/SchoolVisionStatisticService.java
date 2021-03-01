@@ -80,7 +80,7 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
         queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
         if (user.isScreeningUser()) {
             queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId, user.getOrgId());
-        } else if (user.isGovDeptUser()){
+        } else {
             Set<Integer> noticeIds = new HashSet<>();
             noticeIds.add(noticeId);
             List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
