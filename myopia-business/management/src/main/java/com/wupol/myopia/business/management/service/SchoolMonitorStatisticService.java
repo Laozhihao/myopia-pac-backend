@@ -36,7 +36,7 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
         queryWrapper.eq(SchoolMonitorStatistic::getScreeningNoticeId, noticeId);
         if (user.isScreeningUser()) {
             queryWrapper.eq(SchoolMonitorStatistic::getScreeningOrgId,user.getOrgId());
-        } else if (user.isGovDeptUser()) {
+        } else {
             Set<Integer> noticeIds = new HashSet<>();
             noticeIds.add(noticeId);
             List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
