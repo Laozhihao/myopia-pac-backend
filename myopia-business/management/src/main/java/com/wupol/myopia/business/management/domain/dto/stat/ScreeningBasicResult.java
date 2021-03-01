@@ -29,7 +29,7 @@ class ScreeningBasicResult {
      */
     private Date screeningEndTime;
 
-    public void setDataByScreeningNotice(ScreeningNotice screeningNotice)  {
+     void setDataByScreeningNotice(ScreeningNotice screeningNotice)  {
         this.title = screeningNotice.getTitle();
         this.screeningEndTime = screeningNotice.getEndTime();
         this.screeningStartTime = screeningNotice.getStartTime();

@@ -38,10 +38,6 @@ public class SchoolVisionStatistic implements Serializable {
      */
     private Integer schoolId;
 
-    /**
-     * 视力情况--所属的通知id
-     */
-    private Integer screeningNoticeId;
 
     /**
      * 视力情况--所属的学校名称
@@ -62,6 +58,10 @@ public class SchoolVisionStatistic implements Serializable {
      * 视力情况--筛查机构名
      */
     private String screeningOrgName;
+    /**
+     * 视力情况--所属的通知id
+     */
+    private Integer screeningNoticeId;
 
     /**
      * 视力情况--所属的任务id

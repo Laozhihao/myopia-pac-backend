@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -336,7 +335,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param parentCode 行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getChildDistrictByParentCodePriorityCache(Long parentCode) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) throws IOException {
         Assert.notNull(parentCode, "行政区域代码编号不能为空");
         String key = String.format(CacheKey.DISTRICT_CHILD_TREE, parentCode);
         Object cacheList = redisUtil.get(key);
@@ -618,12 +617,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 通过地区id找到所有下属district
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentCodePriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
         District district = getById(districtId);
-        return this.getChildDistrictByParentCodePriorityCache(district.getCode());
+        return this.getChildDistrictByParentIdPriorityCache(district.getCode());
     }
 
     /**
@@ -648,12 +648,15 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 获取当前用户地区树 与 districts 的交集
      * @param user
-     * @param districts
+     * @param districtIds
      * @return
      */
-    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districts) throws IOException {
+    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+        if (user == null || CollectionUtils.isEmpty(districtIds)) {
+            return new ArrayList<>();
+        }
         List<District> districtTree = getCurrentUserDistrictTree(user);
-        return filterDistrictTree(districtTree,districts);
+        return filterDistrictTree(districtTree,districtIds);
     }
 
     /**
@@ -692,4 +695,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return district;
     }
 
+    /**
+     * 获取下级的所有地区
+     * @return
+     * @throws IOException
+     */
+    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
+        List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        return districtIds;
+    }
 }

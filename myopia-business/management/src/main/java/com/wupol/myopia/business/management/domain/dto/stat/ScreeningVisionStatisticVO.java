@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.dto.stat;
 import com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -13,9 +14,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
 public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
-
 
     /**
      * 私有构造方法
@@ -58,7 +58,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         return screeningVisionStatisticVO;
     }
 
-    public static ScreeningVisionStatisticVO getEmptyInstance() {
+    public static ScreeningVisionStatisticVO getImmutableEmptyInstance() {
         return new ScreeningVisionStatisticVO();
     }
 
@@ -227,38 +227,6 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
-
-
     }
 
-
-
-    /*  *//** 视力筛查完成率 *//*
-    private BigDecimal screeningFinishedRatio;
-
-    *//** 复测人数 *//*
-    private Integer rescreenNum;
-
-
-
-    *//** 戴镜复测人数 *//*
-    private Integer wearingGlassesRescreenNum;
-
-    *//** 戴镜复测指标数 *//*
-    private Integer wearingGlassesRescreenIndexNum;
-
-    *//** 非戴镜复测人数 *//*
-    private Integer withoutGlassesRescreenNum;
-
-    *//** 非戴镜复测指标数 *//*
-    private Integer withoutGlassesRescreenIndexNum;
-
-    *//** 复测项次 *//*
-    private Integer rescreenItemNum;
-
-    *//** 错误项次数 *//*
-    private Integer incorrectItemNum;
-
-    *//** 错误率/发生率 *//*
-    private BigDecimal incorrectRatio;*/
 }

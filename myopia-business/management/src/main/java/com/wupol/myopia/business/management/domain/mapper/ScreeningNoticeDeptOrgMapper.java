@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 筛查通知通知到的部门或者机构表Mapper接口

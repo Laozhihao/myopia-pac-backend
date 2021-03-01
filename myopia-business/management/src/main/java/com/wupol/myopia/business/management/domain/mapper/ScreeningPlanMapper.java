@@ -12,7 +12,6 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 

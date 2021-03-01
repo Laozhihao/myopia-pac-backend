@@ -62,16 +62,16 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
     /**
      * 根据条件查找所有数据
      *
-     * @param taskIds
+     * @param noticeId
      * @param user
      * @return
      */
-    public List<SchoolVisionStatistic> getStatisticDtoByTaskIdsAndOrgId(Set<Integer> taskIds, CurrentUser user) {
-        if (CollectionUtils.isEmpty(taskIds)) {
+    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user) {
+        if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SchoolVisionStatistic::getScreeningTaskId, taskIds);
+        queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
         if (user.isScreeningUser()) {
             queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId,user.getOrgId());
         }
