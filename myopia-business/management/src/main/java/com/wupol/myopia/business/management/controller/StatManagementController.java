@@ -192,7 +192,7 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser());
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(),districtId);
         if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
             return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
         }

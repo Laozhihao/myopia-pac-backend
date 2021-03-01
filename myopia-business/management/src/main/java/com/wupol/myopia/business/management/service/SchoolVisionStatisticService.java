@@ -6,12 +6,16 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -20,6 +24,8 @@ import java.util.Set;
 @Service
 public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatisticMapper, SchoolVisionStatistic> {
 
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 通过taskId获取列表
@@ -66,14 +72,24 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
      * @param user
      * @return
      */
-    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user) {
+    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
         if (user.isScreeningUser()) {
-            queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId,user.getOrgId());
+            queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId, user.getOrgId());
+        } else {
+            Set<Integer> noticeIds = new HashSet<>();
+            noticeIds.add(noticeId);
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+            Set<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toSet());//todo
+            if (CollectionUtils.isEmpty(screeningOrgIds)) {
+                return new ArrayList<>();
+            }
+            queryWrapper.in(SchoolVisionStatistic::getScreeningOrgId,screeningOrgIds);
+            queryWrapper.eq(SchoolVisionStatistic::getDistrictId, districtId);
         }
         List<SchoolVisionStatistic> schoolVisionStatistics = baseMapper.selectList(queryWrapper);
         return schoolVisionStatistics;
