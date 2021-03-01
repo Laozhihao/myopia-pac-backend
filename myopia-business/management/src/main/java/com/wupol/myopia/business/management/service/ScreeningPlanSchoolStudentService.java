@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.CompareUtil;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.framework.core.util.StringUtils;
+import com.wupol.framework.core.util.*;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -349,7 +346,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
-        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
+        if (!idCardList.stream().allMatch(CommonValidator::isIdCard)) {
             throw new BusinessException("存在不正确的身份证号");
         }
         // 年级名是否都存在
