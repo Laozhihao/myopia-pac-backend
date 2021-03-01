@@ -52,20 +52,20 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 检查身份证
      *
      * @param request 请求入参
-     * @return Boolean
+     * @return 学生ID
      */
-    public Boolean checkIdCard(CheckIdCardRequest request) {
+    public Integer checkIdCard(CheckIdCardRequest request) {
         Student student = studentService.getByIdCard(request.getIdCard());
 
         if (null == student) {
             // 为空说明是新增
-            return true;
+            return null;
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
                 throw new BusinessException("身份证数据异常");
             }
-            return true;
+            return student.getId();
         }
     }
 
