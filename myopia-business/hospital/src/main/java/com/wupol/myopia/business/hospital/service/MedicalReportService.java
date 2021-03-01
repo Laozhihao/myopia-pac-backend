@@ -103,7 +103,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         responseDTO.setConsultation(consultation);
 
         // 检查单
-        MedicalRecord record = medicalRecordService.getTodayLastMedicalRecord(report.getHospitalId(), report.getStudentId());
+        MedicalRecord record = medicalRecordService.getById(report.getId());
         responseDTO.setRecord(record);
 
         return responseDTO;
