@@ -118,4 +118,14 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     public Integer countReport(Integer studentId) {
         return baseMapper.countReportBySchoolId(studentId);
     }
+
+    /**
+     * 获取学生的最新一份报告
+     *
+     * @param studentId 学生ID
+     * @return MedicalReport
+     */
+    public MedicalReport getLatestVisitsReport(Integer studentId) {
+        return baseMapper.getLatestVisitsReport(studentId);
+    }
 }

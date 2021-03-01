@@ -157,6 +157,22 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer recommendVisitNum;
 
         /**
+         * 学校id
+         */
+        private Integer schoolId;
+
+        /**
+         * 学校id
+         */
+        private Integer screeningPlanId;
+
+        /**
+         * 筛查机构id
+         */
+        private Integer screeningOrgId;
+
+
+        /**
          * 获取实例
          * @param schoolVisionStatistic
          * @param districtName
@@ -189,7 +205,10 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.focusTargetsNum = schoolVisionStatistic.getFocusTargetsNumbers();
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = districtName;
+            item.schoolId = schoolVisionStatistic.getSchoolId();
+            item.screeningOrgId = schoolVisionStatistic.getScreeningOrgId();
             item.schoolType = SchoolEnum.getTypeName(schoolVisionStatistic.getSchoolType());
+            item.screeningPlanId = schoolVisionStatistic.getScreeningPlanId();
             return item;
         }
     }

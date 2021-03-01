@@ -48,4 +48,13 @@
         from h_medical_report
         where student_id = #{studentId};
     </select>
+
+    <select id="getLatestVisitsReport" resultMap="BaseResultMap">
+        select *
+        from h_medical_report report
+                     left join h_medical_record record on report.medical_record_id = record.id
+        where report.student_id = #{studentId}
+        order by record.create_time desc
+        limit 1
+    </select>
 </mapper>

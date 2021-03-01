@@ -21,4 +21,10 @@
         parent_id, student_id
     </sql>
 
+    <select id="countParentStudent" resultType="com.wupol.myopia.business.parent.domain.vo.ParentStudentVO">
+        select ms.*
+        from m_parent_student mps
+                     left join m_student ms on mps.student_id = ms.id
+        where mps.parent_id = #{parentId}
+    </select>
 </mapper>

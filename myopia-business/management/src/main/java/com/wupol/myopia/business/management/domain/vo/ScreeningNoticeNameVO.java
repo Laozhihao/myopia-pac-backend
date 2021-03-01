@@ -15,7 +15,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-public class ScreeningTaskNameVO{
+public class ScreeningNoticeNameVO {
     /**
      * 筛查任务开始时间
      */
@@ -25,11 +25,11 @@ public class ScreeningTaskNameVO{
      */
     private Date screeningEndTime;
     /**
-     * 任务id
+     * 通知id
      */
-    private Integer taskId;
+    private Integer noticeId;
     /**
-     * 任务名称
+     * 通知标题
      */
-    private String taskName;
+    private String noticeTitle;
 }

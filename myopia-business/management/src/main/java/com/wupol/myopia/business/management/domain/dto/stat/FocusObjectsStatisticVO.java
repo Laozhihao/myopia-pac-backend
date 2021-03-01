@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,6 +20,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @Accessors(chain = true)
 public class FocusObjectsStatisticVO extends ScreeningBasicResult {
+
+    private final String TOTAL_RANGE_NAME = "合计";
 
     /**
      * 私有构造方法
@@ -50,7 +51,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     private Item currentData;
 
     /**
-     * 下级的数据列表，如果没有的话，为null todo 通知文欣
+     * 下级的数据列表，如果没有的话，为null
      */
     private Set<Item> subordinateDatas;
 
@@ -61,13 +62,17 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param currentRangeName
      * @return
      */
-    public void setBasicData(Integer currentDistrictId, String currentRangeName  ) {
+    private void setBasicData(Integer currentDistrictId, String currentRangeName) {
         this.districtId = currentDistrictId;
         this.screeningRangeName = currentRangeName;
-      //  super.setDataByScreeningTask(screeningTask);
     }
 
-    public static FocusObjectsStatisticVO getEmptyInstance() {
+    /**
+     * 获取默认实例
+     *
+     * @return
+     */
+    public static FocusObjectsStatisticVO getImmutableEmptyInstance() {
         return new FocusObjectsStatisticVO();
     }
 
@@ -100,14 +105,14 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param districtAttentiveObjectsStatistics
      * @param districtIdNameMap
      */
-    public void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
+    private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         Set<FocusObjectsStatisticVO.Item> subordinateItemSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
             Integer districtId = districtAttentiveObjectsStatistic.getDistrictId();
-            String rangeName = "";
+            String rangeName;
             //是合计数据
             if (districtAttentiveObjectsStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
-                rangeName = "合计";
+                rangeName = TOTAL_RANGE_NAME;
                 FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
                 totalData = item;
                 return null;
@@ -133,12 +138,12 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @return
      */
     private FocusObjectsStatisticVO.Item getItem(Integer districtId, String rangeName, DistrictAttentiveObjectsStatistic districtAttentiveObjectsStatistic) {
-        FocusObjectsStatisticVO.Item itemtem = new FocusObjectsStatisticVO.Item();
-        itemtem.setDistrictId(districtId);
-        itemtem.setScreeningRangeName(rangeName).setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers()).setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
+        FocusObjectsStatisticVO.Item item = new FocusObjectsStatisticVO.Item();
+        item.setDistrictId(districtId);
+        item.setScreeningRangeName(rangeName).setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers()).setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
         List<WarningInfo.WarningLevelInfo> warningLevelInfoList = WarningInfo.WarningLevelInfo.getList(districtAttentiveObjectsStatistic);
-        itemtem.setWarningLevelInfoList(warningLevelInfoList);
-        return itemtem;
+        item.setWarningLevelInfoList(warningLevelInfoList);
+        return item;
     }
 
     @Data
