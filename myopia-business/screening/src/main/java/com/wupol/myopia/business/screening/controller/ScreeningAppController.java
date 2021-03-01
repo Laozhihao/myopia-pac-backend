@@ -4,17 +4,27 @@ import com.myopia.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.service.SchoolGradeService;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.screening.domain.vo.StudentVO;
 import com.wupol.myopia.business.screening.service.ScreeningAppService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 筛查端App接口
@@ -30,9 +40,13 @@ public class ScreeningAppController {
 
     @Autowired
     private ScreeningAppService screeningAppService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
-     * 模糊查询所有学校名称
+     * 模糊查询某个筛查机构下的学校的
      *
      * @param schoolName 模糊查询
      * @param deptId     机构id
@@ -40,8 +54,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam Integer deptId, Boolean isReview) {
-        return screeningAppService.getSchoolNameBySchoolNameLike(schoolName, deptId, isReview);
+    public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam Integer deptId, Boolean isReview) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolName).collect(Collectors.toSet());
     }
 
     /**
@@ -52,10 +67,13 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public List<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId) {
-        return screeningAppService.getGradeNameBySchoolName(schoolName, deptId);
+    public Set<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return new HashSet<>();
+        }
+        return screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
     }
-
 
     /**
      * 获取班级名称
@@ -66,9 +84,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public List<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
-        deptId = 1;
-        return screeningAppService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    public Set<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+        return screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
     }
 
     /**
@@ -85,7 +103,6 @@ public class ScreeningAppController {
      */
     @GetMapping("/school/findAllStudentName")
     public List<Student> getStudentNameBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer deptId, Boolean isReview) {
-        deptId = 1;
         return screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
     }
     /**
@@ -95,10 +112,10 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/student/findOneById")
-    public Student getStudentById(Integer id) {
-        return screeningAppService.getStudentById(id);
+    public StudentVO getStudentById(@RequestParam Integer id) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(id);
+        return StudentVO.getInstance(screeningPlanSchoolStudent);
     }
-
 
     /**
      * 保存学生信息
@@ -121,7 +138,6 @@ public class ScreeningAppController {
         //TODO 筛查端，待修改
         return screeningAppService.recognitionFace(deptId, file);
     }
-
 
 
     //分割线----------------------

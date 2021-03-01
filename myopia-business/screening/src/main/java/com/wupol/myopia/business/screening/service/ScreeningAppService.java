@@ -44,21 +44,6 @@ public class ScreeningAppService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
 
-    /**
-     * 模糊查询所有学校名称
-     *
-     * @param nameLike       模糊查询
-     * @param screeningOrgId 机构id
-     * @param isReview       是否复测
-     * @return
-     */
-    public List<String> getSchoolNameBySchoolNameLike(String nameLike, Integer screeningOrgId, Boolean isReview) {
-        //TODO 管理端，待修改
-        //TODO 待增加复测的逻辑
-        SchoolQuery query = new SchoolQuery().setNameLike(nameLike);
-        query.setGovDeptId(screeningOrgId);
-        return schoolService.getBy(query).stream().map(School::getName).collect(Collectors.toList());
-    }
 
     /**
      * 查询学校的年级名称

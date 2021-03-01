@@ -49,6 +49,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查机构id
      */
     private Integer screeningOrgId;
+
     /**
      * 筛查计划--执行的学校id
      */
@@ -62,7 +63,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--参与筛查的学生年级ID
      */
-    private Integer graderId;
+    private Integer gradeId;
 
     /**
      * 筛查计划--年级名字
@@ -72,6 +73,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生班级ID
      */
     private Integer classId;
+
+    /**
+     * 筛查计划--参与筛查的学生班级ID
+     */
+    private String className;
 
     /**
      * 筛查计划--参与筛查的学生id
@@ -97,6 +103,16 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生名字
      */
     private String studentName;
+
+    /**
+     * 筛查计划--参与筛查的学生生日
+     */
+    private Date birthDate;
+
+    /**
+     * 筛查计划--参与筛选的学生性别
+     */
+    private Integer gender ;
 
     /**
      * 筛查计划--创建时间
