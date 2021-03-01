@@ -626,9 +626,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
         List<District> districts = new ArrayList<>();
-        if (user == null || CollectionUtils.isEmpty(districtIds)) {
+        if (user == null) {
             return districts;
         }
+
+        if (CollectionUtils.isEmpty(districtIds)) {
+            District currentDistrict = getNotPlatformAdminUserDistrict(user);
+            districts.add(currentDistrict);
+            return districts;
+        }
+
         List<District> districtTree = getCurrentUserDistrictTree(user);
         districts = filterDistrictTree(districtTree, districtIds);
         if (user.isPlatformAdminUser()) {
