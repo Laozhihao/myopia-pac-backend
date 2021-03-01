@@ -40,8 +40,6 @@ public class StatManagementController {
 
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
-    @Autowired
-    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -65,7 +63,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/notice")
-    public Set<ScreeningNoticeNameVO> getNoticeDetailByYearAndUser(@RequestParam Integer year) {
+    public List<ScreeningNoticeNameVO> getNoticeDetailByYearAndUser(@RequestParam Integer year) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //找到筛查通知year的所有相关的screeningNotice
         List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);

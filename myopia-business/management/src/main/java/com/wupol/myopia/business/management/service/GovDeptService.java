@@ -113,7 +113,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         GovDept govDept = baseMapper.selectOne(queryWrapper);
         if (govDept != null) {
             resultIds.add(govDept.getPid());
-            getSuperiorGovIds(govDept.getPid());
+            resultIds.addAll(getSuperiorGovIds(govDept.getPid()));
         }
         return resultIds;
     }
