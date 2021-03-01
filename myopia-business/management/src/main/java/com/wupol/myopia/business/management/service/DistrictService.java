@@ -317,21 +317,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 根据指定code，获取其下级行政区域集
      *
-     * @param parentId 行政区域的id
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
-     **/
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer parentId) throws IOException {
-        Assert.notNull(parentId, "行政区域代码编号不能为空");
-        District parentDistrict = getById(parentId);
-        if (Objects.isNull(parentDistrict)) {
-            throw new BusinessException("未找到该地址");
-        }
-        return getChildDistrictByParentCodePriorityCache(parentDistrict.getCode());
-    }
-
-    /**
-     * 根据指定code，获取其下级行政区域集
-     *
      * @param parentCode 行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
@@ -346,15 +331,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
         return districts;
-    }
-
-    /**
-     * @param districtId
-     * @return
-     */
-    public List<District> getChildDistrictByParentIdPriorityCache2(Integer districtId) throws IOException {
-        District district = getById(districtId);
-        return this.getChildDistrictByParentCodePriorityCache(district.getCode());
     }
 
     /**

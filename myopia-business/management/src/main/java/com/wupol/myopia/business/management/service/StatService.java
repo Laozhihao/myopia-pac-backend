@@ -56,16 +56,10 @@ public class StatService {
     private StatConclusionService statConclusionService;
 
     @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-
-    @Autowired
     private ScreeningTaskService screeningTaskService;
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
-    @Autowired
-    private DistrictService districtService;
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
