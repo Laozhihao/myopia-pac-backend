@@ -101,7 +101,7 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
          */
         public static Item getInstance(SchoolMonitorStatistic schoolMonitorStatistic, String screeningRangeName) {
             Item item = new Item();
-            item.setScreeningRangeName(screeningRangeName)
+            item.setScreeningRangeName(schoolMonitorStatistic.getSchoolName())
                     .setRescreenItemNum(schoolMonitorStatistic.getRescreeningItemNumbers())
                     .setRescreenNum(schoolMonitorStatistic.getDsn())
                     .setScreeningNum(schoolMonitorStatistic.getPlanScreeningNumbers())
