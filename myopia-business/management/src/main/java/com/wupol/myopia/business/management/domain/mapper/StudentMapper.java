@@ -36,4 +36,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
 
     List<StudentCountVO> countStudentBySchoolNo();
+
+    Student getByIdCard(@Param("idCard") String idCard);
 }

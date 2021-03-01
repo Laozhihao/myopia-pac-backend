@@ -68,6 +68,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 根据学生id列表获取学生信息
+     *
      * @param ids id列表
      * @return
      */
@@ -461,10 +462,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 根据筛查接口获取档案卡所需要的数据
+     *
      * @param visionScreeningResult
      * @return
      */
-    public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult ){
+    public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
         Integer studentId = visionScreeningResult.getStudentId();
         Student student = baseMapper.selectById(studentId);
@@ -615,5 +617,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private boolean checkStudentHavePlan(Integer studentId) {
         return !CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByStudentId(studentId));
+    }
+
+    /**
+     * 通过身份证查找学生
+     *
+     * @param idCard 身份证
+     * @return Student
+     */
+    public Student getByIdCard(String idCard) {
+        return baseMapper.getByIdCard(idCard);
     }
 }

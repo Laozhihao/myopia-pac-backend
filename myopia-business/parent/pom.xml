@@ -11,4 +11,12 @@
 
     <artifactId>parent</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>management</artifactId>
+            <version>1.0.0.0</version>
+        </dependency>
+    </dependencies>
+
 </project>
