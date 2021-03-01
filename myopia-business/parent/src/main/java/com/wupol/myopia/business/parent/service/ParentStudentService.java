@@ -3,6 +3,9 @@ package com.wupol.myopia.business.parent.service;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
+import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
@@ -33,6 +36,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Resource
+    private MedicalReportService medicalReportService;
 
     /**
      * 孩子统计、孩子列表
@@ -122,6 +128,21 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return new ScreeningReportResponseDTO();
         }
         return packageScreeningReport(result);
+    }
+
+    /**
+     * 获取最新的就诊报告
+     *
+     * @param studentId 学生ID
+     * @return StudentReportResponseDTO
+     */
+    public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
+        // 查找学生最近的就诊报告
+        MedicalReport latestVisitsReport = medicalReportService.getLatestVisitsReport(studentId);
+        if (null == latestVisitsReport) {
+            return new StudentReportResponseDTO();
+        }
+        return medicalReportService.getStudentReport(latestVisitsReport.getId());
     }
 
     /**
