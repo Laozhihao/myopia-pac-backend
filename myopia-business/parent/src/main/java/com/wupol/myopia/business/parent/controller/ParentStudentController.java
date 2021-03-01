@@ -83,4 +83,14 @@ public class ParentStudentController {
         return parentStudentService.getScreeningReportDetail(id);
     }
 
+    @GetMapping("report/visits/latest/{id}")
+    public Object visitslatestReport(@PathVariable("id") Integer id) {
+        return parentStudentService.latestVisitsReport(id);
+    }
+
+    @GetMapping("report/visits/detail/{id}")
+    public Object getVisitsReportDetail(@PathVariable("id") Integer id) {
+        return parentStudentService.getVisitsReportDetails(id);
+    }
+
 }

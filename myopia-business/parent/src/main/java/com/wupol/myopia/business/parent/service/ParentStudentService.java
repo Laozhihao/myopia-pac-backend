@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -84,21 +85,31 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     public ReportCountResponseDTO studentReportCount(Integer studentId) {
         ReportCountResponseDTO responseDTO = new ReportCountResponseDTO();
 
-        // 查询学生筛查报告
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
-        List<CountReportItems> screeningLists = resultList.stream().map(s -> {
+        // 学生筛查报告
+        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
+        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
             return items;
         }).collect(Collectors.toList());
         ScreeningDetail screeningDetail = new ScreeningDetail();
-        screeningDetail.setTotal(resultList.size());
+        screeningDetail.setTotal(screeningResults.size());
         screeningDetail.setItems(screeningLists);
         responseDTO.setScreeningDetail(screeningDetail);
 
-        // TODO: 就诊统计
-//        responseDTO.setVisitsDetail();
+        // 学生就诊档案统计
+        VisitsDetail visitsDetail = new VisitsDetail();
+        List<MedicalReportVo> visitsResults = medicalReportService.getReportListByStudentId(studentId);
+        visitsDetail.setTotal(visitsResults.size());
+        List<CountReportItems> visitsLists = visitsResults.stream().map(v -> {
+            CountReportItems items = new CountReportItems();
+            items.setId(v.getId());
+            items.setCreateTime(v.getCreateTime());
+            return items;
+        }).collect(Collectors.toList());
+        visitsDetail.setItems(visitsLists);
+        responseDTO.setVisitsDetail(visitsDetail);
         return responseDTO;
     }
 
@@ -143,6 +154,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return new StudentReportResponseDTO();
         }
         return medicalReportService.getStudentReport(latestVisitsReport.getId());
+    }
+
+
+    /**
+     * 获取就诊报告详情
+     *
+     * @param reportId 就诊报告ID
+     * @return StudentReportResponseDTO
+     */
+    public StudentReportResponseDTO getVisitsReportDetails(Integer reportId) {
+        // 查找学生最近的就诊报告
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (null == report) {
+            return new StudentReportResponseDTO();
+        }
+        return medicalReportService.getStudentReport(report.getId());
     }
 
     /**
