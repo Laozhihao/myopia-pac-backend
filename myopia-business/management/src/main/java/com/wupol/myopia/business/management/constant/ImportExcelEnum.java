@@ -13,17 +13,16 @@ public enum ImportExcelEnum {
     GENDER(1, "性别"),
     BIRTHDAY(2, "出生日期"),
     NATION(3, "民族"),
-    SCHOOL_NO(4, "学校编号"),
-    GRADE(5, "年级"),
-    CLASS(6, "班级"),
-    STUDENT_NO(7, "学号"),
-    ID_CARD(8, "身份证号"),
-    PHONE(9, "手机号码"),
-    PROVINCE(10, "省"),
-    CITY(11, "市"),
-    AREA(12, "县区"),
-    TOWN(13, "镇/街道"),
-    ADDRESS(14, "居住地址");
+    GRADE(4, "年级"),
+    CLASS(5, "班级"),
+    STUDENT_NO(6, "学号"),
+    ID_CARD(7, "身份证号"),
+    PHONE(8, "手机号码"),
+    PROVINCE(11, "省"),
+    CITY(12, "市"),
+    AREA(13, "县区"),
+    TOWN(14, "镇/街道"),
+    ADDRESS(15, "居住地址");
 
     /** 列标 **/
     private final Integer index;
