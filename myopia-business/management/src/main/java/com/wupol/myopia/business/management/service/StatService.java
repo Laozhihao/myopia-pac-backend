@@ -283,7 +283,7 @@ public class StatService {
             };
         };
         excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
-                exportStatContrastTemplate.getInputStream());
+                exportStatContrastTemplate.getFile());
     }
 
     /**

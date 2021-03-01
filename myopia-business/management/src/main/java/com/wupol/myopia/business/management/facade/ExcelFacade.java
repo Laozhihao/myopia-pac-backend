@@ -830,7 +830,7 @@ public class ExcelFacade {
      * @throws UtilException
      */
     public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
-            InputStream template) throws IOException, UtilException {
+            File template) throws IOException, UtilException {
         String fileName = "统计对比报表";
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
