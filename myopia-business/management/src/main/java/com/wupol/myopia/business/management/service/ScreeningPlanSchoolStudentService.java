@@ -243,6 +243,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 map.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
         }
+
+        List<String> idCardLists = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).distinct().collect(Collectors.toList());
+        if (idCardLists.size() != listMap.size()) {
+            throw new BusinessException("身份证号码存在重复");
+        }
+
         List<String> studentNoList = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).distinct().collect(Collectors.toList());
         if (studentNoList.size() != listMap.size()) {
             throw new BusinessException("学号存在重复");
