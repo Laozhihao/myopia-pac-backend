@@ -173,6 +173,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
+     * 视力趋势
+     *
+     * @param studentId 学生ID
+     * @return ScreeningVisionTrendsResponseDTO
+     */
+    public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
+        ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
+        responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));
+        responseDTO.setCylDetails(packageVisionTrendsByCyl(resultList));
+        responseDTO.setSphDetails(packageVisionTrendsBySph(resultList));
+        responseDTO.setNakedVisionDetails(packageVisionTrendsByNakedVision(resultList));
+        return responseDTO;
+    }
+
+    /**
      * 封装筛查结果
      *
      * @param result 筛查结果
@@ -228,5 +244,113 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         right.setSph(date.getRightEyeData().getSph());
         right.setCyl(date.getRightEyeData().getCyl());
         return Lists.newArrayList(right, left);
+    }
+
+    /**
+     * 矫正视力详情
+     *
+     * @param results 筛查结果
+     * @return List<CorrectedVisionDetails>
+     */
+    private List<CorrectedVisionDetails> packageVisionTrendsByCorrected(List<VisionScreeningResult> results) {
+        return results.stream().map(result -> {
+            CorrectedVisionDetails details = new CorrectedVisionDetails();
+
+            // 左眼
+            CorrectedVisionDetails.Item left = new CorrectedVisionDetails.Item();
+            left.setLateriality(CommonConst.LEFT_EYE);
+            left.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
+            left.setCreateTime(result.getCreateTime());
+
+            // 右眼
+            CorrectedVisionDetails.Item right = new CorrectedVisionDetails.Item();
+            right.setLateriality(CommonConst.RIGHT_EYE);
+            right.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
+            right.setCreateTime(result.getCreateTime());
+
+            details.setItem(Lists.newArrayList(left, right));
+            return details;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 柱镜详情
+     *
+     * @param results 筛查结果
+     * @return List<CylDetails>
+     */
+    private List<CylDetails> packageVisionTrendsByCyl(List<VisionScreeningResult> results) {
+        return results.stream().map(result -> {
+            CylDetails details = new CylDetails();
+
+            // 左眼
+            CylDetails.Item left = new CylDetails.Item();
+            left.setLateriality(CommonConst.LEFT_EYE);
+            left.setCreateTime(result.getCreateTime());
+            left.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+
+            // 右眼
+            CylDetails.Item right = new CylDetails.Item();
+            right.setLateriality(CommonConst.RIGHT_EYE);
+            right.setCreateTime(result.getCreateTime());
+            right.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+
+            details.setItem(Lists.newArrayList(left, right));
+            return details;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 柱镜详情
+     *
+     * @param results 筛查结果
+     * @return List<CylDetails>
+     */
+    private List<SphDetails> packageVisionTrendsBySph(List<VisionScreeningResult> results) {
+        return results.stream().map(result -> {
+            SphDetails details = new SphDetails();
+
+            // 左眼
+            SphDetails.Item left = new SphDetails.Item();
+            left.setLateriality(CommonConst.LEFT_EYE);
+            left.setCreateTime(result.getCreateTime());
+            left.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+
+            // 右眼
+            SphDetails.Item right = new SphDetails.Item();
+            right.setLateriality(CommonConst.RIGHT_EYE);
+            right.setCreateTime(result.getCreateTime());
+            right.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+
+            details.setItem(Lists.newArrayList(left, right));
+            return details;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 裸眼视力详情
+     *
+     * @param results 筛查结果
+     * @return List<CylDetails>
+     */
+    private List<NakedVisionDetails> packageVisionTrendsByNakedVision(List<VisionScreeningResult> results) {
+        return results.stream().map(result -> {
+            NakedVisionDetails details = new NakedVisionDetails();
+
+            // 左眼
+            NakedVisionDetails.Item left = new NakedVisionDetails.Item();
+            left.setLateriality(CommonConst.LEFT_EYE);
+            left.setCreateTime(result.getCreateTime());
+            left.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+
+            // 右眼
+            NakedVisionDetails.Item right = new NakedVisionDetails.Item();
+            right.setLateriality(CommonConst.RIGHT_EYE);
+            right.setCreateTime(result.getCreateTime());
+            right.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+
+            details.setItem(Lists.newArrayList(left, right));
+            return details;
+        }).collect(Collectors.toList());
     }
 }

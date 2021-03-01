@@ -93,4 +93,8 @@ public class ParentStudentController {
         return parentStudentService.getVisitsReportDetails(id);
     }
 
+    @GetMapping("report/screening/visionTrends/{studentId}")
+    public Object screeningVisionTrends(@PathVariable("studentId") Integer studentId) {
+        return parentStudentService.screeningVisionTrends(studentId);
+    }
 }
