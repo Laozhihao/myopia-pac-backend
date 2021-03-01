@@ -9,14 +9,17 @@ import com.wupol.myopia.business.hospital.domain.model.Department;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.UserService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 医院-医生
@@ -29,6 +32,21 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private ResourceFileService resourceFileService;
+
+    /**
+     * 获取医生列表
+     * @param hospitalId 医院id
+     * @param like  名称 / 科室 / 职称
+     * @return
+     */
+    public List<DoctorVo> getDoctorVoList(Integer hospitalId,
+                                      String like) throws IOException {
+        //TODO 待模糊查询
+        List<Doctor> doctorList = baseMapper.getBy(new Doctor().setHospitalId(hospitalId));
+        return doctorList.stream().map(this::getDoctorVo).collect(Collectors.toList());
+    }
 
     /**
      * 获取医生列表
@@ -48,8 +66,9 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param doctorId 医生id
      * @return
      */
-    public Doctor getDoctor(Integer hospitalId, Integer doctorId) throws IOException {
-        return getById(doctorId);
+    public DoctorVo getDoctor(Integer hospitalId, Integer doctorId) throws IOException {
+        Doctor doctor = getById(doctorId);
+        return getDoctorVo(doctor);
     }
 
     /**
@@ -78,5 +97,17 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         }
     }
 
+    /**
+     * 获取医生，带Vo
+     * @param doctor
+     * @return
+     * @throws IOException
+     */
+    public DoctorVo getDoctorVo(Doctor doctor) {
+        DoctorVo doctorVo = new DoctorVo();
+        BeanUtils.copyProperties(doctor, doctorVo);
+        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
+                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
+    }
 
 }

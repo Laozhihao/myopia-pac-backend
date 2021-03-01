@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.hospital.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +30,8 @@ public class VisionMedicalRecord {
     /** 是否佩镜 */
     private Boolean glassesSituation;
     /** 旧镜验镜时间，选择是否佩镜后必填 */
-    private Integer oldGlassTime;
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    private Date oldGlassTime;
     /** 右眼裸眼视力 */
     private String rightRawVision;
     /** 左眼裸眼视力 */

@@ -185,7 +185,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     public MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId) {
         MedicalRecord medicalRecord;
         try {
-            medicalRecord = findByListOrderByIdDesc(new MedicalRecord().setHospitalId(hospitalId).setStudentId(studentId))
+            medicalRecord = findByListOrderByIdDesc(new MedicalRecord().setHospitalId(hospitalId).setStudentId(studentId).setStatus(MedicalRecord.STATUS_CHECKING))
                     .stream().findFirst().orElse(null);
             // 如果今天有检查单
             Date date = new Date();

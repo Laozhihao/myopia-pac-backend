@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 医院-检查报告
@@ -69,6 +70,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                                          Integer doctorId,
                                          Integer studentId) {
         MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
+        if (Objects.isNull(medicalRecord)) {
+            throw new BusinessException("未找到检查单");
+        }
         medicalRecordService.finishMedicalRecord(medicalRecord);
         medicalReport.setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)

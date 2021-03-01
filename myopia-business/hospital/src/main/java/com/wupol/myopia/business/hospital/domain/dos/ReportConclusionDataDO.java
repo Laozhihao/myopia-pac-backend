@@ -3,6 +3,8 @@ package com.wupol.myopia.business.hospital.domain.dos;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 
 /**
  * 固化的结论数据
@@ -31,7 +33,7 @@ public class ReportConclusionDataDO {
     /**
      * 出生日期
      */
-    private String birthday;
+    private Date birthday;
 
     /**
      * 性别

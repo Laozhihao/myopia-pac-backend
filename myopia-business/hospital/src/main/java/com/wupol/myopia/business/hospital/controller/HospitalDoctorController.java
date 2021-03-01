@@ -32,13 +32,13 @@ public class HospitalDoctorController {
 
 
     @GetMapping("/list")
-    public List<Doctor> getDoctorList(String like) throws IOException {
+    public List<DoctorVo> getDoctorList(String like) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalDoctorService.getDoctorList(user.getOrgId(), like);
+        return hospitalDoctorService.getDoctorVoList(user.getOrgId(), like);
     }
 
     @GetMapping("/{id}")
-    public Doctor getDoctor(@PathVariable("id") Integer id) throws IOException {
+    public DoctorVo getDoctor(@PathVariable("id") Integer id) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalDoctorService.getDoctor(user.getOrgId(), id);
     }

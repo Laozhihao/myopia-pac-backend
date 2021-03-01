@@ -32,8 +32,8 @@ public class MedicalReportController {
         return true;
     }
 
-    @GetMapping("/list/{studentId}")
-    public List<MedicalReportVo> getStudentReportList(@PathVariable("studentId") Integer studentId) {
+    @GetMapping("/list")
+    public List<MedicalReportVo> getStudentReportList(Integer studentId) {
         return medicalReportService.getReportListByStudentId(studentId);
     }
 

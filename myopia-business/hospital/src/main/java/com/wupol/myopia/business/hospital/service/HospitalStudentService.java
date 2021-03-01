@@ -21,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -119,7 +116,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
-       return studentService.getByIds(idList);
+       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : studentService.getByIds(idList);
     }
 
     /**
