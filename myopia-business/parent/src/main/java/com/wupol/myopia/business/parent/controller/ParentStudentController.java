@@ -68,4 +68,19 @@ public class ParentStudentController {
         return schoolService.getBySchoolName(schoolName);
     }
 
+    @GetMapping("report/count/{id}")
+    public Object studentReportCount(@PathVariable("id") Integer id) {
+        return parentStudentService.studentReportCount(id);
+    }
+
+    @GetMapping("report/screening/latest/{id}")
+    public Object latestScreeningReport(@PathVariable("id") Integer id) {
+        return parentStudentService.latestScreeningReport(id);
+    }
+
+    @GetMapping("report/screening/detail/{id}")
+    public Object reportScreeningDetail(@PathVariable("id") Integer id) {
+        return parentStudentService.getScreeningReportDetail(id);
+    }
+
 }

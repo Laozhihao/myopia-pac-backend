@@ -288,7 +288,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
         List<StudentScreeningResultItems> items = new ArrayList<>();
 
-        // 通过计划Ids查询学生的结果
+        // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
         for (VisionScreeningResult r : resultList) {

@@ -1,11 +1,16 @@
 package com.wupol.myopia.business.parent.service;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.service.StudentService;
-import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
-import com.wupol.myopia.business.parent.domain.dto.CountParentStudentResponseDTO;
+import com.wupol.myopia.business.management.service.VisionScreeningResultService;
+import com.wupol.myopia.business.parent.domain.dto.*;
 import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
 import com.wupol.myopia.business.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
@@ -14,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -24,6 +30,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     @Resource
     private StudentService studentService;
+
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 孩子统计、孩子列表
@@ -58,5 +67,118 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             }
             return true;
         }
+    }
+
+    /**
+     * 学生报告统计
+     *
+     * @param studentId 学生ID
+     * @return ReportCountResponseDTO
+     */
+    public ReportCountResponseDTO studentReportCount(Integer studentId) {
+        ReportCountResponseDTO responseDTO = new ReportCountResponseDTO();
+
+        // 查询学生筛查报告
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
+        List<CountReportItems> screeningLists = resultList.stream().map(s -> {
+            CountReportItems items = new CountReportItems();
+            items.setId(s.getId());
+            items.setCreateTime(s.getCreateTime());
+            return items;
+        }).collect(Collectors.toList());
+        ScreeningDetail screeningDetail = new ScreeningDetail();
+        screeningDetail.setTotal(resultList.size());
+        screeningDetail.setItems(screeningLists);
+        responseDTO.setScreeningDetail(screeningDetail);
+
+        // TODO: 就诊统计
+//        responseDTO.setVisitsDetail();
+        return responseDTO;
+    }
+
+    /**
+     * 获取学生最新一次筛查结果
+     *
+     * @param studentId 学生ID
+     * @return ScreeningReportResponseDTO
+     */
+    public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
+        VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
+        if (null == result) {
+            return new ScreeningReportResponseDTO();
+        }
+        return packageScreeningReport(visionScreeningResultService.getById(result.getId()));
+    }
+
+    /**
+     * 获取筛查结果详情
+     *
+     * @param reportId 报告ID
+     * @return ScreeningReportResponseDTO
+     */
+    public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId) {
+        VisionScreeningResult result = visionScreeningResultService.getById(reportId);
+        if (null == result) {
+            return new ScreeningReportResponseDTO();
+        }
+        return packageScreeningReport(result);
+    }
+
+    /**
+     * 封装筛查结果
+     *
+     * @param result 筛查结果
+     * @return ScreeningReportResponseDTO
+     */
+    private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
+        ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
+        responseDTO.setScreeningDate(result.getCreateTime());
+        responseDTO.setGlassesType("1");
+        responseDTO.setNakedVisionItems(setNakedVision(result.getVisionData()));
+        responseDTO.setRefractoryResultItems(setRefractoryResult(result.getComputerOptometry()));
+        return responseDTO;
+    }
+
+    /**
+     * 视力检查结果
+     *
+     * @param date 数据
+     * @return List<NakedVisionItems>
+     */
+    private List<NakedVisionItems> setNakedVision(VisionDataDO date) {
+
+        NakedVisionItems left = new NakedVisionItems();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        left.setCorrectedVision(date.getLeftEyeData().getCorrectedVision());
+        left.setNakedVision(date.getLeftEyeData().getNakedVision());
+
+        NakedVisionItems right = new NakedVisionItems();
+        right.setLateriality(CommonConst.RIGHT_EYE);
+        right.setCorrectedVision(date.getRightEyeData().getCorrectedVision());
+        right.setNakedVision(date.getRightEyeData().getNakedVision());
+
+        return Lists.newArrayList(right, left);
+    }
+
+    /**
+     * 验光仪检查结果
+     *
+     * @param date 数据
+     * @return List<RefractoryResultItems>
+     */
+    private List<RefractoryResultItems> setRefractoryResult(ComputerOptometryDO date) {
+        RefractoryResultItems left = new RefractoryResultItems();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        left.setAxial(date.getLeftEyeData().getAxial());
+        left.setSph(date.getLeftEyeData().getSph());
+        left.setCyl(date.getLeftEyeData().getCyl());
+
+
+        RefractoryResultItems right = new RefractoryResultItems();
+        right.setLateriality(CommonConst.RIGHT_EYE);
+        right.setAxial(date.getRightEyeData().getAxial());
+        right.setSph(date.getRightEyeData().getSph());
+        right.setCyl(date.getRightEyeData().getCyl());
+        return Lists.newArrayList(right, left);
     }
 }

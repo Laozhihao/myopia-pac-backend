@@ -81,4 +81,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         visionScreeningResultLambdaQueryWrapper.in(VisionScreeningResult::getId, screeningPlanSchoolStudentIds);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
+
+    /**
+     * 获取学生的最新筛查报告
+     *
+     * @param studentId 学生ID
+     * @return VisionScreeningResult
+     */
+    public VisionScreeningResult getLatestResultByStudentId(Integer studentId) {
+        return baseMapper.getLatestResultByStudentId(studentId);
+    }
 }
