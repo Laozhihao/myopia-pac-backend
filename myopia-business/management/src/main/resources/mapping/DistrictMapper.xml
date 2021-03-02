@@ -47,4 +47,12 @@
         where code = #{provinceCode} or code = #{cityCode} or code = #{areaCode} or code = #{townCode}
     </select>
 
+    <select id="getByCodes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_district where code in
+        <foreach collection="codes" item="code" index="index" open="(" close=")" separator=",">
+            #{code}
+        </foreach>
+    </select>
 </mapper>

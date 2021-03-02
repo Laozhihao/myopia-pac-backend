@@ -55,6 +55,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 根据code查地址
+     *
+     * @param codes code
+     * @return List<District>
+     */
+    public List<District> getByCodes(List<Long> codes) {
+        return baseMapper.getByCodes(codes);
+    }
+
+    /**
      * 根据地址名查code，查不到时直接返回emptyList
      */
     public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException {

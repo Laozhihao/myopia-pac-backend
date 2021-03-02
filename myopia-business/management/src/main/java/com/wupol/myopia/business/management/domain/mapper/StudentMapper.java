@@ -38,4 +38,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<StudentCountVO> countStudentBySchoolNo();
 
     Student getByIdCard(@Param("idCard") String idCard);
+
+    Student getByIdCardAndName(@Param("idCard") String idCard, @Param("name") String name);
 }

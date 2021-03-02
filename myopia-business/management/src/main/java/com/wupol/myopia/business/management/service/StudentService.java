@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -633,5 +634,146 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getByIdCard(String idCard) {
         return baseMapper.getByIdCard(idCard);
+    }
+
+    /**
+     * 医院端获取学生详情
+     *
+     * @param studentId 学生ID
+     * @param idCard    身份证
+     * @param name      姓名
+     * @return HospitalStudentDTO
+     */
+    public HospitalStudentDTO getHospitalStudentDetail(Integer studentId, String idCard, String name) {
+
+        HospitalStudentDTO studentDTO = new HospitalStudentDTO();
+        Student student;
+        if (null != studentId) {
+            student = baseMapper.selectById(studentId);
+        } else {
+            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
+                throw new BusinessException("数据异常，请确认");
+            }
+            student = baseMapper.getByIdCardAndName(idCard, name);
+        }
+        if (null == student) {
+            return studentDTO;
+        }
+
+        BeanUtils.copyProperties(student, studentDTO);
+
+        // 地区Maps
+        Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
+        packageStudentDistrict(districtMaps, studentDTO, student);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+        }
+        if (null != student.getGradeId()) {
+            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+        }
+        if (null != student.getClassId()) {
+            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        return studentDTO;
+    }
+
+    /**
+     * 医院端学生信息
+     *
+     * @return List<HospitalStudentDTO>
+     */
+    public List<HospitalStudentDTO> getHospitalStudentLists() {
+        List<HospitalStudentDTO> dtoList = new ArrayList<>();
+
+        List<Student> students = baseMapper.selectList(new QueryWrapper<>());
+        if (CollectionUtils.isEmpty(students)) {
+            return new ArrayList<>();
+        }
+        Map<Long, District> districtMaps = getDistrictMap(students);
+
+        // 学校Maps
+        List<School> schoolList = schoolService.getBySchoolNos(students
+                .stream().distinct().map(Student::getSchoolNo).collect(Collectors.toList()));
+        Map<String, School> schoolMaps = schoolList.stream()
+                .collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
+
+        // 班级Maps
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
+                .stream().map(Student::getClassId).collect(Collectors.toList()));
+
+        // 年级Maps
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
+                .stream().map(Student::getGradeId).collect(Collectors.toList()));
+
+        students.forEach(s -> {
+            HospitalStudentDTO dto = new HospitalStudentDTO();
+            BeanUtils.copyProperties(s, dto);
+
+            packageStudentDistrict(districtMaps, dto, s);
+
+            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+                dto.setSchool(schoolMaps.get(s.getSchoolNo()));
+            }
+            if (null != s.getClassId()) {
+                dto.setSchoolClass(classMaps.get(s.getClassId()));
+            }
+            if (null != s.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(s.getGradeId()));
+            }
+            dtoList.add(dto);
+        });
+        return dtoList;
+    }
+
+    /**
+     * 获取学生地区Maps
+     *
+     * @param students 学生列表
+     * @return Map<Long, District>
+     */
+    private Map<Long, District> getDistrictMap(List<Student> students) {
+        List<Long> districtCode = new ArrayList<>();
+        students.forEach(d -> {
+            if (null != d.getProvinceCode()) {
+                districtCode.add(d.getProvinceCode());
+            }
+            if (null != d.getCityCode()) {
+                districtCode.add(d.getCityCode());
+            }
+            if (null != d.getAreaCode()) {
+                districtCode.add(d.getAreaCode());
+            }
+            if (null != d.getTownCode()) {
+                districtCode.add(d.getTownCode());
+            }
+        });
+
+        // 地区Maps
+        return districtService.getByCodes(districtCode)
+                .stream().distinct().collect(Collectors
+                        .toMap(District::getCode, Function.identity()));
+    }
+
+    /**
+     * 封装学生区域
+     *
+     * @param districtMaps 区域Maps
+     * @param dto          dto
+     * @param student      学生
+     */
+    private void packageStudentDistrict(Map<Long, District> districtMaps, HospitalStudentDTO dto, Student student) {
+        if (null != student.getProvinceCode()) {
+            dto.setProvince(districtMaps.get(student.getProvinceCode()));
+        }
+        if (null != student.getCityCode()) {
+            dto.setCity(districtMaps.get(student.getCityCode()));
+        }
+        if (null != student.getAreaCode()) {
+            dto.setArea(districtMaps.get(student.getAreaCode()));
+        }
+        if (null != student.getTownCode()) {
+            dto.setTown(districtMaps.get(student.getTownCode()));
+        }
     }
 }

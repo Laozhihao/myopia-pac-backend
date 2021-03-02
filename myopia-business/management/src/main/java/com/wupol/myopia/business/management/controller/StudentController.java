@@ -108,4 +108,14 @@ public class StudentController {
     public Object getCardDetails(@PathVariable("resultId") Integer resultId) {
         return studentService.getCardDetails(resultId);
     }
+
+    @GetMapping("abc")
+    public Object abc() {
+        return studentService.getHospitalStudentLists();
+    }
+
+    @GetMapping("a")
+    public Object a(Integer studentId, String idCard, String name) {
+        return studentService.getHospitalStudentDetail(studentId, idCard, name);
+    }
 }
