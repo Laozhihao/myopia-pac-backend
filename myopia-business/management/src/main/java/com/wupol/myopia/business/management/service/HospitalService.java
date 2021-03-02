@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -280,11 +279,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 是否重复
      */
     public Boolean checkHospitalName(String hospitalName, Integer id) {
-        QueryWrapper<Hospital> queryWrapper = new QueryWrapper<Hospital>()
-                .eq("name", hospitalName);
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByNameNeId(hospitalName, id).size() > 0;
     }
 }
