@@ -165,7 +165,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         /**
          * 建议就诊数比例
          */
-        private Decimal recommendVisitRatio;
+        private BigDecimal recommendVisitRatio;
 
         /**
          * 学校id
