@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -125,6 +126,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param screeningPlanDTO
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
         screeningPlanDTO.setOperatorId(user.getId());
