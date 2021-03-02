@@ -21,13 +21,21 @@ public interface SchoolMapper extends BaseMapper<School> {
     IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
                                                       @Param("schoolNo") String schoolNo, @Param("type") Integer type,
                                                       @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
-                                                      @Param("districtIdPre")Integer districtIdPre);
-
-    School getLastSchoolByNo(@Param("code") Integer code);
+                                                      @Param("districtIdPre") Integer districtIdPre);
 
     List<School> getBy(SchoolQuery query);
 
-    School getLastSchoolByNo(@Param("code") Long code);
-
     IPage<School> getByPage(@Param("page") Page<?> page, @Param("schoolQuery") SchoolQuery schoolQuery);
+
+    List<School> getByName(@Param("name") String name);
+
+    List<School> getByNoNeId(@Param("schoolNo") String schoolNo, @Param("id") Integer id);
+
+    School getBySchoolNo(@Param("schoolNo") String schoolNo);
+
+    List<School> getBySchoolNos(@Param("schoolNos") List<String> schoolNos);
+
+    List<School> getByDistrictId(@Param("districtId") Integer districtId);
+
+    List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 }
