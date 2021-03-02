@@ -293,7 +293,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             }
             String prefix = StrUtil.subBefore(String.valueOf(code), "000", false);
             if (rootCodeStr.startsWith(prefix)) {
-                return getSpecificDistrictTree(district.getChild(), code);
+                return getSpecificDistrictTree(district.getChild(), rootCode);
             }
         }
         return null;
