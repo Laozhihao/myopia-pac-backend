@@ -182,7 +182,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Decimal treatmentAdviceRatio;
+    private BigDecimal treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）
