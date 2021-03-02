@@ -7,6 +7,7 @@ import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import feign.FeignException;
 import feign.hystrix.FallbackFactory;
@@ -171,6 +172,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult<List<UserDTO>> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<LoginInfoDTO> login(String clientId, String clientSecret, String username, String password) {
                 return respData;
             }
         };
