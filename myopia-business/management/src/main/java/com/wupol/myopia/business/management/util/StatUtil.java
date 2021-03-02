@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.util;
 
+import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 
 /**
@@ -17,6 +18,15 @@ public class StatUtil {
     }
 
     /**
+     * 是否近视
+     * @param myopiaWarningLevel 近视预警级别
+     * @return
+     */
+    public static boolean isMyopia(WarningLevel myopiaWarningLevel) {
+        return isWarningLevelGreatThanZero(myopiaWarningLevel);
+    }
+
+    /**
      * 是否远视
      * @param sphere 球镜
      * @param cylinder 柱镜
@@ -25,6 +35,15 @@ public class StatUtil {
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
         return getHyperopiaWarningLevel(sphere, cylinder, age) > 0 ? true : false;
+    }
+
+    /**
+     * 是否远视
+     * @param hyperopiaWarningLevel 远视预警级别
+     * @return
+     */
+    public static boolean isHyperopia(WarningLevel hyperopiaWarningLevel) {
+        return isWarningLevelGreatThanZero(hyperopiaWarningLevel);
     }
 
     /**
@@ -37,6 +56,15 @@ public class StatUtil {
     }
 
     /**
+     * 是否散光
+     * @param astigmatismWarningLevel 散光预警级别
+     * @return
+     */
+    public static boolean isAstigmatism(WarningLevel astigmatismWarningLevel) {
+        return isWarningLevelGreatThanZero(astigmatismWarningLevel);
+    }
+
+    /**
      * 是否视力低下
      * @param nakedVision 裸眼视力
      * @param age 年龄
@@ -44,6 +72,43 @@ public class StatUtil {
      */
     public static boolean isLowVision(Float nakedVision, Integer age) {
         return getNakedVisionWarningLevel(nakedVision, age) > 0 ? true : false;
+    }
+
+    /**
+     * 是否视力低下
+     * @param lowVisionWarningLevel 视力低下预警级别
+     * @return
+     */
+    public static boolean isLowVision(WarningLevel lowVisionWarningLevel) {
+        return isWarningLevelGreatThanZero(lowVisionWarningLevel);
+    }
+
+    /**
+     * TODO: 逻辑待确认
+     * 是否建议就诊
+     * @param nakedVision 裸眼视力
+     * @param sphere 球镜
+     * @param cylinder 柱镜
+     * @param correctVision 矫正视力
+     * @param isWearingGlasses 是否戴镜
+     * @param schoolAge 学龄
+     * @return
+     */
+    public static boolean isRecommendVisit(Float nakedVision, Float sphere, Float cylinder,
+            Float correctVision, SchoolAge schoolAge) {
+        if (nakedVision < 4.9) {
+        } else if (nakedVision >= 4.9) {
+        }
+        return false;
+    }
+
+    /**
+     * 判断预警级别是否大于0
+     * @param warningLevel 预警级别
+     * @return
+     */
+    private static boolean isWarningLevelGreatThanZero(WarningLevel warningLevel) {
+        return warningLevel.code > 0 ? true : false;
     }
 
     /**
