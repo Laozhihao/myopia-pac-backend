@@ -410,7 +410,7 @@ public class StatService {
      */
     public ScreeningVisionStatisticVO getScreeningVisionStatisticVO(Integer districtId, Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
         //根据层级获取数据
-        List<DistrictVisionStatistic> districtVisionStatistics = districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, screeningNotice.getDistrictId(), CurrentUserUtil.getCurrentUser());
+        List<DistrictVisionStatistic> districtVisionStatistics = districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, districtId, CurrentUserUtil.getCurrentUser());
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return ScreeningVisionStatisticVO.getImmutableEmptyInstance();
         }

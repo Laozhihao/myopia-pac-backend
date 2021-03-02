@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.CompareUtil;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.framework.core.util.StringUtils;
+import com.wupol.framework.core.util.*;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -243,6 +240,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 map.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
         }
+
+        List<String> idCardLists = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).distinct().collect(Collectors.toList());
+        if (idCardLists.size() != listMap.size()) {
+            throw new BusinessException("身份证号码存在重复");
+        }
+
         List<String> studentNoList = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).distinct().collect(Collectors.toList());
         if (studentNoList.size() != listMap.size()) {
             throw new BusinessException("学号存在重复");
@@ -343,7 +346,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
-        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
+        if (!idCardList.stream().allMatch(CommonValidator::isIdCard)) {
             throw new BusinessException("存在不正确的身份证号");
         }
         // 年级名是否都存在

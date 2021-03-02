@@ -594,6 +594,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 通过地区id找到所有下属district
+     *
      * @param districtId
      * @return
      */
@@ -623,20 +624,38 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取当前用户地区树 与 districts 的交集
+     *
      * @param user
      * @param districtIds
      * @return
      */
     public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
-        if (user == null || CollectionUtils.isEmpty(districtIds)) {
-            return new ArrayList<>();
+        List<District> districts = new ArrayList<>();
+        if (user == null) {
+            return districts;
         }
+
+        if (CollectionUtils.isEmpty(districtIds)) {
+            District currentDistrict = getNotPlatformAdminUserDistrict(user);
+            districts.add(currentDistrict);
+            return districts;
+        }
+
         List<District> districtTree = getCurrentUserDistrictTree(user);
-        return filterDistrictTree(districtTree,districtIds);
+        districts = filterDistrictTree(districtTree, districtIds);
+        if (user.isPlatformAdminUser()) {
+            return districts;
+        }
+        if (CollectionUtils.isEmpty(districts)) {
+            District currentDistrict = getNotPlatformAdminUserDistrict(user);
+            districts.add(currentDistrict);
+        }
+        return districts;
     }
 
     /**
      * 过滤该地区树没在districts
+     *
      * @param districtTree
      * @param districts
      * @return
@@ -645,13 +664,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (CollectionUtils.isEmpty(districtTree) || CollectionUtils.isEmpty(districts)) {
             return new ArrayList<>();
         }
-         return districtTree.stream().map(district ->
-            filterDistrict(district,districts)
-         ).filter(Objects::nonNull).collect(Collectors.toList());
+        return districtTree.stream().map(district ->
+                filterDistrict(district, districts)
+        ).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
      * 过滤地区
+     *
      * @param district
      * @param districts
      * @return
@@ -673,6 +693,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取下级的所有地区
+     *
      * @return
      * @throws IOException
      */
