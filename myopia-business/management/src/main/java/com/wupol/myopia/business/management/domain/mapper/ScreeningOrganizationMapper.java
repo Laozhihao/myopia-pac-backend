@@ -32,4 +32,8 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
     ScreeningOrgResponseDTO getOrgById(@Param("id") Integer id);
 
     IPage<ScreeningOrganization> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationQuery") ScreeningOrganizationQuery screeningOrganizationQuery);
+
+    List<ScreeningOrganization> getByNameAndNeId(@Param("name") String name, @Param("id") Integer id);
+
+    List<ScreeningOrganization> getByName(@Param("name") String name);
 }
