@@ -226,10 +226,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return baseMapper.getBySchoolIds(schoolIds);
     }
 
-    public List<Integer> batchInsertGrade() {
-        return null;
-    }
-
     /**
      * 根据学校Id获取所有年级
      *
