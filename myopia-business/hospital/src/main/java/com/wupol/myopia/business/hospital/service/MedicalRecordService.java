@@ -220,10 +220,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                              Integer departmentId,
                                              Integer doctorId,
                                              Integer studentId) {
-        return new MedicalRecord().setHospitalId(hospitalId)
+        MedicalRecord medicalRecord = new MedicalRecord().setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
                 .setStudentId(studentId);
+        baseMapper.insert(medicalRecord);
+        return medicalRecord;
     }
 
 }

@@ -34,14 +34,14 @@ public class ConsultationService extends BaseService<ConsultationMapper, Consult
      * @param doctorId 医生id
      * @param studentId 学生id
      */
-    public void addConsulationToMedicalRecord(Consultation consultation,
-                                            Integer hospitalId,
-                                            Integer departmentId,
-                                            Integer doctorId,
-                                            Integer studentId) {
-        Integer consulationId = createConsultation(consultation);
+    public void addConsultationToMedicalRecord(Consultation consultation,
+                                               Integer hospitalId,
+                                               Integer departmentId,
+                                               Integer doctorId,
+                                               Integer studentId) {
+        Integer consultationId = createConsultation(consultation);
         MedicalRecord medicalRecord = medicalRecordService.getOrCreateTodayMedicalRecord(hospitalId, departmentId, doctorId, studentId);
-        medicalRecord.setConsultationId(consulationId);
+        medicalRecord.setConsultationId(consultationId);
         if (!medicalRecordService.updateById(medicalRecord)) {
             throw new BusinessException("修改失败");
         }

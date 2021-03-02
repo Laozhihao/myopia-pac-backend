@@ -1,18 +1,14 @@
 package com.wupol.myopia.business.hospital.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
@@ -57,7 +53,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param idCard    学生的身份证
      * @return
      */
-    public HospitalStudentVo getStudent(String token, String idCard) {
+    public HospitalStudentDTO getStudent(String token, String idCard) {
         //TODO 解析token,获取学生信息
         return getStudentById(17);
     }
@@ -67,12 +63,12 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param id     学生id
      * @return
      */
-    public HospitalStudentVo getStudentById(Integer id) {
+    public HospitalStudentDTO getStudentById(Integer id) {
         HospitalStudentDTO student = studentService.getHospitalStudentDetail(id, null, null);
         if (Objects.isNull(student)) {
             throw new BusinessException("未找到该学生");
         }
-        HospitalStudentVo studentVo = BeanCopyUtil.copyBeanPropertise(student, HospitalStudentVo.class);
+        HospitalStudentDTO studentVo = BeanCopyUtil.copyBeanPropertise(student, HospitalStudentDTO.class);
         return studentVo;
     }
 
@@ -81,15 +77,14 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param hospitalId 医院id
      * @return
      */
-    public List<Student> getStudentList(Integer hospitalId, String nameLike) throws IOException {
+    public List<HospitalStudentDTO> getStudentList(Integer hospitalId, String nameLike) throws IOException {
         List<Integer> idList = baseMapper.getBy(new HospitalStudent().setHospitalId(hospitalId)).stream()
                 .map(HospitalStudent::getStudentId).collect(Collectors.toList());
-        //TODO 待在studentService添加名称和id的模糊查询
-        // 设置就诊信息
         Map<Integer, List<MedicalReport>> studentReportMap = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId))
                 .stream().collect(Collectors.groupingBy(MedicalReport::getStudentId));
-       List<Student> studentList = studentService.getByIds(idList);
-       studentList.forEach(item-> {
+       List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(idList, nameLike);
+        // 设置就诊信息
+        studentList.forEach(item-> {
            List<MedicalReport> reportList = studentReportMap.get(item.getId());
            if (CollectionUtils.isEmpty(reportList)) {
                item.setNumOfVisits(0);
@@ -127,8 +122,8 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @return  学生的id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(HospitalStudentVo studentVo, Integer hospitalId) {
-        Student student = BeanCopyUtil.copyBeanPropertise(studentVo, HospitalStudentVo.class);
+    public Integer saveStudent(HospitalStudentDTO studentVo, Integer hospitalId) {
+        Student student = BeanCopyUtil.copyBeanPropertise(studentVo, HospitalStudentDTO.class);
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息不能为空");
         }
