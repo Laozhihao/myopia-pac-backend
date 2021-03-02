@@ -37,8 +37,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
+ * Date 2020-12-22
  */
 @Service
 @Log4j2
@@ -65,19 +65,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-//    @Resource
-//    private MedicalReportService medicalReportService;
-
     /**
      * 根据学生id列表获取学生信息
      *
      * @param ids id列表
-     * @return
+     * @return List<Student>
      */
     public List<Student> getByIds(List<Integer> ids) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper();
-        InQueryAppend(queryWrapper, "id", ids);
-        return list(queryWrapper);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -465,8 +460,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 根据筛查接口获取档案卡所需要的数据
      *
-     * @param visionScreeningResult
-     * @return
+     * @param visionScreeningResult 筛查结果
+     * @return StudentCardResponseDTO
      */
     public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
@@ -525,8 +520,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
         //todo result.getVisionData().getLeftEyeData().getGlassesType()
         glassesTypeObj.setType("1");
-        glassesTypeObj.setLeftVision(new BigDecimal(4.5));
-        glassesTypeObj.setRightVision(new BigDecimal(4.7));
+        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
+        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
         details.setGlassesTypeObj(glassesTypeObj);
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));

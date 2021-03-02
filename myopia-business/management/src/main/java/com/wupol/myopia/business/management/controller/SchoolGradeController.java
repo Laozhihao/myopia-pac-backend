@@ -37,7 +37,8 @@ public class SchoolGradeController {
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
-        return schoolGradeService.deletedGrade(id);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolGradeService.deletedGrade(id, currentUser);
     }
 
     @GetMapping("list")
