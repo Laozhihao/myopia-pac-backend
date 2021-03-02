@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -97,6 +98,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setMyopiaNum(districtVisionStatistic.getMyopiaNumbers())
                 .setMyopiaRatio(districtVisionStatistic.getMyopiaRatio())
                 .setRecommendVisitNum(districtVisionStatistic.getTreatmentAdviceNumbers())
+                .setRecommendVisitRatio(districtVisionStatistic.getTreatmentAdviceRatio())
                 .setRefractiveErrorNum(districtVisionStatistic.getAmetropiaNumbers())
                 .setWearingGlassesRatio(districtVisionStatistic.getWearingGlassesRatio())
                 .setWearingGlassesNum(districtVisionStatistic.getWearingGlassesNumbers())
@@ -227,6 +229,11 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
+
+        /**
+         * 建议就诊数比例
+         */
+        private Decimal recommendVisitRatio;
     }
 
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import software.amazon.ion.Decimal;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -153,7 +154,7 @@ public class DistrictVisionStatistic implements Serializable {
     /**
      * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal treatmentAdviceRatio;
+    private Decimal treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）

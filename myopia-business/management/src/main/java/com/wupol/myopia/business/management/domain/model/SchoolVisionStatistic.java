@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import software.amazon.ion.Decimal;
 
 /**
  * 学校某次筛查计划统计视力情况表
@@ -181,7 +182,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private BigDecimal treatmentAdviceRatio;
+    private Decimal treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）
