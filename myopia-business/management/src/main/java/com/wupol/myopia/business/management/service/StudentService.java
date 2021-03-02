@@ -681,12 +681,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 医院端学生信息
      *
+     * @param studentIds 学生ids
      * @return List<HospitalStudentDTO>
      */
-    public List<HospitalStudentDTO> getHospitalStudentLists() {
+    public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds) {
         List<HospitalStudentDTO> dtoList = new ArrayList<>();
 
-        List<Student> students = baseMapper.selectList(new QueryWrapper<>());
+        List<Student> students = baseMapper.selectBatchIds(studentIds);
         if (CollectionUtils.isEmpty(students)) {
             return new ArrayList<>();
         }
