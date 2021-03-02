@@ -233,7 +233,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         /**
          * 建议就诊数比例
          */
-        private Decimal recommendVisitRatio;
+        private BigDecimal recommendVisitRatio;
     }
 
 }
