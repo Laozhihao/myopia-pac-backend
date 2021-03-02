@@ -57,7 +57,6 @@ public class HospitalStudentController {
     @PostMapping()
     public Integer saveStudent(@RequestBody @Valid HospitalStudentVo studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        studentVo.setId(id);
         return hospitalStudentService.saveStudent(studentVo, user.getOrgId());
     }
 
