@@ -51,6 +51,6 @@ public class SchoolClassController {
         if (null == gradeId) {
             throw new BusinessException("年级ID不能为空");
         }
-        return schoolClassService.getSchoolClassByGradeId(gradeId);
+        return schoolClassService.getByGradeId(gradeId);
     }
 }

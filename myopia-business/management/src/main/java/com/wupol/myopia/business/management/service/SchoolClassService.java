@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -81,25 +80,18 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return 班级列表
      */
     public List<SchoolClass> getByGradeId(Integer gradeId) {
-        QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
-        equalsQueryAppend(schoolClassWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(schoolClassWrapper);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
-     * 批量通过年级id获取班级
+     * 批量通过年级ID和学校ID获取班级
      *
-     * @param gradeIds 年级idLists
+     * @param gradeIds 年级ids
      * @param schoolId 学校id
      * @return 班级列表
      */
     public List<SchoolClass> getByGradeIds(List<Integer> gradeIds, Integer schoolId) {
-        QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
-        InQueryAppend(schoolClassWrapper, "grade_id", gradeIds);
-        equalsQueryAppend(schoolClassWrapper, "school_id", schoolId);
-        notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(schoolClassWrapper);
+        return baseMapper.getByGradeIdsAndSchoolIdAndStatus(gradeIds, schoolId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
@@ -125,9 +117,10 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
 
     /**
      * 获取班级
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param deptId        部门id
+     *
+     * @param schoolName 学校名称
+     * @param gradeName  年级名称
+     * @param deptId     部门id
      * @return
      */
     public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
@@ -136,6 +129,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
 
     /**
      * 根据学校Id获取所有班级
+     *
      * @param schoolId
      * @return
      */
