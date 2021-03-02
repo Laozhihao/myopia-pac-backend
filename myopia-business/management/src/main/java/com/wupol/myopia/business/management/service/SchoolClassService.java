@@ -80,7 +80,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param gradeId 年级id
      * @return 班级列表
      */
-    public List<SchoolClass> getSchoolClassByGradeId(Integer gradeId) {
+    public List<SchoolClass> getByGradeId(Integer gradeId) {
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
         equalsQueryAppend(schoolClassWrapper, "grade_id", gradeId);
         notEqualsQueryAppend(schoolClassWrapper, "status", CommonConst.STATUS_IS_DELETED);
@@ -94,7 +94,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param schoolId 学校id
      * @return 班级列表
      */
-    public List<SchoolClass> getSchoolClassByGradeIds(List<Integer> gradeIds, Integer schoolId) {
+    public List<SchoolClass> getByGradeIds(List<Integer> gradeIds, Integer schoolId) {
         QueryWrapper<SchoolClass> schoolClassWrapper = new QueryWrapper<>();
         InQueryAppend(schoolClassWrapper, "grade_id", gradeIds);
         equalsQueryAppend(schoolClassWrapper, "school_id", schoolId);
