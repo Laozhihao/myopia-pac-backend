@@ -162,6 +162,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer recommendVisitNum;
 
         /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
+
+        /**
          * 学校id
          */
         private Integer schoolId;
@@ -207,6 +212,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.refractiveErrorNum = schoolVisionStatistic.getAmetropiaNumbers();
             item.refractiveErrorRatio = schoolVisionStatistic.getAmetropiaRatio();
             item.recommendVisitNum = schoolVisionStatistic.getTreatmentAdviceNumbers();
+            item.recommendVisitRatio = schoolVisionStatistic.getTreatmentAdviceRatio();
             item.focusTargetsNum = schoolVisionStatistic.getFocusTargetsNumbers();
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = districtName;

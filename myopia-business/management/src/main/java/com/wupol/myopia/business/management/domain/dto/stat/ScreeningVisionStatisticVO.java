@@ -97,6 +97,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setMyopiaNum(districtVisionStatistic.getMyopiaNumbers())
                 .setMyopiaRatio(districtVisionStatistic.getMyopiaRatio())
                 .setRecommendVisitNum(districtVisionStatistic.getTreatmentAdviceNumbers())
+                .setRecommendVisitRatio(districtVisionStatistic.getTreatmentAdviceRatio())
                 .setRefractiveErrorNum(districtVisionStatistic.getAmetropiaNumbers())
                 .setWearingGlassesRatio(districtVisionStatistic.getWearingGlassesRatio())
                 .setWearingGlassesNum(districtVisionStatistic.getWearingGlassesNumbers())
@@ -227,6 +228,11 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
+
+        /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
     }
 
 }

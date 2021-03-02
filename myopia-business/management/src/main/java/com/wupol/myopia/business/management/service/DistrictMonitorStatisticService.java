@@ -6,6 +6,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.DistrictMonitorStatisticMapper;
 import com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic;
+import com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
 
     /**
      * 获取数据
+     *
      * @param noticeId
      * @param districtId
      * @param user
@@ -47,11 +49,9 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
         }
         LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DistrictMonitorStatistic::getScreeningNoticeId, noticeId);
-        if (user.isGovDeptUser()) {
-            Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
-            districtIds.add(districtId);
-            queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIds);
-        }
+        Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
+        districtIds.add(districtId);
+        queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIds);
         List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
         return districtMonitorStatistics;
     }
