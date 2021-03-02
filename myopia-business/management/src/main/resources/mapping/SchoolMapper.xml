@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.School">
     </resultMap>
 
-    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.management.domain.dto.SchoolDto">
+    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.management.domain.dto.SchoolResponseDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -18,8 +18,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-                <if test="@Ognl@isNotEmpty(districtJson)">and `district_json` = #{districtJson}</if>
-                <if test="@Ognl@isNotEmpty(districtName)">and `district_name` = #{districtName}</if>
+                <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>
                 <if test="@Ognl@isNotEmpty(kindDesc)">and `kind_desc` = #{kindDesc}</if>
@@ -34,6 +33,12 @@
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="districtIds != null and districtIds.size() != 0">
+                    and `district_id` in
+                    <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
 
                 <!-- 模糊查询 -->
                 <if test="nameLike != null">and `name` like CONCAT("%",#{nameLike},"%")</if>
@@ -47,14 +52,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, gov_dept_id, district_id, district_json, district_name, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
-        select
-        <include refid="Base_Column_List"/>
-        from m_school ms
-                where ms.status != 2
+        select ms.*
+                from m_school ms
+        <if test="districtIdPre != null">
+            left join m_district d on ms.district_id = d.id
+            left join (select id, left(code, 2) as pre
+                       from m_district md) as re on re.id = d.id
+        </if>
+        where ms.status != 2
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
         </if>
@@ -66,6 +75,9 @@
         </if>
         <if test="districtId != null">
             and ms.district_id = #{districtId}
+        </if>
+        <if test="districtIdPre != null">
+            and re.pre = #{districtIdPre}
         </if>
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in

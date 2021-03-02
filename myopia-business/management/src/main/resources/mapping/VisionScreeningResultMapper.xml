@@ -13,6 +13,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(taskId)">and `task_id` = #{taskId}</if>
                 <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
@@ -20,7 +21,7 @@
                 <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
                 <if test="@Ognl@isNotEmpty(computerOptometry)">and `computer_optometry` = #{computerOptometry}</if>
                 <if test="@Ognl@isNotEmpty(biometricData)">and `biometric_data` = #{biometricData}</if>
-                <if test="@Ognl@isNotEmpty(other_eye_diseases)">and `other_eye_diseases` = #{otherEyeDiseases}</if>
+                <if test="@Ognl@isNotEmpty(otherEyeDiseases)">and `other_eye_diseases` = #{otherEyeDiseases}</if>
                 <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -29,7 +30,40 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
+        id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, create_time
+    </sql>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
         id, task_id, studentId, create_user_id, schoolId, plan_id, district_id, vision_data,computer_optometry  , biometric_data ,  other_eye_diseases, is_double_screen, create_time
     </sql>
 
+
+    <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
+        SELECT school_id
+        FROM m_vision_screening_result
+        WHERE task_id = #{taskId}
+          and screening_org_id = #{orgId}
+        GROUP BY school_id
+    </select>
+
+    <select id="getCreateUserIdByTaskId" resultType="java.lang.Integer">
+        SELECT create_user_id
+        FROM m_vision_screening_result
+        WHERE task_id = #{taskId}
+        GROUP BY create_user_id
+    </select>
+
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
+        select count(1) as count, student_id
+        from m_vision_screening_result
+        group by student_id
+    </select>
+
+    <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>

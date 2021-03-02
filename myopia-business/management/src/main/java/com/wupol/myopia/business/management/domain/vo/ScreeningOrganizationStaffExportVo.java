@@ -28,8 +28,7 @@ public class ScreeningOrganizationStaffExportVo implements Serializable {
 
     public static final String TOP_HEADER = "筛查人员表";
     public static final String TOP_HEADER2 = "初始密码生成规则：手机号码后四位+身份证号后四位，共8位";
-    @ExcelProperty({TOP_HEADER, TOP_HEADER2, "ID"})
-    private String staffNo;
+
     @ExcelProperty({TOP_HEADER, TOP_HEADER2, "姓名"})
     private String name;
     @ExcelProperty({TOP_HEADER, TOP_HEADER2, "性别"})

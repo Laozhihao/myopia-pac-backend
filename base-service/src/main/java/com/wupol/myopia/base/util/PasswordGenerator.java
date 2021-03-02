@@ -80,6 +80,6 @@ public class PasswordGenerator {
             throw new ValidationException("筛查人员编号长度不够");
         }
         // 手机号码后四位+身份证号后四位，共8位
-        return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH);
+        return StrUtil.subSuf(phone, -SCREENING_ADMIN_PWD_SUB_LENGTH) + StrUtil.subSuf(idCard, -SCREENING_ADMIN_PWD_SUB_LENGTH);
     }
 }

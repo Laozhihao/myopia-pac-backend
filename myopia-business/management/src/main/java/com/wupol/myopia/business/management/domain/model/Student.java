@@ -1,19 +1,21 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.StringUtils;
+import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 学校-学生表
@@ -48,13 +50,18 @@ public class Student implements Serializable {
     /**
      * 学号
      */
-    @NotNull(message = "学号不能为空")
-    private Integer sno;
+    @NotBlank(message = "学号不能为空")
+    private String sno;
 
     /**
      * 年级ID
      */
     private Integer gradeId;
+
+    /**
+     * 学龄段
+     */
+    private Integer gradeType;
 
     /**
      * 班级id
@@ -89,14 +96,12 @@ public class Student implements Serializable {
      * 身份证号码
      */
     @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "学号不能为空")
+    @NotNull(message = "身份证号码不能为空")
     private String idCard;
 
     /**
      * 家长手机号码
      */
-    @Pattern(regexp = RegularUtils.REGULAR_MOBILE, message = "手机号码格式错误")
-    @NotNull(message = "家长手机号码不能为空")
     private String parentPhone;
 
     /**
@@ -107,31 +112,38 @@ public class Student implements Serializable {
     /**
      * 省代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long provinceCode;
 
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long townCode;
 
     /**
      * 详细地址
      */
-    @NotBlank(message = "详细地址不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
+
+    /**
+     * 头像
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String avatar;
 
     /**
      * 当前情况
@@ -144,20 +156,15 @@ public class Student implements Serializable {
     private Integer visionLabel;
 
     /**
-     * 视力筛查次数
-     */
-    private Integer screeningCount;
-
-    /**
-     * 问卷数
-     */
-    private Integer questionnaireCount;
-
-    /**
      * 最近筛选次数
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastScreeningTime;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
     /**
      * 状态 0-启用 1-禁止 2-删除
@@ -176,5 +183,43 @@ public class Student implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 视力筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningCount;
 
+    /**
+     * 问卷数
+     */
+    @TableField(exist = false)
+    private Integer questionnaireCount;
+
+    /**
+     * 就诊次数
+     */
+    @TableField(exist = false)
+    private Integer numOfVisits;
+
+    /**
+     * 上传筛查学生时，判断学生需更新信息是否一致
+     * 由于只有部分字段，所以不使用equals
+     * @param excelStudent
+     * @return
+     */
+    public boolean checkNeedUpdate(Student excelStudent) {
+        return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
+                !this.gender.equals(excelStudent.gender) ||
+                !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
+                (Objects.nonNull(excelStudent.nation) && !this.nation.equals(excelStudent.nation)) ||
+                !this.gradeId.equals(excelStudent.gradeId) ||
+                !this.classId.equals(excelStudent.classId) ||
+                !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
+                (Objects.nonNull(excelStudent.provinceCode) && !this.provinceCode.equals(excelStudent.provinceCode)) ||
+                (Objects.nonNull(excelStudent.cityCode) && !this.cityCode.equals(excelStudent.cityCode)) ||
+                (Objects.nonNull(excelStudent.areaCode) && !this.areaCode.equals(excelStudent.areaCode)) ||
+                (Objects.nonNull(excelStudent.townCode) && !this.townCode.equals(excelStudent.townCode)) ||
+                (StringUtils.isNotBlank(excelStudent.address) && !StringUtils.equalsIgnoreCase(this.address, excelStudent.address)) ||
+                (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
+    }
 }

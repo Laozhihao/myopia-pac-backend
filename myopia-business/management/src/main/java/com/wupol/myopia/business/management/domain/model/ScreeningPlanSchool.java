@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 /**
  * 筛查计划关联的学校表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data

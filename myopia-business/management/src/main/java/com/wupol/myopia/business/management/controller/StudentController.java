@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -61,7 +62,7 @@ public class StudentController {
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        return studentService.getById(id);
+        return studentService.getStudentById(id);
     }
 
     @GetMapping("list")
@@ -70,20 +71,21 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getStudentExportData(StudentQuery query) throws IOException, ValidationException {
-        //TODO 待检验日期范围
-        return FileUtils.getResponseEntity(excelFacade.generateStudent(query));
+    public Object getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateStudent(user.getId(), schoolId, gradeId);
+        return ApiResult.success();
     }
 
-    @PostMapping("/import/{schoolId}")
-    public ApiResult importStudent(MultipartFile file, @PathVariable("schoolId") Integer schoolId) throws IOException, ParseException {
+    @PostMapping("/import")
+    public ApiResult importStudent(MultipartFile file) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.importStudent(schoolId, currentUser.getId(), file);
+        excelFacade.importStudent(currentUser.getId(), file);
         return ApiResult.success();
     }
 
     @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() {
+    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getStudentImportDemo());
     }
 
@@ -100,5 +102,10 @@ public class StudentController {
     @GetMapping("/screening/{id}")
     public Object getScreeningList(@PathVariable("id") Integer id) {
         return studentService.getScreeningList(id);
+    }
+
+    @GetMapping("/screening/card/{resultId}")
+    public Object getCardDetails(@PathVariable("resultId") Integer resultId) {
+        return studentService.getCardDetails(resultId);
     }
 }

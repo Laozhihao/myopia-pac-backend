@@ -1,5 +1,16 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
@@ -25,28 +36,78 @@ public class VisionScreeningResultService extends BaseService<ScreeningResultMap
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+        /**
+         * 通过StudentId获取筛查结果
+         *
+         * @param studentId id
+         * @return List<ScreeningResult>
+         */
+    public List<VisionScreeningResult> getByStudentId(Integer studentId) {
+                return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
+                        .eq("student_id", studentId)
+                        .orderByDesc("create_time"));
+            }
+
+            /**
+             * 通过计划ID获取结果
+             *
+             * @param planId 计划ID
+             * @return 结果
+             */
+            public VisionScreeningResult getByPlanId (Integer planId){
+                return baseMapper.selectOne(new QueryWrapper<VisionScreeningResult>().eq("plan_id", planId));
+            }
+
     /**
-     * 通过StudentId获取筛查结果
+     * 获取学校ID
      *
-     * @param studentId id
-     * @return List<ScreeningResult>
+     * @param taskId 通知任务
+     * @param orgId  机构ID
+     * @return 学校ID
      */
-    public List<VisionScreeningResult> getByStudentIds(Integer studentId) {
-        return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
-                .eq("student_id", studentId)
-                .orderByDesc("create_time"));
+    public List<Integer> getSchoolIdByTaskId(Integer taskId, Integer orgId) {
+        return baseMapper.getSchoolIdByTaskId(taskId, orgId);
     }
 
     /**
-     * 通过计划ID获取结果
+     * 获取筛查人员ID
      *
-     * @param planId 计划ID
-     * @return 结果
+     * @param taskId 通知任务
+     * @return 学校ID
      */
-    public VisionScreeningResult getByPlanId(Integer planId) {
-        return baseMapper.selectOne(new QueryWrapper<VisionScreeningResult>().eq("plan_id", planId));
+    public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
+        return baseMapper.getCreateUserIdByTaskId(taskId);
     }
 
+    /**
+     * 获取学生筛查次数
+     *
+     * @return List<StudentScreeningCountVO>
+     */
+    public List<StudentScreeningCountVO> countScreeningTime() {
+        return baseMapper.countScreeningTime();
+    }
+
+    /**
+     * 根据筛查计划关联的存档的学生id
+     *
+     * @param screeningPlanSchoolStudentIds
+     * @return
+     */
+    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
+        LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        visionScreeningResultLambdaQueryWrapper.in(VisionScreeningResult::getId, screeningPlanSchoolStudentIds);
+        return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
+    }
+
+    /**
+     * 获取学生的最新筛查报告
+     *
+     * @param studentId 学生ID
+     * @return VisionScreeningResult
+     */
+    public VisionScreeningResult getLatestResultByStudentId(Integer studentId) {
+        return baseMapper.getLatestResultByStudentId(studentId);
     public List<VisionScreeningResult> getByTaskId(Integer taskId) {
         return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
                 .eq("task_id", taskId)
@@ -104,5 +165,5 @@ public class VisionScreeningResultService extends BaseService<ScreeningResultMap
         VisionScreeningResult visionScreeningResult = screeningResultAndScreeningPlanSchoolStudent.getFirst();
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
         return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
-    }
-}
+                }
+            }

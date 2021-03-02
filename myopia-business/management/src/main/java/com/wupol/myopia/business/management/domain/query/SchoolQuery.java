@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 学校查询
@@ -28,4 +32,16 @@ public class SchoolQuery extends School {
      * 创建人
      */
     private String createUser;
+    /** 层级ID列表 **/
+    private List<Integer> districtIds;
+    /** 筛查机构ID **/
+    private Integer screeningOrgId;
+    /** 查询开始时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startTime;
+    /** 查询结束时间 */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endTime;
+    /** 是否需要查询是否有计划（配合开始结束时间） **/
+    private Boolean needCheckHavePlan = false;
 }

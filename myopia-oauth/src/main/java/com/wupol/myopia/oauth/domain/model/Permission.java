@@ -43,12 +43,15 @@ public class Permission implements Serializable {
     /**
      * 对应页面或按钮的name（权限资源为页面时，该值不能为空）
      */
-    @Pattern(regexp = "^[a-zA-Z]+$", message = "页面或按钮的name只能是英文")
+    @Pattern(regexp = "^[\\w-]+$", message = "页面或按钮的name只能是英文")
     private String menuBtnName;
 
     /**
      * 功能接口地址（权限资源为功能时，该值不能为空）
+     * put:/management/permission/template/**
+     * get:/management/district/all
      */
+    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]+(/([\\w-]+|(\\*\\*)))*$", message = "功能接口url格式错误")
     private String apiUrl;
 
     /**

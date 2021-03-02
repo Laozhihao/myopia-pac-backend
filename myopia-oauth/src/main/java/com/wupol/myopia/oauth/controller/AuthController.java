@@ -13,9 +13,11 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.oauth.domain.dto.LoginDTO;
 import com.wupol.myopia.oauth.domain.dto.RefreshTokenDTO;
 import com.wupol.myopia.oauth.domain.model.Permission;
+import com.wupol.myopia.oauth.domain.model.User;
 import com.wupol.myopia.oauth.domain.vo.LoginInfoVO;
 import com.wupol.myopia.oauth.domain.vo.TokenInfoVO;
 import com.wupol.myopia.oauth.service.AuthService;
+import com.wupol.myopia.oauth.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,8 @@ public class AuthController {
     private AuthService authService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private UserService userService;
 
     /**
      * 登录
@@ -64,7 +68,7 @@ public class AuthController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/login")
-    public ApiResult login(Principal principal, LoginDTO loginDTO) {
+    public ApiResult login(Principal principal, LoginDTO loginDTO) throws ParseException {
         // 生成token
         loginDTO.setGrant_type(AuthConstants.GRANT_TYPE_PASSWORD);
         Map<String, String> parameters = JSON.parseObject(JSON.toJSONString(loginDTO), new TypeReference<Map<String, String>>(){});
@@ -72,15 +76,20 @@ public class AuthController {
         try {
             oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         } catch (InvalidGrantException e) {
+            logger.error("登录失败", e);
             return ApiResult.failure(e.getMessage());
         } catch (Exception e) {
+            logger.error("登录失败", e);
             return ApiResult.failure("登录失败");
         }
         if (Objects.isNull(oAuth2AccessToken)) {
             return ApiResult.failure("登录失败");
         }
+        CurrentUser currentUser = authService.parseToken(oAuth2AccessToken.getValue());
         // 获取菜单权限，并缓存
-        List<Permission> permissions = authService.cacheUserPermission(loginDTO.getUsername(), Integer.parseInt(loginDTO.getClient_id()), oAuth2AccessToken.getExpiresIn());
+        List<Permission> permissions = authService.cacheUserPermission(currentUser.getUsername(), currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn());
+        // 更新用户最后登录时间
+        userService.updateById(new User().setId(currentUser.getId()).setLastLoginTime(new Date()));
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
     }
 

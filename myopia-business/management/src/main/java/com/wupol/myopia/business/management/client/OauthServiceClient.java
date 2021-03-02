@@ -26,8 +26,17 @@ public interface OauthServiceClient {
      * @param param 查询参数
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @GetMapping("/oauth/user/list")
+    @GetMapping("/oauth/user/page")
     ApiResult<Page<UserDTO>> getUserListPage(@SpringQueryMap UserDTOQuery param);
+
+    /**
+     * 获取用户列表（仅支持用户名模糊查询）
+     *
+     * @param param 查询参数
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @GetMapping("/oauth/user/list")
+    ApiResult<List<UserDTO>> getUserList(@SpringQueryMap UserDTOQuery param);
 
     /**
      * 根据用户ID集批量获取用户
@@ -35,8 +44,29 @@ public interface OauthServiceClient {
      * @param userIds 用户ID集合
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
      **/
-    @GetMapping("/oauth/user/batch")
+    @GetMapping("/oauth/user/batch/id")
     ApiResult<List<UserDTO>> getUserBatchByIds(@RequestParam("userIds") List<Integer> userIds);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/phone")
+    ApiResult<List<UserDTO>> getUserBatchByPhones(@RequestParam("phones") List<String> phones, @RequestParam("systemCode") Integer systemCode);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param idCards 身份证号码集
+     * @param systemCode 系统编号
+     * @param orgId 机构ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/idCard")
+    ApiResult<List<UserDTO>> getUserBatchByIdCards(@RequestParam("idCards") List<String> idCards, @RequestParam("systemCode") Integer systemCode, @RequestParam("orgId") Integer orgId);
 
     /**
      * 新增用户
@@ -63,7 +93,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PostMapping("/oauth/user/screening/batch")
-    ApiResult<List<Integer>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
+    ApiResult<List<UserDTO>> addScreeningUserBatch(@RequestBody List<UserDTO> param);
 
     /**
      * 更新用户
@@ -78,10 +108,11 @@ public interface OauthServiceClient {
      * 重置管理端用户的密码【其他端用户的不适合】
      *
      * @param userId 用户ID
+     * @param password 密码
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @PutMapping("/oauth/user/password/{userId}")
-    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId);
+    ApiResult<UserDTO> resetPwd(@PathVariable("userId") Integer userId, @RequestParam("password") String password);
 
     /**
      * 获取用户明细
@@ -91,6 +122,15 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/{userId}")
     ApiResult<UserDTO> getUserDetailByUserId(@PathVariable("userId") Integer userId);
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @GetMapping("/oauth/user/count")
+    ApiResult<Integer> count(@SpringQueryMap UserDTO queryParam);
 
     /**
      * 获取角色列表
@@ -110,14 +150,18 @@ public interface OauthServiceClient {
     @PostMapping("/oauth/role/permission/{roleId}")
     ApiResult assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
 
+    @GetMapping("/oauth/role/{roleId}")
+    ApiResult<RoleDTO> getRoleById(@PathVariable("roleId") Integer roleId);
+
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @GetMapping("/oauth/role/permission/structure/{roleId}")
-    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId);
+    @GetMapping("/oauth/role/permission/structure/{roleId}/{templateType}")
+    ApiResult<List<PermissionDTO>> getRolePermissionTree(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType);
 
     /**
      * 获取权限列表
@@ -139,4 +183,42 @@ public interface OauthServiceClient {
 
     @GetMapping("/oauth/user/getByIds")
     ApiResult<List<UserDTO>> getUserByIds(@SpringQueryMap UserRequest request);
+
+    /**
+     * 根据模板类型获取模板权限-树结构
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    @GetMapping("/oauth/districtPermission/{templateType}")
+    ApiResult<List<PermissionDTO>> getPermissionTemplate(@PathVariable("templateType") Integer templateType);
+
+    /**
+     * 根据模板类型获取模板权限的ID集
+     *
+     * @param templateType 模板类型
+     * @return com.wupol.myopia.base.domain.ApiResult<java.util.List<java.lang.Integer>>
+     **/
+    @GetMapping("/oauth/districtPermission/list/{templateType}")
+    ApiResult<List<Integer>> getPermissionTemplateIdList(@PathVariable("templateType") Integer templateType);
+
+    /**
+     * 更新模板权限
+     *
+     * @param templateType 模板类型
+     * @param permissionIds 权限集
+     * @return boolean
+     **/
+    @PutMapping("/oauth/districtPermission/{templateType}")
+    ApiResult<Boolean> updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionIds);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/orgIds")
+    ApiResult<List<UserDTO>> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
 }

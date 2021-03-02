@@ -57,4 +57,22 @@
         from m_school_grade
         <include refid="Base_Where_Clause"/>
     </select>
+
+    <select id="getBySchoolIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO">
+        select *, ms.school_no as schoolNo
+        from m_school_grade msg
+                     left join m_school ms on msg.school_id = ms.id
+                where msg.school_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getAllBySchoolId" resultType="com.wupol.myopia.business.management.domain.dto.SchoolGradeItems">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade msg
+        where msg.status != 2
+        and msg.school_id = #{schoolId}
+    </select>
 </mapper>

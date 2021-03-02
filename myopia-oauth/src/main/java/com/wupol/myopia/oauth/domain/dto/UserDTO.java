@@ -1,6 +1,5 @@
 package com.wupol.myopia.oauth.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -8,9 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,9 +67,26 @@ public class UserDTO extends User {
     /**
      * 角色ID集
      **/
-    @TableField(exist = false)
     private List<Integer> roleIds;
-    /** 用户拥有的所有角色 **/
+
+    /**
+     * 用户拥有的所有角色
+     **/
     private List<Role> roles;
+
+    /**
+     * 用户ID集合
+     **/
+    private List<Integer> userIds;
+
+    /**
+     * 手机号码集合
+     **/
+    private List<String> phones;
+
+    /**
+     * 身份证号码集合
+     **/
+    private List<String> idCards;
 
 }

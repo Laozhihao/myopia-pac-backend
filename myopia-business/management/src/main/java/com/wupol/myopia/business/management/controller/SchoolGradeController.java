@@ -48,6 +48,14 @@ public class SchoolGradeController {
         return schoolGradeService.getGradeList(pageRequest, schoolId);
     }
 
+    @GetMapping("all")
+    public Object getAllGradeList(Integer schoolId) {
+        if (null == schoolId) {
+            throw new BusinessException("学校ID不能为空");
+        }
+        return schoolGradeService.getAllGradeList(schoolId);
+    }
+
     @GetMapping("getGradeCode")
     public Object getGradeCode() {
         return GradeCodeEnum.getGradeCodeList();

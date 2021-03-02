@@ -49,6 +49,17 @@ public class VisionScreeningResult implements Serializable {
      * 筛查结果--学校id
      */
     private Integer schoolId;
+
+    /**
+     * 筛查结果--所属的学生id(存储着学生归档数据的id)
+     */
+    private Integer screeningPlanSchoolStudentId;
+
+    /**
+     * 筛查结果--创建用户id
+     */
+    private Integer createUserId;
+
     /**
      * 筛查结果--所属的学生id(存储着学生归档数据的id)
      */

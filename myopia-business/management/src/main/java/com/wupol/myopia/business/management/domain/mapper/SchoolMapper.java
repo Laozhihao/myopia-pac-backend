@@ -3,11 +3,9 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.management.domain.dto.SchoolDto;
+import com.wupol.myopia.business.management.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,9 +18,10 @@ import java.util.List;
  */
 public interface SchoolMapper extends BaseMapper<School> {
 
-    IPage<SchoolDto> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
-                                              @Param("schoolNo") String schoolNo, @Param("type") Integer type,
-                                              @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds);
+    IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
+                                                      @Param("schoolNo") String schoolNo, @Param("type") Integer type,
+                                                      @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
+                                                      @Param("districtIdPre")Integer districtIdPre);
 
     School getLastSchoolByNo(@Param("code") Integer code);
 

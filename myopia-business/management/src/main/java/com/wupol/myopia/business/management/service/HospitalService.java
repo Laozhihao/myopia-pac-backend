@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -8,6 +10,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
@@ -17,11 +20,13 @@ import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -38,9 +43,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     public RedissonClient redissonClient;
 
-    @Value(value = "${oem.province.code}")
-    private Long provinceCode;
-
     @Resource
     private HospitalAdminService hospitalAdminService;
 
@@ -53,6 +55,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private OauthService oauthService;
 
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 保存医院
      *
@@ -62,16 +67,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
         Integer createUserId = hospital.getCreateUserId();
-        Long townCode = hospital.getTownCode();
 
-        // 初始化省代码
-        hospital.setProvinceCode(provinceCode);
-        // 设置行政区域名
-        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
-
-        if (null == townCode) {
-            throw new BusinessException("数据异常");
+        if (checkHospitalName(hospital.getName(), null)) {
+            throw new BusinessException("医院名字重复，请确认");
         }
+
         RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
@@ -87,7 +87,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 rLock.unlock();
             }
         }
-        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, townCode);
+        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, hospital.getName());
         throw new BusinessException("请重试");
     }
 
@@ -98,11 +98,39 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 医院实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public Hospital updateHospital(Hospital hospital) {
-        // 设置行政区域名
-        hospital.setDistrictName(districtService.getDistrictNameById(hospital.getDistrictId()));
+    public HospitalResponseDTO updateHospital(Hospital hospital) {
+
+        if (checkHospitalName(hospital.getName(), hospital.getId())) {
+            throw new BusinessException("医院名字重复，请确认");
+        }
+
+        HospitalResponseDTO response = new HospitalResponseDTO();
+        Hospital checkHospital = baseMapper.selectById(hospital.getId());
+
+        // 医院管理员
+        HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
+
+        // 更新OAuth账号
+        schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
+
+        // 名字更新重置密码
+        if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
+            response.setUpdatePassword(Boolean.TRUE);
+            response.setUsername(hospital.getName());
+            // 重置密码
+            String password = PasswordGenerator.getHospitalAdminPwd();
+            oauthService.resetPwd(admin.getUserId(), password);
+            response.setPassword(password);
+        }
+
         baseMapper.updateById(hospital);
-        return baseMapper.selectById(hospital.getId());
+        Hospital h = baseMapper.selectById(hospital.getId());
+        BeanUtils.copyProperties(h, response);
+        response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+        // 行政区域名称
+        response.setAddressDetail(districtService.getAddressDetails(
+                h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
+        return response;
     }
 
     /**
@@ -131,10 +159,24 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param govDeptId   部门id
      * @return IPage<Hospital> {@link IPage}
      */
-    public IPage<Hospital> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        return baseMapper.getHospitalListByCondition(pageRequest.toPage(),
+    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
+        IPage<HospitalResponseDTO> hospitalListsPage = baseMapper.getHospitalListByCondition(pageRequest.toPage(),
                 govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
                 query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
+
+        List<HospitalResponseDTO> records = hospitalListsPage.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return hospitalListsPage;
+        }
+        records.forEach(h -> {
+            // 详细地址
+            h.setAddressDetail(districtService.getAddressDetails(
+                    h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
+
+            // 行政区域名称
+            h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+        });
+        return hospitalListsPage;
     }
 
     /**
@@ -188,6 +230,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                 .setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
+                .setRealName(username)
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
@@ -206,20 +249,42 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
         String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
-
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username)
-                .setPassword(password);
-        oauthService.modifyUser(userDTO);
+        oauthService.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
 
     /**
-     * 获取导出数据
+     * 查询
      */
-    public List<Hospital> getExportData(HospitalQuery query) {
-        return baseMapper.getExportData(query);
+    public List<Hospital> getBy(HospitalQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<Hospital> getByPage(Page<?> page, HospitalQuery query) {
+        return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 检查医院名称是否重复
+     *
+     * @param hospitalName 医院名称
+     * @param id           医院ID
+     * @return 是否重复
+     */
+    public Boolean checkHospitalName(String hospitalName, Integer id) {
+        QueryWrapper<Hospital> queryWrapper = new QueryWrapper<Hospital>()
+                .eq("name", hospitalName);
+        if (null != id) {
+            queryWrapper.ne("id", id);
+        }
+        return baseMapper.selectList(queryWrapper).size() > 0;
     }
 }

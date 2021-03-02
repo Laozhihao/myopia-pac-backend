@@ -35,11 +35,14 @@
         FROM
              o_permission p,
              o_role_permission rp,
-             o_user_role ur
+             o_user_role ur,
+             o_role r
         WHERE
                 ur.role_id = rp.role_id
           AND rp.permission_id = p.id
-          AND ur.user_id = #{userId};
+          AND ur.user_id = #{userId}
+          AND ur.role_id = r.id
+          AND r.status = 0
     </select>
 
     <resultMap id="PermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
@@ -67,7 +70,7 @@
                     select="selectRolePermissionTree"/>
     </resultMap>
 
-    <!-- 获取指定角色的权限树（基于指定行政区等级权限） -->
+    <!-- 获取指定角色的权限-树结构【基于指定行政区等级权限】 -->
     <select id="selectRolePermissionTree" resultMap="RolePermissionTreeMap">
         SELECT
             p.*,
@@ -83,6 +86,7 @@
         order by p.`order` ASC, p.update_time DESC
     </select>
 
+    <!-- 获取平台管理员的权限结果Map -->
     <resultMap id="AdminRolePermissionTreeMap" type="com.wupol.myopia.oauth.domain.model.Permission">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="name" property="name" jdbcType="VARCHAR" />
@@ -92,9 +96,9 @@
         <collection property="child"
                     ofType="com.wupol.myopia.oauth.domain.model.Permission"
                     column="{pid = id, roleId = role_id}"
-                    select="selectRolePermissionTree"/>
+                    select="selectAdminRolePermissionTree"/>
     </resultMap>
-
+    <!-- 获取平台管理员的权限-树结构【基于全量权限】 -->
     <select id="selectAdminRolePermissionTree" resultMap="AdminRolePermissionTreeMap">
         SELECT
             p.*,

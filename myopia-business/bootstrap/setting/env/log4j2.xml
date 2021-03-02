@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console-Appender" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{2}:%L - %msg%n
+                </pattern>>
+            </PatternLayout>
+        </Console>
+        <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
+            <PatternLayout>
+                <pattern>
+                    [myopia-business] [%X{traceId}] [%X{spanId}] [%thread] [%-5level] [%X{traceId}] %c{2}:%L - %msg%n
+                </pattern>>
+            </PatternLayout>
+        </Socket>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.wupol" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="logstash"/>
+        </Logger>
+        <!-- 默认level为error级别 -->
+        <Root>
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="logstash"/>
+        </Root>
+    </Loggers>
+</Configuration>

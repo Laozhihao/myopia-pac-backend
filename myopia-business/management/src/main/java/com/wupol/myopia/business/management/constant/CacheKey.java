@@ -2,6 +2,8 @@ package com.wupol.myopia.business.management.constant;
 
 /**
  * 缓存相关常量
+ * - 为了方便维护和便于Redis可视化工具中排查问题，采用冒号来分割风格
+ * - 格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符
  *
  * @Author Chikong
  * @Date 2020-12-22
@@ -9,21 +11,26 @@ package com.wupol.myopia.business.management.constant;
 public interface CacheKey {
 
     /**
-     * 全部行政区域
+     * 全部行政区域列表集合
      */
-    String DISTRICT = "DISTRICT";
+    String DISTRICT_ALL_LIST = "district:all:list";
+    String DISTRICT_ALL_TREE = "district:all:tree";
+    String DISTRICT_ALL_PROVINCE_TREE = "district:all:province_tree";
+
     /**
      * 指定的行政区域
      */
-    String DISTRICT_CODE = "DISTRICT_CODE_%s";
+    String DISTRICT_LIST = "district:list:code_%s";
     /**
-     * 指定的行政区域和它的子节点
+     * 指定的行政区域和它的子节点区域树
      */
-    String DISTRICT_PARENT_CODE = "DISTRICT_PARENT_CODE_%s";
+    String DISTRICT_TREE = "district:tree:code_%s";
+    String DISTRICT_CHILD_TREE = "district:child:parent_code_%s";
     /**
      * 指定的省的行政区域
      */
-    String DISTRICT_PROVINCE_CODE = "DISTRICT_PROVINCE_CODE_%s";
+    String DISTRICT_PROVINCE_LIST = "district:province_list:code_%s";
+    String DISTRICT_PROVINCE_TREE = "district:province_tree:code_%s";
 
     /**
      * 新增员工
@@ -33,7 +40,7 @@ public interface CacheKey {
     /**
      * 新增学校
      */
-    String LOCK_SCHOOL_REDIS = "lock:school:town_code_%s";
+    String LOCK_SCHOOL_REDIS = "lock:school:school_no_%s";
 
     /**
      * 新增学生
@@ -48,11 +55,22 @@ public interface CacheKey {
     /**
      * 新增机构
      */
-    String LOCK_ORG_REDIS = "lock:org:town_code_%s";
+    String LOCK_ORG_REDIS = "lock:org:name_%s";
 
     /**
-     * 行政区域中文名
+     * 全部行政区域的ID、Name的Map
      */
-    String DISTRICT_CN_NAME = "district:cn_name:id_%s";
+    String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
+
+    String DISTRICT_TOP_CN_NAME = "district:top_cn_name:code_%s";
+
+    String DISTRICT_CN_NAME = "district:cn_name:code_%s";
+
+    String DISTRICT_CODE = "district:name:code_%s";
+
+    /**
+     * 文件访问地址
+     */
+    String FILE_URL = "file:url:key_%s";
 
 }

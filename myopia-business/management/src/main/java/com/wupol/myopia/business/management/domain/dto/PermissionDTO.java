@@ -1,10 +1,15 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.validator.PermissionAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.PermissionUpdateValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +35,7 @@ public class PermissionDTO implements Serializable {
     /**
      * 权限资源名称
      */
+    @NotBlank(message = "权限资源名称不能为空", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private String name;
 
     /**
@@ -39,7 +45,10 @@ public class PermissionDTO implements Serializable {
 
     /**
      * 功能接口地址（权限资源为功能时，该值不能为空）
+     * put:/management/permission/template/**
+     * get:/management/district/all
      */
+    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]+(/([\\w-]+|(\\*\\*)))*$", message = "功能接口url格式错误", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private String apiUrl;
 
     /**
@@ -50,16 +59,19 @@ public class PermissionDTO implements Serializable {
     /**
      * 是否为页面：0-功能、1-页面
      */
+    @NotNull(message = "新增项值不能为空", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private Integer isPage;
 
     /**
      * 顺序
      */
+    @NotNull(message = "权限资源排序值不能为空", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private Integer order;
 
     /**
      * 上级权限资源ID
      */
+    @NotNull(message = "上级权限资源ID不能为空", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private Integer pid;
 
     /**
@@ -88,5 +100,4 @@ public class PermissionDTO implements Serializable {
      * 子权限
      */
     private List<PermissionDTO> child;
-
 }

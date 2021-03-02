@@ -6,10 +6,15 @@
         <!--@Table m_notice-->
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="create_user_id" jdbcType="INTEGER" property="createUserId"/>
+        <result column="link_id" jdbcType="INTEGER" property="linkId"/>
+        <result column="notice_user_id" jdbcType="INTEGER" property="noticeUserId"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
         <result column="download_url" jdbcType="VARCHAR" property="downloadUrl"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
@@ -19,10 +24,15 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(linkId)">and `link_id` = #{linkId}</if>
+                <if test="@Ognl@isNotEmpty(noticeUserId)">and `notice_user_id` = #{noticeUserId}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
                 <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
                 <if test="@Ognl@isNotEmpty(downloadUrl)">and `download_url` = #{downloadUrl}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
+                <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
             </trim>
@@ -30,14 +40,14 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id, create_user_id, `status`, title, content, download_url, create_time, update_time
+        id, create_user_id, link_id, notice_user_id, type, `status`, title, content, download_url, start_time, end_time, create_time, update_time
     </sql>
 
-    <select id="getByUserId" resultMap="BaseResultMap">
+    <select id="getByNoticeUserId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_notice mn
-        where mn.create_user_id = #{userId}
+        where mn.notice_user_id = #{userId}
           and mn.status != 2
         order by mn.create_time desc
     </select>
@@ -50,4 +60,27 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="unreadCount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_notice mn
+        where mn.status = #{status}
+          and mn.notice_user_id = #{userId}
+        order by mn.create_time desc
+    </select>
+
+    <update id="updateScreeningNotice">
+        update m_notice mn
+        set mn.status = 1
+        where mn.notice_user_id = #{noticeUserId}
+          and mn.link_id = #{linkId};
+    </update>
+
+    <insert id="batchCreateScreeningNotice">
+        insert into m_notice (create_user_id, link_id, notice_user_id, type, title, content, start_time, end_time) values
+        <foreach collection="toUserIds" item="toUserId" index="index" separator=",">
+            (#{createUserId}, #{linkId}, #{toUserId}, #{type}, #{title}, #{content}, #{startTime}, #{endTime})
+        </foreach>
+    </insert>
 </mapper>

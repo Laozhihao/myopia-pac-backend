@@ -7,6 +7,8 @@ import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020-12-22
@@ -36,6 +38,16 @@ public class SchoolAdminService extends BaseService<SchoolAdminMapper, SchoolAdm
         return baseMapper
                 .selectOne(new QueryWrapper<SchoolAdmin>()
                         .eq("school_id", id));
+    }
+
+    /**
+     * 批量通过schoolId查询学校
+     *
+     * @param schoolIds 学校ID
+     * @return List<SchoolAdmin>
+     */
+    public List<SchoolAdmin> getBySchoolIds(List<Integer> schoolIds) {
+        return baseMapper.getBySchoolIds(schoolIds);
     }
 
 }

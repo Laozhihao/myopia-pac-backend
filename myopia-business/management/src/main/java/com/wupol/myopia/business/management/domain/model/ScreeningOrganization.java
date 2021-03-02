@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
+import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -50,12 +52,7 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 行政区域JSON
      */
-    private String districtJson;
-
-    /**
-     * 行政区域名
-     */
-    private String districtName;
+    private String districtDetail;
 
     /**
      * 筛查机构名称
@@ -77,7 +74,6 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 配置 0-省级配置 1-单点配置
      */
-    @NotNull(message = "配置不能为空")
     private Integer configType;
 
     /**
@@ -88,35 +84,43 @@ public class ScreeningOrganization implements Serializable {
     /**
      * 省代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long provinceCode;
 
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long townCode;
 
     /**
      * 详细地址
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
 
     /**
      * 说明
      */
     private String remark;
+
+    /**
+     * 告知书配置
+     */
+    @TableField(typeHandler = NotificationConfigTypeHandler.class)
+    private NotificationConfig notificationConfig;
 
     /**
      * 状态 0-启用 1-禁止 2-删除
@@ -135,5 +139,16 @@ public class ScreeningOrganization implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    /**
+     * 筛查人员统计
+     */
+    @TableField(exist = false)
+    private Integer staffCount;
+
+    /**
+     * 筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningTime;
 
 }

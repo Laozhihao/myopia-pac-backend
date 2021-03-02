@@ -18,6 +18,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(sno)">and `sno` = #{sno}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
@@ -31,11 +32,11 @@
                 <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
                 <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
                 <if test="@Ognl@isNotEmpty(address)">and `address` = #{address}</if>
+                <if test="@Ognl@isNotEmpty(avatar)">and `avatar` = #{avatar}</if>
                 <if test="@Ognl@isNotEmpty(currentSituation)">and `current_situation` = #{currentSituation}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel)">and `vision_label` = #{visionLabel}</if>
-                <if test="@Ognl@isNotEmpty(screeningCount)">and `screening_count` = #{screeningCount}</if>
-                <if test="@Ognl@isNotEmpty(questionnaireCount)">and `questionnaire_count` = #{questionnaireCount}</if>
                 <if test="@Ognl@isNotEmpty(lastScreeningTime)">and `last_screening_time` = #{lastScreeningTime}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -48,19 +49,24 @@
                 <if test="gradeList != null">and grade_id in
                     <foreach collection="gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
+                <if test="idCardList != null">and id_card in
+                    <foreach collection="idCardList" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, screening_count, questionnaire_count, last_screening_time, status, create_time, update_time
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
-        select
-        <include refid="Base_Column_List"/>
+        select ms.*, school.name as schoolName, school.id as schoolId, msg.name as gradeName, msc.name as className
         from m_student ms
+                     left join m_school school on ms.school_no = school.school_no
+                     left join m_school_grade msg on ms.grade_id = msg.id
+                     left join m_school_class msc on ms.class_id = msc.id
                 where ms.status != 2
         <if test="sno != null">
             and ms.sno like CONCAT('%', #{sno}, '%')
@@ -92,10 +98,13 @@
         <if test="startScreeningTime != null">
             and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
         </if>
+        <if test="schoolName != null and schoolName != ''">
+            and school.name like CONCAT('%', #{schoolName}, '%')
+        </if>
         order by ms.create_time desc
     </select>
 
-    <select id="getExportData" resultMap="BaseResultMap">
+    <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_student
         <include refid="Base_Where_Clause" />
@@ -106,5 +115,41 @@
         <include refid="Base_Column_List"/>
         from m_student
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getStudentById" resultMap="BaseResultMapDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student ms
+        where ms.id = #{id}
+    </select>
+
+    <select id="getByOtherId" resultMap="BaseResultMap">
+        select student.*
+        from m_student student
+                     left join m_school school on student.school_no = school.school_no
+                where student.status != 2
+        <if test="schoolId != null">
+            and school.id = #{schoolId}
+        </if>
+        <if test="classId != null">
+            and student.class_id = #{classId}
+        </if>
+        <if test="gradeId != null">
+            and student.grade_id = #{gradeId}
+        </if>
+    </select>
+
+    <select id="countStudentBySchoolNo" resultType="com.wupol.myopia.business.management.domain.vo.StudentCountVO">
+        select count(1) as count, school_no
+        from m_student
+        group by school_no
+    </select>
+
+    <select id="getByIdCard" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where id_card = #{idCard}
     </select>
 </mapper>

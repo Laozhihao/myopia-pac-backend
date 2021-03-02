@@ -2,8 +2,9 @@ package com.wupol.myopia.oauth.domain.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author HaoHao
@@ -11,6 +12,7 @@ import java.util.ArrayList;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class UserWithRole extends User {
     /**
      * 创建人真实姓名
@@ -19,5 +21,5 @@ public class UserWithRole extends User {
     /**
      * 用户拥有的所有角色
      **/
-    private ArrayList<Role> roles;
+    private List<Role> roles;
 }

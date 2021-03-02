@@ -18,9 +18,9 @@ public interface CommonConst {
     Integer STATUS_NOT_DELETED = 0;
 
     /**
-     * 筛查次数
+     * 通知中心 未读状态
      */
-    Integer SCREENING_TIME = 0;
+    Integer STATUS_NOTICE_UNREAD = 0;
 
     /**
      * 通知中心 已读状态
@@ -33,6 +33,11 @@ public interface CommonConst {
     Integer STATUS_NOTICE_DELETED = 2;
 
     /**
+     * 通知中心 已读已创建状态
+     */
+    Integer STATUS_NOTICE_CREATED = 3;
+
+    /**
      * 系统中心 类型 档案卡模版
      */
     Integer TYPE_TEMPLATE_STUDENT_ARCHIVES = 1;
@@ -41,4 +46,54 @@ public interface CommonConst {
      * 系统中心 类型 筛查报告模版
      */
     Integer TYPE_TEMPLATE_SCREENING_REPORT = 2;
+
+    /**
+     * 筛查 未发布
+     */
+    Integer STATUS_NOT_RELEASE = 0;
+
+    /**
+     * 筛查 已发布
+     */
+    Integer STATUS_RELEASE = 1;
+
+    /**
+     * 筛查表默认ID
+     */
+    Integer DEFAULT_ID = 0;
+
+    /**
+     * 通知-站内信
+     */
+    Byte NOTICE_STATION_LETTER = 0;
+
+    /**
+     * 通知-筛查通知
+     */
+    Byte NOTICE_SCREENING_NOTICE = 1;
+
+    /**
+     * 通知-筛查任务
+     */
+    Byte NOTICE_SCREENING_DUTY = 2;
+
+    /**
+     * 通知-筛查计划
+     */
+    Byte NOTICE_SCREENING_PLAN = 3;
+
+    /**
+     * 通知-导出内容
+     */
+    String CONTENT = "%s-%s已经导出，点击下载，申请时间：%tF%n";
+
+    /**
+     * 左眼
+     */
+    Integer LEFT_EYE = 0;
+
+    /**
+     * 右眼
+     */
+    Integer RIGHT_EYE = 1;
 }

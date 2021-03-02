@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 /**
  * 筛查通知通知到的部门或者机构表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data
@@ -43,10 +43,15 @@ public class ScreeningNoticeDeptOrg implements Serializable {
     /**
      * 筛查通知--接收通知对象的id（机构id 或者 部门id）
      */
-    private Integer acceptGovOrgId;
+    private Integer acceptOrgId;
 
     /**
-     * 筛查通知--操作状态（0未读 1 是已读 2是已创建）
+     * 筛查通知--该通知对应的筛查任务或筛查计划ID
+     */
+    private Integer screeningTaskPlanId;
+
+    /**
+     * 筛查通知--操作状态（0未读 1 是已读 2是删除 3是已读已创建）
      */
     private Integer operationStatus;
 

@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -25,4 +27,46 @@
         id, screening_plan_id, dept_id, school_id, school_name, create_time
     </sql>
 
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO">
+        select count(1) as count, school_id
+        from m_screening_plan_school
+        group by school_id
+    </select>
+    <select id="selectVoListByPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
+      SELECT
+        <include refid="Base_Column_List"/>
+      FROM m_screening_plan_school
+      WHERE screening_plan_id = #{screeningPlanId}
+    </select>
+
+    <select id="selectHasPlanInPeriod" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        msps.*
+        FROM m_screening_plan_school msps
+        LEFT JOIN m_screening_plan msp ON msps.screening_plan_id = msp.id
+        <where>
+            <trim prefixOverrides="and">
+                AND msp.release_status = 1
+                <if test="param.districtIds != null and param.districtIds.size() != 0">
+                    and msp.`district_id` in
+                    <foreach collection="param.districtIds" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and msp.`screening_org_id` = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.excludedScreeningPlanId)">and msp.`id` != #{param.excludedScreeningPlanId}</if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(msp.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msp.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="countBySchoolId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school msps
+                     left join m_screening_plan msp on msp.id = msps.screening_plan_id
+        where msps.school_id = #{schoolId}
+          and msp.release_status = 1
+    </select>
 </mapper>

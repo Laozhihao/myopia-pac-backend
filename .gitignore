@@ -3,6 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+**/src/main/resources/*.yaml
+**/src/main/resources/*.xml
+**/src/main/resources/*.yml
 
 ### IntelliJ IDEA ###
 .idea
@@ -14,7 +17,4 @@ target/
 .project
 .classpath
 .factorypath
-**/resources/application.yml
-**/resources/bootstrap.yml
-**/resources/log4j2.xml
-**/resources/redisson.yaml
+soar*

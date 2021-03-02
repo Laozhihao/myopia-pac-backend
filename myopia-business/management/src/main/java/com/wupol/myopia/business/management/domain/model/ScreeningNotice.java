@@ -5,24 +5,36 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.wupol.myopia.business.management.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 筛查通知表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_notice")
+@CheckTimeInterval(beginTime = "startTime", endTime = "endTime", message = "开始时间不能晚于结束时间")
 public class ScreeningNotice implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final Integer TYPE_GOV_DEPT = 0;
+    public static final Integer TYPE_ORG = 1;
 
     /**
      * 主键id
@@ -33,23 +45,26 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--标题（最大25个字符）
      */
+    @Length(max = 25)
+    @NotBlank
     private String title;
 
     /**
      * 筛查通知--通知内容（长度未知）
      */
+    @NotBlank
     private String content;
 
     /**
      * 筛查通知--开始时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "开始时间不能为空")
     private Date startTime;
 
     /**
      * 筛查通知--结束时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "结束时间不能为空")
     private Date endTime;
 
     /**
@@ -68,6 +83,11 @@ public class ScreeningNotice implements Serializable {
     private Integer districtId;
 
     /**
+     * 筛查通知--来源的筛查任务id（type为1有）
+     */
+    private Integer screeningTaskId;
+
+    /**
      * 筛查通知--通知状态（0未发布、1已发布）
      */
     private Integer releaseStatus;
@@ -75,7 +95,6 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--发布时间（时间戳 ）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date releaseTime;
 
     /**
@@ -86,12 +105,11 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--创建人id  
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查通知--创建时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -102,8 +120,6 @@ public class ScreeningNotice implements Serializable {
     /**
      * 筛查通知--最后操作时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operateTime;
-
 
 }

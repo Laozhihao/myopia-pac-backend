@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolClass">
     </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.SchoolClassVo">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -28,12 +30,6 @@
         id, grade_id, create_user_id, school_id, name, seat_count, status, create_time, update_time
     </sql>
 
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from m_school_class
-        where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
-    </select>
-
     <select id="getBySchoolNameAndGradeName" resultMap="BaseResultMap">
         select sc.*
         from m_school s
@@ -42,4 +38,18 @@
         where s.name = #{schoolName} and sg.name = #{gradeName} and s.status = 0
     </select>
 
+    <select id="getByGradeIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO">
+        select *
+        from m_school_class msc
+                where msc.grade_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectVoList" resultMap="VoResultMap">
+        select msc.*, msg.name as grade_name
+        from m_school_class msc
+        left join m_school_grade msg on msc.grade_id = msg.id
+        where msc.school_id = #{param.schoolId}
+    </select>
 </mapper>

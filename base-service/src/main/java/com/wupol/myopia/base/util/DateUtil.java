@@ -185,4 +185,14 @@ public class DateUtil {
         Instant instant = Instant.ofEpochMilli(timestamp);
         return LocalDateTime.ofInstant(instant, ZoneId.of(timezone));
     }
+
+    /**
+     * 该日期时间是否今天0点之前
+     *
+     * @param date
+     * @return
+     */
+    public static boolean isDateBeforeToday(Date date) {
+        return date.getTime() < DateUtil.getTodayStartTime("GMT+8");
+    }
 }

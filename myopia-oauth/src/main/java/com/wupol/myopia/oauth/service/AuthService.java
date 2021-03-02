@@ -12,6 +12,7 @@ import com.wupol.myopia.oauth.domain.model.User;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -56,19 +57,6 @@ public class AuthService {
     /**
      * 获取用户api权限
      *
-     * @param userName 用户名
-     * @param systemCode 系统编号
-     * @return java.util.List<java.lang.Object>
-     **/
-    public List<Object> getUserApiPermission(String userName, Integer systemCode) {
-        User user = userService.getByUsername(userName, systemCode);
-        List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(user.getId());
-        return getApiPermission(permissions);
-    }
-
-    /**
-     * 获取用户api权限
-     *
      * @param permissions 权限列表
      * @return java.util.List<java.lang.Object>
      **/
@@ -105,14 +93,21 @@ public class AuthService {
      * @return void
      **/
     public void delayPermissionCache(String refreshToken, long newExpiresTime) throws ParseException {
-        if (StringUtils.isEmpty(refreshToken)) {
-            throw new BusinessException("refreshToken为空！");
-        }
-        JWSObject jwsObject = JWSObject.parse(refreshToken.replace(AuthConstants.JWT_TOKEN_PREFIX, Strings.EMPTY));
-        CurrentUser currentUser = JSONUtil.parseObj(jwsObject.getPayload().toString()).get(AuthConstants.JWT_USER_INFO_KEY, CurrentUser.class);
-        if (Objects.isNull(currentUser)) {
-            throw new BusinessException("无效refreshToken！");
-        }
+        CurrentUser currentUser = parseToken(refreshToken);
         cacheUserPermission(currentUser.getUsername(), currentUser.getSystemCode(), newExpiresTime);
+    }
+
+    /**
+     * 解析token
+     *
+     * @param token refreshToken或者accessToken
+     * @return com.wupol.myopia.base.domain.CurrentUser
+     **/
+    public CurrentUser parseToken(String token) throws ParseException {
+        Assert.hasLength(token, "token为空！");
+        JWSObject jwsObject = JWSObject.parse(token.replace(AuthConstants.JWT_TOKEN_PREFIX, Strings.EMPTY));
+        CurrentUser currentUser = JSONUtil.parseObj(jwsObject.getPayload().toString()).get(AuthConstants.JWT_USER_INFO_KEY, CurrentUser.class);
+        Assert.notNull(currentUser, "无效token！");
+        return currentUser;
     }
 }

@@ -1,13 +1,24 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.service.GovDeptService;
+import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.management.service.UserService;
+import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -24,9 +35,13 @@ public class UserController {
     private OauthService oauthService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
-     * 分页获取用户列表 TODO: 支持根据日期查询
+     * 分页获取用户列表
      *
      * @param queryParam     查询参数
      * @param current   当前页码
@@ -37,18 +52,18 @@ public class UserController {
     public IPage<UserDTO> getUserListPage(UserDTOQuery queryParam,
                                           @RequestParam(defaultValue = "1") Integer current,
                                           @RequestParam(defaultValue = "10") Integer size) {
-        return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser().getOrgId());
+        return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser());
     }
 
     /**
-     * 新增用户 TODO: 参数判空校验
+     * 新增用户
      *
      * @param user 用户数据
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PostMapping()
-    public UserDTO addUser(@RequestBody UserDTO user) {
-        return userService.addUser(user, CurrentUserUtil.getCurrentUser().getOrgId());
+    public UserDTO addUser(@RequestBody @Validated(value = UserAddValidatorGroup.class) UserDTO user) {
+        return userService.addUser(user, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -58,11 +73,10 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object updateUser(@RequestBody UserDTO user) {
-        // TODO：如果部门ID不为空，需要判断是否合法（为当前登录用户所属部门或名下子部门）
-        // TODO: 不能更新自己、非管理员或者admin用户不能修改用户
-        // 该接口不允许更新密码
-        return oauthService.modifyUser(user.setPassword(null));
+    public Object updateUser(@RequestBody @Validated(value = UserUpdateValidatorGroup.class) UserDTO user) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        userService.validatePermission(currentUser, user.getId());
+        return userService.updateUser(user, currentUser);
     }
 
     /**
@@ -73,8 +87,8 @@ public class UserController {
      **/
     @PutMapping("/password/{userId}")
     public UserDTO resetPwd(@PathVariable("userId") Integer userId) {
-        // TODO: 获取用户详情，判断用户是否存在，用户所属部门是否属于当前登录用户的下面
-        return oauthService.resetPwd(userId);
+        userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
+        return userService.resetPwd(userId);
     }
 
     /**
@@ -85,7 +99,35 @@ public class UserController {
      **/
     @GetMapping("/{userId}")
     public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
-        // TODO: 只能获取自己所属部门下的用户
-        return oauthService.getUserDetailByUserId(userId);
+        UserDTO userDTO = oauthService.getUserDetailByUserId(userId);
+        Assert.notNull(userDTO, "不存在该用户");
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(userDTO.getOrgId()), "没有访问该用户信息权限");
+        // 屏蔽密码
+        userDTO.setPassword(null);
+        // 管理端 - 平台管理员或政府部门人员用户
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+            GovDept govDept = govDeptService.getById(userDTO.getOrgId());
+            return userDTO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
+        }
+        // 管理端 - 筛查机构管理员用户
+        if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(userDTO.getOrgId());
+            return userDTO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
+        }
+        throw new BusinessException("不支持查询该用户");
+    }
+
+    /**
+     * 更新用户状态
+     *
+     * @param userId 用户ID
+     * @param status 用户状态
+     * @return com.wupol.myopia.business.management.domain.dto.UserDTO
+     **/
+    @PutMapping("/{userId}/{status}")
+    public UserDTO updateUserStatus(@PathVariable("userId") Integer userId, @PathVariable("status") Integer status) {
+        userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
+        return userService.updateUserStatus(userId, status);
     }
 }

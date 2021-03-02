@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -42,9 +44,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // clientId与systemCode一致，若不一致需要在SystemCode.java里加上clientId属性，维持两者的map关系
         String clientId = request.getParameter(AuthConstants.CLIENT_ID_KEY);
         // 获取用户相关信息
-        User user = userService.getByUsername(username, Integer.parseInt(clientId));
+        Integer systemCode = Integer.parseInt(clientId);
+        User user = userService.getByUsername(username, systemCode);
+        // TODO: 临时处理，允许筛查机构管理员登录
+        if (Objects.isNull(user) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+            user = userService.getByUsername(username, SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+        }
+        if (Objects.isNull(user)) {
+            throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
+        }
         // 判断是否分配角色
-        List<Role> roles = roleService.getRoleListByUserId(user.getId());
+        List<Role> roles = roleService.getUsableRoleByUserId(user.getId());
         if (CollectionUtils.isEmpty(roles)) {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
         }

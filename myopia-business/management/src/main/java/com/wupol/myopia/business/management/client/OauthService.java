@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.management.client;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.UserRequest;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.client.aop.annotation.OauthRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
@@ -30,7 +28,18 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public Page<UserDTO> getUserListPage(UserDTOQuery param){
+    public Page<UserDTO> getUserListPage(UserDTOQuery param) {
+        return null;
+    }
+
+    /**
+     * 获取用户列表（仅支持用户名模糊查询）
+     *
+     * @param param 查询参数
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserList(UserDTOQuery param) {
         return null;
     }
 
@@ -42,6 +51,31 @@ public class OauthService {
      **/
     @OauthRequest
     public List<UserDTO> getUserBatchByIds(List<Integer> userIds) {
+        return null;
+    }
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param phones 手机号码集合
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+        return null;
+    }
+
+    /**
+     * 根据手身份证号码批量获取用户
+     *
+     * @param idCards 身份证号码
+     * @param systemCode 系统编号
+     * @param orgId 机构ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {
         return null;
     }
 
@@ -74,7 +108,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public List<Integer> addScreeningUserBatch(List<UserDTO> param){
+    public List<UserDTO> addScreeningUserBatch(List<UserDTO> param){
         return null;
     }
 
@@ -89,12 +123,13 @@ public class OauthService {
     }
 
     /**
-     * 重置管理端用户的密码【其他端用户的不适合】
+     * 重置管理端用户的密码
      *
      * @param userId 用户ID
+     * @param password 密码
      **/
     @OauthRequest
-    public UserDTO resetPwd(Integer userId){
+    public UserDTO resetPwd(Integer userId, String password){
         return null;
     }
 
@@ -105,6 +140,17 @@ public class OauthService {
      **/
     @OauthRequest
     public UserDTO getUserDetailByUserId(Integer userId){
+        return null;
+    }
+
+    /**
+     * 统计
+     *
+     * @param queryParam 查询条件
+     * @return java.lang.Integer
+     **/
+    @OauthRequest
+    public Integer count(UserDTO queryParam) {
         return null;
     }
 
@@ -133,13 +179,19 @@ public class OauthService {
         return null;
     }
 
+    @OauthRequest
+    public RoleDTO getRoleById(Integer roleId) {
+        return null;
+    }
+
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      **/
     @OauthRequest
-    public List<PermissionDTO> getRolePermissionTree(Integer roleId){
+    public List<PermissionDTO> getRolePermissionTree(Integer roleId, Integer templateType){
         return null;
     }
 
@@ -173,5 +225,50 @@ public class OauthService {
         return null;
     }
 
+    /**
+     * 根据模板类型获取模板权限-树结构
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
+     **/
+    @OauthRequest
+    public List<PermissionDTO> getPermissionTemplate(Integer templateType) {
+        return null;
+    }
+
+    /**
+     * 根据模板类型获取模板权限的ID集
+     *
+     * @param templateType 模板类型
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.DistrictPermission>
+     **/
+    @OauthRequest
+    public List<Integer> getPermissionTemplateIdList(Integer templateType) {
+        return null;
+    }
+
+    /**
+     * 更新模板权限
+     *
+     * @param templateType 模板类型
+     * @param permissionIds 权限集
+     * @return boolean
+     **/
+    @OauthRequest
+    public Boolean updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
+        return null;
+    }
+
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
+        return null;
+    }
 
 }

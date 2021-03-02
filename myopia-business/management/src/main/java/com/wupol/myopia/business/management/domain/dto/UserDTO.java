@@ -1,17 +1,23 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.domain.model.District;
+import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
+import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
- * 用户表
+ * 用户
  *
  * @Author HaoHao
  * @Date 2020-12-23
@@ -26,6 +32,7 @@ public class UserDTO implements Serializable {
     /**
      * 用户ID
      */
+    @NotNull(message = "用户ID不能为空", groups = {UserUpdateValidatorGroup.class})
     private Integer id;
 
     /**
@@ -36,6 +43,7 @@ public class UserDTO implements Serializable {
     /**
      * 真实姓名
      */
+    @NotBlank(message = "姓名不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private String realName;
 
     /**
@@ -46,6 +54,7 @@ public class UserDTO implements Serializable {
     /**
      * 手机号码
      */
+    @NotBlank(message = "手机号码不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private String phone;
 
     /**
@@ -81,6 +90,7 @@ public class UserDTO implements Serializable {
     /**
      * 状态：0-启用 1-禁止 2-删除
      */
+    @NotNull(message = "状态不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private Integer status;
 
     /**
@@ -138,5 +148,21 @@ public class UserDTO implements Serializable {
     /**
      * 角色ID集
      **/
+    @NotEmpty(message = "角色ID不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private List<Integer> roleIds;
+
+    /**
+     * 用户类型：0-平台管理员、1-非平台管理员
+     */
+    private Integer userType;
+
+    /**
+     * 行政区明细
+     */
+    private List<District> districtDetail;
+
+    /**
+     * 行政区ID
+     */
+    private Integer districtId;
 }

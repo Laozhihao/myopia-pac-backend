@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -15,6 +16,7 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +112,29 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
+     * 年级列表(没有分页)
+     *
+     * @param schoolId 学校id
+     * @return List<SchoolGradeItems> 返回体
+     */
+    public List<SchoolGradeItems> getAllGradeList(Integer schoolId) {
+
+        // 获取年级
+        List<SchoolGradeItems> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+
+        // 获取班级，并且封装成Map
+        Map<Integer, List<SchoolClass>> classMaps = schoolClassService
+                .getSchoolClassByGradeIds(schoolGrades
+                        .stream()
+                        .map(SchoolGradeItems::getId)
+                        .collect(Collectors.toList()), schoolId).stream()
+                .collect(Collectors.groupingBy(SchoolClass::getGradeId));
+
+        schoolGrades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+        return schoolGrades;
+    }
+
+    /**
      * 更新年级
      *
      * @param schoolGrade 年级实体类
@@ -181,4 +206,39 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
 
+
+    /**
+     * 分页查询
+     *
+     * @param page  分页
+     * @param query 条件
+     * @return {@link IPage} 分页结果
+     */
+    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
+        return baseMapper.getByPage(page, query);
+    }
+
+    /**
+     * 通过学校id获取年级
+     *
+     * @param schoolIds 学校ID
+     * @return List<SchoolGrade>
+     */
+    public List<SchoolGradeExportVO> getBySchoolIds(List<Integer> schoolIds) {
+        return baseMapper.getBySchoolIds(schoolIds);
+    }
+
+    public List<Integer> batchInsertGrade() {
+        return null;
+    }
+
+    /**
+     * 根据学校Id获取所有年级
+     *
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolGrade> getBySchoolId(Integer schoolId) {
+        return baseMapper.selectList(new QueryWrapper<SchoolGrade>().eq("school_id", schoolId));
+    }
 }

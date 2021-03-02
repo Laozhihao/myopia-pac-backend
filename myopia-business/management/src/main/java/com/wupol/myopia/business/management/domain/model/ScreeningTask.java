@@ -1,25 +1,28 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.wupol.myopia.business.management.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * 筛查通知任务或者计划表
+ * 筛查通知任务表
  *
- * @Author HaoHao
+ * @author Alix
  * @Date 2021-01-20
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_task")
+@CheckTimeInterval(beginTime = "startTime", endTime = "endTime", message = "开始时间不能晚于结束时间")
 public class ScreeningTask implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,13 +51,13 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--开始时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "筛查计划开始时间不能为空")
     private Date startTime;
 
     /**
      * 筛查任务--结束时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "筛查计划开始时间不能为空")
     private Date endTime;
 
     /**
@@ -75,18 +78,16 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--发布时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date releaseTime;
 
     /**
      * 筛查任务--创建者ID
      */
-    private Integer creatorId;
+    private Integer createUserId;
 
     /**
      * 筛查任务--创建时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -97,7 +98,6 @@ public class ScreeningTask implements Serializable {
     /**
      * 筛查任务--最后操作时间（时间戳）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date operateTime;
 
 

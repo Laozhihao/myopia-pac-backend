@@ -13,6 +13,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanSchoolStudentId)">and `screening_plan_school_student_id` = #{screeningPlanSchoolStudentId}</if>
                 <if test="@Ognl@isNotEmpty(screeningRawData)">and `screening_raw_data` = #{screeningRawData}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -20,7 +21,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_school_student_id, screening_raw_data, create_time
+        id, screening_plan_school_student_id, screening_raw_data, create_user_id, create_time
     </sql>
 
 </mapper>

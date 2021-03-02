@@ -1,7 +1,8 @@
 package com.wupol.myopia.oauth.domain.mapper;
 
-import com.wupol.myopia.oauth.domain.model.Role;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.oauth.domain.dto.RoleDTO;
+import com.wupol.myopia.oauth.domain.model.Role;
 
 import java.util.List;
 
@@ -19,22 +20,22 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @param query 查询参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> selectRoleList(Role query);
+    List<Role> selectRoleList(RoleDTO query);
 
     /**
-     * 通过ID集批量获取角色
-     *
-     * @param ids 角色ID集
-     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
-     **/
-    List<Role> getByIds(List<Integer> ids);
-
-    /**
-     * 获取指定用户的角色
+     * 查询指定用户的角色
      *
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> getRoleListByUserId(Integer userId);
+    List<Role> selectRoleListByUserId(Integer userId);
+
+    /**
+     * 查询用户ID列表
+     *
+     * @param query 查询条件
+     * @return java.util.List<java.lang.Integer>
+     **/
+    List<Integer> selectUserIdList(Role query);
 
 }

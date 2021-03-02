@@ -52,9 +52,24 @@ public class StudentQuery extends StudentVo {
     private String gradeIds;
     /** 年级ids */
     private List<Integer> gradeList;
+    /** idCard列表 */
+    private List<String> idCardList;
 
     /**
      * 视力标签
      */
     private String visionLabels;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
+    /**
+     * 筛查计划ID
+     */
+    private Integer screeningPlanId;
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 }

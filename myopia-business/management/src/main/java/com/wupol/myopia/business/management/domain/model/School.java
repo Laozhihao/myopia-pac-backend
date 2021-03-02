@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -54,12 +52,7 @@ public class School implements Serializable {
     /**
      * 行政区域JSON
      */
-    private String districtJson;
-
-    /**
-     * 行政区域名
-     */
-    private String districtName;
+    private String districtDetail;
 
     /**
      * 学校名称
@@ -79,6 +72,7 @@ public class School implements Serializable {
     /**
      * 寄宿状态 0-全部住校 1-部分住校 2-不住校
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED )
     private Integer lodgeStatus;
 
     /**
@@ -89,26 +83,31 @@ public class School implements Serializable {
     /**
      * 省代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED )
     private Long provinceCode;
 
     /**
      * 市代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long cityCode;
 
     /**
      * 区代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long townCode;
 
     /**
      * 详细地址
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
 
     /**
@@ -132,4 +131,23 @@ public class School implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+
+    /**
+     * 学生统计
+     */
+    @TableField(exist = false)
+    private Integer studentCount;
+
+    /**
+     * 筛查次数
+     */
+    @TableField(exist = false)
+    private Integer screeningCount;
+
+    /**
+     * 创建人
+     */
+    @TableField(exist = false)
+    private String createUser;
 }

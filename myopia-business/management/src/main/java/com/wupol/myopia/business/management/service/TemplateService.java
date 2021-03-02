@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindItem;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
@@ -15,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,10 +75,11 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * 绑定区域
      *
      * @param request 入参
+     * @param type    类型
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBind(TemplateBindRequest request) {
+    public Boolean districtBind(TemplateBindRequest request, Integer type) {
 
         Integer templateId = request.getTemplateId();
         List<TemplateBindItem> newDistrictLists = request.getDistrictInfo();
@@ -93,14 +96,43 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
                 Collectors.toList()).contains(item.getDistrictId())).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(addLists)) {
+            if (check(type, addLists)) {
+                throw new BusinessException("每个省只能绑定一个模板");
+            }
+            // 批量插入
             templateDistrictService.batchInsert(templateId, addLists);
         }
 
         if (!CollectionUtils.isEmpty(deletedLists)) {
+
+            // 批量删除
             templateDistrictService
                     .deletedByTemplateIdAndDistrictIds(templateId,
                             deletedLists.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()));
         }
         return Boolean.TRUE;
+    }
+
+    /**
+     * 检查是否一个省是否绑定一个模板
+     * <p>Collections.disjoint() 如果有相同元素则返回false</p>
+     *
+     * @param type 类型
+     * @param list 新增列表
+     * @return 是否重复绑定
+     */
+    public Boolean check(Integer type, List<TemplateBindItem> list) {
+        // 根据类型查模板
+        List<Template> templateList = baseMapper
+                .selectList(new QueryWrapper<Template>()
+                        .eq("type", type));
+
+        // 根据模板ID获取所有的行政ID
+        List<TemplateDistrict> allDistrict = templateDistrictService.getByTemplateIds(
+                templateList.stream().map(Template::getId).collect(Collectors.toList()));
+
+        // 判断两个list是否有相同元素
+        return !Collections.disjoint(list.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()),
+                allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
     }
 }

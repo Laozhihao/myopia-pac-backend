@@ -1,19 +1,20 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
+import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,21 +35,25 @@ public class ScreeningOrganizationController {
     @Autowired
     private ExcelFacade excelFacade;
 
+    @Autowired
+    private GovDeptService govDeptService;
+
 
     @PostMapping()
     public Object saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
+        if (user.isGovDeptUser()) {
+            screeningOrganization.setConfigType(0);
+        }
         return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
     }
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        screeningOrganization.setCreateUserId(user.getId());
-        screeningOrganization.setGovDeptId(user.getOrgId());
-        return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
+        return saveScreeningOrganization.updateScreeningOrganization(user, screeningOrganization);
     }
 
     @GetMapping("{id}")
@@ -74,8 +79,10 @@ public class ScreeningOrganizationController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<FileSystemResource> getOrganizationExportData(ScreeningOrganizationQuery query) throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.generateScreeningOrganization(query));
+    public Object getOrganizationExportData(Integer districtId) throws IOException, UtilException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        excelFacade.generateScreeningOrganization(user.getId(), districtId);
+        return ApiResult.success();
     }
 
     @PostMapping("/reset")
@@ -88,8 +95,24 @@ public class ScreeningOrganizationController {
         return saveScreeningOrganization.getRecordLists(request, orgId);
     }
 
-    @GetMapping("/record/{id}")
-    public Object getRecordDetail(@PathVariable("id") Integer id) {
-        return saveScreeningOrganization.getRecordDetail(id);
+    /**
+     * 根据部门ID获取筛查机构列表
+     *
+     * @param query
+     * @return
+     */
+    @GetMapping("/listByGovDept")
+    public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+
+        return saveScreeningOrganization.getScreeningOrganizationListByGovDeptId(query);
+    }
+
+    @GetMapping("/getDistrictId")
+    public GovDept getDistrictId() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isGovDeptUser()) {
+            return govDeptService.getById(currentUser.getOrgId());
+        }
+        return null;
     }
 }

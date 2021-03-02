@@ -4,12 +4,16 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * @Description 用于筛查计划  和 筛查计划关联的学校的联表
- * @Date 2021/1/25 16:35
- * @Author by Jacob
+ * 筛查计划新增/更新的数据结构
+ * @author Alix
  */
 @Data
-public class ScreeningPlanDTO {
-    private ScreeningPlan screeningPlan;
+public class ScreeningPlanDTO extends ScreeningPlan {
+    /**
+     * 筛查计划中的学校列表
+     */
+    List<ScreeningPlanSchool> schools;
 }

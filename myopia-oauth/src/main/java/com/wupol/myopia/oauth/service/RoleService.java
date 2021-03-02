@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
@@ -9,10 +10,12 @@ import com.wupol.myopia.oauth.domain.model.RolePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
-import javax.validation.ValidationException;
+import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -23,7 +26,6 @@ public class RoleService extends BaseService<RoleMapper, Role> {
 
     @Autowired
     private PermissionService permissionService;
-
     @Autowired
     private RolePermissionService rolePermissionService;
 
@@ -33,7 +35,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param query 查询参数
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    public List<Role> selectRoleList(Role query) {
+    public List<Role> getRoleList(RoleDTO query) {
         return baseMapper.selectRoleList(query);
     }
 
@@ -44,29 +46,28 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param permissionIds 权限资源ID
      * @return 角色权限列表
      */
-    @Transactional
-    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
-        rolePermissionService.deleteByRoleId(roleId);
-        rolePermissionService.insertRolePermissionBatch(roleId, permissionIds);
-        return rolePermissionService.getRolePermissionByRoleId(roleId);
+    @Transactional(rollbackFor = Exception.class)
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) throws IOException {
+        rolePermissionService.remove(new RolePermission().setRoleId(roleId));
+        List<RolePermission> rolePermission = permissionIds.stream().map(id -> new RolePermission().setRoleId(roleId).setPermissionId(id)).collect(Collectors.toList());
+        rolePermissionService.saveBatch(rolePermission);
+        return rolePermission;
     }
 
     /**
      * 获取指定行政区下的角色权限树
      *
      * @param roleId 角色ID
+     * @param templateType 模板类型
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> getRolePermissionTree(Integer roleId) {
+    public List<Permission> getRolePermissionTree(Integer roleId, Integer templateType) {
         Role role = getById(roleId);
-        if (Objects.isNull(role)) {
-            throw new ValidationException("不存在该角色");
-        }
+        Assert.notNull(role, "不存在该角色");
         if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
             return permissionService.getAdminRolePermissionTree(0, roleId);
         }
-        // TODO: 根据角色所属的部门所在的行政区获取行政区等级
-        return permissionService.selectRoleAllTree(0, roleId, 1);
+        return permissionService.selectRoleAllTree(0, roleId, templateType);
     }
 
     /**
@@ -75,18 +76,46 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @param ids 角色ID集
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+    public List<Role> getByIds(List<Integer> ids) {
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
-     * 获取指定用户的角色
+     * 获取指定用户的角色(全部)
      *
      * @param userId 用户ID
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
      **/
-    List<Role> getRoleListByUserId(Integer userId) {
-        return baseMapper.getRoleListByUserId(userId);
+    public List<Role> getRoleListByUserId(Integer userId) {
+        return baseMapper.selectRoleListByUserId(userId);
+    }
+
+    /**
+     * 获取指定用户的角色(可用的)
+     *
+     * @param userId 用户ID
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
+    public List<Role> getUsableRoleByUserId(Integer userId) {
+        List<Role> roleList = getRoleListByUserId(userId);
+        if (CollectionUtils.isEmpty(roleList)) {
+            return roleList;
+        }
+        return roleList.stream().filter(x -> x.getStatus() == 0).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取用户ID列表
+     *
+     * @param query 查询条件
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getUserIdList(Role query) {
+        List<Integer> userIds = baseMapper.selectUserIdList(query);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return userIds;
+        }
+        return userIds.stream().distinct().collect(Collectors.toList());
     }
 
 }

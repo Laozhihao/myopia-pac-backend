@@ -45,7 +45,22 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<List<UserDTO>> getUserList(UserDTOQuery param) {
+                return respData;
+            }
+
+            @Override
             public ApiResult<List<UserDTO>> getUserBatchByIds(List<Integer> userIds) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<UserDTO>> getUserBatchByPhones(List<String> phones, Integer systemCode) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<UserDTO>> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {
                 return respData;
             }
 
@@ -60,7 +75,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<Integer>> addScreeningUserBatch(List<UserDTO> param) {
+            public ApiResult<List<UserDTO>> addScreeningUserBatch(List<UserDTO> param) {
                 return respData;
             }
 
@@ -70,12 +85,17 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult resetPwd(Integer userId) {
+            public ApiResult<UserDTO> resetPwd(Integer userId, String password) {
                 return respData;
             }
 
             @Override
             public ApiResult<UserDTO> getUserDetailByUserId(Integer userId) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Integer> count(UserDTO queryParam) {
                 return respData;
             }
 
@@ -100,7 +120,12 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId) {
+            public ApiResult<RoleDTO> getRoleById(Integer roleId) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getRolePermissionTree(Integer roleId, Integer templateType) {
                 return respData;
             }
 
@@ -126,6 +151,26 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult<List<UserDTO>> getUserByIds(UserRequest request) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<PermissionDTO>> getPermissionTemplate(Integer templateType) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<Integer>> getPermissionTemplateIdList(Integer templateType) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Boolean> updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<List<UserDTO>> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
                 return respData;
             }
         };

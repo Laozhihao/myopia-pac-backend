@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,12 +49,7 @@ public class Hospital implements Serializable {
     /**
      * 行政区域JSON
      */
-    private String districtJson;
-
-    /**
-     * 行政区域名
-     */
-    private String districtName;
+    private String districtDetail;
 
     /**
      * 医院名称
@@ -90,30 +83,31 @@ public class Hospital implements Serializable {
     /**
      * 省代码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long provinceCode;
 
     /**
      * 市代码
      */
-    @NotNull(message = "市代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long cityCode;
 
     /**
      * 区代码
      */
-    @NotNull(message = "区代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long areaCode;
 
     /**
      * 镇/乡代码
      */
-    @NotNull(message = "镇/乡代码不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long townCode;
 
     /**
      * 详细地址
      */
-    @NotBlank(message = "详细地址不能为空")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
 
     /**

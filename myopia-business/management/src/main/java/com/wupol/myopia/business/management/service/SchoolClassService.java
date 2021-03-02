@@ -7,6 +7,8 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO;
+import com.wupol.myopia.business.management.domain.vo.SchoolClassVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,10 +103,13 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     }
 
     /**
-     * 根据id列表查询
+     * 通过年级ID获取班级信息
+     *
+     * @param gradeIds 年级ids
+     * @return List<SchoolClass>
      */
-    public List<SchoolClass> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+    public List<SchoolClassExportVO> getByGradeIds(List<Integer> gradeIds) {
+        return baseMapper.getByGradeIds(gradeIds);
     }
 
     /**
@@ -114,7 +119,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return Map<Integer, SchoolClass>
      */
     public Map<Integer, SchoolClass> getClassMapByIds(List<Integer> ids) {
-        return getByIds(ids).stream()
+        return baseMapper.selectBatchIds(ids).stream()
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 
@@ -127,5 +132,14 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
         return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    }
+
+    /**
+     * 根据学校Id获取所有班级
+     * @param schoolId
+     * @return
+     */
+    public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
+        return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
     }
 }
