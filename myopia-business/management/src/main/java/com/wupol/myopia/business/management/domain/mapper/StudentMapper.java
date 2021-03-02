@@ -40,4 +40,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     Student getByIdCard(@Param("idCard") String idCard);
 
     Student getByIdCardAndName(@Param("idCard") String idCard, @Param("name") String name);
+
+    List<Student> getByIdsAndName(@Param("ids") List<Integer> ids, @Param("name") String name);
 }
