@@ -236,7 +236,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 查询
+     * 通过条件查询
+     * @param query StudentQuery
+     * @return List<Student>
      */
     public List<Student> getBy(StudentQuery query) {
         return baseMapper.getBy(query);
