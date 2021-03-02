@@ -95,15 +95,11 @@ public class SchoolController {
     @GetMapping("/checkSchoolNo/{schoolId}/{schoolNo}")
     public Object checkSchoolNo(@PathVariable("schoolId") Integer schoolId, @PathVariable("schoolNo") String schoolNo) {
         return schoolService.checkSchoolNo(schoolId, schoolNo);
+    }
 
     @GetMapping("screening/record/{planId}")
     public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
-        return null;// schoolService.getScreeningRecordDetail(planId);
-    }
-
-    @GetMapping("/checkSchoolNo/{schoolNo}")
-    public Object checkSchoolNo(@PathVariable("schoolNo") String schoolNo) {
-        return schoolService.checkSchoolNo(schoolNo);
+        return  null;//schoolService.getScreeningRecordDetail(planId);
     }
 
     @GetMapping("/getSchools/{schoolName}")

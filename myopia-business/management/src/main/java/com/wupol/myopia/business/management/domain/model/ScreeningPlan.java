@@ -83,11 +83,6 @@ public class ScreeningPlan implements Serializable {
     private Integer districtId;
 
     /**
-     * 筛查计划--指定的筛查机构id
-     */
-    private Integer screeningOrgId;
-
-    /**
      * 筛查计划--计划的学生总数
      */
     private Integer studentNumbers;

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.screening.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.myopia.common.utils.JsonUtil;
 import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.management.domain.dto.*;

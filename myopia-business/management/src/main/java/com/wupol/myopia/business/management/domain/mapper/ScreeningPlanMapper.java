@@ -40,7 +40,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      * @return
      */
     Set<Integer> selectSchoolIds(Set<Integer> districtIds, Integer taskId);
-    IPage<ScreeningPlan> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+
 
     ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
 

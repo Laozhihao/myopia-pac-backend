@@ -16,9 +16,7 @@ import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +29,7 @@ import java.util.List;
  * @Date 2021-01-20
  */
 @Service
-public class VisionScreeningResultService extends BaseService<ScreeningResultMapper, VisionScreeningResult> {
+public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -108,6 +106,8 @@ public class VisionScreeningResultService extends BaseService<ScreeningResultMap
      */
     public VisionScreeningResult getLatestResultByStudentId(Integer studentId) {
         return baseMapper.getLatestResultByStudentId(studentId);
+    }
+
     public List<VisionScreeningResult> getByTaskId(Integer taskId) {
         return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
                 .eq("task_id", taskId)

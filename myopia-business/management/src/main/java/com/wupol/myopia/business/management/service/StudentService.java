@@ -62,13 +62,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private DistrictService districtService;
 
     @Resource
-    private VisionScreeningResultService visionScreeningResultService;
-
-    @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-//    @Resource
-//    private MedicalReportService medicalReportService;
 
     /**
      * 根据学生id列表获取学生信息
@@ -427,11 +422,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
         leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
         leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAD());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAL());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCCT());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLT());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWTW());
+        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
+        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
+        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
+        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
+        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
         leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
         leftDetails.setLateriality(CommonConst.LEFT_EYE);
 
@@ -443,11 +438,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
         rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
         rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAD());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAL());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCCT());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLT());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWTW());
+        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
+        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
+        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
+        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
+        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
         rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         rightDetails.setLateriality(CommonConst.RIGHT_EYE);
         return Lists.newArrayList(rightDetails, leftDetails);
@@ -470,9 +465,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param visionScreeningResult
      * @return
      */
-    public List<VisionScreeningResult> getScreeningList(Integer studentId) {
+/*    public List<VisionScreeningResult> getScreeningList(Integer studentId) {
         // 通过计划Ids查询学生的结果
         return visionScreeningResultService.getByStudentIds(studentId);
+    }*/
+
     public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
         Integer studentId = visionScreeningResult.getStudentId();

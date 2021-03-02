@@ -7,8 +7,6 @@ import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.parent.domain.model.Parent;
 import com.wupol.myopia.business.parent.service.ParentService;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.service.VisionScreeningResultService;
 
 /**
  * @Author HaoHao

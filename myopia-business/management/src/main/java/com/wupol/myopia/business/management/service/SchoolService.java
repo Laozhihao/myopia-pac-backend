@@ -90,9 +90,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private GovDeptService govDeptService;
 
-    @Resource
-    private VisionScreeningResultService visionScreeningResultService;
-
     /**
      * 新增学校
      *
@@ -460,6 +457,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         }
         return planPages;
+
+    }
     /**
      * 获取学校的筛查记录详情
      *

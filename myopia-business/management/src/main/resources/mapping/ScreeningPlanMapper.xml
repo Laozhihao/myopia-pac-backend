@@ -44,8 +44,6 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time
     </sql>
-    id
-    , screening_task_id, title, content,screeningOrgId, start_time, end_time, gov_dept_id, district_id, release_status, release_time, creator_id, create_time, operator_id, operate_time
 
     <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
         select p.* from m_screening_plan p , m_screening_plan_school sps
@@ -54,15 +52,6 @@
         and p.screening_org_id = #{screeningOrgId}
         and p.release_status = #{releaseStatus}
         and sps.school_id = #{schoolId}
-        and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
-    </select>
-
-    <select id="selectScreeningSchoolIds" resultType="integer">
-        select sps.school_id from m_screening_plan p , m_screening_plan_school sps
-        where
-        p.id = sps.screening_plan_id
-        and p.screening_org_id = #{screeningOrgId}
-        and p.release_status = #{releaseStatus}
         and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
     </select>
 
@@ -77,18 +66,7 @@
         order by msp.create_time desc
     </select>
 
-
-    <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
-        select p.* from m_screening_plan p , m_screening_plan_school sps
-        where
-        p.id = sps.screening_plan_id
-        and p.screening_org_id = #{screeningOrgId}
-        and p.release_status = #{releaseStatus}
-        and sps.school_id = #{schoolId}
-        and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
-    </select>
-
-    <select id="selectScreeningSchoolIds" resultType="integer">
+    <select id="selectScreeningSchoolIds" resultType="long">
         select sps.school_id from m_screening_plan p , m_screening_plan_school sps
         where
         p.id = sps.screening_plan_id
