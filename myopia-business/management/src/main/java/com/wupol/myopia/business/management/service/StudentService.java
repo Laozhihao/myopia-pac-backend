@@ -118,7 +118,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
-        // TODO 新增也需要检查身份证唯一性
         // 检查学生身份证是否重复
         if (checkIdCard(student.getIdCard(), null)) {
             throw new BusinessException("学生身份证重复");
