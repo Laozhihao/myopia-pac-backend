@@ -80,8 +80,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtVisionStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
