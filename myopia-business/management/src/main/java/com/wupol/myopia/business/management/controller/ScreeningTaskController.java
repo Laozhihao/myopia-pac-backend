@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
@@ -25,9 +26,7 @@ import com.wupol.myopia.business.management.service.ScreeningTaskService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -215,7 +214,7 @@ public class ScreeningTaskController {
     }
 
     /**
-     * 获取筛查机构相同时间段内已有已发布的任务
+     * 获取筛查机构相同时间段内已有已发布的任务（相同起始时间只取第一个）
      *
      * @param orgId 机构ID
      * @param screeningTaskQuery 查询参数，必须有govDeptId、startCreateTime、endCreateTime
@@ -223,7 +222,17 @@ public class ScreeningTaskController {
      */
     @PostMapping("orgs/period/{orgId}")
     public List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
-        return screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        List<ScreeningTaskOrgVo> periodList = new ArrayList<>();
+        List<String> existStartTimeEndTimeList = new ArrayList<>();
+        List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        hasTaskOrgVoInPeriod.forEach(vo -> {
+            String startTimeEndTime = String.format("%s--%s", DateFormatUtil.format(vo.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE), DateFormatUtil.format(vo.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE));
+            if (!existStartTimeEndTimeList.contains(startTimeEndTime)) {
+                periodList.add(vo);
+                existStartTimeEndTimeList.add(startTimeEndTime);
+            }
+        });
+        return periodList;
     }
 
     /**

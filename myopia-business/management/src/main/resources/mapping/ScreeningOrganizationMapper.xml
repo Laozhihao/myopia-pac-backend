@@ -112,4 +112,21 @@
         from m_screening_organization
         <include refid="Base_Where_Clause"/>
     </select>
+
+    <select id="getByNameAndNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+                where name = #{name}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
+
+    <select id="getByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+        where name like concat('%', #{name}, '%')
+    </select>
 </mapper>

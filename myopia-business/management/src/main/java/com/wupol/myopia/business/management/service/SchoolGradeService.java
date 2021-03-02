@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -60,14 +61,15 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 删除年级
      *
-     * @param id 年级id
+     * @param id          年级id
+     * @param currentUser 当前登录用户
      * @return 更新个数
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer deletedGrade(Integer id) {
+    public Integer deletedGrade(Integer id, CurrentUser currentUser) {
 
         // 判断年级是否班级使用
-        List<SchoolClass> schoolClasses = schoolClassService.getSchoolClassByGradeId(id);
+        List<SchoolClass> schoolClasses = schoolClassService.getByGradeId(id);
         if (!schoolClasses.isEmpty()) {
             throw new BusinessException("当前年级被班级依赖，不能删除");
         }
@@ -79,7 +81,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         }
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setId(id);
-        schoolGrade.setCreateUserId(1);
+        schoolGrade.setCreateUserId(currentUser.getId());
         schoolGrade.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(schoolGrade);
     }
@@ -100,7 +102,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         }
         // 获取班级，并且封装成Map
         Map<Integer, List<SchoolClass>> classMaps = schoolClassService
-                .getSchoolClassByGradeIds(schoolGrades
+                .getByGradeIds(schoolGrades
                         .getRecords()
                         .stream()
                         .map(SchoolGradeItems::getId)
@@ -124,7 +126,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
         // 获取班级，并且封装成Map
         Map<Integer, List<SchoolClass>> classMaps = schoolClassService
-                .getSchoolClassByGradeIds(schoolGrades
+                .getByGradeIds(schoolGrades
                         .stream()
                         .map(SchoolGradeItems::getId)
                         .collect(Collectors.toList()), schoolId).stream()
@@ -226,10 +228,6 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public List<SchoolGradeExportVO> getBySchoolIds(List<Integer> schoolIds) {
         return baseMapper.getBySchoolIds(schoolIds);
-    }
-
-    public List<Integer> batchInsertGrade() {
-        return null;
     }
 
     /**

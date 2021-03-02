@@ -20,6 +20,7 @@ import com.wupol.myopia.business.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -186,6 +187,26 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setSphDetails(packageVisionTrendsBySph(resultList));
         responseDTO.setNakedVisionDetails(packageVisionTrendsByNakedVision(resultList));
         return responseDTO;
+    }
+
+    /**
+     * 家长绑定学生
+     *
+     * @param request 请求入参
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void parentBindStudent(ParentBindRequest request) {
+        ParentStudent parentStudent = new ParentStudent();
+
+        Integer studentId = request.getStudentId();
+        Integer parentId = request.getParentId();
+        if (null == parentId || null == studentId) {
+            throw new BusinessException("数据异常");
+        }
+        parentStudent.setParentId(parentId);
+        parentStudent.setStudentId(studentId);
+
+        baseMapper.insert(parentStudent);
     }
 
     /**

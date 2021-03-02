@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -33,11 +32,12 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
+ * Date 2020-12-22
  */
 @Service
 @Log4j2
@@ -64,17 +64,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-
     /**
      * 根据学生id列表获取学生信息
      *
      * @param ids id列表
-     * @return
+     * @return List<Student>
      */
     public List<Student> getByIds(List<Integer> ids) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper();
-        InQueryAppend(queryWrapper, "id", ids);
-        return list(queryWrapper);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -84,10 +81,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
@@ -97,10 +91,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByClassId(Integer classId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "class_id", classId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
@@ -120,7 +111,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
-        // TODO 新增也需要检查身份证唯一性
         // 检查学生身份证是否重复
         if (checkIdCard(student.getIdCard(), null)) {
             throw new BusinessException("学生身份证重复");
@@ -181,6 +171,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
+                // TODO: 就诊次数
                 .setNumOfVisits(0);
         return studentDTO;
     }
@@ -245,7 +236,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 查询
+     * 通过条件查询
+     * @param query StudentQuery
+     * @return List<Student>
      */
     public List<Student> getBy(StudentQuery query) {
         return baseMapper.getBy(query);
@@ -369,14 +362,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCard(String IdCard, Integer id) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .eq("id_card", IdCard)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_IS_DELETED).size() > 0;
     }
 
     /**
@@ -400,10 +386,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCards(List<String> IdCards) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .in("id_card", IdCards)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_IS_DELETED).size() > 0;
     }
 
     /**
@@ -462,8 +445,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 根据筛查接口获取档案卡所需要的数据
      *
-     * @param visionScreeningResult
-     * @return
+     * @param visionScreeningResult 筛查结果
+     * @return StudentCardResponseDTO
      */
 /*    public List<VisionScreeningResult> getScreeningList(Integer studentId) {
         // 通过计划Ids查询学生的结果
@@ -527,8 +510,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
         //todo result.getVisionData().getLeftEyeData().getGlassesType()
         glassesTypeObj.setType("1");
-        glassesTypeObj.setLeftVision(new BigDecimal(4.5));
-        glassesTypeObj.setRightVision(new BigDecimal(4.7));
+        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
+        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
         details.setGlassesTypeObj(glassesTypeObj);
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
@@ -636,5 +619,145 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getByIdCard(String idCard) {
         return baseMapper.getByIdCard(idCard);
+    }
+
+    /**
+     * 医院端获取学生详情
+     *
+     * @param studentId 学生ID
+     * @param idCard    身份证
+     * @param name      姓名
+     * @return HospitalStudentDTO
+     */
+    public HospitalStudentDTO getHospitalStudentDetail(Integer studentId, String idCard, String name) {
+
+        HospitalStudentDTO studentDTO = new HospitalStudentDTO();
+        Student student;
+        if (null != studentId) {
+            student = baseMapper.selectById(studentId);
+        } else {
+            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
+                throw new BusinessException("数据异常，请确认");
+            }
+            student = baseMapper.getByIdCardAndName(idCard, name);
+        }
+        if (null == student) {
+            return studentDTO;
+        }
+
+        BeanUtils.copyProperties(student, studentDTO);
+
+        // 地区Maps
+        Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
+        packageStudentDistrict(districtMaps, studentDTO, student);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+        }
+        if (null != student.getGradeId()) {
+            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+        }
+        if (null != student.getClassId()) {
+            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        return studentDTO;
+    }
+
+    /**
+     * 医院端学生信息
+     *
+     * @param studentIds 学生ids
+     * @param name       学生姓名
+     * @return List<HospitalStudentDTO>
+     */
+    public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
+        List<HospitalStudentDTO> dtoList = new ArrayList<>();
+
+        List<Student> students = baseMapper.getByIdsAndName(studentIds, name);
+        if (CollectionUtils.isEmpty(students)) {
+            return new ArrayList<>();
+        }
+
+        // 学校Maps
+        List<School> schoolList = schoolService.getBySchoolNos(students
+                .stream().distinct().map(Student::getSchoolNo).collect(Collectors.toList()));
+        Map<String, School> schoolMaps = schoolList.stream()
+                .collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
+
+        // 班级Maps
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
+                .stream().map(Student::getClassId).collect(Collectors.toList()));
+
+        // 年级Maps
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
+                .stream().map(Student::getGradeId).collect(Collectors.toList()));
+
+        students.forEach(s -> {
+            HospitalStudentDTO dto = new HospitalStudentDTO();
+            BeanUtils.copyProperties(s, dto);
+
+            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+                dto.setSchool(schoolMaps.get(s.getSchoolNo()));
+            }
+            if (null != s.getClassId()) {
+                dto.setSchoolClass(classMaps.get(s.getClassId()));
+            }
+            if (null != s.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(s.getGradeId()));
+            }
+            dtoList.add(dto);
+        });
+        return dtoList;
+    }
+
+    /**
+     * 获取学生地区Maps
+     *
+     * @param students 学生列表
+     * @return Map<Long, District>
+     */
+    private Map<Long, District> getDistrictMap(List<Student> students) {
+        List<Long> districtCode = new ArrayList<>();
+        students.forEach(d -> {
+            if (null != d.getProvinceCode()) {
+                districtCode.add(d.getProvinceCode());
+            }
+            if (null != d.getCityCode()) {
+                districtCode.add(d.getCityCode());
+            }
+            if (null != d.getAreaCode()) {
+                districtCode.add(d.getAreaCode());
+            }
+            if (null != d.getTownCode()) {
+                districtCode.add(d.getTownCode());
+            }
+        });
+
+        // 地区Maps
+        return districtService.getByCodes(districtCode)
+                .stream().distinct().collect(Collectors
+                        .toMap(District::getCode, Function.identity()));
+    }
+
+    /**
+     * 封装学生区域
+     *
+     * @param districtMaps 区域Maps
+     * @param dto          dto
+     * @param student      学生
+     */
+    private void packageStudentDistrict(Map<Long, District> districtMaps, HospitalStudentDTO dto, Student student) {
+        if (null != student.getProvinceCode()) {
+            dto.setProvince(districtMaps.get(student.getProvinceCode()));
+        }
+        if (null != student.getCityCode()) {
+            dto.setCity(districtMaps.get(student.getCityCode()));
+        }
+        if (null != student.getAreaCode()) {
+            dto.setArea(districtMaps.get(student.getAreaCode()));
+        }
+        if (null != student.getTownCode()) {
+            dto.setTown(districtMaps.get(student.getTownCode()));
+        }
     }
 }

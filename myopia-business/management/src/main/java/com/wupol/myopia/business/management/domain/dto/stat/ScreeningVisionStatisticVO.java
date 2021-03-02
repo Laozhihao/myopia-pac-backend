@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -79,8 +80,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtVisionStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
@@ -97,11 +100,12 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setMyopiaNum(districtVisionStatistic.getMyopiaNumbers())
                 .setMyopiaRatio(districtVisionStatistic.getMyopiaRatio())
                 .setRecommendVisitNum(districtVisionStatistic.getTreatmentAdviceNumbers())
+                .setRecommendVisitRatio(districtVisionStatistic.getTreatmentAdviceRatio())
                 .setRefractiveErrorNum(districtVisionStatistic.getAmetropiaNumbers())
                 .setWearingGlassesRatio(districtVisionStatistic.getWearingGlassesRatio())
-                .setWearingGlassesNum(districtVisionStatistic.getKeyWarningNumbers())
-                .setWarningLevelOneNum(districtVisionStatistic.getVisionLabel0Numbers())
-                .setWarningLevelOneRatio(districtVisionStatistic.getVisionLabel0Ratio())
+                .setWearingGlassesNum(districtVisionStatistic.getWearingGlassesNumbers())
+                .setWarningLevelOneNum(districtVisionStatistic.getVisionLabel1Numbers())
+                .setWarningLevelOneRatio(districtVisionStatistic.getVisionLabel1Ratio())
                 .setWarningLevelTwoNum(districtVisionStatistic.getVisionLabel2Numbers())
                 .setWarningLevelTwoRatio(districtVisionStatistic.getVisionLabel2Ratio())
                 .setWarningLevelThreeNum(districtVisionStatistic.getVisionLabel3Numbers())
@@ -227,6 +231,11 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
+
+        /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
     }
 
 }

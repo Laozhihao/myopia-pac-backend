@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import software.amazon.ion.Decimal;
 
 /**
  * 学校某次筛查计划统计视力情况表

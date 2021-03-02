@@ -6,6 +6,7 @@ import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -221,4 +222,16 @@ public interface OauthServiceClient {
      **/
     @GetMapping("/oauth/user/batch/orgIds")
     ApiResult<List<UserDTO>> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
+
+    /**
+     * 登录
+     *
+     * @param clientId 客户端ID
+     * @param clientSecret 客户端秘钥
+     * @param username 用户名
+     * @param password 密码
+     * @return com.wupol.myopia.base.domain.ApiResult<com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO>
+     **/
+    @PostMapping("/login")
+    ApiResult<LoginInfoDTO> login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
 }

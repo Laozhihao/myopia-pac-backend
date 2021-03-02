@@ -169,12 +169,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(medicalRecord)) {
             return medicalRecord;
         }
-        medicalRecord = new MedicalRecord()
-                .setHospitalId(hospitalId)
-                .setDepartmentId(departmentId)
-                .setStudentId(studentId)
-                .setDoctorId(doctorId);
-        return createMedicalRecordWithConsultation(medicalRecord);
+        return createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
     }
 
     /**
@@ -199,19 +194,19 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         return null;
     }
 
-    /**
-     * 创建检查单, 自动关联今天的问诊信息
-     * @param medicalRecord 检查单
-     */
-    public MedicalRecord createMedicalRecordWithConsultation(MedicalRecord medicalRecord) {
-        if (Objects.isNull(medicalRecord.getHospitalId())) {
-            throw new BusinessException("医院id不能为空");
-        }
-        Consultation consultation = consultationService.getTodayLastConsultation(medicalRecord.getHospitalId(), medicalRecord.getStudentId());
-        medicalRecord.setConsultationId(Objects.isNull(consultation) ? null : consultation.getId());
-        baseMapper.insert(medicalRecord);
-        return medicalRecord;
-    }
+//    /**
+//     * 创建检查单, 自动关联今天的问诊信息
+//     * @param medicalRecord 检查单
+//     */
+//    public MedicalRecord createMedicalRecordWithConsultation(MedicalRecord medicalRecord) {
+//        if (Objects.isNull(medicalRecord.getHospitalId())) {
+//            throw new BusinessException("医院id不能为空");
+//        }
+//        Consultation consultation = consultationService.getTodayLastConsultation(medicalRecord.getHospitalId(), medicalRecord.getStudentId());
+//        medicalRecord.setConsultationId(Objects.isNull(consultation) ? null : consultation.getId());
+//        baseMapper.insert(medicalRecord);
+//        return medicalRecord;
+//    }
 
     /** 创建检查单 */
     public MedicalRecord createMedicalRecord(Integer hospitalId,
@@ -225,10 +220,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                              Integer departmentId,
                                              Integer doctorId,
                                              Integer studentId) {
-        return new MedicalRecord().setHospitalId(hospitalId)
+        MedicalRecord medicalRecord = new MedicalRecord().setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
                 .setStudentId(studentId);
+        baseMapper.insert(medicalRecord);
+        return medicalRecord;
     }
 
 }

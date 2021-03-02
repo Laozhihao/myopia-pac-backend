@@ -3,10 +3,14 @@ package com.wupol.myopia.business.management.domain.dto.stat;
 import com.wupol.myopia.business.management.constant.SchoolEnum;
 import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.service.SchoolService;
+import com.wupol.myopia.business.management.service.SchoolVisionStatisticService;
 import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,6 +20,8 @@ import java.util.stream.Collectors;
 @Data
 public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
 
+    @Autowired
+    private SchoolService schoolService;
     /**
      * 内容
      */
@@ -157,6 +163,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer recommendVisitNum;
 
         /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
+
+        /**
          * 学校id
          */
         private Integer schoolId;
@@ -202,6 +213,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.refractiveErrorNum = schoolVisionStatistic.getAmetropiaNumbers();
             item.refractiveErrorRatio = schoolVisionStatistic.getAmetropiaRatio();
             item.recommendVisitNum = schoolVisionStatistic.getTreatmentAdviceNumbers();
+            item.recommendVisitRatio = schoolVisionStatistic.getTreatmentAdviceRatio();
             item.focusTargetsNum = schoolVisionStatistic.getFocusTargetsNumbers();
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = districtName;

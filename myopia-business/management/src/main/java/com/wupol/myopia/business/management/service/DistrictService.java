@@ -55,6 +55,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 根据code查地址
+     *
+     * @param codes code
+     * @return List<District>
+     */
+    public List<District> getByCodes(List<Long> codes) {
+        return baseMapper.getByCodes(codes);
+    }
+
+    /**
      * 根据地址名查code，查不到时直接返回emptyList
      */
     public List<Long> getCodeByName(String provinceName, String cityName, String areaName, String townName) throws BusinessException {
@@ -283,7 +293,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             }
             String prefix = StrUtil.subBefore(String.valueOf(code), "000", false);
             if (rootCodeStr.startsWith(prefix)) {
-                return getSpecificDistrictTree(district.getChild(), code);
+                return getSpecificDistrictTree(district.getChild(), rootCode);
             }
         }
         return null;
@@ -594,6 +604,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 通过地区id找到所有下属district
+     *
      * @param districtId
      * @return
      */
@@ -623,20 +634,42 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取当前用户地区树 与 districts 的交集
+     *
      * @param user
      * @param districtIds
      * @return
      */
     public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
-        if (user == null || CollectionUtils.isEmpty(districtIds)) {
+        List<District> districts = new ArrayList<>();
+        if (user == null) {
+            return districts;
+        }
+/*
+
+        if (CollectionUtils.isEmpty(districtIds) && !user.isPlatformAdminUser()) {
+            District currentDistrict = getNotPlatformAdminUserDistrict(user);
+            districts.add(currentDistrict);
+            return districts;
+        } else if (CollectionUtils.isEmpty(districtIds)) {
             return new ArrayList<>();
         }
+*/
+
         List<District> districtTree = getCurrentUserDistrictTree(user);
-        return filterDistrictTree(districtTree,districtIds);
+        districts = filterDistrictTree(districtTree, districtIds);
+        if (user.isPlatformAdminUser()) {
+            return districts;
+        }
+        if (CollectionUtils.isEmpty(districts)) {
+            District currentDistrict = getNotPlatformAdminUserDistrict(user);
+            districts.add(currentDistrict);
+        }
+        return districts;
     }
 
     /**
      * 过滤该地区树没在districts
+     *
      * @param districtTree
      * @param districts
      * @return
@@ -645,13 +678,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (CollectionUtils.isEmpty(districtTree) || CollectionUtils.isEmpty(districts)) {
             return new ArrayList<>();
         }
-         return districtTree.stream().map(district ->
-            filterDistrict(district,districts)
-         ).filter(Objects::nonNull).collect(Collectors.toList());
+        return districtTree.stream().map(district ->
+                filterDistrict(district, districts)
+        ).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
      * 过滤地区
+     *
      * @param district
      * @param districts
      * @return
@@ -673,6 +707,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取下级的所有地区
+     *
      * @return
      * @throws IOException
      */

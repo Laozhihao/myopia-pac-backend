@@ -410,7 +410,7 @@ public class StatService {
      */
     public ScreeningVisionStatisticVO getScreeningVisionStatisticVO(Integer districtId, Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
         //根据层级获取数据
-        List<DistrictVisionStatistic> districtVisionStatistics = districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, screeningNotice.getDistrictId(), CurrentUserUtil.getCurrentUser());
+        List<DistrictVisionStatistic> districtVisionStatistics = districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, districtId, CurrentUserUtil.getCurrentUser());
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return ScreeningVisionStatisticVO.getImmutableEmptyInstance();
         }
@@ -435,7 +435,7 @@ public class StatService {
      */
     public DistrictScreeningMonitorStatisticVO getDistrictScreeningMonitorStatisticVO(Integer districtId, Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
         //根据层级获取数据(当前层级，下级层级，汇总数据）
-        List<DistrictMonitorStatistic> districtMonitorStatistics = districtMonitorStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, screeningNotice.getDistrictId(), CurrentUserUtil.getCurrentUser());
+        List<DistrictMonitorStatistic> districtMonitorStatistics = districtMonitorStatisticService.getStatisticDtoByNoticeIdAndUser(noticeId, districtId, CurrentUserUtil.getCurrentUser());
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return DistrictScreeningMonitorStatisticVO.getImmutableEmptyInstance();
         }

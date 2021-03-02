@@ -24,7 +24,6 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -512,7 +511,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getBySchoolName(String name) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("name", name));
+        return baseMapper.getByName(name);
     }
 
     /**
@@ -523,13 +522,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
     public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
-        QueryWrapper<School> query = new QueryWrapper<School>()
-                .eq("school_no", schoolNo);
-
-        if (-1 != schoolId) {
-            query.ne("id", schoolId);
-        }
-        return baseMapper.selectList(query).size() > 0;
+        return baseMapper.getByNoNeId(schoolNo, schoolId).size() > 0;
     }
 
     /**
@@ -539,7 +532,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return School
      */
     public School getBySchoolNo(String schoolNo) {
-        return baseMapper.selectOne(new QueryWrapper<School>().eq("school_no", schoolNo));
+        return baseMapper.getBySchoolNo(schoolNo);
     }
 
     /**
@@ -549,8 +542,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return School
      */
     public List<School> getBySchoolNos(List<String> schoolNos) {
-        return baseMapper.selectList(new QueryWrapper<School>()
-                .in("school_no", schoolNos));
+        return baseMapper.getBySchoolNos(schoolNos);
     }
 
     /**
@@ -560,7 +552,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().eq("district_id", districtId));
+        return baseMapper.getByDistrictId(districtId);
     }
 
     /**
@@ -581,7 +573,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByIds(List<Integer> ids) {
-        return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -592,14 +584,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 是否重复
      */
     public Boolean checkSchoolName(String schoolName, Integer id) {
-        QueryWrapper<School> queryWrapper = new QueryWrapper<School>()
-                .eq("name", schoolName);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByNameNeId(schoolName, id).size() > 0;
     }
 
     /**
