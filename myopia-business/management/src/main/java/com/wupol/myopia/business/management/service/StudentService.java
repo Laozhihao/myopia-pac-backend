@@ -687,7 +687,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (CollectionUtils.isEmpty(students)) {
             return new ArrayList<>();
         }
-        Map<Long, District> districtMaps = getDistrictMap(students);
 
         // 学校Maps
         List<School> schoolList = schoolService.getBySchoolNos(students
@@ -706,8 +705,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         students.forEach(s -> {
             HospitalStudentDTO dto = new HospitalStudentDTO();
             BeanUtils.copyProperties(s, dto);
-
-            packageStudentDistrict(districtMaps, dto, s);
 
             if (StringUtils.isNotBlank(s.getSchoolNo())) {
                 dto.setSchool(schoolMaps.get(s.getSchoolNo()));

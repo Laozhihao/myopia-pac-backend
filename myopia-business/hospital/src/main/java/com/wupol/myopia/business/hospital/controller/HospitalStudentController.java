@@ -4,9 +4,9 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.hospital.domain.model.Consultation;
-import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.hospital.service.ConsultationService;
 import com.wupol.myopia.business.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +33,12 @@ public class HospitalStudentController {
 
 
     @GetMapping()
-    public HospitalStudentVo getStudent(String token, String idCard) {
+    public HospitalStudentDTO getStudent(String token, String idCard) {
         return hospitalStudentService.getStudent(token, idCard);
     }
 
     @GetMapping("/{id}")
-    public HospitalStudentVo getStudent(@PathVariable("id") Integer id) {
+    public HospitalStudentDTO getStudent(@PathVariable("id") Integer id) {
         return hospitalStudentService.getStudentById(id);
     }
 
@@ -49,13 +49,13 @@ public class HospitalStudentController {
     }
 
     @GetMapping("/list")
-    public List<Student> getStudentList(String nameLike) throws IOException {
+    public List<HospitalStudentDTO> getStudentList(String nameLike) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentService.getStudentList(user.getOrgId(), nameLike);
     }
 
     @PostMapping()
-    public Integer saveStudent(@RequestBody @Valid HospitalStudentVo studentVo) {
+    public Integer saveStudent(@RequestBody @Valid HospitalStudentDTO studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentService.saveStudent(studentVo, user.getOrgId());
     }
@@ -64,7 +64,7 @@ public class HospitalStudentController {
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // TODO departmentId
-        consultationService.addConsulationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
+        consultationService.addConsultationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
         return true;
     }
 
