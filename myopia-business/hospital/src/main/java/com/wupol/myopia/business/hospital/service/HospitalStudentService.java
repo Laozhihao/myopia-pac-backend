@@ -9,6 +9,7 @@ import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
+import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
@@ -58,20 +59,20 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public HospitalStudentVo getStudent(String token, String idCard) {
         //TODO 解析token,获取学生信息
-        Student student = studentService.getStudentById(71);
+        return getStudentById(17);
+    }
+
+    /**
+     * 获取学生信息
+     * @param id     学生id
+     * @return
+     */
+    public HospitalStudentVo getStudentById(Integer id) {
+        HospitalStudentDTO student = studentService.getHospitalStudentDetail(id, null, null);
         if (Objects.isNull(student)) {
             throw new BusinessException("未找到该学生");
         }
-
         HospitalStudentVo studentVo = BeanCopyUtil.copyBeanPropertise(student, HospitalStudentVo.class);
-        studentVo.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()))
-                .setGrade(schoolGradeService.getById(student.getGradeId()))
-                .setClazz(schoolClassService.getById(student.getClassId()))
-                .setProvince(districtService.getByCode(student.getProvinceCode()))
-                .setCity(districtService.getByCode(student.getCityCode()))
-                .setArea(districtService.getByCode(student.getAreaCode()))
-                .setTown(districtService.getByCode(student.getTownCode()))
-        ;
         return studentVo;
     }
 
@@ -136,11 +137,11 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
             School school = schoolService.getBySchoolId(studentVo.getSchool().getId());
             student.setSchoolNo(school.getSchoolNo());
         }
-        if (Objects.nonNull(studentVo.getGrade())) {
-            student.setGradeId(studentVo.getGrade().getId());
+        if (Objects.nonNull(studentVo.getSchoolGrade())) {
+            student.setGradeId(studentVo.getSchoolGrade().getId());
         }
-        if (Objects.nonNull(studentVo.getClazz())) {
-            student.setClassId(studentVo.getClazz().getId());
+        if (Objects.nonNull(studentVo.getSchoolClass())) {
+            student.setClassId(studentVo.getSchoolClass().getId());
         }
         if (Objects.nonNull(studentVo.getProvince())) {
             student.setProvinceCode(districtService.getById(studentVo.getProvince().getId()).getCode());

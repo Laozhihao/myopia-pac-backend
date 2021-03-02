@@ -37,6 +37,11 @@ public class HospitalStudentController {
         return hospitalStudentService.getStudent(token, idCard);
     }
 
+    @GetMapping("/{id}")
+    public HospitalStudentVo getStudent(@PathVariable("id") Integer id) {
+        return hospitalStudentService.getStudentById(id);
+    }
+
     @GetMapping("/recentList")
     public List<Student> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -52,14 +57,16 @@ public class HospitalStudentController {
     @PostMapping()
     public Integer saveStudent(@RequestBody @Valid HospitalStudentVo studentVo) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        studentVo.setId(id);
         return hospitalStudentService.saveStudent(studentVo, user.getOrgId());
     }
 
     @PostMapping("/consultation")
-    public Integer createConsultation(@RequestBody @Valid Consultation consultation) {
+    public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        consultation.setHospitalId(user.getOrgId());
-        return consultationService.createConsultation(consultation);
+        // TODO departmentId
+        consultationService.addConsulationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
+        return true;
     }
 
 }

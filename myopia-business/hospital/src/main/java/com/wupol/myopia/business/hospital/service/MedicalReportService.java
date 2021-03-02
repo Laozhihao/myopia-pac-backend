@@ -97,14 +97,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         // 报告
         MedicalReport report = baseMapper.selectById(reportId);
         responseDTO.setReport(report);
-
-        // 病种
-        Consultation consultation = consultationService.getTodayLastConsultation(report.getHospitalId(), report.getStudentId());
-        responseDTO.setConsultation(consultation);
-
         // 检查单
         MedicalRecord record = medicalRecordService.getById(report.getId());
         responseDTO.setRecord(record);
+        // 问诊
+        Consultation consultation = consultationService.getById(record.getConsultationId());
+        responseDTO.setConsultation(consultation);
 
         return responseDTO;
     }

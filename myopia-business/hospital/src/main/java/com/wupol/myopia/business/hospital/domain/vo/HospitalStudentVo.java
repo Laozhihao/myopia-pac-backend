@@ -18,8 +18,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class HospitalStudentVo extends Student {
     private School school;
-    private SchoolGrade grade;
-    private SchoolClass clazz;
+    private SchoolGrade schoolGrade;
+    private SchoolClass schoolClass;
     private District province;
     private District city;
     private District area;
