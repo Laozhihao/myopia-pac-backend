@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -79,8 +80,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtVisionStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
