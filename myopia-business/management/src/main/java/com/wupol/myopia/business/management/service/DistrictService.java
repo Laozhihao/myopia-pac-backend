@@ -629,12 +629,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (user == null) {
             return districts;
         }
+/*
 
-        if (CollectionUtils.isEmpty(districtIds)) {
+        if (CollectionUtils.isEmpty(districtIds) && !user.isPlatformAdminUser()) {
             District currentDistrict = getNotPlatformAdminUserDistrict(user);
             districts.add(currentDistrict);
             return districts;
+        } else if (CollectionUtils.isEmpty(districtIds)) {
+            return new ArrayList<>();
         }
+*/
 
         List<District> districtTree = getCurrentUserDistrictTree(user);
         districts = filterDistrictTree(districtTree, districtIds);
