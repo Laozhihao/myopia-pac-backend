@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -82,10 +81,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
@@ -95,10 +91,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByClassId(Integer classId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "class_id", classId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_IS_DELETED);
     }
 
     /**
@@ -178,6 +171,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
+                // TODO: 就诊次数
                 .setNumOfVisits(0);
         return studentDTO;
     }
@@ -366,14 +360,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCard(String IdCard, Integer id) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .eq("id_card", IdCard)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_IS_DELETED).size() > 0;
     }
 
     /**
@@ -397,10 +384,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCards(List<String> IdCards) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .in("id_card", IdCards)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_IS_DELETED).size() > 0;
     }
 
     /**
@@ -676,13 +660,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 医院端学生信息
      *
      * @param studentIds 学生ids
-     * @param name 学生姓名
+     * @param name       学生姓名
      * @return List<HospitalStudentDTO>
      */
     public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
         List<HospitalStudentDTO> dtoList = new ArrayList<>();
 
-        List<Student> students = baseMapper.getByIdsAndName(studentIds,name);
+        List<Student> students = baseMapper.getByIdsAndName(studentIds, name);
         if (CollectionUtils.isEmpty(students)) {
             return new ArrayList<>();
         }

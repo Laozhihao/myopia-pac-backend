@@ -173,4 +173,40 @@
             and name like CONCAT('%', #{name}, '%')
         </if>
     </select>
+
+    <select id="getByGradeIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where grade_id = #{gradeId}
+          and status = #{status}
+    </select>
+
+    <select id="getByClassIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student
+        where class_id = #{classId}
+          and status = #{status}
+    </select>
+
+    <select id="getByIdCardNeIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student where id_card = #{cardId}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+        and status = #{status}
+    </select>
+
+    <select id="getByIdCardsAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_student where id_card in
+        <foreach collection="idCards" item="idCard" index="index" open="(" close=")" separator=",">
+            #{idCard}
+        </foreach>
+        and status = #{status}
+    </select>
 </mapper>
