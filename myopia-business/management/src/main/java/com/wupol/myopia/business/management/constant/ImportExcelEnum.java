@@ -18,11 +18,11 @@ public enum ImportExcelEnum {
     STUDENT_NO(6, "学号"),
     ID_CARD(7, "身份证号"),
     PHONE(8, "手机号码"),
-    PROVINCE(11, "省"),
-    CITY(12, "市"),
-    AREA(13, "县区"),
-    TOWN(14, "镇/街道"),
-    ADDRESS(15, "居住地址");
+    PROVINCE(9, "省"),
+    CITY(10, "市"),
+    AREA(11, "县区"),
+    TOWN(12, "镇/街道"),
+    ADDRESS(13, "居住地址");
 
     /** 列标 **/
     private final Integer index;

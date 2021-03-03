@@ -103,8 +103,10 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtMonitorStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;

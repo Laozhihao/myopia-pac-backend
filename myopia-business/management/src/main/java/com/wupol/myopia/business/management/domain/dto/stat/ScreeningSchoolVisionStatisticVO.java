@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -162,6 +163,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer recommendVisitNum;
 
         /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
+
+        /**
          * 学校id
          */
         private Integer schoolId;
@@ -207,6 +213,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.refractiveErrorNum = schoolVisionStatistic.getAmetropiaNumbers();
             item.refractiveErrorRatio = schoolVisionStatistic.getAmetropiaRatio();
             item.recommendVisitNum = schoolVisionStatistic.getTreatmentAdviceNumbers();
+            item.recommendVisitRatio = schoolVisionStatistic.getTreatmentAdviceRatio();
             item.focusTargetsNum = schoolVisionStatistic.getFocusTargetsNumbers();
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = districtName;
