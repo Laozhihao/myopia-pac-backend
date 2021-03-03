@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -75,5 +77,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
         return Collections.emptyList();
+    }
+
+    /**
+     * 根据筛查计划关联的存档的学生id
+     *
+     * @param screeningPlanSchoolStudentIds
+     * @return
+     */
+    public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
+        LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        visionScreeningResultLambdaQueryWrapper.in(VisionScreeningResult::getId, screeningPlanSchoolStudentIds);
+        return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 }

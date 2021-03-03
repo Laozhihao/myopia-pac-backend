@@ -154,14 +154,14 @@ CREATE TABLE `m_district_attentive_objects_statistic`
     `screening_notice_id`    int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的通知id',
     `screening_task_id`      int(10) unsigned NOT NULL DEFAULT 0 COMMENT '重点视力对象--关联的任务id（is_total情况下，可能为0）',
     `district_id`            int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的地区id',
-    `vision_label_0_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警人数（默认0）',
-    `vision_label_0_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_1_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警人数（默认0）',
-    `vision_label_1_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_2_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警人数（默认0）',
-    `vision_label_2_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_3_numbers` int(11) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警人数（默认0）',
-    `vision_label_3_ratio`   int(11) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label0_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警人数（默认0）',
+    `vision_label0_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label1_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警人数（默认0）',
+    `vision_label1_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label2_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警人数（默认0）',
+    `vision_label2_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label3_numbers` int(11) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警人数（默认0）',
+    `vision_label3_ratio`   int(11) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警比例（均为整数，如10.01%，数据库则是1001）',
     `key_warning_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--重点视力对象数量（默认0）',
     `student_numbers`        int(10) unsigned NOT NULL COMMENT '重点视力对象--学生总数 ',
     `update_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '重点视力对象--更新时间',
@@ -257,14 +257,14 @@ CREATE TABLE `m_school_vision_statistic`
     `myopia_ratio`             int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--近视比例（均为整数，如10.01%，数据库则是1001）',
     `ametropia_numbers`        int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--屈光不正人数（默认0）',
     `ametropia_ratio`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--屈光不正比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_0_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警人数（默认0）',
-    `vision_label_0_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_1_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警人数（默认0）',
-    `vision_label_1_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_2_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警人数（默认0）',
-    `vision_label_2_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）',
-    `vision_label_3_numbers`   int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警人数（默认0）',
-    `vision_label_3_ratio`     int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label0_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警人数（默认0）',
+    `vision_label0_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label1_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警人数（默认0）',
+    `vision_label1_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label2_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警人数（默认0）',
+    `vision_label2_ratio`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label3_numbers`   int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警人数（默认0）',
+    `vision_label3_ratio`     int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）',
     `key_warning_numbers`      int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--重点视力对象数量（默认0）',
     `treatment_advice_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊数量（默认0）',
     `treatment_advice_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
@@ -276,7 +276,7 @@ CREATE TABLE `m_school_vision_statistic`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校某次筛查计划统计视力情况表';
 
 -- ----------------------------
--- Table structure for m_screening_result
+-- Table structure for m_vision_screening_result
 -- ----------------------------
 DROP TABLE IF EXISTS `m_vision_screening_result`;
 CREATE TABLE `m_vision_screening_result`

@@ -9,7 +9,7 @@
     </resultMap>
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse">
+    <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse">
     </resultMap>
 
     <!-- 通用查询条件 -->

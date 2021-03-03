@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import software.amazon.ion.Decimal;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

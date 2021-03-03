@@ -52,7 +52,8 @@ public class ScreeningOrganizationController {
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
-        return saveScreeningOrganization.updateScreeningOrganization(screeningOrganization);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return saveScreeningOrganization.updateScreeningOrganization(user, screeningOrganization);
     }
 
     @GetMapping("{id}")

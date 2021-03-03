@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -316,6 +317,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setSchoolId(school.getId());
             student.setSchoolNo(school.getSchoolNo());
             student.setSchoolName(school.getName());
+            if (null != student.getClassId() && null != student.getGradeId()) {
+                SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+                SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
+                student.setClassName(schoolClass.getName());
+                student.setGradeName(schoolGrade.getName());
+            }
         }
         return student;
     }
@@ -435,19 +442,26 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return StudentCardResponseDTO
      */
     public StudentCardResponseDTO getCardDetails(Integer resultId) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        return getStudentCardResponseDTO(visionScreeningResult);
+    }
+
+    /**
+     * 根据筛查接口获取档案卡所需要的数据
+     * @param visionScreeningResult
+     * @return
+     */
+    public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult ){
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
-
-        VisionScreeningResult result = visionScreeningResultService.getById(resultId);
-        Integer studentId = result.getStudentId();
-
+        Integer studentId = visionScreeningResult.getStudentId();
         Student student = baseMapper.selectById(studentId);
         // 获取学生基本信息
         CardInfo cardInfo = getCardInfo(student);
-        cardInfo.setScreeningDate(result.getCreateTime());
+        cardInfo.setScreeningDate(visionScreeningResult.getCreateTime());
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(result);
+        CardDetails cardDetails = getCardDetails(visionScreeningResult);
         responseDTO.setDetails(cardDetails);
         return responseDTO;
     }
@@ -490,8 +504,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private CardDetails getCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-        details.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        //todo result.getVisionData().getLeftEyeData().getGlassesType()
+        glassesTypeObj.setType("1");
+        glassesTypeObj.setLeftVision(new BigDecimal(4.5));
+        glassesTypeObj.setRightVision(new BigDecimal(4.7));
+        details.setGlassesTypeObj(glassesTypeObj);
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result));
