@@ -76,7 +76,8 @@ public class StatService {
         if (lastConclusion == null) {
             return WarningInfo.builder().build();
         }
-        LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), ZoneId.of("UTC+8"));
+        ZoneId zoneId = ZoneId.of("UTC+8");
+        LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
         StatConclusionQuery warningListQuery = new StatConclusionQuery();
         warningListQuery.setDistrictIds(districtIds);
@@ -87,14 +88,18 @@ public class StatService {
         List<StatConclusion> warningConclusions =
                 statConclusionService.listByQuery(warningListQuery);
         long total = warningConclusions.size();
-        long warning0Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
-        long warning1Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
-        long warning2Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
-        long warning3Num = warningConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+        long warning0Num =
+                warningConclusions.stream().filter(x -> x.getWarningLevel() == 0).count();
+        long warning1Num =
+                warningConclusions.stream().filter(x -> x.getWarningLevel() == 1).count();
+        long warning2Num =
+                warningConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
+        long warning3Num =
+                warningConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
         long focusTargetsNum = warning1Num + warning2Num + warning3Num;
         return WarningInfo.builder()
-                .statTime(startDate.toEpochDay())
-                .endTime(endDate.toEpochDay())
+                .statTime(startDate.atStartOfDay(zoneId).toInstant().toEpochMilli())
+                .endTime(endDate.atStartOfDay(zoneId).toInstant().toEpochMilli() - 1)
                 .focusTargetsNum(focusTargetsNum)
                 .focusTargetsPercentage(convertToPercentage(focusTargetsNum * 1f / total))
                 .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
@@ -468,10 +473,10 @@ public class StatService {
         long validFirstScreeningNum = validConclusions.size();
         long recommendVisitNum =
                 validConclusions.stream().filter(x -> x.getIsRecommendVisit() == true).count();
-        long warning0Num = validConclusions.stream().map(x -> x.getWarningLevel() == 0).count();
-        long warning1Num = validConclusions.stream().map(x -> x.getWarningLevel() == 1).count();
-        long warning2Num = validConclusions.stream().map(x -> x.getWarningLevel() == 2).count();
-        long warning3Num = validConclusions.stream().map(x -> x.getWarningLevel() == 3).count();
+        long warning0Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 0).count();
+        long warning1Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 1).count();
+        long warning2Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
+        long warning3Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream()
@@ -533,8 +538,7 @@ public class StatService {
      * @return
      */
     private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
-        return new BasicStatParams(
-                desc, convertToPercentage(totalStatNum * 1f / totalStatNum), totalStatNum);
+        return new BasicStatParams(desc, convertToPercentage(statNum * 1f / totalStatNum), statNum);
     }
 
     /**
