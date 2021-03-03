@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -57,7 +58,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     /**
      * 重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel0Ratio;
+    private BigDecimal visionLabel0Ratio;
     /**
      * 重点视力对象--一级预警人数（默认0）
      */
@@ -66,7 +67,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     /**
      * 重点视力对象--一级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel1Ratio;
+    private BigDecimal visionLabel1Ratio;
 
     /**
      * 重点视力对象--二级预警人数（默认0）
@@ -76,7 +77,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     /**
      * 重点视力对象--二级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel2Ratio;
+    private BigDecimal visionLabel2Ratio;
 
     /**
      * 重点视力对象--三级预警人数（默认0）
@@ -86,7 +87,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     /**
      * 重点视力对象--三级预警比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer visionLabel3Ratio;
+    private BigDecimal visionLabel3Ratio;
 
     /**
      * 重点视力对象--重点视力对象数量（默认0）
