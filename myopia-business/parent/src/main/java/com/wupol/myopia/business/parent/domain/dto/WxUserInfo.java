@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.parent.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import lombok.Data;
  * @Author HaoHao
  * @Date 2021/3/1
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class WxUserInfo {
 

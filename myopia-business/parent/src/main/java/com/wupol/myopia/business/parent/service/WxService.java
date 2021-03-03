@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.parent.client.WxClient;
+import com.wupol.myopia.business.parent.constant.WxConstant;
 import com.wupol.myopia.business.parent.domain.dto.WxAccessTokenInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxLoginInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxUserInfo;
@@ -36,10 +37,6 @@ import java.util.Objects;
 @Service
 public class WxService {
     private static final Logger logger = LoggerFactory.getLogger(WxService.class);
-
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String WX_ERROR_CODE = "errcode";
-    private static final String WX_ERROR_MSG = "errmsg";
 
     @Value("${wechat.app.id}")
     private String appId;
@@ -78,11 +75,11 @@ public class WxService {
         String data = wxClient.getAccessToken(appId, appSecret, code, "authorization_code");
         logger.debug("获取wx access token返回值: {}", data);
         JSONObject dataJson = JSON.parseObject(data);
-        String accessToken = dataJson.getString(ACCESS_TOKEN);
+        String accessToken = dataJson.getString(WxConstant.ACCESS_TOKEN);
         String openId = dataJson.getString("openid");
         if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(openId)) {
             logger.error("获取wx access token返回值: {}", dataJson);
-            throw new BusinessException(dataJson.getString(WX_ERROR_MSG), dataJson.getInteger(WX_ERROR_CODE));
+            throw new BusinessException(dataJson.getString(WxConstant.WX_ERROR_MSG), dataJson.getInteger(WxConstant.WX_ERROR_CODE));
         }
         return new WxAccessTokenInfo().setOpenId(openId).setAccessToken(accessToken);
     }
@@ -94,7 +91,7 @@ public class WxService {
         WxUserInfo wxUserInfo = objectMapper.readValue(data, WxUserInfo.class);
         if (Objects.isNull(wxUserInfo) || StringUtils.isEmpty(wxUserInfo.getNickname())) {
             logger.error("获取微信用户信息，返回值: {}", data);
-            throw new BusinessException("【获取微信用户信息异常】：" + JSON.parseObject(data).getString(WX_ERROR_MSG));
+            throw new BusinessException("【获取微信用户信息异常】：" + JSON.parseObject(data).getString(WxConstant.WX_ERROR_MSG));
         }
         return wxUserInfo;
     }
@@ -106,7 +103,7 @@ public class WxService {
         Parent parent = new Parent().setOpenId(wxUserInfo.getOpenId()).setHashKey(EncryptUtils.md5Base64(wxUserInfo.getOpenId())).setWxNickname(wxUserInfo.getNickname()).setWxHeaderImgUrl(wxUserInfo.getHeadImgUrl());
         parentService.save(parent);
         // 新增用户
-        UserDTO userDTO = new UserDTO().setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PATENT_CLIENT.getCode());
+        UserDTO userDTO = new UserDTO().setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PATENT_CLIENT.getCode());
         userDTO = oauthService.addUser(userDTO);
         // 更新家长
         parentService.updateById(new Parent().setId(parent.getId()).setUserId(userDTO.getId()));
