@@ -3,14 +3,16 @@ package com.wupol.myopia.business.parent.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 /**
- * 验光仪检查结果
+ * 视力检查结果
  *
  * @author Simple4H
  */
 @Getter
 @Setter
-public class RefractoryResultItems {
+public class VisionItems {
 
     /**
      * 标题
@@ -33,16 +35,12 @@ public class RefractoryResultItems {
         /**
          * 视力
          */
-        private String vision;
+        private BigDecimal vision;
 
         /**
          * 类型
          */
         private String type;
-
-        /**
-         * 类型名称
-         */
-        private String typeName;
     }
+
 }

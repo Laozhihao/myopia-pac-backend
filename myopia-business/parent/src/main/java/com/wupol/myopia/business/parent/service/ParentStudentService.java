@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -219,7 +220,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType("1");
-        responseDTO.setNakedVisionItems(setNakedVision(result.getVisionData()));
+        responseDTO.setVisionList(setNakedVision(result.getVisionData()));
         responseDTO.setRefractoryResultItems(setRefractoryResult(result.getComputerOptometry()));
         return responseDTO;
     }
@@ -230,19 +231,42 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param date 数据
      * @return List<NakedVisionItems>
      */
-    private List<NakedVisionItems> setNakedVision(VisionDataDO date) {
+    private List<VisionItems> setNakedVision(VisionDataDO date) {
+        List<VisionItems> itemsList = new ArrayList<>();
 
-        NakedVisionItems left = new NakedVisionItems();
-        left.setLateriality(CommonConst.LEFT_EYE);
-        left.setCorrectedVision(date.getLeftEyeData().getCorrectedVision());
-        left.setNakedVision(date.getLeftEyeData().getNakedVision());
+        // 裸眼视力
+        VisionItems nakedVision = new VisionItems();
+        nakedVision.setTitle("裸眼视力");
 
-        NakedVisionItems right = new NakedVisionItems();
-        right.setLateriality(CommonConst.RIGHT_EYE);
-        right.setCorrectedVision(date.getRightEyeData().getCorrectedVision());
-        right.setNakedVision(date.getRightEyeData().getNakedVision());
+        VisionItems.Item leftNakedVision = new VisionItems.Item();
+        leftNakedVision.setVision(date.getLeftEyeData().getNakedVision());
+        leftNakedVision.setType("TODO");
+        nakedVision.setOs(leftNakedVision);
 
-        return Lists.newArrayList(right, left);
+        VisionItems.Item rightNakedVision = new VisionItems.Item();
+        rightNakedVision.setVision(date.getRightEyeData().getNakedVision());
+        rightNakedVision.setType("TODO");
+        nakedVision.setOd(rightNakedVision);
+
+        itemsList.add(nakedVision);
+
+        // 矫正视力
+        VisionItems correctedVision = new VisionItems();
+        correctedVision.setTitle("矫正视力");
+
+        VisionItems.Item leftCorrectedVision = new VisionItems.Item();
+        leftCorrectedVision.setVision(date.getLeftEyeData().getCorrectedVision());
+        leftCorrectedVision.setType("TODO");
+        correctedVision.setOs(leftCorrectedVision);
+
+        VisionItems.Item rightCorrectedVision = new VisionItems.Item();
+        rightCorrectedVision.setVision(date.getRightEyeData().getCorrectedVision());
+        rightCorrectedVision.setType("TODO");
+        correctedVision.setOd(rightCorrectedVision);
+
+        itemsList.add(correctedVision);
+
+        return itemsList;
     }
 
     /**
@@ -252,19 +276,63 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return List<RefractoryResultItems>
      */
     private List<RefractoryResultItems> setRefractoryResult(ComputerOptometryDO date) {
-        RefractoryResultItems left = new RefractoryResultItems();
-        left.setLateriality(CommonConst.LEFT_EYE);
-        left.setAxial(date.getLeftEyeData().getAxial());
-        left.setSph(date.getLeftEyeData().getSph());
-        left.setCyl(date.getLeftEyeData().getCyl());
+        List<RefractoryResultItems> items = new ArrayList<>();
 
+        // 轴位
+        RefractoryResultItems axialItems = new RefractoryResultItems();
+        axialItems.setTitle("轴位");
 
-        RefractoryResultItems right = new RefractoryResultItems();
-        right.setLateriality(CommonConst.RIGHT_EYE);
-        right.setAxial(date.getRightEyeData().getAxial());
-        right.setSph(date.getRightEyeData().getSph());
-        right.setCyl(date.getRightEyeData().getCyl());
-        return Lists.newArrayList(right, left);
+        RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
+        leftAxialItems.setVision(date.getLeftEyeData().getAxial());
+        leftAxialItems.setType("TODO");
+        leftAxialItems.setTypeName("TODO-NAME");
+        axialItems.setOs(leftAxialItems);
+
+        RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
+        rightAxialItems.setVision(date.getRightEyeData().getAxial());
+        rightAxialItems.setType("TODO");
+        rightAxialItems.setTypeName("TODO-NAME");
+        axialItems.setOd(rightAxialItems);
+
+        items.add(axialItems);
+
+        // 球镜
+        RefractoryResultItems sphItems = new RefractoryResultItems();
+        sphItems.setTitle("球镜");
+
+        RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
+        leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
+        leftSphItems.setType("TODO");
+        leftSphItems.setTypeName("TODO-NAME");
+        sphItems.setOs(leftSphItems);
+
+        RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
+        rightSphItems.setVision(date.getRightEyeData().getSph().toString());
+        rightSphItems.setType("TODO");
+        rightSphItems.setTypeName("TODO-NAME");
+        sphItems.setOd(rightSphItems);
+
+        items.add(sphItems);
+
+        // 柱镜
+        RefractoryResultItems cylItems = new RefractoryResultItems();
+        cylItems.setTitle("轴位");
+
+        RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
+        leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
+        leftCylItems.setType("TODO");
+        leftCylItems.setTypeName("TODO-NAME");
+        cylItems.setOs(leftCylItems);
+
+        RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
+        rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
+        rightCylItems.setType("TODO");
+        rightCylItems.setTypeName("TODO-NAME");
+        cylItems.setOd(rightCylItems);
+
+        items.add(cylItems);
+
+        return items;
     }
 
     /**

@@ -28,7 +28,7 @@ public class ScreeningReportResponseDTO {
     /**
      * 视力检查结果
      */
-    private List<NakedVisionItems> nakedVisionItems;
+    private List<VisionItems> visionList;
 
     /**
      * 验光仪检查结果
