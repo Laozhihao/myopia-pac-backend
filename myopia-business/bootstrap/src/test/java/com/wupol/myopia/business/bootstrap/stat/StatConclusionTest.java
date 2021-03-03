@@ -1,23 +1,12 @@
 package com.wupol.myopia.business.bootstrap.stat;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
-import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO.ComputerOptometry;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO.VisionData;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
+import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -35,6 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MyopiaBusinessApplication.class)
 public class StatConclusionTest {
@@ -46,6 +40,9 @@ public class StatConclusionTest {
 
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private StatConclusionService statConclusionService;
 
     @Test
     public void testInsert() throws IOException {
@@ -66,10 +63,20 @@ public class StatConclusionTest {
             Student student = studentService.getById(result.getStudentId());
 
             int age = planStudent.getStudentAge();
-            // TODO: 如何获取学龄
-            int schoolAge = 0;
             int districtId = result.getDistrictId();
             int gender = student.getGender();
+            int planId = result.getPlanId();
+            int taskId = result.getTaskId();
+            int resultId = result.getId();
+            boolean isRescreen = result.getIsDoubleScreen();
+            // TODO: 需要获取noticeId
+            int srcScreeningNoticeId = 0;
+            // TODO: 如何获取学龄
+            int schoolAge = 0;
+            // TODO: 需要增加合法数据判断
+            boolean isValid = true;
+            // TODO: 需要增加是否戴镜方法
+            boolean isWearingGlasses = false;
 
             float leftCyl = leftData.getCyl().floatValue();
             float rightCyl = rightData.getCyl().floatValue();
@@ -77,16 +84,18 @@ public class StatConclusionTest {
             float leftSph = leftData.getSph().floatValue();
             float rightSph = rightData.getSph().floatValue();
 
-            int leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
-            int rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(rightCyl);
+            WarningLevel leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(leftCyl);
+            WarningLevel rightAstigmatismWarningLevel =
+                    StatUtil.getAstigmatismWarningLevel(rightCyl);
 
-            int leftHyperopiaWarningLevel =
+            WarningLevel leftHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(leftSph, leftCyl, age);
-            int rightHyperopiaWarningLevel =
+            WarningLevel rightHyperopiaWarningLevel =
                     StatUtil.getHyperopiaWarningLevel(rightSph, rightCyl, age);
 
-            int leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
-            int rightMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
+            WarningLevel leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(leftSph, leftCyl);
+            WarningLevel rightMyopiaWarningLevel =
+                    StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
 
             float leftNakedVision = visionData.getLeftEyeData().getNakedVision().floatValue();
             float rightNakedVision = visionData.getRightEyeData().getNakedVision().floatValue();
@@ -95,68 +104,83 @@ public class StatConclusionTest {
             float rightCorrectVision =
                     visionData.getRightEyeData().getCorrectedVision().floatValue();
 
-            boolean isHyperopia = StatUtil.isHyperopia(WarningLevel.get(leftHyperopiaWarningLevel))
-                    || StatUtil.isHyperopia(WarningLevel.get(rightHyperopiaWarningLevel));
-            boolean isAstigmatism =
-                    StatUtil.isAstigmatism(WarningLevel.get(leftAstigmatismWarningLevel))
-                    || StatUtil.isAstigmatism(WarningLevel.get(rightAstigmatismWarningLevel));
-            boolean isMyopia = StatUtil.isMyopia(WarningLevel.get(leftMyopiaWarningLevel))
-                    || StatUtil.isMyopia(WarningLevel.get(rightMyopiaWarningLevel));
+            // boolean isWearingGlasses = visionData.getLeftEyeData().getGlassesType();
 
-            int leftNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
+            boolean isHyperopia = StatUtil.isHyperopia(leftHyperopiaWarningLevel)
+                    || StatUtil.isHyperopia(rightHyperopiaWarningLevel);
+            boolean isAstigmatism = StatUtil.isAstigmatism(leftAstigmatismWarningLevel)
+                    || StatUtil.isAstigmatism(rightAstigmatismWarningLevel);
+            boolean isMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel)
+                    || StatUtil.isMyopia(rightMyopiaWarningLevel);
+
+            WarningLevel leftNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
                     visionData.getLeftEyeData().getNakedVision().floatValue(), age);
-            int rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
+            WarningLevel rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
                     visionData.getLeftEyeData().getNakedVision().floatValue(), age);
 
-            boolean isLowVision =
-                    StatUtil.isLowVision(WarningLevel.get(leftNakedVisionWarningLevel))
-                    || StatUtil.isLowVision(WarningLevel.get(rightNakedVisionWarningLevel));
+            boolean isLowVision = StatUtil.isLowVision(leftNakedVisionWarningLevel)
+                    || StatUtil.isLowVision(rightNakedVisionWarningLevel);
 
             boolean isRefractiveError =
                     StatUtil.isRefractiveError(isAstigmatism, isMyopia, isHyperopia);
 
-            boolean isRecommendVisit = StatUtil.isRecommendVisit(leftNakedVision, leftSph, leftCyl,
-                                               leftCorrectVision, SchoolAge.get(schoolAge))
+            boolean isRecommendVisit =
+                    StatUtil.isRecommendVisit(leftNakedVision, leftSph, leftCyl, isWearingGlasses,
+                            leftCorrectVision, age, SchoolAge.get(schoolAge))
                     || StatUtil.isRecommendVisit(rightNakedVision, rightSph, rightCyl,
-                               rightCorrectVision, SchoolAge.get(schoolAge));
+                            isWearingGlasses, rightCorrectVision, age, SchoolAge.get(schoolAge));
 
             List<Integer> warningLevelList = new ArrayList() {
                 {
-                    add(leftAstigmatismWarningLevel);
-                    add(rightAstigmatismWarningLevel);
+                    add(leftAstigmatismWarningLevel.code);
+                    add(rightAstigmatismWarningLevel.code);
 
-                    add(leftHyperopiaWarningLevel);
-                    add(rightHyperopiaWarningLevel);
+                    add(leftHyperopiaWarningLevel.code);
+                    add(rightHyperopiaWarningLevel.code);
 
-                    add(leftMyopiaWarningLevel);
-                    add(rightMyopiaWarningLevel);
+                    add(leftMyopiaWarningLevel.code);
+                    add(rightMyopiaWarningLevel.code);
 
-                    add(leftNakedVisionWarningLevel);
-                    add(rightNakedVisionWarningLevel);
+                    add(leftNakedVisionWarningLevel.code);
+                    add(rightNakedVisionWarningLevel.code);
                 }
             };
 
             Integer warningLevel = Collections.max(warningLevelList);
 
             StatConclusion statConclusion = new StatConclusion();
-            statConclusion.setIsHyperopia(isHyperopia);
-            statConclusion.setIsAstigmatism(isAstigmatism);
-            statConclusion.setIsMyopia(isMyopia);
-            statConclusion.setIsLowVision(isLowVision);
-            statConclusion.setIsRefractiveError(isRefractiveError);
-            statConclusion.setIsRecommendVisit(isRecommendVisit);
-            // statConclusion.setIsRescreen(isRescreen);
-            // statConclusion.setIsValid(isValid);
-            // statConclusion.setIsWearingGlasses(isWearingGlasses);
-            // statConclusion.setPlanId(planId);
-            // statConclusion.setTaskId(taskId);
-            // statConclusion.setSrcScreeningNoticeId(srcScreeningNoticeId);
+            statConclusion.setResultId(resultId);
+            statConclusion.setSrcScreeningNoticeId(srcScreeningNoticeId);
+            statConclusion.setTaskId(taskId);
+            statConclusion.setPlanId(planId);
             statConclusion.setDistrictId(districtId);
+            statConclusion.setSchoolAge(schoolAge);
             statConclusion.setGender(gender);
+            statConclusion.setWarningLevel(warningLevel);
             statConclusion.setVisionL(leftNakedVision);
             statConclusion.setVisionR(rightNakedVision);
-            statConclusion.setWarningLevel(warningLevel);
+            statConclusion.setIsLowVision(isLowVision);
+            statConclusion.setIsRefractiveError(isRefractiveError);
+            statConclusion.setIsMyopia(isMyopia);
+            statConclusion.setIsHyperopia(isHyperopia);
+            statConclusion.setIsAstigmatism(isAstigmatism);
+            statConclusion.setIsWearingGlasses(isWearingGlasses);
+            statConclusion.setIsRecommendVisit(isRecommendVisit);
+            statConclusion.setIsRescreen(isRescreen);
+            if (isRescreen) {
+                // TODO: 需要与初筛数据对比获取错误项次
+                int rescreenErrorNum = 4;
+                statConclusion.setRescreenErrorNum(rescreenErrorNum);
+            } else {
+                statConclusion.setRescreenErrorNum(0);
+            }
+            statConclusion.setIsValid(isValid);
+
+            // StatConclusion wrapper = new StatConclusion();
+            // wrapper.setResultId(resultId);
+            UpdateWrapper<StatConclusion> updateWrapper = new UpdateWrapper();
+            updateWrapper.eq("result_id", resultId);
+            Assert.assertTrue(statConclusionService.saveOrUpdate(statConclusion, updateWrapper));
         }
-        Assert.assertTrue(list != null);
     }
 }

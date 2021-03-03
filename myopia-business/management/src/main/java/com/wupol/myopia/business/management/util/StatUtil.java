@@ -14,7 +14,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isMyopia(Float sphere, Float cylinder) {
-        return getMyopiaWarningLevel(sphere, cylinder) > 0 ? true : false;
+        return getMyopiaWarningLevel(sphere, cylinder).code > 0 ? true : false;
     }
 
     /**
@@ -34,7 +34,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
-        return getHyperopiaWarningLevel(sphere, cylinder, age) > 0 ? true : false;
+        return getHyperopiaWarningLevel(sphere, cylinder, age).code > 0 ? true : false;
     }
 
     /**
@@ -52,7 +52,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isAstigmatism(Float cylinder) {
-        return getAstigmatismWarningLevel(cylinder) > 0 ? true : false;
+        return getAstigmatismWarningLevel(cylinder).code > 0 ? true : false;
     }
 
     /**
@@ -71,7 +71,7 @@ public class StatUtil {
      * @return
      */
     public static boolean isLowVision(Float nakedVision, Integer age) {
-        return getNakedVisionWarningLevel(nakedVision, age) > 0 ? true : false;
+        return getNakedVisionWarningLevel(nakedVision, age).code > 0 ? true : false;
     }
 
     /**
@@ -135,7 +135,7 @@ public class StatUtil {
      * @param age 年龄
      * @return
      */
-    public static Integer getNakedVisionWarningLevel(Float nakedVision, Integer age) {
+    public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
         switch (age) {
             case 0:
             case 1:
@@ -143,25 +143,25 @@ public class StatUtil {
             case 3:
             case 4:
             case 5:
-                if (nakedVision > 4.7f && nakedVision < 5.0f) return WarningLevel.ZERO.code;
-                if (nakedVision > 4.6f && nakedVision <= 4.7f) return WarningLevel.ONE.code;
-                if (nakedVision > 4.5f && nakedVision <= 4.6f) return WarningLevel.TWO.code;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE.code;
+                if (nakedVision > 4.7f && nakedVision < 5.0f) return WarningLevel.ZERO;
+                if (nakedVision > 4.6f && nakedVision <= 4.7f) return WarningLevel.ONE;
+                if (nakedVision > 4.5f && nakedVision <= 4.6f) return WarningLevel.TWO;
+                if (nakedVision <= 4.5f) return WarningLevel.THREE;
                 break;
             case 6:
             case 7:
-                if (nakedVision > 4.8f && nakedVision < 5.0f) return WarningLevel.ZERO.code;
-                if (nakedVision > 4.7f && nakedVision <= 4.8f) return WarningLevel.ONE.code;
-                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO.code;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE.code;
+                if (nakedVision > 4.8f && nakedVision < 5.0f) return WarningLevel.ZERO;
+                if (nakedVision > 4.7f && nakedVision <= 4.8f) return WarningLevel.ONE;
+                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO;
+                if (nakedVision <= 4.5f) return WarningLevel.THREE;
                 break;
             default:
-                if (nakedVision > 4.9f && nakedVision < 5.0f) return WarningLevel.ZERO.code;
-                if (nakedVision > 4.7f && nakedVision <= 4.9f) return WarningLevel.ONE.code;
-                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO.code;
-                if (nakedVision <= 4.5f) return WarningLevel.THREE.code;
+                if (nakedVision > 4.9f && nakedVision < 5.0f) return WarningLevel.ZERO;
+                if (nakedVision > 4.7f && nakedVision <= 4.9f) return WarningLevel.ONE;
+                if (nakedVision > 4.5f && nakedVision <= 4.7f) return WarningLevel.TWO;
+                if (nakedVision <= 4.5f) return WarningLevel.THREE;
         }
-        return WarningLevel.NORMAL.code;
+        return WarningLevel.NORMAL;
     }
 
     /**
@@ -171,63 +171,63 @@ public class StatUtil {
      * @param age 年龄
      * @return
      */
-    public static Integer getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
+    public static WarningLevel getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
         Float se = getSphericalEquivalent(sphere, cylinder);
         switch (age) {
             case 0:
             case 1:
             case 2:
             case 3:
-                if (se > 3f && se <= 3.5f) return WarningLevel.ZERO.code;
-                if (se > 3.5f && se <= 6f) return WarningLevel.ONE.code;
-                if (se > 6f && se <= 9f) return WarningLevel.TWO.code;
-                if (se > 9f) return WarningLevel.THREE.code;
+                if (se > 3f && se <= 3.5f) return WarningLevel.ZERO;
+                if (se > 3.5f && se <= 6f) return WarningLevel.ONE;
+                if (se > 6f && se <= 9f) return WarningLevel.TWO;
+                if (se > 9f) return WarningLevel.THREE;
                 break;
             case 4:
             case 5:
-                if (se > 2.0f && se <= 2.5f) return WarningLevel.ZERO.code;
-                if (se > 2.5f && se <= 5.0f) return WarningLevel.ONE.code;
-                if (se > 5.0f && se <= 8.0f) return WarningLevel.TWO.code;
-                if (se > 8.0f) return WarningLevel.THREE.code;
+                if (se > 2.0f && se <= 2.5f) return WarningLevel.ZERO;
+                if (se > 2.5f && se <= 5.0f) return WarningLevel.ONE;
+                if (se > 5.0f && se <= 8.0f) return WarningLevel.TWO;
+                if (se > 8.0f) return WarningLevel.THREE;
                 break;
             case 6:
             case 7:
-                if (se > 1.5f && se <= 2.0f) return WarningLevel.ZERO.code;
-                if (se > 2.0f && se <= 4.5f) return WarningLevel.ONE.code;
-                if (se > 4.5f && se <= 7.5f) return WarningLevel.TWO.code;
-                if (se > 7.5f) return WarningLevel.THREE.code;
+                if (se > 1.5f && se <= 2.0f) return WarningLevel.ZERO;
+                if (se > 2.0f && se <= 4.5f) return WarningLevel.ONE;
+                if (se > 4.5f && se <= 7.5f) return WarningLevel.TWO;
+                if (se > 7.5f) return WarningLevel.THREE;
                 break;
             case 8:
-                if (se > 1.0f && se <= 1.5f) return WarningLevel.ZERO.code;
-                if (se > 1.5f && se <= 4.0f) return WarningLevel.ONE.code;
-                if (se > 4.0f && se <= 7.0f) return WarningLevel.TWO.code;
-                if (se > 7.0f) return WarningLevel.THREE.code;
+                if (se > 1.0f && se <= 1.5f) return WarningLevel.ZERO;
+                if (se > 1.5f && se <= 4.0f) return WarningLevel.ONE;
+                if (se > 4.0f && se <= 7.0f) return WarningLevel.TWO;
+                if (se > 7.0f) return WarningLevel.THREE;
                 break;
             case 9:
-                if (se > 0.75f && se <= 1.25f) return WarningLevel.ZERO.code;
-                if (se > 1.25f && se <= 3.75f) return WarningLevel.ONE.code;
-                if (se > 3.75f && se <= 6.75f) return WarningLevel.TWO.code;
-                if (se > 6.75f) return WarningLevel.THREE.code;
+                if (se > 0.75f && se <= 1.25f) return WarningLevel.ZERO;
+                if (se > 1.25f && se <= 3.75f) return WarningLevel.ONE;
+                if (se > 3.75f && se <= 6.75f) return WarningLevel.TWO;
+                if (se > 6.75f) return WarningLevel.THREE;
                 break;
             case 10:
-                if (se > 0.5f && se <= 1.0f) return WarningLevel.ZERO.code;
-                if (se > 1.0f && se <= 3.5f) return WarningLevel.ONE.code;
-                if (se > 3.5f && se <= 6.5f) return WarningLevel.TWO.code;
-                if (se > 6.5f) return WarningLevel.THREE.code;
+                if (se > 0.5f && se <= 1.0f) return WarningLevel.ZERO;
+                if (se > 1.0f && se <= 3.5f) return WarningLevel.ONE;
+                if (se > 3.5f && se <= 6.5f) return WarningLevel.TWO;
+                if (se > 6.5f) return WarningLevel.THREE;
                 break;
             case 11:
-                if (se > 0.5f && se <= 0.75f) return WarningLevel.ZERO.code;
-                if (se > 0.75f && se <= 3.25f) return WarningLevel.ONE.code;
-                if (se > 3.25f && se <= 6.25f) return WarningLevel.TWO.code;
-                if (se > 6.25f) return WarningLevel.THREE.code;
+                if (se > 0.5f && se <= 0.75f) return WarningLevel.ZERO;
+                if (se > 0.75f && se <= 3.25f) return WarningLevel.ONE;
+                if (se > 3.25f && se <= 6.25f) return WarningLevel.TWO;
+                if (se > 6.25f) return WarningLevel.THREE;
                 break;
             default:
-                if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO.code;
-                if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE.code;
-                if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO.code;
-                if (se > 6.0f) return WarningLevel.THREE.code;
+                if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO;
+                if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE;
+                if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO;
+                if (se > 6.0f) return WarningLevel.THREE;
         }
-        return WarningLevel.NORMAL.code;
+        return WarningLevel.NORMAL;
     }
 
     /**
@@ -236,13 +236,13 @@ public class StatUtil {
      * @param cylinder 柱镜
      * @return
      */
-    public static Integer getMyopiaWarningLevel(Float sphere, Float cylinder) {
+    public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
         Float se = getSphericalEquivalent(sphere, cylinder);
-        if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO.code;
-        if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE.code;
-        if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO.code;
-        if (se < -6.0f) return WarningLevel.THREE.code;
-        return WarningLevel.NORMAL.code;
+        if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
+        if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
+        if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO;
+        if (se < -6.0f) return WarningLevel.THREE;
+        return WarningLevel.NORMAL;
     }
 
     /**
@@ -250,13 +250,13 @@ public class StatUtil {
      * @param cylinder 柱镜
      * @return
      */
-    public static Integer getAstigmatismWarningLevel(Float cylinder) {
+    public static WarningLevel getAstigmatismWarningLevel(Float cylinder) {
         Float cylinderAbs = Math.abs(cylinder);
-        if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO.code;
-        if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE.code;
-        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) return WarningLevel.TWO.code;
-        if (cylinderAbs > 4.0f) return WarningLevel.THREE.code;
-        return WarningLevel.NORMAL.code;
+        if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO;
+        if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;
+        if (cylinderAbs > 2.0f && cylinderAbs <= 4.0f) return WarningLevel.TWO;
+        if (cylinderAbs > 4.0f) return WarningLevel.THREE;
+        return WarningLevel.NORMAL;
     }
 
     /**
