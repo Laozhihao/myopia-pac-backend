@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
+import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,9 +15,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
 public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
-
 
     /**
      * 私有构造方法
@@ -46,19 +47,19 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
      */
     private Set<Item> subordinateDatas;
 
-    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask, Map<Integer, String> districtIdNameMap) {
+    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return null;
         }
         ScreeningVisionStatisticVO screeningVisionStatisticVO = new ScreeningVisionStatisticVO();
         //设置基础数据
-        screeningVisionStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningTask);
+        screeningVisionStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
         //设置统计数据
         screeningVisionStatisticVO.setItemData(currentDistrictId, districtVisionStatistics, districtIdNameMap);
         return screeningVisionStatisticVO;
     }
 
-    public static ScreeningVisionStatisticVO getEmptyInstance() {
+    public static ScreeningVisionStatisticVO getImmutableEmptyInstance() {
         return new ScreeningVisionStatisticVO();
     }
 
@@ -79,8 +80,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtVisionStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
@@ -97,11 +100,12 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setMyopiaNum(districtVisionStatistic.getMyopiaNumbers())
                 .setMyopiaRatio(districtVisionStatistic.getMyopiaRatio())
                 .setRecommendVisitNum(districtVisionStatistic.getTreatmentAdviceNumbers())
+                .setRecommendVisitRatio(districtVisionStatistic.getTreatmentAdviceRatio())
                 .setRefractiveErrorNum(districtVisionStatistic.getAmetropiaNumbers())
                 .setWearingGlassesRatio(districtVisionStatistic.getWearingGlassesRatio())
-                .setWearingGlassesNum(districtVisionStatistic.getKeyWarningNumbers())
-                .setWarningLevelOneNum(districtVisionStatistic.getVisionLabel0Numbers())
-                .setWarningLevelOneRatio(districtVisionStatistic.getVisionLabel0Ratio())
+                .setWearingGlassesNum(districtVisionStatistic.getWearingGlassesNumbers())
+                .setWarningLevelOneNum(districtVisionStatistic.getVisionLabel1Numbers())
+                .setWarningLevelOneRatio(districtVisionStatistic.getVisionLabel1Ratio())
                 .setWarningLevelTwoNum(districtVisionStatistic.getVisionLabel2Numbers())
                 .setWarningLevelTwoRatio(districtVisionStatistic.getVisionLabel2Ratio())
                 .setWarningLevelThreeNum(districtVisionStatistic.getVisionLabel3Numbers())
@@ -115,10 +119,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
     }
 
 
-    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask) {
+    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice) {
         this.districtId = currentDistrictId;
         this.rangeName = currentRangeName;
-        super.setDataByScreeningTask(screeningTask);
+        super.setDataByScreeningNotice(screeningNotice);
     }
 
     @Data
@@ -228,37 +232,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          */
         private Integer recommendVisitNum;
 
-
+        /**
+         * 建议就诊数比例
+         */
+        private BigDecimal recommendVisitRatio;
     }
 
-
-
-    /*  *//** 视力筛查完成率 *//*
-    private BigDecimal screeningFinishedRatio;
-
-    *//** 复测人数 *//*
-    private Integer rescreenNum;
-
-
-
-    *//** 戴镜复测人数 *//*
-    private Integer wearingGlassesRescreenNum;
-
-    *//** 戴镜复测指标数 *//*
-    private Integer wearingGlassesRescreenIndexNum;
-
-    *//** 非戴镜复测人数 *//*
-    private Integer withoutGlassesRescreenNum;
-
-    *//** 非戴镜复测指标数 *//*
-    private Integer withoutGlassesRescreenIndexNum;
-
-    *//** 复测项次 *//*
-    private Integer rescreenItemNum;
-
-    *//** 错误项次数 *//*
-    private Integer incorrectItemNum;
-
-    *//** 错误率/发生率 *//*
-    private BigDecimal incorrectRatio;*/
 }

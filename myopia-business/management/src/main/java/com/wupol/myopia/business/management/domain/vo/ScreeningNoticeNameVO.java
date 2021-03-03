@@ -15,23 +15,21 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-public class ScreeningTaskNameVO{
+public class ScreeningNoticeNameVO {
     /**
      * 筛查任务开始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date screeningStartTime;
     /**
      * 筛查任务结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date screeningEndTime;
     /**
-     * 任务id
+     * 通知id
      */
-    private Integer taskId;
+    private Integer noticeId;
     /**
-     * 任务名称
+     * 通知标题
      */
-    private String taskName;
+    private String noticeTitle;
 }

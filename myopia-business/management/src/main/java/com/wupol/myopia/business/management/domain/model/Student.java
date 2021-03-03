@@ -209,11 +209,11 @@ public class Student implements Serializable {
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
                 !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
-                (Objects.nonNull(excelStudent.provinceCode) && !this.provinceCode.equals(excelStudent.provinceCode)) ||
-                (Objects.nonNull(excelStudent.cityCode) && !this.cityCode.equals(excelStudent.cityCode)) ||
-                (Objects.nonNull(excelStudent.areaCode) && !this.areaCode.equals(excelStudent.areaCode)) ||
-                (Objects.nonNull(excelStudent.townCode) && !this.townCode.equals(excelStudent.townCode)) ||
-                (StringUtils.isNotBlank(excelStudent.address) && !StringUtils.equalsIgnoreCase(this.address, excelStudent.address)) ||
+                (Objects.nonNull(excelStudent.provinceCode)) ||
+                (Objects.nonNull(excelStudent.cityCode)) ||
+                (Objects.nonNull(excelStudent.areaCode)) ||
+                (Objects.nonNull(excelStudent.townCode)) ||
+                (StringUtils.isNotBlank(excelStudent.address)) ||
                 (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
     }
 }

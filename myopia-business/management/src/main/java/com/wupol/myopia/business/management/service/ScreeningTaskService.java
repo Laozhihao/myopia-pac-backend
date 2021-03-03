@@ -10,9 +10,9 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper;
@@ -20,6 +20,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -48,8 +49,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
-    @Autowired
-    private GovDeptService govDeptService;
+
 
     /**
      * 设置操作人再更新
@@ -186,18 +186,6 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     }
 
     /**
-     * 获取年度
-     *
-     * @return
-     */
-    public List<Integer> getYears(List<ScreeningTask> govDeptLists) {
-        List<Integer> years = govDeptLists.stream().map(screeningTask ->
-                this.getYear(screeningTask.getStartTime())
-        ).distinct().sorted().collect(Collectors.toList());
-        return years;
-    }
-
-    /**
      * 根据时间获取年份
      *
      * @param date
@@ -222,7 +210,38 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
         }
         queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningTask> govDeptLists = baseMapper.selectList(queryWrapper);
-        return govDeptLists;
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 根据通知id获取筛查任务
+     *
+     * @param screeningNoticeIds
+     * @return
+     */
+    public List<ScreeningTask> getTaskByNoticeIds(Set<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningTask::getScreeningNoticeId,screeningNoticeIds);
+        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 获取筛查任务名字
+     * @param screeningNoticeIds
+     * @param year
+     */
+    public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeService.listByIds(screeningNoticeIds);
+        Set<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
+        ).map(screeningNotice -> {
+            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
+            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return screeningNoticeNameVO;
+        }).collect(Collectors.toSet());
+        return screeningNoticeNameVOS;
     }
 }

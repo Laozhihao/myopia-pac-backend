@@ -9,6 +9,7 @@ import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
+import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -31,4 +32,12 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     IPage<ScreeningOrgPlanResponse> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId);
 
     List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
+
+    /**
+     * 查找学校的id
+     * @param districtIds
+     * @param taskId
+     * @return
+     */
+    Set<Integer> selectSchoolIds(Set<Integer> districtIds, Integer taskId);
 }

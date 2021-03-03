@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.management.domain.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -17,7 +20,7 @@ public class CardDetails {
     /**
      * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}
      */
-    private String glassesType;
+    private GlassesTypeObj glassesTypeObj;
     /**
      * 视力检查结果
      */
@@ -38,5 +41,23 @@ public class CardDetails {
      */
     private List<EyeDiseasesResult> eyeDiseasesResult;
 
-
+    /**
+     * 戴镜类型Obj
+     */
+    @Data
+    @Accessors(chain = true)
+    public static class GlassesTypeObj {
+        /**
+         * 待镜类型
+         */
+        private String type;
+        /**
+         * 左眼视力
+         */
+        private BigDecimal leftVision;
+        /**
+         * 右眼视力
+         */
+        private BigDecimal rightVision;
+    }
 }

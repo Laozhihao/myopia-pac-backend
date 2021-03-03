@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,14 +15,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
-public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
+@Getter
+public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
 
 
     /**
-     * 私有构造方法
+     * 私有构造方法，需要创建对象，请使用
      */
-    private ScreeningMonitorStatisticVO() {
+    private DistrictScreeningMonitorStatisticVO() {
 
     }
 
@@ -31,72 +32,102 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
     private Integer districtId;
 
     /**
-     * 筛查范围 范围名称
+     * 筛查范围名称(其实是地区名称）
      */
-    private String rangeName;
+    private String screeningRangeName;
+    /**
+     * 总的数据
+     */
+    private Item totalData;
     /**
      * 当前级的数据
      */
-    private  Item totalData;
-    /**
-     * 当前级的数据
-     */
-    private  Item currentData;
+    private Item currentData;
     /**
      * 下级的数据列表，如果没有的话，为null
      */
     private Set<Item> subordinateDatas;
 
-    public static ScreeningMonitorStatisticVO getEmptyInstance() {
-        return new ScreeningMonitorStatisticVO();
+    /**
+     * 获取不可变空数据对象
+     *
+     * @return
+     */
+    public static DistrictScreeningMonitorStatisticVO getImmutableEmptyInstance() {
+        return new DistrictScreeningMonitorStatisticVO();
     }
 
-    public static ScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask, Map<Integer, String> districtIdNameMap) {
+    /**
+     * 获取对象
+     *
+     * @param districtMonitorStatistics
+     * @param currentDistrictId
+     * @param currentRangeName
+     * @param screeningNotice
+     * @param districtIdNameMap
+     * @return
+     */
+    public static DistrictScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
-            return null;
+            return getImmutableEmptyInstance();
         }
-        ScreeningMonitorStatisticVO screeningMonitorStatisticVO = new ScreeningMonitorStatisticVO();
+        DistrictScreeningMonitorStatisticVO districtScreeningMonitorStatisticVO = new DistrictScreeningMonitorStatisticVO();
         //设置基础数据
-        screeningMonitorStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningTask);
+        districtScreeningMonitorStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
         //设置统计数据
-        screeningMonitorStatisticVO.setItemData(currentDistrictId, districtMonitorStatistics, districtIdNameMap);
-        return screeningMonitorStatisticVO;
+        districtScreeningMonitorStatisticVO.setItemData(currentDistrictId, districtMonitorStatistics, districtIdNameMap);
+        return districtScreeningMonitorStatisticVO;
     }
 
+    /**
+     * 设置各种当条数据
+     *
+     * @param currentDistrictId
+     * @param districtMonitorStatistics
+     * @param districtIdNameMap
+     */
     private void setItemData(Integer currentDistrictId, List<DistrictMonitorStatistic> districtMonitorStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<ScreeningMonitorStatisticVO.Item> subordinateItemSet = districtMonitorStatistics.stream().map(districtVisionStatistic -> {
-            Integer districtId = districtVisionStatistic.getDistrictId();
+        Set<DistrictScreeningMonitorStatisticVO.Item> subordinateItemSet = districtMonitorStatistics.stream().map(districtMonitorStatistic -> {
+            Integer districtId = districtMonitorStatistic.getDistrictId();
             String rangeName = "";
             //是合计数据
-            if (districtVisionStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
+            if (districtMonitorStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
                 rangeName = "合计";
-                ScreeningMonitorStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
+                Item item = this.getItem(rangeName, districtMonitorStatistic);
                 totalData = item;
                 return null;
             }
             rangeName = districtIdNameMap.get(districtId);
-            ScreeningMonitorStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
-            if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
+            DistrictScreeningMonitorStatisticVO.Item item = this.getItem(rangeName, districtMonitorStatistic);
+            if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtMonitorStatistic.getIsTotal() != 1){
                 return item;
+            } else {
+                return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
-
-
     }
 
-    private Item getItem(Integer districtId, String rangeName, DistrictMonitorStatistic districtMonitorStatistic) {
-        ScreeningMonitorStatisticVO.Item item = new ScreeningMonitorStatisticVO.Item();
-        item.setRangeName(rangeName)
-                .setRescreenItemNum(10)
-                .setRescreenNum(districtMonitorStatistic.getPlanScreeningNumbers())
+    /**
+     * 获取条目
+     *
+     * @param rangeName
+     * @param districtMonitorStatistic
+     * @return
+     */
+    private Item getItem(String rangeName, DistrictMonitorStatistic districtMonitorStatistic) {
+        DistrictScreeningMonitorStatisticVO.Item item = new DistrictScreeningMonitorStatisticVO.Item();
+        item.setScreeningRangeName(rangeName)
+                //todo
+                .setRescreenItemNum(districtMonitorStatistic.getDsn())
+                .setRescreenNum(districtMonitorStatistic.getDsn())
                 .setActualScreeningNum(districtMonitorStatistic.getRealScreeningNumbers())
                 .setScreeningNum(districtMonitorStatistic.getPlanScreeningNumbers())
-                .setScreeningFinishedRatio(new BigDecimal(12))
+                .setScreeningFinishedRatio(districtMonitorStatistic.getFinishRatio())
                 .setIncorrectItemNum(districtMonitorStatistic.getErrorNumbers())
                 .setIncorrectRatio(districtMonitorStatistic.getErrorRatio())
                 .setInvestigationNumbers(districtMonitorStatistic.getInvestigationNumbers())
@@ -108,19 +139,28 @@ public class ScreeningMonitorStatisticVO extends ScreeningBasicResult {
 
     }
 
-    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask) {
+    /**
+     * 设置基础数据
+     *
+     * @param currentDistrictId
+     * @param currentRangeName
+     * @param screeningNotice
+     */
+    private void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice) {
         this.districtId = currentDistrictId;
-        this.rangeName = currentRangeName;
-        super.setDataByScreeningTask(screeningTask);
+        this.screeningRangeName = currentRangeName;
+        super.setDataByScreeningNotice(screeningNotice);
     }
 
-
+    /**
+     * 单条数据
+     */
     @NoArgsConstructor
     @Data
     @Accessors(chain = true)
     public static class Item {
 
-        private String rangeName;
+        private String screeningRangeName;
         /**
          * screeningNum
          */

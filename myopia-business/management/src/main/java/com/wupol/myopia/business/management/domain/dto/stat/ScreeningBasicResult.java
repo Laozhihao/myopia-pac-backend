@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -28,15 +28,10 @@ class ScreeningBasicResult {
      * 筛查结束时间
      */
     private Date screeningEndTime;
-    /**
-     * 当前统计时间
-     */
-    private Date statisticTime;
 
-    public void setDataByScreeningTask(ScreeningTask screeningTask)  {
-        this.title = screeningTask.getTitle();
-        this.screeningEndTime = screeningTask.getEndTime();
-        this.screeningStartTime = screeningTask.getStartTime();
-        this.statisticTime = new Date();//todo 先这样，实际上是前晚的11点
+     void setDataByScreeningNotice(ScreeningNotice screeningNotice)  {
+        this.title = screeningNotice.getTitle();
+        this.screeningEndTime = screeningNotice.getEndTime();
+        this.screeningStartTime = screeningNotice.getStartTime();
     }
 }
