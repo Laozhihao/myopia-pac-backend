@@ -329,15 +329,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * @param districtId
-     * @return
-     */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
-        District district = getById(districtId);
-        return this.getChildDistrictByParentCodePriorityCache(district.getCode());
-    }
-
-    /**
      * 获取当前登录用户所属层级位置 - 层级链(从省开始到所属层级)
      *
      * @param currentUser 当前登录用户
