@@ -84,20 +84,38 @@ public class StatUtil {
     }
 
     /**
-     * TODO: 逻辑待确认
      * 是否建议就诊
      * @param nakedVision 裸眼视力
      * @param sphere 球镜
      * @param cylinder 柱镜
+     * @param isWearingGlasses
      * @param correctVision 矫正视力
-     * @param isWearingGlasses 是否戴镜
+     * @param age 年龄
      * @param schoolAge 学龄
      * @return
      */
-    public static boolean isRecommendVisit(Float nakedVision, Float sphere, Float cylinder,
-            Float correctVision, SchoolAge schoolAge) {
+    public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
+            boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
+        Float se = getSphericalEquivalent(sphere, cylinder);
         if (nakedVision < 4.9) {
-        } else if (nakedVision >= 4.9) {
+            if (isWearingGlasses) {
+                if (correctVision < 4.9) return true;
+            } else {
+                switch (schoolAge) {
+                    case PRIMARY:
+                        if (se >= 0 && se < 2 && Math.abs(cylinder) < 1.5) return true;
+                        if (se >= 2 || se < 0) return true;
+                        break;
+                    case JUNIOR:
+                    case HIGH:
+                    case VOCATIONAL_HIGH:
+                        if (se >= -0.5 && se < 3 && Math.abs(cylinder) < 1.5) return true;
+                        if (se < -0.5 || se >= 3 || Math.abs(cylinder) >= 1.5) return true;
+                    default:
+                }
+            }
+        } else if (age >= 6 && se >= 2) {
+            return true;
         }
         return false;
     }
