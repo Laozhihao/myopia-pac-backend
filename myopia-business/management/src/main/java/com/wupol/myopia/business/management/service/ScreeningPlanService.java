@@ -292,4 +292,33 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
     }
+    /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public Integer getScreeningPlanStudentNum(Integer noticeId, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
+    }
+
+    /**
+     * 根据筛查计划ID获取原始的筛查通知ID列表
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+        return Collections.emptyList();
+    }
 }

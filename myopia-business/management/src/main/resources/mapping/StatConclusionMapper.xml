@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.StatConclusion"></resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(resultId)">and `result_id` = #{resultId}</if>
+                <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(taskId)">and `task_id` = #{taskId}</if>
+                <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(schoolAge)">and `school_age` = #{schoolAge}</if>
+                <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
+                <if test="@Ognl@isNotEmpty(warningLevel)">and `warning_level` = #{warningLevel}</if>
+                <if test="@Ognl@isNotEmpty(visionL)">and `vision_l` = #{visionL}</if>
+                <if test="@Ognl@isNotEmpty(visionR)">and `vision_r` = #{visionR}</if>
+                <if test="@Ognl@isNotEmpty(isLowVision)">and `is_low_vision` = #{isLowVision}</if>
+                <if test="@Ognl@isNotEmpty(isRefractiveError)">and `is_refractive_error` = #{isRefractiveError}</if>
+                <if test="@Ognl@isNotEmpty(isMyopia)">and `is_myopia` = #{isMyopia}</if>
+                <if test="@Ognl@isNotEmpty(isHyperopia)">and `is_hyperopia` = #{isHyperopia}</if>
+                <if test="@Ognl@isNotEmpty(isAstigmatism)">and `is_astigmatism` = #{isAstigmatism}</if>
+                <if test="@Ognl@isNotEmpty(isWearingGlasses)">and `is_wearing_glasses` = #{isWearingGlasses}</if>
+                <if test="@Ognl@isNotEmpty(isRecommendVisit)">and `is_recommend_visit` = #{isRecommendVisit}</if>
+                <if test="@Ognl@isNotEmpty(isRescreen)">and `is_rescreen` = #{isRescreen}</if>
+                <if test="@Ognl@isNotEmpty(rescreenErrorNum)">and `rescreen_error_num` = #{rescreenErrorNum}</if>
+                <if test="@Ognl@isNotEmpty(isValid)">and `is_valid` = #{isValid}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">
+                    and `create_time`
+                    <![CDATA[>=]]>
+                    #{startTime}
+                </if>
+                <if test="@Ognl@isNotEmpty(endTime)">
+                    and `create_time`
+                    <![CDATA[<=]]>
+                    #{endTime}
+                </if>
+                <if test="districtIds != null and districtIds.size() != 0">
+                    and `district_id` in
+                    <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, result_id, src_screening_notice_id, task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism, is_wearing_glasses, is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time
+    </sql>
+
+    <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        <include refid="Base_Where_Clause" />
+        ORDER by id desc
+        LIMIT 0, 1
+    </select>
+
+    <select id="listByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT *
+        FROM m_stat_conclusion
+        <include refid="Base_Where_Clause" />
+    </select>
+</mapper>

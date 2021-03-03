@@ -11,7 +11,7 @@ public class ClassStat extends BasicStatParams {
     private List<BasicStatParams> items;
 
     @Builder
-    public ClassStat(String title, Float ratio, Integer num, List<BasicStatParams> items) {
+    public ClassStat(String title, Float ratio, Long num, List<BasicStatParams> items) {
         super(title, ratio, num);
         this.items = items;
     }
