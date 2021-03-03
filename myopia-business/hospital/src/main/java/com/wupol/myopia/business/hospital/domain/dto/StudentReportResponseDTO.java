@@ -15,12 +15,18 @@ import lombok.experimental.Accessors;
 @Accessors
 public class StudentReportResponseDTO {
 
-    // 报告
+    /**
+     * 报告
+     */
     private MedicalReport report;
 
-    // 病种
+    /**
+     * 病种
+     */
     private Consultation consultation;
 
-    // 检查单
+    /**
+     * 检查单
+     */
     private MedicalRecord record;
 }
