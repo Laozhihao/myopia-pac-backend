@@ -25,7 +25,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("h_medical_record")
+@TableName(value = "h_medical_record",autoResultMap = true)
 public class MedicalRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
