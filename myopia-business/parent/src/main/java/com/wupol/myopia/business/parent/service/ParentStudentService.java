@@ -638,7 +638,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                         && (!isBetween(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
-                return "暂无建议";
             }
         }
         // SE >= 0
