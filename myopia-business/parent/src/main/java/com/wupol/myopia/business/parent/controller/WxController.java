@@ -93,7 +93,9 @@ public class WxController {
             }
             // 自动登录
             LoginInfoDTO loginInfo = oauthService.login("5", "123456", user.getPhone(), openId);
-            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.OK.getCode()) + "&token=" + loginInfo.getTokenInfo().getAccessToken();
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.OK.getCode())
+                    + "&accessToken=" + loginInfo.getTokenInfo().getAccessToken()
+                    + "&refreshToken=" + loginInfo.getTokenInfo().getRefreshToken() + "&expiresTime=" + loginInfo.getTokenInfo().getExpiresIn();
         } catch (Exception e) {
             logger.error("生成openId的hashKey失败", e);
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
@@ -119,18 +121,17 @@ public class WxController {
     }
 
     @GetMapping("/smsCode/{phone}")
+    @ResponseBody
     public ApiResult sendSmsCode(@PathVariable String phone) {
-        // 验证发送次数
-
-        // 发送短信验证码
-
+        wxService.sendSms(phone);
         return ApiResult.success();
     }
 
     @PostMapping("/phone/bind")
+    @ResponseBody
     public ApiResult bindPhoneToParent(@RequestBody WxLoginInfo wxLoginInfo) throws IOException {
         // 校验短信验证码
-
+        wxService.checkVerifyCode(wxLoginInfo.getPhone(), wxLoginInfo.getSmsCode());
         // 家长绑定手机
         wxService.bindPhoneToParent(wxLoginInfo);
         // 自动登录

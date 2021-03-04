@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients(basePackages = "com.wupol.myopia.business.**.client")
-@SpringBootApplication(scanBasePackages = { "com.wupol.myopia" })
+@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api" })
 public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {

@@ -5,7 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.framework.domain.Result;
+import com.wupol.framework.sms.domain.dto.CheckVerifyCodeData;
+import com.wupol.framework.sms.domain.dto.MsgData;
+import com.wupol.framework.sms.domain.dto.SmsResult;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.client.OauthService;
@@ -49,6 +55,10 @@ public class WxService {
     private OauthService oauthService;
     @Resource
     private WxClient wxClient;
+    @Resource
+    private VistelToolsService vistelToolsService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 根据微信回调的code获取openId
@@ -114,6 +124,95 @@ public class WxService {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
         oauthService.modifyUser(new UserDTO().setId(parent.getUserId()).setPhone(wxLoginInfo.getPhone()).setUsername(wxLoginInfo.getPhone()).setPassword(parent.getHashKey()));
+    }
+
+    /**
+     * 发送验证码
+     *
+     * @param phone
+     */
+    public Result sendSms(String phone) {
+        if (getToken(phone) != null) {
+            return Result.Error(String.format("%d分钟内只能发送一次", WxConstant.EXPIRED_MINUTE));
+        }
+        SmsResult smsResult = sendSmsResult(new MsgData(phone, WxConstant.ZONE));
+        String result = "发送成功";
+        if (smsResult.isSuccessful()) {
+            saveToken(phone, smsResult.getToken());
+        } else {
+            result = smsResult.getData() != null ? smsResult.getErrorMsg() : smsResult.getMessage();
+            logger.error("发送验证码消息到{}失败，原因:{}", phone, result);
+        }
+        logger.info("发送验证码消息到{}，产生的Token:{}, 完整结果是:{}", phone, smsResult.getToken(), smsResult);
+        return smsResult.isSuccessful() ? Result.Ok(result) : Result.Error(result);
+    }
+
+    /**
+     * 发送验证码
+     *
+     * @param data
+     * @return
+     */
+    public SmsResult sendSmsResult(MsgData data) {
+        try {
+            return vistelToolsService.sendVerifyCode(data, "");
+        } catch (Exception e) {
+            logger.error("发送短信验证码请求失败: " + data.getPhone(), e);
+        }
+        return new SmsResult(-1, "发送短信验证码失败");
+    }
+
+    public Boolean checkVerifyCode(String phone, String verifyCode) {
+        String token = getToken(phone);
+        // 缓存中无token,即未发送过验证码,直接返回校验失败
+        if (StringUtils.isEmpty(token) || StringUtils.isEmpty(verifyCode)) {
+            return false;
+        }
+        SmsResult smsResult = checkVerifyCode(new CheckVerifyCodeData(token, verifyCode));
+        logger.info("校验Token：{}" + token + "，结果是：" + smsResult.toString());
+        Boolean successful = smsResult.isSuccessful();
+        if (!successful) {
+            preventVulnerability(phone);
+        }
+        return successful;
+    }
+
+    private void preventVulnerability(String phone) {
+        String failCountKey = String.format(WxConstant.SMS_TOKEN_FAIL_COUNT, phone);
+        long count = redisUtil.incr(failCountKey, 1);
+        if (count >= WxConstant.FAIL_MAX_TIME) {
+            logger.error("验证码输错过多, 手机号{}的验证码废除", phone);
+            removeToken(phone);
+            redisUtil.del(failCountKey);
+        }
+    }
+
+    /**
+     * 校验短信验证码请求
+     *
+     * @param data
+     * @return
+     */
+    public SmsResult checkVerifyCode(CheckVerifyCodeData data) {
+        try {
+            return vistelToolsService.checkVerifyCode(data);
+        } catch (Exception e) {
+            logger.error("校验短信验证码请求失败，code: " + data.getCode() + "，token: " + data.getToken(), e);
+        }
+        return new SmsResult(-1, "校验短信验证码失败");
+    }
+
+    private void saveToken(String phone, String token) {
+        redisUtil.set(String.format(WxConstant.SMS_REG_PREFIX, phone), token, WxConstant.EXPIRED_SECONDS);
+    }
+
+    private String getToken(String phone) {
+        Object cache = redisUtil.get(String.format(WxConstant.SMS_REG_PREFIX, phone));
+        return cache == null ? null : cache.toString();
+    }
+
+    private void removeToken(String phone) {
+        redisUtil.del(String.format(WxConstant.SMS_REG_PREFIX, phone));
     }
 
 }
