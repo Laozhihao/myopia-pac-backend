@@ -53,7 +53,7 @@ public class HospitalStudentController {
     }
 
     @PostMapping()
-    public Integer saveStudent(@RequestBody @Valid HospitalStudentDTO studentVo) {
+    public Integer saveStudent(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentService.saveStudent(studentVo, user.getOrgId());
     }
