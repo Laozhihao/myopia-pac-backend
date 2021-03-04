@@ -3,17 +3,17 @@ package com.wupol.myopia.business.hospital.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.domain.model.BiometricsMedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.DiopterMedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.ToscaMedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.VisionMedicalRecord;
+import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.service.ConsultationService;
 import com.wupol.myopia.business.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.hospital.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 医院的检查单的App接口
@@ -32,6 +32,31 @@ public class MedicalRecordController {
     private MedicalRecordService medicalRecordService;
     @Autowired
     private HospitalDoctorService doctorService;
+    @Autowired
+    private ConsultationService consultationService;
+
+
+    @GetMapping("/consultation/{studentId}")
+    public Consultation getConsultation(@PathVariable("studentId") Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Consultation consultation = consultationService.getTodayLastConsultation(user.getOrgId(), studentId);
+        return Objects.isNull(consultation) ? new Consultation() : consultation;
+    }
+
+    @PostMapping("/consultation")
+    public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // TODO departmentId
+        consultationService.addConsultationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
+        return true;
+    }
+
+    @GetMapping("/vision/{studentId}")
+    public VisionMedicalRecord getVisionMedicalRecord(@PathVariable("studentId") Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getVision())? new VisionMedicalRecord() : medicalRecord.getVision();
+    }
 
     @PostMapping("/vision/{studentId}")
     public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision, @PathVariable("studentId") Integer studentId) throws IOException {
@@ -39,18 +64,42 @@ public class MedicalRecordController {
         medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), user.getId(), studentId);
         return true;
     }
+
+    @GetMapping("/biometrics/{studentId}")
+    public BiometricsMedicalRecord getBiometricsMedicalRecord(@PathVariable("studentId") Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getBiometrics()) ? new BiometricsMedicalRecord() : medicalRecord.getBiometrics();
+    }
+
     @PostMapping("/biometrics/{studentId}")
     public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics, @PathVariable("studentId") Integer studentId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordService.addBiometricsToMedicalRecord(biometrics, user.getOrgId(), user.getId(), studentId);
         return true;
     }
+
+    @GetMapping("/diopter/{studentId}")
+    public DiopterMedicalRecord getDiopterMedicalRecord(@PathVariable("studentId") Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getDiopter()) ? new DiopterMedicalRecord() : medicalRecord.getDiopter();
+    }
+
     @PostMapping("/diopter/{studentId}")
     public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter, @PathVariable("studentId") Integer studentId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), user.getId(), studentId);
         return true;
     }
+
+    @GetMapping("/tosca/{studentId}")
+    public ToscaMedicalRecord getToscaMedicalRecord(@PathVariable("studentId") Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getTosca()) ? new ToscaMedicalRecord() : medicalRecord.getTosca();
+    }
+
     @PostMapping("/tosca/{studentId}")
     public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca, @PathVariable("studentId") Integer studentId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();

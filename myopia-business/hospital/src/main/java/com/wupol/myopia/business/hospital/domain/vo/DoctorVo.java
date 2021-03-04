@@ -21,6 +21,8 @@ public class DoctorVo extends Doctor {
     private String avatarUrl;
     /** 签名url */
     private String signUrl;
+    /** 报告数 */
+    private Integer reportCount;
 
     /** 转成UserDTO */
     public UserDTO toUserDTO() {

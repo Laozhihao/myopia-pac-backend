@@ -28,8 +28,6 @@ public class HospitalStudentController {
 
     @Autowired
     private HospitalStudentService hospitalStudentService;
-    @Autowired
-    private ConsultationService consultationService;
 
 
     @GetMapping()
@@ -60,12 +58,5 @@ public class HospitalStudentController {
         return hospitalStudentService.saveStudent(studentVo, user.getOrgId());
     }
 
-    @PostMapping("/consultation")
-    public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // TODO departmentId
-        consultationService.addConsultationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
-        return true;
-    }
 
 }

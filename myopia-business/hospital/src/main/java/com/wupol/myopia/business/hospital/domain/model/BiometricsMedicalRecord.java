@@ -75,8 +75,6 @@ public class BiometricsMedicalRecord {
         private String leftSimK2Axis;
         /** 备注 */
         private String remark;
-        /** 影像列表 */
-        private List<String> imageList;
 
     }
 

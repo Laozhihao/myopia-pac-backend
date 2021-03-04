@@ -44,6 +44,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     public List<DoctorVo> getDoctorVoList(Integer hospitalId,
                                       String like) throws IOException {
         //TODO 待模糊查询
+        //TODO 待查询出报告数
         List<Doctor> doctorList = baseMapper.getBy(new Doctor().setHospitalId(hospitalId));
         return doctorList.stream().map(this::getDoctorVo).collect(Collectors.toList());
     }

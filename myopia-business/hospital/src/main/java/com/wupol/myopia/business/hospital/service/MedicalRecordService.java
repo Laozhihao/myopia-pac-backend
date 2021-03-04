@@ -182,10 +182,13 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         try {
             medicalRecord = findByListOrderByIdDesc(new MedicalRecord().setHospitalId(hospitalId).setStudentId(studentId).setStatus(MedicalRecord.STATUS_CHECKING))
                     .stream().findFirst().orElse(null);
+            if (Objects.isNull(medicalRecord)) {
+                return medicalRecord;
+            }
             // 如果今天有检查单
             Date date = new Date();
             date.setHours(date.getHours()-8);
-            if (Objects.nonNull(medicalRecord) && DateUtils.isSameDay(medicalRecord.getCreateTime(), date)) {
+            if (DateUtils.isSameDay(medicalRecord.getCreateTime(), date)) {
                 return medicalRecord;
             }
         } catch (IOException e) {
@@ -193,20 +196,6 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         }
         return null;
     }
-
-//    /**
-//     * 创建检查单, 自动关联今天的问诊信息
-//     * @param medicalRecord 检查单
-//     */
-//    public MedicalRecord createMedicalRecordWithConsultation(MedicalRecord medicalRecord) {
-//        if (Objects.isNull(medicalRecord.getHospitalId())) {
-//            throw new BusinessException("医院id不能为空");
-//        }
-//        Consultation consultation = consultationService.getTodayLastConsultation(medicalRecord.getHospitalId(), medicalRecord.getStudentId());
-//        medicalRecord.setConsultationId(Objects.isNull(consultation) ? null : consultation.getId());
-//        baseMapper.insert(medicalRecord);
-//        return medicalRecord;
-//    }
 
     /** 创建检查单 */
     public MedicalRecord createMedicalRecord(Integer hospitalId,
