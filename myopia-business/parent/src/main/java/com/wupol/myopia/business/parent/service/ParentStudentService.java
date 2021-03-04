@@ -167,7 +167,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentReportResponseDTO
      */
     public StudentReportResponseDTO getVisitsReportDetails(Integer reportId) {
-        // 查找学生最近的就诊报告
+        // 查找就诊报告
         MedicalReport report = medicalReportService.getById(reportId);
         if (null == report) {
             return new StudentReportResponseDTO();
