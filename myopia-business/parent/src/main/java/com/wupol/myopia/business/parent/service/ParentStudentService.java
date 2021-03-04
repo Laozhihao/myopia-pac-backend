@@ -17,6 +17,7 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.management.service.VisionScreeningResultService;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.parent.domain.dto.*;
 import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
 import com.wupol.myopia.business.parent.domain.model.ParentStudent;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -224,12 +226,29 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return ScreeningReportResponseDTO
      */
     private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
+        // 没有佩戴眼镜
+        Integer glassesType = 2;
+
         ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
         responseDTO.setScreeningDate(result.getCreateTime());
-        responseDTO.setGlassesType("1");
+        responseDTO.setGlassesType(glassesType);
         responseDTO.setVisionList(setNakedVision(result.getVisionData()));
         responseDTO.setRefractoryResultItems(setRefractoryResult(result.getComputerOptometry()));
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
+        responseDTO.setDoctorAdvice1(1);
+
+        // 获取左右眼的裸眼视力
+        BigDecimal leftNakedVision = result.getVisionData().getLeftEyeData().getNakedVision();
+        BigDecimal rightNakedVision = result.getVisionData().getRightEyeData().getNakedVision();
+
+        // 取裸眼视力的结果
+        TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
+
+        // 获取矫正视力
+        BigDecimal correctedVision = resultVision.getSecond().equals(CommonConst.LEFT_EYE) ?
+                result.getVisionData().getLeftEyeData().getCorrectedVision() : result.getVisionData().getRightEyeData().getCorrectedVision();
+
+        responseDTO.setDoctorAdvice2(packageDoctorAdvice(resultVision.getFirst(), , glassesType));
         return responseDTO;
     }
 
@@ -547,4 +566,50 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return details;
         }).collect(Collectors.toList());
     }
+
+    /**
+     * 医生建议
+     *
+     * @param nakedVision     裸眼视力
+     * @param correctedVision 矫正视力
+     * @return 医生建议
+     */
+    private String packageDoctorAdvice(BigDecimal nakedVision, BigDecimal correctedVision, Integer glassesType) {
+        if (nakedVision.compareTo(new BigDecimal("4.9")) < 0) {
+            // 裸眼视力小于4.9
+            if (glassesType > 2) {
+                // 佩戴眼镜
+                if (correctedVision.compareTo(new BigDecimal("4.9")) < 0) {
+                    // 矫正视力小于4.9
+                    return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
+                } else {
+                    // 矫正视力大于4.9
+                    return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
+                }
+            } else {
+                // 没有佩戴眼镜
+
+            }
+
+        }
+        return "abc";
+    }
+
+    /**
+     * 取视力值高的眼球
+     *
+     * @param left  左眼
+     * @param right 右眼
+     * @return BigDecimal
+     */
+    private TwoTuple<BigDecimal, Integer> getResultVision(BigDecimal left, BigDecimal right) {
+        if (left.compareTo(right) <= 0) {
+            return new TwoTuple<>(left, CommonConst.LEFT_EYE);
+        }
+        return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
+    }
+
+//    private BigDecimal calculationSE(BigDecimal sph,) {
+//
+//    }
 }
