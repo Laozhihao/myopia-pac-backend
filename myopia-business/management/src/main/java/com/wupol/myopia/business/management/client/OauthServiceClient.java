@@ -79,13 +79,13 @@ public interface OauthServiceClient {
     ApiResult<UserDTO> addUser(@RequestBody UserDTO param);
 
     /**
-     * 管理端创建医院端、学校端、筛查端的管理员
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
      *
      * @param param 用户数据
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @PostMapping("/oauth/user/admin")
-    ApiResult<UserDTO> addAdminUser(@RequestBody UserDTO param);
+    @PostMapping("/oauth/user/multi/system")
+    ApiResult<UserDTO> addMultiSystemUser(@RequestBody UserDTO param);
 
     /**
      * 批量新增筛查人员
