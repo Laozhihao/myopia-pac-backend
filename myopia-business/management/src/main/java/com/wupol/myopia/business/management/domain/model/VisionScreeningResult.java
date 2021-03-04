@@ -101,7 +101,7 @@ public class VisionScreeningResult implements Serializable {
     /**
      * 筛查结果--是否复筛（0否，1是）
      */
-    private Integer isDoubleScreen;
+    private Boolean isDoubleScreen;
 
     /**
      * 创建时间

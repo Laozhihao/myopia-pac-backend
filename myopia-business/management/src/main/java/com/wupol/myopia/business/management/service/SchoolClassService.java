@@ -80,7 +80,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return 班级列表
      */
     public List<SchoolClass> getByGradeId(Integer gradeId) {
-        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_IS_DELETED);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -91,7 +91,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return 班级列表
      */
     public List<SchoolClass> getByGradeIds(List<Integer> gradeIds, Integer schoolId) {
-        return baseMapper.getByGradeIdsAndSchoolIdAndStatus(gradeIds, schoolId, CommonConst.STATUS_IS_DELETED);
+        return baseMapper.getByGradeIdsAndSchoolIdAndStatus(gradeIds, schoolId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**

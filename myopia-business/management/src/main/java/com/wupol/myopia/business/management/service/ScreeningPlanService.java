@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Alix
@@ -296,7 +295,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
     }
-
     /**
      * 通过筛查通知id获取实际筛查学生数
      *
@@ -313,16 +311,22 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
     }
 
     /**
-     * @param screeningOrgId
+     * 根据筛查计划ID获取原始的筛查通知ID列表
+     * @param screeningPlanIds
      * @return
      */
+    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+        return Collections.emptyList();
+    }
+
+    // todo: wait for implement
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        return baseMapper.selectScreeningSchoolIds(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
+        return null;
     }
 }

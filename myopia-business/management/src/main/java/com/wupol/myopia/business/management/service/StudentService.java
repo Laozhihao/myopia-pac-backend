@@ -81,7 +81,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
-        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_IS_DELETED);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -91,7 +91,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByClassId(Integer classId) {
-        return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_IS_DELETED);
+        return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -362,7 +362,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCard(String IdCard, Integer id) {
-        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_IS_DELETED).size() > 0;
+        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -386,7 +386,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCards(List<String> IdCards) {
-        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_IS_DELETED).size() > 0;
+        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
