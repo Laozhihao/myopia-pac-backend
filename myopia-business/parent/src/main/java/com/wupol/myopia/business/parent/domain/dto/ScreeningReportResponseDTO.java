@@ -35,4 +35,6 @@ public class ScreeningReportResponseDTO {
      */
     private List<RefractoryResultItems> refractoryResultItems;
 
+    private List<BiometricItems> biometricItems;
+
 }

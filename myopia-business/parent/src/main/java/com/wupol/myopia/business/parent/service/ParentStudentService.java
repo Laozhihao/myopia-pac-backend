@@ -9,7 +9,9 @@ import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
@@ -227,6 +229,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setGlassesType("1");
         responseDTO.setVisionList(setNakedVision(result.getVisionData()));
         responseDTO.setRefractoryResultItems(setRefractoryResult(result.getComputerOptometry()));
+        responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
         return responseDTO;
     }
 
@@ -336,6 +339,103 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         cylItems.setOd(rightCylItems);
 
         items.add(cylItems);
+
+        return items;
+    }
+
+    /**
+     * 生物测量
+     *
+     * @param date       数据
+     * @param diseasesDO 其他眼病
+     * @return List<BiometricItems>
+     */
+    private List<BiometricItems> packageBiometricResult(BiometricDataDO date, OtherEyeDiseasesDO diseasesDO) {
+        List<BiometricItems> items = new ArrayList<>();
+
+        // 房水深度AD
+        BiometricItems ADItems = new BiometricItems();
+        ADItems.setTitle("房水深度AD");
+
+        BiometricItems.Item leftADItem = new BiometricItems.Item();
+        leftADItem.setDate(date.getLeftEyeData().getAd());
+        ADItems.setOs(leftADItem);
+
+        BiometricItems.Item rightADItem = new BiometricItems.Item();
+        rightADItem.setDate(date.getRightEyeData().getAd());
+        ADItems.setOd(rightADItem);
+
+        items.add(ADItems);
+
+        // 眼轴AL
+        BiometricItems ALItems = new BiometricItems();
+        ALItems.setTitle("眼轴AL");
+
+        BiometricItems.Item leftALItem = new BiometricItems.Item();
+        leftALItem.setDate(date.getLeftEyeData().getAl());
+        ALItems.setOs(leftALItem);
+
+        BiometricItems.Item rightALItem = new BiometricItems.Item();
+        rightALItem.setDate(date.getRightEyeData().getAl());
+        ALItems.setOd(rightALItem);
+
+        items.add(ALItems);
+
+        // 角膜中央厚度CCT
+        BiometricItems CCTItems = new BiometricItems();
+        CCTItems.setTitle("角膜中央厚度CCT");
+
+        BiometricItems.Item leftCCTItem = new BiometricItems.Item();
+        leftCCTItem.setDate(date.getLeftEyeData().getCct());
+        CCTItems.setOs(leftCCTItem);
+
+        BiometricItems.Item rightCCTItem = new BiometricItems.Item();
+        rightCCTItem.setDate(date.getRightEyeData().getCct());
+        CCTItems.setOd(rightCCTItem);
+
+        items.add(CCTItems);
+
+        // 状体厚度LT
+        BiometricItems LTItems = new BiometricItems();
+        LTItems.setTitle("状体厚度LT");
+
+        BiometricItems.Item leftLTItem = new BiometricItems.Item();
+        leftLTItem.setDate(date.getLeftEyeData().getLt());
+        LTItems.setOs(leftLTItem);
+
+        BiometricItems.Item rightLTItem = new BiometricItems.Item();
+        rightLTItem.setDate(date.getRightEyeData().getLt());
+        LTItems.setOd(rightLTItem);
+
+        items.add(LTItems);
+
+        // 角膜白到白距离WTW
+        BiometricItems WTWItems = new BiometricItems();
+        WTWItems.setTitle("角膜白到白距离WTW");
+
+        BiometricItems.Item leftWTWItem = new BiometricItems.Item();
+        leftWTWItem.setDate(date.getLeftEyeData().getWtw());
+        WTWItems.setOs(leftWTWItem);
+
+        BiometricItems.Item rightWTWItem = new BiometricItems.Item();
+        rightWTWItem.setDate(date.getRightEyeData().getWtw());
+        WTWItems.setOd(rightWTWItem);
+
+        items.add(WTWItems);
+
+        // 其他眼病
+        BiometricItems otherItems = new BiometricItems();
+        otherItems.setTitle("其他眼病");
+
+        BiometricItems.Item leftOtherItem = new BiometricItems.Item();
+        leftOtherItem.setDate(diseasesDO.getLeftEyeData().getEyeDiseases().toString());
+        otherItems.setOs(leftOtherItem);
+
+        BiometricItems.Item rightOtherItem = new BiometricItems.Item();
+        rightOtherItem.setDate(diseasesDO.getRightEyeData().getEyeDiseases().toString());
+        otherItems.setOd(rightOtherItem);
+
+        items.add(otherItems);
 
         return items;
     }
