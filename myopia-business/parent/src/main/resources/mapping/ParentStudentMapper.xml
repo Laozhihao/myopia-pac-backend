@@ -27,4 +27,12 @@
                      left join m_student ms on mps.student_id = ms.id
         where mps.parent_id = #{parentId}
     </select>
+
+    <select id="getByParentIdAndStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_parent_student
+        where parent_id = #{parentId}
+          and student_id = #{studentId}
+    </select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.parent.service;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
@@ -63,18 +64,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param request 请求入参
      * @return 学生ID
      */
-    public Integer checkIdCard(CheckIdCardRequest request) {
+    public ApiResult<Integer> checkIdCard(CheckIdCardRequest request) {
         Student student = studentService.getByIdCard(request.getIdCard());
 
         if (null == student) {
             // 为空说明是新增
-            return null;
+            return ApiResult.success();
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
                 throw new BusinessException("身份证数据异常");
             }
-            return student.getId();
+            return ApiResult.success(student.getId());
         }
     }
 
@@ -203,6 +204,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         Integer parentId = request.getParentId();
         if (null == parentId || null == studentId) {
             throw new BusinessException("数据异常");
+        }
+        ParentStudent checkResult = baseMapper.getByParentIdAndStudentId(parentId, studentId);
+        if (null != checkResult) {
+            throw new BusinessException("已经绑定");
         }
         parentStudent.setParentId(parentId);
         parentStudent.setStudentId(studentId);

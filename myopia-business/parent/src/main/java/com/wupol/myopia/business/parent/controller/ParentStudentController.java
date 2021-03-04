@@ -86,7 +86,7 @@ public class ParentStudentController {
     }
 
     @GetMapping("report/visits/latest/{id}")
-    public Object visitslatestReport(@PathVariable("id") Integer id) {
+    public Object visitsLatestReport(@PathVariable("id") Integer id) {
         return parentStudentService.latestVisitsReport(id);
     }
 
