@@ -44,12 +44,12 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 地区id
      */
-    private Integer districtId;
+   // private Integer districtId;
 
     /**
      * 筛查任务id
      */
-    private Integer screeningTaskId;
+   // private Integer screeningTaskId;
 
     /**
      * 筛查机构id

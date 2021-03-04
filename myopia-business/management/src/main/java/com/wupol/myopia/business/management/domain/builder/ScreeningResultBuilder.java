@@ -45,11 +45,12 @@ public class ScreeningResultBuilder {
      */
     private VisionScreeningResult setOtherInfo() {
         return visionScreeningResult
-                .setTaskId(screeningPlanSchoolStudent.getScreeningTaskId())
-                .setDistrictId(screeningPlanSchoolStudent.getDistrictId())
+                //.setTaskId(screeningPlanSchoolStudent)
+                //.setDistrictId(screeningPlanSchoolStudent.getDistrictId())
+                .setStudentId(screeningPlanSchoolStudent.getStudentId())
                 .setPlanId(screeningPlanSchoolStudent.getScreeningPlanId())
-                .setSchoolId(screeningResultBasicData.getSchoolId())
-                .setStudentId(screeningResultBasicData.getStudentId())
+                .setSchoolId(screeningPlanSchoolStudent.getSchoolId())
+                .setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId())
                 .setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId())
                 .setCreateUserId(screeningResultBasicData.getCreateUserId());
     }

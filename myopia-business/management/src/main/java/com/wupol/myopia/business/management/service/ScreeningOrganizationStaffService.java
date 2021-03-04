@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
+import com.wupol.myopia.business.management.domain.model.ResourceFile;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
@@ -21,11 +23,11 @@ import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -342,4 +344,30 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public IPage<ScreeningOrganizationStaff> getByPage(Page<?> page, ScreeningOrganizationStaffQuery query) {
         return baseMapper.getByPage(page, query);
     }
+
+    /**
+     * 更新机构人员的id
+     *
+     * @param currentUser
+     * @param resourceFile
+     */
+    public void updateOrganizationStaffSignId(CurrentUser currentUser, ResourceFile resourceFile) {
+        ScreeningOrganizationStaff screeningOrganizationStaff = new ScreeningOrganizationStaff();
+        screeningOrganizationStaff.setScreeningOrgId(currentUser.getOrgId()).setUserId(currentUser.getId());
+        List<ScreeningOrganizationStaff> screeningOrganizationStaffs = this.getByEntity(screeningOrganizationStaff);
+        if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
+            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().get();
+        }
+        if (screeningOrganizationStaff != null && screeningOrganizationStaff.getId() !=null ) {
+            screeningOrganizationStaff.setSignFileId(resourceFile.getId());
+            updateById(screeningOrganizationStaff);
+        }
+    }
+
+    public List<ScreeningOrganizationStaff> getByEntity(ScreeningOrganizationStaff screeningOrganizationStaff) {
+        LambdaQueryWrapper<ScreeningOrganizationStaff> screeningOrganizationStaffLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningOrganizationStaffLambdaQueryWrapper.setEntity(screeningOrganizationStaff);
+        return baseMapper.selectList(screeningOrganizationStaffLambdaQueryWrapper);
+    }
+
 }
