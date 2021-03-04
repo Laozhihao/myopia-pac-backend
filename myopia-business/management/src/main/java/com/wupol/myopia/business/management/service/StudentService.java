@@ -120,7 +120,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                return baseMapper.insert(student);
+                baseMapper.insert(student);
+                return student.getId();
             }
         } catch (InterruptedException e) {
             log.error("用户:{}创建学生获取锁异常,e:{}", createUserId, e);
