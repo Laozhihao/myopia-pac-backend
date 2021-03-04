@@ -98,7 +98,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public UserDTO addAdminUser(UserDTO param){
+    public UserDTO addMultiSystemUser(UserDTO param){
         return null;
     }
 

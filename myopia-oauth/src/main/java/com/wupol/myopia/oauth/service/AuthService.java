@@ -5,10 +5,10 @@ import com.nimbusds.jose.JWSObject;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.oauth.domain.model.Permission;
-import com.wupol.myopia.oauth.domain.model.User;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -38,20 +37,50 @@ public class AuthService {
     /**
      * 缓存用户权限
      *
-     * @param userName 用户名
+     * @param userId 用户名ID
      * @param systemCode 系统编号
      * @param expiresTime 缓存过期时间（秒）
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
-    public List<Permission> cacheUserPermission(String userName, Integer systemCode, long expiresTime) {
-        User user = userService.getByUsername(userName, systemCode);
-        List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(user.getId());
+    public List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
+        // 只有管理端和筛查管理端的用户需要缓存权限
+        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+            return null;
+        }
+        List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(userId);
         if (CollectionUtils.isEmpty(permissions)) {
             throw new BusinessException("没有访问权限");
         }
         List<Object> apiPermissionPaths = getApiPermission(permissions);
-        cacheUserPermission(user.getId(), apiPermissionPaths, expiresTime);
+        cacheUserPermission(userId, apiPermissionPaths, expiresTime);
         return permissions;
+    }
+
+    /**
+     * 缓存用户权限
+     *
+     * @param userId 用户ID
+     * @param permissionList 用户权限集合
+     * @param expiresTime 过期时间（秒）
+     * @return void
+     **/
+    public void cacheUserPermission(Integer userId, List<Object> permissionList, long expiresTime) {
+        Assert.notNull(userId, "【缓存用户权限】用户ID为空！");
+        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, userId), permissionList, expiresTime);
+    }
+
+    /**
+     * 延长权限缓存过期时间
+     *
+     * @param accessToken 令牌
+     * @param refreshToken 刷新令牌
+     * @param newExpiresTime 新过期时间
+     * @return void
+     **/
+    public void delayPermissionCache(String accessToken, String refreshToken, long newExpiresTime) throws ParseException {
+        CurrentUser currentUser = parseToken(refreshToken);
+        cacheUserPermission(currentUser.getId(), currentUser.getSystemCode(), newExpiresTime);
+        cacheUserAccessToken(currentUser.getId(), accessToken, newExpiresTime);
     }
 
     /**
@@ -71,30 +100,17 @@ public class AuthService {
     }
 
     /**
-     * 缓存用户权限
+     * 缓存用户授权token
      *
-     * @param userId 用户ID
-     * @param permissionList 用户权限集合
-     * @param expiresTime 过期时间（秒）
+     * @param userId
+     * @param accessToken
+     * @param expiresTime
      * @return void
      **/
-    public void cacheUserPermission(Integer userId, List<Object> permissionList, long expiresTime) {
-        if (Objects.isNull(userId)) {
-            throw new BusinessException("【缓存用户权限】用户ID为空！");
-        }
-        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, userId), permissionList, expiresTime);
-    }
-
-    /**
-     * 延长权限缓存过期时间
-     *
-     * @param refreshToken 刷新令牌
-     * @param newExpiresTime 新过期时间
-     * @return void
-     **/
-    public void delayPermissionCache(String refreshToken, long newExpiresTime) throws ParseException {
-        CurrentUser currentUser = parseToken(refreshToken);
-        cacheUserPermission(currentUser.getUsername(), currentUser.getSystemCode(), newExpiresTime);
+    public void cacheUserAccessToken(Integer userId, String accessToken, long expiresTime) {
+        Assert.notNull(userId, "【缓存用户accessToken】用户ID为空！");
+        Assert.hasLength(accessToken, "【缓存用户accessToken】accessToken为空！");
+        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_KEY, userId), accessToken, expiresTime);
     }
 
     /**
