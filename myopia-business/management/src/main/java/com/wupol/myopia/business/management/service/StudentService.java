@@ -448,11 +448,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param visionScreeningResult 筛查结果
      * @return StudentCardResponseDTO
      */
-/*    public List<VisionScreeningResult> getScreeningList(Integer studentId) {
-        // 通过计划Ids查询学生的结果
-        return visionScreeningResultService.getByStudentIds(studentId);
-    }*/
-
     public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
         Integer studentId = visionScreeningResult.getStudentId();
@@ -672,6 +667,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
         List<HospitalStudentDTO> dtoList = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return dtoList;
+        }
 
         List<Student> students = baseMapper.getByIdsAndName(studentIds, name);
         if (CollectionUtils.isEmpty(students)) {
