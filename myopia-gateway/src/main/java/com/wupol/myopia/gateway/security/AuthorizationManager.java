@@ -56,16 +56,17 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             return Mono.just(new AuthorizationDecision(false));
         }
         // 解析token
+        String tokenWithoutPrefix = token.replace(AuthConstants.JWT_TOKEN_PREFIX, Strings.EMPTY);
         JWSObject jwsObject;
         try {
-            jwsObject = JWSObject.parse(token.replace(AuthConstants.JWT_TOKEN_PREFIX, Strings.EMPTY));
+            jwsObject = JWSObject.parse(tokenWithoutPrefix);
         } catch (ParseException e) {
             return Mono.just(new AuthorizationDecision(false));
         }
         CurrentUser currentUser = JSONUtil.parseObj(jwsObject.getPayload().toString()).get(AuthConstants.JWT_USER_INFO_KEY, CurrentUser.class);
-        Object accessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
+        Object accessTokenCache = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
         // 判断是否已经退出登录
-        if (Objects.isNull(accessToken)) {
+        if (Objects.isNull(accessTokenCache) || !accessTokenCache.equals(tokenWithoutPrefix)) {
             return Mono.just(new AuthorizationDecision(false));
         }
         // 家长端、筛查端、医院端的用户，不需要校验接口访问权限。TODO：等后面系统迭代中，有了维护各个端的接口资源权限地方，再打开
