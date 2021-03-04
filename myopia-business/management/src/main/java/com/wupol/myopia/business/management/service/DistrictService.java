@@ -61,6 +61,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return List<District>
      */
     public List<District> getByCodes(List<Long> codes) {
+        if (CollectionUtils.isEmpty(codes)) {
+            return new ArrayList<>();
+        }
         return baseMapper.getByCodes(codes);
     }
 
