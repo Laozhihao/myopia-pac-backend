@@ -9,6 +9,7 @@ import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
@@ -229,6 +230,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 没有佩戴眼镜
         Integer glassesType = 2;
 
+        // 查询学生
+        Student student = studentService.getById(result.getStudentId());
+
         ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
@@ -245,10 +249,24 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
 
         // 获取矫正视力
-        BigDecimal correctedVision = resultVision.getSecond().equals(CommonConst.LEFT_EYE) ?
-                result.getVisionData().getLeftEyeData().getCorrectedVision() : result.getVisionData().getRightEyeData().getCorrectedVision();
-
-        responseDTO.setDoctorAdvice2(packageDoctorAdvice(resultVision.getFirst(), correctedVision, glassesType));
+        BigDecimal correctedVision;
+        // 球镜
+        BigDecimal sph;
+        // 柱镜
+        BigDecimal cyl;
+        if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
+            // 左眼
+            correctedVision = result.getVisionData().getLeftEyeData().getCorrectedVision();
+            sph = result.getComputerOptometry().getLeftEyeData().getSph();
+            cyl = result.getComputerOptometry().getLeftEyeData().getCyl();
+        } else {
+            // 右眼
+            correctedVision = result.getVisionData().getRightEyeData().getCorrectedVision();
+            sph = result.getComputerOptometry().getRightEyeData().getSph();
+            cyl = result.getComputerOptometry().getRightEyeData().getCyl();
+        }
+        responseDTO.setDoctorAdvice2(packageDoctorAdvice(
+                resultVision.getFirst(), correctedVision, sph, cyl, glassesType, student.getGradeType()));
         return responseDTO;
     }
 
@@ -343,7 +361,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 柱镜
         RefractoryResultItems cylItems = new RefractoryResultItems();
-        cylItems.setTitle("轴位");
+        cylItems.setTitle("柱镜");
 
         RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
         leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
@@ -567,14 +585,25 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         }).collect(Collectors.toList());
     }
 
+
     /**
      * 医生建议
      *
      * @param nakedVision     裸眼视力
      * @param correctedVision 矫正视力
+     * @param sph             球镜
+     * @param cyl             柱镜
+     * @param glassesType     戴镜类型
+     * @param schoolAge       学龄段
      * @return 医生建议
      */
-    private String packageDoctorAdvice(BigDecimal nakedVision, BigDecimal correctedVision, Integer glassesType) {
+    private String packageDoctorAdvice(BigDecimal nakedVision, BigDecimal correctedVision,
+                                       BigDecimal sph, BigDecimal cyl,
+                                       Integer glassesType, Integer schoolAge) {
+
+        // 等效球镜
+        BigDecimal se = calculationSE(sph, cyl);
+
         if (nakedVision.compareTo(new BigDecimal("4.9")) < 0) {
             // 裸眼视力小于4.9
             if (glassesType > 2) {
@@ -588,11 +617,30 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 }
             } else {
                 // 没有佩戴眼镜
+                boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
+                if ((SchoolAge.PRIMARY.code.equals(schoolAge)
+                        && isBetween(se, new BigDecimal("0.00"), new BigDecimal("2.00"))
+                        && checkCyl)
+                        || (SchoolAge.JUNIOR.code.equals(schoolAge)
+                        && isBetween(se, new BigDecimal("-0.50"), new BigDecimal("3.00"))
+                        && checkCyl)
+                ) {
+                    return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
 
+                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge)
+                        && !isBetween(se, new BigDecimal("0.00"), new BigDecimal("2.00")))
+                        || (SchoolAge.JUNIOR.code.equals(schoolAge)
+                        && !isBetween(se, new BigDecimal("-0.50"), new BigDecimal("3.00")))) {
+                    return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
+                }
+                return "暂无建议";
             }
-
         }
-        return "abc";
+        if (se.compareTo(new BigDecimal("0.00")) >= 0) {
+            return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
+        } else {
+            return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+        }
     }
 
     /**
@@ -609,7 +657,26 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
     }
 
-//    private BigDecimal calculationSE(BigDecimal sph,) {
-//
-//    }
+    /**
+     * 计算 等效球镜
+     *
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @return 等效球镜
+     */
+    private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        return sph.add(cyl.divide(new BigDecimal("0.5"), BigDecimal.ROUND_HALF_UP));
+    }
+
+    /**
+     * 判断是否在某个区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    private Boolean isBetween(BigDecimal val, BigDecimal start, BigDecimal end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
+    }
 }
