@@ -17,7 +17,11 @@ import java.util.List;
  */
 public interface ScreeningOrganizationStaffMapper extends BaseMapper<ScreeningOrganizationStaff> {
 
-    List<ScreeningOrganizationStaff> getByIds(List<Integer> ids);
-
     IPage<ScreeningOrganizationStaff> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationStaffQuery") ScreeningOrganizationStaffQuery screeningOrganizationStaffQuery);
+
+    List<ScreeningOrganizationStaff> getByOrgId(@Param("orgId") Integer orgId);
+
+    List<ScreeningOrganizationStaff> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
+
+    List<ScreeningOrganizationStaff> getByUserIds(@Param("userIds") List<Integer> userIds);
 }

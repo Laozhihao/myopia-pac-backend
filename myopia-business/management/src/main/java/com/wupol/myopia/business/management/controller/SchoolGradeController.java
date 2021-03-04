@@ -37,7 +37,8 @@ public class SchoolGradeController {
 
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
-        return schoolGradeService.deletedGrade(id);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolGradeService.deletedGrade(id, currentUser);
     }
 
     @GetMapping("list")
@@ -46,6 +47,14 @@ public class SchoolGradeController {
             throw new BusinessException("学校ID不能为空");
         }
         return schoolGradeService.getGradeList(pageRequest, schoolId);
+    }
+
+    @GetMapping("all")
+    public Object getAllGradeList(Integer schoolId) {
+        if (null == schoolId) {
+            throw new BusinessException("学校ID不能为空");
+        }
+        return schoolGradeService.getAllGradeList(schoolId);
     }
 
     @GetMapping("getGradeCode")

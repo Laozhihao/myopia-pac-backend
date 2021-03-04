@@ -6,6 +6,13 @@ import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import org.apache.ibatis.annotations.Param;
@@ -27,4 +34,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> selectByIdCards(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("idCards") List<String> idCards);
 
     List<StudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
+
+    List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 }

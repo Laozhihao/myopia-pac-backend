@@ -36,4 +36,19 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<Student> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
 
     List<StudentCountVO> countStudentBySchoolNo();
+
+    Student getByIdCard(@Param("idCard") String idCard);
+
+    Student getByIdCardAndName(@Param("idCard") String idCard, @Param("name") String name);
+
+    List<Student> getByIdsAndName(@Param("ids") List<Integer> ids, @Param("name") String name);
+
+    List<Student> getByGradeIdAndStatus(@Param("gradeId") Integer gradeId, @Param("status") Integer status);
+
+    List<Student> getByClassIdAndStatus(@Param("classId") Integer classId, @Param("status") Integer status);
+
+    List<Student> getByIdCardNeIdAndStatus(@Param("cardId") String cardId, @Param("id") Integer id, @Param("status") Integer status);
+
+    List<Student> getByIdCardsAndStatus(@Param("idCards") List<String> idCards, @Param("status") Integer status);
+
 }

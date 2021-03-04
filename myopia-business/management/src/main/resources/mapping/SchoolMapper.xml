@@ -88,15 +88,6 @@
         order by ms.create_time desc
     </select>
 
-    <select id="getLastSchoolByNo" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_school m
-        where m.school_no like CONCAT('%', #{code}, '%')
-        order by m.school_no + 0 desc
-        limit 1
-    </select>
-
     <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_school
@@ -108,5 +99,55 @@
         <include refid="Base_Column_List"/>
         from m_school
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where name like CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="getByNoNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+                where school_no = #{schoolNo}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
+
+    <select id="getBySchoolNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where school_no = #{schoolNo}
+    </select>
+
+    <select id="getBySchoolNos" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school where school_no in
+        <foreach collection="schoolNos" item="no" index="index" open="(" close=")" separator=",">
+            #{no}
+        </foreach>
+    </select>
+
+    <select id="getByDistrictId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where district_id = #{districtId}
+    </select>
+
+    <select id="getByNameNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+                where name = #{name}
+        <if test="id != null">
+            and id != #{id}
+        </if>
     </select>
 </mapper>

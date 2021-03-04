@@ -74,14 +74,14 @@ public class UserController {
     }
 
     /**
-     * 管理端创建医院端、学校端、筛查端的管理员
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
-    @PostMapping("/admin")
-    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
-        return userService.addAdminUser(userDTO);
+    @PostMapping("/multi/system")
+    public User addMultiSystemUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
+        return userService.addMultiSystemUser(userDTO);
     }
 
     /**

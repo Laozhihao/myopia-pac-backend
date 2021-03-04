@@ -131,7 +131,7 @@ https://git.vistel.cn/web/web-toolkits/java-coding-guide
 ### Mybatis-plus 使用
 - 避免在代码里拼接SQL，难以维护
 - 避免使用QueryWrapper()拼接查询参数（除了在BaseService.java中封装底层方法），难以维护
-- 建议尽量使用Mybatis-plus提供的基础api，或在mapper.xml中写SQL
+- 建议尽量使用Mybatis-plus提供的基础api，或在xxxMapper.xml中编写统一维护SQL、字段
 ### myopia-business 的 common 模块内容
 - 不包含controller层，通过service层对外提供服务
 - 不依赖其他模块，作为公共底层模块

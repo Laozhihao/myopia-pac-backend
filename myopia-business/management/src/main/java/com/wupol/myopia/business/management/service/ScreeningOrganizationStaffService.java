@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -246,7 +245,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 根据用户id列表查询
      */
     public List<ScreeningOrganizationStaff> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -273,7 +272,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
 
-        UserDTO user = oauthService.addAdminUser(userDTO);
+        UserDTO user = oauthService.addMultiSystemUser(userDTO);
         tuple.setSecond(user.getId());
         return tuple;
     }
@@ -298,21 +297,17 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return List<ScreeningOrganizationStaff>
      */
     public List<ScreeningOrganizationStaff> getByOrgId(Integer orgId) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                        .eq("screening_org_id", orgId));
+        return baseMapper.getByOrgId(orgId);
     }
 
     /**
-     * 通过组织Id获取员工
+     * 批量通过组织Id获取员工
      *
      * @param orgIds 组织id
      * @return List<ScreeningOrganizationStaff>
      */
     public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                        .in("screening_org_id", orgIds));
+        return baseMapper.getByOrgIds(orgIds);
     }
 
     /**
@@ -334,20 +329,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 员工
      */
     public List<ScreeningOrganizationStaff> getStaffsByUserIds(List<Integer> userIds) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningOrganizationStaff>()
-                        .in("user_id", userIds));
-    }
-
-    /**
-     * 统计员工编号
-     *
-     * @param staffNo 编号
-     * @return 数量
-     */
-    public Integer countStaffNo(String staffNo) {
-        return baseMapper.selectCount(new QueryWrapper<ScreeningOrganizationStaff>()
-                .eq("staff_no", staffNo));
+        return baseMapper.getByUserIds(userIds);
     }
 
     /**

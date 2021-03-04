@@ -17,7 +17,7 @@ public class BiometricDataDO {
 
     @Data
     @Accessors(chain = true)
-    public static class BiometricData {
+    public static class BiometricData  {
         /**
          * 0 为左眼 1 为右眼
          */
@@ -25,23 +25,24 @@ public class BiometricDataDO {
         /**
          * AD
          */
-        private String AD;
+        private String ad;
         /**
          * AL
          */
-        private String AL;
+        private String al;
         /**
          * CCT
          */
-        private String CCT;
+        private String cct;
         /**
          * LT
          */
-        private String LT;
+        private String lt;
         /**
          * WTW
          */
-        private String WTW;
+        private String wtw;
+
     }
 
 }
