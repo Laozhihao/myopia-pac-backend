@@ -17,6 +17,8 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class VisionMedicalRecord {
+    /** 学生id */
+    private Integer studentId;
 
     /** 眼压类型。眼压计测量。 */
     public static final Integer PRESSURE_1 = 1;

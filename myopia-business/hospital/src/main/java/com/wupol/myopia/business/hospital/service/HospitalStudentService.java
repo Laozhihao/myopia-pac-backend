@@ -150,11 +150,11 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         if (Objects.nonNull(studentVo.getTown())) {
             student.setTownCode(districtService.getById(studentVo.getTown().getId()).getCode());
         }
-        Integer newStudentId = student.getId();
+        Integer newStudentId;
         if (Objects.nonNull(studentVo.getId())) {
             newStudentId = studentService.updateStudent(student).getId();
         } else {
-            studentService.saveStudent(student);
+            newStudentId = studentService.saveStudent(student);
         }
         saveHospitalAndStudentRelationship(hospitalId, newStudentId);
         return student.getId();

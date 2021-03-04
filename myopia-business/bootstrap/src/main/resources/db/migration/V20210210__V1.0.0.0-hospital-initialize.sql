@@ -7,7 +7,8 @@ CREATE TABLE `h_hospital_student`
     `create_time` timestamp default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`),
     INDEX `hospital_id_index` (`hospital_id`),
-    INDEX `student_id_index` (`student_id`)
+    INDEX `student_id_index` (`student_id`),
+    UNIQUE KEY `hospital_id_student_id_unique_index` (`hospital_id`,`student_id`)
 ) COMMENT ='医院-学生';
 
 DROP TABLE IF EXISTS `h_department`;
