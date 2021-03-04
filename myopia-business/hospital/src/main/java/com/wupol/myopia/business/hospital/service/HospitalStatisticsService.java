@@ -45,7 +45,7 @@ public class HospitalStatisticsService {
     public Map<String, Object> getStatistics(Integer hospitalId) throws IOException {
         Map<String, Object> map = new HashMap<>();
         // 医院的学生信息列表
-        List<HospitalStudent> hospitalStudentList = hospitalStudentService.findByList(new HospitalStudent().setHospitalId(hospitalId));
+        List<HospitalStudent> hospitalStudentList = hospitalStudentService.findByList(new HospitalStudent().setHospitalId(hospitalId), "id", false);
         // 报告列表
         List<MedicalReport> reportList = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId));
 
@@ -130,6 +130,6 @@ public class HospitalStatisticsService {
     private String groupingByMonthFormat(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return String.format("%s年%s月", calendar.get(Calendar.YEAR), String.format("%02d", calendar.get(Calendar.MONTH)));
+        return String.format("%s年%s月", calendar.get(Calendar.YEAR), String.format("%02d", calendar.get(Calendar.MONTH)+1));
     }
 }
