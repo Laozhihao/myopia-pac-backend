@@ -105,7 +105,7 @@
         select
         <include refid="Base_Column_List"/>
         from m_school
-        where name = #{name}
+        where name like CONCAT('%', #{name}, '%')
     </select>
 
     <select id="getByNoNeId" resultMap="BaseResultMap">
