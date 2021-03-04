@@ -23,6 +23,7 @@ import com.wupol.myopia.business.parent.domain.dto.*;
 import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
 import com.wupol.myopia.business.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  * @Date 2021-02-26
  */
 @Service
+@Log4j2
 public class ParentStudentService extends BaseService<ParentStudentMapper, ParentStudent> {
 
     @Resource
@@ -665,7 +667,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return 等效球镜
      */
     private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        return sph.add(cyl.divide(new BigDecimal("0.5"), BigDecimal.ROUND_HALF_UP));
+        return sph.add(cyl.multiply(new BigDecimal("0.5")))
+                .setScale(2,BigDecimal.ROUND_HALF_UP);
     }
 
     /**
