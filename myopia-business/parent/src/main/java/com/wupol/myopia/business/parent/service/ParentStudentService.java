@@ -248,7 +248,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal correctedVision = resultVision.getSecond().equals(CommonConst.LEFT_EYE) ?
                 result.getVisionData().getLeftEyeData().getCorrectedVision() : result.getVisionData().getRightEyeData().getCorrectedVision();
 
-        responseDTO.setDoctorAdvice2(packageDoctorAdvice(resultVision.getFirst(), , glassesType));
+        responseDTO.setDoctorAdvice2(packageDoctorAdvice(resultVision.getFirst(), correctedVision, glassesType));
         return responseDTO;
     }
 
