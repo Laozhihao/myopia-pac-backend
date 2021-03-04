@@ -43,7 +43,7 @@ public class MedicalRecordController {
         return Objects.isNull(consultation) ? new Consultation() : consultation;
     }
 
-    @PostMapping("/consultation")
+    @PostMapping("/consultation}")
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // TODO departmentId
@@ -58,10 +58,10 @@ public class MedicalRecordController {
         return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getVision())? new VisionMedicalRecord() : medicalRecord.getVision();
     }
 
-    @PostMapping("/vision/{studentId}")
-    public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision, @PathVariable("studentId") Integer studentId) throws IOException {
+    @PostMapping("/vision")
+    public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), user.getId(), studentId);
+        medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), user.getId(), vision.getStudentId());
         return true;
     }
 
@@ -72,10 +72,10 @@ public class MedicalRecordController {
         return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getBiometrics()) ? new BiometricsMedicalRecord() : medicalRecord.getBiometrics();
     }
 
-    @PostMapping("/biometrics/{studentId}")
-    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics, @PathVariable("studentId") Integer studentId) throws IOException {
+    @PostMapping("/biometrics")
+    public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addBiometricsToMedicalRecord(biometrics, user.getOrgId(), user.getId(), studentId);
+        medicalRecordService.addBiometricsToMedicalRecord(biometrics, user.getOrgId(), user.getId(), biometrics.getStudentId());
         return true;
     }
 
@@ -86,10 +86,10 @@ public class MedicalRecordController {
         return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getDiopter()) ? new DiopterMedicalRecord() : medicalRecord.getDiopter();
     }
 
-    @PostMapping("/diopter/{studentId}")
-    public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter, @PathVariable("studentId") Integer studentId) throws IOException {
+    @PostMapping("/diopter")
+    public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), user.getId(), studentId);
+        medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), user.getId(), diopter.getStudentId());
         return true;
     }
 
@@ -100,10 +100,10 @@ public class MedicalRecordController {
         return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getTosca()) ? new ToscaMedicalRecord() : medicalRecord.getTosca();
     }
 
-    @PostMapping("/tosca/{studentId}")
-    public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca, @PathVariable("studentId") Integer studentId) throws IOException {
+    @PostMapping("/tosca")
+    public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addToscaToMedicalRecord(tosca, user.getOrgId(), user.getId(), studentId);
+        medicalRecordService.addToscaToMedicalRecord(tosca, user.getOrgId(), user.getId(), tosca.getStudentId());
         return true;
     }
 
