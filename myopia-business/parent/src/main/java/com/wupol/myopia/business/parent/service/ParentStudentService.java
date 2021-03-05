@@ -631,22 +631,16 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             } else {
                 // 没有佩戴眼镜
                 boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
-                // 小学生 && 0<=SE<2 && Cyl <1.5
-                if ((SchoolAge.PRIMARY.code.equals(schoolAge)
-                        && isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00"))
-                        && checkCyl)
-                        // 初中生 && -0.5<=SE<3 && Cyl <1.5
-                        || (SchoolAge.JUNIOR.code.equals(schoolAge)
-                        && isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00"))
-                        && checkCyl)
+                // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生 && -0.5<=SE<3 && Cyl <1.5)
+                if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00")) && checkCyl)
+                        ||
+                        (SchoolAge.JUNIOR.code.equals(schoolAge) && isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) && checkCyl)
                 ) {
                     return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
-                    // 小学生 && !(0 <= SE < 2)
-                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge)
-                        && !isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00")))
-                        // 初中生 && (Cyl >= 1.5 || !(-0.5 <= SE < 3))
-                        || (SchoolAge.JUNIOR.code.equals(schoolAge)
-                        && (!isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) || !checkCyl))) {
+                    // (小学生 && !(0 <= SE < 2)) || (初中生 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
+                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00")))
+                        ||
+                        (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
             }
