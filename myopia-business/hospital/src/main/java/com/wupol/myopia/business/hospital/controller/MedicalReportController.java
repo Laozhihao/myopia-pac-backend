@@ -25,10 +25,10 @@ public class MedicalReportController {
     @Autowired
     private MedicalReportService medicalReportService;
 
-    @PostMapping("/{studentId}")
-    public Boolean createReport(@RequestBody MedicalReport medicalReport, @PathVariable("studentId") Integer studentId) {
+    @PostMapping()
+    public Boolean createReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalReportService.createReport(medicalReport, user.getOrgId(), user.getId(), studentId);
+        medicalReportService.createReport(medicalReport, user.getOrgId(), user.getId(), medicalReport.getStudentId());
         return true;
     }
 

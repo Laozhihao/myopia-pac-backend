@@ -8,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
@@ -120,7 +121,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                return baseMapper.insert(student);
+                baseMapper.insert(student);
+                return student.getId();
             }
         } catch (InterruptedException e) {
             log.error("用户:{}创建学生获取锁异常,e:{}", createUserId, e);
@@ -237,6 +239,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 通过条件查询
+     *
      * @param query StudentQuery
      * @return List<Student>
      */
@@ -654,6 +657,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         if (null != student.getClassId()) {
             studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        if (null != student.getNation()) {
+            studentDTO.setNationName(NationEnum.getName(studentDTO.getNation()));
         }
         return studentDTO;
     }

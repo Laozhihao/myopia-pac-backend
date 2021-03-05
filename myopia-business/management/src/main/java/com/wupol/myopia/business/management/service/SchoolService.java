@@ -426,7 +426,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<ScreeningPlanResponse> plans = planPages.getRecords();
 
         if (!CollectionUtils.isEmpty(plans)) {
-            List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+            List<Integer> planIds = plans.stream().map(ScreeningPlanResponse::getId).collect(Collectors.toList());
             // 学校统计信息
             List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
                     .getByPlanIdsAndSchoolId(planIds, schoolId);
