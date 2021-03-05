@@ -24,7 +24,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_vision_screening_result")
+@TableName(value = "m_vision_screening_result", autoResultMap = true)
 public class VisionScreeningResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -101,7 +101,7 @@ public class VisionScreeningResult implements Serializable {
     /**
      * 筛查结果--是否复筛（0否，1是）
      */
-    private Integer isDoubleScreen;
+    private Boolean isDoubleScreen;
 
     /**
      * 创建时间

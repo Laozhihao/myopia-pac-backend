@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,7 +19,6 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_stat_conclusion")
-@Builder
 public class StatConclusion implements Serializable {
     /** id */
     @TableId(value = "id", type = IdType.AUTO)
@@ -29,8 +27,14 @@ public class StatConclusion implements Serializable {
     /** 源筛查数据id */
     private Integer resultId;
 
+    /** 源筛查通知id */
+    private Integer srcScreeningNoticeId;
+
     /** 任务id */
     private Integer taskId;
+
+    /** 计划id */
+    private Integer planId;
 
     /** 所属地区id */
     private Integer districtId;

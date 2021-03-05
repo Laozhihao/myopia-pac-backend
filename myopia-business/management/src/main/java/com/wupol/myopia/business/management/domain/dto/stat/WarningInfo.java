@@ -37,10 +37,10 @@ public class WarningInfo {
     @NoArgsConstructor
     public static class WarningLevelInfo {
         /** 预警级别 */
-        private Integer warningLevel;
+        private int warningLevel;
 
         /** 人数 */
-        private Long num;
+        private long num;
 
         /** 人数比例 */
         private Float percentage;

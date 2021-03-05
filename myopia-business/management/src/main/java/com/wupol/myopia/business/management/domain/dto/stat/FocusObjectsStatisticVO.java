@@ -122,9 +122,10 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtAttentiveObjectsStatistic.getIsTotal() != 1){
                 return item;
             }
+            return null;
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }
