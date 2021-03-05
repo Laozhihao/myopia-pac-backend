@@ -78,6 +78,8 @@ public class ToscaMedicalRecord {
         private String remark;
         /** 影像列表 */
         private List<Integer> imageIdList;
+        /** 影像列表 */
+        private List<String> imageUrlList;
 
     }
 
