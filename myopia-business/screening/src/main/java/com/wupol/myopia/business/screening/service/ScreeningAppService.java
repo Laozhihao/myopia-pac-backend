@@ -381,6 +381,9 @@ public class ScreeningAppService {
         appUserInfo.setDeptName(screeningOrganization.getName());
         appUserInfo.setDeptId(screeningOrganization.getId());
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(currentUser.getId()));
+        if (screeningOrganizationStaff == null) {
+            throw new BusinessException("无法找到该员工");
+        }
         String resourcePath = resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
         appUserInfo.setAutImage(resourcePath);
         return appUserInfo;
