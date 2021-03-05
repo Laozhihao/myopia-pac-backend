@@ -86,7 +86,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         if (CollectionUtils.isNotEmpty(ids)) {
             queryWrapper.in("pid", ids);
         }
-        queryWrapper.ne("status", CommonConst.STATUS_NOT_DELETED);
+        queryWrapper.ne("status", CommonConst.STATUS_IS_DELETED);
         List<GovDept> govDeptLists = baseMapper.selectList(queryWrapper);
         if (CollectionUtils.isNotEmpty(govDeptLists)) {
             List<Integer> govDeptIds = govDeptLists.stream().map(GovDept::getId).collect(Collectors.toList());
@@ -109,7 +109,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         }
         QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", id);
-        queryWrapper.ne("status", CommonConst.STATUS_NOT_DELETED);
+        queryWrapper.ne("status", CommonConst.STATUS_IS_DELETED);
         GovDept govDept = baseMapper.selectOne(queryWrapper);
         if (govDept != null) {
             resultIds.add(govDept.getPid());
@@ -153,7 +153,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     private List<GovDept> getUnDeletedByPid(List<Integer> ids) {
         QueryWrapper<GovDept> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("pid", ids).ne("status", CommonConst.STATUS_NOT_DELETED);
+        queryWrapper.in("pid", ids).ne("status", CommonConst.STATUS_IS_DELETED);
         return baseMapper.selectList(queryWrapper);
     }
 
