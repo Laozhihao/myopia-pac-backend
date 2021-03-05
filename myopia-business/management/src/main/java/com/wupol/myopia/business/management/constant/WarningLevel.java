@@ -21,4 +21,8 @@ public enum WarningLevel {
                 .findFirst()
                 .orElse(null);
     }
+
+    public static boolean isExpectedCode(int actualCode, int expectedCode) {
+        return actualCode == expectedCode;
+    }
 }

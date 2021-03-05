@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,4 +22,5 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<StudentScreeningCountVO> countScreeningTime();
 
+    List<Integer> getPlanIdsByTime(@Param("startTime") Date yesterdayStartTime,@Param("endTime") Date yesterdayEndTime);
 }

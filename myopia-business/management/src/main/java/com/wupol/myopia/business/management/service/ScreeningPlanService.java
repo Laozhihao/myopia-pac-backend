@@ -246,6 +246,23 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
-        return Collections.emptyList();
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 根据原始筛查通知获取所有的筛查计划
+     * @param srcScreeningNoticeId
+     * @return
+     */
+    public List<ScreeningPlan> getBySrcScreeningNoticeId(Integer srcScreeningNoticeId) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, srcScreeningNoticeId);
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 }

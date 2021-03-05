@@ -228,7 +228,7 @@ CREATE TABLE `m_district_vision_statistic`
     `treatment_advice_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊数量（默认0）',
     `treatment_advice_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
     `plan_screening_numbers`   int(10) unsigned DEFAULT '0' COMMENT '视力情况--计划的学生数量（默认0）',
-    `real_screening_numners`   int(10) COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `real_screening_numbers`   int(10) COMMENT '视力情况--实际筛查的学生数量（默认0）',
     `is_total`                 tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
     `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
     `create_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -269,7 +269,7 @@ CREATE TABLE `m_school_vision_statistic`
     `treatment_advice_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊数量（默认0）',
     `treatment_advice_ratio`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
     `plan_screening_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--计划的学生数量（默认0）',
-    `real_screening_numners`   int(11) DEFAULT NULL COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `real_screening_numbers`   int(11) DEFAULT NULL COMMENT '视力情况--实际筛查的学生数量（默认0）',
     `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
     `create_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)

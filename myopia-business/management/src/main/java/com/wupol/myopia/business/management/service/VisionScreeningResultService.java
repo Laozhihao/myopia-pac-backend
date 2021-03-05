@@ -2,12 +2,14 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,6 +76,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
-        return Collections.emptyList();
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 }

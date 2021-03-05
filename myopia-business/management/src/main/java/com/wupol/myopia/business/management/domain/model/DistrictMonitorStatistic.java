@@ -7,6 +7,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -110,4 +115,20 @@ public class DistrictMonitorStatistic implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    public static DistrictMonitorStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
+                                                 List<StatConclusion> statConclusions, Integer planScreeningNumbers) {
+        DistrictMonitorStatistic statistic = new DistrictMonitorStatistic();
+        Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsWearingGlasses, Collectors.counting()));
+        Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
+        Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
+        Integer dsn = withoutGlassDsn * 4 + wearingGlassDsn * 6;
+        Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
+        statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
+                .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
+                .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)
+                .setDsn(dsn).setErrorNumbers(errorNumbers)
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(statConclusions.size());
+        return statistic;
+    }
 }

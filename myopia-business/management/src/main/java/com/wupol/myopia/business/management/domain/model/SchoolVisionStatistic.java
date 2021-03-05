@@ -8,6 +8,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -76,7 +82,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--视力低下比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer lowVisionRatio;
+    private BigDecimal lowVisionRatio;
 
     /**
      * 视力情况--戴镜人数（默认0）
@@ -86,7 +92,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--戴镜人数（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer wearingGlassesRatio;
+    private BigDecimal wearingGlassesRatio;
 
     /**
      * 视力情况--近视人数（默认0）
@@ -96,7 +102,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--近视比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer myopiaRatio;
+    private BigDecimal myopiaRatio;
 
     /**
      * 视力情况--屈光不正人数（默认0）
@@ -106,7 +112,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--屈光不正比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer ametropiaRatio;
+    private BigDecimal ametropiaRatio;
 
     /**
      * 视力情况--零级预警人数（默认0）
@@ -118,7 +124,7 @@ public class SchoolVisionStatistic implements Serializable {
      * 视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）
      */
     @TableField("vision_label_0_ratio")
-    private Integer visionLabel0Ratio;
+    private BigDecimal visionLabel0Ratio;
 
     /**
      * 视力情况--一级预警人数（默认0）
@@ -130,7 +136,7 @@ public class SchoolVisionStatistic implements Serializable {
      * 视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）
      */
     @TableField("vision_label_1_ratio")
-    private Integer visionLabel1Ratio;
+    private BigDecimal visionLabel1Ratio;
 
     /**
      * 视力情况--二级预警人数（默认0）
@@ -142,7 +148,7 @@ public class SchoolVisionStatistic implements Serializable {
      * 视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）
      */
     @TableField("vision_label_2_ratio")
-    private Integer visionLabel2Ratio;
+    private BigDecimal visionLabel2Ratio;
 
     /**
      * 视力情况--三级预警人数（默认0）
@@ -154,7 +160,7 @@ public class SchoolVisionStatistic implements Serializable {
      * 视力情况--三级预警比例（均为整数，如10.01%，数据库则是1001）
      */
     @TableField("vision_label_3_ratio")
-    private Integer visionLabel3Ratio;
+    private BigDecimal visionLabel3Ratio;
 
     /**
      * 视力情况--重点视力对象数量（默认0）
@@ -169,7 +175,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）
      */
-    private Integer treatmentAdviceRatio;
+    private BigDecimal treatmentAdviceRatio;
 
     /**
      * 视力情况--计划的学生数量（默认0）
@@ -179,7 +185,7 @@ public class SchoolVisionStatistic implements Serializable {
     /**
      * 视力情况--实际筛查的学生数量（默认0）
      */
-    private Integer realScreeningNumners;
+    private Integer realScreeningNumbers;
 
     /**
      * 视力情况--更新时间
@@ -192,4 +198,37 @@ public class SchoolVisionStatistic implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    public static SchoolVisionStatistic build(Integer schoolId, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId, Integer districtId,
+                                              List<StatConclusionVo> statConclusions, Integer planScreeningNumbers) {
+        SchoolVisionStatistic statistic = new SchoolVisionStatistic();
+        Integer wearingGlassNumber = (int) statConclusions.stream().filter(StatConclusion::getIsWearingGlasses).count();
+        Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
+        Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
+        Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
+        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
+        Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
+        Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
+        Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
+        Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
+        Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
+        double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
+        double avgRightVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).average().orElse(0);
+        //TODO ratio
+        statistic.setSchoolId(schoolId).setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(districtId)
+                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
+                .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(BigDecimal.ZERO)
+                .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(BigDecimal.ZERO)
+                .setAmetropiaNumbers(ametropiaNumber).setAmetropiaRatio(BigDecimal.ZERO)
+                .setLowVisionNumbers(lowVisionNumber).setLowVisionRatio(BigDecimal.ZERO)
+                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(BigDecimal.ZERO)
+                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(BigDecimal.ZERO)
+                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(BigDecimal.ZERO)
+                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(BigDecimal.ZERO)
+                .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(BigDecimal.ZERO)
+                .setKeyWarningNumbers(keyWarningNumbers).setVisionLabel3Ratio(BigDecimal.ZERO)
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(statConclusions.size());
+        return statistic;
+    }
 }

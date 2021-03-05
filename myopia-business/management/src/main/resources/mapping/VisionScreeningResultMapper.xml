@@ -53,4 +53,10 @@
         from m_vision_screening_result
         group by student_id
     </select>
+
+    <select id="getPlanIdsByTime" resultType="java.lang.Integer">
+        SELECT DISTINCT plan_id
+        FROM m_vision_screening_result
+        WHERE DATE(update_time) between DATE(#{startTime}) and DATE(#{endTime})
+    </select>
 </mapper>

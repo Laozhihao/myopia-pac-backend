@@ -6,6 +6,7 @@ import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +39,19 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningNoticeId
      * @return
      */
-    public List<StatConclusion> getBySrcScreeningNoticeId(Integer screeningNoticeId) {
+    public List<StatConclusion> getValidBySrcScreeningNoticeId(Integer screeningNoticeId) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
                 .eq(StatConclusion::getIsValid, true);
         return statConclusionMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 根据筛查计划获取筛查结论Vo列表
+     * @param screeningPlanId
+     * @return
+     */
+    public List<StatConclusionVo> getValidVoByScreeningPlanId(Integer screeningPlanId) {
+        return statConclusionMapper.selectValidVoByScreeningPlanId(screeningPlanId);
     }
 }

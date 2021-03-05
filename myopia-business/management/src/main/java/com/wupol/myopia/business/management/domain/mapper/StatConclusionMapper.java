@@ -3,6 +3,8 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,4 +27,11 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @return
      */
     List<StatConclusion> listByQuery(StatConclusionQuery query);
+
+    /**
+     * 根据筛查计划ID获取Vo列表
+     * @param screeningPlanId
+     * @return
+     */
+    List<StatConclusionVo> selectValidVoByScreeningPlanId(@Param("screeningPlanId") Integer screeningPlanId);
 }

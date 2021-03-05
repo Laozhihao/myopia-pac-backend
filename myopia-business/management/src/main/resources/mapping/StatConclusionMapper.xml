@@ -4,6 +4,8 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.StatConclusion"></resultMap>
+    <!-- Vo查询映射结果 -->
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.StatConclusionVo"></resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -68,5 +70,12 @@
         SELECT *
         FROM m_stat_conclusion
         <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="selectValidVoByScreeningPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT msc.*, mvsr.school_id
+        FROM m_stat_conclusion msc
+        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+        WHERE msc.is_valid = 1 AND msc.plan_id = #{screeningPlanId}
     </select>
 </mapper>
