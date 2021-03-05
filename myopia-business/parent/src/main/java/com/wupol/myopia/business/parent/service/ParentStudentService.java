@@ -10,6 +10,7 @@ import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
@@ -18,6 +19,7 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.management.service.VisionScreeningResultService;
+import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.parent.domain.dto.*;
 import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
@@ -31,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -238,9 +242,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
-        responseDTO.setVisionList(setNakedVision(result.getVisionData()));
-        responseDTO.setRefractoryResultItems(setRefractoryResult(result.getComputerOptometry()));
+        // 视力检查结果
+        responseDTO.setVisionList(packageNakedVision(result.getVisionData(), getAgeByBirthday(student.getBirthday())));
+        // 验光仪检查结果
+        responseDTO.setRefractoryResultItems(packageRefractoryResult(result.getComputerOptometry()));
+        // 生物测量
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
+        // 医生建议一
         responseDTO.setDoctorAdvice1(1);
 
         // 获取左右眼的裸眼视力
@@ -267,6 +275,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             sph = result.getComputerOptometry().getRightEyeData().getSph();
             cyl = result.getComputerOptometry().getRightEyeData().getCyl();
         }
+        // 医生建议二
         responseDTO.setDoctorAdvice2(packageDoctorAdvice(
                 resultVision.getFirst(), correctedVision, sph, cyl, glassesType, student.getGradeType()));
         return responseDTO;
@@ -274,11 +283,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     /**
      * 视力检查结果
+     * <p>预警级别 {@link WarningLevel}</p>
      *
      * @param date 数据
+     * @param age  年龄
      * @return List<NakedVisionItems>
      */
-    private List<VisionItems> setNakedVision(VisionDataDO date) {
+    private List<VisionItems> packageNakedVision(VisionDataDO date, Integer age) {
         List<VisionItems> itemsList = new ArrayList<>();
 
         // 裸眼视力
@@ -287,12 +298,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         VisionItems.Item leftNakedVision = new VisionItems.Item();
         leftNakedVision.setVision(date.getLeftEyeData().getNakedVision());
-        leftNakedVision.setType("TODO");
+        leftNakedVision.setWarningLevel(StatUtil.getNakedVisionWarningLevel(date.getLeftEyeData().getNakedVision().floatValue(), age).code);
         nakedVision.setOs(leftNakedVision);
 
         VisionItems.Item rightNakedVision = new VisionItems.Item();
         rightNakedVision.setVision(date.getRightEyeData().getNakedVision());
-        rightNakedVision.setType("TODO");
+        rightNakedVision.setWarningLevel(StatUtil.getNakedVisionWarningLevel(date.getRightEyeData().getNakedVision().floatValue(), age).code);
         nakedVision.setOd(rightNakedVision);
 
         itemsList.add(nakedVision);
@@ -303,12 +314,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         VisionItems.Item leftCorrectedVision = new VisionItems.Item();
         leftCorrectedVision.setVision(date.getLeftEyeData().getCorrectedVision());
-        leftCorrectedVision.setType("TODO");
+        leftCorrectedVision.setWarningLevel(1);
         correctedVision.setOs(leftCorrectedVision);
 
         VisionItems.Item rightCorrectedVision = new VisionItems.Item();
         rightCorrectedVision.setVision(date.getRightEyeData().getCorrectedVision());
-        rightCorrectedVision.setType("TODO");
+        rightCorrectedVision.setWarningLevel(1);
         correctedVision.setOd(rightCorrectedVision);
 
         itemsList.add(correctedVision);
@@ -322,7 +333,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param date 数据
      * @return List<RefractoryResultItems>
      */
-    private List<RefractoryResultItems> setRefractoryResult(ComputerOptometryDO date) {
+    private List<RefractoryResultItems> packageRefractoryResult(ComputerOptometryDO date) {
         List<RefractoryResultItems> items = new ArrayList<>();
 
         // 轴位
@@ -685,5 +696,34 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private Boolean isBetweenLeft(BigDecimal val, BigDecimal start, BigDecimal end) {
         return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
+    }
+
+    /**
+     * 计算年龄
+     *
+     * @param birthday 生日
+     * @return 年龄
+     */
+    private static int getAgeByBirthday(Date birthday) {
+        int age;
+        try {
+            Calendar now = Calendar.getInstance();
+            now.setTime(new Date());// 当前时间
+
+            Calendar birth = Calendar.getInstance();
+            birth.setTime(birthday);
+
+            if (birth.after(now)) {//如果传入的时间，在当前时间的后面，返回0岁
+                age = 0;
+            } else {
+                age = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR);
+                if (now.get(Calendar.DAY_OF_YEAR) > birth.get(Calendar.DAY_OF_YEAR)) {
+                    age += 1;
+                }
+            }
+            return age;
+        } catch (Exception e) {//兼容性更强,异常后返回数据
+            return 0;
+        }
     }
 }
