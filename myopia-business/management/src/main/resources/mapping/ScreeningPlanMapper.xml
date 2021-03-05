@@ -55,7 +55,7 @@
         and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
     </select>
 
-    <select id="getPlanLists" resultMap="BaseResultMap">
+    <select id="getPlanLists" resultMap="BaseResultDTOMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan msp where msp.id in
@@ -63,7 +63,7 @@
             #{id}
         </foreach>
         and msp.release_status = 1
-        order by msp.create_time desc
+                order by msp.create_time desc
     </select>
 
     <select id="selectScreeningSchoolIds" resultType="long">
