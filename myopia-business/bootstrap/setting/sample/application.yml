@@ -154,3 +154,7 @@ wechat:
     url-host: http://myopia.nat100.top
   h5-client:
     url-host: http://myopia.nat100.top
+
+vistel:
+  tools:
+    remoteAddress: http://tools.internal

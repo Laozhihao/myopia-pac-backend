@@ -13,9 +13,9 @@
     <dependencies>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>management</artifactId>
+            <artifactId>hospital</artifactId>
             <version>1.0.0.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
+
 </project>

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
@@ -43,5 +44,13 @@ public class SchoolClassController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.updateClass(schoolClass);
+    }
+
+    @GetMapping("all")
+    public Object getAllClassList(Integer gradeId) {
+        if (null == gradeId) {
+            throw new BusinessException("年级ID不能为空");
+        }
+        return schoolClassService.getByGradeId(gradeId);
     }
 }

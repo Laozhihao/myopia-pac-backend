@@ -11,9 +11,9 @@ public enum GenderEnum {
     FEMALE(2, "女");
 
     /** 类型 **/
-    private final Integer type;
+    public final Integer type;
     /** 描述 **/
-    private final String name;
+    public final String name;
 
     GenderEnum(Integer type, String name) {
         this.type = type;
@@ -33,6 +33,4 @@ public enum GenderEnum {
         if (FEMALE.name.equals(name)) return FEMALE.type;
         return 0;
     }
-
-
 }

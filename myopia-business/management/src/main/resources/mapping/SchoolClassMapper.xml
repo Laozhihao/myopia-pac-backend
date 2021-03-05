@@ -52,4 +52,24 @@
         left join m_school_grade msg on msc.grade_id = msg.id
         where msc.school_id = #{param.schoolId}
     </select>
+
+    <select id="getByGradeIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+        where grade_id = #{gradeId}
+          and status = #{status}
+    </select>
+
+    <select id="getByGradeIdsAndSchoolIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+                where grade_id in
+        <foreach collection="gradeIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and school_id = #{schoolId}
+        and status = #{status}
+    </select>
 </mapper>

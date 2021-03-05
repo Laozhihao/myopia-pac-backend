@@ -46,6 +46,11 @@ public class ScreeningPlanSchool implements Serializable {
     private String schoolName;
 
     /**
+     * 筛查计划--筛查机构id
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

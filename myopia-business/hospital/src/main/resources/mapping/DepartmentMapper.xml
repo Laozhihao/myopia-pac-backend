@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.hospital.domain.mapper.DepartmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.hospital.domain.model.Department">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+<!--    &lt;!&ndash; 通用查询结果列 &ndash;&gt;-->
+<!--    <sql id="Base_Column_List">-->
+<!--        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time-->
+<!--    </sql>-->
+
+<!--    <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">-->
+<!--        select ms.*, school.name as schoolName, school.id as schoolId, msg.name as gradeName, msc.name as className-->
+<!--        from m_consultation ms-->
+<!--                     left join m_school school on ms.school_no = school.school_no-->
+<!--                     left join m_school_grade msg on ms.grade_id = msg.id-->
+<!--                     left join m_school_class msc on ms.class_id = msc.id-->
+<!--                where ms.status != 2-->
+<!--        <if test="sno != null">-->
+<!--            and ms.sno like CONCAT('%', #{sno}, '%')-->
+<!--        </if>-->
+<!--        <if test="idCard != null and idCard != ''">-->
+<!--            and ms.id_card like CONCAT('%', #{idCard}, '%')-->
+<!--        </if>-->
+<!--        <if test="name != null and name != ''">-->
+<!--            and ms.name like CONCAT('%', #{name}, '%')-->
+<!--        </if>-->
+<!--        <if test="parentPhone != null and parentPhone != ''">-->
+<!--            and ms.parent_phone like CONCAT('%', #{parentPhone}, '%')-->
+<!--        </if>-->
+<!--        <if test="gender != null">-->
+<!--            and ms.gender = #{gender}-->
+<!--        </if>-->
+<!--        <if test="gradeIds != null and gradeIds.size() != 0">-->
+<!--            and ms.grade_id in-->
+<!--            <foreach collection="gradeIds" item="id" index="index" open="(" close=")" separator=",">-->
+<!--                #{id}-->
+<!--            </foreach>-->
+<!--        </if>-->
+<!--        <if test="visionLabels != null and visionLabels.size() != 0">-->
+<!--            and ms.vision_label in-->
+<!--            <foreach collection="visionLabels" item="id" index="index" open="(" close=")" separator=",">-->
+<!--                #{id}-->
+<!--            </foreach>-->
+<!--        </if>-->
+<!--        <if test="startScreeningTime != null">-->
+<!--            and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}-->
+<!--        </if>-->
+<!--        <if test="schoolName != null and schoolName != ''">-->
+<!--            and school.name like CONCAT('%', #{schoolName}, '%')-->
+<!--        </if>-->
+<!--        order by ms.create_time desc-->
+<!--    </select>-->
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from h_department
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select *
+        from h_department
+        <include refid="Base_Where_Clause"/>
+    </select>
+
+</mapper>

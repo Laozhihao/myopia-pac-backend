@@ -69,7 +69,6 @@ public class VisionScreeningResult implements Serializable {
      * 筛查结果--所属的计划id
      */
     private Integer planId;
-
     /**
      * 筛查结果--所属的地区id
      */

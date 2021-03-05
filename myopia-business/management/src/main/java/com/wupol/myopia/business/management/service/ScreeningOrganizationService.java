@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -73,6 +72,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+
 
     /**
      * 保存筛查机构
@@ -493,21 +493,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getByIds(List<Integer> orgIds) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningOrganization>()
-                        .in("id", orgIds));
+        return baseMapper.selectBatchIds(orgIds);
     }
 
     /**
      * 根据名称模糊查询
      *
-     * @param screeningOrgNameLike
-     * @return
+     * @param screeningOrgNameLike 机构名称
+     * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike) {
-        QueryWrapper<ScreeningOrganization> query = new QueryWrapper<>();
-        query.like("name", screeningOrgNameLike);
-        return baseMapper.selectList(query);
+        return baseMapper.getByName(screeningOrgNameLike);
     }
 
     /**
@@ -518,13 +514,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 是否重复
      */
     public Boolean checkScreeningOrgName(String name, Integer id) {
-        QueryWrapper<ScreeningOrganization> queryWrapper = new QueryWrapper<ScreeningOrganization>()
-                .eq("name", name);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByNameAndNeId(name, id).size() > 0;
     }
 
     /**
@@ -547,5 +537,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return 2;
         }
         return 1;
+    }
+    public Object getRecordDetail(Integer id) {
+        return visionScreeningResultService.getByTaskId(id);
     }
 }

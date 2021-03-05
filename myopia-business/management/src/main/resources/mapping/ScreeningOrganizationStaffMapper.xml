@@ -27,16 +27,38 @@
     <sql id="Base_Column_List">
         id, gov_dept_id, screening_org_id, user_id, create_user_id, remark, create_time, update_time
     </sql>
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from m_screening_organization_staff
-        where user_id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
-    </select>
 
     <select id="getByPage" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization_staff
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getByOrgId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_staff
+        where screening_org_id = #{orgId}
+    </select>
+
+    <select id="getByOrgIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_staff
+                where screening_org_id in
+        <foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getByUserIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_staff
+                where user_id in
+        <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 </mapper>

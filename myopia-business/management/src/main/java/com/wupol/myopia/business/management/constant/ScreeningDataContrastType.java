@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.constant;
 
+import java.util.Arrays;
+
 public enum ScreeningDataContrastType {
     TIME(0, "时间对比"),
     TIME_N_DISTRICT(1, "时间+区域对比"),
@@ -18,11 +20,9 @@ public enum ScreeningDataContrastType {
     }
 
     public static ScreeningDataContrastType get(Integer code) {
-        for (ScreeningDataContrastType e : ScreeningDataContrastType.values()) {
-            if (e.code == code) {
-                return e;
-            }
-        }
-        return null;
+        return Arrays.stream(ScreeningDataContrastType.values())
+                .filter(x -> x.code.equals(code))
+                .findFirst()
+                .orElse(null);
     }
 }

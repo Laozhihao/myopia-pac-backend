@@ -140,6 +140,12 @@ public class Student implements Serializable {
     private String address;
 
     /**
+     * 头像
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String avatar;
+
+    /**
      * 当前情况
      */
     private String currentSituation;
@@ -193,7 +199,7 @@ public class Student implements Serializable {
      * 就诊次数
      */
     @TableField(exist = false)
-    private Integer seeDoctorCount;
+    private Integer numOfVisits;
 
     /**
      * 上传筛查学生时，判断学生需更新信息是否一致

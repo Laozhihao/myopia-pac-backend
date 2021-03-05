@@ -49,6 +49,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
+    /** 根据code查地址 */
+    public District getByCode(Long code) throws BusinessException{
+        return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
+    }
+
+    /**
+     * 根据code查地址
+     *
+     * @param codes code
+     * @return List<District>
+     */
+    public List<District> getByCodes(List<Long> codes) {
+        if (CollectionUtils.isEmpty(codes)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByCodes(codes);
+    }
+
     /**
      * 根据地址名查code，查不到时直接返回emptyList
      */

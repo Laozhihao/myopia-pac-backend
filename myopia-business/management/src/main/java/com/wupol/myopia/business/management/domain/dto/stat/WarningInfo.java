@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,23 +17,17 @@ import lombok.experimental.Accessors;
 @Builder
 @Accessors(chain = true)
 public class WarningInfo {
-    /** 当前统计时间 */
+    /** 统计起始时间 */
     private Long statTime;
 
+    /** 统计终止时间 */
+    private Long endTime;
+
     /** 总重点视力对象数 */
-    private Integer focusTargetsNum;
+    private Long focusTargetsNum;
 
     /** 总视力对象数在总学生数中的占比 */
     private Float focusTargetsPercentage;
-
-    /** 去年今日的时间 */
-    private Long lastStatTime;
-
-    /** 去年今日的总重点视力对象数 */
-    private Integer lastFocusTargetsNum;
-
-    /** 去年今日的总视力对象数在总学生数中的占比 */
-    private Float lastFocusTargetsPercentage;
 
     /** 分级预警信息 */
     private List<WarningLevelInfo> warningLevelInfoList;
@@ -42,30 +37,32 @@ public class WarningInfo {
     @NoArgsConstructor
     public static class WarningLevelInfo {
         /** 预警级别 */
-        private Integer warningLevel;
+        private int warningLevel;
 
         /** 人数 */
-        private Integer num;
+        private long num;
 
         /** 人数比例 */
         private Float percentage;
 
-        public WarningLevelInfo(Integer warningLevel, Integer num, Float percentage) {
+        public WarningLevelInfo(Integer warningLevel, Long num, Float percentage) {
             this.warningLevel = warningLevel;
             this.num = num;
             this.percentage = percentage;
         }
 
         public static List<WarningLevelInfo> getList(DistrictAttentiveObjectsStatistic districtAttentiveObjectsStatistic) {
-            WarningLevelInfo warningLevelInfo0 = new WarningLevelInfo();
-            warningLevelInfo0.setWarningLevel(0).setNum(districtAttentiveObjectsStatistic.getVisionLabel0Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel0Ratio().floatValue());
-            WarningLevelInfo warningLevelInfo1 = new WarningLevelInfo();
-            warningLevelInfo1.setWarningLevel(1).setNum(districtAttentiveObjectsStatistic.getVisionLabel1Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel1Ratio().floatValue());
-            WarningLevelInfo warningLevelInfo2 = new WarningLevelInfo();
-            warningLevelInfo2.setWarningLevel(2).setNum(districtAttentiveObjectsStatistic.getVisionLabel2Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel2Ratio().floatValue());
-            WarningLevelInfo warningLevelInfo3 = new WarningLevelInfo();
-            warningLevelInfo3.setWarningLevel(3).setNum(districtAttentiveObjectsStatistic.getVisionLabel3Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel3Ratio().floatValue());
-           return Arrays.asList(warningLevelInfo0,warningLevelInfo1,warningLevelInfo2,warningLevelInfo3);
+//            WarningLevelInfo warningLevelInfo0 = new WarningLevelInfo();
+//            warningLevelInfo0.setWarningLevel(0).setNum(districtAttentiveObjectsStatistic.getVisionLabel0Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel0Ratio().floatValue());
+//            WarningLevelInfo warningLevelInfo1 = new WarningLevelInfo();
+//            warningLevelInfo1.setWarningLevel(1).setNum(districtAttentiveObjectsStatistic.getVisionLabel1Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel1Ratio().floatValue());
+//            WarningLevelInfo warningLevelInfo2 = new WarningLevelInfo();
+//            warningLevelInfo2.setWarningLevel(2).setNum(districtAttentiveObjectsStatistic.getVisionLabel2Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel2Ratio().floatValue());
+//            WarningLevelInfo warningLevelInfo3 = new WarningLevelInfo();
+//            warningLevelInfo3.setWarningLevel(3).setNum(districtAttentiveObjectsStatistic.getVisionLabel3Numbers()).setPercentage(districtAttentiveObjectsStatistic.getVisionLabel3Ratio().floatValue());
+//           return Arrays.asList(warningLevelInfo0,warningLevelInfo1,warningLevelInfo2,warningLevelInfo3);
+            // TODO: 解决链峰未提交冲突，删除下行代码
+            return new ArrayList<>();
         }
     }
 }

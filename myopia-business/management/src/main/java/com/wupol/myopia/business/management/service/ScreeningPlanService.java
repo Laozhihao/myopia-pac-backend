@@ -7,10 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.myopia.common.constant.ScreeningConstant;
+import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -252,7 +255,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         }
         Set<Integer> noticeSet = new HashSet<>();
         noticeSet.add(noticeId);
-        return getScreeningPlanByNoticeIdsAndUser(noticeSet,user);
+        return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
     }
 
     /**
@@ -291,5 +294,39 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
+    }
+    /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public Integer getScreeningPlanStudentNum(Integer noticeId, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
+    }
+
+    /**
+     * 根据筛查计划ID获取原始的筛查通知ID列表
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+        return Collections.emptyList();
+    }
+
+    // todo: wait for implement
+    public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
+        return null;
     }
 }
