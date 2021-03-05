@@ -243,7 +243,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
         // 视力检查结果
-        responseDTO.setVisionList(packageNakedVision(result.getVisionData(), getAgeByBirthday(student.getBirthday())));
+        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), getAgeByBirthday(student.getBirthday())));
         // 验光仪检查结果
         responseDTO.setRefractoryResultItems(packageRefractoryResult(result.getComputerOptometry()));
         // 生物测量
@@ -289,7 +289,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param age  年龄
      * @return List<NakedVisionItems>
      */
-    private List<VisionItems> packageNakedVision(VisionDataDO date, Integer age) {
+    private List<VisionItems> packageVisionResult(VisionDataDO date, Integer age) {
         List<VisionItems> itemsList = new ArrayList<>();
 
         // 裸眼视力

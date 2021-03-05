@@ -28,7 +28,7 @@ public class ScreeningReportResponseDTO {
     /**
      * 视力检查结果
      */
-    private List<VisionItems> visionList;
+    private List<VisionItems> visionResultItems;
 
     /**
      * 医生建议1
