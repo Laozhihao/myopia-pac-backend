@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
+import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,12 +14,11 @@ import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,12 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private NoticeService noticeService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -59,6 +63,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -84,6 +89,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 发布通知
+     *
      * @param id
      * @return
      */
@@ -101,7 +107,9 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             if (!CollectionUtils.isEmpty(govOrgIds)){
                 ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
                 List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-                noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+                if (!CollectionUtils.isEmpty(toUserIds)) {
+                    noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+                }
             }
             return result;
         }
@@ -110,9 +118,10 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 部门是否已存在该标题
+     *
      * @param screeningNoticeId 已有的ID，更新时使用。新增时可为null
-     * @param govDeptId 部门ID
-     * @param title 标题
+     * @param govDeptId         部门ID
+     * @param title             标题
      * @return
      */
     public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
@@ -126,6 +135,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     /**
      * 发布筛查通知时，判断时间段是否合法（只查看已发布的且校验type为0）
      * 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     *
      * @param screeningNotice：必须存在govDeptId、startTime、endTime
      * @return
      */
@@ -148,6 +158,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 根据任务ID获取通知（type为1）
+     *
      * @param screeningTaskId
      * @return
      */
@@ -158,11 +169,179 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
 
     /**
      * 根据任务ID获取通知（type为1）
+     *
      * @param screeningTaskId
      * @return
      */
-    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId,Set<Integer> govDeptIds) {
+    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId, Set<Integer> govDeptIds) {
         return baseMapper.selectDistrictIds(screeningTaskId, ScreeningNotice.TYPE_GOV_DEPT, govDeptIds);
+    }
+
+    /**
+     * 获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
+     *
+     * @param user
+     * @return
+     */
+    public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = new ArrayList<>();
+        //todo 待确认再删除
+/*        if (user.isGovDeptUser()) {
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+        } else if (user.isPlatformAdminUser()) {
+            screeningNotices = this.getAllReleaseNotice();
+        } else if (user.isScreeningUser()) {
+            //该部门发布的通知
+            Set<Integer> screeningOrgs = new HashSet<>();
+            screeningOrgs.add(user.getOrgId());
+            screeningNotices = this.getNoticeByReleaseOrgId(screeningOrgs, ScreeningNotice.TYPE_ORG);
+            //该部门接收到的通知
+            screeningNotices.addAll(screeningNoticeDeptOrgService.selectByAcceptIdAndType(user.getOrgId(), ScreeningNotice.TYPE_ORG));
+        }*/
+        if (user.isGovDeptUser()) {
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+        } else if (user.isPlatformAdminUser()) {
+            //这里只是查找政府的通知
+            screeningNotices = this.getAllReleaseNotice();
+        } else if (user.isScreeningUser()) {
+            //该部门发布的通知
+            screeningNotices = this.getNoticeBySreeningUser(user.getOrgId());
+        }
+        return screeningNotices;
+    }
+
+    /**
+     * 获取筛查机构发布的筛查计划所对应的通知
+     *
+     * @return
+     */
+    private List<ScreeningNotice> getNoticeBySreeningUser(Integer screeningOrgId) {
+        if (screeningOrgId == null) {
+            return new ArrayList<>();
+        }
+        // 1.筛查机构自己创建的筛查计划(无论发布与否）
+        List<ScreeningNotice> screeningNotices = screeningNoticeDeptOrgService.selectByAcceptIdAndType(screeningOrgId, ScreeningNotice.TYPE_ORG);
+        Set<Integer> taskIds = screeningNotices.stream().map(ScreeningNotice::getScreeningTaskId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(taskIds)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningTask> screeningTasks = screeningTaskService.listByIds(taskIds);
+        Set<Integer> noticeIds = screeningTasks.stream().map(ScreeningTask::getScreeningNoticeId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(noticeIds)) {
+            return new ArrayList<>();
+        }
+        // 从 第一点注释 中发现，政府的筛查通知一定已经发布
+        return listByIds(noticeIds);
+    }
+
+    /**
+     * 获取所有已经发布的政府通知
+     *
+     * @return
+     */
+    private List<ScreeningNotice> getAllReleaseNotice() {
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper
+                .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)
+                .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
+        List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+        return screeningNotices;
+    }
+
+    /**
+     * 根据发布部门获取通知
+     *
+     * @param orgIds
+     * @param orgType
+     * @return
+     */
+    private List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
+        if (CollectionUtils.isEmpty(orgIds) || orgType == null) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getType, orgType);
+        screeningNoticeLambdaQueryWrapper.in(ScreeningNotice::getGovDeptId, orgIds);
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+    }
+
+    /**
+     * 获取年度
+     *
+     * @return
+     */
+    public List<Integer> getYears(List<ScreeningNotice> screeningNotices) {
+        Set<Integer> yearSet = new HashSet<>();
+        screeningNotices.forEach(screeningTask -> {
+            Integer startYear = this.getYear(screeningTask.getStartTime());
+            Integer endYear = this.getYear(screeningTask.getEndTime());
+            yearSet.add(startYear);
+            yearSet.add(endYear);
+        });
+        List<Integer> yearList = new ArrayList<>(yearSet);
+        yearList.stream().sorted();
+        Collections.reverse(yearList);
+        return yearList;
+    }
+
+
+    /**
+     * 根据时间获取年份 todo 待抽取
+     *
+     * @param date
+     * @return
+     */
+    public Integer getYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        return year;
+    }
+
+    /**
+     * 获取已经发布的通知
+     *
+     * @param noticeId
+     * @return
+     */
+    public ScreeningNotice getReleasedNoticeById(Integer noticeId) {
+        ScreeningNotice screeningNotice = getById(noticeId);
+        if (screeningNotice == null) {
+            throw new BusinessException("无法找到该通知");
+        }
+        if (screeningNotice.getReleaseStatus() != CommonConst.STATUS_RELEASE) {
+            throw new BusinessException("该通知未发布");
+        }
+        return screeningNotice;
+    }
+
+
+    /**
+     * 获取筛查任务名字
+     *
+     * @param screeningNoticeIds
+     * @param year
+     */
+    public List<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+        List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
+        screeningNotices = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
+        List<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
+        ).map(screeningNotice -> {
+            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
+            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return screeningNoticeNameVO;
+        }).collect(Collectors.toList());
+        return screeningNoticeNameVOS;
     }
 
 }

@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.constant.WarningLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import software.amazon.ion.Decimal;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

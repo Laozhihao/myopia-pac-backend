@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -9,6 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
@@ -30,13 +30,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
+ * Date 2020-12-22
  */
 @Service
 @Log4j2
@@ -64,16 +66,23 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
+     * 根据学生id列表获取学生信息
+     *
+     * @param ids id列表
+     * @return List<Student>
+     */
+    public List<Student> getByIds(List<Integer> ids) {
+        return baseMapper.selectBatchIds(ids);
+    }
+
+    /**
      * 通过年级id查找学生
      *
      * @param gradeId 年级Id
      * @return 学生列表
      */
     public List<Student> getStudentsByGradeId(Integer gradeId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "grade_id", gradeId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -83,10 +92,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生列表
      */
     public List<Student> getStudentsByClassId(Integer classId) {
-        QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-        equalsQueryAppend(studentQueryWrapper, "class_id", classId);
-        notEqualsQueryAppend(studentQueryWrapper, "status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(studentQueryWrapper);
+        return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_NOT_DELETED);
     }
 
     /**
@@ -106,7 +112,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
             student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
         }
-
         // 检查学生身份证是否重复
         if (checkIdCard(student.getIdCard(), null)) {
             throw new BusinessException("学生身份证重复");
@@ -116,7 +121,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         try {
             boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
             if (tryLock) {
-                return baseMapper.insert(student);
+                baseMapper.insert(student);
+                return student.getId();
             }
         } catch (InterruptedException e) {
             log.error("用户:{}创建学生获取锁异常,e:{}", createUserId, e);
@@ -167,7 +173,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
-                .setSeeDoctorCount(student.getSeeDoctorCount());
+                // TODO: 就诊次数
+                .setNumOfVisits(0);
         return studentDTO;
     }
 
@@ -223,7 +230,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             // 筛查次数
             s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
             // TODO: 就诊次数
-            s.setSeeDoctorCount(0);
+            s.setNumOfVisits(0);
             // TODO: 设置问卷数
             s.setQuestionnaireCount(0);
         }
@@ -231,7 +238,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 查询
+     * 通过条件查询
+     *
+     * @param query StudentQuery
+     * @return List<Student>
      */
     public List<Student> getBy(StudentQuery query) {
         return baseMapper.getBy(query);
@@ -272,7 +282,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
         List<StudentScreeningResultItems> items = new ArrayList<>();
 
-        // 通过计划Ids查询学生的结果
+        // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
         for (VisionScreeningResult r : resultList) {
@@ -316,6 +326,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setSchoolId(school.getId());
             student.setSchoolNo(school.getSchoolNo());
             student.setSchoolName(school.getName());
+            if (null != student.getClassId() && null != student.getGradeId()) {
+                SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+                SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
+                student.setClassName(schoolClass.getName());
+                student.setGradeName(schoolGrade.getName());
+            }
         }
         return student;
     }
@@ -349,14 +365,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCard(String IdCard, Integer id) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .eq("id_card", IdCard)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -380,10 +389,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCards(List<String> IdCards) {
-        QueryWrapper<Student> queryWrapper = new QueryWrapper<Student>()
-                .in("id_card", IdCards)
-                .ne("status", CommonConst.STATUS_IS_DELETED);
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -402,11 +408,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
         leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
         leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAD());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAL());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCCT());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLT());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWTW());
+        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
+        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
+        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
+        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
+        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
         leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
         leftDetails.setLateriality(CommonConst.LEFT_EYE);
 
@@ -418,11 +424,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
         rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
         rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAD());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAL());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCCT());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLT());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWTW());
+        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
+        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
+        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
+        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
+        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
         rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         rightDetails.setLateriality(CommonConst.RIGHT_EYE);
         return Lists.newArrayList(rightDetails, leftDetails);
@@ -435,19 +441,27 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return StudentCardResponseDTO
      */
     public StudentCardResponseDTO getCardDetails(Integer resultId) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        return getStudentCardResponseDTO(visionScreeningResult);
+    }
+
+    /**
+     * 根据筛查接口获取档案卡所需要的数据
+     *
+     * @param visionScreeningResult 筛查结果
+     * @return StudentCardResponseDTO
+     */
+    public StudentCardResponseDTO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseDTO responseDTO = new StudentCardResponseDTO();
-
-        VisionScreeningResult result = visionScreeningResultService.getById(resultId);
-        Integer studentId = result.getStudentId();
-
+        Integer studentId = visionScreeningResult.getStudentId();
         Student student = baseMapper.selectById(studentId);
         // 获取学生基本信息
         CardInfo cardInfo = getCardInfo(student);
-        cardInfo.setScreeningDate(result.getCreateTime());
+        cardInfo.setScreeningDate(visionScreeningResult.getCreateTime());
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(result);
+        CardDetails cardDetails = getCardDetails(visionScreeningResult);
         responseDTO.setDetails(cardDetails);
         return responseDTO;
     }
@@ -490,8 +504,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private CardDetails getCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-        details.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        //todo result.getVisionData().getLeftEyeData().getGlassesType()
+        glassesTypeObj.setType("1");
+        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
+        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
+        details.setGlassesTypeObj(glassesTypeObj);
         details.setVisionResults(setVisionResult(result.getVisionData()));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result));
@@ -588,5 +607,162 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private boolean checkStudentHavePlan(Integer studentId) {
         return !CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByStudentId(studentId));
+    }
+
+    /**
+     * 通过身份证查找学生
+     *
+     * @param idCard 身份证
+     * @return Student
+     */
+    public Student getByIdCard(String idCard) {
+        return baseMapper.getByIdCard(idCard);
+    }
+
+    /**
+     * 医院端获取学生详情
+     *
+     * @param studentId 学生ID
+     * @param idCard    身份证
+     * @param name      姓名
+     * @return HospitalStudentDTO
+     */
+    public HospitalStudentDTO getHospitalStudentDetail(Integer studentId, String idCard, String name) {
+
+        HospitalStudentDTO studentDTO = new HospitalStudentDTO();
+        Student student;
+        if (null != studentId) {
+            student = baseMapper.selectById(studentId);
+        } else {
+            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
+                throw new BusinessException("数据异常，请确认");
+            }
+            student = baseMapper.getByIdCardAndName(idCard, name);
+        }
+        if (null == student) {
+            return studentDTO;
+        }
+
+        BeanUtils.copyProperties(student, studentDTO);
+
+        // 地区Maps
+        Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
+        packageStudentDistrict(districtMaps, studentDTO, student);
+
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+        }
+        if (null != student.getGradeId()) {
+            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+        }
+        if (null != student.getClassId()) {
+            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        if (null != student.getNation()) {
+            studentDTO.setNationName(NationEnum.getName(studentDTO.getNation()));
+        }
+        return studentDTO;
+    }
+
+    /**
+     * 医院端学生信息
+     *
+     * @param studentIds 学生ids
+     * @param name       学生姓名
+     * @return List<HospitalStudentDTO>
+     */
+    public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
+        List<HospitalStudentDTO> dtoList = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(studentIds) && StringUtils.isBlank(name)) {
+            return dtoList;
+        }
+
+        List<Student> students = baseMapper.getByIdsAndName(studentIds, name);
+        if (CollectionUtils.isEmpty(students)) {
+            return new ArrayList<>();
+        }
+
+        // 学校Maps
+        List<School> schoolList = schoolService.getBySchoolNos(students
+                .stream().distinct().map(Student::getSchoolNo).collect(Collectors.toList()));
+        Map<String, School> schoolMaps = schoolList.stream()
+                .collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
+
+        // 班级Maps
+        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
+                .stream().map(Student::getClassId).collect(Collectors.toList()));
+
+        // 年级Maps
+        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
+                .stream().map(Student::getGradeId).collect(Collectors.toList()));
+
+        students.forEach(s -> {
+            HospitalStudentDTO dto = new HospitalStudentDTO();
+            BeanUtils.copyProperties(s, dto);
+
+            if (StringUtils.isNotBlank(s.getSchoolNo())) {
+                dto.setSchool(schoolMaps.get(s.getSchoolNo()));
+            }
+            if (null != s.getClassId()) {
+                dto.setSchoolClass(classMaps.get(s.getClassId()));
+            }
+            if (null != s.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(s.getGradeId()));
+            }
+            dtoList.add(dto);
+        });
+        return dtoList;
+    }
+
+    /**
+     * 获取学生地区Maps
+     *
+     * @param students 学生列表
+     * @return Map<Long, District>
+     */
+    private Map<Long, District> getDistrictMap(List<Student> students) {
+        List<Long> districtCode = new ArrayList<>();
+        students.forEach(d -> {
+            if (null != d.getProvinceCode()) {
+                districtCode.add(d.getProvinceCode());
+            }
+            if (null != d.getCityCode()) {
+                districtCode.add(d.getCityCode());
+            }
+            if (null != d.getAreaCode()) {
+                districtCode.add(d.getAreaCode());
+            }
+            if (null != d.getTownCode()) {
+                districtCode.add(d.getTownCode());
+            }
+        });
+
+        // 地区Maps
+        return districtService.getByCodes(districtCode)
+                .stream().distinct().collect(Collectors
+                        .toMap(District::getCode, Function.identity()));
+    }
+
+    /**
+     * 封装学生区域
+     *
+     * @param districtMaps 区域Maps
+     * @param dto          dto
+     * @param student      学生
+     */
+    private void packageStudentDistrict(Map<Long, District> districtMaps, HospitalStudentDTO dto, Student student) {
+        if (null != student.getProvinceCode()) {
+            dto.setProvince(districtMaps.get(student.getProvinceCode()));
+        }
+        if (null != student.getCityCode()) {
+            dto.setCity(districtMaps.get(student.getCityCode()));
+        }
+        if (null != student.getAreaCode()) {
+            dto.setArea(districtMaps.get(student.getAreaCode()));
+        }
+        if (null != student.getTownCode()) {
+            dto.setTown(districtMaps.get(student.getTownCode()));
+        }
     }
 }

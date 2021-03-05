@@ -1,21 +1,19 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-
-import java.math.BigDecimal;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 地区层级某次筛查计划统计监控监测情况表
@@ -41,6 +39,10 @@ public class DistrictMonitorStatistic implements Serializable {
      * 监测情况--所属的通知id
      */
     private Integer screeningNoticeId;
+    /**
+     * 监测情况--完成率
+     */
+    private BigDecimal finishRatio;
     /**
      * 监测情况--关联的任务id
      */

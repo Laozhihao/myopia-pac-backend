@@ -43,22 +43,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // clientId与systemCode一致，若不一致需要在SystemCode.java里加上clientId属性，维持两者的map关系
         String clientId = request.getParameter(AuthConstants.CLIENT_ID_KEY);
-        // 获取用户相关信息
         Integer systemCode = Integer.parseInt(clientId);
-        User user = userService.getByUsername(username, systemCode);
-        // TODO: 临时处理，允许筛查机构管理员登录
-        if (Objects.isNull(user) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
-            user = userService.getByUsername(username, SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
-        }
-        if (Objects.isNull(user)) {
-            throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
-        }
+        // 检查账号密码
+        User user = validateAccount(systemCode, username);
         // 判断是否分配角色
-        List<Role> roles = roleService.getUsableRoleByUserId(user.getId());
-        if (CollectionUtils.isEmpty(roles)) {
-            throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
-        }
-        List<Integer> roleTypes = roles.stream().map(Role::getRoleType).distinct().collect(Collectors.toList());
+        List<Integer> roleTypes = validateRole(systemCode, user.getId());
         // 生成用户明细，将作为accessToken的payload的一部分
         SecurityUserDetails userDetail = new SecurityUserDetails(user, roleTypes, clientId);
         if (!userDetail.isEnabled()) {
@@ -69,6 +58,44 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new AccountExpiredException("该账号已过期!");
         }
         return userDetail;
+    }
+
+    /**
+     * 校验账号
+     *
+     * @param systemCode 系统编号
+     * @param username 用户名
+     * @return com.wupol.myopia.oauth.domain.model.User
+     **/
+    private User validateAccount(Integer systemCode, String username) {
+        User user = userService.getByUsername(username, systemCode);
+        // TODO: 临时处理，允许筛查机构管理员登录。需要通过不同域名来区分不同的系统
+        if (Objects.isNull(user) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+            user = userService.getByUsername(username, SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+        }
+        if (Objects.isNull(user)) {
+            throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
+        }
+        return user;
+    }
+
+    /**
+     * 校验用户角色信息
+     *
+     * @param systemCode 系统编号
+     * @param userId 用户ID
+     * @return java.util.List<java.lang.Integer>
+     **/
+    private List<Integer> validateRole(Integer systemCode, Integer userId) {
+        // 非管理端和筛查管理端的用户不需要校验角色
+        if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
+            return null;
+        }
+        List<Role> roles = roleService.getUsableRoleByUserId(userId);
+        if (CollectionUtils.isEmpty(roles)) {
+            throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
+        }
+        return roles.stream().map(Role::getRoleType).distinct().collect(Collectors.toList());
     }
 
 }

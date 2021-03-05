@@ -1,0 +1,28 @@
+package com.wupol.myopia.business.parent.domain.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+/**
+ * 家长端-孩子报告统计
+ *
+ * @author Simple4H
+ */
+@Getter
+@Setter
+public class ReportCountResponseDTO {
+
+
+    /**
+     * 筛查详情
+     */
+    private ScreeningDetail screeningDetail;
+
+
+    /**
+     * 就诊详情
+     */
+    private VisitsDetail visitsDetail;
+}

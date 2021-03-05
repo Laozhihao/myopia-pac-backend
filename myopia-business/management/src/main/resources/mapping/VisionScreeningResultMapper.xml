@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.VisionScreeningResult">
     </resultMap>
 
-     <!-- 通用查询条件 -->
+    <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
@@ -52,6 +52,14 @@
         select count(1) as count, student_id
         from m_vision_screening_result
         group by student_id
+    </select>
+
+    <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+        order by create_time desc
+        limit 1
     </select>
 
     <select id="getPlanIdsByTime" resultType="java.lang.Integer">

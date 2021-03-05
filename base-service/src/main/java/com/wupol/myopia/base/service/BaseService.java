@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -54,7 +55,21 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 查询实体参数
      * @return java.util.List<T>
      **/
-    public List<T> findByListOrderByIdAsc(T entity) throws IOException {
+    public List<T> findByList(T entity, String column, Boolean isDesc) throws IOException {
+        if (StringUtils.isEmpty(column)){
+            return list(getQueryWrapper(entity));
+        }
+        if (isDesc) return list(getQueryWrapper(entity).orderByDesc(column));
+        return list(getQueryWrapper(entity).orderByAsc(column));
+    }
+
+    /**
+     * 查询List集合
+     *
+     * @param entity 查询实体参数
+     * @return java.util.List<T>
+     **/
+    public List<T> findByListOrderByIdDesc(T entity) throws IOException {
         return list(getQueryWrapper(entity).orderByDesc("id"));
     }
 

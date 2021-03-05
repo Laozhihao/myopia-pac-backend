@@ -24,40 +24,40 @@ public class ScreeningDataContrastVo {
     private Float averageVisionRight;
 
     @ExcelProperty("视力低下率")
-    private Float lowVisionRatio;
+    private String lowVisionRatio;
 
     @ExcelProperty("屈光不正率")
-    private Float refractiveErrorRatio;
+    private String refractiveErrorRatio;
 
     @ExcelProperty("戴镜率")
-    private Float wearingGlassesRatio;
+    private String wearingGlassesRatio;
 
     @ExcelProperty("近视人数")
     private long myopiaNum;
 
     @ExcelProperty("近视率")
-    private Float myopiaRatio;
+    private String myopiaRatio;
 
     @ExcelProperty("重点视力对象数量")
     private long focusTargetsNum;
 
     @ExcelProperty("0级预警率")
-    private Float warningLevelZeroRatio;
+    private String warningLevelZeroRatio;
 
     @ExcelProperty("1级预警率")
-    private Float warningLevelOneRatio;
+    private String warningLevelOneRatio;
 
     @ExcelProperty("2级预警率")
-    private Float warningLevelTwoRatio;
+    private String warningLevelTwoRatio;
 
     @ExcelProperty("3级预警率")
-    private Float warningLevelThreeRatio;
+    private String warningLevelThreeRatio;
 
     @ExcelProperty("建议就诊数")
     private long recommendVisitNum;
 
     @ExcelProperty("视力筛查完成率")
-    private Float screeningFinishedRatio;
+    private String screeningFinishedRatio;
 
     @ExcelProperty("复测人数")
     private long rescreenNum;
@@ -81,5 +81,5 @@ public class ScreeningDataContrastVo {
     private long incorrectItemNum;
 
     @ExcelProperty("发生率")
-    private float incorrectRatio;
+    private String incorrectRatio;
 }

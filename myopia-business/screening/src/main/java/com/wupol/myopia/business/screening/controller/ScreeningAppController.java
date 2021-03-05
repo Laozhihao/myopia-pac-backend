@@ -1,16 +1,30 @@
 package com.wupol.myopia.business.screening.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.myopia.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.management.service.SchoolGradeService;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.screening.domain.vo.StudentVO;
 import com.wupol.myopia.business.screening.service.ScreeningAppService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 筛查端App接口
@@ -26,209 +40,86 @@ public class ScreeningAppController {
 
     @Autowired
     private ScreeningAppService screeningAppService;
-
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
-     * 模糊查询所有学校名称
+     * 模糊查询某个筛查机构下的学校的
+     *
      * @param schoolName 模糊查询
-     * @param deptId    机构id
-     * @param isReview      是否复测
+     * @param deptId     机构id
+     * @param isReview   是否复测
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam Integer deptId, Boolean isReview) {
-        deptId = 1;
-        return screeningAppService.getSchoolNameBySchoolNameLike(schoolName, deptId, isReview);
+    public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam Integer deptId, Boolean isReview) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolName).collect(Collectors.toSet());
     }
 
     /**
      * 查询学校的年级名称
+     *
      * @param schoolName 学校名
-     * @param deptId    机构id
+     * @param deptId     机构id
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public List<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId) {
-        deptId = 1;
-        return screeningAppService.getGradeNameBySchoolName(schoolName, deptId);
+    public Set<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return new HashSet<>();
+        }
+        return screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
     }
-
 
     /**
      * 获取班级名称
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param deptId        机构id
+     *
+     * @param schoolName 学校名称
+     * @param gradeName  年级名称
+     * @param deptId     机构id
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public List<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
-        deptId = 1;
-        return screeningAppService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    public Set<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+        return screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
     }
 
     /**
      * 获取学校年级班级对应的学生名称
-     * @param schoolId      学校id, 仅复测时有
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param clazzName     班级名称
-     * @param studentName     学生名称
-     * @param deptId        机构id
-     * @param isReview      是否复测
+     *
+     * @param schoolId    学校id, 仅复测时有
+     * @param schoolName  学校名称
+     * @param gradeName   年级名称
+     * @param clazzName   班级名称
+     * @param studentName 学生名称
+     * @param deptId      机构id
+     * @param isReview    是否复测
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public IPage<Student> getStudentNameBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer deptId, Boolean isReview) {
-        deptId = 1;
-        return screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
+    public List<Student> getStudentNameBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer deptId, Boolean isReview) {
+        return null;//screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
     }
-
-    /**
-     * 获取筛查就机构对应的学校
-     * @param deptId        机构id
-     * @return
-     */
-    @GetMapping("/screening/findSchoolByDeptId")
-    public List<School> getSchoolByScreeningOrgId(Integer deptId) {
-        deptId = 1;
-        return screeningAppService.getSchoolByScreeningOrgId(deptId);
-    }
-
-
     /**
      * 获取学生
-     * @param id        学生id
+     *
+     * @param id 学生id
      * @return
      */
     @GetMapping("/student/findOneById")
-    public Student getStudentById(Integer id) {
-        id = 1;
-        return screeningAppService.getStudentById(id);
-    }
-
-    /**
-     * 随机获取学生复测信息
-     * @param pageRequest   分页
-     * @param deptId        筛查机构id
-     * @param schoolId      学校id
-     * @param schoolName    学校名称
-     * @param gradeName     年级名称
-     * @param clazzName     班级名称
-     * @return
-     */
-    @GetMapping("/student/findStudentReviewRandom")
-    public IPage<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer deptId) {
-        return screeningAppService.getStudentReviewWithRandom(pageRequest, schoolId, schoolName, gradeName, clazzName, deptId);
-    }
-
-    /**
-     * 保存学生眼镜信息
-     * @return
-     */
-    @PostMapping("/eye/addVision")
-    public Object addStudentVision() {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.addStudentVision();
-    }
-
-    /**
-     * 保存电脑验光
-     * @return
-     */
-    @PostMapping("/eye/addComputer")
-    public Object addStudentComputer() {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.addStudentComputer();
-    }
-
-    /**
-     * 保存生物测量数据
-     * @return
-     */
-    @PostMapping("/eye/addBiology")
-    public Object addStudentBiology() {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.addStudentBiology();
-    }
-
-    /**
-     * 查询眼睛疾病
-     * @return
-     */
-    @PostMapping("/eye/findAllEyeDisease")
-    public List<Object> getAllEyeDisease() {
-        //TODO 管理端，待修改返回的参数
-        return screeningAppService.getAllEyeDisease();
-    }
-
-    /**
-     * 增加该学生的眼睛疾病
-     * @return
-     */
-    @PostMapping("/eye/addEyeDisease")
-    public Object addEyeDisease() {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.addEyeDisease();
-    }
-
-    /**
-     * 保存慢性病信息
-     * @return
-     */
-    @PostMapping("/eye/addChronic")
-    public Object addChronic() {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.addChronic();
-    }
-
-    /**
-     * 查询学生录入的最新一条数据(慢性病)
-     * @param studentId    学生id
-     * @param deptId        机构id
-     * @return
-     */
-    @GetMapping("/eye/findStudentChronicNewByStudentId")
-    public List<Object> getStudentChronicNewByStudentId(Integer studentId, Integer deptId) {
-        //TODO 管理端，待修改返回的参数
-        deptId = 1;
-        return screeningAppService.getStudentChronicNewByStudentId(studentId, deptId);
-    }
-
-    /**
-     * 获取复测质控结果
-     * @return
-     */
-    @PostMapping("/eye/findAllReviewResult")
-    public List<Object> getAllReviewResult(Integer deptId, String gradeName, String clazzName, Integer schoolId) {
-        //TODO 管理端，待修改返回的参数
-        return screeningAppService.getAllReviewResult(deptId, gradeName, clazzName, schoolId);
-    }
-
-    /**
-     * 更新复测质控结果
-     * @return
-     */
-    @PostMapping("/eye/updateReviewResult")
-    public Boolean updateReviewResult(Integer eyeId) {
-        //TODO 管理端，待修改接收的参数
-        return screeningAppService.updateReviewResult(eyeId);
-    }
-
-    /**
-     * 上传筛查机构用户的签名图片
-     * @param deptId    机构id
-     * @param userId    用户id
-     * @param file      签名
-     * @return
-     */
-    @PostMapping("/user/uploadSignPic")
-    public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
-        return screeningAppService.uploadSignPic(deptId, userId, file);
+    public StudentVO getStudentById(@RequestParam Integer id) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(id);
+        return StudentVO.getInstance(screeningPlanSchoolStudent);
     }
 
     /**
      * 保存学生信息
+     *
      * @return
      */
     @PostMapping("/student/save")
@@ -239,6 +130,7 @@ public class ScreeningAppController {
 
     /**
      * 人脸识别
+     *
      * @return
      */
     @PostMapping("/recognitionFace")
@@ -248,4 +140,115 @@ public class ScreeningAppController {
     }
 
 
+    //分割线----------------------
+
+    /**
+     * 随机获取学生复测信息 TODO jacob 要理解一下
+     *
+     * @param screeningResultSearchDTO
+     * @return
+     */
+    @GetMapping("/student/findStudentReviewRandom")
+    public List<Student> getStudentReviewWithRandom(@Valid @RequestBody ScreeningResultSearchDTO screeningResultSearchDTO) {
+        return null; //screeningAppService.getStudentReviewWithRandom(screeningResultSearchDTO);
+    }
+
+    /**
+     * 搜索复测质控结果
+     *
+     * @return
+     */
+    @PostMapping("/eye/findAllReviewResult")
+    public List<RescreeningResultVO> getAllReviewResult(@Valid @RequestBody ScreeningResultSearchDTO screeningResultSearchDTO) {
+        List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
+        return allReviewResult;
+    }
+
+    /**
+     * 更新复测质控结果 TODO
+     *
+     * @return
+     */
+    @PostMapping("/eye/updateReviewResult")
+    public Boolean updateReviewResult(Integer eyeId) {
+        //TODO 管理端，待修改接收的参数
+        return screeningAppService.updateReviewResult(eyeId);
+    }
+
+    /**
+     * 上传筛查机构用户的签名图片 TODO jacob 暂时无对象存储 年后
+     *
+     * @param deptId 机构id
+     * @param userId 用户id
+     * @param file   签名
+     * @return
+     */
+    @PostMapping("/user/uploadSignPic")
+    public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
+        return screeningAppService.uploadSignPic(deptId, userId, file);
+    }
+
+
+    /**
+     * 获取筛查就机构对应的学校
+     *
+     * @param deptId 机构id
+     * @return
+     */
+    @GetMapping("/findSchoolByDeptId")
+    public List<School> getSchoolByScreeningOrgId(Integer deptId) {
+        //筛查机构未完成的学校的信息
+        return screeningAppService.getSchoolByScreeningOrgId(deptId);
+    }
+
+    /**
+     * 查询眼睛疾病
+     *
+     * @return
+     */
+    @PostMapping("/eye/findAllEyeDisease")
+    public List<String> getAllEyeDisease() {
+        return EyeDiseasesEnum.eyeDiseaseList;
+    }
+
+
+    /**
+     * 保存视力筛查
+     *
+     * @return
+     */
+    @PostMapping(value = {"/eye/addVision"})
+    public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
+        screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
+    }
+
+    /**
+     * 保存电脑验光
+     *
+     * @return
+     */
+    @PostMapping("/eye/addComputer")
+    public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) throws IOException {
+        screeningAppService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+    }
+
+    /**
+     * 保存生物测量数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addBiology")
+    public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) throws IOException {
+        screeningAppService.saveOrUpdateStudentScreenData(biometricDataDTO);
+    }
+
+    /**
+     * 增加该学生的眼睛疾病
+     *
+     * @return
+     */
+    @PostMapping("/eye/addEyeDisease")
+    public void addEyeDisease(@Valid @RequestBody OtherEyeDiseases otherEyeDiseases) throws IOException {
+        screeningAppService.saveOrUpdateStudentScreenData(otherEyeDiseases);
+    }
 }

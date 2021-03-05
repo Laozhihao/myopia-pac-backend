@@ -172,7 +172,7 @@ create table m_student
 (
     id                  int auto_increment comment 'id'
         primary key,
-    school_no           varchar(64)                         not null comment '学校编号',
+    school_no           varchar(64)                         null comment '学校编号',
     create_user_id      int                                 null comment '创建人ID',
     sno                 varchar(64)                         not null comment '学号',
     grade_id            int                                 null comment '年级ID',
@@ -190,6 +190,7 @@ create table m_student
     area_code           bigint                              null comment '区代码',
     town_code           bigint                              null comment '镇/乡代码',
     address             varchar(128)                        null comment '详细地址',
+    avatar              varchar(128)                        null comment '头像',
     current_situation   varchar(128)                        null comment '当前情况',
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     last_screening_time timestamp                           null comment '最近筛选时间',
@@ -198,7 +199,7 @@ create table m_student
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
-    comment '学校-学生表';
+    comment '学校-学生表' charset = utf8mb4;
 
 create unique index m_school_school_no_uindex
     on m_school (school_no);

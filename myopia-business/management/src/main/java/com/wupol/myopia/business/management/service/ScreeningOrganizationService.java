@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -74,6 +73,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
+
     /**
      * 保存筛查机构
      *
@@ -130,7 +130,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
-        UserDTO user = oauthService.addAdminUser(userDTO);
+        UserDTO user = oauthService.addMultiSystemUser(userDTO);
         screeningOrganizationAdminService
                 .insertAdmin(org.getCreateUserId(), org.getId(),
                         user.getId(), org.getGovDeptId());
@@ -140,11 +140,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 更新筛查机构
      *
+     * @param currentUser           当前登录用户
      * @param screeningOrganization 筛查机构实体咧
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrgResponseDTO updateScreeningOrganization(ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganization screeningOrganization) {
 
         if (checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
@@ -181,6 +182,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
+        // 是否能更新
+        if (currentUser.isPlatformAdminUser()) {
+            response.setCanUpdate(true);
+        } else if (response.getCreateUserId().equals(currentUser.getId())) {
+            response.setCanUpdate(true);
+        }
         return response;
     }
 
@@ -385,21 +392,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningTaskResponse> getRecordLists(PageRequest request, Integer orgId) {
-        // 查询筛查任务关联的机构表
-        List<ScreeningTaskOrg> taskOrgLists = screeningTaskOrgService.getTaskOrgListsByOrgId(orgId);
-
-        // 为空直接返回
-        if (CollectionUtils.isEmpty(taskOrgLists)) {
-            return new Page<>();
-        }
+    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningTaskResponse> taskPages = screeningPlanService.getByTaskIds(request, taskOrgLists
-                .stream()
-                .map(ScreeningTaskOrg::getScreeningTaskId)
-                .collect(Collectors.toList()));
-        List<ScreeningTaskResponse> tasks = taskPages.getRecords();
+        IPage<ScreeningOrgPlanResponse> taskPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponse> tasks = taskPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return taskPages;
         }
@@ -412,7 +409,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param taskResponse 筛查端-记录详情
      */
-    private void extractedDTO(ScreeningTaskResponse taskResponse) {
+    private void extractedDTO(ScreeningOrgPlanResponse taskResponse) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
@@ -496,21 +493,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getByIds(List<Integer> orgIds) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningOrganization>()
-                        .in("id", orgIds));
+        return baseMapper.selectBatchIds(orgIds);
     }
 
     /**
      * 根据名称模糊查询
      *
-     * @param screeningOrgNameLike
-     * @return
+     * @param screeningOrgNameLike 机构名称
+     * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike) {
-        QueryWrapper<ScreeningOrganization> query = new QueryWrapper<>();
-        query.like("name", screeningOrgNameLike);
-        return baseMapper.selectList(query);
+        return baseMapper.getByName(screeningOrgNameLike);
     }
 
     /**
@@ -521,13 +514,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 是否重复
      */
     public Boolean checkScreeningOrgName(String name, Integer id) {
-        QueryWrapper<ScreeningOrganization> queryWrapper = new QueryWrapper<ScreeningOrganization>()
-                .eq("name", name);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByNameAndNeId(name, id).size() > 0;
     }
 
     /**
@@ -543,9 +530,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (nowDate.before(startDate)) {
             return 0;
         }
+        if (nowDate.after(startDate) && nowDate.before(endDate)) {
+            return 1;
+        }
         if (nowDate.after(endDate)) {
             return 2;
         }
         return 1;
+    }
+    public Object getRecordDetail(Integer id) {
+        return visionScreeningResultService.getByTaskId(id);
     }
 }

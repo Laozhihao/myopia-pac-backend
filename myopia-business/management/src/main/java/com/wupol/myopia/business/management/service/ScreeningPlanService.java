@@ -7,10 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.myopia.common.constant.ScreeningConstant;
+import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -18,10 +21,12 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -123,6 +128,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param screeningPlanDTO
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
         screeningPlanDTO.setOperatorId(user.getId());
@@ -179,16 +185,18 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 获取筛查计划id
+     *
      * @param districtId
      * @param taskId
      * @return
      */
     public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
-         return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+        return baseMapper.selectSchoolInfo(districtId, taskId, 1);
     }
 
     /**
      * 更新筛查学生数量
+     *
      * @param userId
      * @param screeningPlanId
      * @param studentNumbers
@@ -200,14 +208,82 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过通知id，获取计划
+     *
+     * @param screeningNoticeIds
+     * @return
+     */
+    public List<ScreeningPlan> getPlanByNoticeIds(Set<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, screeningNoticeIds);
+        queryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(queryWrapper);
+        return screeningPlans;
+    }
+
+    /**
+     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
+     *
+     * @param noticeIds
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans;
+    }
+
+    /**
+     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划(已发布，无论开不开始）
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdAndUser(Integer noticeId, CurrentUser user) {
+        if (noticeId == null || user == null) {
+            return new ArrayList<>();
+        }
+        Set<Integer> noticeSet = new HashSet<>();
+        noticeSet.add(noticeId);
+        return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
+    }
+
+    /**
+     * @param screeningPlans
+     * @param year
+     * @return
+     */
+    public Set<ScreeningPlanNameVO> getScreeningPlanNameVOs(List<ScreeningPlan> screeningPlans, Integer year) {
+        Set<ScreeningPlanNameVO> screeningPlanNameVOs = screeningPlans.stream().filter(screeningPlan ->
+                year.equals(screeningNoticeService.getYear(screeningPlan.getStartTime())) || year.equals(screeningNoticeService.getYear(screeningPlan.getEndTime()))
+        ).map(screeningPlan -> {
+            ScreeningPlanNameVO screeningTaskNameVO = new ScreeningPlanNameVO();
+            screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
+            return screeningTaskNameVO;
+        }).collect(Collectors.toSet());
+        return screeningPlanNameVOs;
+    }
+
+
+    /**
      * 分页获取筛查计划
      *
      * @param pageRequest 分页请求
-     * @param ids         taskIds
+     * @param orgId       机构ID
      * @return IPage<ScreeningTaskResponse>
      */
-    public IPage<ScreeningTaskResponse> getByTaskIds(PageRequest pageRequest, List<Integer> ids) {
-        return baseMapper.getByTaskIds(pageRequest.toPage(), ids);
+    public IPage<ScreeningOrgPlanResponse> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
+        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId);
     }
 
     /**
@@ -264,5 +340,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, srcScreeningNoticeId);
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+    }
+
+    // todo: wait for implement
+    public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
+        return null;
     }
 }

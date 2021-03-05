@@ -18,10 +18,12 @@ import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -382,7 +384,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 
-        UserDTO user = oauthService.addAdminUser(userDTO);
+        UserDTO user = oauthService.addMultiSystemUser(userDTO);
         schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
         return new UsernameAndPasswordDTO(username, password);
     }
@@ -424,7 +426,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<ScreeningPlanResponse> plans = planPages.getRecords();
 
         if (!CollectionUtils.isEmpty(plans)) {
-            List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+            List<Integer> planIds = plans.stream().map(ScreeningPlanResponse::getId).collect(Collectors.toList());
             // 学校统计信息
             List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
                     .getByPlanIdsAndSchoolId(planIds, schoolId);
@@ -454,6 +456,20 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
         }
         return planPages;
+
+    }
+    /**
+     * 获取学校的筛查记录详情
+     *
+     * @param schoolIds 筛查记录详情ID
+     * @return 详情
+     */
+    public List<School> getSchoolByIds(List<Long> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        List<School> schools = baseMapper.selectBatchIds(schoolIds);
+        return schools;
     }
 
     /**
@@ -474,6 +490,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
     }
 
+
+
+
+
     /**
      * 模糊查询所有学校名称
      *
@@ -491,7 +511,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getBySchoolName(String name) {
-        return baseMapper.selectList(new QueryWrapper<School>().like("name", name));
+        return baseMapper.getByName(name);
     }
 
     /**
@@ -502,13 +522,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
     public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
-        QueryWrapper<School> query = new QueryWrapper<School>()
-                .eq("school_no", schoolNo);
-
-        if (-1 != schoolId) {
-            query.ne("id", schoolId);
-        }
-        return baseMapper.selectList(query).size() > 0;
+        return baseMapper.getByNoNeId(schoolNo, schoolId).size() > 0;
     }
 
     /**
@@ -518,7 +532,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return School
      */
     public School getBySchoolNo(String schoolNo) {
-        return baseMapper.selectOne(new QueryWrapper<School>().eq("school_no", schoolNo));
+        return baseMapper.getBySchoolNo(schoolNo);
     }
 
     /**
@@ -528,8 +542,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return School
      */
     public List<School> getBySchoolNos(List<String> schoolNos) {
-        return baseMapper.selectList(new QueryWrapper<School>()
-                .in("school_no", schoolNos));
+        return baseMapper.getBySchoolNos(schoolNos);
     }
 
     /**
@@ -539,7 +552,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByDistrictId(Integer districtId) {
-        return baseMapper.selectList(new QueryWrapper<School>().eq("district_id", districtId));
+        return baseMapper.getByDistrictId(districtId);
     }
 
     /**
@@ -560,7 +573,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getByIds(List<Integer> ids) {
-        return baseMapper.selectList(new QueryWrapper<School>().in("id", ids));
+        return baseMapper.selectBatchIds(ids);
     }
 
     /**
@@ -571,14 +584,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return 是否重复
      */
     public Boolean checkSchoolName(String schoolName, Integer id) {
-        QueryWrapper<School> queryWrapper = new QueryWrapper<School>()
-                .eq("name", schoolName);
-
-        if (null != id) {
-            queryWrapper.ne("id", id);
-        }
-
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.getByNameNeId(schoolName, id).size() > 0;
     }
 
     /**
@@ -695,7 +701,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                         new SchoolGrade(createUserId, schoolId, GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getName()),
                         new SchoolGrade(createUserId, schoolId, GradeCodeEnum.ONE_HIGH_SCHOOL.getCode(), GradeCodeEnum.ONE_HIGH_SCHOOL.getName()),
                         new SchoolGrade(createUserId, schoolId, GradeCodeEnum.TWO_HIGH_SCHOOL.getCode(), GradeCodeEnum.TWO_HIGH_SCHOOL.getName()),
-                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()));
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.THREE_HIGH_SCHOOL.getCode(), GradeCodeEnum.THREE_HIGH_SCHOOL.getName()),
+                        new SchoolGrade(createUserId, schoolId, GradeCodeEnum.OTHER.getCode(), GradeCodeEnum.OTHER.getName()));
                 break;
         }
         if (!CollectionUtils.isEmpty(schoolGrades)) {

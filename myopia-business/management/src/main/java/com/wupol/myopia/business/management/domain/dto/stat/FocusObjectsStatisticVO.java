@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
 import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,6 +21,8 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 public class FocusObjectsStatisticVO extends ScreeningBasicResult {
 
+    private final String TOTAL_RANGE_NAME = "合计";
+
     /**
      * 私有构造方法
      */
@@ -37,7 +38,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     /**
      * 筛查范围 范围名称
      */
-    private String rangeName;
+    private String screeningRangeName;
 
     /**
      * 汇总层级的数据
@@ -50,7 +51,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     private Item currentData;
 
     /**
-     * 下级的数据列表，如果没有的话，为null todo 通知文欣
+     * 下级的数据列表，如果没有的话，为null
      */
     private Set<Item> subordinateDatas;
 
@@ -59,16 +60,19 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      *
      * @param currentDistrictId
      * @param currentRangeName
-     * @param screeningTask
      * @return
      */
-    public void setBasicData(Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask) {
+    private void setBasicData(Integer currentDistrictId, String currentRangeName) {
         this.districtId = currentDistrictId;
-        this.rangeName = currentRangeName;
-        super.setDataByScreeningTask(screeningTask);
+        this.screeningRangeName = currentRangeName;
     }
 
-    public static FocusObjectsStatisticVO getEmptyInstance() {
+    /**
+     * 获取默认实例
+     *
+     * @return
+     */
+    public static FocusObjectsStatisticVO getImmutableEmptyInstance() {
         return new FocusObjectsStatisticVO();
     }
 
@@ -79,17 +83,16 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param districtAttentiveObjectsStatistics
      * @param currentDistrictId
      * @param currentRangeName
-     * @param screeningTask
      * @param districtIdNameMap
      * @return
      */
-    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, ScreeningTask screeningTask, Map<Integer, String> districtIdNameMap) {
+    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, Map<Integer, String> districtIdNameMap) {
         if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
             return null;
         }
         FocusObjectsStatisticVO focusObjectsStatisticVO = new FocusObjectsStatisticVO();
         //设置基础数据
-        focusObjectsStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningTask);
+        focusObjectsStatisticVO.setBasicData(currentDistrictId, currentRangeName);
         //设置统计数据
         focusObjectsStatisticVO.setItemData(currentDistrictId, districtAttentiveObjectsStatistics, districtIdNameMap);
         return focusObjectsStatisticVO;
@@ -102,14 +105,14 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param districtAttentiveObjectsStatistics
      * @param districtIdNameMap
      */
-    public void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
+    private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         Set<FocusObjectsStatisticVO.Item> subordinateItemSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
             Integer districtId = districtAttentiveObjectsStatistic.getDistrictId();
-            String rangeName = "";
+            String rangeName;
             //是合计数据
             if (districtAttentiveObjectsStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
-                rangeName = "合计";
+                rangeName = TOTAL_RANGE_NAME;
                 FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
                 totalData = item;
                 return null;
@@ -119,9 +122,10 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
             if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
                 currentData = item;
                 return null;
-            } else {
+            } else if (districtAttentiveObjectsStatistic.getIsTotal() != 1){
                 return item;
             }
+            return null;
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }
@@ -135,12 +139,12 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @return
      */
     private FocusObjectsStatisticVO.Item getItem(Integer districtId, String rangeName, DistrictAttentiveObjectsStatistic districtAttentiveObjectsStatistic) {
-        FocusObjectsStatisticVO.Item itemtem = new FocusObjectsStatisticVO.Item();
-        itemtem.setDistrictId(districtId);
-        itemtem.setRangeName(rangeName).setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers()).setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
+        FocusObjectsStatisticVO.Item item = new FocusObjectsStatisticVO.Item();
+        item.setDistrictId(districtId);
+        item.setScreeningRangeName(rangeName).setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers()).setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
         List<WarningInfo.WarningLevelInfo> warningLevelInfoList = WarningInfo.WarningLevelInfo.getList(districtAttentiveObjectsStatistic);
-        itemtem.setWarningLevelInfoList(warningLevelInfoList);
-        return itemtem;
+        item.setWarningLevelInfoList(warningLevelInfoList);
+        return item;
     }
 
     @Data
@@ -154,7 +158,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
         /**
          * 筛查范围 范围名称
          */
-        private String rangeName;
+        private String screeningRangeName;
 
         /**
          * 总重点视力对象数

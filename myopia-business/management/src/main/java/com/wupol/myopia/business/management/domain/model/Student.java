@@ -140,6 +140,12 @@ public class Student implements Serializable {
     private String address;
 
     /**
+     * 头像
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String avatar;
+
+    /**
      * 当前情况
      */
     private String currentSituation;
@@ -193,7 +199,7 @@ public class Student implements Serializable {
      * 就诊次数
      */
     @TableField(exist = false)
-    private Integer seeDoctorCount;
+    private Integer numOfVisits;
 
     /**
      * 上传筛查学生时，判断学生需更新信息是否一致
@@ -209,11 +215,11 @@ public class Student implements Serializable {
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
                 !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
-                (Objects.nonNull(excelStudent.provinceCode) && !this.provinceCode.equals(excelStudent.provinceCode)) ||
-                (Objects.nonNull(excelStudent.cityCode) && !this.cityCode.equals(excelStudent.cityCode)) ||
-                (Objects.nonNull(excelStudent.areaCode) && !this.areaCode.equals(excelStudent.areaCode)) ||
-                (Objects.nonNull(excelStudent.townCode) && !this.townCode.equals(excelStudent.townCode)) ||
-                (StringUtils.isNotBlank(excelStudent.address) && !StringUtils.equalsIgnoreCase(this.address, excelStudent.address)) ||
+                (Objects.nonNull(excelStudent.provinceCode)) ||
+                (Objects.nonNull(excelStudent.cityCode)) ||
+                (Objects.nonNull(excelStudent.areaCode)) ||
+                (Objects.nonNull(excelStudent.townCode)) ||
+                (StringUtils.isNotBlank(excelStudent.address)) ||
                 (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
     }
 }

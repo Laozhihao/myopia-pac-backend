@@ -91,6 +91,10 @@ public class UserService extends BaseService<UserMapper, User> {
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
+        // TODO：家长端不用创建角色
+        if (SystemCode.PATENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
+            return userDTO.setId(user.getId());
+        }
         // 绑定角色，判断角色ID与部门ID有效性 —— 是否都存在该角色、且是在所属部门下的、跟用户同系统端的
         List<Integer> roleIds = userDTO.getRoleIds();
         if (CollectionUtils.isEmpty(roleIds)) {
@@ -116,20 +120,20 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 创建医院端、学校端、筛查端的管理员
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User addAdminUser(UserDTO userDTO) throws IOException {
+    public User addMultiSystemUser(UserDTO userDTO) throws IOException {
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
-        boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
         save(user.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword())));
         // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
+        boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
         if (isScreeningAdmin) {
             Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
             userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));

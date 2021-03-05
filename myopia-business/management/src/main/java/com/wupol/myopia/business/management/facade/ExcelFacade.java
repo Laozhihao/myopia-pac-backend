@@ -817,7 +817,9 @@ public class ExcelFacade {
             // 无数据，直接返回
             return;
         }
-        screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
+        // 这里是Excel的一个小坑
+        List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
+        screeningPlanSchoolStudentService.insertByUpload(userId, resultList, screeningPlanId, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
     }
 

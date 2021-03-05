@@ -58,7 +58,7 @@ public class GovDeptController {
     public List<GovDept> getGovDeptList(GovDept queryParam) throws IOException {
         Assert.notNull(queryParam.getDistrictId(), "行政区ID不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
-        List<GovDept> govDeptList = govDeptService.findByListOrderByIdAsc(queryParam);
+        List<GovDept> govDeptList = govDeptService.findByListOrderByIdDesc(queryParam);
         // 填充创建人姓名、部门人数
         List<Integer> userIds = govDeptList.stream().map(GovDept::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(userIds);

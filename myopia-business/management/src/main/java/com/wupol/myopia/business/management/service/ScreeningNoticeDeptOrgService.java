@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,10 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeDeptOrgMapper;
-import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
@@ -19,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +34,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -62,6 +58,17 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     }
 
     /**
+     * 查找通过 某个orgId 接受的通知
+     *
+     * @param type
+     * @param acceptOrgId
+     * @return
+     */
+    public List<ScreeningNotice> selectByAcceptIdAndType(Integer acceptOrgId,Integer type) {
+        return baseMapper.selectByAcceptIdAndType(type,acceptOrgId);
+    }
+
+    /**
      * 根据通知ID查询
      *
      * @param screeningNoticeId
@@ -75,6 +82,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
