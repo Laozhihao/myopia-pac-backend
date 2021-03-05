@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -199,20 +200,20 @@ public class DistrictVisionStatistic implements Serializable {
         Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
         double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
         double avgRightVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).average().orElse(0);
-        //TODO ratio
+        int realScreeningNumber = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
-                .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(BigDecimal.ZERO)
-                .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(BigDecimal.ZERO)
-                .setAmetropiaNumbers(ametropiaNumber).setAmetropiaRatio(BigDecimal.ZERO)
-                .setLowVisionNumbers(lowVisionNumber).setLowVisionRatio(BigDecimal.ZERO)
-                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(BigDecimal.ZERO)
-                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(BigDecimal.ZERO)
-                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(BigDecimal.ZERO)
-                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(BigDecimal.ZERO)
-                .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(BigDecimal.ZERO)
-                .setKeyWarningNumbers(keyWarningNumbers).setVisionLabel3Ratio(BigDecimal.ZERO)
-                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(statConclusions.size());
+                .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, realScreeningNumber))
+                .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(MathUtil.divide(myopiaNumber, realScreeningNumber))
+                .setAmetropiaNumbers(ametropiaNumber).setAmetropiaRatio(MathUtil.divide(ametropiaNumber, realScreeningNumber))
+                .setLowVisionNumbers(lowVisionNumber).setLowVisionRatio(MathUtil.divide(lowVisionNumber, realScreeningNumber))
+                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, realScreeningNumber))
+                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, realScreeningNumber))
+                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, realScreeningNumber))
+                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, realScreeningNumber))
+                .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, realScreeningNumber))
+                .setKeyWarningNumbers(keyWarningNumbers)
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber);
         return statistic;
     }
 

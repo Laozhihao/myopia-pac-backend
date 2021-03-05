@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -124,9 +125,13 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
+        int studentNumber = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
-                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel3Numbers(visionLabel3Numbers)
-                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(statConclusions.size());
+                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, studentNumber))
+                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, studentNumber))
+                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, studentNumber))
+                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, studentNumber))
+                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(studentNumber);
         return statistic;
     }
 }

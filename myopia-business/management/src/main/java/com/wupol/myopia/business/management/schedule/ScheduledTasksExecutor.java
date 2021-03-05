@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -26,11 +27,15 @@ public class ScheduledTasksExecutor {
     @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private StatConclusionService statConclusionService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private SchoolService schoolService;
     @Autowired
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
     @Autowired
@@ -63,6 +68,36 @@ public class ScheduledTasksExecutor {
         schoolVisionStatisticService.saveBatch(schoolVisionStatistics);
     }
 
+    /**
+     * 按学校生成统计数据
+     * @param yesterdayScreeningPlanIds
+     * @param schoolVisionStatistics
+     */
+    private void genSchoolStatistics(List<Integer> yesterdayScreeningPlanIds, List<SchoolVisionStatistic> schoolVisionStatistics) {
+        //3. 分别处理每个学校的统计
+        yesterdayScreeningPlanIds.forEach(screeningPlanId -> {
+            //3.1 查出计划对应的筛查数据(结果)
+            List<StatConclusionVo> statConclusions = statConclusionService.getValidVoByScreeningPlanId(screeningPlanId);
+            Map<Integer, List<StatConclusionVo>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionVo::getSchoolId));
+            ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+            Map<Integer, School> schoolIdMap = schoolService.getByIds(new ArrayList<>(schoolIdStatConslusions.keySet())).stream().collect(Collectors.toMap(School::getId, Function.identity()));
+            ScreeningOrganization screeningOrg = screeningOrganizationService.getById(screeningPlan.getScreeningOrgId());
+            //3.2 每个学校分别统计
+            schoolIdStatConslusions.keySet().forEach(schoolId -> {
+                List<StatConclusionVo> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
+                schoolVisionStatistics.add(SchoolVisionStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, screeningPlan.getDistrictId(), schoolStatConclusion, schoolStatConclusion.size()));
+            });
+        });
+    }
+
+    /**
+     * 按区域层级生成统计数据
+     * @param yesterdayScreeningPlanIds
+     * @param districtAttentiveObjectsStatistics
+     * @param districtMonitorStatistics
+     * @param districtVisionStatistics
+     * @param schoolVisionStatistics
+     */
     private void genDistrictStatistics(List<Integer> yesterdayScreeningPlanIds, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics, List<SchoolVisionStatistic> schoolVisionStatistics) {
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(yesterdayScreeningPlanIds);
         //2. 分别处理每个通知的区域层级统计
@@ -79,25 +114,20 @@ public class ScheduledTasksExecutor {
         });
     }
 
-    private void genSchoolStatistics(List<Integer> yesterdayScreeningPlanIds, List<SchoolVisionStatistic> schoolVisionStatistics) {
-        //3. 分别处理每个学校的统计
-        yesterdayScreeningPlanIds.forEach(screeningPlanId -> {
-            //3.1 查出计划对应的筛查数据(结果)
-            List<StatConclusionVo> statConclusions = statConclusionService.getValidVoByScreeningPlanId(screeningPlanId);
-            Map<Integer, List<StatConclusionVo>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionVo::getSchoolId));
-            ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
-            //3.2 每个学校分别统计
-            schoolIdStatConslusions.keySet().forEach(schoolId -> {
-                List<StatConclusionVo> schoolStatConclusion = schoolIdStatConslusions.get(schoolId);
-                schoolVisionStatistics.add(SchoolVisionStatistic.build(schoolId, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, screeningPlan.getDistrictId(), schoolStatConclusion, schoolStatConclusion.size()));
-            });
-        });
-    }
-
+    /**
+     * 生成层级的统计数据
+     * @param screeningNoticeId
+     * @param districtId
+     * @param districtScreeningPlans
+     * @param districtAttentiveObjectsStatistics
+     * @param districtMonitorStatistics
+     * @param districtVisionStatistics
+     * @param districtStatConclusions
+     */
     private void genStatisticsByDistrictId(Integer screeningNoticeId, Integer districtId, Map<Integer, List<ScreeningPlan>> districtScreeningPlans, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, List<StatConclusion>> districtStatConclusions) {
         List<District> childDistrictList = new ArrayList<>();
         try {
-            childDistrictList = districtService.getChildDistrictByParentCodePriorityCache(districtId);
+            childDistrictList = districtService.getChildDistrictByParentIdPriorityCache(districtId);
         } catch (IOException e) {
             log.error("获取区域层级失败", e);
         }
@@ -122,6 +152,16 @@ public class ScheduledTasksExecutor {
         }
     }
 
+    /**
+     * 生成自己层级的筛查数据
+     * @param screeningNoticeId
+     * @param districtId
+     * @param screeningPlans
+     * @param districtAttentiveObjectsStatistics
+     * @param districtMonitorStatistics
+     * @param districtVisionStatistics
+     * @param selfStatConclusions
+     */
     private void genSelfStatistics(Integer screeningNoticeId, Integer districtId, List<ScreeningPlan> screeningPlans,
                                    List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics,
                                    List<DistrictVisionStatistic> districtVisionStatistics, List<StatConclusion> selfStatConclusions) {
@@ -137,6 +177,16 @@ public class ScheduledTasksExecutor {
         districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, selfStatConclusions, selfStatConclusions.size()));
     }
 
+    /**
+     * 生成层级所能看到的总的筛查数据
+     * @param screeningNoticeId
+     * @param districtId
+     * @param screeningPlans
+     * @param districtAttentiveObjectsStatistics
+     * @param districtMonitorStatistics
+     * @param districtVisionStatistics
+     * @param totalStatConclusions
+     */
     private void genTotalStatistics(Integer screeningNoticeId, Integer districtId, List<ScreeningPlan> screeningPlans,
                                     List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics,
                                     List<DistrictVisionStatistic> districtVisionStatistics, List<StatConclusion> totalStatConclusions) {
@@ -152,6 +202,11 @@ public class ScheduledTasksExecutor {
         districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, totalStatConclusions, totalStatConclusions.size()));
     }
 
+    /**
+     * 获取层级所有子孙层级的ID
+     * @param childDistrictIds
+     * @param childDistrictList
+     */
     private void getAllIdsWithChild(List<Integer> childDistrictIds, List<District> childDistrictList) {
         childDistrictIds.addAll(childDistrictList.stream().map(District::getId).collect(Collectors.toList()));
         childDistrictList.forEach(district -> {

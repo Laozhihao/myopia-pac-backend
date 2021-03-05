@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -126,11 +127,13 @@ public class DistrictMonitorStatistic implements Serializable {
         Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
         Integer dsn = withoutGlassDsn * 4 + wearingGlassDsn * 6;
         Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
+        int realScreeningNumber = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
+                .setFinishRatio(MathUtil.divide(realScreeningNumber, planScreeningNumbers))
                 .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
                 .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)
-                .setDsn(dsn).setErrorNumbers(errorNumbers)
-                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(statConclusions.size());
+                .setDsn(dsn).setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, dsn))
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber);
         return statistic;
     }
 }
