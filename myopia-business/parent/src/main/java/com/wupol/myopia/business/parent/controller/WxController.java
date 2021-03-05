@@ -99,14 +99,14 @@ public class WxController {
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
             }
             // 自动登录
-            LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), openId);
+            LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_TOKEN, h5ClientUrlHost,
                     WxBusinessExceptionCodeEnum.OK.getCode(),
                     loginInfo.getTokenInfo().getAccessToken(),
                     loginInfo.getTokenInfo().getRefreshToken(),
                     loginInfo.getTokenInfo().getExpiresIn());
         } catch (Exception e) {
-            logger.error("生成openId的hashKey失败", e);
+            logger.error("微信登录失败", e);
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
         }
     }

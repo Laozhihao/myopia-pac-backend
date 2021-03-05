@@ -95,7 +95,7 @@ public class WxService {
      **/
     public WxUserInfo getWxUserInfo(WxAuthorizationInfo wxAuthorizationInfo) throws JsonProcessingException {
         String data = wxClient.getUserInfo(wxAuthorizationInfo.getAccessToken(), wxAuthorizationInfo.getOpenId(), "zh_CN");
-        logger.debug("获取wx access token返回值: {}", data);
+        logger.debug("获取微信用户信息，返回值: {}", data);
         ObjectMapper objectMapper = new ObjectMapper();
         WxUserInfo wxUserInfo = objectMapper.readValue(data, WxUserInfo.class);
         if (Objects.isNull(wxUserInfo) || StringUtils.isEmpty(wxUserInfo.getNickname())) {
@@ -134,6 +134,7 @@ public class WxService {
     public void bindPhoneToParent(WxLoginInfo wxLoginInfo) throws IOException {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
+        Assert.notNull(parent, "当前用户不存在");
         oauthService.modifyUser(new UserDTO().setId(parent.getUserId()).setPhone(wxLoginInfo.getPhone()).setUsername(wxLoginInfo.getPhone()).setPassword(parent.getHashKey()));
     }
 }
