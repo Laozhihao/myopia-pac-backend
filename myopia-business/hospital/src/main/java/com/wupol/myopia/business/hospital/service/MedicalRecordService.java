@@ -4,7 +4,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,8 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     @Autowired
     private ConsultationService consultationService;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -40,6 +42,28 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                 .getRecords().stream()
                 .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date()))
                 .map(MedicalRecord::getStudentId).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学生今天最后一条角膜地形图数据
+     * @param hospitalId 医院id
+     * @param studentId 学生id
+     */
+    public ToscaMedicalRecord getTodayLastToscaMedicalRecord(Integer hospitalId, Integer studentId) {
+        MedicalRecord medicalRecord = getTodayLastMedicalRecord(hospitalId, studentId);
+        if (Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getTosca())) {
+            return new ToscaMedicalRecord();
+        }
+
+        ToscaMedicalRecord.Tosco nonMydriasis = medicalRecord.getTosca().getNonMydriasis();
+        if (Objects.nonNull(nonMydriasis)) {
+            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
+        }
+        ToscaMedicalRecord.Tosco mydriasis = medicalRecord.getTosca().getMydriasis();
+        if (Objects.nonNull(mydriasis)) {
+            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
+        }
+        return medicalRecord.getTosca();
     }
 
     /**

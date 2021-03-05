@@ -96,8 +96,7 @@ public class MedicalRecordController {
     @GetMapping("/tosca/{studentId}")
     public ToscaMedicalRecord getToscaMedicalRecord(@PathVariable("studentId") Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
-        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getTosca()) ? new ToscaMedicalRecord() : medicalRecord.getTosca();
+        return medicalRecordService.getTodayLastToscaMedicalRecord(user.getOrgId(), studentId);
     }
 
     @PostMapping("/tosca")
