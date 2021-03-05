@@ -48,5 +48,8 @@ public class HospitalStudentDTO extends Student {
      */
     private SchoolGrade schoolGrade;
 
-
+    /**
+     * 民族中文
+     */
+    private String nationName;
 }
