@@ -177,26 +177,32 @@ public class UserService extends BaseService<UserMapper, User> {
         return user;
     }
 
-    /** 修改用户信息 */
+    /**
+     * 更新用户信息
+     *
+     * @param user 新用户信息数据
+     * @return com.wupol.myopia.oauth.domain.model.UserWithRole
+     **/
     @Transactional(rollbackFor = Exception.class)
     public UserWithRole updateUser(UserDTO user) throws Exception {
         Integer userId = user.getId();
         User existUser = getById(userId);
         Assert.notNull(existUser, "该用户不存在");
-        if (!StringUtils.isEmpty(user.getPhone())) {
+        if (StringUtils.hasLength(user.getPhone())) {
             User existPhone = findOne(new User().setPhone(user.getPhone()).setSystemCode(existUser.getSystemCode()));
             Assert.isTrue(Objects.isNull(existPhone) || existPhone.getId().equals(userId), "已经存在该手机号码");
+        }
+        if (StringUtils.hasLength(user.getPassword())) {
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         }
         // 更新用户
         if (!updateById(user)) {
             throw new Exception("更新用户信息失败");
         }
-
         // 获取用户最新信息
         UserDTO newUser = new UserDTO();
         newUser.setId(userId);
         UserWithRole userWithRole = baseMapper.selectUserListWithRole(newUser).get(0);
-
         // 绑定新角色
         List<Integer> roleIds = user.getRoleIds();
         if (!CollectionUtils.isEmpty(roleIds)) {
@@ -210,7 +216,6 @@ public class UserService extends BaseService<UserMapper, User> {
             userRoleService.saveBatch(userRoles);
             return userWithRole.setRoles(roles);
         }
-
         // 获取用户角色信息
         return userWithRole.setRoles(roleService.getRoleListByUserId(userId));
 
