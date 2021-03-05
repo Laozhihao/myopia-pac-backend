@@ -21,11 +21,6 @@ public class StudentReportResponseDTO {
     private MedicalReport report;
 
     /**
-     * 病种
-     */
-    private Consultation consultation;
-
-    /**
      * 检查单
      */
     private MedicalRecord record;

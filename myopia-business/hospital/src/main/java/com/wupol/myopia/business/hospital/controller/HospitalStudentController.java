@@ -3,8 +3,6 @@ package com.wupol.myopia.business.hospital.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.domain.model.Consultation;
-import com.wupol.myopia.business.hospital.service.ConsultationService;
 import com.wupol.myopia.business.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;

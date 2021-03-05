@@ -50,8 +50,9 @@ public class MedicalRecord implements Serializable {
     private Integer doctorId;
     /** 状态。0检查中，1检查完成 */
     private Integer status;
-    /** 问诊内容id */
-    private Integer consultationId;
+    /** 问诊内容 */
+    @TableField(typeHandler = ConsultationTypeHandler.class)
+    private Consultation consultation;
     /** 视力检查 */
     @TableField(typeHandler = VisionMedicalRecordTypeHandler.class)
     private VisionMedicalRecord vision;

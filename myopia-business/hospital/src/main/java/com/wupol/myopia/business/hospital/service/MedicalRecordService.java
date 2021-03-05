@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 public class MedicalRecordService extends BaseService<MedicalRecordMapper, MedicalRecord> {
 
     @Autowired
-    private ConsultationService consultationService;
-    @Autowired
     private ResourceFileService resourceFileService;
 
 
@@ -82,6 +80,20 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
 
     /**
+     * 追加问诊到检查单
+     * @param consultation    问诊内容
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @param studentId 学生id
+     */
+    public void addConsultationToMedicalRecord(Consultation consultation,
+                                         Integer hospitalId,
+                                         Integer doctorId,
+                                         Integer studentId) {
+        addCheckDataToMedicalRecord(consultation,null, null, null, null,hospitalId, -1, doctorId, studentId);
+    }
+
+    /**
      * 追加视力检查数据到检查单
      * @param vision    检查数据
      * @param hospitalId 医院id
@@ -92,7 +104,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(vision, null, null, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,vision, null, null, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -106,7 +118,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, biometrics, null, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, biometrics, null, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -120,7 +132,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, null, diopter, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, null, diopter, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -134,11 +146,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, null, null, tosca,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, null, null, tosca,hospitalId, -1, doctorId, studentId);
     }
 
     /**
      * 追加检查检查数据到检查单
+     * @param consultation    问诊
      * @param vision    视力检查检查数据
      * @param biometrics    生物测量检查数据
      * @param diopter    屈光检查数据
@@ -148,15 +161,17 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      * @param doctorId 医生id
      * @param studentId 学生id
      */
-    public void addCheckDateToMedicalRecord(VisionMedicalRecord vision,
-                                         BiometricsMedicalRecord biometrics,
-                                         DiopterMedicalRecord diopter,
-                                         ToscaMedicalRecord tosca,
-                                         Integer hospitalId,
-                                         Integer departmentId,
-                                         Integer doctorId,
-                                         Integer studentId) {
+    public void addCheckDataToMedicalRecord(Consultation consultation,
+                                            VisionMedicalRecord vision,
+                                            BiometricsMedicalRecord biometrics,
+                                            DiopterMedicalRecord diopter,
+                                            ToscaMedicalRecord tosca,
+                                            Integer hospitalId,
+                                            Integer departmentId,
+                                            Integer doctorId,
+                                            Integer studentId) {
         MedicalRecord medicalRecord = getOrCreateTodayMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        if (Objects.nonNull(consultation)) medicalRecord.setConsultation(consultation);
         if (Objects.nonNull(vision)) medicalRecord.setVision(vision);
         if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
         if (Objects.nonNull(diopter)) medicalRecord.setDiopter(diopter);

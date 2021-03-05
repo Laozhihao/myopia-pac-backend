@@ -28,9 +28,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     @Autowired
     private MedicalRecordService medicalRecordService;
 
-    @Autowired
-    private ConsultationService consultationService;
-
 
     /**
      * 获取学生报告列表
@@ -100,9 +97,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         // 检查单
         MedicalRecord record = medicalRecordService.getById(report.getId());
         responseDTO.setRecord(record);
-        // 问诊
-        Consultation consultation = consultationService.getById(record.getConsultationId());
-        responseDTO.setConsultation(consultation);
 
         return responseDTO;
     }
