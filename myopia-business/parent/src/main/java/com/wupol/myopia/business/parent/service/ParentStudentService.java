@@ -632,15 +632,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 // 没有佩戴眼镜
                 boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
                 // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生 && -0.5<=SE<3 && Cyl <1.5)
-                if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00")) && checkCyl)
+                if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) && checkCyl)
+                        (SchoolAge.JUNIOR.code.equals(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
                 ) {
                     return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                     // (小学生 && !(0 <= SE < 2)) || (初中生 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
-                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, new BigDecimal("0.00"), new BigDecimal("2.00")))
+                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, new BigDecimal("-0.50"), new BigDecimal("3.00")) || !checkCyl))) {
+                        (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
             }
@@ -648,8 +648,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // SE >= 0
         if (se.compareTo(new BigDecimal("0.00")) >= 0) {
             return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
-            // SE < 0
         } else {
+            // SE < 0
             return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
         }
     }
@@ -688,8 +688,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param end   结束值
      * @return 是否在区间内
      */
-    private Boolean isBetweenLeft(BigDecimal val, BigDecimal start, BigDecimal end) {
-        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
+    private Boolean isBetweenLeft(BigDecimal val, String start, String end) {
+        return val.compareTo(new BigDecimal(start)) >= 0 && val.compareTo(new BigDecimal(end)) < 0;
     }
 
     /**
