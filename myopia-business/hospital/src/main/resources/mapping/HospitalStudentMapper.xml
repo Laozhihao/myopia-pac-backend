@@ -14,6 +14,12 @@
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(startDate)">
+                    and DATE(`create_time`) &gt;= Date(#{startDate})
+                </if>
+                <if test="@Ognl@isNotEmpty(endDate)">
+                    and DATE(`create_time`) &lt;= Date(#{endDate})
+                </if>
             </trim>
 
         </where>

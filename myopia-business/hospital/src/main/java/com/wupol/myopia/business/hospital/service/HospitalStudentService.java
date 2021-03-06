@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -34,10 +35,6 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private SchoolGradeService schoolGradeService;
-    @Autowired
-    private SchoolClassService schoolClassService;
-    @Autowired
     private StudentService studentService;
     @Autowired
     private DistrictService districtService;
@@ -49,13 +46,13 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
     /**
      * 获取学生信息
-     * @param token     学生的授权码
+     * @param id     学生id
      * @param idCard    学生的身份证
+     * @param name    学生的姓名
      * @return
      */
-    public HospitalStudentDTO getStudent(String token, String idCard) {
-        //TODO 解析token,获取学生信息
-        return getStudentById(17);
+    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
+        return studentService.getHospitalStudentDetail(id, idCard, name);
     }
 
     /**
@@ -78,8 +75,9 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @return
      */
     public List<HospitalStudentDTO> getStudentList(Integer hospitalId, String nameLike) throws IOException {
-        List<Integer> idList = baseMapper.getBy(new HospitalStudent().setHospitalId(hospitalId)).stream()
-                .map(HospitalStudent::getStudentId).collect(Collectors.toList());
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setHospitalId(hospitalId);
+        List<Integer> idList = baseMapper.getBy(query).stream().map(HospitalStudent::getStudentId).collect(Collectors.toList());
         Map<Integer, List<MedicalReport>> studentReportMap = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId))
                 .stream().collect(Collectors.groupingBy(MedicalReport::getStudentId));
        List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(idList, nameLike);
@@ -122,7 +120,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @return  学生的id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(HospitalStudentDTO studentVo, Integer hospitalId) throws IOException {
+    public void saveStudent(HospitalStudentDTO studentVo, Integer hospitalId) {
         Student student = BeanCopyUtil.copyBeanPropertise(studentVo, HospitalStudentDTO.class);
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息不能为空");
@@ -150,22 +148,27 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         if (Objects.nonNull(studentVo.getTown())) {
             student.setTownCode(districtService.getById(studentVo.getTown().getId()).getCode());
         }
-        Integer newStudentId;
-        if (Objects.nonNull(studentVo.getId())) {
-            newStudentId = studentService.updateStudent(student).getId();
-        } else {
-            newStudentId = studentService.saveStudent(student);
+
+        Student oldStudent = studentService.getByIdCard(student.getIdCard());
+        Integer studentId;
+        // 存在则更新,不存在则新增
+        if (Objects.nonNull(oldStudent)) {
+            studentId = studentService.updateStudent(student).getId();
+        } else{
+            studentId = studentService.saveStudent(student);
         }
-        saveHospitalAndStudentRelationship(hospitalId, newStudentId);
-        return student.getId();
+        // 保存医院与学生的关系
+        saveOrUpdate(new HospitalStudent(hospitalId, studentId));
     }
 
     /** 保存学生与医院关系 */
-    private void saveHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
+    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
         HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
-        if (Objects.isNull(student)) { // 不存在关系才关联
-            saveOrUpdate(new HospitalStudent(hospitalId, studentId));
-        }
+        return Objects.nonNull(student);
+    }
+
+    public List<HospitalStudent> getBy(HospitalStudentQuery query) {
+        return baseMapper.getBy(query);
     }
 
 }

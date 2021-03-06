@@ -18,6 +18,12 @@
                 <if test="@Ognl@isNotEmpty(doctorId)">and report.`doctor_id` = #{doctorId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and report.`create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and report.`update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(startDate)">
+                    and DATE(`create_time`) &gt;= Date(#{startDate})
+                </if>
+                <if test="@Ognl@isNotEmpty(endDate)">
+                    and DATE(`create_time`) &lt;= Date(#{endDate})
+                </if>
             </trim>
         </where>
     </sql>

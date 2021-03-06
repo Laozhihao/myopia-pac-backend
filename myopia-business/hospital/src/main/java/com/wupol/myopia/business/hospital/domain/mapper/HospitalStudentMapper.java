@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
 
 
-    List<HospitalStudent> getBy(HospitalStudent query);
+    List<HospitalStudent> getBy(HospitalStudentQuery query);
 
     IPage<HospitalStudent> getByPage(@Param("page") Page<?> page, @Param("query") HospitalStudent query);
 

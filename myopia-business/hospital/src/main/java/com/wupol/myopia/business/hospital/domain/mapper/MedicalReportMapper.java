@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
-    List<MedicalReport> getBy(MedicalReport query);
+    List<MedicalReport> getBy(MedicalReportQuery query);
 
     IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReport query);
 

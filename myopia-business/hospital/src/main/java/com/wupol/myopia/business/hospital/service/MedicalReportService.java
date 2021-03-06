@@ -7,6 +7,7 @@ import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.Consultation;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,5 +120,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     public MedicalReport getLatestVisitsReport(Integer studentId) {
         return baseMapper.getLatestVisitsReport(studentId);
+    }
+
+    public List<MedicalReport> getBy(MedicalReportQuery query) {
+        return baseMapper.getBy(query);
     }
 }

@@ -4,6 +4,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
@@ -27,6 +28,11 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     @Autowired
     private ResourceFileService resourceFileService;
+
+
+    public List<MedicalRecord> getBy(MedicalRecordQuery query) {
+        return baseMapper.getBy(query);
+    }
 
 
     /**
