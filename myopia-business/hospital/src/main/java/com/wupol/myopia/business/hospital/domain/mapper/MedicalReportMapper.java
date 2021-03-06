@@ -21,9 +21,9 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     List<MedicalReport> getBy(MedicalReportQuery query);
 
-    IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReport query);
+    IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReportQuery query);
 
-    List<MedicalReportVo> getVoBy(MedicalReport query);
+    List<MedicalReportVo> getVoBy(MedicalReportQuery query);
 
     Integer countReportBySchoolId(@Param("studentId") Integer studentId);
 

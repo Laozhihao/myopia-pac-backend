@@ -21,6 +21,6 @@ public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
 
     List<HospitalStudent> getBy(HospitalStudentQuery query);
 
-    IPage<HospitalStudent> getByPage(@Param("page") Page<?> page, @Param("query") HospitalStudent query);
+    IPage<HospitalStudent> getByPage(@Param("page") Page<?> page, @Param("query") HospitalStudentQuery query);
 
 }

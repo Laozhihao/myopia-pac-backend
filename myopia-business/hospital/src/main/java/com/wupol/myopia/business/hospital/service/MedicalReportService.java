@@ -36,7 +36,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @return List<MedicalReportVo>
      */
     public List<MedicalReportVo> getReportListByStudentId(Integer studentId) {
-        return baseMapper.getVoBy(new MedicalReport().setStudentId(studentId));
+        MedicalReportQuery query = new MedicalReportQuery();
+        query.setStudentId(studentId);
+        return baseMapper.getVoBy(query);
     }
 
     /**

@@ -30,10 +30,18 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     private ResourceFileService resourceFileService;
 
 
+    /**
+     * 获取学生最后一条检查记录
+     * @param studentId 学生id
+     * @return
+     */
+    public MedicalRecord getLastOneByStudentId(Integer studentId) {
+        return baseMapper.getLastOneByStudentId(studentId);
+    }
+
     public List<MedicalRecord> getBy(MedicalRecordQuery query) {
         return baseMapper.getBy(query);
     }
-
 
     /**
      * 获取今天最新的3个就诊的学生id

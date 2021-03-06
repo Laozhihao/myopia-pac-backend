@@ -7,6 +7,7 @@ import com.wupol.myopia.business.hospital.domain.mapper.DepartmentMapper;
 import com.wupol.myopia.business.hospital.domain.mapper.DoctorMapper;
 import com.wupol.myopia.business.hospital.domain.model.Department;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.service.ResourceFileService;
@@ -37,16 +38,11 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     /**
      * 获取医生列表
-     * @param hospitalId 医院id
-     * @param like  名称 / 科室 / 职称
+     * @param query 查询条件
      * @return
      */
-    public List<DoctorVo> getDoctorVoList(Integer hospitalId,
-                                      String like) throws IOException {
-        //TODO 待模糊查询
-        //TODO 待查询出报告数
-        List<Doctor> doctorList = baseMapper.getBy(new Doctor().setHospitalId(hospitalId));
-        return doctorList.stream().map(this::getDoctorVo).collect(Collectors.toList());
+    public List<DoctorVo> getDoctorVoList(DoctorQuery query)  {
+        return baseMapper.getDoctorVoList(query);
     }
 
     /**

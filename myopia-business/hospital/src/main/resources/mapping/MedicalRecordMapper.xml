@@ -40,4 +40,12 @@
         <include refid="Base_Where_Clause"/>
     </select>
 
+    <select id="getLastOneByStudentId" resultMap="BaseResultMap">
+        select *
+        from h_medical_record mr
+        where mr.student_id = #{studentId}
+        order by id desc
+        limit 1
+    </select>
+
 </mapper>

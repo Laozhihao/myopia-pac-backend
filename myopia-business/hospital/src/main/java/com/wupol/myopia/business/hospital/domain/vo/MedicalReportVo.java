@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.hospital.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +20,6 @@ import java.util.List;
 public class MedicalReportVo extends MedicalReport {
     /** 医院名称 */
     private String hospitalName;
-    /** 就诊时间 */
-    private Date visitDate;
     /** 影像列表 */
     private List<String> imageUrlList;
 }

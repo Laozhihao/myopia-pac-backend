@@ -50,13 +50,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<Integer> roleTypes = validateRole(systemCode, user.getId());
         // 生成用户明细，将作为accessToken的payload的一部分
         SecurityUserDetails userDetail = new SecurityUserDetails(user, roleTypes, clientId);
-        if (!userDetail.isEnabled()) {
-            throw new DisabledException("该账户已被禁用!");
-        } else if (!userDetail.isAccountNonLocked()) {
-            throw new LockedException("该账号已被锁定!");
-        } else if (!userDetail.isAccountNonExpired()) {
-            throw new AccountExpiredException("该账号已过期!");
-        }
+//        if (!userDetail.isEnabled()) {
+//            throw new DisabledException("该账户已被禁用!");
+//        } else if (!userDetail.isAccountNonLocked()) {
+//            throw new LockedException("该账号已被锁定!");
+//        } else if (!userDetail.isAccountNonExpired()) {
+//            throw new AccountExpiredException("该账号已过期!");
+//        }
         return userDetail;
     }
 
