@@ -45,8 +45,8 @@ public class ScreeningResultBuilder {
      */
     private VisionScreeningResult setOtherInfo() {
         return visionScreeningResult
-                //.setTaskId(screeningPlanSchoolStudent)
-                //.setDistrictId(screeningPlanSchoolStudent.getDistrictId())
+                .setTaskId(screeningPlanSchoolStudent.getScreeningTaskId())
+                .setDistrictId(screeningPlanSchoolStudent.getDistrictId())
                 .setStudentId(screeningPlanSchoolStudent.getStudentId())
                 .setPlanId(screeningPlanSchoolStudent.getScreeningPlanId())
                 .setSchoolId(screeningPlanSchoolStudent.getSchoolId())

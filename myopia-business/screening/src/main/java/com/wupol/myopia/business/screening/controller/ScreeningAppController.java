@@ -301,7 +301,7 @@ public class ScreeningAppController {
         ).collect(Collectors.toList());
 
         if (CollectionUtils.size(screeningPlans) != 1) {
-            throw new RuntimeException("用户异常");
+           // throw new RuntimeException("用户异常");
         }
         Optional<ScreeningPlan> first = screeningPlans.stream().findFirst();
         if (!first.isPresent()) {

@@ -20,12 +20,12 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData{
      * 右眼轴位
      */
     @JsonProperty("r_axial")
-    private String rAxial;
+    private BigDecimal rAxial;
     /**
      * 左眼轴位
      */
     @JsonProperty("l_axial")
-    private String lAxial;
+    private BigDecimal lAxial;
     /**
      * 左眼球镜
      */

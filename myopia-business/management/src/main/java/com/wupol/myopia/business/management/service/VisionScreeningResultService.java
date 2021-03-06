@@ -2,27 +2,21 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -131,7 +125,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(),screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId());
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId());
         TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
         return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
     }
@@ -166,5 +160,24 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
         //构建ScreeningResult
         return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
+    }
+
+    /**
+     * 保存并更新数据
+     *
+     * @param screeningResultBasicData
+     * @return
+     * @throws IOException
+     */
+    public VisionScreeningResult saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningResultBasicData);
+        if (visionScreeningResult.getId() != null) {
+            //更新
+            updateById(visionScreeningResult);
+        } else {
+            //创建
+            save(visionScreeningResult);
+        }
+        return visionScreeningResult;
     }
 }

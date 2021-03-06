@@ -1,19 +1,18 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 参与筛查计划的学生表
@@ -36,7 +35,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer id;
 
     /**
-     * 筛查计划--计划id 
+     * 筛查计划--计划id
      */
     @NotNull(message = "筛查计划ID不能为空")
     private Integer screeningPlanId;
@@ -44,12 +43,17 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 地区id
      */
-   // private Integer districtId;
+    private Integer districtId;
 
     /**
      * 筛查任务id
      */
-   // private Integer screeningTaskId;
+    private Integer screeningTaskId;
+
+    /**
+     * 原始的通知id
+     */
+    private Integer srcScreeningNoticeId;
 
     /**
      * 筛查机构id
@@ -105,6 +109,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer studentAge;
 
     /**
+     * 筛查计划--参与筛查的学生学龄
+     */
+    private Integer schoolAge;
+
+    /**
      * 筛查计划--参与筛查的当时情况
      */
     private String studentSituation;
@@ -127,13 +136,12 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--参与筛选的学生性别
      */
-    private Integer gender ;
+    private Integer gender;
 
     /**
      * 筛查计划--创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 
 }

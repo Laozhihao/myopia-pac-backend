@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.dos;
 
 import com.myopia.common.constant.WearingGlassesSituation;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.management.interfaces.ValidResultDataInterface;
 import lombok.Data;
@@ -35,7 +36,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
         /**
          * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}
          */
-        private String glassesType;
+        private Integer glassesType;
         /**
          * 矫正视力
          */
@@ -56,6 +57,26 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
             }
             return nakedVision != null && correctedVision != null;
         }
+    }
+
+    /**
+     * 判断会否有完整的裸眼视力数据
+     * @return
+     */
+    public boolean validCorrectedVision() {
+        return ObjectsUtil.allNotNull(getLeftEyeData()
+                , getLeftEyeData().getCorrectedVision()
+                , getRightEyeData(), getRightEyeData().getCorrectedVision());
+    }
+
+    /**
+     * 判断会否有完整的矫正视力
+     * @return
+     */
+    public boolean validNakedVision() {
+        return ObjectsUtil.allNotNull(getLeftEyeData()
+                , getLeftEyeData().getNakedVision()
+                , getRightEyeData(), getRightEyeData().getNakedVision());
     }
 
 }

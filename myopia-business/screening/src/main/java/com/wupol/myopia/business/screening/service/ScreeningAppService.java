@@ -31,6 +31,7 @@ import com.wupol.myopia.business.screening.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -59,6 +60,8 @@ public class ScreeningAppService {
     private StudentScreeningRawDataService studentScreeningRawDataService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private StatConclusionService statConclusionService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
@@ -153,15 +156,10 @@ public class ScreeningAppService {
      * @param screeningResultBasicData
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData);
-        if (visionScreeningResult.getId() != null) {
-            //更新
-            visionScreeningResultService.updateById(visionScreeningResult);
-        } else {
-            //创建
-            visionScreeningResultService.save(visionScreeningResult);
-        }
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.saveOrUpdateStudentScreenData(screeningResultBasicData);
+        statConclusionService.saveOrUpdateStudentScreenData(visionScreeningResult);
     }
 
     /*
