@@ -14,6 +14,7 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
@@ -23,7 +24,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, school_id, school_name, create_time
+        id, screening_plan_id, screening_org_id, school_id, school_name, create_time
     </sql>
 
     <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO">

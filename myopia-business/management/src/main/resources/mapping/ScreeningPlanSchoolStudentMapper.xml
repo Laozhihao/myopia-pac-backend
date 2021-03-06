@@ -18,13 +18,20 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
+                <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
+                <if test="@Ognl@isNotEmpty(birthday)">and `birthday` = #{birthday}</if>
+                <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
                 <if test="@Ognl@isNotEmpty(studentAge)">and `student_age` = #{studentAge}</if>
                 <if test="@Ognl@isNotEmpty(studentSituation)">and `student_situation` = #{studentSituation}</if>
                 <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
@@ -36,7 +43,9 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, school_id, school_name, grade_id, class_id, student_id, id_card, student_age, student_situation, student_no, student_name, create_time
+        id, screening_task_id, screening_plan_id, screening_org_id, district_id, school_id, school_name,
+        grade_id, grade_name, class_id, class_name, student_id, id_card, birthday, gender, student_age,
+        student_situation, student_no, student_name, create_time
     </sql>
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">

@@ -133,7 +133,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查学校信息
-        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
+        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());

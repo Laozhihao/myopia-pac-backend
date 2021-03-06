@@ -150,10 +150,11 @@ public class ScreeningPlanController {
     public void updateInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) throws AccessDeniedException {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
+        if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException("筛查开始时间不能早于今天");
         }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
         screeningPlanService.saveOrUpdateWithSchools(user, screeningPlanDTO, false);
     }
 
@@ -272,7 +273,7 @@ public class ScreeningPlanController {
         // 任务状态判断：已发布才能新增
         ScreeningPlan screeningPlan = validateExistWithReleaseStatusAndReturn(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         validateSchoolLegal(screeningPlan, screeningPlanSchools);
-        screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanId, screeningPlanSchools);
+        screeningPlanSchoolService.saveOrUpdateBatchByPlanId(screeningPlanId, screeningPlan.getScreeningOrgId(), screeningPlanSchools);
     }
 
     /**
@@ -363,7 +364,8 @@ public class ScreeningPlanController {
         if (Objects.isNull(planSchool)) {
             throw new ValidationException("该筛查学校不存在");
         }
-        excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlanId, schoolId);
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+        excelFacade.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
     }
 
     /**
