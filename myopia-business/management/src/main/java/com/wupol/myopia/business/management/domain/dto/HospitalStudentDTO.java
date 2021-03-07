@@ -55,7 +55,7 @@ public class HospitalStudentDTO extends Student {
      * 民族中文
      */
     private String nationName;
-    /** 就诊时间 */
+    /** 最后一次就诊时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastVisitDate;
 }

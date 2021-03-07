@@ -226,28 +226,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     }
 
     /**
-     * 获取学生今天最后一条问诊
+     * 获取学生今天最后一条检查单
      * @param hospitalId 医院id
      * @param studentId 学生id
      */
     public MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId) {
-        MedicalRecord medicalRecord;
-        try {
-            medicalRecord = findByListOrderByIdDesc(new MedicalRecord().setHospitalId(hospitalId).setStudentId(studentId).setStatus(MedicalRecord.STATUS_CHECKING))
-                    .stream().findFirst().orElse(null);
-            if (Objects.isNull(medicalRecord)) {
-                return medicalRecord;
-            }
-            // 如果今天有检查单
-            Date date = new Date();
-            date.setHours(date.getHours()-8);
-            if (DateUtils.isSameDay(medicalRecord.getCreateTime(), date)) {
-                return medicalRecord;
-            }
-        } catch (IOException e) {
-            log.error("获取学生今天最后一条问诊失败. ", e);
-        }
-        return null;
+        return baseMapper.getTodayLastMedicalRecord(hospitalId, studentId);
     }
 
     /** 创建检查单 */

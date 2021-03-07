@@ -27,5 +27,6 @@ public interface MedicalRecordMapper extends BaseMapper<MedicalRecord> {
     IPage<MedicalRecord> getByPage(@Param("page") Page<?> page, @Param("query") MedicalRecordQuery query);
 
     MedicalRecord getLastOneByStudentId(Integer studentId);
+    MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId);
 
 }

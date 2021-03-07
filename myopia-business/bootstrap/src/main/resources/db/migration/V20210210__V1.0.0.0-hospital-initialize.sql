@@ -73,7 +73,7 @@ CREATE TABLE `h_medical_report`
     `hospital_id`            int                                 NULL COMMENT '医院id',
     `department_id`          int                                 NULL COMMENT '科室id',
     `student_id`             int                                 NOT NULL COMMENT '学生id',
-    `medical_record_id`      int                                 NOT NULL COMMENT '对应的检查单id',
+    `medical_record_id`      int                                 NULL COMMENT '对应的检查单id',
     `doctor_id`              int                                 NOT NULL COMMENT '医生id',
     `glasses_situation`      tinyint                             NULL COMMENT '配镜情况。1配框架眼镜，2配OK眼镜，3配隐形眼镜',
     `medical_content`        varchar(300)                        NULL COMMENT '医生诊断',

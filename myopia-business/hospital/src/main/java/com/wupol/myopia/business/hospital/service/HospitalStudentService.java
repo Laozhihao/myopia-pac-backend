@@ -8,6 +8,7 @@ import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
+import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -21,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -82,22 +84,24 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     public List<HospitalStudentDTO> getStudentList(Integer hospitalId, String nameLike) throws IOException {
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setHospitalId(hospitalId);
-        List<Integer> idList = baseMapper.getBy(query).stream().map(HospitalStudent::getStudentId).collect(Collectors.toList());
-        Map<Integer, List<MedicalReport>> studentReportMap = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId))
-                .stream().collect(Collectors.groupingBy(MedicalReport::getStudentId));
-       List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(idList, nameLike);
+
+        // 该医院已建档的学生
+        Map<Integer, HospitalStudentVo> studentVoMap = getHospitalStudentVoList(query).stream()
+                .collect(Collectors.toMap(HospitalStudentVo::getStudentId, Function.identity()));
+        // 获取学生的详细信息
+       List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(new ArrayList<>(studentVoMap.keySet()), nameLike);
         // 设置就诊信息
         studentList.forEach(item-> {
-           List<MedicalReport> reportList = studentReportMap.get(item.getId());
-           if (CollectionUtils.isEmpty(reportList)) {
-               item.setNumOfVisits(0);
-               item.setLastScreeningTime(null);
-           } else {
-               item.setNumOfVisits(reportList.size()); // 就诊次数
-               item.setLastScreeningTime(reportList.get(reportList.size()-1).getCreateTime()); // 获取最后一条的创建时间
-           }
+            HospitalStudentVo hospitalStudentVo = studentVoMap.get(item.getId());
+           item.setNumOfVisits(hospitalStudentVo.getNumOfVisits()); // 就诊次数
+           item.setLastVisitDate(hospitalStudentVo.getLastVisitDate()); // 获取最后一检查的创建时间
        });
         return studentList;
+    }
+
+    /** 获取HospitalStudentDTO的数据 */
+    public List<HospitalStudentVo> getHospitalStudentVoList(HospitalStudentQuery query) {
+        return baseMapper.getHospitalStudentVoList(query);
     }
 
     /**

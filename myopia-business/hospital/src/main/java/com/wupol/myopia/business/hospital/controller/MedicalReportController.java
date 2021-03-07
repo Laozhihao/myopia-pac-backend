@@ -28,7 +28,7 @@ public class MedicalReportController {
     @PostMapping()
     public Boolean createReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalReportService.createReport(medicalReport, user.getId(), user.getOrgId(), medicalReport.getStudentId());
+        medicalReportService.createReport(medicalReport, user.getOrgId(), user.getId(), medicalReport.getStudentId());
         return true;
     }
 

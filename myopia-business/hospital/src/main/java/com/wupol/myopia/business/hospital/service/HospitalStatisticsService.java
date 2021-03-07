@@ -114,13 +114,13 @@ public class HospitalStatisticsService {
      */
     private List<MedicalRecord> getSubsequentVisitMedical(Map<Integer, HospitalStudent> hospitalStudentMap,
                                                           List<MedicalRecord> medicalList) {
-        Map<Integer, List<MedicalRecord>> studentReportMap = medicalList.stream().collect(Collectors.groupingBy(MedicalRecord::getStudentId));
+        Map<Integer, List<MedicalRecord>> studentMedicalMap = medicalList.stream().collect(Collectors.groupingBy(MedicalRecord::getStudentId));
         List<MedicalRecord> subsequentVisitMedicalList = new ArrayList<>();
-        for (Integer key : studentReportMap.keySet()) {
-            List<MedicalRecord> itemReportList = studentReportMap.get(key);
+        for (Integer key : studentMedicalMap.keySet()) {
+            List<MedicalRecord> itemMedicalList = studentMedicalMap.get(key);
             // 报告日期与建档日期不是同一天，则为复诊
-            MedicalRecord lastMedical = itemReportList.get(itemReportList.size()-1);
-            if (DateUtils.isSameDay(hospitalStudentMap.get(key).getCreateTime(), lastMedical.getCreateTime())) {
+            MedicalRecord lastMedical = itemMedicalList.get(itemMedicalList.size()-1);
+            if (!DateUtils.isSameDay(hospitalStudentMap.get(key).getCreateTime(), lastMedical.getCreateTime())) {
                 subsequentVisitMedicalList.add(lastMedical);
             }
         }

@@ -48,4 +48,12 @@
         limit 1
     </select>
 
+    <select id="getTodayLastMedicalRecord" resultMap="BaseResultMap">
+        select *
+        from h_medical_record mr
+        where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
+        order by id desc
+        limit 1
+    </select>
+
 </mapper>

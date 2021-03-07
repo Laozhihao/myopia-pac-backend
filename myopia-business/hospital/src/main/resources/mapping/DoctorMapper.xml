@@ -42,12 +42,13 @@
         from h_doctor
         <include refid="Base_Where_Clause"/>
     </select>
+
     <select id="getDoctorVoList" resultMap="DoctorVo">
         SELECT d.*, count(1) as reportCount
         FROM h_doctor d
         LEFT JOIN h_medical_report mr ON d.id = mr.doctor_id
         <include refid="Base_Where_Clause"/>
-        group by mr.doctor_id
+        group by d.id
     </select>
 
 </mapper>

@@ -6,19 +6,22 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.hospital.domain.model.HospitalStudent">
     </resultMap>
 
+    <resultMap id="HospitalStudentVo" type="com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
-                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
-                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(id)">and hs.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and hs.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and hs.`hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and hs.`create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(startDate)">
-                    and DATE(`create_time`) &gt;= Date(#{startDate})
+                    and DATE(hs.`create_time`) &gt;= Date(#{startDate})
                 </if>
                 <if test="@Ognl@isNotEmpty(endDate)">
-                    and DATE(`create_time`) &lt;= Date(#{endDate})
+                    and DATE(hs.`create_time`) &lt;= Date(#{endDate})
                 </if>
             </trim>
 
@@ -27,14 +30,22 @@
 
     <select id="getBy" resultMap="BaseResultMap">
         select *
-        from h_hospital_student
+        from h_hospital_student hs
         <include refid="Base_Where_Clause" />
     </select>
 
     <select id="getByPage" resultMap="BaseResultMap">
         select *
-        from h_hospital_student
+        from h_hospital_student hs
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getHospitalStudentVoList" resultMap="HospitalStudentVo">
+        SELECT hs.hospital_id, hs.student_id, count(mr.student_id) as numOfVisits, max(mr.create_time) as lastVisitDate
+        FROM h_hospital_student hs
+        LEFT JOIN h_medical_record mr ON hs.student_id = mr.student_id
+        <include refid="Base_Where_Clause"/>
+        group by hs.student_id
     </select>
 
 </mapper>

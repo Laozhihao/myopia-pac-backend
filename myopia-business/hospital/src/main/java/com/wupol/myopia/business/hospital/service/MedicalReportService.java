@@ -69,16 +69,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                                          Integer departmentId,
                                          Integer doctorId,
                                          Integer studentId) {
-        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
-        if (Objects.isNull(medicalRecord)) {
-            throw new BusinessException("未找到检查单");
-        }
-        medicalRecordService.finishMedicalRecord(medicalRecord);
+//        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
+//        if (Objects.isNull(medicalRecord)) {
+//            throw new BusinessException("未找到检查单");
+//        }
+//        medicalRecordService.finishMedicalRecord(medicalRecord);
         medicalReport.setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
-                .setStudentId(studentId)
-                .setMedicalRecordId(medicalRecord.getId());
+                .setStudentId(studentId);
         if (!save(medicalReport)) {
             throw new BusinessException("创建报告失败");
         }
