@@ -129,13 +129,12 @@ public class ScheduledTasksExecutor {
     private void genStatisticsByDistrictId(Integer screeningNoticeId, Integer districtId, Map<Integer, List<ScreeningPlan>> districtScreeningPlans, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, List<StatConclusion>> districtStatConclusions) {
         List<District> childDistrictList = new ArrayList<>();
         try {
-            childDistrictList = districtService.getChildDistrictByParentIdPriorityCache(districtId);
+            childDistrictList = districtService.getSpecificDistrictTree(districtId);
         } catch (IOException e) {
             log.error("获取区域层级失败", e);
         }
         // 合计的要包括自己层级的筛查数据
         List<Integer> childDistrictIds = new ArrayList<>();
-        childDistrictIds.add(districtId);
         getAllIdsWithChild(childDistrictIds, childDistrictList);
         //2.4 层级循环处理并添加到对应的统计中
         List<Integer> haveStatConclusionsChildDistrictIds = CompareUtil.getRetain(childDistrictIds, districtStatConclusions.keySet());
@@ -176,7 +175,7 @@ public class ScheduledTasksExecutor {
         Integer totalScreeningNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
         districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList())));
         districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalScreeningNum));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, selfStatConclusions, selfStatConclusions.size()));
+        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalScreeningNum));
     }
 
     /**
@@ -201,7 +200,7 @@ public class ScheduledTasksExecutor {
         Integer totalScreeningNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
         districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList())));
         districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalScreeningNum));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, totalStatConclusions, totalStatConclusions.size()));
+        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalScreeningNum));
     }
 
     /**
