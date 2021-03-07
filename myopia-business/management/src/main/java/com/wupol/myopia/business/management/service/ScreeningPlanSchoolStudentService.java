@@ -272,7 +272,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             Student dbStudent = idCardExistStudents.get(student.getIdCard());
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
-                existPlanStudent.setIdCard(student.getIdCard()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
+                existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId());
             }
             existPlanStudent.setStudentName(student.getName())

@@ -37,6 +37,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer id;
 
     /**
+     * 筛查计划--所属的筛查源通知id（也即task的来源通知id），自己创建时默认0
+     */
+    private Integer srcScreeningNoticeId;
+
+    /**
      * 筛查计划--所属的筛查任务id
      */
     private Integer screeningTaskId;

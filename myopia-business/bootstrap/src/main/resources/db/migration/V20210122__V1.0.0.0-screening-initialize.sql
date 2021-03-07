@@ -127,6 +127,7 @@ DROP TABLE IF EXISTS `m_screening_plan_school_student`;
 CREATE TABLE `m_screening_plan_school_student`
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+    `src_screening_notice_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查源通知id（也即task的来源通知id），自己创建时默认0',
     `screening_task_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查任务id，自己创建时默认0',
     `screening_plan_id` int(10) unsigned NOT NULL COMMENT '筛查计划--计划id ',
     `screening_org_id`  int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--指定的筛查机构id',
