@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.myopia.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.screening.domain.vo.StudentVO;
 import com.wupol.myopia.business.screening.enums.ErrorEnum;
 import com.wupol.myopia.business.screening.enums.StudentExcelEnum;
 import com.wupol.myopia.business.screening.enums.SysEnum;
+import com.wupol.myopia.business.screening.others.SysStudent;
 import com.wupol.myopia.business.screening.result.ResultVO;
 import com.wupol.myopia.business.screening.result.ResultVOUtil;
 import com.wupol.myopia.business.screening.service.ScreeningAppService;
@@ -125,7 +127,6 @@ public class ScreeningAppController {
         return ResultVOUtil.success(StudentVO.getInstance(screeningPlanSchoolStudent));
     }
 
-
     /**
      * 获取筛查就机构对应的学校
      *
@@ -210,17 +211,6 @@ public class ScreeningAppController {
 
 
     /**
-     * 搜索复测质控结果
-     *
-     * @return
-     */
-    @PostMapping("/eye/findAllReviewResult")
-    public ResultVO getAllReviewResult(@Valid @RequestBody ScreeningResultSearchDTO screeningResultSearchDTO) {
-        List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
-        return ResultVOUtil.success(allReviewResult);
-    }
-
-    /**
      * 保存视力筛查
      *
      * @return
@@ -281,7 +271,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/school/findAllStudentName")
     public ResultVO getStudentNameBySchoolNameAndGradeNameAndClassName(
-            @RequestParam(value = "deptId") Long deptId,
+            @RequestParam(value = "deptId") Integer deptId,
             @RequestParam(value = "schoolName") String schoolName,
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName,
@@ -295,52 +285,52 @@ public class ScreeningAppController {
 
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
-        List<ScreeningPlan> screeningPlans = screeningPlanService.getByOrgId(deptId.intValue());
-        screeningPlans = screeningPlans.stream().filter(screeningPlan ->
-                screeningPlan.getStartTime().before(new Date()) && screeningPlan.getEndTime().after(new Date())
-        ).collect(Collectors.toList());
-
-        if (CollectionUtils.size(screeningPlans) != 1) {
-           // throw new RuntimeException("用户异常");
-        }
-        Optional<ScreeningPlan> first = screeningPlans.stream().findFirst();
-        if (!first.isPresent()) {
+        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(deptId);
+        if (currentPlan == null) {
             return ResultVOUtil.success();
         }
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setScreeningPlanId(first.get().getId()).setScreeningOrgId(deptId.intValue()).setSchoolName(schoolName).setClassName(clazzName).setStudentName(studentName).setGradeName(gradeName);
+        screeningPlanSchoolStudent.setScreeningPlanId(currentPlan.getId())
+                .setScreeningOrgId(deptId.intValue())
+                .setSchoolName(schoolName)
+                .setClassName(clazzName)
+                .setStudentName(studentName)
+                .setGradeName(gradeName);
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+/*        queryWrapper.eq(ScreeningPlanSchoolStudent::getSchoolName,schoolName)
+                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlan.getId())*/
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent);
+
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
         Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
         return ResultVOUtil.success(sysStudents);//screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
     }
 
     /**
+     * 随机获取学生复测质量控制
      *
-
-     SysStudent sysStudent = new SysStudent();
-     sysStudent.setSchoolId(1000L).setStudentId("1").setStudentNo("fdfdfdfsdf").setSchoolName("dfsdfdsf")
-     .setSex("男").setSchoolAdress("dfsdfdsf").setStreet("fdsfdsfsdf")
-     .setState(1).setStudentPhone("1867667447")
-     .setAddress("dffsdfsdf").setBirthday("2020-10-23").setCity("bejjin").setClan("dfsd").setDeptId(10L)
-     .setGrade("yinianji").setIsGraduation(1).setIdCard("dfdfsd").setProvince("广东省").setRegion("diqu")
-     .setUpdateTime(new Date()).setUserId(10000000000L);
-     Pageable pageable = PageRequest.of(page - 1, size);
-
-     Page<SysStudent> sysStudents = new PageImpl(Arrays.asList(sysStudent), pageable, 1);
-     return ResultVOUtil.success(sysStudents);
-     *
-     */
-
-    /**
-     * 随机获取学生复测信息 TODO jacob 要理解一下
-     *
-     * @param screeningResultSearchDTO
+     * @param
      * @return
      */
-    @GetMapping("/student/findStudentReviewRandom")
-    public List<Student> getStudentReviewWithRandom(@Valid @RequestBody ScreeningResultSearchDTO screeningResultSearchDTO) {
-        return null; //screeningAppService.getStudentReviewWithRandom(screeningResultSearchDTO);
+    @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
+    public @ResponseBody
+    ResultVO findAllNameReview(
+            @RequestParam(value = "deptId") Integer deptId,
+            @RequestParam(value = "schoolId") Integer schoolId,
+            String studentName,
+            Integer current,
+            Integer size,
+            @RequestParam boolean isRandom,
+            @RequestParam(value = "gradeName", required = false) String gradeName,
+            @RequestParam(value = "clazzName", required = false) String clazzName) {
+        if (StringUtils.isBlank(studentName)) {
+            studentName = null;
+        }   
+        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size);
+        if (isRandom) {
+            sysStudentList = screeningAppService.getRandomData(sysStudentList);
+        }
+        return ResultVOUtil.success(sysStudentList);
     }
 
     /**
@@ -377,6 +367,34 @@ public class ScreeningAppController {
         return resultVO.*/
         return null;
     }
+
+
+    /**
+     * 搜索复测质控结果
+     *
+     * @return
+     */
+    @GetMapping("/eye/findAllReviewResult")
+    public ResultVO findAllReviewResult(
+            @RequestParam Integer deptId,
+            @RequestParam(value = "schoolId") Integer schoolId,
+            @RequestParam(value = "gradeName", required = false) String gradeName,
+            @RequestParam(value = "clazzName", required = false) String clazzName) {
+        ScreeningResultSearchDTO screeningResultSearchDTO = new ScreeningResultSearchDTO();
+        screeningResultSearchDTO.setClazzName(clazzName);
+        screeningResultSearchDTO.setGradeName(gradeName).setSchoolId(schoolId).setDepId(deptId);
+        List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
+        //进行数据的转换
+        //this.convertToTheOldStructure(allReviewResult);
+        // String s = "{\"number\":100,\"qualified\":0,\"gradeName\":\"高一\",\"qualifiedCount\":0,\"eyeResult\":1,\"eyesCount\":1,\"reviewsCount\":1,\"schoolName\":\"吕梁高级中学\",\"content\":[{\"studentSex（性别）\":\"男\",\"lsl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"qualified\":0,\"leftQualified\":1,\"rightQualified\":1},\"reviewDoctor\":\"张艳珍\",\"studentSchool（学校）\":\"吕梁高级中学\",\"firstDoctor\":\"张艳珍\",\"sph\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"qualified\":0,\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"leftQualified\":1,\"rightQualified\":0},\"firstTime\":\"2020-08-19T06:21:18.000+0000\",\"reviewsId\":\"1597819899142384177\",\"cyl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"qualified\":0,\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"leftQualified\":1,\"rightQualified\":1},\"studentGrade（年级）\":\"高一\",\"studentClazz（班级）\":\"1922\",\"studentName（姓名）\":\"常耀方\",\"jzsl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"qualified\":0,\"leftQualified\":1,\"rightQualified\":1},\"reviewTime\":\"2020-08-19T06:51:39.000+0000\"}],\"clazzName\":1922}";
+        // Object allReviewResult = JSON.parse(s);
+        ResultVO success = ResultVOUtil.success(allReviewResult);
+        System.out.println(success);
+        return success;
+    }
+
+
+
 
     /**
      * 校验学生数据的有效性

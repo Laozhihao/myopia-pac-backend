@@ -325,4 +325,25 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         return baseMapper.selectScreeningSchoolIds(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
     }
+
+    /**
+     * 获取用户当前的计划
+     * @param deptId
+     */
+    public ScreeningPlan getCurrentPlan(Integer deptId) {
+        List<ScreeningPlan> screeningPlans = this.getByOrgId(deptId);
+        screeningPlans = screeningPlans.stream().filter(screeningPlan ->
+                screeningPlan.getStartTime().before(new Date()) && screeningPlan.getEndTime().after(new Date())
+        ).collect(Collectors.toList());
+
+        if (org.apache.commons.collections4.CollectionUtils.size(screeningPlans) != 1) {
+            // throw new RuntimeException("用户异常");
+        }
+        Optional<ScreeningPlan> screeningPlanOptional = screeningPlans.stream().findFirst();
+        if (screeningPlanOptional.isPresent()) {
+            return screeningPlanOptional.get();
+        }
+        return null;
+    }
+
 }

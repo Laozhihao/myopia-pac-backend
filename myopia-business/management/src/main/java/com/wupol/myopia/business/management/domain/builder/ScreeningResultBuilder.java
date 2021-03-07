@@ -19,7 +19,7 @@ public class ScreeningResultBuilder {
     private ScreeningResultBasicData screeningResultBasicData;
     private ScreeningPlanSchoolStudent screeningPlanSchoolStudent;
     private boolean isEnd;
-
+    private boolean  isDoubleScreen;
     public VisionScreeningResult build() {
         synchronized (this) {
             if (isEnd) {
@@ -50,6 +50,7 @@ public class ScreeningResultBuilder {
                 .setStudentId(screeningPlanSchoolStudent.getStudentId())
                 .setPlanId(screeningPlanSchoolStudent.getScreeningPlanId())
                 .setSchoolId(screeningPlanSchoolStudent.getSchoolId())
+                .setIsDoubleScreen(isDoubleScreen)
                 .setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId())
                 .setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId())
                 .setCreateUserId(screeningResultBasicData.getCreateUserId());
@@ -67,6 +68,11 @@ public class ScreeningResultBuilder {
 
     public ScreeningResultBuilder setScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         this.screeningPlanSchoolStudent = screeningPlanSchoolStudent;
+        return this;
+    }
+
+    public ScreeningResultBuilder setIsDoubleScreen(boolean isDoubleScreen) {
+        this.isDoubleScreen = isDoubleScreen;
         return this;
     }
 }

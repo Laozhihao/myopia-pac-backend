@@ -96,6 +96,7 @@ public class StatConclusionBuilder {
      * 设置基础数据
      */
     private void setBasicData() {
+        statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
         statConclusion.setResultId(visionScreeningResult.getId());
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());
         statConclusion.setTaskId(screeningPlanSchoolStudent.getScreeningTaskId());
@@ -198,6 +199,11 @@ public class StatConclusionBuilder {
         }
     }*/
     private void setWarningLevel() {
+        if (!ObjectsUtil.allNotNull(basicData.leftAstigmatismWarningLevel,basicData.leftHyperopiaWarningLevel,basicData.rightAstigmatismWarningLevel
+        ,basicData.rightHyperopiaWarningLevel,basicData.leftMyopiaWarningLevel,basicData.rightMyopiaWarningLevel
+                ,basicData.leftNakedVisionWarningLevel,basicData.rightNakedVisionWarningLevel)) {
+            return;
+        }
 
         List<Integer> warningLevelList = new ArrayList() {
             {
@@ -246,7 +252,7 @@ public class StatConclusionBuilder {
 
     private void setHyperopia() {
         Boolean isHyperopia = null;
-        if (ObjectsUtil.allNotNull(basicData.leftAstigmatismWarningLevel, basicData.rightAstigmatismWarningLevel)) {
+        if (ObjectsUtil.allNotNull(basicData.leftHyperopiaWarningLevel, basicData.rightHyperopiaWarningLevel)) {
             isHyperopia = StatUtil.isHyperopia(basicData.leftHyperopiaWarningLevel)
                     || StatUtil.isHyperopia(basicData.rightHyperopiaWarningLevel);
         }
@@ -259,6 +265,11 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
+        if (!ObjectsUtil.allNotNull(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
+                basicData.leftCorrectVision, basicData.age, basicData.schoolAge, basicData.rightNakedVision, basicData.rightSph, basicData.rightCyl,
+                basicData.rightCorrectVision)) {
+            return;
+        }
         boolean isRecommendVisit =
                 StatUtil.isRecommendVisit(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
                         basicData.leftCorrectVision, basicData.age, SchoolAge.get(basicData.schoolAge))
@@ -321,7 +332,7 @@ public class StatConclusionBuilder {
         private WarningLevel rightHyperopiaWarningLevel;
         private WarningLevel leftMyopiaWarningLevel;
         private WarningLevel rightMyopiaWarningLevel;
-        private Boolean isRescreen = false;
+        private Boolean isRescreen;
         private Boolean isWearingGlasses;
         private Integer age;
         private Integer gender;
@@ -335,6 +346,7 @@ public class StatConclusionBuilder {
 
         public static BasicData getInstance(VisionScreeningResult visionScreeningResult, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
             BasicData basicData = new BasicData();
+            basicData.isRescreen = visionScreeningResult.getIsDoubleScreen();
             ComputerOptometryDO computerOptometry = visionScreeningResult.getComputerOptometry();
             VisionDataDO visionData = visionScreeningResult.getVisionData();
             basicData.isWearingGlasses = true;
@@ -351,7 +363,9 @@ public class StatConclusionBuilder {
                 basicData.rightSph = rightData.getSph() == null ? null : rightData.getSph().floatValue();
                 basicData.leftAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.leftCyl);
                 basicData.rightAstigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(basicData.rightCyl);
-                basicData.isAstigmatism = StatUtil.isAstigmatism(basicData.leftAstigmatismWarningLevel) || StatUtil.isAstigmatism(basicData.rightAstigmatismWarningLevel);
+                if (basicData.leftAstigmatismWarningLevel != null && basicData.rightAstigmatismWarningLevel != null) {
+                    basicData.isAstigmatism = StatUtil.isAstigmatism(basicData.leftAstigmatismWarningLevel) || StatUtil.isAstigmatism(basicData.rightAstigmatismWarningLevel);
+                }
                 basicData.leftHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.leftSph, basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
                 basicData.rightHyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(basicData.rightSph, basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
                 basicData.leftMyopiaWarningLevel = StatUtil.getMyopiaWarningLevel(basicData.leftSph, basicData.leftCyl);

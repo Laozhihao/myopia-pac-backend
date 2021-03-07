@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.screening.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.myopia.common.utils.JsonUtil;
@@ -10,7 +11,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
@@ -29,6 +29,9 @@ import com.wupol.myopia.business.management.util.UploadUtil;
 import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.screening.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.screening.others.SysStudent;
+import com.wupol.myopia.business.screening.result.ResultVOUtil;
+import org.apache.ibatis.scripting.xmltags.ForEachSqlNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -137,17 +141,107 @@ public class ScreeningAppService {
      * 随机获取学生复测信息
      *
      * @param pageRequest    分页
-     * @param screeningOrgId 机构id
-     * @param schoolId       学校id
      * @param schoolName     学校名称
+     * @param schoolId       学校id
      * @param gradeName      年级名称
      * @param clazzName      班级名称
+     * @param screeningOrgId 机构id
      * @return
      */
-    public IPage<Student> getStudentReviewWithRandom(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
-        //TODO 管理端，待修改
-        //TODO 待做随机
-        return getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, "", screeningOrgId, true);
+    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size) {
+        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId);
+        if (currentPlan == null) {
+            throw new ManagementUncheckedException("该筛查机构没有合适的计划，screeningOrgId = " + screeningOrgId);
+        }
+        // 获取学生数据
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
+        screeningPlanSchoolStudent.setStudentName(studentName).setScreeningPlanId(currentPlan.getId()).setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent);
+        Integer startIntem = (page - 1) * size;
+        screeningPlanSchoolStudentLambdaQueryWrapper.last("limit " + startIntem + "," + size);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
+        Set<Integer> screeningPlanStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return new ArrayList<>();
+        }
+        //查找统计数据
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId, screeningPlanStudentIds).eq(StatConclusion::getPlanId, currentPlan.getId());
+        List<StatConclusion> allStatConclusions = statConclusionService.getBaseMapper().selectList(queryWrapper);
+        // 对数据进行分类
+        Map<Integer, List<StatConclusion>> idStatConclusionListMap = allStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningPlanSchoolStudentId));
+        Set<Integer> ids = idStatConclusionListMap.keySet();
+        // 学生数据对应的状态
+        Map<Integer, Integer> screeningStudentIdStatusMap = ids.stream().collect(Collectors.toMap(Function.identity(), id -> {
+            List<StatConclusion> statConclusionList = idStatConclusionListMap.get(id);
+            return this.getRescreeningStatus(statConclusionList);
+        }));
+        return this.getSysStudentData(screeningStudentIdStatusMap, screeningPlanSchoolStudents);
+    }
+
+    /**
+     * 获取数据
+     *
+     * @param screeningStudentIdStatusMap
+     * @param screeningPlanSchoolStudents
+     * @return
+     */
+    private List<SysStudent> getSysStudentData(Map<Integer, Integer> screeningStudentIdStatusMap, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents) {
+        return screeningPlanSchoolStudents.stream().map(screeningPlanSchoolStudent ->
+                SysStudent.getInstance(screeningPlanSchoolStudent, screeningStudentIdStatusMap.get(screeningPlanSchoolStudent.getId()))
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * todo 每次随机6%
+     * 缺少： 1.同步功能 2.累计同步的功能
+     *
+     * @param sysStudents
+     * @return
+     */
+    public List<SysStudent> getRandomData(List<SysStudent> sysStudents) {
+        int result = (int) (sysStudents.size() * 0.06) + 1;
+        if (result > sysStudents.size()) {
+            return new ArrayList<>();
+        }
+        // 随机打乱顺序
+        Collections.shuffle(sysStudents);
+        sysStudents = sysStudents.subList(0, result);
+        return sysStudents;
+    }
+
+    /**
+     * 获取复筛质控
+     *
+     * @param statConclusionList
+     * @return
+     */
+    private Integer getRescreeningStatus(List<StatConclusion> statConclusionList) {
+        StatConclusion reScreeningStatConclusion = null;
+        StatConclusion firstScreeningStatConclusion = null;
+
+        for (StatConclusion statConclusion : statConclusionList) {
+            if (statConclusion.getIsRescreen()) {
+                reScreeningStatConclusion = statConclusion;
+            } else {
+                firstScreeningStatConclusion = statConclusion;
+            }
+        }
+        // 3补充数据 4 复测完成 2 补充数据 0 不可复测  1 可复测
+        if (firstScreeningStatConclusion == null || !firstScreeningStatConclusion.getIsValid()) {
+            return 0;// 不可复测
+        }
+
+        if (reScreeningStatConclusion == null) {
+            return 1;// 确认复测
+        }
+
+        if (reScreeningStatConclusion.getIsValid()) {
+            return 4;// 完成复测
+        }
+        return 2;
+
     }
 
     /**
@@ -269,7 +363,7 @@ public class ScreeningAppService {
             resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
             // 增加到筛查用户中
             screeningOrganizationStaffService.updateOrganizationStaffSignId(currentUser, resourceFile);
-            return   resourceFileService.getResourcePath(resourceFile.getId());
+            return resourceFileService.getResourcePath(resourceFile.getId());
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
         }
@@ -368,6 +462,7 @@ public class ScreeningAppService {
 
     /**
      * 获取用户的详细信息
+     *
      * @param currentUser
      * @return
      */

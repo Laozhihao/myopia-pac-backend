@@ -21,6 +21,7 @@
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
                 <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
@@ -49,8 +50,8 @@
     <select id="selectStudentInfoWithResult"
             resultType="com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO">
         SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
-        , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.student_gender
-        , s.task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
+        , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.gender
+        , s.screening_task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
         , r.other_eye_diseases
         FROM m_screening_plan_school_student s
         LEFT JOIN m_vision_screening_result r ON s.id = r.screening_plan_school_student_id

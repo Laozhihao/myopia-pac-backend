@@ -125,7 +125,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId());
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(),screeningResultBasicData.getIsState());
         TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
         return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
     }
@@ -135,10 +135,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      *
      * @param planId
      * @param screeningOrgId
+     * @param isState
      * @return
      */
-    public VisionScreeningResult getScreeningResult(Integer planId, Integer screeningOrgId, Integer screeningPlanSchoolStudentId) throws IOException {
-        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setScreeningOrgId(screeningOrgId);
+    public VisionScreeningResult getScreeningResult(Integer planId, Integer screeningOrgId, Integer screeningPlanSchoolStudentId, Integer isState) throws IOException {
+        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setScreeningOrgId(screeningOrgId).setIsDoubleScreen(isState == 1);
         QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
         VisionScreeningResult visionScreeningResult = getOne(queryWrapper);
         return visionScreeningResult;
@@ -159,7 +160,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         //获取ScreeningPlanSchoolStudent
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
         //构建ScreeningResult
-        return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
+        return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setIsDoubleScreen(screeningResultBasicData.getIsState() == 1).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
     }
 
     /**

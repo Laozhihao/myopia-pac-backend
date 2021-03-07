@@ -58,7 +58,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param visionScreeningResult
      */
     public void saveOrUpdateStudentScreenData(VisionScreeningResult visionScreeningResult) {
-
         StatConclusion statConclusion = getScreeningConclusionResult(visionScreeningResult);
         if (statConclusion.getId() != null) {
             //更新
