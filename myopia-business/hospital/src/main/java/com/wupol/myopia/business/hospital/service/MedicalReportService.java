@@ -7,6 +7,7 @@ import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.Consultation;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     @Autowired
     private MedicalRecordService medicalRecordService;
 
-    @Autowired
-    private ConsultationService consultationService;
-
 
     /**
      * 获取学生报告列表
@@ -38,7 +36,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @return List<MedicalReportVo>
      */
     public List<MedicalReportVo> getReportListByStudentId(Integer studentId) {
-        return baseMapper.getVoBy(new MedicalReport().setStudentId(studentId));
+        MedicalReportQuery query = new MedicalReportQuery();
+        query.setStudentId(studentId);
+        return baseMapper.getVoBy(query);
     }
 
     /**
@@ -69,16 +69,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                                          Integer departmentId,
                                          Integer doctorId,
                                          Integer studentId) {
-        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
-        if (Objects.isNull(medicalRecord)) {
-            throw new BusinessException("未找到检查单");
-        }
-        medicalRecordService.finishMedicalRecord(medicalRecord);
+//        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
+//        if (Objects.isNull(medicalRecord)) {
+//            throw new BusinessException("未找到检查单");
+//        }
+//        medicalRecordService.finishMedicalRecord(medicalRecord);
         medicalReport.setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
-                .setStudentId(studentId)
-                .setMedicalRecordId(medicalRecord.getId());
+                .setStudentId(studentId);
         if (!save(medicalReport)) {
             throw new BusinessException("创建报告失败");
         }
@@ -100,9 +99,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         // 检查单
         MedicalRecord record = medicalRecordService.getById(report.getId());
         responseDTO.setRecord(record);
-        // 问诊
-        Consultation consultation = consultationService.getById(record.getConsultationId());
-        responseDTO.setConsultation(consultation);
 
         return responseDTO;
     }
@@ -125,5 +121,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     public MedicalReport getLatestVisitsReport(Integer studentId) {
         return baseMapper.getLatestVisitsReport(studentId);
+    }
+
+    public List<MedicalReport> getBy(MedicalReportQuery query) {
+        return baseMapper.getBy(query);
     }
 }

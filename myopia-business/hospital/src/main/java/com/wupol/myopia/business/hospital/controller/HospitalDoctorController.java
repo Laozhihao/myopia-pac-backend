@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import com.wupol.myopia.business.hospital.service.HospitalDoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,10 @@ public class HospitalDoctorController {
 
 
     @GetMapping("/list")
-    public List<DoctorVo> getDoctorList(String like) throws IOException {
+    public List<DoctorVo> getDoctorList(DoctorQuery query) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalDoctorService.getDoctorVoList(user.getOrgId(), like);
+        query.setHospitalId(user.getOrgId());
+        return hospitalDoctorService.getDoctorVoList(query);
     }
 
     @GetMapping("/{id}")

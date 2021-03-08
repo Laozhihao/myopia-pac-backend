@@ -4,6 +4,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
@@ -26,10 +27,21 @@ import java.util.stream.Collectors;
 public class MedicalRecordService extends BaseService<MedicalRecordMapper, MedicalRecord> {
 
     @Autowired
-    private ConsultationService consultationService;
-    @Autowired
     private ResourceFileService resourceFileService;
 
+
+    /**
+     * 获取学生最后一条检查记录
+     * @param studentId 学生id
+     * @return
+     */
+    public MedicalRecord getLastOneByStudentId(Integer studentId) {
+        return baseMapper.getLastOneByStudentId(studentId);
+    }
+
+    public List<MedicalRecord> getBy(MedicalRecordQuery query) {
+        return baseMapper.getBy(query);
+    }
 
     /**
      * 获取今天最新的3个就诊的学生id
@@ -82,6 +94,20 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
 
     /**
+     * 追加问诊到检查单
+     * @param consultation    问诊内容
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @param studentId 学生id
+     */
+    public void addConsultationToMedicalRecord(Consultation consultation,
+                                         Integer hospitalId,
+                                         Integer doctorId,
+                                         Integer studentId) {
+        addCheckDataToMedicalRecord(consultation,null, null, null, null,hospitalId, -1, doctorId, studentId);
+    }
+
+    /**
      * 追加视力检查数据到检查单
      * @param vision    检查数据
      * @param hospitalId 医院id
@@ -92,7 +118,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(vision, null, null, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,vision, null, null, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -106,7 +132,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, biometrics, null, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, biometrics, null, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -120,7 +146,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, null, diopter, null,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, null, diopter, null,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -134,11 +160,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                          Integer hospitalId,
                                          Integer doctorId,
                                          Integer studentId) {
-        addCheckDateToMedicalRecord(null, null, null, tosca,hospitalId, -1, doctorId, studentId);
+        addCheckDataToMedicalRecord(null,null, null, null, tosca,hospitalId, -1, doctorId, studentId);
     }
 
     /**
      * 追加检查检查数据到检查单
+     * @param consultation    问诊
      * @param vision    视力检查检查数据
      * @param biometrics    生物测量检查数据
      * @param diopter    屈光检查数据
@@ -148,15 +175,17 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      * @param doctorId 医生id
      * @param studentId 学生id
      */
-    public void addCheckDateToMedicalRecord(VisionMedicalRecord vision,
-                                         BiometricsMedicalRecord biometrics,
-                                         DiopterMedicalRecord diopter,
-                                         ToscaMedicalRecord tosca,
-                                         Integer hospitalId,
-                                         Integer departmentId,
-                                         Integer doctorId,
-                                         Integer studentId) {
+    public void addCheckDataToMedicalRecord(Consultation consultation,
+                                            VisionMedicalRecord vision,
+                                            BiometricsMedicalRecord biometrics,
+                                            DiopterMedicalRecord diopter,
+                                            ToscaMedicalRecord tosca,
+                                            Integer hospitalId,
+                                            Integer departmentId,
+                                            Integer doctorId,
+                                            Integer studentId) {
         MedicalRecord medicalRecord = getOrCreateTodayMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        if (Objects.nonNull(consultation)) medicalRecord.setConsultation(consultation);
         if (Objects.nonNull(vision)) medicalRecord.setVision(vision);
         if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
         if (Objects.nonNull(diopter)) medicalRecord.setDiopter(diopter);
@@ -197,28 +226,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     }
 
     /**
-     * 获取学生今天最后一条问诊
+     * 获取学生今天最后一条检查单
      * @param hospitalId 医院id
      * @param studentId 学生id
      */
     public MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId) {
-        MedicalRecord medicalRecord;
-        try {
-            medicalRecord = findByListOrderByIdDesc(new MedicalRecord().setHospitalId(hospitalId).setStudentId(studentId).setStatus(MedicalRecord.STATUS_CHECKING))
-                    .stream().findFirst().orElse(null);
-            if (Objects.isNull(medicalRecord)) {
-                return medicalRecord;
-            }
-            // 如果今天有检查单
-            Date date = new Date();
-            date.setHours(date.getHours()-8);
-            if (DateUtils.isSameDay(medicalRecord.getCreateTime(), date)) {
-                return medicalRecord;
-            }
-        } catch (IOException e) {
-            log.error("获取学生今天最后一条问诊失败. ", e);
-        }
-        return null;
+        return baseMapper.getTodayLastMedicalRecord(hospitalId, studentId);
     }
 
     /** 创建检查单 */

@@ -4,7 +4,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.hospital.domain.model.*;
-import com.wupol.myopia.business.hospital.service.ConsultationService;
 import com.wupol.myopia.business.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.hospital.service.MedicalRecordService;
@@ -32,22 +31,19 @@ public class MedicalRecordController {
     private MedicalRecordService medicalRecordService;
     @Autowired
     private HospitalDoctorService doctorService;
-    @Autowired
-    private ConsultationService consultationService;
 
 
     @GetMapping("/consultation/{studentId}")
     public Consultation getConsultation(@PathVariable("studentId") Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        Consultation consultation = consultationService.getTodayLastConsultation(user.getOrgId(), studentId);
-        return Objects.isNull(consultation) ? new Consultation() : consultation;
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
+        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getConsultation())? new Consultation() : medicalRecord.getConsultation();
     }
 
-    @PostMapping("/consultation}")
+    @PostMapping("/consultation")
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // TODO departmentId
-        consultationService.addConsultationToMedicalRecord(consultation, user.getOrgId(), -1, user.getId(), consultation.getStudentId());
+        medicalRecordService.addConsultationToMedicalRecord(consultation, user.getOrgId(), user.getId(), consultation.getStudentId());
         return true;
     }
 
