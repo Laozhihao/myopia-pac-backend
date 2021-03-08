@@ -2,8 +2,12 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
@@ -20,6 +24,8 @@ import java.util.List;
 public class StatConclusionService extends BaseService<StatConclusionMapper, StatConclusion> {
     @Autowired
     private StatConclusionMapper statConclusionMapper;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 获取筛查结论列表
@@ -67,5 +73,56 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionVo> getValidVoByScreeningPlanId(Integer screeningPlanId) {
         return statConclusionMapper.selectValidVoByScreeningPlanId(screeningPlanId);
+    }
+    /**
+     * 保存并更新
+     *
+     * @param visionScreeningResult
+     */
+    public void saveOrUpdateStudentScreenData(VisionScreeningResult visionScreeningResult) {
+        StatConclusion statConclusion = getScreeningConclusionResult(visionScreeningResult);
+        if (statConclusion.getId() != null) {
+            //更新
+            updateById(statConclusion);
+        } else {
+            //创建
+            save(statConclusion);
+        }
+    }
+
+    /**
+     * 获取统计数据
+     *
+     * @param visionScreeningResult
+     * @return
+     */
+    private StatConclusion getScreeningConclusionResult(
+            VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult == null) {
+        }
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent =
+                screeningPlanSchoolStudentService.getById(
+                        visionScreeningResult.getScreeningPlanSchoolStudentId());
+        if (screeningPlanSchoolStudent == null) {
+            throw new ManagementUncheckedException(
+                    "数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = "
+                    + visionScreeningResult.getScreeningPlanSchoolStudentId());
+        }
+        // 根据是否复查，查找结论表
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        StatConclusion statConclusion =
+                new StatConclusion().setResultId(visionScreeningResult.getId());
+        statConclusion.setIsRescreen(visionScreeningResult.getIsDoubleScreen());
+        queryWrapper.setEntity(statConclusion);
+        statConclusion = baseMapper.selectOne(queryWrapper);
+
+        //需要新增
+        StatConclusionBuilder statConclusionBuilder =
+                StatConclusionBuilder.getStatConclusionBuilder();
+        statConclusion = statConclusionBuilder.setVisionScreeningResult(visionScreeningResult)
+                                 .setStatConclusion(statConclusion)
+                                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                                 .build();
+        return statConclusion;
     }
 }

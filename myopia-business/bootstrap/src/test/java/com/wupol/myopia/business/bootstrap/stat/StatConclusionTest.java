@@ -2,6 +2,7 @@ package com.wupol.myopia.business.bootstrap.stat;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -164,7 +165,8 @@ public class StatConclusionTest {
             statConclusion.setIsMyopia(isMyopia);
             statConclusion.setIsHyperopia(isHyperopia);
             statConclusion.setIsAstigmatism(isAstigmatism);
-            statConclusion.setIsWearingGlasses(isWearingGlasses);
+            // statConclusion.setIsWearingGlasses(isWearingGlasses);
+            statConclusion.setGlassesType(GlassesType.NOT_WEARING.code);
             statConclusion.setIsRecommendVisit(isRecommendVisit);
             statConclusion.setIsRescreen(isRescreen);
             if (isRescreen) {

@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.parent.domain.dto;
 
+import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,13 +20,13 @@ public class RefractoryResultItems {
     private String title;
 
     /**
+     * 轴位
+     */
+    private BigDecimal axial;
+    /**
      * 右眼
      */
-<<<<<<< HEAD
     private Item od;
-=======
-    private BigDecimal axial;
->>>>>>> 1.0.0.0-manager-app
 
     /**
      * 左眼

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.management.constant;
+package com.wupol.myopia.business.common.constant;
 
 import java.util.Arrays;
 

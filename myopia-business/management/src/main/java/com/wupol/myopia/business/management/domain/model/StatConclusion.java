@@ -69,8 +69,11 @@ public class StatConclusion implements Serializable {
     /** 是否散光 */
     private Boolean isAstigmatism;
 
-    // /** 是否戴镜 */
-    // private Boolean isWearingGlasses;
+    /**
+     * 是否戴镜
+     * @deprecated 将被 glassesType替代
+     */
+    private Boolean isWearingGlasses;
 
     /** 是否建议就诊 */
     private Boolean isRecommendVisit;
