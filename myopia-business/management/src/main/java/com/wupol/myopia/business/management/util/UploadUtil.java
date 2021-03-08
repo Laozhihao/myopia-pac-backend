@@ -46,6 +46,7 @@ public class UploadUtil {
         String path = savePath + "/" + fileName;
         return new TwoTuple<>(orgFileName, path);
     }
+
     public static void validateFileIsOverSize(MultipartFile file, Long sizeLimit) {
         if (file == null || file.getSize() == 0) {
             throw new UploadException("上传文件为空");
@@ -73,5 +74,10 @@ public class UploadUtil {
         if(!match.isPresent()) {
             throw new FileTypeException("文件不允许上传");
         }
+    }
+
+    public static String genNewFileName(MultipartFile file) {
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        return String.format("%s.%s", UUID.randomUUID(), extension);
     }
 }

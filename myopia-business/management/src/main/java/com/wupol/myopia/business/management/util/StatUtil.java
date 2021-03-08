@@ -1,7 +1,13 @@
 package com.wupol.myopia.business.management.util;
 
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
+
+import java.util.Objects;
 
 /**
  * 筛查结论计算工具
@@ -9,7 +15,8 @@ import com.wupol.myopia.business.management.constant.WarningLevel;
 public class StatUtil {
     /**
      * 是否近视
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
      * @return
      */
@@ -19,6 +26,7 @@ public class StatUtil {
 
     /**
      * 是否近视
+     *
      * @param myopiaWarningLevel 近视预警级别
      * @return
      */
@@ -28,9 +36,10 @@ public class StatUtil {
 
     /**
      * 是否远视
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
-     * @param age 年龄
+     * @param age      年龄
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
@@ -39,6 +48,7 @@ public class StatUtil {
 
     /**
      * 是否远视
+     *
      * @param hyperopiaWarningLevel 远视预警级别
      * @return
      */
@@ -48,6 +58,7 @@ public class StatUtil {
 
     /**
      * 是否散光
+     *
      * @param cylinder 柱镜
      * @return
      */
@@ -57,17 +68,19 @@ public class StatUtil {
 
     /**
      * 是否散光
+     *
      * @param astigmatismWarningLevel 散光预警级别
      * @return
      */
-    public static boolean isAstigmatism(WarningLevel astigmatismWarningLevel) {
+    public static Boolean isAstigmatism(WarningLevel astigmatismWarningLevel) {
         return isWarningLevelGreatThanZero(astigmatismWarningLevel);
     }
 
     /**
      * 是否视力低下
+     *
      * @param nakedVision 裸眼视力
-     * @param age 年龄
+     * @param age         年龄
      * @return
      */
     public static boolean isLowVision(Float nakedVision, Integer age) {
@@ -76,6 +89,7 @@ public class StatUtil {
 
     /**
      * 是否视力低下
+     *
      * @param lowVisionWarningLevel 视力低下预警级别
      * @return
      */
@@ -85,17 +99,18 @@ public class StatUtil {
 
     /**
      * 是否建议就诊
-     * @param nakedVision 裸眼视力
-     * @param sphere 球镜
-     * @param cylinder 柱镜
+     *
+     * @param nakedVision      裸眼视力
+     * @param sphere           球镜
+     * @param cylinder         柱镜
      * @param isWearingGlasses
-     * @param correctVision 矫正视力
-     * @param age 年龄
-     * @param schoolAge 学龄
+     * @param correctVision    矫正视力
+     * @param age              年龄
+     * @param schoolAge        学龄
      * @return
      */
     public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
-            boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
+                                           boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
@@ -122,6 +137,7 @@ public class StatUtil {
 
     /**
      * 判断预警级别是否大于0
+     *
      * @param warningLevel 预警级别
      * @return
      */
@@ -131,11 +147,15 @@ public class StatUtil {
 
     /**
      * 返回裸眼视力预警级别
+     *
      * @param nakedVision 裸眼视力
-     * @param age 年龄
+     * @param age         年龄
      * @return
      */
     public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
+        if (nakedVision == null || age == null) {
+              return null;
+        }
         switch (age) {
             case 0:
             case 1:
@@ -166,12 +186,16 @@ public class StatUtil {
 
     /**
      * 返回远视预警级别
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
-     * @param age 年龄
+     * @param age      年龄
      * @return
      */
     public static WarningLevel getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
+        if (sphere == null || cylinder == null || age ==null) {
+            return null;
+        }
         Float se = getSphericalEquivalent(sphere, cylinder);
         switch (age) {
             case 0:
@@ -232,11 +256,15 @@ public class StatUtil {
 
     /**
      * 返回近视预警级别
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
      * @return
      */
     public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
+        if (!ObjectsUtil.allNotNull(sphere,cylinder)) {
+            return null;
+        }
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
         if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
@@ -247,10 +275,14 @@ public class StatUtil {
 
     /**
      * 返回散光预警级别
+     *
      * @param cylinder 柱镜
      * @return
      */
     public static WarningLevel getAstigmatismWarningLevel(Float cylinder) {
+        if (cylinder == null) {
+            return null;
+        }
         Float cylinderAbs = Math.abs(cylinder);
         if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO;
         if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;
@@ -261,9 +293,10 @@ public class StatUtil {
 
     /**
      * 是否屈光不正
+     *
      * @param isAstigmatism 是否散光
-     * @param isMyopia 是否近视
-     * @param isHyperopia 是否远视
+     * @param isMyopia      是否近视
+     * @param isHyperopia   是否远视
      * @return
      */
     public static boolean isRefractiveError(
@@ -273,7 +306,8 @@ public class StatUtil {
 
     /**
      * 是否屈光不正
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
      * @param age
      * @return
@@ -285,11 +319,52 @@ public class StatUtil {
 
     /**
      * 计算等效球镜
-     * @param sphere 球镜
+     *
+     * @param sphere   球镜
      * @param cylinder 柱镜
      * @return
      */
     public static Float getSphericalEquivalent(Float sphere, Float cylinder) {
         return cylinder / 2 + sphere;
     }
+
+    /**
+     * 初筛数据完整性判断
+     * <p>
+     * 1，配镜情况：没有配镜，需要：裸眼视力和电脑验光数据（球镜、柱镜、轴位）
+     * <p>
+     * 2，配镜情况：佩戴框架眼镜，需要裸眼视力、矫正视力和电脑验光数据（球镜、柱镜、轴位）
+     * <p>
+     * 3，配镜情况：佩戴隐形眼镜，需要裸眼视力、矫正视力和电脑验光数据（球镜、柱镜、轴位）
+     * <p>
+     * 4，配镜情况：佩戴角膜塑形镜，需要矫正视力。(如没有度数则默认放在2级预警中 如有度数则根据度数定预警级别)
+     * <p>
+     * 复测数据完整性判断
+     * <p>
+     * <p>
+     * <p>
+     * 1、复测随机抽取满足条件的已筛查学生的6% （一开始是5%，调整为5%，确保：纳入发生率统计的复测学生达到5%。）
+     * <p>
+     * 数据是否有效或者完整
+     *
+     * @param visionData
+     * @param computerOptometry
+     * @return
+     */
+    public static boolean isCompletedData(VisionDataDO visionData ,ComputerOptometryDO computerOptometry) {
+        if (visionData == null || visionData.getLeftEyeData() == null ||  visionData.getLeftEyeData().getGlassesType() == null) {
+            return false;
+        }
+        Integer glassesType = visionData.getLeftEyeData().getGlassesType();
+        if (WearingGlassesSituation.NOT_WEARING_GLASSES_KEY.equals(glassesType)) {
+            return  visionData.validNakedVision();
+        } else if (WearingGlassesSituation.WEARING_FRAME_GLASSES_KEY.equals(glassesType) || WearingGlassesSituation.WEARING_CONTACT_LENS_KEY.equals(glassesType) ) {
+            return  visionData.validNakedVision() && visionData.validCorrectedVision() && Objects.nonNull(computerOptometry) && computerOptometry.valid();
+        } else if (WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(glassesType)) {
+            return  visionData.validCorrectedVision();
+        } else {
+            return false;
+        }
+    }
+
 }

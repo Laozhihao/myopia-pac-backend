@@ -84,6 +84,8 @@ public class StatConclusion implements Serializable {
     /** 是否有效数据 */
     private Boolean isValid;
 
+    private Integer screeningPlanSchoolStudentId;
+
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

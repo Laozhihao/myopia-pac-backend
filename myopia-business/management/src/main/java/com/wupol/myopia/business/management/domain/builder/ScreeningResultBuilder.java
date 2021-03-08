@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.builder;
 
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
@@ -19,7 +19,7 @@ public class ScreeningResultBuilder {
     private ScreeningResultBasicData screeningResultBasicData;
     private ScreeningPlanSchoolStudent screeningPlanSchoolStudent;
     private boolean isEnd;
-
+    private boolean  isDoubleScreen;
     public VisionScreeningResult build() {
         synchronized (this) {
             if (isEnd) {
@@ -47,9 +47,11 @@ public class ScreeningResultBuilder {
         return visionScreeningResult
                 .setTaskId(screeningPlanSchoolStudent.getScreeningTaskId())
                 .setDistrictId(screeningPlanSchoolStudent.getDistrictId())
+                .setStudentId(screeningPlanSchoolStudent.getStudentId())
                 .setPlanId(screeningPlanSchoolStudent.getScreeningPlanId())
-                .setSchoolId(screeningResultBasicData.getSchoolId())
-                .setStudentId(screeningResultBasicData.getStudentId())
+                .setSchoolId(screeningPlanSchoolStudent.getSchoolId())
+                .setIsDoubleScreen(isDoubleScreen)
+                .setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId())
                 .setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId())
                 .setCreateUserId(screeningResultBasicData.getCreateUserId());
     }
@@ -66,6 +68,11 @@ public class ScreeningResultBuilder {
 
     public ScreeningResultBuilder setScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         this.screeningPlanSchoolStudent = screeningPlanSchoolStudent;
+        return this;
+    }
+
+    public ScreeningResultBuilder setIsDoubleScreen(boolean isDoubleScreen) {
+        this.isDoubleScreen = isDoubleScreen;
         return this;
     }
 }

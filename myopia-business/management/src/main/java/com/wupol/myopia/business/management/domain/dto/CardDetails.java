@@ -18,7 +18,7 @@ import java.util.List;
 public class CardDetails {
 
     /**
-     * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}
+     * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
      */
     private GlassesTypeObj glassesTypeObj;
     /**

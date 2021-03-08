@@ -2,7 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -12,7 +12,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
@@ -271,6 +270,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 校验学校是否存在，表格中必填项是否都有
+     *
      * @param school
      * @param listMap
      */
@@ -304,6 +304,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 处理筛查学生
+     *
      * @param screeningPlanId
      * @param schoolId
      * @param school
@@ -331,6 +332,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新学生数据
+     *
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
      */
@@ -365,6 +367,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 新增学生数据
+     *
      * @param userId
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
@@ -391,7 +394,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param gradeClassNameSet
      * @param gradeNameIdMap
      * @param gradeClassNameClassIdMap
-     * @param notUploadStudents 已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
+     * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
      */
     private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
@@ -482,11 +485,21 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 根据年级班级ID获取筛查学生
+     *
      * @param gradeId
      * @param classId
      * @return
      */
     public List<StudentDTO> getByGradeAndClass(Integer screeningPlanId, Integer gradeId, Integer classId) {
         return baseMapper.selectByGradeAndClass(screeningPlanId, gradeId, classId);
+    }
+
+    /**
+     * @param screeningPlanSchoolStudent
+     */
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.setEntity(screeningPlanSchoolStudent);
+        return baseMapper.selectList(queryWrapper);
     }
 }
