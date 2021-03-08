@@ -8,10 +8,10 @@ public enum GlassesType {
     CONTACT_LENS(2, "隐形眼镜"),
     ORTHOKERATOLOGY(3, "夜戴角膜塑形镜");
 
-    /** 学龄段ID */
+    /** 戴镜类型代码 */
     public final Integer code;
 
-    /** 学龄段描述 */
+    /** 戴镜类型描述 */
     public final String desc;
 
     GlassesType(Integer code, String desc) {
