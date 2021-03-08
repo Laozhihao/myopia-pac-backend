@@ -1,10 +1,5 @@
 package com.wupol.myopia.business.management.util;
 
-<<<<<<< HEAD
-=======
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
-import com.wupol.framework.core.util.ObjectsUtil;
->>>>>>> 1.0.0.0-manager-app
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -29,10 +24,6 @@ public class StatUtil {
 
     /**
      * 是否近视
-<<<<<<< HEAD
-=======
-     *
->>>>>>> 1.0.0.0-manager-app
      * @param myopiaWarningLevel 近视预警级别
      * @return
      */
@@ -54,10 +45,6 @@ public class StatUtil {
 
     /**
      * 是否远视
-<<<<<<< HEAD
-=======
-     *
->>>>>>> 1.0.0.0-manager-app
      * @param hyperopiaWarningLevel 远视预警级别
      * @return
      */
@@ -77,18 +64,10 @@ public class StatUtil {
 
     /**
      * 是否散光
-<<<<<<< HEAD
      * @param astigmatismWarningLevel 散光预警级别
      * @return
      */
     public static boolean isAstigmatism(WarningLevel astigmatismWarningLevel) {
-=======
-     *
-     * @param astigmatismWarningLevel 散光预警级别
-     * @return
-     */
-    public static Boolean isAstigmatism(WarningLevel astigmatismWarningLevel) {
->>>>>>> 1.0.0.0-manager-app
         return isWarningLevelGreatThanZero(astigmatismWarningLevel);
     }
 
@@ -105,10 +84,6 @@ public class StatUtil {
 
     /**
      * 是否视力低下
-<<<<<<< HEAD
-=======
-     *
->>>>>>> 1.0.0.0-manager-app
      * @param lowVisionWarningLevel 视力低下预警级别
      * @return
      */
@@ -118,7 +93,6 @@ public class StatUtil {
 
     /**
      * 是否建议就诊
-<<<<<<< HEAD
      * @param nakedVision 裸眼视力
      * @param sphere 球镜
      * @param cylinder 柱镜
@@ -130,20 +104,6 @@ public class StatUtil {
      */
     public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
             boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
-=======
-     *
-     * @param nakedVision      裸眼视力
-     * @param sphere           球镜
-     * @param cylinder         柱镜
-     * @param isWearingGlasses
-     * @param correctVision    矫正视力
-     * @param age              年龄
-     * @param schoolAge        学龄
-     * @return
-     */
-    public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
-                                           boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
->>>>>>> 1.0.0.0-manager-app
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
@@ -170,10 +130,6 @@ public class StatUtil {
 
     /**
      * 判断预警级别是否大于0
-<<<<<<< HEAD
-=======
-     *
->>>>>>> 1.0.0.0-manager-app
      * @param warningLevel 预警级别
      * @return
      */
@@ -189,12 +145,9 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
-<<<<<<< HEAD
-=======
         if (nakedVision == null || age == null) {
               return null;
         }
->>>>>>> 1.0.0.0-manager-app
         switch (age) {
             case 0:
             case 1:
@@ -232,12 +185,6 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
-<<<<<<< HEAD
-=======
-        if (sphere == null || cylinder == null || age ==null) {
-            return null;
-        }
->>>>>>> 1.0.0.0-manager-app
         Float se = getSphericalEquivalent(sphere, cylinder);
         switch (age) {
             case 0:
@@ -304,12 +251,6 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
-<<<<<<< HEAD
-=======
-        if (!ObjectsUtil.allNotNull(sphere,cylinder)) {
-            return null;
-        }
->>>>>>> 1.0.0.0-manager-app
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
         if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
@@ -325,12 +266,6 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getAstigmatismWarningLevel(Float cylinder) {
-<<<<<<< HEAD
-=======
-        if (cylinder == null) {
-            return null;
-        }
->>>>>>> 1.0.0.0-manager-app
         Float cylinderAbs = Math.abs(cylinder);
         if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO;
         if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;

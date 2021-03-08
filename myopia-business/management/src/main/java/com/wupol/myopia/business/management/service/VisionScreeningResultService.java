@@ -2,24 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-<<<<<<< HEAD
-import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
-import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
-=======
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
->>>>>>> 1.0.0.0-manager-app
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
