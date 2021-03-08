@@ -3,6 +3,7 @@ package com.wupol.myopia.business.screening.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.JsonUtil;
 import com.wupol.framework.core.util.CollectionUtils;
@@ -235,6 +236,13 @@ public class ScreeningAppService {
             return 0;// 不可复测
         }
 
+        Integer resultId = firstScreeningStatConclusion.getResultId();
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        boolean isWearing = visionScreeningResult.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY);
+
+        if (isWearing) {
+            return 0;
+        }
         if (reScreeningStatConclusion == null) {
             return 1;// 确认复测
         }
