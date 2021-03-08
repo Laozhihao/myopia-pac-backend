@@ -17,7 +17,6 @@
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
-                <if test="@Ognl@isNotEmpty(deptId)">and `dept_id` = #{deptId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>

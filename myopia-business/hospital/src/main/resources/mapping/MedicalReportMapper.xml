@@ -4,6 +4,10 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.hospital.domain.model.MedicalReport">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
+    </resultMap>
+    <resultMap id="MedicalReportVo" type="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -63,6 +67,24 @@
         order by record.create_time desc
         limit 1
     </select>
+
+    <select id="getTodayLastMedicalReportVo" resultMap="MedicalReportVo">
+        select r.*, d.name as doctorName
+        from h_medical_report r
+        left join h_doctor d on d.id = r.doctor_id
+        where r.student_id = #{studentId} and r.hospital_id = #{hospitalId} and date(r.create_time) = CURDATE()
+        order by r.id desc
+        limit 1
+    </select>
+
+    <select id="getTodayLastMedicalReport" resultMap="BaseResultMap">
+        select r.*
+        from h_medical_report r
+        where r.student_id = #{studentId} and r.hospital_id = #{hospitalId} and date(r.create_time) = CURDATE()
+        order by r.id desc
+        limit 1
+    </select>
+
 
     <select id="getById" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
         select *

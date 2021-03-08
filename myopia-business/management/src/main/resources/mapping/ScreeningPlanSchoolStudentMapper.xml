@@ -20,6 +20,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>

@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 
+
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,13 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return statConclusionMapper.listByQuery(statConclusionQuery);
     }
 
+     * @param statConclusionQuery
+     * @return
+     */
+    public List<StatConclusion> listByQuery(StatConclusionQuery statConclusionQuery) {
+        return statConclusionMapper.listByQuery(statConclusionQuery);
+    }
+
     /**
      * 根据源通知ID获取处理后有效的筛查数据
      *
@@ -56,6 +64,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
 
     /**
      * 根据源通知ID获取处理后有效的筛查数据
+     *
      * @param screeningNoticeId
      * @return
      */
@@ -64,6 +73,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
                 .eq(StatConclusion::getIsValid, true);
         return statConclusionMapper.selectList(queryWrapper);
+    }
+
     }
 
     /**

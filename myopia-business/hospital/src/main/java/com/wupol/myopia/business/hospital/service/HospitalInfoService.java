@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.hospital.service;
 
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.management.service.HospitalService;
 import lombok.extern.log4j.Log4j2;
@@ -36,10 +37,8 @@ public class HospitalInfoService {
      */
     public Map<String, Object> getHospitalInfo(Integer hospitalId) throws IOException {
         Map<String, Object> map = new HashMap<>();
-        // 报告列表
-        List<MedicalReport> reportList = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId));
         // 累计就诊的人数
-        map.put("totalMedicalPersonCount", reportList.size());
+        map.put("totalMedicalPersonCount", medicalRecordService.count(new MedicalRecord().setHospitalId(hospitalId)));
         map.put("name", hospitalService.getById(hospitalId).getName());
 
         return map;
@@ -68,7 +67,7 @@ public class HospitalInfoService {
      * 获取复诊的报告, 报告日期与建档日期不是同一天，则为复诊
      */
     private List<MedicalReport> getSubsequentVisitReport(Map<Integer, HospitalStudent> hospitalStudentMap,
-                                                 List<MedicalReport> reportList) {
+                                                         List<MedicalReport> reportList) {
         Map<Integer, List<MedicalReport>> studentReportMap = reportList.stream().collect(Collectors.groupingBy(MedicalReport::getStudentId));
         List<MedicalReport> subsequentVisitReportList = new ArrayList<>();
         for (Integer key : studentReportMap.keySet()) {

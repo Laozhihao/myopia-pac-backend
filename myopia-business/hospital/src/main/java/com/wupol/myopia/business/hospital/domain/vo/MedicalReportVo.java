@@ -20,6 +20,8 @@ import java.util.List;
 public class MedicalReportVo extends MedicalReport {
     /** 医院名称 */
     private String hospitalName;
+    /** 医生名称 */
+    private String doctorName;
     /** 影像列表 */
     private List<String> imageUrlList;
 }
