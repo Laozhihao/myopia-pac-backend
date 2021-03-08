@@ -92,7 +92,7 @@ public class StudentVO {
         studentVO.grade = screeningPlanSchoolStudent.getGradeName();
         studentVO.clazz = screeningPlanSchoolStudent.getClassName();
         studentVO.schoolId = screeningPlanSchoolStudent.getSchoolId();
-        studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthDate(), DateFormatUtil.FORMAT_ONLY_DATE);
+        studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE);
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();
         return studentVO;
     }

@@ -352,7 +352,7 @@ public class StatConclusionBuilder {
             basicData.isWearingGlasses = true;
             basicData.age = screeningPlanSchoolStudent.getStudentAge();
             basicData.gender = screeningPlanSchoolStudent.getGender();
-            basicData.schoolAge = screeningPlanSchoolStudent.getSchoolAge();
+            basicData.schoolAge = screeningPlanSchoolStudent.getGradeType();
             basicData.noticeId = screeningPlanSchoolStudent.getSrcScreeningNoticeId();
             if (computerOptometry != null) {
                 ComputerOptometryDO.ComputerOptometry leftData = computerOptometry.getLeftEyeData();
