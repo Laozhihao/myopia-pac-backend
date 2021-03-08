@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.screening.domain.vo;
 
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.screening.interfaces.JudgePassInterfaces;
 import lombok.Data;
 

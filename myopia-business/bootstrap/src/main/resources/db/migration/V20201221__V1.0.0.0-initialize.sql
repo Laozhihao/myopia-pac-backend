@@ -49,6 +49,7 @@ create table m_screening_organization_staff
     user_id          int                                 not null comment '用户ID',
     create_user_id   int                                 null comment '创建人ID',
     remark           varchar(128)                        null comment '说明',
+    sign_file_id     int                     NOT Null DEFAULT 0		COMMENT '电子签名',
     create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )

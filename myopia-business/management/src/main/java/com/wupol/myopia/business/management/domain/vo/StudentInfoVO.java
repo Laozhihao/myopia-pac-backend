@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dto.StudentClazzDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;

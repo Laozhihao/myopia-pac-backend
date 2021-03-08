@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.screening.domain.vo;
 
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 
@@ -12,36 +13,64 @@ import lombok.Getter;
 @Getter
 public class StudentVO {
 
-    private Integer studentId;
     /**
-     * studentName
+     * 学生ID
+     */
+    private String studentId;
+
+    /**
+     * 学籍号
+     */
+    private String studentNo;
+
+    /**
+     * 用户名称
      */
     private String studentName;
+
     /**
-     * birthday
+     * 出生日期
      */
     private String birthday;
+
     /**
-     * sex
+     * 性别
      */
     private String sex;
+
     /**
-     * schoolName
+     * 学校名称
      */
     private String schoolName;
+
     /**
-     * grade
+     * 年级
      */
     private String grade;
-    /**
-     * clazz
-     */
+
+
     private String clazz;
+
+
     /**
-     * deptId
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
+     * 部门ID
      */
     private Integer deptId;
 
+    /**
+     * 用户userID
+     */
+    private Integer userId = 1;
+
+
+    /**
+     *
+     */
     private StudentVO() {
 
     }
@@ -55,13 +84,15 @@ public class StudentVO {
      */
     public static StudentVO getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         StudentVO studentVO = new StudentVO();
-        studentVO.studentId = screeningPlanSchoolStudent.getId();
-        studentVO.sex = screeningPlanSchoolStudent.getGender()+"";
+        studentVO.studentId = screeningPlanSchoolStudent.getId().toString();
+        studentVO.sex = GenderEnum.getName(screeningPlanSchoolStudent.getGender());
         studentVO.schoolName = screeningPlanSchoolStudent.getSchoolName();
+        studentVO.studentNo = screeningPlanSchoolStudent.getStudentNo();
         studentVO.studentName = screeningPlanSchoolStudent.getStudentName();
         studentVO.grade = screeningPlanSchoolStudent.getGradeName();
         studentVO.clazz = screeningPlanSchoolStudent.getClassName();
-        studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthDate(),DateFormatUtil.FORMAT_ONLY_DATE);
+        studentVO.schoolId = screeningPlanSchoolStudent.getSchoolId();
+        studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthDate(), DateFormatUtil.FORMAT_ONLY_DATE);
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();
         return studentVO;
     }

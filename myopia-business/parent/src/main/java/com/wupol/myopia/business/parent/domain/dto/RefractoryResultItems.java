@@ -20,7 +20,11 @@ public class RefractoryResultItems {
     /**
      * 右眼
      */
+<<<<<<< HEAD
     private Item od;
+=======
+    private BigDecimal axial;
+>>>>>>> 1.0.0.0-manager-app
 
     /**
      * 左眼

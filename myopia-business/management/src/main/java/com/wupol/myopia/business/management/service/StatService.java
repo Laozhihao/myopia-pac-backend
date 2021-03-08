@@ -225,7 +225,11 @@ public class StatService {
 
         List<StatConclusion> wearingGlassesConclusions =
                 validConclusions.stream()
+<<<<<<< HEAD
                         .filter(x -> x.getGlassesType() > 0)
+=======
+                        .filter(x -> x.getIsWearingGlasses() == true)
+>>>>>>> 1.0.0.0-manager-app
                         .collect(Collectors.toList());
 
         List<StatConclusion> myopiaConclusions = validConclusions.stream()
@@ -374,13 +378,22 @@ public class StatService {
                 statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
         long femaleNum = statConclusions.size() - maleNum;
         return ClassStat.builder()
+<<<<<<< HEAD
                 .title(label.name())
+=======
+                .title(label.desc)
+>>>>>>> 1.0.0.0-manager-app
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
+<<<<<<< HEAD
                         add(composeBasicParams(GenderEnum.MALE.name(), maleNum, statNum));
                         add(composeBasicParams(GenderEnum.FEMALE.name(), femaleNum, statNum));
+=======
+                        add(composeBasicParams(GenderEnum.MALE.name, maleNum, statNum));
+                        add(composeBasicParams(GenderEnum.FEMALE.name, femaleNum, statNum));
+>>>>>>> 1.0.0.0-manager-app
                     }
                 })
                 .build();
@@ -414,18 +427,31 @@ public class StatService {
                         .count();
 
         return ClassStat.builder()
+<<<<<<< HEAD
                 .title(label.name())
+=======
+                .title(label.desc)
+>>>>>>> 1.0.0.0-manager-app
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
                         add(composeBasicParams(
+<<<<<<< HEAD
                                 SchoolAge.KINDERGARTEN.name(), kindergartenNum, statNum));
                         add(composeBasicParams(SchoolAge.PRIMARY.name(), primaryNum, statNum));
                         add(composeBasicParams(SchoolAge.JUNIOR.name(), juniorNum, statNum));
                         add(composeBasicParams(SchoolAge.HIGH.name(), highNum, statNum));
                         add(composeBasicParams(
                                 SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighNum, statNum));
+=======
+                                SchoolAge.KINDERGARTEN.desc, kindergartenNum, statNum));
+                        add(composeBasicParams(SchoolAge.PRIMARY.desc, primaryNum, statNum));
+                        add(composeBasicParams(SchoolAge.JUNIOR.desc, juniorNum, statNum));
+                        add(composeBasicParams(SchoolAge.HIGH.desc, highNum, statNum));
+                        add(composeBasicParams(
+                                SchoolAge.VOCATIONAL_HIGH.desc, vocationalHighNum, statNum));
+>>>>>>> 1.0.0.0-manager-app
                     }
                 })
                 .build();
@@ -439,7 +465,11 @@ public class StatService {
     private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
         long totalScreeningNum = rescreenConclusions.size();
         long wearingGlassesNum =
+<<<<<<< HEAD
                 rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+=======
+                rescreenConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+>>>>>>> 1.0.0.0-manager-app
         long wearingGlassesIndexNum = wearingGlassesNum * 6;
         long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
         long withoutGlassesIndexNum = withoutGlassesNum * 4;
@@ -478,7 +508,11 @@ public class StatService {
         long refractiveErrorNum =
                 validConclusions.stream().filter(x -> x.getIsRefractiveError() == true).count();
         long wearingGlassesNum =
+<<<<<<< HEAD
                 validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+=======
+                validConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+>>>>>>> 1.0.0.0-manager-app
         long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() == true).count();
         long totalFirstScreeningNum = firstScreeningConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
@@ -543,13 +577,22 @@ public class StatService {
 
     /**
      * 构造分类统计数据
+<<<<<<< HEAD
      * @param name 分类名称
+=======
+     * @param desc 分类描述
+>>>>>>> 1.0.0.0-manager-app
      * @param statNum 分类统计数量
      * @param totalStatNum 统计总量
      * @return
      */
+<<<<<<< HEAD
     private BasicStatParams composeBasicParams(String name, long statNum, long totalStatNum) {
         return new BasicStatParams(name, convertToPercentage(statNum * 1f / totalStatNum), statNum);
+=======
+    private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
+        return new BasicStatParams(desc, convertToPercentage(statNum * 1f / totalStatNum), statNum);
+>>>>>>> 1.0.0.0-manager-app
     }
 
     /**
