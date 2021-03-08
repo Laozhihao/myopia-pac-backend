@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto;
 
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.management.domain.query.AppPageRequest;
 import lombok.Data;

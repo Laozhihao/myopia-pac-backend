@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.builder;
 
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;

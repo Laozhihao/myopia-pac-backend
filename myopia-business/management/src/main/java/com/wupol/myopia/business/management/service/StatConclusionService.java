@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;

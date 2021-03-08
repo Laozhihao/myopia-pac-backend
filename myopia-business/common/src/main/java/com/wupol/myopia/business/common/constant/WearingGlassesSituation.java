@@ -1,12 +1,9 @@
-package com.myopia.common.constant;
+package com.wupol.myopia.business.common.constant;
 
 import com.google.common.collect.ImmutableMap;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.framework.core.util.StringUtils;
-import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
-
-import java.util.Optional;
 
 /**
  * @Description

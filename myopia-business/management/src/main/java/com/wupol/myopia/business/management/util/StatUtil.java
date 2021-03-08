@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.util;
 
-import com.myopia.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;

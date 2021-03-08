@@ -2,7 +2,7 @@ package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.myopia.common.constant.EyeDiseasesEnum;
+import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.*;

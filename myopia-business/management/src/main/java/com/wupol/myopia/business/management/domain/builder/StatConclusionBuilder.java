@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.builder;
 
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;

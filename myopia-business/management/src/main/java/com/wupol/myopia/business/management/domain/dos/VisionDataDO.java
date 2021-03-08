@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.management.domain.dos;
 
-import com.myopia.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.management.interfaces.ValidResultDataInterface;
@@ -34,7 +34,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
          */
         private Integer lateriality;
         /**
-         * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}
+         * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
          */
         private Integer glassesType;
         /**

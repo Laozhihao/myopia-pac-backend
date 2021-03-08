@@ -2,7 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -12,7 +12,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
