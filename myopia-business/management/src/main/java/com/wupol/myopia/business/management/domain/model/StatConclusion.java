@@ -69,8 +69,8 @@ public class StatConclusion implements Serializable {
     /** 是否散光 */
     private Boolean isAstigmatism;
 
-    /** 是否戴镜 */
-    private Boolean isWearingGlasses;
+    // /** 是否戴镜 */
+    // private Boolean isWearingGlasses;
 
     /** 是否建议就诊 */
     private Boolean isRecommendVisit;
@@ -87,4 +87,21 @@ public class StatConclusion implements Serializable {
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /** --------------------- 新增导出报告属性 --------------------- */
+
+    /** 学校Id */
+    private Integer SchoolId;
+
+    /** 学校年级代码 */
+    private Integer SchoolGradeCode;
+
+    /** 学校班级 */
+    private Integer SchoolClass;
+
+    /** 近视预警级别 */
+    private Integer myopiaWarningLevel;
+
+    /** 眼镜类型 */
+    private Integer glassesType;
 }

@@ -217,7 +217,8 @@ public class SchoolVisionStatistic implements Serializable {
     public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId, Integer districtId,
                                               List<StatConclusionVo> statConclusions, Integer planScreeningNumbers) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
-        Integer wearingGlassNumber = (int) statConclusions.stream().filter(StatConclusion::getIsWearingGlasses).count();
+        Integer wearingGlassNumber =
+                (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
         Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
