@@ -127,11 +127,6 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer studentAge;
 
     /**
-     * 筛查计划--参与筛查的学生学龄
-     */
-    private Integer schoolAge;
-
-    /**
      * 筛查计划--参与筛查的当时情况
      */
     private String studentSituation;
