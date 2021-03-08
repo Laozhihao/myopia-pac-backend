@@ -21,7 +21,7 @@
                 <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
                 <if test="@Ognl@isNotEmpty(computerOptometry)">and `computer_optometry` = #{computerOptometry}</if>
                 <if test="@Ognl@isNotEmpty(biometricData)">and `biometric_data` = #{biometricData}</if>
-                <if test="@Ognl@isNotEmpty(otherEyeDiseases)">and `other_eye_diseases` = #{otherEyeDiseases}</if>
+                <if test="@Ognl@isNotEmpty(otherEyeDiseasesDTO)">and `other_eye_diseases` = #{otherEyeDiseasesDTO}</if>
                 <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -60,5 +60,11 @@
         where student_id = #{studentId}
         order by create_time desc
         limit 1
+    </select>
+
+    <select id="getPlanIdsByTime" resultType="java.lang.Integer">
+        SELECT DISTINCT plan_id
+        FROM m_vision_screening_result
+        WHERE DATE(update_time) between DATE(#{startTime}) and DATE(#{endTime})
     </select>
 </mapper>

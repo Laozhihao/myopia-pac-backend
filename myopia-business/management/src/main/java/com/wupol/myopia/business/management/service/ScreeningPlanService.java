@@ -7,13 +7,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.myopia.common.constant.ScreeningConstant;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -322,11 +320,49 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
-        return Collections.emptyList();
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 根据原始筛查通知获取所有的筛查计划
+     * @param srcScreeningNoticeId
+     * @return
+     */
+    public List<ScreeningPlan> getBySrcScreeningNoticeId(Integer srcScreeningNoticeId) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, srcScreeningNoticeId);
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
     // todo: wait for implement
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         return null;
     }
+
+    /**
+     * 获取用户当前的计划
+     * @param deptId
+     */
+    public ScreeningPlan getCurrentPlan(Integer deptId) {
+        List<ScreeningPlan> screeningPlans = this.getByOrgId(deptId);
+        screeningPlans = screeningPlans.stream().filter(screeningPlan ->
+                screeningPlan.getStartTime().before(new Date()) && screeningPlan.getEndTime().after(new Date())
+        ).collect(Collectors.toList());
+
+        if (org.apache.commons.collections4.CollectionUtils.size(screeningPlans) != 1) {
+            // throw new RuntimeException("用户异常");
+        }
+        Optional<ScreeningPlan> screeningPlanOptional = screeningPlans.stream().findFirst();
+        if (screeningPlanOptional.isPresent()) {
+            return screeningPlanOptional.get();
+        }
+        return null;
+    }
+
 }

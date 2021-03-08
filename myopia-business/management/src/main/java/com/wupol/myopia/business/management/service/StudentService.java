@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CacheKey;
@@ -291,7 +292,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             item.setDetails(result);
             item.setScreeningDate(r.getCreateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-            item.setGlassesType(r.getVisionData().getLeftEyeData().getGlassesType());
+            item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
             item.setResultId(r.getId());
             items.add(item);
         }
@@ -402,7 +403,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         // 设置左眼
         StudentResultDetails leftDetails = new StudentResultDetails();
-        leftDetails.setGlassesType(result.getVisionData().getLeftEyeData().getGlassesType());
+        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
         leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
         leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
         leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
@@ -418,7 +419,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         //设置右眼
         StudentResultDetails rightDetails = new StudentResultDetails();
-        rightDetails.setGlassesType(result.getVisionData().getRightEyeData().getGlassesType());
+        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
         rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
         rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
         rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());

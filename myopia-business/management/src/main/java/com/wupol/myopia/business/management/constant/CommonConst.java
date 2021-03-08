@@ -96,4 +96,13 @@ public interface CommonConst {
      * 右眼
      */
     Integer RIGHT_EYE = 1;
+    /**
+     * 是
+     */
+    Integer IS_TOTAL = 1;
+
+    /**
+     * 否
+     */
+    Integer NOT_TOTAL = 0;
 }

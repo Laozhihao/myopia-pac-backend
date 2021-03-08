@@ -1,4 +1,4 @@
-package com.myopia.common.constant;
+package com.wupol.myopia.business.common.constant;
 
 /**
  * @Description

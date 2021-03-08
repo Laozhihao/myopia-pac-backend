@@ -92,7 +92,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
     private Item getItem(Integer districtId, String rangeName, DistrictVisionStatistic districtVisionStatistic) {
         ScreeningVisionStatisticVO.Item item = new ScreeningVisionStatisticVO.Item();
         item.setFocusTargetsNum(districtVisionStatistic.getKeyWarningNumbers())
-                .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumners())
+                .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumbers())
                 .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision())
                 .setAverageVisionRight(districtVisionStatistic.getAvgRightVision())
                 .setLowVisionNum(districtVisionStatistic.getLowVisionNumbers())
