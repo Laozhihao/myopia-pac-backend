@@ -5,7 +5,6 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
@@ -30,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -161,28 +161,24 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentReportResponseDTO
      */
     public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
-        // 查找学生最近的就诊报告
-        MedicalReport latestVisitsReport = medicalReportService.getLatestVisitsReport(studentId);
-        if (null == latestVisitsReport) {
+        // 查找学生最近的就诊记录
+        List<ReportAndRecordVo> visitLists = getVisitLists(studentId);
+        if (CollectionUtils.isEmpty(visitLists)) {
             return new StudentReportResponseDTO();
         }
-        return medicalReportService.getStudentReport(latestVisitsReport.getId());
+        ReportAndRecordVo reportAndRecordVo = visitLists.get(0);
+        return medicalReportService.getStudentReport(reportAndRecordVo.getRecordId(), reportAndRecordVo.getReportId());
     }
 
 
     /**
      * 获取就诊报告详情
      *
-     * @param reportId 就诊报告ID
+     * @param request 请求入参
      * @return StudentReportResponseDTO
      */
-    public StudentReportResponseDTO getVisitsReportDetails(Integer reportId) {
-        // 查找就诊报告
-        MedicalReport report = medicalReportService.getById(reportId);
-        if (null == report) {
-            return new StudentReportResponseDTO();
-        }
-        return medicalReportService.getStudentReport(report.getId());
+    public StudentReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
+        return medicalReportService.getStudentReport(request.getRecordId(), request.getReportId());
     }
 
     /**

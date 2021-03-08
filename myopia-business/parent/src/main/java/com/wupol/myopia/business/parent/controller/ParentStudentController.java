@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
 import com.wupol.myopia.business.parent.domain.dto.ParentBindRequest;
+import com.wupol.myopia.business.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.parent.service.ParentStudentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,9 +91,9 @@ public class ParentStudentController {
         return parentStudentService.latestVisitsReport(id);
     }
 
-    @GetMapping("report/visits/detail/{id}")
-    public Object getVisitsReportDetail(@PathVariable("id") Integer id) {
-        return parentStudentService.getVisitsReportDetails(id);
+    @GetMapping("report/visits/detail")
+    public Object getVisitsReportDetail(VisitsReportDetailRequest request) {
+        return parentStudentService.getVisitsReportDetails(request);
     }
 
     @GetMapping("report/screening/visionTrends/{studentId}")
