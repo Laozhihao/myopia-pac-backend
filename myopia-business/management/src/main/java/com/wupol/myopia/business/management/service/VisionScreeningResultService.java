@@ -16,19 +16,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
-import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @Author HaoHao

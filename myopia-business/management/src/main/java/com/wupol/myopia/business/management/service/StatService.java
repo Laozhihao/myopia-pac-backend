@@ -130,7 +130,6 @@ public class StatService {
 
     /**
      * 对比统计数据
-     * @param contrastTypeCode 对比类型
      * @param notificationId1 筛查通知ID_1
      * @param notificationId2 筛查通知ID_2
      * @param districtId 区域ID
