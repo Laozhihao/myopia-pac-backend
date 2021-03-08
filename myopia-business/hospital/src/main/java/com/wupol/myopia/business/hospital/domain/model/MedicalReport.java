@@ -57,7 +57,8 @@ public class MedicalReport implements Serializable {
     /** 检查单id */
     private Integer medicalRecordId;
     /** 影像列表 */
-    private List<Integer> fileIdList;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Integer> imageIdList;
     /** 医生诊断内容 */
     private String medicalContent;
     /** 固化的结论数据*/
