@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 医院的报告的App接口
@@ -28,9 +27,9 @@ public class MedicalReportController {
     private MedicalReportService medicalReportService;
 
     @PostMapping()
-    public Boolean createReport(@RequestBody MedicalReport medicalReport) {
+    public Boolean saveReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalReportService.createReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
+        medicalReportService.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
         return true;
     }
 
@@ -47,7 +46,7 @@ public class MedicalReportController {
     @GetMapping("/todayLast")
     public MedicalReport getTodayLastMedicalReport(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return medicalReportService.getTodayLastMedicalReport(user.getOrgId(), studentId);
+        return medicalReportService.getOrCreateTodayLastMedicalReportVo(user.getOrgId(), studentId);
     }
 
 }
