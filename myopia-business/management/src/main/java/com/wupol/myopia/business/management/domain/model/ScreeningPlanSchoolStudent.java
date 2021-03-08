@@ -85,6 +85,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private String gradeName;
 
     /**
+     * 学龄段
+     */
+    private Integer gradeType;
+
+    /**
      * 筛查计划--参与筛查的学生班级ID
      */
     @NotNull(message = "筛查班级ID不能为空")

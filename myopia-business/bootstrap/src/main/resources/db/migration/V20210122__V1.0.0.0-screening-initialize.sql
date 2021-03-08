@@ -136,6 +136,7 @@ CREATE TABLE `m_screening_plan_school_student`
     `school_name`       varchar(32)  NOT NULL COMMENT '筛查计划--执行的学校名字',
     `grade_id`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--参与筛查的学生年级ID',
     `grade_name`        varchar(32) null comment '年级名称',
+    `grade_type`        tinyint null comment '学龄段',
     `class_id`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--参与筛查的学生班级ID',
     `class_name`        varchar(32) null comment '班级名称',
     `student_id`        int(10) unsigned NOT NULL COMMENT '筛查计划--参与筛查的学生id',

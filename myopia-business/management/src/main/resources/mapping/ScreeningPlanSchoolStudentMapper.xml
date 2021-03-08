@@ -27,6 +27,7 @@
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
                 <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
+                <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
@@ -45,7 +46,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, district_id, school_id, school_name,
-        grade_id, grade_name, class_id, class_name, student_id, id_card, birthday, gender, student_age,
+        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
         student_situation, student_no, student_name, create_time
     </sql>
 
