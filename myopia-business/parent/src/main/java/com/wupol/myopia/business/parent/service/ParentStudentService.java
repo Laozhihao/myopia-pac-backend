@@ -341,13 +341,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         axialItems.setTitle("轴位");
 
         RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-        leftAxialItems.setVision(date.getLeftEyeData().getAxial());
+        // leftAxialItems.setVision(date.getLeftEyeData().getAxial());
         leftAxialItems.setType("TODO");
         leftAxialItems.setTypeName("TODO-NAME");
         axialItems.setOs(leftAxialItems);
 
         RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-        rightAxialItems.setVision(date.getRightEyeData().getAxial());
+        // rightAxialItems.setVision(date.getRightEyeData().getAxial());
         rightAxialItems.setType("TODO");
         rightAxialItems.setTypeName("TODO-NAME");
         axialItems.setOd(rightAxialItems);

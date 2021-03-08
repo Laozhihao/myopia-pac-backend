@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.dos;
 
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.management.interfaces.ValidResultDataInterface;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
         /**
          * 轴位
          */
-        private String axial;
+        private BigDecimal axial;
         /**
          * 球镜
          */
@@ -43,6 +44,16 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
             return sph != null;
         }
 
+    }
+
+    /**
+     * 电脑数据是否完整
+     * @return
+     */
+    public boolean valid() {
+        return ObjectsUtil.allNotNull(getLeftEyeData()
+                , getLeftEyeData().getAxial(), getLeftEyeData().getCyl(), getLeftEyeData().getSph()
+                , getRightEyeData(), getRightEyeData().getAxial(), getRightEyeData().getCyl(), getRightEyeData().getSph());
     }
 
 }

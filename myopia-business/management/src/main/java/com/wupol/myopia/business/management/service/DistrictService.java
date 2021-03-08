@@ -209,6 +209,18 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
+     * @param districtId 根节点行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getSpecificDistrictTree(Integer districtId) throws IOException {
+        // 获取以指定行政区域为根节点的行政区域树
+        District district = getById(districtId);
+        return getSpecificDistrictTreePriorityCache(district.getCode());
+    }
+
+    /**
+     * 从缓存获取以指定行政区域为根节点的行政区域树
+     *
      * @param rootCode 指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/

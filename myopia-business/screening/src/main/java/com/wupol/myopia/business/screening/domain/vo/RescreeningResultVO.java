@@ -3,9 +3,8 @@ package com.wupol.myopia.business.screening.domain.vo;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.myopia.common.constant.ScreeningConstant;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.constant.ScreeningConstant;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.Data;
@@ -43,14 +42,7 @@ public class RescreeningResultVO {
      * 年级名
      */
     private String gradeName;
-    /**
-     * todo 不知道什么鬼
-     */
-    private Integer eyeResult;
-    /**
-     * todo 不知道什么鬼
-     */
-    private Integer eyeCount;
+
     /**
      * 复查数量
      */
@@ -66,32 +58,32 @@ public class RescreeningResultVO {
     /**
      * 详细内容
      */
-    private List<RescreeningResultContent> rescreeningResultContentList;
+    private List<RescreeningResultContent> content;
 
     /**
-     * 以下字段是新加的
+     *  以下字段是新加的 todo
      *
      * @param passNum 合格项目数量
      */
     private int passNum;
     /**
-     * 以下字段是新加的
+     * 以下字段是新加的 todo
      *
      * @param errorRatio 误差率
      */
     private int errorRatio;
     /**
-     * 以下字段是新加的
      *
-     * @param errorNum 错误项次数（不合格项）
+     *
+     * @param errorNum 错误项次数（不合格项） 根据app 来的
      */
-    private int errorNum;
+    private int eyeResult;
     /**
      * 以下字段是新加的
      *
      * @param totalScreeningNum 检查筛查结果项
      */
-    private int totalScreeningNum;
+    private int eyesCount;
 
     /**
      * 设置其他星系
@@ -132,9 +124,9 @@ public class RescreeningResultVO {
             return;
         }
         //按学生分组成复筛和初筛数据
-        this.setRescreeningResultContentList(studentScreeningInfoWithResultDTOS);
+        this.setContent(studentScreeningInfoWithResultDTOS);
         //获取到每个学生的详细数据后，进行统计
-        this.setStatisticResult(rescreeningResultContentList);
+        this.setStatisticResult(content);
         //设置其他信息
         this.setOtherInfo(studentScreeningInfoWithResultDTOS.stream().findFirst().get());
     }
@@ -143,11 +135,11 @@ public class RescreeningResultVO {
      * 设置主要内容
      * @param studentScreeningInfoWithResultDTOS
      */
-    private void setRescreeningResultContentList(List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOS) {
+    private void setContent(List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOS) {
         Map<Integer, List<StudentScreeningInfoWithResultDTO>> studentIdDataMap = studentScreeningInfoWithResultDTOS.stream().collect(Collectors.groupingBy(StudentScreeningInfoWithResultDTO::getStudentId));
         Set<Integer> studentIds = studentIdDataMap.keySet();
         //组合数据
-        rescreeningResultContentList = studentIds.stream().map(studentId -> {
+        content = studentIds.stream().map(studentId -> {
             List<StudentScreeningInfoWithResultDTO> studentScreeningDataList = studentIdDataMap.get(studentId);
             return this.getRescreeningResultContent(studentScreeningDataList);
         }).collect(Collectors.toList());
@@ -188,14 +180,14 @@ public class RescreeningResultVO {
         // 复测人数
         reviewsCount = rescreeningResultContentList.size();
         for (RescreeningResultContent rescreeningResultContent : rescreeningResultContentList) {
-            errorNum += rescreeningResultContent.getNakedVision().getErrorTimes() + rescreeningResultContent.getAve().getErrorTimes() + rescreeningResultContent.getJzsl().getErrorTimes();
-            totalScreeningNum += rescreeningResultContent.jzsl == null ? 4 : 6;//todo 魔数
+            eyeResult += rescreeningResultContent.getLsl().getErrorTimes() + rescreeningResultContent.getAve().getErrorTimes() + rescreeningResultContent.getJzsl().getErrorTimes();
+            eyesCount += rescreeningResultContent.jzsl == null ? 4 : 6;//todo 魔数
         }
         //不合格项
-        passNum = totalScreeningNum - errorNum;
+        passNum = eyesCount - eyeResult;
         //错误率(误差率）
-        if (totalScreeningNum != 0) {
-            errorRatio = errorNum * 100 / totalScreeningNum;
+        if (eyesCount != 0) {
+            errorRatio = eyeResult * 100 / eyesCount;
         }
         //总的筛查结果 todo 魔数
         qualified = errorRatio > 10 ? RESCREENING_NOT_PASS : RESCREENING_NOT_PASS;
@@ -264,7 +256,7 @@ public class RescreeningResultVO {
                 .setFirstLeft(firstScreeningData.getVisionData().getLeftEyeData().getNakedVision())
                 .setFirstRight(firstScreeningData.getVisionData().getRightEyeData().getNakedVision())
                 .setRangeValue(OTHERS_RANGE_VALUE).build();
-        rescreeningResultContent.setNakedVision(nakedVisionResult);
+        rescreeningResultContent.setLsl(nakedVisionResult);
 
         RescreeningGenericStructure jzslResult = RescreeningGenericStructure.getRescreeningGenericStructureBuilder()
                 .setReviewRight(rescreeningData.getVisionData().getRightEyeData().getCorrectedVision())
@@ -335,7 +327,7 @@ public class RescreeningResultVO {
         /**
          * 学校名称
          */
-        private String StudentSchool;
+        private String studentSchool;
         /**
          * firstDoctor
          */
@@ -353,15 +345,15 @@ public class RescreeningResultVO {
         /**
          * 学校年级
          */
-        private String StudentGrade;
+        private String studentGrade;
         /**
          * 学校班级
          */
-        private String StudentClazz;
+        private String studentClazz;
         /**
          * 学生姓名
          */
-        private String StudentName;
+        private String studentName;
         /**
          * 复检时间
          */
@@ -386,8 +378,7 @@ public class RescreeningResultVO {
         /**
          * 裸眼视力
          */
-        @JsonProperty("lsl")
-        private RescreeningGenericStructure nakedVision;
+        private RescreeningGenericStructure lsl;
     }
 
 }

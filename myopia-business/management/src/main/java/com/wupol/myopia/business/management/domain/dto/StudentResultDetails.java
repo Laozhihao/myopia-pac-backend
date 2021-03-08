@@ -21,7 +21,7 @@ public class StudentResultDetails {
     private Integer lateriality;
 
     /**
-     * 佩戴眼镜的类型： @{link com.myopia.common.constant.WearingGlassesSituation}
+     * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
      */
     private String glassesType;
 
@@ -38,7 +38,7 @@ public class StudentResultDetails {
     /**
      * 轴位
      */
-    private String axial;
+    private BigDecimal axial;
 
     /**
      * 球镜

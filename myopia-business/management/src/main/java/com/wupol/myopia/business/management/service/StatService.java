@@ -225,7 +225,7 @@ public class StatService {
 
         List<StatConclusion> wearingGlassesConclusions =
                 validConclusions.stream()
-                        .filter(x -> x.getIsWearingGlasses() == true)
+                        .filter(x -> x.getGlassesType() > 0)
                         .collect(Collectors.toList());
 
         List<StatConclusion> myopiaConclusions = validConclusions.stream()
@@ -439,7 +439,7 @@ public class StatService {
     private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
         long totalScreeningNum = rescreenConclusions.size();
         long wearingGlassesNum =
-                rescreenConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+                rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
         long wearingGlassesIndexNum = wearingGlassesNum * 6;
         long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
         long withoutGlassesIndexNum = withoutGlassesNum * 4;
@@ -478,7 +478,7 @@ public class StatService {
         long refractiveErrorNum =
                 validConclusions.stream().filter(x -> x.getIsRefractiveError() == true).count();
         long wearingGlassesNum =
-                validConclusions.stream().filter(x -> x.getIsWearingGlasses() == true).count();
+                validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
         long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() == true).count();
         long totalFirstScreeningNum = firstScreeningConclusions.size();
         long validFirstScreeningNum = validConclusions.size();

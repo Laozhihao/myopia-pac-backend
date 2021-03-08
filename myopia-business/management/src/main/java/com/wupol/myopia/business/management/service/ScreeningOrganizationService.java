@@ -460,7 +460,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 detail.setSchoolName(schoolMaps.get(s).getName());
             }
             if (null != schoolStatisticMaps.get(s)) {
-                detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumners());
+                detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumbers());
             } else {
                 detail.setRealScreeningNumbers(0);
             }

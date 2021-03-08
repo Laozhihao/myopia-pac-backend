@@ -1,4 +1,4 @@
-package com.myopia.common.constant;
+package com.wupol.myopia.business.common.constant;
 
 import com.google.common.collect.ImmutableList;
 import lombok.experimental.UtilityClass;

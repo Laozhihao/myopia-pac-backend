@@ -19,6 +19,11 @@ spring:
         predicates:
         - Path=/management/**
 
+      - id: route_app
+        uri: lb://myopia-business
+        predicates:
+          - Path=/app/**
+
       - id: route_device
         uri: lb://myopia-device
         predicates:
