@@ -23,11 +23,9 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
                                                           @Param("level") Integer level, @Param("districtId") Integer districtId,
                                                           @Param("status") Integer status);
 
-    Hospital getLastHospitalByNo(@Param("code") Integer code);
-
     List<Hospital> getBy(HospitalQuery query);
 
-    Hospital getLastHospitalByNo(@Param("code") Long code);
-
     IPage<Hospital> getByPage(@Param("page") Page<?> page, @Param("hospitalQuery") HospitalQuery hospitalQuery);
+
+    List<Hospital> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 }

@@ -5,15 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.dto.ScreeningTaskResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper;
@@ -21,7 +20,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskNameVO;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -50,8 +49,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
-    @Autowired
-    private GovDeptService govDeptService;
+
 
     /**
      * 设置操作人再更新
@@ -72,7 +70,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param ids         ids
      * @return {@link IPage} 统一分页返回体
      */
-    public IPage<ScreeningTaskResponse> getTaskByIds(PageRequest pageRequest, List<Integer> ids) {
+    public IPage<ScreeningOrgPlanResponse> getTaskByIds(PageRequest pageRequest, List<Integer> ids) {
         return baseMapper.getTaskByIds(pageRequest.toPage(), ids);
     }
 
@@ -134,7 +132,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
-        screeningTaskDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        screeningTaskDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningTaskDTO)) {
             throw new BusinessException("创建失败");
         }
@@ -188,18 +186,6 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     }
 
     /**
-     * 获取年度
-     *
-     * @return
-     */
-    public List<Integer> getYears(List<ScreeningTask> govDeptLists) {
-        List<Integer> years = govDeptLists.stream().map(screeningTask ->
-                this.getYear(screeningTask.getStartTime())
-        ).distinct().sorted().collect(Collectors.toList());
-        return years;
-    }
-
-    /**
      * 根据时间获取年份
      *
      * @param date
@@ -224,7 +210,38 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
         }
         queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningTask> govDeptLists = baseMapper.selectList(queryWrapper);
-        return govDeptLists;
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 根据通知id获取筛查任务
+     *
+     * @param screeningNoticeIds
+     * @return
+     */
+    public List<ScreeningTask> getTaskByNoticeIds(Set<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningTask::getScreeningNoticeId,screeningNoticeIds);
+        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
+        return screeningTasks;
+    }
+
+    /**
+     * 获取筛查任务名字
+     * @param screeningNoticeIds
+     * @param year
+     */
+    public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeService.listByIds(screeningNoticeIds);
+        Set<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
+        ).map(screeningNotice -> {
+            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
+            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return screeningNoticeNameVO;
+        }).collect(Collectors.toSet());
+        return screeningNoticeNameVOS;
     }
 }

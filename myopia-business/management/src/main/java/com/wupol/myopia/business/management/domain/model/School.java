@@ -72,6 +72,7 @@ public class School implements Serializable {
     /**
      * 寄宿状态 0-全部住校 1-部分住校 2-不住校
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED )
     private Integer lodgeStatus;
 
     /**

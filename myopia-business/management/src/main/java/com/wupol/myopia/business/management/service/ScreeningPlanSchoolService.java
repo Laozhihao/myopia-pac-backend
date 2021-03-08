@@ -2,15 +2,14 @@ package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sun.org.apache.bcel.internal.generic.INEG;
+import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -149,5 +148,31 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         ScreeningPlanQuery planQuery = new ScreeningPlanQuery();
         planQuery.setDistrictIds(districtIds).setExcludedScreeningPlanId(excludedScreeningPlanId).setStartCreateTime(startTime).setEndCreateTime(endTime).setScreeningOrgId(screeningOrgId);
         return baseMapper.selectHasPlanInPeriod(planQuery).stream().map(ScreeningPlanSchool::getSchoolId).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 通过学校ID统计计划
+     *
+     * @param schoolId 学校ID
+     * @return List<ScreeningPlanSchool>
+     */
+    public List<ScreeningPlanSchool> countBySchoolId(Integer schoolId) {
+        return baseMapper.countBySchoolId(schoolId);
+    }
+
+    /**
+     * 根据学校名获取ScreeningPlanSchoolStudent
+     * @param schoolName
+     * @param deptId
+     * @return
+     */
+    public List<ScreeningPlanSchool> getSchoolByOrgIdAndSchoolName(String schoolName, Integer deptId) {
+        if (deptId == null) {
+            throw new ManagementUncheckedException("deptId 不能为空");
+        }
+        LambdaQueryWrapper<ScreeningPlanSchool> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchool::getScreeningOrgId,deptId).like(ScreeningPlanSchool::getSchoolName,schoolName);
+        List<ScreeningPlanSchool> screeningPlanSchools = baseMapper.selectList(queryWrapper);
+        return screeningPlanSchools;
     }
 }

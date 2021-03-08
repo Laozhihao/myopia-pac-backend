@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
@@ -25,9 +26,7 @@ import com.wupol.myopia.business.management.service.ScreeningTaskService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,10 +71,15 @@ public class ScreeningTaskController {
             GovDept govDept = govDeptService.getById(user.getOrgId());
             screeningTaskDTO.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
         }
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         // 已创建校验
         if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
             throw new ValidationException("该部门任务已创建");
         }
+        screeningTaskDTO.setCreateUserId(user.getId());
         screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
@@ -99,6 +103,10 @@ public class ScreeningTaskController {
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
         validateExistAndAuthorize(screeningTaskDTO.getId(), CommonConst.STATUS_RELEASE);
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
             throw new ValidationException("无筛查机构或筛查机构重复");
@@ -113,7 +121,7 @@ public class ScreeningTaskController {
      * @param screeningTaskId
      * @param releaseStatus
      */
-    private void validateExistAndAuthorize(Integer screeningTaskId, Integer releaseStatus) {
+    private ScreeningTask validateExistAndAuthorize(Integer screeningTaskId, Integer releaseStatus) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
         if (user.isScreeningUser()) {
@@ -125,10 +133,7 @@ public class ScreeningTaskController {
             // 政府部门人员，需校验是否同部门
             Assert.isTrue(user.getOrgId().equals(screeningTask.getGovDeptId()), "无该部门权限");
         }
-        // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(screeningTask.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
-        }
+        return screeningTask;
     }
 
     /**
@@ -209,7 +214,7 @@ public class ScreeningTaskController {
     }
 
     /**
-     * 获取筛查机构相同时间段内已有已发布的任务
+     * 获取筛查机构相同时间段内已有已发布的任务（相同起始时间只取第一个）
      *
      * @param orgId 机构ID
      * @param screeningTaskQuery 查询参数，必须有govDeptId、startCreateTime、endCreateTime
@@ -217,7 +222,17 @@ public class ScreeningTaskController {
      */
     @PostMapping("orgs/period/{orgId}")
     public List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
-        return screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        List<ScreeningTaskOrgVo> periodList = new ArrayList<>();
+        List<String> existStartTimeEndTimeList = new ArrayList<>();
+        List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        hasTaskOrgVoInPeriod.forEach(vo -> {
+            String startTimeEndTime = String.format("%s--%s", DateFormatUtil.format(vo.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE), DateFormatUtil.format(vo.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE));
+            if (!existStartTimeEndTimeList.contains(startTimeEndTime)) {
+                periodList.add(vo);
+                existStartTimeEndTimeList.add(startTimeEndTime);
+            }
+        });
+        return periodList;
     }
 
     /**
@@ -242,7 +257,11 @@ public class ScreeningTaskController {
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
-        validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
+        ScreeningTask screeningTask = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTask.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
         //没有筛查机构，直接报错
         if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(id))){
             throw new ValidationException("无筛查机构");

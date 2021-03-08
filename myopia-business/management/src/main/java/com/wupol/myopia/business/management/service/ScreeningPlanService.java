@@ -1,18 +1,19 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.myopia.common.constant.ScreeningConstant;
+import com.myopia.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -20,10 +21,12 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +50,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private GovDeptService govDeptService;
+
     /**
      * 通过ids获取
      *
@@ -60,6 +66,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 设置操作人再更新
+     *
      * @param entity
      * @param userId
      * @return
@@ -71,6 +78,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 分页查询
+     *
      * @param query
      * @param pageRequest
      * @return
@@ -117,11 +125,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 新增或更新
+     *
      * @param screeningPlanDTO
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
-        screeningPlanDTO.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        screeningPlanDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningPlanDTO)) {
             throw new BusinessException("创建失败");
         }
@@ -139,10 +149,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 删除，并删除关联的学校信息
+     *
      * @param screeningPlanId
      * @return
      */
-    public void removeWithSchools(CurrentUser user,Integer screeningPlanId) {
+    public void removeWithSchools(CurrentUser user, Integer screeningPlanId) {
         // 1. 修改通知状态为已读
         ScreeningPlan screeningPlan = getById(screeningPlanId);
         if (!CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
@@ -162,6 +173,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 校验筛查机构是否已创建计划
+     *
      * @param screeningTaskId
      * @param screeningOrgId
      */
@@ -173,11 +185,148 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 获取筛查计划id
+     *
      * @param districtId
      * @param taskId
      * @return
      */
     public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
-         return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+        return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+    }
+
+    /**
+     * 更新筛查学生数量
+     *
+     * @param userId
+     * @param screeningPlanId
+     * @param studentNumbers
+     */
+    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
+        return updateById(screeningPlan, userId);
+    }
+
+    /**
+     * 通过通知id，获取计划
+     *
+     * @param screeningNoticeIds
+     * @return
+     */
+    public List<ScreeningPlan> getPlanByNoticeIds(Set<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, screeningNoticeIds);
+        queryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(queryWrapper);
+        return screeningPlans;
+    }
+
+    /**
+     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
+     *
+     * @param noticeIds
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans;
+    }
+
+    /**
+     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划(已发布，无论开不开始）
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdAndUser(Integer noticeId, CurrentUser user) {
+        if (noticeId == null || user == null) {
+            return new ArrayList<>();
+        }
+        Set<Integer> noticeSet = new HashSet<>();
+        noticeSet.add(noticeId);
+        return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
+    }
+
+    /**
+     * @param screeningPlans
+     * @param year
+     * @return
+     */
+    public Set<ScreeningPlanNameVO> getScreeningPlanNameVOs(List<ScreeningPlan> screeningPlans, Integer year) {
+        Set<ScreeningPlanNameVO> screeningPlanNameVOs = screeningPlans.stream().filter(screeningPlan ->
+                year.equals(screeningNoticeService.getYear(screeningPlan.getStartTime())) || year.equals(screeningNoticeService.getYear(screeningPlan.getEndTime()))
+        ).map(screeningPlan -> {
+            ScreeningPlanNameVO screeningTaskNameVO = new ScreeningPlanNameVO();
+            screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
+            return screeningTaskNameVO;
+        }).collect(Collectors.toSet());
+        return screeningPlanNameVOs;
+    }
+
+
+    /**
+     * 分页获取筛查计划
+     *
+     * @param pageRequest 分页请求
+     * @param orgId       机构ID
+     * @return IPage<ScreeningTaskResponse>
+     */
+    public IPage<ScreeningOrgPlanResponse> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
+        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId);
+    }
+
+    /**
+     * 通过orgId获取计划
+     *
+     * @param orgId 机构ID
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByOrgId(Integer orgId) {
+        return baseMapper.getByOrgId(orgId);
+    }
+    /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @param user
+     * @return
+     */
+    public Integer getScreeningPlanStudentNum(Integer noticeId, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
+    }
+
+    /**
+     * 根据筛查计划ID获取原始的筛查通知ID列表
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+        return Collections.emptyList();
+    }
+
+    // todo: wait for implement
+    public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
+        return null;
     }
 }

@@ -109,10 +109,8 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             String allowExtension = uploadConfig.getSuffixs();
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
-            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
             Map<String, String> resultMap = new HashMap<>(16);
-            //TODO 处理延期时间
-            resultMap.put("url", s3Utils.getResourcePathWithExpiredHours(resourceFile.getBucket(), resourceFile.getS3Key(), 6*24));
+            resultMap.put("url", s3Utils.uploadStaticS3(tempPath, genNewFileName(file)));
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);

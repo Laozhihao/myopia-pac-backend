@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.wupol.myopia.base.controller.BaseController;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.District;
@@ -50,7 +49,17 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/child/{code}")
     public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
-        return baseService.getChildDistrictByParentCodePriorityCache(code);
+        return baseService.getChildDistrictByParentIdPriorityCache(code);
+    }
+    /**
+     * 获取指定行政区域的下级区域
+     *
+     * @param id 行政区域的id
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    @GetMapping("/child/id/{id}")
+    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Integer id) throws IOException {
+        return baseService.getChildDistrictByParentIdPriorityCache(id);
     }
 
     /**

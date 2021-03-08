@@ -3,6 +3,7 @@ package com.wupol.myopia.base.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.constant.RoleType;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class CurrentUser {
      * 是否平台管理员
      */
     public Boolean isPlatformAdminUser() {
-        return roleTypes.contains(RoleType.SUPER_ADMIN.getType());
+        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SUPER_ADMIN.getType());
     }
 
     /**
@@ -50,7 +51,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public Boolean isGovDeptUser() {
-        return roleTypes.contains(RoleType.GOVERNMENT_DEPARTMENT.getType());
+        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.GOVERNMENT_DEPARTMENT.getType());
     }
 
     /**
@@ -58,6 +59,6 @@ public class CurrentUser {
      */
     @JsonIgnore
     public Boolean isScreeningUser() {
-        return roleTypes.contains(RoleType.SCREENING_ORGANIZATION.getType());
+        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SCREENING_ORGANIZATION.getType());
     }
 }

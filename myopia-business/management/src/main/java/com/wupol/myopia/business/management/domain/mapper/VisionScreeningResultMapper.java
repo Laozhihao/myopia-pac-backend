@@ -21,4 +21,6 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<StudentScreeningCountVO> countScreeningTime();
 
+    VisionScreeningResult getLatestResultByStudentId(@Param("studentId") Integer studentId);
+
 }

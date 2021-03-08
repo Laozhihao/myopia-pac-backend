@@ -6,6 +6,7 @@ import com.wupol.myopia.business.management.client.aop.annotation.OauthRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -97,7 +98,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public UserDTO addAdminUser(UserDTO param){
+    public UserDTO addMultiSystemUser(UserDTO param){
         return null;
     }
 
@@ -259,5 +260,30 @@ public class OauthService {
         return null;
     }
 
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @OauthRequest
+    public List<UserDTO> getUserBatchByOrgIds(List<Integer> orgIds, Integer systemCode) {
+        return null;
+    }
+
+    /**
+     * 登录
+     *
+     * @param clientId 客户端ID
+     * @param clientSecret 客户端秘钥
+     * @param username 用户名
+     * @param password 密码
+     * @return com.wupol.myopia.base.domain.ApiResult<com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO>
+     **/
+    @OauthRequest
+    public LoginInfoDTO login(String clientId, String clientSecret, String username, String password) {
+        return null;
+    }
 
 }

@@ -78,15 +78,6 @@
         order by h.create_time desc
     </select>
 
-    <select id="getLastHospitalByNo" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_hospital h
-<!--        where h.hospital_no like CONCAT('%', #{code}, '%')-->
-<!--        order by h.hospital_no + 0 desc-->
-        limit 1
-    </select>
-
     <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_hospital
@@ -98,5 +89,14 @@
         <include refid="Base_Column_List"/>
         from m_hospital
         <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getByNameNeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_hospital where name = #{name}
+        <if test="id != null">
+            and id != #{id}
+        </if>
     </select>
 </mapper>

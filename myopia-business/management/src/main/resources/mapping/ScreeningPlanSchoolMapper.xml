@@ -16,6 +16,7 @@
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(deptId)">and `dept_id` = #{deptId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -23,7 +24,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, school_id, school_name, create_time
+        id, screening_plan_id, dept_id, school_id, school_name, create_time
     </sql>
 
     <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO">
@@ -61,4 +62,11 @@
         </where>
     </select>
 
+    <select id="countBySchoolId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school msps
+                     left join m_screening_plan msp on msp.id = msps.screening_plan_id
+        where msps.school_id = #{schoolId}
+          and msp.release_status = 1
+    </select>
 </mapper>

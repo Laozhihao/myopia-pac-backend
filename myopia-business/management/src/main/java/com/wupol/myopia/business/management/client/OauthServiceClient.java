@@ -6,6 +6,7 @@ import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import com.wupol.myopia.business.management.domain.dto.RoleDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -78,13 +79,13 @@ public interface OauthServiceClient {
     ApiResult<UserDTO> addUser(@RequestBody UserDTO param);
 
     /**
-     * 管理端创建医院端、学校端、筛查端的管理员
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
      *
      * @param param 用户数据
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
-    @PostMapping("/oauth/user/admin")
-    ApiResult<UserDTO> addAdminUser(@RequestBody UserDTO param);
+    @PostMapping("/oauth/user/multi/system")
+    ApiResult<UserDTO> addMultiSystemUser(@RequestBody UserDTO param);
 
     /**
      * 批量新增筛查人员
@@ -211,4 +212,26 @@ public interface OauthServiceClient {
      **/
     @PutMapping("/oauth/districtPermission/{templateType}")
     ApiResult<Boolean> updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionIds);
+
+    /**
+     * 根据手机号码批量获取用户
+     *
+     * @param systemCode 系统编号
+     * @param orgIds     机构Ids
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/oauth/user/batch/orgIds")
+    ApiResult<List<UserDTO>> getUserBatchByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode);
+
+    /**
+     * 登录
+     *
+     * @param clientId 客户端ID
+     * @param clientSecret 客户端秘钥
+     * @param username 用户名
+     * @param password 密码
+     * @return com.wupol.myopia.base.domain.ApiResult<com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO>
+     **/
+    @PostMapping("/login")
+    ApiResult<LoginInfoDTO> login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
 }

@@ -101,6 +101,11 @@ spring:
         min-idle: 0
     # 连接超时时间（毫秒）
     timeout: 5000ms
+  servlet:
+    multipart:
+      # 上传限制：10M
+      max-file-size: 10485760
+      max-request-size: 10485760
 
 ### 远程调用oauth服务的负载均衡策略
 myopia-oauth:
@@ -127,5 +132,29 @@ upload:
   suffixs: pdf,jpg,jpeg,png
   # 上传S3的bucket
   bucketName: test.vistel.cn
+  # 文件上传S3的prefix
+  prefix: vistel-appdata-myopia/upload
+  # 静态文件上传S3的prefix
+  staticPrefix: vistel-appdata-myopia/public
+  # 静态文件访问的host
+  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
+
+### 微信相关
+wechat:
+  app:
+    id: wxb1812cb2767ace39
+    secret: c26c5d9601c0c4c2cf83519f9e8fba39
+  authorize:
+    url: https://open.weixin.qq.com/connect/oauth2/authorize
+  api:
+    url-host: https://api.weixin.qq.com
+  callback:
+    url-host: http://myopia.nat100.top
+  h5-client:
+    url-host: http://myopia.nat100.top
+
+vistel:
+  tools:
+    remoteAddress: http://tools.internal

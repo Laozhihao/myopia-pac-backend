@@ -77,7 +77,7 @@ public class MybatisPlusGenerator {
         getBasePackagePath();
         //全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setAuthor("HaoHao")
+        gc.setAuthor("jacob")
                 // 文件输出的根路径，和后面指定的包路径组成文件的最终保存路径 "F:/wupol/myopia-pac-backend/myopia-business/management/src/main/java"
                 .setOutputDir(classBasePackage)
                 // 是否覆盖同名文件，默认是false

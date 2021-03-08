@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.model.District;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,6 +20,10 @@ public interface DistrictMapper extends BaseMapper<District> {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     List<District> selectDistrictTree(Long code);
+
     List<District> selectChildNodeByParentCode(Long code);
+
     List<District> findByCodeList(Long provinceCode, Long cityCode, Long areaCode, Long townCode);
+
+    List<District> getByCodes(@Param("codes") List<Long> codes);
 }

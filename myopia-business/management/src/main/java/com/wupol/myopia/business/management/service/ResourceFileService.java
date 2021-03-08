@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Alix
@@ -34,4 +36,14 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
         }
         return s3Utils.getResourcePath(file.getBucket(), file.getS3Key());
     }
+
+    /**
+     * 根据文件Id获取路径
+     * @param fileIdList
+     * @return
+     */
+    public List<String> getBatchResourcePath(List<Integer> fileIdList) {
+        return fileIdList.stream().map(this::getResourcePath).collect(Collectors.toList());
+    }
+
 }

@@ -123,6 +123,17 @@ private static StrategyConfig getStrategyConfig() {
  ```
  
 ## 开发规范约定
+### 遵守公司java统一开发规范
+https://git.vistel.cn/web/web-toolkits/java-coding-guide
 ### 命名
 - 政府部门：gov_dept、筛查机构：screening_org、两者统称：org
 - Redis缓存key值命名，采用冒号来分类，为了方便维护和便于Redis可视化工具中排查问题。格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符
+### Mybatis-plus 使用
+- 避免在代码里拼接SQL，难以维护
+- 避免使用QueryWrapper()拼接查询参数（除了在BaseService.java中封装底层方法），难以维护
+- 建议尽量使用Mybatis-plus提供的基础api，或在xxxMapper.xml中编写统一维护SQL、字段
+### myopia-business 的 common 模块内容
+- 不包含controller层，通过service层对外提供服务
+- 不依赖其他模块，作为公共底层模块
+- 遵循自上而下调用原则，仅被业务层调用，common模块不能调用业务层
+- 抽取服务(功能)放到common层时，前提条件为：该服务(功能)会被至少两个2业务模块使用到

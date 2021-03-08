@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
+import com.wupol.myopia.business.management.domain.dto.StudentClazzDTO;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO;
@@ -28,4 +29,16 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
     IPage<SchoolGrade> getByPage(@Param("page") Page<?> page, @Param("query") SchoolGradeQuery query);
 
     List<SchoolGradeExportVO> getBySchoolIds(@Param("ids") List<Integer> ids);
+
+    List<SchoolGradeItems> getAllBySchoolId(@Param("schoolId") Integer schoolId);
+
+    /**
+     * 通过学校ID和年级id查找
+     * @param schoolId
+     * @param gradeName
+     * @param clazzName
+     * @return
+     */
+    StudentClazzDTO selectListBySchoolIdAndGradeId(Integer schoolId, String gradeName, String clazzName);
+
 }

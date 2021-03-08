@@ -71,12 +71,14 @@ public class ExcelFacade {
     private UserService userService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private NoticeService noticeService;
-
     @Autowired
     private S3Utils s3Utils;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 生成筛查机构Excel
@@ -109,6 +111,11 @@ public class ExcelFacade {
             return;
         }
 
+        // 获取筛查人员信息
+        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
+                .getOrgStaffMapByIds(list.stream().map(ScreeningOrganization::getId)
+                        .collect(Collectors.toList()));
+
         // 创建人姓名
         Set<Integer> createUserIds = list.stream()
                 .map(ScreeningOrganization::getCreateUserId)
@@ -122,13 +129,22 @@ public class ExcelFacade {
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                     .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
                     .setPhone(item.getPhone())
-                    .setPersonSituation("886")
                     .setRemark(item.getRemark())
-                    .setScreeningCount(886)
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+            List<ScreeningPlan> planResult = screeningPlanService.getByOrgId(item.getId());
+            if (CollectionUtils.isEmpty(planResult)) {
+                exportVo.setScreeningCount(0);
+            } else {
+                exportVo.setScreeningCount(planResult.size());
+            }
+            if (null != staffMaps.get(item.getId())) {
+                exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
+            } else {
+                exportVo.setPersonSituation(0);
+            }
             if (null != item.getProvinceCode()) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
@@ -417,6 +433,12 @@ public class ExcelFacade {
             classMap = schoolClassService.getClassMapByIds(classIdList);
         }
 
+        // 筛查次数
+        List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountVO::getStudentId,
+                        StudentScreeningCountVO::getCount));
+
         List<StudentExportVo> exportList = new ArrayList<>();
         for (Student item : list) {
             StudentExportVo exportVo = new StudentExportVo()
@@ -434,7 +456,7 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setLabel(item.getVisionLabel())
                     .setSituation(item.getCurrentSituation())
-                    .setScreeningCount(886)
+                    .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     //TODO 就诊次数
                     .setVisitsCount(886)
                     .setQuestionCount(886)
@@ -791,6 +813,30 @@ public class ExcelFacade {
             // 去头部
             listMap.remove(0);
         }
-        screeningPlanSchoolStudentService.insertByUpload(userId, listMap, screeningPlanId, schoolId);
+        if (CollectionUtils.isEmpty(listMap)) {
+            // 无数据，直接返回
+            return;
+        }
+        // 这里是Excel的一个小坑
+        List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
+        screeningPlanSchoolStudentService.insertByUpload(userId, resultList, screeningPlanId, schoolId);
+        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
+    }
+
+    /**
+     * 导出统计报表 - 数据对比表
+     * @param userId 用户ID
+     * @param exportList 导出数据
+     * @param template 导出模板
+     * @throws IOException
+     * @throws UtilException
+     */
+    public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
+            File template) throws IOException, UtilException {
+        String fileName = "统计对比报表";
+        log.info("导出文件: {}", fileName);
+        File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
+        String content = String.format(CommonConst.CONTENT, "统计报表", "数据对比表", new Date());
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file));
     }
 }

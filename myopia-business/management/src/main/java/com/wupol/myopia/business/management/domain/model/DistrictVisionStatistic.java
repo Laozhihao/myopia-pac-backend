@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import software.amazon.ion.Decimal;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -33,14 +34,14 @@ public class DistrictVisionStatistic implements Serializable {
     private Integer id;
 
     /**
+     * 视力情况--所属的通知id
+     */
+    private Integer screeningNoticeId;
+
+    /**
      * 视力情况--所属的任务id
      */
     private Integer screeningTaskId;
-
-    /**
-     * 视力情况--关联的筛查计划id
-     */
-    private Integer screeningPlanId;
 
     /**
      * 视力情况--所属的地区id

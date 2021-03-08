@@ -74,14 +74,14 @@ public class UserController {
     }
 
     /**
-     * 管理端创建医院端、学校端、筛查端的管理员
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
-    @PostMapping("/admin")
-    public User addAdminUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
-        return userService.addAdminUser(userDTO);
+    @PostMapping("/multi/system")
+    public User addMultiSystemUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
+        return userService.addMultiSystemUser(userDTO);
     }
 
     /**
@@ -171,5 +171,20 @@ public class UserController {
     @GetMapping("/count")
     public Integer count(UserDTO queryParam) throws IOException {
         return userService.count(queryParam);
+    }
+
+    /**
+     * 根据机构orgId获取userId
+     *
+     * @param orgIds     机构ID
+     * @param systemCode 系统编号
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.User>
+     **/
+    @GetMapping("/batch/orgIds")
+    public List<User> getIdsByOrgIds(@RequestParam("orgIds") List<Integer> orgIds, @RequestParam("systemCode") Integer systemCode) {
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return new ArrayList<>();
+        }
+        return userService.getIdsByOrgIds(orgIds, systemCode);
     }
 }

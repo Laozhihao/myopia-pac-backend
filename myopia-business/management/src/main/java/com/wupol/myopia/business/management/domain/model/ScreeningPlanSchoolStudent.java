@@ -42,6 +42,21 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer screeningPlanId;
 
     /**
+     * 地区id
+     */
+    private Integer districtId;
+
+    /**
+     * 筛查任务id
+     */
+    private Integer screeningTaskId;
+
+    /**
+     * 筛查机构id
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 筛查计划--执行的学校id
      */
     @NotNull(message = "筛查学校ID不能为空")
@@ -59,10 +74,19 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer gradeId;
 
     /**
+     * 筛查计划--年级名字
+     */
+    private String gradeName;
+    /**
      * 筛查计划--参与筛查的学生班级ID
      */
     @NotNull(message = "筛查班级ID不能为空")
     private Integer classId;
+
+    /**
+     * 筛查计划--参与筛查的学生班级ID
+     */
+    private String className;
 
     /**
      * 筛查计划--参与筛查的学生id
@@ -94,6 +118,16 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查计划--参与筛查的学生名字
      */
     private String studentName;
+
+    /**
+     * 筛查计划--参与筛查的学生生日
+     */
+    private Date birthDate;
+
+    /**
+     * 筛查计划--参与筛选的学生性别
+     */
+    private Integer gender ;
 
     /**
      * 筛查计划--创建时间
