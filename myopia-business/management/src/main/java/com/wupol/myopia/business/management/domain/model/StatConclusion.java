@@ -87,25 +87,29 @@ public class StatConclusion implements Serializable {
     /** 是否有效数据 */
     private Boolean isValid;
 
+    /** 筛查计划学生ID */
     private Integer screeningPlanSchoolStudentId;
 
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    /** --------------------- 新增导出报告属性 --------------------- */
+    /** --------------------- 新增导出报告所需属性 --------------------- */
 
     /** 学校Id */
-    private Integer SchoolId;
+    private Integer schoolId;
 
     /** 学校年级代码 */
-    private Integer SchoolGradeCode;
+    private String schoolGradeCode;
 
-    /** 学校班级 */
-    private Integer SchoolClass;
+    /** 学校班级名称 */
+    private String schoolClassName;
 
     /** 近视预警级别 */
     private Integer myopiaWarningLevel;
+
+    /** 裸眼视力预警级别 */
+    private Integer nakedVisionWarningLevel;
 
     /** 眼镜类型 */
     private Integer glassesType;
