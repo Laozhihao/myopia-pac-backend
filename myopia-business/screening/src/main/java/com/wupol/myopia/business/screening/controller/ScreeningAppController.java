@@ -277,12 +277,7 @@ public class ScreeningAppController {
             @RequestParam(value = "clazzName", required = false) String clazzName,
             @RequestParam(value = "studentName", required = false) String studentName,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "60") Integer size) throws IOException {
-
-        if (StringUtils.isBlank(studentName)) {
-            studentName = null;
-        }
-
+            @RequestParam(value = "size", defaultValue = "60") Integer size) {
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
         ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(deptId);
@@ -296,9 +291,6 @@ public class ScreeningAppController {
                 .setClassName(clazzName)
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-/*        queryWrapper.eq(ScreeningPlanSchoolStudent::getSchoolName,schoolName)
-                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlan.getId())*/
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent);
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());

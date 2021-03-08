@@ -499,7 +499,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        String studentName = screeningPlanSchoolStudent.getStudentName();
+        screeningPlanSchoolStudent.setStudentName(null);
         queryWrapper.setEntity(screeningPlanSchoolStudent);
+        if (StringUtils.isNotBlank(studentName)) {
+            queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName,studentName);
+        }
         return baseMapper.selectList(queryWrapper);
     }
 }
