@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.screening.controller;
 
-import com.myopia.common.constant.EyeDiseasesEnum;
+// import com.myopia.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.School;
@@ -53,11 +53,13 @@ public class ScreeningAppController {
      * @param isReview   是否复测
      * @return
      */
-    @GetMapping("/school/findAllLikeSchoolName")
-    public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam Integer deptId, Boolean isReview) {
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
-        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolName).collect(Collectors.toSet());
-    }
+    // @GetMapping("/school/findAllLikeSchoolName")
+    // public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, @RequestParam
+    // Integer deptId, Boolean isReview) {
+    //     List<ScreeningPlanSchool> screeningPlanSchools =
+    //     screeningPlanSchoolService.getSchoolByOrgIdAndSchoolName(schoolName, deptId); return
+    //     screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolName).collect(Collectors.toSet());
+    // }
 
     /**
      * 查询学校的年级名称
@@ -117,16 +119,16 @@ public class ScreeningAppController {
         return StudentVO.getInstance(screeningPlanSchoolStudent);
     }
 
-    /**
-     * 保存学生信息
-     *
-     * @return
-     */
-    @PostMapping("/student/save")
-    public Object saveStudent(Student student) {
-        //TODO 管理端，待查询再修改
-        return screeningAppService.saveStudent(student);
-    }
+    // /**
+    //  * 保存学生信息
+    //  *
+    //  * @return
+    //  */
+    // @PostMapping("/student/save")
+    // public Object saveStudent(Student student) {
+    //     //TODO 管理端，待查询再修改
+    //     return screeningAppService.saveStudent(student);
+    // }
 
     /**
      * 人脸识别
@@ -183,11 +185,10 @@ public class ScreeningAppController {
      * @param file   签名
      * @return
      */
-    @PostMapping("/user/uploadSignPic")
-    public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
-        return screeningAppService.uploadSignPic(deptId, userId, file);
-    }
-
+    // @PostMapping("/user/uploadSignPic")
+    // public Boolean uploadSignPic(Integer deptId, Integer userId, MultipartFile file) {
+    //     return screeningAppService.uploadSignPic(deptId, userId, file);
+    // }
 
     /**
      * 获取筛查就机构对应的学校
@@ -206,11 +207,10 @@ public class ScreeningAppController {
      *
      * @return
      */
-    @PostMapping("/eye/findAllEyeDisease")
-    public List<String> getAllEyeDisease() {
-        return EyeDiseasesEnum.eyeDiseaseList;
-    }
-
+    // @PostMapping("/eye/findAllEyeDisease")
+    // public List<String> getAllEyeDisease() {
+    //     return EyeDiseasesEnum.eyeDiseaseList;
+    // }
 
     /**
      * 保存视力筛查
@@ -247,8 +247,9 @@ public class ScreeningAppController {
      *
      * @return
      */
-    @PostMapping("/eye/addEyeDisease")
-    public void addEyeDisease(@Valid @RequestBody OtherEyeDiseases otherEyeDiseases) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(otherEyeDiseases);
-    }
+    // @PostMapping("/eye/addEyeDisease")
+    // public void addEyeDisease(@Valid @RequestBody OtherEyeDiseases otherEyeDiseases) throws
+    // IOException {
+    //     screeningAppService.saveOrUpdateStudentScreenData(otherEyeDiseases);
+    // }
 }

@@ -114,6 +114,10 @@ public class StatConclusionTest {
             WarningLevel rightMyopiaWarningLevel =
                     StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
 
+            Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
+                    ? leftMyopiaWarningLevel.code
+                    : rightMyopiaWarningLevel.code;
+
             float leftNakedVision = visionData.getLeftEyeData().getNakedVision().floatValue();
             float rightNakedVision = visionData.getRightEyeData().getNakedVision().floatValue();
 
@@ -128,10 +132,14 @@ public class StatConclusionTest {
             boolean isMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel)
                     || StatUtil.isMyopia(rightMyopiaWarningLevel);
 
-            WarningLevel leftNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
-                    visionData.getLeftEyeData().getNakedVision().floatValue(), age);
-            WarningLevel rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
-                    visionData.getLeftEyeData().getNakedVision().floatValue(), age);
+            WarningLevel leftNakedVisionWarningLevel =
+                    StatUtil.getNakedVisionWarningLevel(leftNakedVision, age);
+            WarningLevel rightNakedVisionWarningLevel =
+                    StatUtil.getNakedVisionWarningLevel(rightNakedVision, age);
+            Integer nakedVisionWarningLevel =
+                    leftNakedVisionWarningLevel.code > rightNakedVisionWarningLevel.code
+                    ? leftNakedVisionWarningLevel.code
+                    : rightNakedVisionWarningLevel.code;
 
             boolean isLowVision = StatUtil.isLowVision(leftNakedVisionWarningLevel)
                     || StatUtil.isLowVision(rightNakedVisionWarningLevel);
@@ -188,6 +196,8 @@ public class StatConclusionTest {
             statConclusion.setSchoolClassName(schoolClassName);
             statConclusion.setSchoolGradeCode(schoolGradeCode);
             statConclusion.setVisionCorrection(visionCorrection);
+            statConclusion.setNakedVisionWarningLevel(nakedVisionWarningLevel);
+            statConclusion.setMyopiaWarningLevel(myopiaWarningLevel);
             if (isRescreen) {
                 // TODO: 需要与初筛数据对比获取错误项次
                 int rescreenErrorNum = 4;
