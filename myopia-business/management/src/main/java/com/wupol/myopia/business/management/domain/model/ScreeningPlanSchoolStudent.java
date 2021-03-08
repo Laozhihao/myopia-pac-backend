@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -35,6 +36,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer id;
 
     /**
+     * 筛查计划--所属的筛查任务id
+     */
+    private Integer screeningTaskId;
+
+    /**
      * 筛查计划--计划id
      */
     @NotNull(message = "筛查计划ID不能为空")
@@ -59,6 +65,16 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      * 筛查机构id
      */
     private Integer screeningOrgId;
+
+    /**
+     * 筛查计划--指定的筛查机构id
+     */
+    private Integer screeningOrgId;
+
+    /**
+     * 筛查计划--所处区域id
+     */
+    private Integer districtId;
 
     /**
      * 筛查计划--执行的学校id

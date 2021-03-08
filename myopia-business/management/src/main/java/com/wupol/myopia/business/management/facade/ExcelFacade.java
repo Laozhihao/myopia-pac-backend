@@ -794,7 +794,7 @@ public class ExcelFacade {
      * @param schoolId
      * @throws IOException
      */
-    public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, Integer screeningPlanId, Integer schoolId) throws IOException {
+    public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) throws IOException {
         String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -819,8 +819,8 @@ public class ExcelFacade {
         }
         // 这里是Excel的一个小坑
         List<Map<Integer, String>> resultList = listMap.stream().filter(s -> s.get(ImportExcelEnum.NAME.getIndex()) != null).collect(Collectors.toList());
-        screeningPlanSchoolStudentService.insertByUpload(userId, resultList, screeningPlanId, schoolId);
-        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
+        screeningPlanSchoolStudentService.insertByUpload(userId, resultList, screeningPlan, schoolId);
+        screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
     }
 
     /**
