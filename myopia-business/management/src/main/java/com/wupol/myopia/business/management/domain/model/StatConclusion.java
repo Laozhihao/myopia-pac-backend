@@ -109,4 +109,7 @@ public class StatConclusion implements Serializable {
 
     /** 眼镜类型 */
     private Integer glassesType;
+
+    /** 视力矫正状态 */
+    private Integer visionCorrection;
 }
