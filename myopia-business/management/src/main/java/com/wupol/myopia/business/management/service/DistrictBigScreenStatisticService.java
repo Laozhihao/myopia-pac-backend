@@ -32,7 +32,7 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
         bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
-        bigScreeningVO.setTitle("某某省近视防控中心");
+        bigScreeningVO.setTitle("广东省近视防控中心");
         bigScreeningVO.setValidDataNum(234243234L);
         ScreeningNotice screeningNotice = screeningNoticeService.getBaseMapper().selectById(2);
         bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
