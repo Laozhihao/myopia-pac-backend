@@ -9,6 +9,7 @@ import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
+import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 
 /**
  * 医院-检查报告
+ *
  * @author Chikong
  * @date 2021-02-10
  */
@@ -28,9 +30,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     @Autowired
     private MedicalRecordService medicalRecordService;
 
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+
 
     /**
      * 获取学生报告列表
+     *
      * @param studentId 学生id
      * @return List<MedicalReportVo>
      */
@@ -42,32 +51,34 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     /**
      * 创建报告
-     * @param medicalReport    检查单
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
+     *
+     * @param medicalReport 检查单
+     * @param hospitalId    医院id
+     * @param doctorId      医生id
+     * @param studentId     学生id
      */
     public void createReport(MedicalReport medicalReport,
-                                         Integer hospitalId,
-                                         Integer doctorId,
-                                         Integer studentId) {
+                             Integer hospitalId,
+                             Integer doctorId,
+                             Integer studentId) {
         createReport(medicalReport, hospitalId, -1, doctorId, studentId);
     }
 
     /**
      * 创建报告
-     * @param medicalReport    检查单
-     * @param hospitalId 医院id
-     * @param departmentId 科室id
-     * @param doctorId 医生id
-     * @param studentId 学生id
+     *
+     * @param medicalReport 检查单
+     * @param hospitalId    医院id
+     * @param departmentId  科室id
+     * @param doctorId      医生id
+     * @param studentId     学生id
      */
     @Transactional(rollbackFor = Exception.class)
     public void createReport(MedicalReport medicalReport,
-                                         Integer hospitalId,
-                                         Integer departmentId,
-                                         Integer doctorId,
-                                         Integer studentId) {
+                             Integer hospitalId,
+                             Integer departmentId,
+                             Integer doctorId,
+                             Integer studentId) {
 //        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
 //        if (Objects.isNull(medicalRecord)) {
 //            throw new BusinessException("未找到检查单");
@@ -93,13 +104,31 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     public StudentReportResponseDTO getStudentReport(Integer recordId, Integer reportId) {
 
         StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
-        // 报告
-        MedicalReportVo report = baseMapper.getById(reportId);
-        responseDTO.setReport(report);
-        // 检查单
-        MedicalRecord record = medicalRecordService.getById(report.getId());
-        responseDTO.setRecord(record);
-
+        if (null != recordId) {
+            MedicalRecord record = medicalRecordService.getById(recordId);
+            responseDTO.setRecord(record);
+            // 设置学生
+            responseDTO.setStudent(studentService.getById(record.getStudentId()));
+            // 设置医生
+            responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(record.getDoctorId()));
+            if (null != reportId) {
+                MedicalReportVo report = baseMapper.getById(reportId);
+                responseDTO.setReport(report);
+            }
+        } else {
+            if (null != reportId) {
+                MedicalReportVo report = baseMapper.getById(reportId);
+                responseDTO.setReport(report);
+                // 设置学生
+                responseDTO.setStudent(studentService.getById(report.getStudentId()));
+                // 设置医生
+                responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(report.getDoctorId()));
+                if (null != report.getMedicalRecordId()) {
+                    MedicalRecord record = medicalRecordService.getById(recordId);
+                    responseDTO.setRecord(record);
+                }
+            }
+        }
         return responseDTO;
     }
 

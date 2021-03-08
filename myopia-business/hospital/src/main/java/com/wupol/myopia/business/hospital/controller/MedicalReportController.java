@@ -37,9 +37,10 @@ public class MedicalReportController {
         return medicalReportService.getReportListByStudentId(studentId);
     }
 
-//    @GetMapping("/{reportId}")
-//    public Object getReport(@PathVariable("reportId") Integer reportId) {
-//        return medicalReportService.getStudentReport(reportId);
-//    }
+    @GetMapping("/{recordId}/{reportId}")
+    public Object getReport(@PathVariable("recordId") Integer recordId,
+                            @PathVariable("reportId") Integer reportId) {
+        return medicalReportService.getStudentReport(recordId, reportId);
+    }
 
 }

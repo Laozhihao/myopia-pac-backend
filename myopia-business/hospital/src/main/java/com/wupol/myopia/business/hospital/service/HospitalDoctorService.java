@@ -3,13 +3,10 @@ package com.wupol.myopia.business.hospital.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.hospital.domain.mapper.DepartmentMapper;
 import com.wupol.myopia.business.hospital.domain.mapper.DoctorMapper;
-import com.wupol.myopia.business.hospital.domain.model.Department;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -19,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 医院-医生
@@ -105,6 +100,16 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         BeanUtils.copyProperties(doctor, doctorVo);
         return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
                 .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
+    }
+
+    /**
+     * 获取医生-带头像
+     *
+     * @param doctorId 医生ID
+     * @return DoctorVo
+     */
+    public DoctorVo getDoctorVoById(Integer doctorId) {
+        return getDoctorVo(baseMapper.selectById(doctorId));
     }
 
 }
