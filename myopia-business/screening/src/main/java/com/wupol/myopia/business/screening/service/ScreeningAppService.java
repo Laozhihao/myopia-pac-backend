@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.screening.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.JsonUtil;
 import com.wupol.framework.core.util.CollectionUtils;
@@ -153,8 +155,11 @@ public class ScreeningAppService {
         }
         // 获取学生数据
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setStudentName(studentName).setScreeningPlanId(currentPlan.getId()).setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
+        screeningPlanSchoolStudent.setScreeningPlanId(currentPlan.getId()).setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotBlank(studentName)) {
+            screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName,studentName);
+        }
         screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent);
         Integer startIntem = (page - 1) * size;
         screeningPlanSchoolStudentLambdaQueryWrapper.last("limit " + startIntem + "," + size);
@@ -231,6 +236,13 @@ public class ScreeningAppService {
             return 0;// 不可复测
         }
 
+        Integer resultId = firstScreeningStatConclusion.getResultId();
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+        boolean isWearing = visionScreeningResult.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY);
+
+        if (isWearing) {
+            return 0;
+        }
         if (reScreeningStatConclusion == null) {
             return 1;// 确认复测
         }
