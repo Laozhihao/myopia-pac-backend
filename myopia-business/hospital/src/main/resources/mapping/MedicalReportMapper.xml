@@ -63,4 +63,10 @@
         order by record.create_time desc
         limit 1
     </select>
+
+    <select id="getById" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+        select *
+        from h_medical_report
+        where id = #{reportId}
+    </select>
 </mapper>
