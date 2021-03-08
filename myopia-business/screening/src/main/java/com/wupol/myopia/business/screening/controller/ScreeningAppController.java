@@ -315,9 +315,6 @@ public class ScreeningAppController {
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName) {
-        if (StringUtils.isBlank(studentName)) {
-            studentName = null;
-        }   
         List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size);
         if (isRandom) {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);
