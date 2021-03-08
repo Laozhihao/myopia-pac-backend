@@ -56,7 +56,7 @@ public class HospitalStudentController {
     }
 
     @PostMapping()
-    public ApiResult<String> saveStudent(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
+    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
 
@@ -64,7 +64,20 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
-        hospitalStudentService.saveStudent(studentVo, hospitalId);
+        Integer studentId = hospitalStudentService.saveStudent(studentVo);
+        hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
+        return ApiResult.success("建档成功");
+    }
+
+    @PutMapping()
+    public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Integer hospitalId = user.getOrgId();
+        // 如果医院没有该学生的档案,则不允许操作
+        if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
+            return ApiResult.failure("该学生未建档");
+        }
+        hospitalStudentService.saveStudent(studentVo);
         return ApiResult.success("建档成功");
     }
 

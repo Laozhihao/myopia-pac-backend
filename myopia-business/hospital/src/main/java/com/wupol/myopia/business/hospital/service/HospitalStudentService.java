@@ -125,11 +125,10 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     /**
      * 保存学生信息, 带id是更新,不带是新增
      * @param studentVo 学生信息
-     * @param hospitalId 医院id
      * @return  学生的id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveStudent(HospitalStudentDTO studentVo, Integer hospitalId) {
+    public Integer saveStudent(HospitalStudentDTO studentVo) {
         Student student = BeanCopyUtil.copyBeanPropertise(studentVo, HospitalStudentDTO.class);
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息不能为空");
@@ -166,11 +165,16 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         } else{
             studentId = studentService.saveStudent(student);
         }
+        return studentId;
+    }
+
+    /** 保存医院与学生的 */
+    public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
         // 保存医院与学生的关系
         saveOrUpdate(new HospitalStudent(hospitalId, studentId));
     }
 
-    /** 保存学生与医院关系 */
+    /** 校验学生与医院关系 */
     public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
         HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
         return Objects.nonNull(student);

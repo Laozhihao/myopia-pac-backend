@@ -4,6 +4,12 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.hospital.domain.model.MedicalRecord">
+        <result typeHandler="com.wupol.myopia.business.hospital.domain.handler.ConsultationTypeHandler" column="consultation" property="consultation"/>
+        <result typeHandler="com.wupol.myopia.business.hospital.domain.handler.BiometricsMedicalRecordTypeHandler" column="biometrics" property="biometrics"/>
+        <result typeHandler="com.wupol.myopia.business.hospital.domain.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
+        <result typeHandler="com.wupol.myopia.business.hospital.domain.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
+        <result typeHandler="com.wupol.myopia.business.hospital.domain.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
+
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -49,7 +55,7 @@
     </select>
 
     <select id="getTodayLastMedicalRecord" resultMap="BaseResultMap">
-        select *
+        select mr.*
         from h_medical_record mr
         where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
         order by id desc

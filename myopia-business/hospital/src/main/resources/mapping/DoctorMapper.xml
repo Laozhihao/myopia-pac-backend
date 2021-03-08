@@ -44,7 +44,7 @@
     </select>
 
     <select id="getDoctorVoList" resultMap="DoctorVo">
-        SELECT d.*, count(1) as reportCount
+        SELECT d.*, count(mr.id) as reportCount
         FROM h_doctor d
         LEFT JOIN h_medical_report mr ON d.id = mr.doctor_id
         <include refid="Base_Where_Clause"/>

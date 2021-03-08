@@ -11,14 +11,17 @@ import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultM
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+
+
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -84,6 +87,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     /**
      * 获取昨天筛查数据的筛查计划Id
+     *
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
@@ -137,7 +141,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(),screeningResultBasicData.getIsState());
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(), screeningResultBasicData.getIsState());
         TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
         return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
     }

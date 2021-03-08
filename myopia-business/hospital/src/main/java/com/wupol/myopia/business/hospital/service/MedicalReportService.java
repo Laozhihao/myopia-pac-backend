@@ -4,15 +4,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.hospital.domain.model.Consultation;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
+import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +30,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     @Autowired
     private MedicalRecordService medicalRecordService;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -42,17 +46,17 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
-     * 创建报告
+     * 保存报告
      * @param medicalReport    检查单
      * @param hospitalId 医院id
      * @param doctorId 医生id
      * @param studentId 学生id
      */
-    public void createReport(MedicalReport medicalReport,
-                                         Integer hospitalId,
-                                         Integer doctorId,
-                                         Integer studentId) {
-        createReport(medicalReport, hospitalId, -1, doctorId, studentId);
+    public void saveReport(MedicalReport medicalReport,
+                           Integer hospitalId,
+                           Integer doctorId,
+                           Integer studentId) {
+        saveReport(medicalReport, hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -64,24 +68,13 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @param studentId 学生id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createReport(MedicalReport medicalReport,
-                                         Integer hospitalId,
-                                         Integer departmentId,
-                                         Integer doctorId,
-                                         Integer studentId) {
-//        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
-//        if (Objects.isNull(medicalRecord)) {
-//            throw new BusinessException("未找到检查单");
-//        }
-//        medicalRecordService.finishMedicalRecord(medicalRecord);
-        medicalReport.setHospitalId(hospitalId)
-                .setDepartmentId(departmentId)
-                .setDoctorId(doctorId)
-                .setStudentId(studentId);
-        if (!save(medicalReport)) {
-            throw new BusinessException("创建报告失败");
-        }
-
+    public void saveReport(MedicalReport medicalReport,
+                           Integer hospitalId,
+                           Integer departmentId,
+                           Integer doctorId,
+                           Integer studentId) {
+//        MedicalReport report = getOrCreateTodayLastMedicalReport(hospitalId, doctorId, studentId);
+        saveOrUpdate(medicalReport);
     }
 
     /**
@@ -123,7 +116,72 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         return baseMapper.getLatestVisitsReport(studentId);
     }
 
+    /**
+     * 获取学生的今天的最新一份报告, 没有则创建
+     *
+     * @param hospitalId 医院ID
+     * @param studentId 学生ID
+     * @return MedicalReport
+     */
+    public MedicalReportVo getOrCreateTodayLastMedicalReportVo(Integer hospitalId, Integer studentId) {
+        MedicalReportVo reportVo = getTodayLastMedicalReport(hospitalId, studentId);
+        if (Objects.isNull(reportVo)) {
+            MedicalReport report = createMedicalReport(hospitalId, -1, -1, studentId);
+            BeanUtils.copyProperties(report, reportVo);
+            return reportVo;
+        }
+        if (!CollectionUtils.isEmpty(reportVo.getImageIdList())) {
+            reportVo.setImageUrlList(resourceFileService.getBatchResourcePath(reportVo.getImageIdList()));
+        }
+        return reportVo;
+    }
+
     public List<MedicalReport> getBy(MedicalReportQuery query) {
         return baseMapper.getBy(query);
     }
+
+    /**
+     * 获取学生今天最后一条报告
+     * @param hospitalId 医院id
+     * @param studentId 学生id
+     */
+    public MedicalReportVo getTodayLastMedicalReport(Integer hospitalId, Integer studentId) {
+        return baseMapper.getTodayLastMedicalReportVo(hospitalId, studentId);
+    }
+
+
+    /**
+     * 获取学生的今天的最新一份报告, 没有则创建
+     *
+     * @param hospitalId 医院ID
+     * @param studentId 学生ID
+     * @return MedicalReport
+     */
+    public MedicalReport getOrCreateTodayLastMedicalReport(Integer hospitalId, Integer doctorId, Integer studentId) {
+        MedicalReport report = baseMapper.getTodayLastMedicalReport(hospitalId, studentId);
+        if (Objects.isNull(report)) {
+            report = createMedicalReport(hospitalId, -1, doctorId, studentId);
+        }
+        return report;
+    }
+
+    /**
+     * 创建报告
+     * @param hospitalId 医院id
+     * @param departmentId 科室id
+     * @param doctorId 医生id
+     * @param studentId 学生id
+     */
+    private MedicalReport createMedicalReport(Integer hospitalId, Integer departmentId, Integer doctorId, Integer studentId) {
+        MedicalReport medicalReport = new MedicalReport()
+                .setHospitalId(hospitalId)
+                .setDepartmentId(departmentId)
+                .setDoctorId(doctorId)
+                .setStudentId(studentId);
+        if (!save(medicalReport)) {
+            throw new BusinessException("创建报告失败");
+        }
+        return medicalReport;
+    }
+
 }

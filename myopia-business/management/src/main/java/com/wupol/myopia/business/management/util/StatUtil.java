@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.util;
 
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -25,6 +26,7 @@ public class StatUtil {
 
     /**
      * 是否近视
+     *
      * @param myopiaWarningLevel 近视预警级别
      * @return
      */
@@ -46,6 +48,7 @@ public class StatUtil {
 
     /**
      * 是否远视
+     *
      * @param hyperopiaWarningLevel 远视预警级别
      * @return
      */
@@ -186,6 +189,9 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
+        if (sphere == null || cylinder == null || age ==null) {
+            return null;
+        }
         Float se = getSphericalEquivalent(sphere, cylinder);
         switch (age) {
             case 0:
@@ -252,6 +258,9 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
+        if (!ObjectsUtil.allNotNull(sphere,cylinder)) {
+            return null;
+        }
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
         if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
@@ -267,6 +276,9 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getAstigmatismWarningLevel(Float cylinder) {
+        if (cylinder == null) {
+            return null;
+        }
         Float cylinderAbs = Math.abs(cylinder);
         if (cylinderAbs >= 0.25f && cylinderAbs <= 0.5f) return WarningLevel.ZERO;
         if (cylinderAbs > 0.5f && cylinderAbs <= 2.0f) return WarningLevel.ONE;
