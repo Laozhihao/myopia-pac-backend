@@ -4,18 +4,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.hospital.domain.model.Consultation;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 医院-检查报告
@@ -125,5 +124,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     public List<MedicalReport> getBy(MedicalReportQuery query) {
         return baseMapper.getBy(query);
+    }
+
+    /**
+     * 通过学生ID并且检查单ID为空
+     *
+     * @param studentId 学生ID
+     * @return List<ReportAndRecordVo>
+     */
+    public List<ReportAndRecordVo> getStudentIdRecordIsNull(Integer studentId) {
+        return baseMapper.getStudentIdRecordIsNull(studentId);
     }
 }

@@ -7,6 +7,7 @@ import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -30,4 +31,6 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
     MedicalReport getLatestVisitsReport(@Param("studentId") Integer studentId);
 
     MedicalReportVo getById(@Param("reportId") Integer reportId);
+
+    List<ReportAndRecordVo> getStudentIdRecordIsNull(@Param("studentId") Integer studentId);
 }
