@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.hospital.domain.dto;
 
-import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;

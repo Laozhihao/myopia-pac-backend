@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
@@ -58,7 +59,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 孩子统计、孩子列表
      *
      * @param parentId 家长ID
-     * @return CountParentStudentResponseDTO
+     * @return CountParentStudentResponseDTO 家长端-统计家长绑定学生
      */
     public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
@@ -93,10 +94,16 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 学生报告统计
      *
      * @param studentId 学生ID
-     * @return ReportCountResponseDTO
+     * @return ReportCountResponseDTO 家长端-孩子报告统计
      */
     public ReportCountResponseDTO studentReportCount(Integer studentId) {
         ReportCountResponseDTO responseDTO = new ReportCountResponseDTO();
+
+        Student student = studentService.getById(studentId);
+        if (null == student) {
+            throw new BusinessException("学生数据异常！");
+        }
+        responseDTO.setName(student.getName());
 
         // 学生筛查报告
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
@@ -125,7 +132,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取学生最新一次筛查结果
      *
      * @param studentId 学生ID
-     * @return ScreeningReportResponseDTO
+     * @return ScreeningReportResponseDTO 筛查报告返回体
      */
     public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
         VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
@@ -139,7 +146,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取筛查结果详情
      *
      * @param reportId 报告ID
-     * @return ScreeningReportResponseDTO
+     * @return ScreeningReportResponseDTO 学生就诊记录档案卡
      */
     public ScreeningReportResponseDTO getScreeningReportDetail(Integer reportId) {
         VisionScreeningResult result = visionScreeningResultService.getById(reportId);
@@ -170,7 +177,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取就诊报告详情
      *
      * @param request 请求入参
-     * @return StudentReportResponseDTO
+     * @return StudentReportResponseDTO 学生就诊记录档案卡
      */
     public StudentReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
         return medicalReportService.getStudentReport(request.getRecordId(), request.getReportId());
@@ -180,14 +187,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 视力趋势
      *
      * @param studentId 学生ID
-     * @return ScreeningVisionTrendsResponseDTO
+     * @return ScreeningVisionTrendsResponseDTO 视力趋势
      */
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
+        // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));
+        // 柱镜详情
         responseDTO.setCylDetails(packageVisionTrendsByCyl(resultList));
+        // 球镜详情
         responseDTO.setSphDetails(packageVisionTrendsBySph(resultList));
+        // 裸眼视力详情
         responseDTO.setNakedVisionDetails(packageVisionTrendsByNakedVision(resultList));
         return responseDTO;
     }
@@ -220,11 +231,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 封装筛查结果
      *
      * @param result 筛查结果
-     * @return ScreeningReportResponseDTO
+     * @return ScreeningReportResponseDTO 筛查报告返回体
      */
     private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
-        // 没有佩戴眼镜
-        Integer glassesType = 2;
+
+        // 戴镜类型（目前取左眼）
+        Integer glassesType = result.getVisionData().getLeftEyeData().getGlassesType();
 
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
@@ -234,13 +246,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
         // 视力检查结果
-        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), age));
+        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), age, glassesType));
         // 验光仪检查结果
         TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
         // 生物测量
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
-        // 医生建议一
+        // 医生建议一（这里-5是为了type的偏移量）
         responseDTO.setDoctorAdvice1(refractoryResult.getSecond() - 5);
 
         // 获取左右眼的裸眼视力
@@ -256,6 +268,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal sph;
         // 柱镜
         BigDecimal cyl;
+        // 根据严重的眼镜提供医生建议
         if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
             // 左眼
             correctedVision = result.getVisionData().getLeftEyeData().getCorrectedVision();
@@ -277,13 +290,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     /**
      * 视力检查结果
-     * <p>预警级别 {@link WarningLevel}</p>
      *
-     * @param date 数据
-     * @param age  年龄
-     * @return List<NakedVisionItems>
+     * @param date        数据
+     * @param age         年龄
+     * @param glassesType 戴镜类型
+     * @return List<VisionItems> 视力检查结果
      */
-    private List<VisionItems> packageVisionResult(VisionDataDO date, Integer age) {
+    private List<VisionItems> packageVisionResult(VisionDataDO date, Integer age, Integer glassesType) {
         List<VisionItems> itemsList = new ArrayList<>();
 
         // 裸眼视力
@@ -291,13 +304,17 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         nakedVision.setTitle("裸眼视力");
 
         VisionItems.Item leftNakedVision = new VisionItems.Item();
-        leftNakedVision.setVision(date.getLeftEyeData().getNakedVision());
-        leftNakedVision.setType(lowVisionType(date.getLeftEyeData().getNakedVision(), age));
+        // 左裸眼视力
+        BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
+        leftNakedVision.setVision(leftNakedVisionValue);
+        leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
         nakedVision.setOs(leftNakedVision);
 
         VisionItems.Item rightNakedVision = new VisionItems.Item();
-        rightNakedVision.setVision(date.getRightEyeData().getNakedVision());
-        rightNakedVision.setType(lowVisionType(date.getRightEyeData().getNakedVision(), age));
+        // 右裸眼视力
+        BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
+        rightNakedVision.setVision(rightNakedVisionValue);
+        rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
         nakedVision.setOd(rightNakedVision);
 
         itemsList.add(nakedVision);
@@ -307,13 +324,17 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         correctedVision.setTitle("矫正视力");
 
         VisionItems.Item leftCorrectedVision = new VisionItems.Item();
-        leftCorrectedVision.setVision(date.getLeftEyeData().getCorrectedVision());
-        leftCorrectedVision.setType(2);
+        // 左矫正视力
+        BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
+        leftCorrectedVision.setVision(leftCorrectedVisionValue);
+        leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
         correctedVision.setOs(leftCorrectedVision);
 
         VisionItems.Item rightCorrectedVision = new VisionItems.Item();
-        rightCorrectedVision.setVision(date.getRightEyeData().getCorrectedVision());
-        rightCorrectedVision.setType(3);
+        // 右矫正视力
+        BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
+        rightCorrectedVision.setVision(rightCorrectedVisionValue);
+        rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
         correctedVision.setOd(rightCorrectedVision);
 
         itemsList.add(correctedVision);
@@ -326,7 +347,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      *
      * @param date 数据
      * @param age  年龄
-     * @return TwoTuple<List < RefractoryResultItems>, Integer>
+     * @return TwoTuple<List < RefractoryResultItems>, Integer> left-验光仪检查数据 right-预警级别
      */
     private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
@@ -402,7 +423,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      *
      * @param date       数据
      * @param diseasesDO 其他眼病
-     * @return List<BiometricItems>
+     * @return List<BiometricItems> 生物测量
      */
     private List<BiometricItems> packageBiometricResult(BiometricDataDO date, OtherEyeDiseasesDO diseasesDO) {
         List<BiometricItems> items = new ArrayList<>();
@@ -440,7 +461,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param title     标题
      * @param leftDate  左眼数据
      * @param rightDate 右眼数据
-     * @return BiometricItems
+     * @return BiometricItems 生物测量
      */
     private BiometricItems getBiometricItems(String title, String leftDate, String rightDate) {
         BiometricItems biometricItems = new BiometricItems();
@@ -460,7 +481,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 矫正视力详情
      *
      * @param results 筛查结果
-     * @return List<CorrectedVisionDetails>
+     * @return List<CorrectedVisionDetails> 矫正视力详情
      */
     private List<CorrectedVisionDetails> packageVisionTrendsByCorrected(List<VisionScreeningResult> results) {
         return results.stream().map(result -> {
@@ -487,7 +508,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 柱镜详情
      *
      * @param results 筛查结果
-     * @return List<CylDetails>
+     * @return List<CylDetails> 柱镜详情
      */
     private List<CylDetails> packageVisionTrendsByCyl(List<VisionScreeningResult> results) {
         return results.stream().map(result -> {
@@ -511,10 +532,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
-     * 柱镜详情
+     * 球镜详情
      *
      * @param results 筛查结果
-     * @return List<CylDetails>
+     * @return List<SphDetails> 球镜详情
      */
     private List<SphDetails> packageVisionTrendsBySph(List<VisionScreeningResult> results) {
         return results.stream().map(result -> {
@@ -541,7 +562,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 裸眼视力详情
      *
      * @param results 筛查结果
-     * @return List<CylDetails>
+     * @return List<NakedVisionDetails> 裸眼视力详情
      */
     private List<NakedVisionDetails> packageVisionTrendsByNakedVision(List<VisionScreeningResult> results) {
         return results.stream().map(result -> {
@@ -625,7 +646,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      *
      * @param left  左眼
      * @param right 右眼
-     * @return BigDecimal
+     * @return TwoTuple<BigDecimal, Integer> left-视力 right-左右眼
      */
     private TwoTuple<BigDecimal, Integer> getResultVision(BigDecimal left, BigDecimal right) {
         if (left.compareTo(right) <= 0) {
@@ -694,7 +715,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取散光轴位
      *
      * @param axial 轴位
-     * @return String
+     * @return String 中文散光轴位
      */
     private String getAxialTypeName(BigDecimal axial) {
         return "散光轴位" + axial.abs() + "°";
@@ -706,7 +727,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param sph 球镜
      * @param cyl 柱镜
      * @param age 年龄
-     * @return TwoTuple
+     * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     private TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
@@ -724,7 +745,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取散光TypeName
      *
      * @param cyl 柱镜
-     * @return String
+     * @return String 散光中文名
      */
     private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
@@ -736,7 +757,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      *
      * @param nakedVision 裸眼视力
      * @param age         年龄
-     * @return Integer
+     * @return Integer {@link ParentReportConst}
      */
     private Integer lowVisionType(BigDecimal nakedVision, Integer age) {
         boolean lowVision = StatUtil.isLowVision(nakedVision.floatValue(), age);
@@ -748,6 +769,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     /**
      * 预警级别转换成type
+     * <p>预警级别 {@link WarningLevel}</p>
      *
      * @param warningLevel 预警级别
      * @return Integer {@link ParentReportConst}
@@ -783,9 +805,36 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取最大值
      *
      * @param val 数值
-     * @return Integer
+     * @return Integer 最大值
      */
     private Integer getIntegerMax(Integer... val) {
         return Arrays.stream(val).max(Comparator.naturalOrder()).orElse(null);
+    }
+
+    /**
+     * 矫正状态
+     *
+     * @param nakedVision     裸眼视力
+     * @param correctedVision 矫正视力
+     * @param glassesType     戴镜类型
+     * @return Integer {@link ParentReportConst}
+     */
+    public Integer getCorrected2Type(BigDecimal nakedVision, BigDecimal correctedVision, Integer glassesType) {
+        // 凡单眼裸眼视力＜4.9时，计入矫正人数
+        if (nakedVision.compareTo(new BigDecimal("4.9")) < 0) {
+            // 有问题但是没有佩戴眼镜,为未矫
+            if (glassesType.equals(GlassesType.NOT_WEARING.code)) {
+                return ParentReportConst.CORRECTED_NOT;
+            } else {
+                if (correctedVision.compareTo(new BigDecimal("4.9")) > 0) {
+                    // 戴镜视力都＞4.9，正常
+                    return ParentReportConst.CORRECTED_NORMAL;
+                } else {
+                    // 戴镜视力都<=4.9，欠矫
+                    return ParentReportConst.CORRECTED_OWE;
+                }
+            }
+        }
+        return ParentReportConst.CORRECTED_NORMAL;
     }
 }
