@@ -785,7 +785,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param val 数值
      * @return Integer
      */
-    public Integer getIntegerMax(Integer... val) {
+    private Integer getIntegerMax(Integer... val) {
         return Arrays.stream(val).max(Comparator.naturalOrder()).orElse(null);
     }
 }
