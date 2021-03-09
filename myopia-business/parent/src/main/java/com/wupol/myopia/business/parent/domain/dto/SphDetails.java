@@ -30,7 +30,7 @@ public class SphDetails {
         /**
          * 球镜
          */
-        private BigDecimal sph;
+        private BigDecimal vision;
 
         /**
          * 创建时间
