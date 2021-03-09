@@ -417,90 +417,52 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         List<BiometricItems> items = new ArrayList<>();
 
         // 房水深度AD
-        BiometricItems ADItems = new BiometricItems();
-        ADItems.setTitle("房水深度AD");
-
-        BiometricItems.Item leftADItem = new BiometricItems.Item();
-        leftADItem.setDate(date.getLeftEyeData().getAd());
-        ADItems.setOs(leftADItem);
-
-        BiometricItems.Item rightADItem = new BiometricItems.Item();
-        rightADItem.setDate(date.getRightEyeData().getAd());
-        ADItems.setOd(rightADItem);
-
+        BiometricItems ADItems = getBiometricItems("房水深度AD", date.getLeftEyeData().getAd(), date.getRightEyeData().getAd());
         items.add(ADItems);
 
         // 眼轴AL
-        BiometricItems ALItems = new BiometricItems();
-        ALItems.setTitle("眼轴AL");
-
-        BiometricItems.Item leftALItem = new BiometricItems.Item();
-        leftALItem.setDate(date.getLeftEyeData().getAl());
-        ALItems.setOs(leftALItem);
-
-        BiometricItems.Item rightALItem = new BiometricItems.Item();
-        rightALItem.setDate(date.getRightEyeData().getAl());
-        ALItems.setOd(rightALItem);
-
+        BiometricItems ALItems = getBiometricItems("眼轴AL", date.getLeftEyeData().getAl(), date.getRightEyeData().getAl());
         items.add(ALItems);
 
         // 角膜中央厚度CCT
-        BiometricItems CCTItems = new BiometricItems();
-        CCTItems.setTitle("角膜中央厚度CCT");
-
-        BiometricItems.Item leftCCTItem = new BiometricItems.Item();
-        leftCCTItem.setDate(date.getLeftEyeData().getCct());
-        CCTItems.setOs(leftCCTItem);
-
-        BiometricItems.Item rightCCTItem = new BiometricItems.Item();
-        rightCCTItem.setDate(date.getRightEyeData().getCct());
-        CCTItems.setOd(rightCCTItem);
-
+        BiometricItems CCTItems = getBiometricItems("角膜中央厚度CCT", date.getLeftEyeData().getCct(), date.getRightEyeData().getCct());
         items.add(CCTItems);
 
         // 状体厚度LT
-        BiometricItems LTItems = new BiometricItems();
-        LTItems.setTitle("状体厚度LT");
-
-        BiometricItems.Item leftLTItem = new BiometricItems.Item();
-        leftLTItem.setDate(date.getLeftEyeData().getLt());
-        LTItems.setOs(leftLTItem);
-
-        BiometricItems.Item rightLTItem = new BiometricItems.Item();
-        rightLTItem.setDate(date.getRightEyeData().getLt());
-        LTItems.setOd(rightLTItem);
-
+        BiometricItems LTItems = getBiometricItems("状体厚度LT", date.getLeftEyeData().getLt(), date.getRightEyeData().getLt());
         items.add(LTItems);
 
         // 角膜白到白距离WTW
-        BiometricItems WTWItems = new BiometricItems();
-        WTWItems.setTitle("角膜白到白距离WTW");
-
-        BiometricItems.Item leftWTWItem = new BiometricItems.Item();
-        leftWTWItem.setDate(date.getLeftEyeData().getWtw());
-        WTWItems.setOs(leftWTWItem);
-
-        BiometricItems.Item rightWTWItem = new BiometricItems.Item();
-        rightWTWItem.setDate(date.getRightEyeData().getWtw());
-        WTWItems.setOd(rightWTWItem);
-
+        BiometricItems WTWItems = getBiometricItems("角膜白到白距离WTW", date.getLeftEyeData().getWtw(), date.getRightEyeData().getWtw());
         items.add(WTWItems);
 
         // 其他眼病
-        BiometricItems otherItems = new BiometricItems();
-        otherItems.setTitle("其他眼病");
-
-        BiometricItems.Item leftOtherItem = new BiometricItems.Item();
-        leftOtherItem.setDate(diseasesDO.getLeftEyeData().getEyeDiseases().toString());
-        otherItems.setOs(leftOtherItem);
-
-        BiometricItems.Item rightOtherItem = new BiometricItems.Item();
-        rightOtherItem.setDate(diseasesDO.getRightEyeData().getEyeDiseases().toString());
-        otherItems.setOd(rightOtherItem);
-
+        BiometricItems otherItems = getBiometricItems("其他眼病", diseasesDO.getLeftEyeData().getEyeDiseases().toString(), diseasesDO.getRightEyeData().getEyeDiseases().toString());
         items.add(otherItems);
 
         return items;
+    }
+
+    /**
+     * 生物测量数据
+     *
+     * @param title     标题
+     * @param leftDate  左眼数据
+     * @param rightDate 右眼数据
+     * @return BiometricItems
+     */
+    private BiometricItems getBiometricItems(String title, String leftDate, String rightDate) {
+        BiometricItems CCTItems = new BiometricItems();
+        CCTItems.setTitle(title);
+
+        BiometricItems.Item leftCCTItem = new BiometricItems.Item();
+        leftCCTItem.setDate(leftDate);
+        CCTItems.setOs(leftCCTItem);
+
+        BiometricItems.Item rightCCTItem = new BiometricItems.Item();
+        rightCCTItem.setDate(rightDate);
+        CCTItems.setOd(rightCCTItem);
+        return CCTItems;
     }
 
     /**
