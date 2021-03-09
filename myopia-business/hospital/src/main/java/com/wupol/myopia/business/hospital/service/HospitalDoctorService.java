@@ -42,7 +42,12 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @return
      */
     public List<DoctorVo> getDoctorVoList(DoctorQuery query)  {
-        return baseMapper.getDoctorVoList(query);
+        List<DoctorVo> list = baseMapper.getDoctorVoList(query);
+        list.forEach(item-> {
+            item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
+
+        });
+        return list;
     }
 
     /**
