@@ -8,6 +8,7 @@ import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.management.constant.ParentReportConst;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
@@ -763,8 +764,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     private Integer lowVisionType(BigDecimal nakedVision, Integer age) {
         boolean lowVision = StatUtil.isLowVision(nakedVision.floatValue(), age);
         if (lowVision) {
-            return 1;
+            return ParentReportConst.NAKED_LOW;
         }
-        return 0;
+        return ParentReportConst.NAKED_NORMAL;
     }
 }
