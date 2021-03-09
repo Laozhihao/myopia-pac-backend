@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
@@ -37,6 +38,17 @@ public class RoleController {
     @GetMapping("/list")
     public List<Role> getRoleList(RoleDTO param) {
         return roleService.getRoleList(param);
+    }
+
+    /**
+     * 获取角色列表 - 分页
+     *
+     * @param param 查询参数
+     * @return java.lang.Object
+     **/
+    @GetMapping("/page")
+    public IPage<Role> getRoleListByPage(RoleDTO param) {
+        return roleService.getRoleListByPage(param);
     }
 
     /**
