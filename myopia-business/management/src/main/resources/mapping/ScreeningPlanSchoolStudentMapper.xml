@@ -19,19 +19,17 @@
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
-                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
-                <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
                 <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
-                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                  <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
                 <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
-                <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
                 <if test="@Ognl@isNotEmpty(birthday)">and `birthday` = #{birthday}</if>

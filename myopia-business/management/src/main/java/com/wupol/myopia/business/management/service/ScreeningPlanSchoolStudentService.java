@@ -13,7 +13,6 @@ import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
@@ -306,7 +305,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 处理筛查学生
-     *
      * @param screeningPlanId
      * @param schoolId
      * @param school
@@ -320,13 +318,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             Student dbStudent = idCardExistStudents.get(student.getIdCard());
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
-                existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
+                existPlanStudent.setIdCard(student.getIdCard()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId());
             }
             existPlanStudent.setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
                     .setGradeName(student.getGradeName())
-                    .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType())
                     .setClassId(student.getClassId())
                     .setClassName(student.getClassName())
                     .setBirthday(student.getBirthday())
@@ -350,7 +347,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         List<Student> updateStudents = new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
-            StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
+            Student excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
                 BeanUtils.copyProperties(student, updateStudent);
@@ -360,7 +357,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                         .setBirthday(excelStudent.getBirthday())
                         .setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
                         .setGradeId(excelStudent.getGradeId())
-                        .setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
                         .setClassId(excelStudent.getClassId())
                         .setSno(excelStudent.getSno())
                         .setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()))
@@ -387,11 +383,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.hasLength(needAddedIdCards)) {
             List<Student> addedStudent = needAddedIdCards.stream().map(idCard -> {
                 Student s = new Student();
-                StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
-                BeanUtils.copyProperties(excelStudent, s);
-                s.setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType());
-                return s;
-            }).collect(Collectors.toList());
+                BeanUtils.copyProperties(excelIdCardStudentMap.get(idCard), s);
+                return s;}).collect(Collectors.toList());
             addedStudent.forEach(student -> student.setCreateUserId(userId));
             studentService.saveOrUpdateBatch(addedStudent);
             addedStudent.forEach(student -> idCardExistStudents.put(student.getIdCard(), student));
