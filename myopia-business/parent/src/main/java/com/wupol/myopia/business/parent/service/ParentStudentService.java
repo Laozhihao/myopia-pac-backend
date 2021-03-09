@@ -719,27 +719,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            if (null != myopiaWarningLevel) {
-                if (myopiaWarningLevel.code == WarningLevel.NORMAL.code || myopiaWarningLevel.code == WarningLevel.ONE.code) {
-                    return new TwoTuple<>("近视" + sph.abs() + "度", 5);
-                }
-                return new TwoTuple<>("近视" + sph.abs() + "度", myopiaWarningLevel.code + 5);
-            } else {
-                return new TwoTuple<>("近视" + sph.abs() + "度", 5);
-            }
+            return new TwoTuple<>("近视" + sph.abs() + "度", warningLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
-            if (null != hyperopiaWarningLevel) {
-                if (hyperopiaWarningLevel.code == WarningLevel.NORMAL.code || hyperopiaWarningLevel.code == WarningLevel.ZERO.code) {
-                    return new TwoTuple<>("远视" + sph.abs() + "度", 5);
-                } else {
-                    return new TwoTuple<>("远视" + sph.abs() + "度", hyperopiaWarningLevel.code + 5);
-                }
-            } else {
-                return new TwoTuple<>("远视" + sph.abs() + "度", 5);
-            }
-
+            return new TwoTuple<>("远视" + sph.abs() + "度", warningLevel2Type(hyperopiaWarningLevel));
         }
     }
 
@@ -767,5 +751,38 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return ParentReportConst.NAKED_LOW;
         }
         return ParentReportConst.NAKED_NORMAL;
+    }
+
+    /**
+     * 预警级别转换成type
+     *
+     * @param warningLevel 预警级别
+     * @return Integer {@link ParentReportConst}
+     */
+    private Integer warningLevel2Type(WarningLevel warningLevel) {
+        if (null == warningLevel) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+        // 预警-1或0则是正常
+        if (warningLevel.code == WarningLevel.NORMAL.code || warningLevel.code == WarningLevel.ZERO.code) {
+            return ParentReportConst.LABEL_NORMAL;
+        }
+
+        // 预警1是轻度
+        if (warningLevel.code == WarningLevel.ONE.code) {
+            return ParentReportConst.LABEL_MILD;
+        }
+
+        // 预警2是中度
+        if (warningLevel.code == WarningLevel.TWO.code) {
+            return ParentReportConst.LABEL_MODERATE;
+        }
+
+        // 预警3是重度
+        if (warningLevel.code == WarningLevel.THREE.code) {
+            return ParentReportConst.LABEL_SEVERE;
+        }
+        // 未知返回正常
+        return ParentReportConst.LABEL_NORMAL;
     }
 }
