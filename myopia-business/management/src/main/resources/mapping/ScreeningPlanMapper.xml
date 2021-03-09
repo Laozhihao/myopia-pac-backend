@@ -66,8 +66,8 @@
         order by msp.create_time desc
     </select>
 
-    <select id="selectScreeningSchoolIds" resultType="long">
-        select sps.school_id from m_screening_plan p , m_screening_plan_school sps
+    <select id="selectScreeningSchools" resultType="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool">
+        select sps.* from m_screening_plan p , m_screening_plan_school sps
         where
         p.id = sps.screening_plan_id
         and p.screening_org_id = #{screeningOrgId}
