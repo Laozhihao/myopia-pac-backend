@@ -323,9 +323,12 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return Collections.emptyList();
     }
 
-    // todo: wait for implement
+    /**
+     * @param screeningOrgId
+     * @return
+     */
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        return null;
+        return baseMapper.selectScreeningSchoolIds(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
     }
 
     /**
