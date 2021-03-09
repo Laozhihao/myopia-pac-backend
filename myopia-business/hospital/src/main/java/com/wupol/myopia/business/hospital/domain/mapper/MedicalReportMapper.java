@@ -34,5 +34,5 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
     MedicalReportVo getById(@Param("reportId") Integer reportId);
 
-    List<ReportAndRecordVo> getStudentIdRecordIsNull(@Param("studentId") Integer studentId);
+    List<ReportAndRecordVo> getStudentId(@Param("studentId") Integer studentId);
 }

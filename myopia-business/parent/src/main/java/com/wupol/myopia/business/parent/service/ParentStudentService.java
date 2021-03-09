@@ -119,7 +119,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 学生就诊档案统计
         VisitsDetail visitsDetail = new VisitsDetail();
         // 获取就诊记录
-        List<ReportAndRecordVo> visitLists = getVisitLists(studentId);
+        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);
         visitsDetail.setTotal(visitLists.size());
         visitsDetail.setItems(visitLists);
         responseDTO.setVisitsDetail(visitsDetail);
@@ -162,7 +162,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
         // 查找学生最近的就诊记录
-        List<ReportAndRecordVo> visitLists = getVisitLists(studentId);
+        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);;
         if (CollectionUtils.isEmpty(visitLists)) {
             return new StudentReportResponseDTO();
         }
@@ -714,21 +714,5 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         } catch (Exception e) {//兼容性更强,异常后返回数据
             return 0;
         }
-    }
-
-    /**
-     * 获取就诊记录
-     *
-     * @param studentId 学生ID
-     * @return List<ReportAndRecordVo>
-     */
-    private List<ReportAndRecordVo> getVisitLists(Integer studentId) {
-        // 获取检查单
-        List<ReportAndRecordVo> vos = medicalRecordService.getByStudentId(studentId);
-        // 获取报告
-        vos.addAll(medicalReportService.getStudentIdRecordIsNull(studentId));
-        // 排序
-        vos.sort((a, b) -> b.getCreateTime().compareTo(a.getCreateTime()));
-        return vos;
     }
 }

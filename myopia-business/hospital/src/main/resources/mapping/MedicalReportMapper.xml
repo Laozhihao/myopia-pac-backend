@@ -92,10 +92,10 @@
         where id = #{reportId}
     </select>
 
-    <select id="getStudentIdRecordIsNull" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
-        select id as reportId, create_time
-        from h_medical_report
-        where medical_record_id is null
-          and student_id = #{studentId}
+    <select id="getStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
+        select report.id as reportId, record.id as recordId, report.create_time
+        from h_medical_report report
+                     left join h_medical_record record on report.medical_record_id = record.id
+        where report.student_id = #{studentId}
     </select>
 </mapper>

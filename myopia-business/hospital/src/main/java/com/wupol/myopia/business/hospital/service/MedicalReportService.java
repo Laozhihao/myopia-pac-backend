@@ -177,8 +177,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @param studentId 学生ID
      * @return List<ReportAndRecordVo>
      */
-    public List<ReportAndRecordVo> getStudentIdRecordIsNull(Integer studentId) {
-        return baseMapper.getStudentIdRecordIsNull(studentId);
+    public List<ReportAndRecordVo> getStudentId(Integer studentId) {
+        return baseMapper.getStudentId(studentId);
     }
 
     /**
