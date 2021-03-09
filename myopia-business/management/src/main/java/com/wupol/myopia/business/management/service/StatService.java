@@ -130,7 +130,6 @@ public class StatService {
 
     /**
      * 对比统计数据
-     * @param contrastTypeCode 对比类型
      * @param notificationId1 筛查通知ID_1
      * @param notificationId2 筛查通知ID_2
      * @param districtId 区域ID
@@ -374,13 +373,13 @@ public class StatService {
                 statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
         long femaleNum = statConclusions.size() - maleNum;
         return ClassStat.builder()
-                .title(label.name())
+                .title(label.desc)
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
-                        add(composeBasicParams(GenderEnum.MALE.name(), maleNum, statNum));
-                        add(composeBasicParams(GenderEnum.FEMALE.name(), femaleNum, statNum));
+                        add(composeBasicParams(GenderEnum.MALE.name, maleNum, statNum));
+                        add(composeBasicParams(GenderEnum.FEMALE.name, femaleNum, statNum));
                     }
                 })
                 .build();
@@ -414,18 +413,18 @@ public class StatService {
                         .count();
 
         return ClassStat.builder()
-                .title(label.name())
+                .title(label.desc)
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
                 .items(new ArrayList<BasicStatParams>() {
                     {
                         add(composeBasicParams(
-                                SchoolAge.KINDERGARTEN.name(), kindergartenNum, statNum));
-                        add(composeBasicParams(SchoolAge.PRIMARY.name(), primaryNum, statNum));
-                        add(composeBasicParams(SchoolAge.JUNIOR.name(), juniorNum, statNum));
-                        add(composeBasicParams(SchoolAge.HIGH.name(), highNum, statNum));
+                                SchoolAge.KINDERGARTEN.desc, kindergartenNum, statNum));
+                        add(composeBasicParams(SchoolAge.PRIMARY.desc, primaryNum, statNum));
+                        add(composeBasicParams(SchoolAge.JUNIOR.desc, juniorNum, statNum));
+                        add(composeBasicParams(SchoolAge.HIGH.desc, highNum, statNum));
                         add(composeBasicParams(
-                                SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighNum, statNum));
+                                SchoolAge.VOCATIONAL_HIGH.desc, vocationalHighNum, statNum));
                     }
                 })
                 .build();
@@ -543,13 +542,13 @@ public class StatService {
 
     /**
      * 构造分类统计数据
-     * @param name 分类名称
+     * @param desc 分类描述
      * @param statNum 分类统计数量
      * @param totalStatNum 统计总量
      * @return
      */
-    private BasicStatParams composeBasicParams(String name, long statNum, long totalStatNum) {
-        return new BasicStatParams(name, convertToPercentage(statNum * 1f / totalStatNum), statNum);
+    private BasicStatParams composeBasicParams(String desc, long statNum, long totalStatNum) {
+        return new BasicStatParams(desc, convertToPercentage(statNum * 1f / totalStatNum), statNum);
     }
 
     /**

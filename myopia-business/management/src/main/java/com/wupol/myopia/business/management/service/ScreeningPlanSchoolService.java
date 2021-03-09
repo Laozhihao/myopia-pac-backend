@@ -2,11 +2,11 @@ package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
+import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +27,10 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolMapper, ScreeningPlanSchool> {
 
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private SchoolService schoolService;
     /**
      * 通过学校ID获取计划
      *
@@ -38,8 +39,10 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
     /**
      * 根据学校ID获取筛查计划的学校
+     *
      * @param schoolId
      * @return
      */
@@ -51,6 +54,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 学校筛查统计
+     *
      * @return List<SchoolScreeningCountVO>
      */
     public List<SchoolScreeningCountVO> countScreeningTime() {
@@ -59,6 +63,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 查询计划的学校
+     *
      * @param screeningPlanId
      * @param schoolId
      * @return
@@ -69,28 +74,31 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 批量更新或新增筛查计划的学校信息
+     *
      * @param screeningPlanId
+     * @param screeningOrgId
      * @param screeningSchools
      */
-    public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, List<ScreeningPlanSchool> screeningSchools) {
+    public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 删除掉已有的不存在的学校信息
         List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.EMPTY_LIST : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
         if (!CollectionUtils.isEmpty(screeningSchools)) {
-            saveOrUpdateBatchByPlanId(screeningPlanId, screeningSchools);
+            saveOrUpdateBatchByPlanId(screeningPlanId, screeningOrgId, screeningSchools);
         }
     }
 
     /**
      * 批量更新或新增筛查计划的学校信息
+     *
      * @param screeningPlanId
      * @param screeningSchools
      */
-    public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, List<ScreeningPlanSchool> screeningSchools) {
+    public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 1. 查出剩余的
         Map<Integer, Integer> schoolIdMap = getSchoolListsByPlanId(screeningPlanId).stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool::getId));
         // 2. 更新id，并批量新增或修改
-        screeningSchools.forEach(planSchool -> planSchool.setScreeningPlanId(screeningPlanId).setId(schoolIdMap.getOrDefault(planSchool.getSchoolId(), null)));
+        screeningSchools.forEach(planSchool -> planSchool.setScreeningPlanId(screeningPlanId).setScreeningOrgId(screeningOrgId).setId(schoolIdMap.getOrDefault(planSchool.getSchoolId(), null)));
         saveOrUpdateBatch(screeningSchools);
     }
 
@@ -119,6 +127,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 删除筛查计划中，除了指定学校ID的其它学校信息
+     *
      * @param screeningPlanId
      * @param excludeSchoolIds
      */
@@ -134,11 +143,12 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 查询已有计划的学校 （层级ID列表与筛查机构ID必须有一个不为空）
-     * @param districtIds 层级ID列表
+     *
+     * @param districtIds             层级ID列表
      * @param excludedScreeningPlanId 排除的计划ID
-     * @param screeningOrgId 筛查机构ID
-     * @param startTime 查询计划的起始时间
-     * @param endTime 查询计划的结束时间
+     * @param screeningOrgId          筛查机构ID
+     * @param startTime               查询计划的起始时间
+     * @param endTime                 查询计划的结束时间
      * @return
      */
     public List<Integer> getHavePlanSchoolIds(List<Integer> districtIds, Integer excludedScreeningPlanId, Integer screeningOrgId, LocalDate startTime, LocalDate endTime) {
@@ -161,18 +171,21 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
-     * 根据学校名获取ScreeningPlanSchoolStudent
+     * 获取该筛查机构目前的筛查学校
+     *
      * @param schoolName
      * @param deptId
      * @return
      */
-    public List<ScreeningPlanSchool> getSchoolByOrgIdAndSchoolName(String schoolName, Integer deptId) {
+    public List<School> getSchoolByOrgId(String schoolName, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
-        LambdaQueryWrapper<ScreeningPlanSchool> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchool::getScreeningOrgId,deptId).like(ScreeningPlanSchool::getSchoolName,schoolName);
-        List<ScreeningPlanSchool> screeningPlanSchools = baseMapper.selectList(queryWrapper);
-        return screeningPlanSchools;
+
+        List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        return schoolService.getSchoolByIds(schoolIds);
     }
 }

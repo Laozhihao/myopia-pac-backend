@@ -7,13 +7,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.myopia.common.constant.ScreeningConstant;
-import com.myopia.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
@@ -136,7 +134,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查学校信息
-        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
+        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());
@@ -329,4 +327,25 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         return null;
     }
+
+    /**
+     * 获取用户当前的计划
+     * @param deptId
+     */
+    public ScreeningPlan getCurrentPlan(Integer deptId) {
+        List<ScreeningPlan> screeningPlans = this.getByOrgId(deptId);
+        screeningPlans = screeningPlans.stream().filter(screeningPlan ->
+                screeningPlan.getStartTime().before(new Date()) && screeningPlan.getEndTime().after(new Date())
+        ).collect(Collectors.toList());
+
+        if (org.apache.commons.collections4.CollectionUtils.size(screeningPlans) != 1) {
+            // throw new RuntimeException("用户异常");
+        }
+        Optional<ScreeningPlan> screeningPlanOptional = screeningPlans.stream().findFirst();
+        if (screeningPlanOptional.isPresent()) {
+            return screeningPlanOptional.get();
+        }
+        return null;
+    }
+
 }

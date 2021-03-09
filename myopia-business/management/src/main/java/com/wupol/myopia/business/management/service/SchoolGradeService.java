@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -238,5 +239,19 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public List<SchoolGrade> getBySchoolId(Integer schoolId) {
         return baseMapper.selectList(new QueryWrapper<SchoolGrade>().eq("school_id", schoolId));
+    }
+
+    /**
+     * 根据schoolId获取年级名
+     * @param schoolId
+     * @param gradeName
+     * @return
+     */
+    public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
+        LambdaQueryWrapper<SchoolGrade> schoolGradeExportVOLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        SchoolGrade schoolGrade = new SchoolGrade();
+        schoolGrade.setSchoolId(schoolId).setName(gradeName);
+        schoolGradeExportVOLambdaQueryWrapper.setEntity(schoolGrade);
+        return baseMapper.selectOne(schoolGradeExportVOLambdaQueryWrapper);
     }
 }

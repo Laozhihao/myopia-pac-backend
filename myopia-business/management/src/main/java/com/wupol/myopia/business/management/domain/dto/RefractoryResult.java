@@ -22,7 +22,7 @@ public class RefractoryResult {
     /**
      * 轴位
      */
-    private String axial;
+    private BigDecimal axial;
 
     /**
      * 球镜

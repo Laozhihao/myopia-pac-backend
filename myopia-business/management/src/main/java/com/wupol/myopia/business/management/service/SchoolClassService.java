@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -135,5 +136,19 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
         return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
+    }
+
+    /**
+     * 根据schoolId 获取班级名
+     * @param schoolid
+     * @param clazz
+     * @return
+     */
+    public SchoolClass getByClassNameAndSchoolId(Integer schoolid, String clazz) {
+        LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
+        SchoolClass schoolClass = new SchoolClass();
+        schoolClass.setSchoolId(schoolid).setName(clazz);
+        queryWrapper.setEntity(schoolClass);
+        return baseMapper.selectOne(queryWrapper);
     }
 }

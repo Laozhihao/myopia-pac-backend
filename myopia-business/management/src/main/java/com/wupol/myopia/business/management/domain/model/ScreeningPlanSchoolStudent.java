@@ -1,19 +1,18 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 参与筛查计划的学生表
@@ -36,7 +35,12 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer id;
 
     /**
-     * 筛查计划--计划id 
+     * 筛查计划--所属的筛查任务id
+     */
+    private Integer screeningTaskId;
+
+    /**
+     * 筛查计划--计划id
      */
     @NotNull(message = "筛查计划ID不能为空")
     private Integer screeningPlanId;
@@ -46,15 +50,17 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     private Integer districtId;
 
+
     /**
-     * 筛查任务id
+     * 原始的通知id
      */
-    private Integer screeningTaskId;
+    private Integer srcScreeningNoticeId;
 
     /**
      * 筛查机构id
      */
     private Integer screeningOrgId;
+
 
     /**
      * 筛查计划--执行的学校id
@@ -74,9 +80,15 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer gradeId;
 
     /**
-     * 筛查计划--年级名字
+     * 筛查计划--年级名称
      */
     private String gradeName;
+
+    /**
+     * 学龄段
+     */
+    private Integer gradeType;
+
     /**
      * 筛查计划--参与筛查的学生班级ID
      */
@@ -84,7 +96,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer classId;
 
     /**
-     * 筛查计划--参与筛查的学生班级ID
+     * 筛查计划--年级名称
      */
     private String className;
 
@@ -98,6 +110,17 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
     private String idCard;
+
+    /**
+     * 出生日期
+     */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    private Date birthday;
+
+    /**
+     * 性别 1-男 2-女
+     */
+    private Integer gender;
 
     /**
      * 筛查计划--参与筛查的学生年龄
@@ -120,20 +143,9 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private String studentName;
 
     /**
-     * 筛查计划--参与筛查的学生生日
-     */
-    private Date birthDate;
-
-    /**
-     * 筛查计划--参与筛选的学生性别
-     */
-    private Integer gender ;
-
-    /**
      * 筛查计划--创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 
 }

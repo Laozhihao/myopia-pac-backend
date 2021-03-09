@@ -62,7 +62,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             String allowExtension = uploadConfig.getSuffixs();
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
-            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, genNewFileName(file));
+            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
             Map<String, Object> resultMap = new HashMap<>(16);
             resultMap.put("url", resourceFileService.getResourcePath(resourceFile.getId()));
             resultMap.put("fileId", resourceFile.getId());
@@ -70,11 +70,6 @@ public class CommonController extends BaseController<DataCommitService, DataComm
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
         }
-    }
-
-    private String genNewFileName(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-        return String.format("%s.%s", UUID.randomUUID(), extension);
     }
 
     /**
@@ -110,7 +105,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
             Map<String, String> resultMap = new HashMap<>(16);
-            resultMap.put("url", s3Utils.uploadStaticS3(tempPath, genNewFileName(file)));
+            resultMap.put("url", s3Utils.uploadStaticS3(tempPath, UploadUtil.genNewFileName(file)));
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
