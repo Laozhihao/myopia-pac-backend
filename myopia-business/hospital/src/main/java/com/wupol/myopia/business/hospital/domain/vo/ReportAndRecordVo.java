@@ -22,4 +22,6 @@ public class ReportAndRecordVo {
     private Integer reportId;
 
     private Date createTime;
+
+    private String hospitalName;
 }
