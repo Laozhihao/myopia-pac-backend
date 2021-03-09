@@ -33,10 +33,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -333,7 +330,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
-        Integer dockerAdvice = 0;
         List<RefractoryResultItems> items = new ArrayList<>();
 
         // 轴位
@@ -361,9 +357,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 获取球镜TypeName
         TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
         leftSphItems.setTypeName(leftSphType.getFirst());
-        Integer result1 = leftSphType.getSecond();
-        dockerAdvice = dockerAdvice > result1 ? dockerAdvice : result1;
-        leftSphItems.setType(result1);
+        leftSphItems.setType(leftSphType.getSecond());
         sphItems.setOs(leftSphItems);
 
         RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
@@ -371,9 +365,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 获取球镜TypeName
         TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
         rightSphItems.setTypeName(rightSphType.getFirst());
-        Integer result2 = rightSphType.getSecond();
-        dockerAdvice = dockerAdvice > result2 ? dockerAdvice : result2;
-        rightSphItems.setType(result2);
+        rightSphItems.setType(rightSphType.getSecond());
         sphItems.setOd(rightSphItems);
 
         items.add(sphItems);
@@ -386,9 +378,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
         // 获取散光TypeName
         TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
-        Integer result3 = leftCylType.getSecond();
-        dockerAdvice = dockerAdvice > result3 ? dockerAdvice : result3;
-        leftCylItems.setType(result3);
+        leftCylItems.setType(leftCylType.getSecond());
         leftCylItems.setTypeName(leftCylType.getFirst());
         cylItems.setOs(leftCylItems);
 
@@ -396,15 +386,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
         // 获取散光TypeName
         TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
-        Integer result4 = rightCylType.getSecond();
-        rightCylItems.setType(result4);
-        dockerAdvice = dockerAdvice > result4 ? dockerAdvice : result4;
+        rightCylItems.setType(rightCylType.getSecond());
         rightCylItems.setTypeName(rightCylType.getFirst());
         cylItems.setOd(rightCylItems);
 
         items.add(cylItems);
 
-        return new TwoTuple<>(items, dockerAdvice);
+        return new TwoTuple<>(items, getIntegerMax(
+                leftSphType.getSecond(), rightSphType.getSecond(),
+                leftCylType.getSecond(), rightCylType.getSecond()));
     }
 
     /**
@@ -678,12 +668,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         int age;
         try {
             Calendar now = Calendar.getInstance();
-            now.setTime(new Date());// 当前时间
+            // 当前时间
+            now.setTime(new Date());
 
             Calendar birth = Calendar.getInstance();
             birth.setTime(birthday);
 
-            if (birth.after(now)) {//如果传入的时间，在当前时间的后面，返回0岁
+            // 如果传入的时间，在当前时间的后面，返回0岁
+            if (birth.after(now)) {
                 age = 0;
             } else {
                 age = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR);
@@ -692,7 +684,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 }
             }
             return age;
-        } catch (Exception e) {//兼容性更强,异常后返回数据
+        } catch (Exception e) {
+            // 兼容性更强,异常后返回数据
             return 0;
         }
     }
@@ -784,5 +777,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         }
         // 未知返回正常
         return ParentReportConst.LABEL_NORMAL;
+    }
+
+    /**
+     * 获取最大值
+     *
+     * @param val 数值
+     * @return Integer
+     */
+    public Integer getIntegerMax(Integer... val) {
+        return Arrays.stream(val).max(Comparator.naturalOrder()).orElse(null);
     }
 }
