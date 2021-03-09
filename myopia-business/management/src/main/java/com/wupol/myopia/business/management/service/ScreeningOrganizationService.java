@@ -528,11 +528,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private Integer getScreeningStatus(Date startDate, Date endDate) {
 
         Date nowDate = new Date();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(nowDate);
-        calendar.add(Calendar.DATE, 1);
 
-        nowDate = calendar.getTime();
+        // 结束时间加一天
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.DATE, 1);
+        endDate = calendar.getTime();
         if (nowDate.before(startDate)) {
             return 0;
         }
