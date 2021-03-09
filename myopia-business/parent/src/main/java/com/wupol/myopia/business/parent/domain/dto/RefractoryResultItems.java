@@ -20,10 +20,6 @@ public class RefractoryResultItems {
     private String title;
 
     /**
-     * 轴位
-     */
-    private BigDecimal axial;
-    /**
      * 右眼
      */
     private Item od;
@@ -44,7 +40,7 @@ public class RefractoryResultItems {
         /**
          * 类型
          */
-        private String type;
+        private Integer type;
 
         /**
          * 类型名称

@@ -6,7 +6,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
-import com.wupol.myopia.business.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.SchoolAge;
@@ -40,8 +39,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2021-02-26
+ * 家长端-家长查看学生信息
+ *
+ * @author Simple4H
  */
 @Service
 @Log4j2
@@ -55,9 +55,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     @Resource
     private MedicalReportService medicalReportService;
-
-    @Resource
-    private MedicalRecordService medicalRecordService;
 
     /**
      * 孩子统计、孩子列表
@@ -162,7 +159,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
         // 查找学生最近的就诊记录
-        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);;
+        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);
         if (CollectionUtils.isEmpty(visitLists)) {
             return new StudentReportResponseDTO();
         }
@@ -233,18 +230,20 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
+        int age = getAgeByBirthday(student.getBirthday());
 
         ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
         // 视力检查结果
-        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), getAgeByBirthday(student.getBirthday())));
+        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), age));
         // 验光仪检查结果
-        responseDTO.setRefractoryResultItems(packageRefractoryResult(result.getComputerOptometry()));
+        TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = packageRefractoryResult(result.getComputerOptometry(), age);
+        responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
         // 生物测量
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
         // 医生建议一
-        responseDTO.setDoctorAdvice1(1);
+        responseDTO.setDoctorAdvice1(refractoryResult.getSecond() - 5);
 
         // 获取左右眼的裸眼视力
         BigDecimal leftNakedVision = result.getVisionData().getLeftEyeData().getNakedVision();
@@ -293,12 +292,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         VisionItems.Item leftNakedVision = new VisionItems.Item();
         leftNakedVision.setVision(date.getLeftEyeData().getNakedVision());
-        leftNakedVision.setWarningLevel(StatUtil.getNakedVisionWarningLevel(date.getLeftEyeData().getNakedVision().floatValue(), age).code);
+        leftNakedVision.setType(lowVisionType(date.getLeftEyeData().getNakedVision(), age));
         nakedVision.setOs(leftNakedVision);
 
         VisionItems.Item rightNakedVision = new VisionItems.Item();
         rightNakedVision.setVision(date.getRightEyeData().getNakedVision());
-        rightNakedVision.setWarningLevel(StatUtil.getNakedVisionWarningLevel(date.getRightEyeData().getNakedVision().floatValue(), age).code);
+        rightNakedVision.setType(lowVisionType(date.getRightEyeData().getNakedVision(), age));
         nakedVision.setOd(rightNakedVision);
 
         itemsList.add(nakedVision);
@@ -309,12 +308,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         VisionItems.Item leftCorrectedVision = new VisionItems.Item();
         leftCorrectedVision.setVision(date.getLeftEyeData().getCorrectedVision());
-        leftCorrectedVision.setWarningLevel(1);
+        leftCorrectedVision.setType(2);
         correctedVision.setOs(leftCorrectedVision);
 
         VisionItems.Item rightCorrectedVision = new VisionItems.Item();
         rightCorrectedVision.setVision(date.getRightEyeData().getCorrectedVision());
-        rightCorrectedVision.setWarningLevel(1);
+        rightCorrectedVision.setType(3);
         correctedVision.setOd(rightCorrectedVision);
 
         itemsList.add(correctedVision);
@@ -326,9 +325,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 验光仪检查结果
      *
      * @param date 数据
-     * @return List<RefractoryResultItems>
+     * @param age  年龄
+     * @return TwoTuple<List < RefractoryResultItems>, Integer>
      */
-    private List<RefractoryResultItems> packageRefractoryResult(ComputerOptometryDO date) {
+    private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
+
+        Integer dockerAdvice = 0;
         List<RefractoryResultItems> items = new ArrayList<>();
 
         // 轴位
@@ -336,15 +338,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         axialItems.setTitle("轴位");
 
         RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-        // leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
-        leftAxialItems.setType("TODO");
-        leftAxialItems.setTypeName("TODO-NAME");
+        leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
+        leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
         axialItems.setOs(leftAxialItems);
 
         RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-        // rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
-        rightAxialItems.setType("TODO");
-        rightAxialItems.setTypeName("TODO-NAME");
+        rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
+        rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
         axialItems.setOd(rightAxialItems);
 
         items.add(axialItems);
@@ -355,14 +355,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
         leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
-        leftSphItems.setType("TODO");
-        leftSphItems.setTypeName("TODO-NAME");
+        // 获取球镜TypeName
+        TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
+        leftSphItems.setTypeName(leftSphType.getFirst());
+        Integer result1 = leftSphType.getSecond();
+        dockerAdvice = dockerAdvice > result1 ? dockerAdvice : result1;
+        leftSphItems.setType(result1);
         sphItems.setOs(leftSphItems);
 
         RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
         rightSphItems.setVision(date.getRightEyeData().getSph().toString());
-        rightSphItems.setType("TODO");
-        rightSphItems.setTypeName("TODO-NAME");
+        // 获取球镜TypeName
+        TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
+        rightSphItems.setTypeName(rightSphType.getFirst());
+        Integer result2 = rightSphType.getSecond();
+        dockerAdvice = dockerAdvice > result2 ? dockerAdvice : result2;
+        rightSphItems.setType(result2);
         sphItems.setOd(rightSphItems);
 
         items.add(sphItems);
@@ -373,19 +381,27 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
         leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
-        leftCylItems.setType("TODO");
-        leftCylItems.setTypeName("TODO-NAME");
+        // 获取散光TypeName
+        TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
+        Integer result3 = leftCylType.getSecond();
+        dockerAdvice = dockerAdvice > result3 ? dockerAdvice : result3;
+        leftCylItems.setType(result3);
+        leftCylItems.setTypeName(leftCylType.getFirst());
         cylItems.setOs(leftCylItems);
 
         RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
         rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
-        rightCylItems.setType("TODO");
-        rightCylItems.setTypeName("TODO-NAME");
+        // 获取散光TypeName
+        TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
+        Integer result4 = rightCylType.getSecond();
+        rightCylItems.setType(result4);
+        dockerAdvice = dockerAdvice > result4 ? dockerAdvice : result4;
+        rightCylItems.setTypeName(rightCylType.getFirst());
         cylItems.setOd(rightCylItems);
 
         items.add(cylItems);
 
-        return items;
+        return new TwoTuple<>(items, dockerAdvice);
     }
 
     /**
@@ -714,5 +730,77 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         } catch (Exception e) {//兼容性更强,异常后返回数据
             return 0;
         }
+    }
+
+    /**
+     * 获取散光轴位
+     *
+     * @param axial 轴位
+     * @return String
+     */
+    private String getAxialTypeName(BigDecimal axial) {
+        return "散光轴位" + axial.abs() + "°";
+    }
+
+    /**
+     * 获取球镜typeName
+     *
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @param age 年龄
+     * @return TwoTuple
+     */
+    private TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
+        if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
+            // 近视
+            WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+            if (null != myopiaWarningLevel) {
+                if (myopiaWarningLevel.code == WarningLevel.NORMAL.code || myopiaWarningLevel.code == WarningLevel.ONE.code) {
+                    return new TwoTuple<>("近视" + sph.abs() + "度", 5);
+                }
+                return new TwoTuple<>("近视" + sph.abs() + "度", myopiaWarningLevel.code + 5);
+            } else {
+                return new TwoTuple<>("近视" + sph.abs() + "度", 5);
+            }
+        } else {
+            // 远视
+            WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            if (null != hyperopiaWarningLevel) {
+                if (hyperopiaWarningLevel.code == WarningLevel.NORMAL.code || hyperopiaWarningLevel.code == WarningLevel.ZERO.code) {
+                    return new TwoTuple<>("远视" + sph.abs() + "度", 5);
+                } else {
+                    return new TwoTuple<>("远视" + sph.abs() + "度", hyperopiaWarningLevel.code + 5);
+                }
+            } else {
+                return new TwoTuple<>("远视" + sph.abs() + "度", 5);
+            }
+
+        }
+    }
+
+    /**
+     * 获取散光TypeName
+     *
+     * @param cyl 柱镜
+     * @return String
+     */
+    private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
+        WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
+        return new TwoTuple<>("散光" + cyl.abs() + "度", astigmatismWarningLevel.code + 5);
+    }
+
+    /**
+     * 获取裸眼视力类型
+     *
+     * @param nakedVision 裸眼视力
+     * @param age         年龄
+     * @return Integer
+     */
+    private Integer lowVisionType(BigDecimal nakedVision, Integer age) {
+        boolean lowVision = StatUtil.isLowVision(nakedVision.floatValue(), age);
+        if (lowVision) {
+            return 1;
+        }
+        return 0;
     }
 }

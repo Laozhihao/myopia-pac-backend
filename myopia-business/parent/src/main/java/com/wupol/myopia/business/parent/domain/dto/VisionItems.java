@@ -40,7 +40,7 @@ public class VisionItems {
         /**
          * 类型
          */
-        private Integer warningLevel;
+        private Integer type;
     }
 
 }
