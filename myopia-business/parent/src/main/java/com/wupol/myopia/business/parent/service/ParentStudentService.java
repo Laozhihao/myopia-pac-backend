@@ -232,7 +232,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         Student student = studentService.getById(result.getStudentId());
         int age = getAgeByBirthday(student.getBirthday());
 
-        ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
+        ScreeningReportDetail responseDTO = new ScreeningReportDetail();
         responseDTO.setScreeningDate(result.getCreateTime());
         responseDTO.setGlassesType(glassesType);
         // 视力检查结果
@@ -272,7 +272,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 医生建议二
         responseDTO.setDoctorAdvice2(packageDoctorAdvice(
                 resultVision.getFirst(), correctedVision, sph, cyl, glassesType, student.getGradeType()));
-        return responseDTO;
+        ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
+        response.setDetail(responseDTO);
+        return response;
     }
 
     /**
