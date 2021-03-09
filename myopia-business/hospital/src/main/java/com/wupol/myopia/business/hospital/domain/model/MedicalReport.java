@@ -52,7 +52,7 @@ public class MedicalReport implements Serializable {
     private Integer studentId;
     /** 医生id */
     private Integer doctorId;
-    /** 配镜情况。1配框架眼镜，2. OK眼镜，3配隐形眼镜 */
+    /** 配镜情况。0无, 1配框架眼镜，2. OK眼镜，3配隐形眼镜 */
     private Integer glassesSituation;
     /** 检查单id */
     private Integer medicalRecordId;
