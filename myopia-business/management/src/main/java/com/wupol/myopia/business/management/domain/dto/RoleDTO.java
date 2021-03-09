@@ -111,4 +111,14 @@ public class RoleDTO implements Serializable {
      * 部门名称
      */
     private String orgName;
+
+    /**
+     * 当前页码
+     **/
+    private Integer current;
+
+    /**
+     * 每页条数
+     **/
+    private Integer size;
 }

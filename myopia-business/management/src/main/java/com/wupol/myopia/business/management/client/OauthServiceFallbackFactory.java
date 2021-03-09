@@ -106,6 +106,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
+            public ApiResult<Page<RoleDTO>> getRoleListByPage(RoleDTO param) {
+                return respData;
+            }
+
+            @Override
             public ApiResult addRole(RoleDTO param) {
                 return respData;
             }

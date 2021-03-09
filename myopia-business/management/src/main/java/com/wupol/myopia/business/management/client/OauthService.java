@@ -166,6 +166,11 @@ public class OauthService {
     }
 
     @OauthRequest
+    public Page<RoleDTO> getRoleListByPage(RoleDTO param){
+        return null;
+    }
+
+    @OauthRequest
     public RoleDTO addRole(RoleDTO param){
         return null;
     }

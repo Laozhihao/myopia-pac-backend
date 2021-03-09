@@ -142,6 +142,15 @@ public interface OauthServiceClient {
     @GetMapping("/oauth/role/list")
     ApiResult<List<RoleDTO>> getRoleList(@SpringQueryMap RoleDTO param);
 
+    /**
+     * 获取角色列表 - 分页
+     *
+     * @param param 查询参数
+     * @return com.wupol.myopia.base.domain.ApiResult<com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.wupol.myopia.business.management.domain.dto.RoleDTO>>
+     **/
+    @GetMapping("/oauth/role/page")
+    ApiResult<Page<RoleDTO>> getRoleListByPage(@SpringQueryMap RoleDTO param);
+
     @PostMapping("/oauth/role")
     ApiResult<RoleDTO> addRole(@RequestBody RoleDTO param);
 
