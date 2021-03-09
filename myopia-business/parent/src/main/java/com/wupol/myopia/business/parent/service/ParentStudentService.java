@@ -452,17 +452,17 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return BiometricItems
      */
     private BiometricItems getBiometricItems(String title, String leftDate, String rightDate) {
-        BiometricItems CCTItems = new BiometricItems();
-        CCTItems.setTitle(title);
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle(title);
 
-        BiometricItems.Item leftCCTItem = new BiometricItems.Item();
-        leftCCTItem.setDate(leftDate);
-        CCTItems.setOs(leftCCTItem);
+        BiometricItems.Item leftItem = new BiometricItems.Item();
+        leftItem.setDate(leftDate);
+        biometricItems.setOs(leftItem);
 
-        BiometricItems.Item rightCCTItem = new BiometricItems.Item();
-        rightCCTItem.setDate(rightDate);
-        CCTItems.setOd(rightCCTItem);
-        return CCTItems;
+        BiometricItems.Item rightItem = new BiometricItems.Item();
+        rightItem.setDate(rightDate);
+        biometricItems.setOd(rightItem);
+        return biometricItems;
     }
 
     /**
