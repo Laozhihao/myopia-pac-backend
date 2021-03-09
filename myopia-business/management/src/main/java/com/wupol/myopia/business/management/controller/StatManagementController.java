@@ -7,8 +7,9 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.management.domain.dto.stat.*;
 import com.wupol.myopia.business.management.domain.model.*;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
+import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningVO;
 import com.wupol.myopia.business.management.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,8 @@ public class StatManagementController {
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
     @Autowired
     private SchoolVisionStatisticService schoolVisionStatisticService;
-
+    @Autowired
+    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
 
@@ -192,7 +194,7 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(),districtId);
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtId);
         if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
             return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
         }
@@ -219,4 +221,14 @@ public class StatManagementController {
         return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, districtName, screeningNotice);
     }
 
+    /**
+     * 获取大屏展示
+     *
+     * @return
+     */
+    @GetMapping("/big-screen")
+    public BigScreeningVO getBigScreeningVO() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return districtBigScreenStatisticService.getLatestData(currentUser);
+    }
 }

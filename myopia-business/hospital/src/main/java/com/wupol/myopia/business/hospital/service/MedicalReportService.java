@@ -126,6 +126,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     public MedicalReportVo getOrCreateTodayLastMedicalReportVo(Integer hospitalId, Integer studentId) {
         MedicalReportVo reportVo = getTodayLastMedicalReport(hospitalId, studentId);
         if (Objects.isNull(reportVo)) {
+            reportVo = new MedicalReportVo();
             MedicalReport report = createMedicalReport(hospitalId, -1, -1, studentId);
             BeanUtils.copyProperties(report, reportVo);
             return reportVo;
