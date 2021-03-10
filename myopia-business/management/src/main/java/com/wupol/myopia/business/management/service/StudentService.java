@@ -292,7 +292,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             item.setDetails(result);
             item.setScreeningDate(r.getCreateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-            item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
+            if (null != r.getVisionData() && null != r.getVisionData().getLeftEyeData() && null != r.getVisionData().getLeftEyeData().getGlassesType()) {
+                item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
+            }
             item.setResultId(r.getId());
             items.add(item);
         }
