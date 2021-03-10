@@ -92,7 +92,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             TwoTuple<Date, Integer> idCardInfo = getIdCardInfo(idCard);
             responseDTO.setBirthday(idCardInfo.getFirst());
             responseDTO.setGender(idCardInfo.getSecond());
-            return responseDTO;
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
@@ -101,8 +100,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             responseDTO.setStudentId(student.getId());
             responseDTO.setBirthday(student.getBirthday());
             responseDTO.setGender(student.getGender());
-            return responseDTO;
         }
+        return responseDTO;
     }
 
 
