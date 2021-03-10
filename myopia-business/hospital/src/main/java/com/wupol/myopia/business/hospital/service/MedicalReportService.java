@@ -8,8 +8,8 @@ import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
-import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
+import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -173,12 +173,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
-     * 通过学生ID并且检查单ID为空
+     * 通过学生ID(只取当前时间的前一天)
      *
      * @param studentId 学生ID
      * @return List<ReportAndRecordVo>
      */
-    public List<ReportAndRecordVo> getStudentId(Integer studentId) {
+    public List<ReportAndRecordVo> getByStudentId(Integer studentId) {
         return baseMapper.getStudentId(studentId);
     }
 

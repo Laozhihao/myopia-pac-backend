@@ -121,7 +121,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 学生就诊档案统计
         VisitsDetail visitsDetail = new VisitsDetail();
         // 获取就诊记录
-        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);
+        List<ReportAndRecordVo> visitLists = medicalReportService.getByStudentId(studentId);
         visitsDetail.setTotal(visitLists.size());
         visitsDetail.setItems(visitLists);
         responseDTO.setVisitsDetail(visitsDetail);
@@ -164,7 +164,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
         // 查找学生最近的就诊记录
-        List<ReportAndRecordVo> visitLists = medicalReportService.getStudentId(studentId);
+        List<ReportAndRecordVo> visitLists = medicalReportService.getByStudentId(studentId);
         if (CollectionUtils.isEmpty(visitLists)) {
             return new StudentReportResponseDTO();
         }
