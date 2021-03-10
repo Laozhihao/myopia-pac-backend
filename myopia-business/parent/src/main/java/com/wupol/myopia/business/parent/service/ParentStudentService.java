@@ -234,9 +234,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return ScreeningReportResponseDTO 筛查报告返回体
      */
     private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
-
-        // 戴镜类型（目前取左眼）
-        Integer glassesType = result.getVisionData().getLeftEyeData().getGlassesType();
+        ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
 
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
@@ -244,9 +242,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         ScreeningReportDetail responseDTO = new ScreeningReportDetail();
         responseDTO.setScreeningDate(result.getCreateTime());
-        responseDTO.setGlassesType(glassesType);
+        VisionDataDO visionData = result.getVisionData();
         // 视力检查结果
-        responseDTO.setVisionResultItems(packageVisionResult(result.getVisionData(), age, glassesType));
+        responseDTO.setVisionResultItems(packageVisionResult(visionData, age));
         // 验光仪检查结果
         TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
@@ -254,14 +252,38 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
         // 医生建议一（这里-5是为了type的偏移量）
         responseDTO.setDoctorAdvice1(refractoryResult.getSecond() - 5);
+        // 医生建议二
+        responseDTO.setDoctorAdvice2(getDoctorAdviceDetail(result, student.getGradeType()));
+        if (null != visionData) {
+            // 戴镜类型
+            responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
+        }
+        response.setDetail(responseDTO);
+        return response;
+    }
+
+    /**
+     * 获取医生建议二
+     *
+     * @param result    筛查结果
+     * @param gradeType 学龄段
+     * @return 医生建议
+     */
+    private String getDoctorAdviceDetail(VisionScreeningResult result, Integer gradeType) {
+
+        VisionDataDO visionData = result.getVisionData();
+        ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+        if (null == visionData || null == computerOptometry) {
+            return null;
+        }
+        // 戴镜类型，取一只眼就行
+        Integer glassesType = result.getVisionData().getLeftEyeData().getGlassesType();
 
         // 获取左右眼的裸眼视力
-        BigDecimal leftNakedVision = result.getVisionData().getLeftEyeData().getNakedVision();
-        BigDecimal rightNakedVision = result.getVisionData().getRightEyeData().getNakedVision();
-
+        BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
+        BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
         // 取裸眼视力的结果
         TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
-
         // 获取矫正视力
         BigDecimal correctedVision;
         // 球镜
@@ -271,74 +293,70 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 根据严重的眼镜提供医生建议
         if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
             // 左眼
-            correctedVision = result.getVisionData().getLeftEyeData().getCorrectedVision();
-            sph = result.getComputerOptometry().getLeftEyeData().getSph();
-            cyl = result.getComputerOptometry().getLeftEyeData().getCyl();
+            correctedVision = visionData.getLeftEyeData().getCorrectedVision();
+            sph = computerOptometry.getLeftEyeData().getSph();
+            cyl = computerOptometry.getLeftEyeData().getCyl();
         } else {
             // 右眼
-            correctedVision = result.getVisionData().getRightEyeData().getCorrectedVision();
-            sph = result.getComputerOptometry().getRightEyeData().getSph();
-            cyl = result.getComputerOptometry().getRightEyeData().getCyl();
+            correctedVision = visionData.getRightEyeData().getCorrectedVision();
+            sph = computerOptometry.getRightEyeData().getSph();
+            cyl = computerOptometry.getRightEyeData().getCyl();
         }
-        // 医生建议二
-        responseDTO.setDoctorAdvice2(packageDoctorAdvice(
-                resultVision.getFirst(), correctedVision, sph, cyl, glassesType, student.getGradeType()));
-        ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
-        response.setDetail(responseDTO);
-        return response;
+        return packageDoctorAdvice(resultVision.getFirst(), correctedVision, sph, cyl, glassesType, gradeType);
     }
 
     /**
      * 视力检查结果
      *
-     * @param date        数据
-     * @param age         年龄
-     * @param glassesType 戴镜类型
+     * @param date 数据
+     * @param age  年龄
      * @return List<VisionItems> 视力检查结果
      */
-    private List<VisionItems> packageVisionResult(VisionDataDO date, Integer age, Integer glassesType) {
+    private List<VisionItems> packageVisionResult(VisionDataDO date, Integer age) {
         List<VisionItems> itemsList = new ArrayList<>();
 
         // 裸眼视力
         VisionItems nakedVision = new VisionItems();
         nakedVision.setTitle("裸眼视力");
 
-        VisionItems.Item leftNakedVision = new VisionItems.Item();
-        // 左裸眼视力
-        BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
-        leftNakedVision.setVision(leftNakedVisionValue);
-        leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
-        nakedVision.setOs(leftNakedVision);
-
-        VisionItems.Item rightNakedVision = new VisionItems.Item();
-        // 右裸眼视力
-        BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
-        rightNakedVision.setVision(rightNakedVisionValue);
-        rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
-        nakedVision.setOd(rightNakedVision);
-
-        itemsList.add(nakedVision);
-
         // 矫正视力
         VisionItems correctedVision = new VisionItems();
         correctedVision.setTitle("矫正视力");
 
-        VisionItems.Item leftCorrectedVision = new VisionItems.Item();
-        // 左矫正视力
-        BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
-        leftCorrectedVision.setVision(leftCorrectedVisionValue);
-        leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
-        correctedVision.setOs(leftCorrectedVision);
+        if (null != date) {
+            // 戴镜类型，取一只眼就行
+            Integer glassesType = date.getLeftEyeData().getGlassesType();
 
-        VisionItems.Item rightCorrectedVision = new VisionItems.Item();
-        // 右矫正视力
-        BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
-        rightCorrectedVision.setVision(rightCorrectedVisionValue);
-        rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
-        correctedVision.setOd(rightCorrectedVision);
+            // 左裸眼视力
+            VisionItems.Item leftNakedVision = new VisionItems.Item();
+            BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
+            leftNakedVision.setVision(leftNakedVisionValue);
+            leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
+            nakedVision.setOs(leftNakedVision);
 
+            // 右裸眼视力
+            VisionItems.Item rightNakedVision = new VisionItems.Item();
+            BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
+            rightNakedVision.setVision(rightNakedVisionValue);
+            rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
+            nakedVision.setOd(rightNakedVision);
+
+            // 左矫正视力
+            VisionItems.Item leftCorrectedVision = new VisionItems.Item();
+            BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
+            leftCorrectedVision.setVision(leftCorrectedVisionValue);
+            leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
+            correctedVision.setOs(leftCorrectedVision);
+
+            // 右矫正视力
+            VisionItems.Item rightCorrectedVision = new VisionItems.Item();
+            BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
+            rightCorrectedVision.setVision(rightCorrectedVisionValue);
+            rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
+            correctedVision.setOd(rightCorrectedVision);
+        }
         itemsList.add(correctedVision);
-
+        itemsList.add(nakedVision);
         return itemsList;
     }
 
@@ -352,70 +370,68 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
-
-        // 轴位
         RefractoryResultItems axialItems = new RefractoryResultItems();
         axialItems.setTitle("轴位A");
 
-        RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-        leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
-        leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
-        axialItems.setOs(leftAxialItems);
-
-        RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-        rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
-        rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
-        axialItems.setOd(rightAxialItems);
-
-        items.add(axialItems);
-
-        // 球镜
         RefractoryResultItems sphItems = new RefractoryResultItems();
         sphItems.setTitle("球镜SE");
-
-        RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
-        leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
-        // 获取球镜TypeName
-        TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
-        leftSphItems.setTypeName(leftSphType.getFirst());
-        leftSphItems.setType(leftSphType.getSecond());
-        sphItems.setOs(leftSphItems);
-
-        RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
-        rightSphItems.setVision(date.getRightEyeData().getSph().toString());
-        // 获取球镜TypeName
-        TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
-        rightSphItems.setTypeName(rightSphType.getFirst());
-        rightSphItems.setType(rightSphType.getSecond());
-        sphItems.setOd(rightSphItems);
-
-        items.add(sphItems);
 
         // 柱镜
         RefractoryResultItems cylItems = new RefractoryResultItems();
         cylItems.setTitle("柱镜DC");
 
-        RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
-        leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
-        // 获取散光TypeName
-        TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
-        leftCylItems.setType(leftCylType.getSecond());
-        leftCylItems.setTypeName(leftCylType.getFirst());
-        cylItems.setOs(leftCylItems);
+        if (null != date) {
+            // 轴位
+            RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
+            leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
+            leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
+            axialItems.setOs(leftAxialItems);
 
-        RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
-        rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
-        // 获取散光TypeName
-        TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
-        rightCylItems.setType(rightCylType.getSecond());
-        rightCylItems.setTypeName(rightCylType.getFirst());
-        cylItems.setOd(rightCylItems);
+            RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
+            rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
+            rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
+            axialItems.setOd(rightAxialItems);
+            items.add(axialItems);
 
+            // 球镜
+            RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
+            leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
+            TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
+            leftSphItems.setTypeName(leftSphType.getFirst());
+            leftSphItems.setType(leftSphType.getSecond());
+            sphItems.setOs(leftSphItems);
+
+            RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
+            rightSphItems.setVision(date.getRightEyeData().getSph().toString());
+            TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
+            rightSphItems.setTypeName(rightSphType.getFirst());
+            rightSphItems.setType(rightSphType.getSecond());
+            sphItems.setOd(rightSphItems);
+            items.add(sphItems);
+
+            RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
+            leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
+            TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
+            leftCylItems.setType(leftCylType.getSecond());
+            leftCylItems.setTypeName(leftCylType.getFirst());
+            cylItems.setOs(leftCylItems);
+
+            RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
+            rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
+            TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
+            rightCylItems.setType(rightCylType.getSecond());
+            rightCylItems.setTypeName(rightCylType.getFirst());
+            cylItems.setOd(rightCylItems);
+            items.add(cylItems);
+
+            return new TwoTuple<>(items, getIntegerMax(
+                    leftSphType.getSecond(), rightSphType.getSecond(),
+                    leftCylType.getSecond(), rightCylType.getSecond()));
+        }
+        items.add(axialItems);
+        items.add(sphItems);
         items.add(cylItems);
-
-        return new TwoTuple<>(items, getIntegerMax(
-                leftSphType.getSecond(), rightSphType.getSecond(),
-                leftCylType.getSecond(), rightCylType.getSecond()));
+        return new TwoTuple<>(items, 0);
     }
 
     /**
@@ -427,67 +443,153 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private List<BiometricItems> packageBiometricResult(BiometricDataDO date, OtherEyeDiseasesDO diseasesDO) {
         List<BiometricItems> items = new ArrayList<>();
-
         // 房水深度AD
-        BiometricItems ADItems = getBiometricItems("房水深度AD", date.getLeftEyeData().getAd(), date.getRightEyeData().getAd());
+        BiometricItems ADItems = packageADItem(date);
         items.add(ADItems);
 
         // 眼轴AL
-        BiometricItems ALItems = getBiometricItems("眼轴AL", date.getLeftEyeData().getAl(), date.getRightEyeData().getAl());
+        BiometricItems ALItems = packageALItem(date);
         items.add(ALItems);
 
         // 角膜中央厚度CCT
-        BiometricItems CCTItems = getBiometricItems("角膜中央厚度CCT", date.getLeftEyeData().getCct(), date.getRightEyeData().getCct());
+        BiometricItems CCTItems = packageCCTItem(date);
         items.add(CCTItems);
 
         // 状体厚度LT
-        BiometricItems LTItems = getBiometricItems("状体厚度LT", date.getLeftEyeData().getLt(), date.getRightEyeData().getLt());
+        BiometricItems LTItems = packageLTItem(date);
         items.add(LTItems);
 
         // 角膜白到白距离WTW
-        BiometricItems WTWItems = getBiometricItems("角膜白到白距离WTW", date.getLeftEyeData().getWtw(), date.getRightEyeData().getWtw());
+        BiometricItems WTWItems = packageWTWItem(date);
         items.add(WTWItems);
 
-        // 其他眼病
-        BiometricItems otherItems = getEyeDiseases(diseasesDO.getLeftEyeData().getEyeDiseases(), diseasesDO.getRightEyeData().getEyeDiseases());
-        items.add(otherItems);
-
+        items.add(packageEyeDiseases(diseasesDO));
         return items;
     }
 
     /**
-     * 生物测量数据
+     * 房水深度AD
      *
-     * @param title     标题
-     * @param leftDate  左眼数据
-     * @param rightDate 右眼数据
+     * @param date 生物测量数据
      * @return BiometricItems 生物测量
      */
-    private BiometricItems getBiometricItems(String title, String leftDate, String rightDate) {
+    private BiometricItems packageADItem(BiometricDataDO date) {
         BiometricItems biometricItems = new BiometricItems();
-        biometricItems.setTitle(title);
+        biometricItems.setTitle("房水深度AD");
+        if (null != date) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setData(date.getLeftEyeData().getAd());
+            biometricItems.setOs(leftItem);
 
-        BiometricItems.Item leftItem = new BiometricItems.Item();
-        leftItem.setData(leftDate);
-        biometricItems.setOs(leftItem);
-
-        BiometricItems.Item rightItem = new BiometricItems.Item();
-        rightItem.setData(rightDate);
-        biometricItems.setOd(rightItem);
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setData(date.getRightEyeData().getAd());
+            biometricItems.setOd(rightItem);
+        }
         return biometricItems;
     }
 
-    private BiometricItems getEyeDiseases(List<String> leftDate, List<String> rightDate) {
+    /**
+     * 眼轴AL
+     *
+     * @param date 生物测量数据
+     * @return BiometricItems 生物测量
+     */
+    private BiometricItems packageALItem(BiometricDataDO date) {
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle("眼轴AL");
+        if (null != date) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setData(date.getLeftEyeData().getAl());
+            biometricItems.setOs(leftItem);
+
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setData(date.getRightEyeData().getAl());
+            biometricItems.setOd(rightItem);
+        }
+        return biometricItems;
+    }
+
+    /**
+     * 角膜中央厚度CCT
+     *
+     * @param date 生物测量数据
+     * @return BiometricItems 生物测量
+     */
+    private BiometricItems packageCCTItem(BiometricDataDO date) {
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle("角膜中央厚度CCT");
+        if (null != date) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setData(date.getLeftEyeData().getCct());
+            biometricItems.setOs(leftItem);
+
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setData(date.getRightEyeData().getCct());
+            biometricItems.setOd(rightItem);
+        }
+        return biometricItems;
+    }
+
+    /**
+     * 状体厚度LT
+     *
+     * @param date 生物测量数据
+     * @return BiometricItems 生物测量
+     */
+    private BiometricItems packageLTItem(BiometricDataDO date) {
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle("状体厚度LT");
+        if (null != date) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setData(date.getLeftEyeData().getLt());
+            biometricItems.setOs(leftItem);
+
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setData(date.getRightEyeData().getLt());
+            biometricItems.setOd(rightItem);
+        }
+        return biometricItems;
+    }
+
+    /**
+     * 角膜白到白距离WTW
+     *
+     * @param date 生物测量数据
+     * @return BiometricItems 生物测量
+     */
+    private BiometricItems packageWTWItem(BiometricDataDO date) {
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle("角膜白到白距离WTW");
+        if (null != date) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setData(date.getLeftEyeData().getWtw());
+            biometricItems.setOs(leftItem);
+
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setData(date.getRightEyeData().getWtw());
+            biometricItems.setOd(rightItem);
+        }
+        return biometricItems;
+    }
+
+    /**
+     * 其他眼疾
+     *
+     * @param diseasesDO 眼疾
+     * @return BiometricItems
+     */
+    private BiometricItems packageEyeDiseases(OtherEyeDiseasesDO diseasesDO) {
         BiometricItems biometricItems = new BiometricItems();
         biometricItems.setTitle("其他眼病");
+        if (null != diseasesDO) {
+            BiometricItems.Item leftItem = new BiometricItems.Item();
+            leftItem.setEyeDiseases(diseasesDO.getLeftEyeData().getEyeDiseases());
+            biometricItems.setOs(leftItem);
 
-        BiometricItems.Item leftItem = new BiometricItems.Item();
-        leftItem.setEyeDiseases(leftDate);
-        biometricItems.setOs(leftItem);
-
-        BiometricItems.Item rightItem = new BiometricItems.Item();
-        rightItem.setEyeDiseases(rightDate);
-        biometricItems.setOd(rightItem);
+            BiometricItems.Item rightItem = new BiometricItems.Item();
+            rightItem.setEyeDiseases(diseasesDO.getRightEyeData().getEyeDiseases());
+            biometricItems.setOd(rightItem);
+        }
         return biometricItems;
     }
 
