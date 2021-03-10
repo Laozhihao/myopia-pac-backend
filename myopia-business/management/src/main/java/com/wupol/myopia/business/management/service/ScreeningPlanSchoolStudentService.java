@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.*;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -305,7 +307,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 处理筛查学生
-     * @param screeningPlanId
+     * @param screeningPlan
      * @param schoolId
      * @param school
      * @param idCardExistStudents
@@ -318,12 +320,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             Student dbStudent = idCardExistStudents.get(student.getIdCard());
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
-                existPlanStudent.setIdCard(student.getIdCard()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
+                existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId());
             }
             existPlanStudent.setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
                     .setGradeName(student.getGradeName())
+                    .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType())
                     .setClassId(student.getClassId())
                     .setClassName(student.getClassName())
                     .setBirthday(student.getBirthday())
@@ -338,7 +341,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新学生数据
-     *
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
      */
@@ -347,7 +349,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         List<Student> updateStudents = new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
-            Student excelStudent = excelIdCardStudentMap.get(idCard);
+            StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
                 BeanUtils.copyProperties(student, updateStudent);
@@ -357,6 +359,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                         .setBirthday(excelStudent.getBirthday())
                         .setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
                         .setGradeId(excelStudent.getGradeId())
+                        .setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
                         .setClassId(excelStudent.getClassId())
                         .setSno(excelStudent.getSno())
                         .setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()))
@@ -373,7 +376,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 新增学生数据
-     *
      * @param userId
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
@@ -383,8 +385,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.hasLength(needAddedIdCards)) {
             List<Student> addedStudent = needAddedIdCards.stream().map(idCard -> {
                 Student s = new Student();
-                BeanUtils.copyProperties(excelIdCardStudentMap.get(idCard), s);
-                return s;}).collect(Collectors.toList());
+                StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
+                BeanUtils.copyProperties(excelStudent, s);
+                s.setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType());
+                return s;
+            }).collect(Collectors.toList());
             addedStudent.forEach(student -> student.setCreateUserId(userId));
             studentService.saveOrUpdateBatch(addedStudent);
             addedStudent.forEach(student -> idCardExistStudents.put(student.getIdCard(), student));
@@ -407,7 +412,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
-        if (!idCardList.stream().allMatch(CommonValidator::isIdCard)) {
+        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
             throw new BusinessException("存在不正确的身份证号");
         }
         // 年级名是否都存在
