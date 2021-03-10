@@ -403,35 +403,55 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         // 设置左眼
         StudentResultDetails leftDetails = new StudentResultDetails();
-        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
-        leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
-        leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
-        leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
-        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
-        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
         leftDetails.setLateriality(CommonConst.LEFT_EYE);
-
         //设置右眼
         StudentResultDetails rightDetails = new StudentResultDetails();
-        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
-        rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
-        rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
-        rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
-        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
-        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         rightDetails.setLateriality(CommonConst.RIGHT_EYE);
+
+        if (null != result.getVisionData()) {
+            // 左眼-视力检查结果
+            leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+            leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
+            leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+
+            // 右眼-视力检查结果
+            rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
+            rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
+            rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+        }
+        if (null != result.getComputerOptometry()) {
+            // 左眼--电脑验光
+            leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
+            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+            leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+
+            // 左眼--电脑验光
+            rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
+            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+            rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+        }
+        if (null != result.getBiometricData()) {
+            // 左眼--生物测量
+            leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
+            leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
+            leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
+            leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
+            leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
+
+            // 右眼--生物测量
+            rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
+            rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
+            rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
+            rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
+            rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
+        }
+        if (null != result.getOtherEyeDiseases()) {
+            // 左眼--眼部疾病
+            leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
+
+            // 右眼--眼部疾病
+            rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
+        }
         return Lists.newArrayList(rightDetails, leftDetails);
     }
 
