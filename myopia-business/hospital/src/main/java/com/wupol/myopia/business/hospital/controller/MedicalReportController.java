@@ -35,13 +35,14 @@ public class MedicalReportController {
 
     @GetMapping("/list")
     public List<MedicalReportVo> getStudentReportList(Integer studentId) {
-        return medicalReportService.getReportListByStudentId(studentId);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return medicalReportService.getReportListByStudentId(user.getOrgId(), studentId);
     }
 
-    @GetMapping("/{recordId}/{reportId}")
-    public StudentReportResponseDTO getReport(@PathVariable("recordId") Integer recordId,
-                            @PathVariable("reportId") Integer reportId) {
-        return medicalReportService.getStudentReport(recordId, reportId);
+    @GetMapping("/{reportId}")
+    public StudentReportResponseDTO getReport(@PathVariable("reportId") Integer reportId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return medicalReportService.getStudentReport(user.getOrgId(), reportId);
     }
 
     @GetMapping("/todayLast")

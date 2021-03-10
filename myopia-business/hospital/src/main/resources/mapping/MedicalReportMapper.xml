@@ -85,15 +85,8 @@
         limit 1
     </select>
 
-
-    <select id="getById" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
-        select *
-        from h_medical_report
-        where id = #{reportId}
-    </select>
-
     <select id="getStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
-        select report.id as reportId, record.id as recordId, report.create_time, mh.name as hospitalName
+        select report.id as reportId, report.hospital_id as hospitalId, report.create_time, mh.name as hospitalName
         from h_medical_report report
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id

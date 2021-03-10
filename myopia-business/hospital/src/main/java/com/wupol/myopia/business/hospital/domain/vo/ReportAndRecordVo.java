@@ -17,7 +17,7 @@ import java.util.Date;
 @Accessors(chain = true)
 public class ReportAndRecordVo {
 
-    private Integer recordId;
+    private Integer hospitalId;
 
     private Integer reportId;
 

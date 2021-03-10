@@ -169,7 +169,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return new StudentReportResponseDTO();
         }
         ReportAndRecordVo reportAndRecordVo = visitLists.get(0);
-        return medicalReportService.getStudentReport(reportAndRecordVo.getRecordId(), reportAndRecordVo.getReportId());
+        return medicalReportService.getStudentReport(reportAndRecordVo.getHospitalId(), reportAndRecordVo.getReportId());
     }
 
 
@@ -180,7 +180,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentReportResponseDTO 学生就诊记录档案卡
      */
     public StudentReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
-        return medicalReportService.getStudentReport(request.getRecordId(), request.getReportId());
+        return medicalReportService.getStudentReport(request.getHospitalId(), request.getReportId());
     }
 
     /**

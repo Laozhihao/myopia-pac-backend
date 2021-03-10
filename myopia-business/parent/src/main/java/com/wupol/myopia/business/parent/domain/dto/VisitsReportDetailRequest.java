@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class VisitsReportDetailRequest {
     
-    private Integer recordId;
+    private Integer hospitalId;
     
     private Integer reportId;
 }

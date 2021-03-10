@@ -254,15 +254,4 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         baseMapper.insert(medicalRecord);
         return medicalRecord;
     }
-
-    /**
-     * 通过学生获取检查单
-     *
-     * @param studentId 学生ID
-     * @return List<ReportAndRecordVo>
-     */
-    public List<ReportAndRecordVo> getByStudentId(Integer studentId) {
-        return baseMapper.getByStudentId(studentId);
-    }
-
 }

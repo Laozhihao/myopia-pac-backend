@@ -23,7 +23,6 @@ import java.util.Objects;
 
 /**
  * 医院-检查报告
- *
  * @author Chikong
  * @date 2021-02-10
  */
@@ -35,95 +34,75 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     private MedicalRecordService medicalRecordService;
     @Autowired
     private ResourceFileService resourceFileService;
-
-    @Autowired
-    private StudentService studentService;
-
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
+    @Autowired
+    private StudentService studentService;
 
 
     /**
      * 获取学生报告列表
-     *
      * @param studentId 学生id
      * @return List<MedicalReportVo>
      */
-    public List<MedicalReportVo> getReportListByStudentId(Integer studentId) {
+    public List<MedicalReportVo> getReportListByStudentId(Integer hospitalId, Integer studentId) {
         MedicalReportQuery query = new MedicalReportQuery();
-        query.setStudentId(studentId);
+        query.setStudentId(studentId).setHospitalId(hospitalId);
         return baseMapper.getVoBy(query);
     }
 
     /**
      * 保存报告
-     *
-     * @param medicalReport 检查单
-     * @param hospitalId    医院id
-     * @param doctorId      医生id
-     * @param studentId     学生id
+     * @param medicalReport    检查单
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @param studentId 学生id
      */
     public void saveReport(MedicalReport medicalReport,
-                             Integer hospitalId,
-                             Integer doctorId,
-                             Integer studentId) {
+                           Integer hospitalId,
+                           Integer doctorId,
+                           Integer studentId) {
         saveReport(medicalReport, hospitalId, -1, doctorId, studentId);
     }
 
     /**
      * 创建报告
-     *
-     * @param medicalReport 检查单
-     * @param hospitalId    医院id
-     * @param departmentId  科室id
-     * @param doctorId      医生id
-     * @param studentId     学生id
+     * @param medicalReport    检查单
+     * @param hospitalId 医院id
+     * @param departmentId 科室id
+     * @param doctorId 医生id
+     * @param studentId 学生id
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveReport(MedicalReport medicalReport,
-                             Integer hospitalId,
-                             Integer departmentId,
-                             Integer doctorId,
-                             Integer studentId) {
-//        MedicalReport report = getOrCreateTodayLastMedicalReport(hospitalId, doctorId, studentId);
+                           Integer hospitalId,
+                           Integer departmentId,
+                           Integer doctorId,
+                           Integer studentId) {
+        medicalReport.setHospitalId(hospitalId).setDoctorId(doctorId).setStudentId(studentId);
         saveOrUpdate(medicalReport);
     }
 
     /**
      * 获取学生的就诊档案详情（报告）
      *
-     * @param recordId 检查单ID
      * @param reportId 报告ID
      * @return responseDTO
      */
-    public StudentReportResponseDTO getStudentReport(Integer recordId, Integer reportId) {
-
+    public StudentReportResponseDTO getStudentReport(Integer hospitalId, Integer reportId) {
         StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
-        if (null != recordId) {
-            MedicalRecord record = medicalRecordService.getById(recordId);
-            responseDTO.setRecord(record);
-            // 设置学生
-            responseDTO.setStudent(studentService.getById(record.getStudentId()));
-            // 设置医生
-            responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(record.getDoctorId()));
-            if (null != reportId) {
-                MedicalReportVo report = baseMapper.getById(reportId);
-                responseDTO.setReport(report);
-            }
-        } else {
-            if (null != reportId) {
-                MedicalReportVo report = baseMapper.getById(reportId);
-                responseDTO.setReport(report);
-                // 设置学生
-                responseDTO.setStudent(studentService.getById(report.getStudentId()));
-                // 设置医生
-                responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(report.getDoctorId()));
-                if (null != report.getMedicalRecordId()) {
-                    MedicalRecord record = medicalRecordService.getById(recordId);
-                    responseDTO.setRecord(record);
-                }
-            }
-        }
+        MedicalReportQuery reportQuery = new MedicalReportQuery();
+        reportQuery.setHospitalId(hospitalId).setId(reportId);
+        // 报告
+        MedicalReport report = getBy(reportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该报告"));
+        responseDTO.setReport(report);
+        // 检查单
+        MedicalRecord record = medicalRecordService.getById(report.getId());
+        responseDTO.setRecord(record);
+        // 设置学生
+        responseDTO.setStudent(studentService.getById(report.getStudentId()));
+        // 设置医生
+        responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(report.getDoctorId()));
         return responseDTO;
     }
 
