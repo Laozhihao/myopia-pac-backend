@@ -675,7 +675,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
         List<HospitalStudentDTO> dtoList = new ArrayList<>();
 
-        if (CollectionUtils.isEmpty(studentIds) && StringUtils.isBlank(name)) {
+        if (CollectionUtils.isEmpty(studentIds)) {
             return dtoList;
         }
 
