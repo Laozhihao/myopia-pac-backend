@@ -90,11 +90,30 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @return responseDTO
      */
     public StudentReportResponseDTO getStudentReport(Integer hospitalId, Integer reportId) {
+
         StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
         MedicalReportQuery reportQuery = new MedicalReportQuery();
         reportQuery.setHospitalId(hospitalId).setId(reportId);
         // 报告
         MedicalReport report = getBy(reportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该报告"));
+        responseDTO.setReport(report);
+        // 检查单
+        MedicalRecord record = medicalRecordService.getById(report.getId());
+        responseDTO.setRecord(record);
+
+        return responseDTO;
+    }
+
+    /**
+     * 获取学生的就诊档案详情（报告）
+     *
+     * @param reportId 报告ID
+     * @return responseDTO
+     */
+    public StudentReportResponseDTO getStudentReport(Integer reportId) {
+        StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
+        // 报告
+        MedicalReport report = getById(reportId);
         responseDTO.setReport(report);
         // 检查单
         MedicalRecord record = medicalRecordService.getById(report.getId());

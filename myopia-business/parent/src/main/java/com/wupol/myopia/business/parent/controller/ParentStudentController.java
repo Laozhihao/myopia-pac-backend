@@ -50,7 +50,7 @@ public class ParentStudentController {
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        return studentService.getById(id);
+        return parentStudentService.getStudentById(id);
     }
 
     @GetMapping("school/grade/list/{schoolId}")

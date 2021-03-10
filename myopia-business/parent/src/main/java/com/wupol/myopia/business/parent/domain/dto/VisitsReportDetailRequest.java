@@ -11,8 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VisitsReportDetailRequest {
-    
-    private Integer hospitalId;
-    
+
+    /**
+     * 报告ID
+     */
     private Integer reportId;
 }

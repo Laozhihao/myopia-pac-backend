@@ -16,8 +16,10 @@ import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.management.service.VisionScreeningResultService;
 import com.wupol.myopia.business.management.util.StatUtil;
@@ -29,6 +31,7 @@ import com.wupol.myopia.business.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +64,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     @Resource
     private ParentService parentService;
+
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 孩子统计、孩子列表
@@ -174,6 +180,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
+     * 获取学生信息
+     *
+     * @param studentId 学生ID
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer studentId) {
+        StudentDTO studentDTO = new StudentDTO();
+        Student student = studentService.getById(studentId);
+        BeanUtils.copyProperties(student, studentDTO);
+        if (null != student.getAvatarFileId()) {
+            studentDTO.setAvatar(resourceFileService.getResourcePath(student.getAvatarFileId()));
+        }
+        return studentDTO;
+    }
+
+    /**
      * 学生报告统计
      *
      * @param studentId 学生ID
@@ -252,9 +274,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return new StudentReportResponseDTO();
         }
         ReportAndRecordVo reportAndRecordVo = visitLists.get(0);
-        return medicalReportService.getStudentReport(reportAndRecordVo.getHospitalId(), reportAndRecordVo.getReportId());
+        return medicalReportService.getStudentReport(reportAndRecordVo.getReportId());
     }
-
 
     /**
      * 获取就诊报告详情
@@ -263,7 +284,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentReportResponseDTO 学生就诊记录档案卡
      */
     public StudentReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
-        return medicalReportService.getStudentReport(request.getHospitalId(), request.getReportId());
+        return medicalReportService.getStudentReport(request.getReportId());
     }
 
     /**

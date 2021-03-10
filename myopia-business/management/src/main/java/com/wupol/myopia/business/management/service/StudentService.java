@@ -69,6 +69,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    @Resource
+    private ResourceFileService resourceFileService;
+
     /**
      * 根据学生id列表获取学生信息
      *
@@ -174,6 +177,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
             SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
             studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
+        }
+        if (null != resultStudent.getAvatarFileId()) {
+            studentDTO.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
         }
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount())
