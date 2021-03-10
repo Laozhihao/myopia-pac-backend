@@ -355,7 +355,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 轴位
         RefractoryResultItems axialItems = new RefractoryResultItems();
-        axialItems.setTitle("轴位");
+        axialItems.setTitle("轴位A");
 
         RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
         leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
@@ -371,7 +371,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 球镜
         RefractoryResultItems sphItems = new RefractoryResultItems();
-        sphItems.setTitle("球镜");
+        sphItems.setTitle("球镜SE");
 
         RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
         leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
@@ -393,7 +393,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 柱镜
         RefractoryResultItems cylItems = new RefractoryResultItems();
-        cylItems.setTitle("柱镜");
+        cylItems.setTitle("柱镜DC");
 
         RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
         leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
@@ -449,7 +449,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         items.add(WTWItems);
 
         // 其他眼病
-        BiometricItems otherItems = getBiometricItems("其他眼病", diseasesDO.getLeftEyeData().getEyeDiseases().toString(), diseasesDO.getRightEyeData().getEyeDiseases().toString());
+        BiometricItems otherItems = getEyeDiseases(diseasesDO.getLeftEyeData().getEyeDiseases(), diseasesDO.getRightEyeData().getEyeDiseases());
         items.add(otherItems);
 
         return items;
@@ -468,11 +468,25 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         biometricItems.setTitle(title);
 
         BiometricItems.Item leftItem = new BiometricItems.Item();
-        leftItem.setDate(leftDate);
+        leftItem.setData(leftDate);
         biometricItems.setOs(leftItem);
 
         BiometricItems.Item rightItem = new BiometricItems.Item();
-        rightItem.setDate(rightDate);
+        rightItem.setData(rightDate);
+        biometricItems.setOd(rightItem);
+        return biometricItems;
+    }
+
+    private BiometricItems getEyeDiseases(List<String> leftDate, List<String> rightDate) {
+        BiometricItems biometricItems = new BiometricItems();
+        biometricItems.setTitle("其他眼病");
+
+        BiometricItems.Item leftItem = new BiometricItems.Item();
+        leftItem.setEyeDiseases(leftDate);
+        biometricItems.setOs(leftItem);
+
+        BiometricItems.Item rightItem = new BiometricItems.Item();
+        rightItem.setEyeDiseases(rightDate);
         biometricItems.setOd(rightItem);
         return biometricItems;
     }
