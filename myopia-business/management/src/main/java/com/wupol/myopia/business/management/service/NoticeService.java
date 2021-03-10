@@ -43,9 +43,9 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         if (CollectionUtils.isEmpty(records)) {
             return noticeIPage;
         }
-        records.forEach(s -> {
-            if (null != s.getFileId()) {
-                s.setDownloadUrl(resourceFileService.getResourcePath(s.getFileId()));
+        records.forEach(notice -> {
+            if (null != notice.getFileId()) {
+                notice.setDownloadUrl(resourceFileService.getResourcePath(notice.getFileId()));
             }
         });
         return noticeIPage;

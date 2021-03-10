@@ -430,9 +430,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 设置学校总数
         response.setSchoolCount(schoolIds.size());
 
-        // 实际筛查学生统计
-
-
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
         Map<Integer, School> schoolMaps = schools.stream()
