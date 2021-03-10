@@ -62,4 +62,13 @@
         order by create_time desc
         limit 1
     </select>
+
+    <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where school_id = #{schoolId}
+          and screening_org_id = #{orgId}
+          and plan_id = #{planId}
+    </select>
 </mapper>
