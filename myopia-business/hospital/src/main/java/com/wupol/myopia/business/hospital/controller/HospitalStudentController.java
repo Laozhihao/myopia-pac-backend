@@ -44,7 +44,7 @@ public class HospitalStudentController {
     }
 
     @GetMapping("/recentList")
-    public List<Student> getRecentList() throws IOException {
+    public List<HospitalStudentDTO> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentService.getRecentList(user.getOrgId());
     }

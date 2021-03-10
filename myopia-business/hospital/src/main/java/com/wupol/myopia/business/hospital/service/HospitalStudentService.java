@@ -6,7 +6,6 @@ import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
@@ -15,7 +14,6 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,19 +82,10 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public List<HospitalStudentDTO> getStudentList(Integer hospitalId, String nameLike) throws IOException {
         HospitalStudentQuery query = new HospitalStudentQuery();
-        query.setHospitalId(hospitalId);
+        query.setNameLike(nameLike).setHospitalId(hospitalId);
 
-        // 该医院已建档的学生
-        Map<Integer, HospitalStudentVo> studentVoMap = getHospitalStudentVoList(query).stream()
-                .collect(Collectors.toMap(HospitalStudentVo::getStudentId, Function.identity()));
         // 获取学生的详细信息
-       List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(new ArrayList<>(studentVoMap.keySet()), nameLike);
-        // 设置就诊信息
-        studentList.forEach(item-> {
-            HospitalStudentVo hospitalStudentVo = studentVoMap.get(item.getId());
-           item.setNumOfVisits(hospitalStudentVo.getNumOfVisits()); // 就诊次数
-           item.setLastVisitDate(hospitalStudentVo.getLastVisitDate()); // 获取最后一检查的创建时间
-       });
+       List<HospitalStudentDTO> studentList = getHospitalStudentDTOList(query);
         return studentList;
     }
 
@@ -111,7 +100,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param hospitalId 医院id
      * @return
      */
-    public List<Student> getRecentList(Integer hospitalId) throws IOException {
+    public List<HospitalStudentDTO> getRecentList(Integer hospitalId) throws IOException {
         // 今天建档的患者姓名【前3名】
         List<Integer> idList = findByPage(new HospitalStudent().setHospitalId(hospitalId), 0, 3)
                 .getRecords().stream()
@@ -120,7 +109,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
-       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : studentService.getByIds(idList);
+       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentDTOList(new HospitalStudentQuery().setStudentIdList(idList));
     }
 
     /**
@@ -179,6 +168,48 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         return studentId;
     }
 
+    /** 保存医院与学生的 */
+    public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
+        // 保存医院与学生的关系
+        saveOrUpdate(new HospitalStudent(hospitalId, studentId));
+    }
+
+    /** 校验学生与医院关系 */
+    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
+        HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
+        return Objects.nonNull(student);
+    }
+
+    public List<HospitalStudent> getBy(HospitalStudentQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /** 该医院已建档的学生的map数据.
+     *  key是studentId,
+     *  value是HospitalStudentVo
+     * */
+    private Map<Integer, HospitalStudentVo> getHospitalStudentVoMap(HospitalStudentQuery query) {
+        return getHospitalStudentVoList(query).stream()
+                .collect(Collectors.toMap(HospitalStudentVo::getStudentId, Function.identity()));
+
+    }
+
+    /** 获取医院的学生的详细信息 */
+    private List<HospitalStudentDTO> getHospitalStudentDTOList(HospitalStudentQuery query) {
+        // 该医院已建档的学生
+        Map<Integer, HospitalStudentVo> studentVoMap = getHospitalStudentVoMap(query);
+        // 获取学生的详细信息
+        List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(new ArrayList<>(studentVoMap.keySet()), query.getNameLike());
+        // 设置就诊信息
+        studentList.forEach(item-> {
+            HospitalStudentVo hospitalStudentVo = studentVoMap.get(item.getId());
+            item.setNumOfVisits(hospitalStudentVo.getNumOfVisits()); // 就诊次数
+            item.setLastVisitDate(hospitalStudentVo.getLastVisitDate()); // 获取最后一检查的创建时间
+        });
+        return studentList;
+    }
+
+
     /** 从一个学生信息, 更新到另一个学生信息 */
     private void updateStudentInfoByAnotherStudent(Student target, Student source) {
         if (Objects.nonNull(source.getId())) target.setId(source.getId());
@@ -197,21 +228,4 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         if (Objects.nonNull(source.getAddress())) target.setAddress(source.getAddress());
 
     }
-
-    /** 保存医院与学生的 */
-    public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
-        // 保存医院与学生的关系
-        saveOrUpdate(new HospitalStudent(hospitalId, studentId));
-    }
-
-    /** 校验学生与医院关系 */
-    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
-        HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
-        return Objects.nonNull(student);
-    }
-
-    public List<HospitalStudent> getBy(HospitalStudentQuery query) {
-        return baseMapper.getBy(query);
-    }
-
 }

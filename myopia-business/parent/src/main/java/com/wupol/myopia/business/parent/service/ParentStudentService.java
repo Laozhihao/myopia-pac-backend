@@ -102,7 +102,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 学生就诊档案统计
         VisitsDetail visitsDetail = new VisitsDetail();
-        List<MedicalReportVo> visitsResults = medicalReportService.getReportListByStudentId(studentId);
+        List<MedicalReportVo> visitsResults = medicalReportService.getReportListByStudentId(null, studentId);
         visitsDetail.setTotal(visitsResults.size());
         List<CountReportItems> visitsLists = visitsResults.stream().map(v -> {
             CountReportItems items = new CountReportItems();
@@ -155,7 +155,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null == latestVisitsReport) {
             return new StudentReportResponseDTO();
         }
-        return medicalReportService.getStudentReport(latestVisitsReport.getId());
+        return medicalReportService.getStudentReport(latestVisitsReport.getHospitalId(), latestVisitsReport.getId());
     }
 
 
@@ -171,7 +171,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null == report) {
             return new StudentReportResponseDTO();
         }
-        return medicalReportService.getStudentReport(report.getId());
+        return medicalReportService.getStudentReport(report.getHospitalId(), report.getId());
     }
 
     /**

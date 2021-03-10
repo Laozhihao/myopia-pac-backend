@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 医院的学生查询
@@ -22,5 +23,8 @@ public class HospitalStudentQuery extends HospitalStudent {
     private Date startDate;
     /** 结束日期 */
     private Date endDate;
-
+    /** 模糊搜索的名称 */
+    private String nameLike;
+    /** 查询的学生id列 */
+    private List<Integer> studentIdList;
 }
