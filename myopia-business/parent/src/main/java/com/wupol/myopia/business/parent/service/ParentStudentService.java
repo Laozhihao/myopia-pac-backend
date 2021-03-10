@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.parent.service;
 
+import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -340,7 +341,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
-        int age = getAgeByBirthday(student.getBirthday());
+        int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetail responseDTO = new ScreeningReportDetail();
         responseDTO.setScreeningDate(result.getCreateTime());
@@ -895,38 +896,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private Boolean isBetweenLeft(BigDecimal val, String start, String end) {
         return val.compareTo(new BigDecimal(start)) >= 0 && val.compareTo(new BigDecimal(end)) < 0;
-    }
-
-    /**
-     * 计算年龄
-     *
-     * @param birthday 生日
-     * @return 年龄
-     */
-    private static int getAgeByBirthday(Date birthday) {
-        int age;
-        try {
-            Calendar now = Calendar.getInstance();
-            // 当前时间
-            now.setTime(new Date());
-
-            Calendar birth = Calendar.getInstance();
-            birth.setTime(birthday);
-
-            // 如果传入的时间，在当前时间的后面，返回0岁
-            if (birth.after(now)) {
-                age = 0;
-            } else {
-                age = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR);
-                if (now.get(Calendar.DAY_OF_YEAR) > birth.get(Calendar.DAY_OF_YEAR)) {
-                    age += 1;
-                }
-            }
-            return age;
-        } catch (Exception e) {
-            // 兼容性更强,异常后返回数据
-            return 0;
-        }
     }
 
     /**
