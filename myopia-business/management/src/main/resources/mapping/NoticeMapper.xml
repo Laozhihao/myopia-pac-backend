@@ -12,8 +12,8 @@
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="file_id" jdbcType="VARCHAR" property="fileId"/>
         <result column="download_url" jdbcType="VARCHAR" property="downloadUrl"/>
-        <result column="file_id" jdbcType="VARCHAR" property="downloadUrl"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
