@@ -41,10 +41,11 @@
         GROUP BY school_id
     </select>
 
-    <select id="getCreateUserIdByTaskId" resultType="java.lang.Integer">
+    <select id="getCreateUserIdByPlanIdAndOrgId" resultType="java.lang.Integer">
         SELECT create_user_id
         FROM m_vision_screening_result
-        WHERE task_id = #{taskId}
+        WHERE plan_id = #{planId}
+          and screening_org_id = #{orgId}
         GROUP BY create_user_id
     </select>
 

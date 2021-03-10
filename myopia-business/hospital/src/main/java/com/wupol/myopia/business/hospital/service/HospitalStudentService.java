@@ -15,6 +15,7 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -133,6 +134,15 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息不能为空");
         }
+
+        // 数据库中保存的学生信息
+        Student oldStudent = studentService.getByIdCard(student.getIdCard());
+        if (Objects.nonNull(oldStudent)) {
+                if(!(oldStudent.getIdCard().equals(student.getIdCard()) && oldStudent.getName().equals(student.getName()))) {
+                    throw new BusinessException("学生的身份证与姓名不匹配");
+                }
+        }
+
         // 设置学校信息
         if (Objects.nonNull(studentVo.getSchool())) {
             School school = schoolService.getBySchoolId(studentVo.getSchool().getId());
@@ -157,15 +167,35 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
             student.setTownCode(districtService.getById(studentVo.getTown().getId()).getCode());
         }
 
-        Student oldStudent = studentService.getByIdCard(student.getIdCard());
         Integer studentId;
+
         // 存在则更新,不存在则新增
         if (Objects.nonNull(oldStudent)) {
+            updateStudentInfoByAnotherStudent(student, oldStudent);
             studentId = studentService.updateStudent(student).getId();
         } else{
             studentId = studentService.saveStudent(student);
         }
         return studentId;
+    }
+
+    /** 从一个学生信息, 更新到另一个学生信息 */
+    private void updateStudentInfoByAnotherStudent(Student target, Student source) {
+        if (Objects.nonNull(source.getId())) target.setId(source.getId());
+        if (Objects.nonNull(source.getIdCard())) target.setIdCard(source.getIdCard());
+        if (Objects.nonNull(source.getName())) target.setName(source.getName());
+        if (Objects.nonNull(source.getGender())) target.setGender(source.getGender());
+        if (Objects.nonNull(source.getBirthday())) target.setBirthday(source.getBirthday());
+        if (Objects.nonNull(source.getParentPhone())) target.setParentPhone(source.getParentPhone());
+        if (Objects.nonNull(source.getSchoolNo())) target.setSchoolNo(source.getSchoolNo());
+        if (Objects.nonNull(source.getGradeId())) target.setGradeId(source.getGradeId());
+        if (Objects.nonNull(source.getClassId())) target.setClassId(source.getClassId());
+        if (Objects.nonNull(source.getProvinceCode())) target.setProvinceCode(source.getProvinceCode());
+        if (Objects.nonNull(source.getCityCode())) target.setCityCode(source.getCityCode());
+        if (Objects.nonNull(source.getAreaCode())) target.setAreaCode(source.getAreaCode());
+        if (Objects.nonNull(source.getTownCode())) target.setTownCode(source.getTownCode());
+        if (Objects.nonNull(source.getAddress())) target.setAddress(source.getAddress());
+
     }
 
     /** 保存医院与学生的 */
