@@ -212,4 +212,16 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         return visionScreeningResult;
     }
+
+    /**
+     * 获取筛查结果
+     *
+     * @param schoolId 学校ID
+     * @param orgId    机构ID
+     * @param planId   计划ID
+     * @return List<VisionScreeningResult> 筛查结果
+     */
+    public List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(Integer schoolId, Integer orgId, Integer planId) {
+        return baseMapper.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId);
+    }
 }
