@@ -305,6 +305,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                 item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
             }
             item.setResultId(r.getId());
+            item.setIsDoubleScreen(r.getIsDoubleScreen());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());

@@ -36,4 +36,9 @@ public class StudentScreeningResultItems {
      * 筛查结果表ID
      */
     private Integer resultId;
+
+    /**
+     * 筛查结果--是否复筛（0否，1是）
+     */
+    private Boolean isDoubleScreen;
 }

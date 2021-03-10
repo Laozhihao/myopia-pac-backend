@@ -13,6 +13,7 @@
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
         <result column="download_url" jdbcType="VARCHAR" property="downloadUrl"/>
+        <result column="file_id" jdbcType="VARCHAR" property="downloadUrl"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -30,6 +31,7 @@
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
                 <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
+                <if test="@Ognl@isNotEmpty(fileId)">and `file_id` = #{fileId}</if>
                 <if test="@Ognl@isNotEmpty(downloadUrl)">and `download_url` = #{downloadUrl}</if>
                 <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
                 <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
@@ -40,7 +42,7 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id, create_user_id, link_id, notice_user_id, type, `status`, title, content, download_url, start_time, end_time, create_time, update_time
+        id, create_user_id, link_id, notice_user_id, type, `status`, title, content, file_id, download_url, start_time, end_time, create_time, update_time
     </sql>
 
     <select id="getByNoticeUserId" resultMap="BaseResultMap">

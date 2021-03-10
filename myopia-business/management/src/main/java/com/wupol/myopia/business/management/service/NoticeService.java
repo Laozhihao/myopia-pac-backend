@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 @Log4j2
 public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
+    @Resource
+    private ResourceFileService resourceFileService;
+
     /**
      * 获取通知列表
      *
@@ -35,7 +38,17 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @return {@link IPage} List<Notice>
      */
     public IPage<Notice> getLists(PageRequest pageRequest, CurrentUser currentUser) {
-        return baseMapper.getByNoticeUserId(pageRequest.toPage(), currentUser.getId());
+        IPage<Notice> noticeIPage = baseMapper.getByNoticeUserId(pageRequest.toPage(), currentUser.getId());
+        List<Notice> records = noticeIPage.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return noticeIPage;
+        }
+        records.forEach(s -> {
+            if (null != s.getFileId()) {
+                s.setDownloadUrl(resourceFileService.getResourcePath(s.getFileId()));
+            }
+        });
+        return noticeIPage;
     }
 
     /**
@@ -76,7 +89,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
             // 站内信
             response.setStationLetter(notices.stream().filter(notice -> notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
             // 筛查通知
-            response.setScreeningNotice(notices.stream().filter(notice-> !notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
+            response.setScreeningNotice(notices.stream().filter(notice -> !notice.getType().equals(CommonConst.NOTICE_STATION_LETTER)).collect(Collectors.toList()));
         }
         return response;
     }
@@ -99,17 +112,17 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param createUserId 创建人
      * @param title        标题
      * @param content      内容
-     * @param downloadUrl  文件url
+     * @param fileId       资源文件ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createExportNotice(Integer createUserId, String title, String content, String downloadUrl) {
+    public void createExportNotice(Integer createUserId, String title, String content, Integer fileId) {
         Notice notice = new Notice();
         notice.setCreateUserId(createUserId);
         notice.setNoticeUserId(createUserId);
         notice.setType(CommonConst.NOTICE_STATION_LETTER);
         notice.setTitle(title);
         notice.setContent(content);
-        notice.setDownloadUrl(downloadUrl);
+        notice.setFileId(fileId);
         baseMapper.insert(notice);
     }
 
