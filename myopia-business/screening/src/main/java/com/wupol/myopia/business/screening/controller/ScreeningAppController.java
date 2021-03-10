@@ -58,8 +58,6 @@ public class ScreeningAppController {
     private SchoolService schoolService;
     @Autowired
     private StudentService studentService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
 
     /**
@@ -280,12 +278,13 @@ public class ScreeningAppController {
             @RequestParam(value = "size", defaultValue = "60") Integer size) {
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
-        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(deptId);
-        if (currentPlan == null) {
-            return ResultVOUtil.success();
-        }
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
+        studentName = StringUtils.isBlank(studentName)? null : studentName;
+       schoolName= StringUtils.isBlank(schoolName)? null : schoolName;
+
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setScreeningPlanId(currentPlan.getId())
+        screeningPlanSchoolStudent
                 .setScreeningOrgId(deptId.intValue())
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
@@ -315,6 +314,9 @@ public class ScreeningAppController {
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName) {
+
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
         List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size);
         if (isRandom) {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);

@@ -7,9 +7,9 @@ import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -51,6 +51,6 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      * @param currentTimestamp
      * @return
      */
-    List<Long> selectScreeningSchoolIds(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
+    List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
 
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.screening.service;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -149,13 +150,13 @@ public class ScreeningAppService {
      * @return
      */
     public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size) {
-        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId);
-        if (currentPlan == null) {
+        //ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId);
+     /*   if (currentPlan == null) {
             throw new ManagementUncheckedException("该筛查机构没有合适的计划，screeningOrgId = " + screeningOrgId);
-        }
+        }*/
         // 获取学生数据
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setScreeningPlanId(currentPlan.getId()).setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
+        screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(studentName)) {
             screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName,studentName);
@@ -170,7 +171,7 @@ public class ScreeningAppService {
         }
         //查找统计数据
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId, screeningPlanStudentIds).eq(StatConclusion::getPlanId, currentPlan.getId());
+        queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId, screeningPlanStudentIds);
         List<StatConclusion> allStatConclusions = statConclusionService.getBaseMapper().selectList(queryWrapper);
         // 对数据进行分类
         Map<Integer, List<StatConclusion>> idStatConclusionListMap = allStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningPlanSchoolStudentId));

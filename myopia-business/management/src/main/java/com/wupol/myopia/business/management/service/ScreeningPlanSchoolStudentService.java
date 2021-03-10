@@ -56,6 +56,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     private SchoolClassService schoolClassService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 根据学生id获取筛查计划学校学生
@@ -96,17 +98,25 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             throw new ManagementUncheckedException("deptId 不能为空");
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchools = baseMapper.selectList(queryWrapper);
-        return screeningPlanSchools;
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = baseMapper.selectList(queryWrapper);
+        return screeningPlanSchoolStudents;
     }
 
     public List<ScreeningPlanSchoolStudent> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
         List<ScreeningPlanSchoolStudent> screeningPlanSchools = baseMapper.selectList(queryWrapper);
         return screeningPlanSchools;
     }
@@ -514,11 +524,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        //获取当前计划
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
         String studentName = screeningPlanSchoolStudent.getStudentName();
         screeningPlanSchoolStudent.setStudentName(null);
-        queryWrapper.setEntity(screeningPlanSchoolStudent);
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
         if (StringUtils.isNotBlank(studentName)) {
-            queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName,studentName);
+            queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
         return baseMapper.selectList(queryWrapper);
     }
