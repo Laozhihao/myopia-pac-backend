@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.parent.service;
 
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.GlassesType;
@@ -24,6 +24,7 @@ import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.parent.domain.dto.*;
 import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
+import com.wupol.myopia.business.parent.domain.model.Parent;
 import com.wupol.myopia.business.parent.domain.model.ParentStudent;
 import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +59,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     @Resource
     private MedicalReportService medicalReportService;
 
+    @Resource
+    private ParentService parentService;
+
     /**
      * 孩子统计、孩子列表
      *
@@ -75,19 +82,96 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param request 请求入参
      * @return 学生ID
      */
-    public ApiResult<Integer> checkIdCard(CheckIdCardRequest request) {
-        Student student = studentService.getByIdCard(request.getIdCard());
+    public CheckIdCardResponseDTO checkIdCard(CheckIdCardRequest request) {
+        CheckIdCardResponseDTO responseDTO = new CheckIdCardResponseDTO();
+        String idCard = request.getIdCard();
+        Student student = studentService.getByIdCard(idCard);
 
         if (null == student) {
             // 为空说明是新增
-            return ApiResult.success();
+            TwoTuple<Date, Integer> idCardInfo = getIdCardInfo(idCard);
+            responseDTO.setBirthday(idCardInfo.getFirst());
+            responseDTO.setGender(idCardInfo.getSecond());
+            return responseDTO;
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
                 throw new BusinessException("身份证数据异常");
             }
-            return ApiResult.success(student.getId());
+            responseDTO.setStudentId(student.getId());
+            responseDTO.setBirthday(student.getBirthday());
+            responseDTO.setGender(student.getGender());
+            return responseDTO;
         }
+    }
+
+
+    /**
+     * 通过身份证获取个人信息
+     *
+     * @param idCard 身份证
+     * @return TwoTuple<Date, Integer> 出生日期, 性别
+     */
+    private TwoTuple<Date, Integer> getIdCardInfo(String idCard) {
+        String birthdayStr = null;
+        Integer gender = null;
+
+        char[] number = idCard.toCharArray();
+        boolean flag = true;
+        if (number.length == 15) {
+            for (char c : number) {
+                if (!flag) {
+                    return new TwoTuple<>();
+                }
+                flag = Character.isDigit(c);
+            }
+        } else if (number.length == 18) {
+            for (int x = 0; x < number.length - 1; x++) {
+                if (!flag) {
+                    return new TwoTuple<>();
+                }
+                flag = Character.isDigit(number[x]);
+            }
+        }
+        if (flag && idCard.length() == 15) {
+            birthdayStr = "19" + idCard.substring(6, 8) + "-"
+                    + idCard.substring(8, 10) + "-"
+                    + idCard.substring(10, 12);
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? 2 : 1;
+        } else if (flag && idCard.length() == 18) {
+            birthdayStr = idCard.substring(6, 10) + "-"
+                    + idCard.substring(10, 12) + "-"
+                    + idCard.substring(12, 14);
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 2 : 1;
+        }
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return new TwoTuple<>(format.parse(birthdayStr), gender);
+        } catch (ParseException e) {
+            throw new BusinessException("身份证信息异常");
+        }
+    }
+
+    /**
+     * 新增孩子
+     *
+     * @param student     学生
+     * @param currentUser 当前登录用户
+     * @return 学生ID
+     * @throws IOException IO异常
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer saveStudent(Student student, CurrentUser currentUser) throws IOException {
+        // 查找家长ID
+        Parent parent = parentService.getParentByUserId(currentUser.getId());
+        if (null == parent) {
+            throw new BusinessException("家长信息异常");
+        }
+
+        Integer studentId = studentService.saveStudent(student);
+        // 绑定孩子
+        parentBindStudent(studentId, parent.getId());
+        return studentId;
     }
 
     /**
@@ -206,14 +290,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     /**
      * 家长绑定学生
      *
-     * @param request 请求入参
+     * @param studentId 学生ID
+     * @param parentId  家长ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void parentBindStudent(ParentBindRequest request) {
+    public void parentBindStudent(Integer studentId, Integer parentId) {
         ParentStudent parentStudent = new ParentStudent();
-
-        Integer studentId = request.getStudentId();
-        Integer parentId = request.getParentId();
         if (null == parentId || null == studentId) {
             throw new BusinessException("数据异常");
         }
