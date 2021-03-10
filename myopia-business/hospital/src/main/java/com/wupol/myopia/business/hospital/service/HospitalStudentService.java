@@ -109,7 +109,9 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
-       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentDTOList(new HospitalStudentQuery().setStudentIdList(idList));
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setStudentIdList(idList).setHospitalId(hospitalId);
+       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentDTOList(query);
     }
 
     /**
