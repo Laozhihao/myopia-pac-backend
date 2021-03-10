@@ -33,8 +33,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 筛查机构
+ *
+ * @author HaoHao
  */
 @Service
 @Log4j2
@@ -294,8 +295,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 根据是否需要查询机构是否已有任务，返回时间段内已有任务的机构id
      *
-     * @param query
-     * @return
+     * @param query 条件
+     * @return List<Integer>
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQuery query) {
         if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
@@ -527,6 +528,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private Integer getScreeningStatus(Date startDate, Date endDate) {
 
         Date nowDate = new Date();
+
+        // 结束时间加一天
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.DATE, 1);
+        endDate = calendar.getTime();
         if (nowDate.before(startDate)) {
             return 0;
         }
@@ -537,8 +544,5 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return 2;
         }
         return 1;
-    }
-    public Object getRecordDetail(Integer id) {
-        return visionScreeningResultService.getByTaskId(id);
     }
 }
