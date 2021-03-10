@@ -412,7 +412,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     private void checkExcelDataLegal(Set<String> idCardList, List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, List<ScreeningPlanSchoolStudent> notUploadStudents) {
         // 身份证号是否符合规则
-        if (!idCardList.stream().allMatch(RegularUtils::isIdCard)) {
+        if (!idCardList.stream().allMatch(CommonValidator::isIdCard)) {
             throw new BusinessException("存在不正确的身份证号");
         }
         // 年级名是否都存在
