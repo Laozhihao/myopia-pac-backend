@@ -18,7 +18,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<Integer> getSchoolIdByTaskId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 
-    List<Integer> getCreateUserIdByTaskId(Integer taskId);
+    List<Integer> getCreateUserIdByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
 
     List<StudentScreeningCountVO> countScreeningTime();
 

@@ -396,21 +396,22 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponse> taskPages = screeningPlanService.getPageByOrgId(request, orgId);
-        List<ScreeningOrgPlanResponse> tasks = taskPages.getRecords();
+        IPage<ScreeningOrgPlanResponse> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponse> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
-            return taskPages;
+            return planPages;
         }
-        tasks.forEach(this::extractedDTO);
-        return taskPages;
+        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
+        return planPages;
     }
 
     /**
      * 封装DTO
      *
      * @param taskResponse 筛查端-记录详情
+     * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningOrgPlanResponse taskResponse) {
+    private void extractedDTO(ScreeningOrgPlanResponse taskResponse, Integer orgId) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
@@ -442,7 +443,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Map<Integer, School> schoolMaps = schools.stream()
                 .collect(Collectors.toMap(School::getId, Function.identity()));
 
-        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
+        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(taskResponse.getId(), orgId);
         // 员工信息
         if (!CollectionUtils.isEmpty(createUserIds)) {
             List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);
