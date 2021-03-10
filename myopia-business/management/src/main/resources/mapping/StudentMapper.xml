@@ -164,13 +164,11 @@
     <select id="getByIdsAndName" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from m_student where 1 = 1
-        <if test="ids != null and ids.size() != 0">
-            and id in
-            <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-                #{id}
-            </foreach>
-        </if>
+        from m_student where
+                id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="name != null and name != ''">
             and name like CONCAT('%', #{name}, '%')
         </if>
