@@ -89,7 +89,7 @@ public class WxController {
             // 获取openId
             String openId = wxService.getOpenId(code);
             // 根据openId判断用户是否授权，未授权则跳到“用户协议”页面
-            Parent parent = parentService.getPatientByOpenId(openId);
+            Parent parent = parentService.getParentByOpenId(openId);
             if (Objects.isNull(parent)) {
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode());
             }

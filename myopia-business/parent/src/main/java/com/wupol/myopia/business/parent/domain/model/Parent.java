@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.parent.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -67,5 +68,6 @@ public class Parent implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-
+    @TableField(exist = false)
+    private String phone;
 }
