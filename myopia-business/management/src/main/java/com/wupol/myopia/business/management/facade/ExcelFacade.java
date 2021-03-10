@@ -790,7 +790,6 @@ public class ExcelFacade {
      *
      * @param userId
      * @param multipartFile
-     * @param screeningPlanId
      * @param schoolId
      * @throws IOException
      */
@@ -825,14 +824,15 @@ public class ExcelFacade {
 
     /**
      * 导出统计报表 - 数据对比表
-     * @param userId 用户ID
+     *
+     * @param userId     用户ID
      * @param exportList 导出数据
-     * @param template 导出模板
+     * @param template   导出模板
      * @throws IOException
      * @throws UtilException
      */
     public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
-            File template) throws IOException, UtilException {
+                                   File template) throws IOException, UtilException {
         String fileName = "统计对比报表";
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
