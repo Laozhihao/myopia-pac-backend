@@ -116,8 +116,10 @@ public class AuthController {
         try {
             oAuthToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         } catch (InvalidTokenException e) {
+            logger.error("无效的刷新令牌", e);
             return ApiResult.failure("无效的刷新令牌");
         } catch (Exception e) {
+            logger.error("刷新令牌失败", e);
             return ApiResult.failure("刷新令牌失败");
         }
         if (Objects.isNull(oAuthToken)) {
