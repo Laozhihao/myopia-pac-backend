@@ -139,15 +139,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         }
         // 获取固化报告
         ReportConclusion reportConclusionData = report.getReportConclusionData();
-        // 学生
-        Student student = reportConclusionData.getStudent();
-        // 医生签名资源ID
-        Integer doctorSignFileId = reportConclusionData.getSignFileId();
-
-        responseDTO.setStudent(packageStudentInfo(student));
-        responseDTO.setHospitalName(reportConclusionData.getHospitalName());
-        responseDTO.setReport(packageReportInfo(report, doctorSignFileId));
-
+        if (Objects.nonNull(reportConclusionData)) {
+            // 学生
+            Student student = reportConclusionData.getStudent();
+            // 医生签名资源ID
+            Integer doctorSignFileId = reportConclusionData.getSignFileId();
+            responseDTO.setStudent(packageStudentInfo(student));
+            responseDTO.setReport(packageReportInfo(report, doctorSignFileId));
+            responseDTO.setHospitalName(reportConclusionData.getHospitalName());
+        }
         // 检查单
         if (null != report.getMedicalRecordId()) {
             MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
@@ -205,6 +205,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @return ToscaMedicalRecord
      */
     private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord record) {
+        if (Objects.isNull(record)) {
+            return null;
+        }
         ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
         ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
         if (Objects.nonNull(mydriasis)) {
