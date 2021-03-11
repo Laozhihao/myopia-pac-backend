@@ -116,7 +116,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         MedicalReport report = getById(reportId);
         responseDTO.setReport(report);
         // 检查单
-        MedicalRecord record = medicalRecordService.getById(report.getId());
+        MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
         responseDTO.setRecord(record);
         // 设置学生
         responseDTO.setStudent(studentService.getById(report.getStudentId()));
