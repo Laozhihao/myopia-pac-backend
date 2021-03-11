@@ -92,7 +92,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             dbReport.setGlassesSituation(medicalReport.getGlassesSituation())
                     .setMedicalContent(medicalReport.getMedicalContent())
                     .setImageIdList(medicalReport.getImageIdList())
-                    .setDoctorId(medicalRecord.getDoctorId());
+                    .setDoctorId(medicalReport.getDoctorId());
         } else {
             dbReport = medicalReport;
         }
