@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
@@ -710,10 +711,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             CorrectedVisionDetails.Item right = new CorrectedVisionDetails.Item();
 
             left.setLateriality(CommonConst.LEFT_EYE);
-            left.setCreateTime(result.getCreateTime());
+            left.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             right.setLateriality(CommonConst.RIGHT_EYE);
-            right.setCreateTime(result.getCreateTime());
+            right.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             VisionDataDO visionData = result.getVisionData();
             if (Objects.nonNull(visionData)) {
@@ -741,10 +742,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             CylDetails.Item right = new CylDetails.Item();
 
             left.setLateriality(CommonConst.LEFT_EYE);
-            left.setCreateTime(result.getCreateTime());
+            left.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             right.setLateriality(CommonConst.RIGHT_EYE);
-            right.setCreateTime(result.getCreateTime());
+            right.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
@@ -772,10 +773,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             SphDetails.Item right = new SphDetails.Item();
 
             left.setLateriality(CommonConst.LEFT_EYE);
-            left.setCreateTime(result.getCreateTime());
+            left.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             right.setLateriality(CommonConst.RIGHT_EYE);
-            right.setCreateTime(result.getCreateTime());
+            right.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
@@ -803,9 +804,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             NakedVisionDetails.Item right = new NakedVisionDetails.Item();
 
             left.setLateriality(CommonConst.LEFT_EYE);
-            left.setCreateTime(result.getCreateTime());
+            left.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             right.setLateriality(CommonConst.RIGHT_EYE);
-            right.setCreateTime(result.getCreateTime());
+            right.setCreateTime(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
 
             VisionDataDO visionData = result.getVisionData();
             if (Objects.nonNull(visionData)) {
