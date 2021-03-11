@@ -32,7 +32,7 @@
                 <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
                 <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
                 <if test="@Ognl@isNotEmpty(address)">and `address` = #{address}</if>
-                <if test="@Ognl@isNotEmpty(avatar)">and `avatar` = #{avatar}</if>
+                <if test="@Ognl@isNotEmpty(avatarFileId)">and `avatar_file_id` = #{avatarFileId}</if>
                 <if test="@Ognl@isNotEmpty(currentSituation)">and `current_situation` = #{currentSituation}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel)">and `vision_label` = #{visionLabel}</if>
                 <if test="@Ognl@isNotEmpty(lastScreeningTime)">and `last_screening_time` = #{lastScreeningTime}</if>
@@ -58,7 +58,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -164,8 +164,8 @@
     <select id="getByIdsAndName" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from m_student
-                where id in
+        from m_student where
+                id in
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>

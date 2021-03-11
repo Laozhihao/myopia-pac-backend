@@ -48,4 +48,9 @@ public class StudentDTO extends Student {
      * 筛查二维码地址
      */
     private String qrCodeUrl;
+
+    /**
+     * 头像URL
+     */
+    private String avatar;
 }

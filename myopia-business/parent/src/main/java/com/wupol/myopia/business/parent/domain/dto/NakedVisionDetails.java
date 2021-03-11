@@ -33,12 +33,12 @@ public class NakedVisionDetails {
         /**
          * 裸眼视力
          */
-        private BigDecimal nakedVision;
+        private BigDecimal vision;
 
         /**
          * 创建时间
          */
-        private Date createTime;
+        private String createTime;
     }
 
 

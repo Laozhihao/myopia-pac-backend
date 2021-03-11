@@ -7,7 +7,8 @@ CREATE TABLE `h_hospital_student`
     `create_time` timestamp default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`),
     INDEX `hospital_id_index` (`hospital_id`),
-    INDEX `student_id_index` (`student_id`)
+    INDEX `student_id_index` (`student_id`),
+    UNIQUE KEY `hospital_id_student_id_unique_index` (`hospital_id`,`student_id`)
 ) COMMENT ='医院-学生';
 
 DROP TABLE IF EXISTS `h_department`;
@@ -43,19 +44,6 @@ CREATE TABLE `h_doctor`
     INDEX `hospital_id_index` (`hospital_id`)
 ) COMMENT ='医院-医生表';
 
-DROP TABLE IF EXISTS `h_consultation`;
-CREATE TABLE `h_consultation`
-(
-    `id`           int                                 NOT NULL AUTO_INCREMENT,
-    `student_id`   int                                 NOT NULL COMMENT '学生id',
-    `hospital_id`  int                                 NULL COMMENT '医院id',
-    `disease_list` json                                NULL COMMENT '病种',
-    `create_time`  timestamp default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    INDEX `student_id_index` (`student_id`),
-    INDEX `hospital_id_index` (`hospital_id`)
-) COMMENT ='医院-学生问诊';
-
 DROP TABLE IF EXISTS `h_medical_record`;
 CREATE TABLE `h_medical_record`
 (
@@ -64,7 +52,7 @@ CREATE TABLE `h_medical_record`
     `hospital_id`     int                                 NULL COMMENT '医院id',
     `department_id`   int                                 NULL COMMENT '科室id',
     `doctor_id`       int                                 NOT NULL COMMENT '医生id',
-    `consultation_id` int                                 NULL COMMENT '问诊内容id',
+    `consultation`    json                                NULL COMMENT '问诊内容',
     `vision`          json                                NULL COMMENT '视力检查',
     `diopter`         json                                NULL COMMENT '屈光检查',
     `biometrics`      json                                NULL COMMENT '生物测量',
@@ -82,6 +70,7 @@ DROP TABLE IF EXISTS `h_medical_report`;
 CREATE TABLE `h_medical_report`
 (
     `id`                     int                                 NOT NULL AUTO_INCREMENT,
+    `no`                     varchar(64)                         NOT NULL COMMENT '报告编号',
     `hospital_id`            int                                 NULL COMMENT '医院id',
     `department_id`          int                                 NULL COMMENT '科室id',
     `student_id`             int                                 NOT NULL COMMENT '学生id',
@@ -89,7 +78,7 @@ CREATE TABLE `h_medical_report`
     `doctor_id`              int                                 NOT NULL COMMENT '医生id',
     `glasses_situation`      tinyint                             NULL COMMENT '配镜情况。1配框架眼镜，2配OK眼镜，3配隐形眼镜',
     `medical_content`        varchar(300)                        NULL COMMENT '医生诊断',
-    `file_id_list`           json                                NULL COMMENT '影像列表id',
+    `image_id_list`          json                                NULL COMMENT '影像列表id',
     `report_conclusion_data` json                                null comment '固化的结论数据',
     `create_time`            timestamp default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
     `update_time`            timestamp default CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

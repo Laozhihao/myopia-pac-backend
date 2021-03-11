@@ -68,7 +68,8 @@ public class DiopterMedicalRecord {
         private String mainEye;
         /** 双眼平衡法。非散瞳验光必填。 */
         private String eyeBalance;
-
+        /** 药品 */
+        private Integer drug;
         /** 备注 */
         private String remark;
 

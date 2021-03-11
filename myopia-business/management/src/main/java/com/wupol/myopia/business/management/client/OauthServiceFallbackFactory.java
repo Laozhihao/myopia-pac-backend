@@ -71,7 +71,7 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
             }
 
             @Override
-            public ApiResult<UserDTO> addAdminUser(UserDTO param) {
+            public ApiResult<UserDTO> addMultiSystemUser(UserDTO param) {
                 return respData;
             }
 
@@ -102,6 +102,11 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
 
             @Override
             public ApiResult getRoleList(RoleDTO param) {
+                return respData;
+            }
+
+            @Override
+            public ApiResult<Page<RoleDTO>> getRoleListByPage(RoleDTO param) {
                 return respData;
             }
 

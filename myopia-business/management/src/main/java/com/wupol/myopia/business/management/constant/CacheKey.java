@@ -73,4 +73,12 @@ public interface CacheKey {
      */
     String FILE_URL = "file:url:key_%s";
 
+    /**
+     * 短信验证码token
+     */
+    String SMS_CODE_TOKEN = "sms:code:token:phone_%s";
+    /**
+     * 短信校验失败数量
+     */
+    String SMS_TOKEN_FAIL_COUNT = "sms:code:fail_count:phone_%s";
 }

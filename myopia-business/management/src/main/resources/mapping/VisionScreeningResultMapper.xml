@@ -41,10 +41,11 @@
         GROUP BY school_id
     </select>
 
-    <select id="getCreateUserIdByTaskId" resultType="java.lang.Integer">
+    <select id="getCreateUserIdByPlanIdAndOrgId" resultType="java.lang.Integer">
         SELECT create_user_id
         FROM m_vision_screening_result
-        WHERE task_id = #{taskId}
+        WHERE plan_id = #{planId}
+          and screening_org_id = #{orgId}
         GROUP BY create_user_id
     </select>
 
@@ -60,5 +61,20 @@
         where student_id = #{studentId}
         order by create_time desc
         limit 1
+    </select>
+
+    <select id="getPlanIdsByTime" resultType="java.lang.Integer">
+        SELECT DISTINCT plan_id
+        FROM m_vision_screening_result
+        WHERE DATE(update_time) between DATE(#{startTime}) and DATE(#{endTime})
+    </select>
+
+    <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where school_id = #{schoolId}
+          and screening_org_id = #{orgId}
+          and plan_id = #{planId}
     </select>
 </mapper>

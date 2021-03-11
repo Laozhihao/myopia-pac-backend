@@ -404,7 +404,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setCreateUserId(school.getCreateUserId())
                 .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 
-        UserDTO user = oauthService.addAdminUser(userDTO);
+        UserDTO user = oauthService.addMultiSystemUser(userDTO);
         schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
         return new UsernameAndPasswordDTO(username, password);
     }
@@ -446,7 +446,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<ScreeningPlanResponse> plans = planPages.getRecords();
 
         if (!CollectionUtils.isEmpty(plans)) {
-            List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+            List<Integer> planIds = plans.stream().map(ScreeningPlanResponse::getId).collect(Collectors.toList());
             // 学校统计信息
             List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
                     .getByPlanIdsAndSchoolId(planIds, schoolId);

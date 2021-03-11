@@ -61,6 +61,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return List<District>
      */
     public List<District> getByCodes(List<Long> codes) {
+        if (CollectionUtils.isEmpty(codes)) {
+            return new ArrayList<>();
+        }
         return baseMapper.getByCodes(codes);
     }
 
@@ -201,6 +204,18 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return getById(screeningOrganization.getDistrictId());
         }
         throw new BusinessException("无效用户类型");
+    }
+
+    /**
+     * 从缓存获取以指定行政区域为根节点的行政区域树
+     *
+     * @param districtId 根节点行政区域
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<District> getSpecificDistrictTree(Integer districtId) throws IOException {
+        // 获取以指定行政区域为根节点的行政区域树
+        District district = getById(districtId);
+        return getSpecificDistrictTreePriorityCache(district.getCode());
     }
 
     /**

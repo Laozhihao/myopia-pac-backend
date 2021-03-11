@@ -74,7 +74,8 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResult handleTypeMismatchException(NullPointerException ex) {
-        logger.error("空指针异常，{}", ex.getMessage(), ex);
+//        logger.error("空指针异常，{}", ex.getMessage(), ex);
+        logger.error("空指针异常", ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 

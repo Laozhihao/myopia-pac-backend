@@ -98,7 +98,7 @@ public class OauthService {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @OauthRequest
-    public UserDTO addAdminUser(UserDTO param){
+    public UserDTO addMultiSystemUser(UserDTO param){
         return null;
     }
 
@@ -162,6 +162,11 @@ public class OauthService {
      **/
     @OauthRequest
     public List<RoleDTO> getRoleList(RoleDTO param){
+        return null;
+    }
+
+    @OauthRequest
+    public Page<RoleDTO> getRoleListByPage(RoleDTO param){
         return null;
     }
 

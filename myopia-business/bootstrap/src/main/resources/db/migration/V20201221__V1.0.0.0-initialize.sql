@@ -191,7 +191,7 @@ create table m_student
     area_code           bigint                              null comment '区代码',
     town_code           bigint                              null comment '镇/乡代码',
     address             varchar(128)                        null comment '详细地址',
-    avatar              varchar(128)                        null comment '头像',
+    avatar_file_id      int                                 null comment '头像资源ID',
     current_situation   varchar(128)                        null comment '当前情况',
     vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     last_screening_time timestamp                           null comment '最近筛选时间',

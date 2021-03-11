@@ -86,10 +86,13 @@ public class AuthController {
             return ApiResult.failure("登录失败");
         }
         CurrentUser currentUser = authService.parseToken(oAuth2AccessToken.getValue());
+        Integer userId = currentUser.getId();
         // 获取菜单权限，并缓存
-        List<Permission> permissions = authService.cacheUserPermission(currentUser.getUsername(), currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn());
+        List<Permission> permissions = authService.cacheUserPermission(userId, currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn());
+        // 缓存accessToken
+        authService.cacheUserAccessToken(userId, oAuth2AccessToken.getValue(), oAuth2AccessToken.getExpiresIn());
         // 更新用户最后登录时间
-        userService.updateById(new User().setId(currentUser.getId()).setLastLoginTime(new Date()));
+        userService.updateById(new User().setId(userId).setLastLoginTime(new Date()));
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
     }
 
@@ -113,15 +116,17 @@ public class AuthController {
         try {
             oAuthToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         } catch (InvalidTokenException e) {
+            logger.error("无效的刷新令牌", e);
             return ApiResult.failure("无效的刷新令牌");
         } catch (Exception e) {
+            logger.error("刷新令牌失败", e);
             return ApiResult.failure("刷新令牌失败");
         }
         if (Objects.isNull(oAuthToken)) {
             return ApiResult.failure("刷新令牌失败");
         }
         // 延长权限缓存过期时间
-        authService.delayPermissionCache(refreshToken.getRefresh_token(), oAuthToken.getExpiresIn());
+        authService.delayPermissionCache(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn());
         return ApiResult.success(new TokenInfoVO(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn()));
     }
 
@@ -134,6 +139,7 @@ public class AuthController {
     public ApiResult logout() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         redisUtil.del(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
+        redisUtil.del(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
         return ApiResult.success();
     }
 

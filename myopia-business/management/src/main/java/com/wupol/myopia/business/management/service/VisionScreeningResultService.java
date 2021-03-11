@@ -2,6 +2,15 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
@@ -16,6 +25,16 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+
+import com.wupol.myopia.business.management.util.TwoTuple;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -65,11 +84,12 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 获取筛查人员ID
      *
-     * @param taskId 通知任务
-     * @return 学校ID
+     * @param planId 计划od
+     * @param orgId  机构ID
+     * @return UserId
      */
-    public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
-        return baseMapper.getCreateUserIdByTaskId(taskId);
+    public List<Integer> getCreateUserIdByPlanId(Integer planId, Integer orgId) {
+        return baseMapper.getCreateUserIdByPlanIdAndOrgId(planId, orgId);
     }
 
     /**
@@ -79,6 +99,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<StudentScreeningCountVO> countScreeningTime() {
         return baseMapper.countScreeningTime();
+    }
+
+    /**
+     * 获取昨天筛查数据的筛查计划Id
+     *
+     * @return
+     */
+    public List<Integer> getYesterdayScreeningPlanIds() {
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 
     /**
@@ -126,6 +157,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
+        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(), screeningResultBasicData.getIsState());
         VisionScreeningResult visionScreeningResult = getScreeningResultD(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(),screeningResultBasicData.getIsState());
         TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
         return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
@@ -179,6 +211,18 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             save(visionScreeningResult);
         }
         return visionScreeningResult;
+    }
+
+    /**
+     * 获取筛查结果
+     *
+     * @param schoolId 学校ID
+     * @param orgId    机构ID
+     * @param planId   计划ID
+     * @return List<VisionScreeningResult> 筛查结果
+     */
+    public List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(Integer schoolId, Integer orgId, Integer planId) {
+        return baseMapper.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId);
     }
 
     public  TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) throws IOException {

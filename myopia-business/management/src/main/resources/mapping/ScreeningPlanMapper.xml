@@ -55,7 +55,7 @@
         and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
     </select>
 
-    <select id="getPlanLists" resultMap="BaseResultMap">
+    <select id="getPlanLists" resultMap="BaseResultDTOMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan msp where msp.id in
@@ -63,7 +63,7 @@
             #{id}
         </foreach>
         and msp.release_status = 1
-        order by msp.create_time desc
+                order by msp.create_time desc
     </select>
 
     <select id="selectScreeningSchools" resultType="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool">
@@ -78,7 +78,7 @@
 
     <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
         SELECT
-        mst.id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,
+        mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id,
         mst.create_time

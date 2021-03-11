@@ -5,17 +5,23 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
-import com.wupol.myopia.business.parent.domain.dto.WxAccessTokenInfo;
+import com.wupol.myopia.business.parent.constant.ParentClientConstant;
+import com.wupol.myopia.business.parent.constant.WxBusinessExceptionCodeEnum;
+import com.wupol.myopia.business.parent.constant.WxConstant;
+import com.wupol.myopia.business.parent.domain.dto.WxAuthorizationInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxLoginInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxUserInfo;
 import com.wupol.myopia.business.parent.domain.model.Parent;
 import com.wupol.myopia.business.parent.service.ParentService;
+import com.wupol.myopia.business.parent.service.SmsService;
 import com.wupol.myopia.business.parent.service.WxService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -27,13 +33,12 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/2/26
  **/
+@Validated
 @CrossOrigin
 @Controller
 @RequestMapping("/parent/wx")
 public class WxController {
     private static final Logger logger = LoggerFactory.getLogger(WxController.class);
-
-    private static final String WX_AUTHORIZE_BASE_FULL_URL = "%s?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=state#wechat_redirect";
 
     @Value("${wechat.app.id}")
     private String appId;
@@ -52,13 +57,15 @@ public class WxController {
     private ParentService parentService;
     @Autowired
     private OauthService oauthService;
+    @Autowired
+    private SmsService smsService;
 
     /**
      * 家长端入口，访问微信api获取授权code
      **/
     @GetMapping("/index")
     public String getCode() {
-        return "redirect:" + String.format(WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost + "/parent/wx/callback/login", "snsapi_base");
+        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost);
     }
 
     /**
@@ -66,72 +73,100 @@ public class WxController {
      **/
     @GetMapping("/authorize")
     public String authorize() {
-        return "redirect:" + String.format(WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost + "/parent/wx/callback/userInfo", "snsapi_userinfo");
+        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost);
     }
 
     /**
-     * 微信授权回调
+     * 微信授权回调-检查是否授权登录、绑定手机号码
      *
      * @param code code
      * @return java.lang.String
      **/
     @GetMapping("/callback/login")
     public String wxCallbackToLogin(String code) {
+        logger.debug("【微信回调-login】code = " + code);
         try {
             // 获取openId
             String openId = wxService.getOpenId(code);
             // 根据openId判断用户是否授权，未授权则跳到“用户协议”页面
-            Parent parent = parentService.getPatientByOpenId(openId);
+            Parent parent = parentService.getParentByOpenId(openId);
             if (Objects.isNull(parent)) {
-                return "redirect:/wx/index?code=401";
+                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode());
             }
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
             UserDTO user = oauthService.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
-                return "redirect:/wx/index?code=402&openId=" + parent.getHashKey();
+                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
             }
             // 自动登录
-            LoginInfoDTO loginInfo = oauthService.login("5", "123456", user.getPhone(), openId);
-            return "redirect:/wx/index?code=200&token=" + loginInfo.getTokenInfo().getAccessToken();
+            LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_TOKEN, h5ClientUrlHost,
+                    WxBusinessExceptionCodeEnum.OK.getCode(),
+                    loginInfo.getTokenInfo().getAccessToken(),
+                    loginInfo.getTokenInfo().getRefreshToken(),
+                    loginInfo.getTokenInfo().getExpiresIn());
         } catch (Exception e) {
-            logger.error("生成openId的hashKey失败", e);
-            return "redirect:/wx/500";
+            logger.error("微信登录失败", e);
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
         }
     }
 
+    /**
+     * 微信回调-获取微信用户个人信息
+     *
+     * @param code 授权code
+     * @return java.lang.String
+     **/
     @GetMapping("/callback/userInfo")
     public String wxCallbackToCreateUser(String code) {
+        logger.debug("【微信回调-userInfo】code = " + code);
         try {
             // 获取 accessToken 和 openId
-            WxAccessTokenInfo accessTokenWithOpenId = wxService.getAccessTokenWithOpenId(code);
+            WxAuthorizationInfo accessTokenAndOpenId = wxService.getAccessTokenAndOpenId(code);
             // 获取用户个人信息
-            WxUserInfo wxUserInfo = wxService.getWxUserInfo(accessTokenWithOpenId);
+            WxUserInfo wxUserInfo = wxService.getWxUserInfo(accessTokenAndOpenId);
             // 创建家长和用户
             Parent parent = wxService.addParentAndUser(wxUserInfo);
-            return "redirect:/wx/index?code=402&openId=" + parent.getHashKey();
+            // 跳到“绑定手机”页面
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
         } catch (Exception e) {
-            logger.error("生成openId的hashKey失败", e);
-            return "redirect:/wx/500";
+            logger.error("获取微信用户个人信息失败", e);
+            return "redirect:"+ String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
         }
     }
 
+    /**
+     * 发送短信验证码
+     *
+     * @param phone 手机号码
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
     @GetMapping("/smsCode/{phone}")
+    @ResponseBody
     public ApiResult sendSmsCode(@PathVariable String phone) {
-        // 验证发送次数
-
-        // 发送短信验证码
-
+        Assert.hasLength(phone, "手机号码不能为空");
+        smsService.sendSms(phone);
         return ApiResult.success();
     }
 
+    /**
+     * 绑定家长手机号码
+     *
+     * @param wxLoginInfo 手机信息
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
     @PostMapping("/phone/bind")
-    public ApiResult bindPhoneToParent(@RequestBody WxLoginInfo wxLoginInfo) throws IOException {
+    @ResponseBody
+    public ApiResult bindPhoneToParent(@RequestBody @Validated WxLoginInfo wxLoginInfo) throws IOException {
         // 校验短信验证码
-
+        Boolean isRight = smsService.checkSmsCode(wxLoginInfo.getPhone(), wxLoginInfo.getSmsCode());
+        if (!isRight) {
+            return ApiResult.failure("验证码错误");
+        }
         // 家长绑定手机
         wxService.bindPhoneToParent(wxLoginInfo);
         // 自动登录
-        LoginInfoDTO loginInfo = oauthService.login("5", "123456", wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
-        return ApiResult.success(loginInfo);
+        LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
+        return ApiResult.success(loginInfo.getTokenInfo());
     }
 }

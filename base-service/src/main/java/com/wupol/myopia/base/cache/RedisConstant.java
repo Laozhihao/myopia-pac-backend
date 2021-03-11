@@ -14,7 +14,12 @@ public interface RedisConstant {
     String ALL_PERMISSION_KEY = "auth:permission:all";
 
     /**
-     * 用户权限缓存key，auth:user:permission:{userId}，如：auth:user:permission:24
+     * 用户权限资源，auth:user:permission:{userId}，如：auth:user:permission:24
      */
     String USER_PERMISSION_KEY = "auth:user:permission:%d";
+
+    /**
+     * 用户授权token，auth:user:authorization:{userId}，如：auth:user:authorization:24
+     */
+    String USER_AUTHORIZATION_KEY = "auth:user:authorization:%d";
 }

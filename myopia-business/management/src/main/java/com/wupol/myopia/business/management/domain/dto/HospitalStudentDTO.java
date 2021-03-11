@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.management.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.model.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 /**
  * 医院-学生
@@ -48,5 +51,11 @@ public class HospitalStudentDTO extends Student {
      */
     private SchoolGrade schoolGrade;
 
-
+    /**
+     * 民族中文
+     */
+    private String nationName;
+    /** 最后一次就诊时间 */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date lastVisitDate;
 }

@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,13 +20,17 @@ import java.util.List;
  */
 public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
 
-    List<MedicalReport> getBy(MedicalReport query);
+    List<MedicalReport> getBy(MedicalReportQuery query);
 
-    IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReport query);
+    IPage<MedicalReport> getByPage(@Param("page") Page<?> page, @Param("query") MedicalReportQuery query);
 
-    List<MedicalReportVo> getVoBy(MedicalReport query);
+    List<MedicalReportVo> getVoBy(MedicalReportQuery query);
 
     Integer countReportBySchoolId(@Param("studentId") Integer studentId);
 
     MedicalReport getLatestVisitsReport(@Param("studentId") Integer studentId);
+    MedicalReportVo getTodayLastMedicalReportVo(Integer hospitalId, Integer studentId);
+    MedicalReport getTodayLastMedicalReport(Integer hospitalId, Integer studentId);
+
+    List<ReportAndRecordVo> getStudentId(@Param("studentId") Integer studentId);
 }

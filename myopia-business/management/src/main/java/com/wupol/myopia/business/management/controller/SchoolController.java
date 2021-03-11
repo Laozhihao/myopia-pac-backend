@@ -97,11 +97,6 @@ public class SchoolController {
         return schoolService.checkSchoolNo(schoolId, schoolNo);
     }
 
-    @GetMapping("screening/record/{planId}")
-    public Object getScreeningRecordDetail(@PathVariable("planId") Integer planId) {
-        return  null;//schoolService.getScreeningRecordDetail(planId);
-    }
-
     @GetMapping("/getSchools/{schoolName}")
     public Object getSchoolByName(@PathVariable("schoolName") String schoolName) {
         return schoolService.getBySchoolName(schoolName);

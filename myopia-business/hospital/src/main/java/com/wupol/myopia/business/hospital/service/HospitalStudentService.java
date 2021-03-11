@@ -5,7 +5,9 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
+import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -19,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -34,10 +37,6 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private SchoolGradeService schoolGradeService;
-    @Autowired
-    private SchoolClassService schoolClassService;
-    @Autowired
     private StudentService studentService;
     @Autowired
     private DistrictService districtService;
@@ -49,13 +48,13 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
     /**
      * 获取学生信息
-     * @param token     学生的授权码
+     * @param id     学生id
      * @param idCard    学生的身份证
+     * @param name    学生的姓名
      * @return
      */
-    public HospitalStudentDTO getStudent(String token, String idCard) {
-        //TODO 解析token,获取学生信息
-        return getStudentById(17);
+    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
+        return studentService.getHospitalStudentDetail(id, idCard, name);
     }
 
     /**
@@ -64,12 +63,16 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @return
      */
     public HospitalStudentDTO getStudentById(Integer id) {
-        HospitalStudentDTO student = studentService.getHospitalStudentDetail(id, null, null);
-        if (Objects.isNull(student)) {
+        HospitalStudentDTO studentDTO = studentService.getHospitalStudentDetail(id, null, null);
+        if (Objects.isNull(studentDTO)) {
             throw new BusinessException("未找到该学生");
         }
-        HospitalStudentDTO studentVo = BeanCopyUtil.copyBeanPropertise(student, HospitalStudentDTO.class);
-        return studentVo;
+        // 设置最后的就诊日期
+        MedicalRecord medicalRecord = medicalRecordService.getLastOneByStudentId(studentDTO.getId());
+        if (Objects.nonNull(medicalRecord)) {
+            studentDTO.setLastVisitDate(medicalRecord.getCreateTime());
+        }
+        return studentDTO;
     }
 
     /**
@@ -78,23 +81,17 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @return
      */
     public List<HospitalStudentDTO> getStudentList(Integer hospitalId, String nameLike) throws IOException {
-        List<Integer> idList = baseMapper.getBy(new HospitalStudent().setHospitalId(hospitalId)).stream()
-                .map(HospitalStudent::getStudentId).collect(Collectors.toList());
-        Map<Integer, List<MedicalReport>> studentReportMap = medicalReportService.findByList(new MedicalReport().setHospitalId(hospitalId))
-                .stream().collect(Collectors.groupingBy(MedicalReport::getStudentId));
-       List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(idList, nameLike);
-        // 设置就诊信息
-        studentList.forEach(item-> {
-           List<MedicalReport> reportList = studentReportMap.get(item.getId());
-           if (CollectionUtils.isEmpty(reportList)) {
-               item.setNumOfVisits(0);
-               item.setLastScreeningTime(null);
-           } else {
-               item.setNumOfVisits(reportList.size()); // 就诊次数
-               item.setLastScreeningTime(reportList.get(reportList.size()-1).getCreateTime()); // 获取最后一条的创建时间
-           }
-       });
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setNameLike(nameLike).setHospitalId(hospitalId);
+
+        // 获取学生的详细信息
+       List<HospitalStudentDTO> studentList = getHospitalStudentDTOList(query);
         return studentList;
+    }
+
+    /** 获取HospitalStudentDTO的数据 */
+    public List<HospitalStudentVo> getHospitalStudentVoList(HospitalStudentQuery query) {
+        return baseMapper.getHospitalStudentVoList(query);
     }
 
     /**
@@ -103,7 +100,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param hospitalId 医院id
      * @return
      */
-    public List<Student> getRecentList(Integer hospitalId) throws IOException {
+    public List<HospitalStudentDTO> getRecentList(Integer hospitalId) throws IOException {
         // 今天建档的患者姓名【前3名】
         List<Integer> idList = findByPage(new HospitalStudent().setHospitalId(hospitalId), 0, 3)
                 .getRecords().stream()
@@ -112,21 +109,33 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
-       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : studentService.getByIds(idList);
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setStudentIdList(idList).setHospitalId(hospitalId);
+       return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentDTOList(query);
     }
 
     /**
      * 保存学生信息, 带id是更新,不带是新增
      * @param studentVo 学生信息
-     * @param hospitalId 医院id
+     * @param isCheckNameAndIDCard 是否校验名称与身份证的匹配性
      * @return  学生的id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(HospitalStudentDTO studentVo, Integer hospitalId) {
+    public Integer saveStudent(HospitalStudentDTO studentVo, Boolean isCheckNameAndIDCard) {
         Student student = BeanCopyUtil.copyBeanPropertise(studentVo, HospitalStudentDTO.class);
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息不能为空");
         }
+
+        // 数据库中保存的学生信息
+        // 优先使用studentId查询
+        Student oldStudent = Objects.nonNull(student.getId()) ? studentService.getById(student.getId()) : studentService.getByIdCard(student.getIdCard());
+        if (Objects.nonNull(oldStudent) && isCheckNameAndIDCard) {
+                if(!(oldStudent.getIdCard().equals(student.getIdCard()) && oldStudent.getName().equals(student.getName()))) {
+                    throw new BusinessException("学生的身份证与姓名不匹配");
+                }
+        }
+
         // 设置学校信息
         if (Objects.nonNull(studentVo.getSchool())) {
             School school = schoolService.getBySchoolId(studentVo.getSchool().getId());
@@ -150,14 +159,78 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         if (Objects.nonNull(studentVo.getTown())) {
             student.setTownCode(districtService.getById(studentVo.getTown().getId()).getCode());
         }
-        if (Objects.nonNull(studentVo.getId())) {
-            return studentService.updateStudent(student).getId();
-        } else {
-            studentService.saveStudent(student);
-            save(new HospitalStudent(hospitalId, student.getId())); // 保存学生与医院关系
-            return student.getId();
+
+        Integer studentId;
+
+        // 存在则更新,不存在则新增
+        if (Objects.nonNull(oldStudent)) {
+            updateStudentInfoByAnotherStudent(student, oldStudent);
+            studentId = studentService.updateStudent(student).getId();
+        } else{
+            studentId = studentService.saveStudent(student);
         }
+        return studentId;
+    }
+
+    /** 保存医院与学生的 */
+    public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
+        // 保存医院与学生的关系
+        saveOrUpdate(new HospitalStudent(hospitalId, studentId));
+    }
+
+    /** 校验学生与医院关系 */
+    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
+        HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
+        return Objects.nonNull(student);
+    }
+
+    public List<HospitalStudent> getBy(HospitalStudentQuery query) {
+        return baseMapper.getBy(query);
+    }
+
+    /** 该医院已建档的学生的map数据.
+     *  key是studentId,
+     *  value是HospitalStudentVo
+     * */
+    private Map<Integer, HospitalStudentVo> getHospitalStudentVoMap(HospitalStudentQuery query) {
+        return getHospitalStudentVoList(query).stream()
+                .collect(Collectors.toMap(HospitalStudentVo::getStudentId, Function.identity()));
+
+    }
+
+    /** 获取医院的学生的详细信息 */
+    private List<HospitalStudentDTO> getHospitalStudentDTOList(HospitalStudentQuery query) {
+        // 该医院已建档的学生
+        Map<Integer, HospitalStudentVo> studentVoMap = getHospitalStudentVoMap(query);
+        // 获取学生的详细信息
+        List<HospitalStudentDTO> studentList = studentService.getHospitalStudentLists(new ArrayList<>(studentVoMap.keySet()), query.getNameLike());
+        // 设置就诊信息
+        studentList.forEach(item-> {
+            HospitalStudentVo hospitalStudentVo = studentVoMap.get(item.getId());
+            item.setNumOfVisits(hospitalStudentVo.getNumOfVisits()); // 就诊次数
+            item.setLastVisitDate(hospitalStudentVo.getLastVisitDate()); // 获取最后一检查的创建时间
+        });
+        return studentList;
     }
 
 
+    /** 从一个学生信息, 更新到另一个学生信息 */
+    private void updateStudentInfoByAnotherStudent(Student target, Student source) {
+        if (Objects.nonNull(source.getId()) && Objects.isNull(target.getId())) target.setId(source.getId());
+        if (Objects.nonNull(source.getIdCard()) && Objects.isNull(target.getIdCard())) target.setIdCard(source.getIdCard());
+        if (Objects.nonNull(source.getName()) && Objects.isNull(target.getName())) target.setName(source.getName());
+        if (Objects.nonNull(source.getGender()) && Objects.isNull(target.getGender())) target.setGender(source.getGender());
+        if (Objects.nonNull(source.getBirthday()) && Objects.isNull(target.getBirthday())) target.setBirthday(source.getBirthday());
+        if (Objects.nonNull(source.getParentPhone()) && Objects.isNull(target.getParentPhone())) target.setParentPhone(source.getParentPhone());
+        if (Objects.nonNull(source.getMpParentPhone()) && Objects.isNull(target.getMpParentPhone())) target.setMpParentPhone(source.getMpParentPhone());
+        if (Objects.nonNull(source.getSchoolNo()) && Objects.isNull(target.getSchoolNo())) target.setSchoolNo(source.getSchoolNo());
+        if (Objects.nonNull(source.getGradeId()) && Objects.isNull(target.getGradeId())) target.setGradeId(source.getGradeId());
+        if (Objects.nonNull(source.getClassId()) && Objects.isNull(target.getClassId())) target.setClassId(source.getClassId());
+        if (Objects.nonNull(source.getProvinceCode()) && Objects.isNull(target.getProvinceCode())) target.setProvinceCode(source.getProvinceCode());
+        if (Objects.nonNull(source.getCityCode()) && Objects.isNull(target.getCityCode())) target.setCityCode(source.getCityCode());
+        if (Objects.nonNull(source.getAreaCode()) && Objects.isNull(target.getAreaCode())) target.setAreaCode(source.getAreaCode());
+        if (Objects.nonNull(source.getTownCode()) && Objects.isNull(target.getTownCode())) target.setTownCode(source.getTownCode());
+        if (Objects.nonNull(source.getAddress()) && Objects.isNull(target.getAddress())) target.setAddress(source.getAddress());
+
+    }
 }

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.hospital.domain.model.Department;
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.hospital.domain.query.DoctorQuery;
+import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public interface DoctorMapper extends BaseMapper<Doctor> {
 
 
     List<Doctor> getBy(Doctor query);
+    List<DoctorVo> getDoctorVoList(DoctorQuery query);
 
     IPage<Doctor> getByPage(@Param("page") Page<?> page, @Param("query") Doctor query);
 

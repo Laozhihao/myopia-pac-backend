@@ -3,7 +3,9 @@ package com.wupol.myopia.business.hospital.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,21 +27,30 @@ public class MedicalReportController {
     @Autowired
     private MedicalReportService medicalReportService;
 
-    @PostMapping("/{studentId}")
-    public Boolean createReport(@RequestBody MedicalReport medicalReport, @PathVariable("studentId") Integer studentId) {
+    @PostMapping()
+    public Boolean saveReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalReportService.createReport(medicalReport, user.getOrgId(), user.getId(), studentId);
+        medicalReport.setHospitalId(user.getOrgId());
+        medicalReportService.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
         return true;
     }
 
     @GetMapping("/list")
     public List<MedicalReportVo> getStudentReportList(Integer studentId) {
-        return medicalReportService.getReportListByStudentId(studentId);
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return medicalReportService.getReportListByStudentId(user.getOrgId(), studentId);
     }
 
     @GetMapping("/{reportId}")
-    public Object getReport(@PathVariable("reportId") Integer reportId) {
-        return medicalReportService.getStudentReport(reportId);
+    public StudentReportResponseDTO getReport(@PathVariable("reportId") Integer reportId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return medicalReportService.getStudentReport(user.getOrgId(), reportId);
+    }
+
+    @GetMapping("/todayLast")
+    public MedicalReport getTodayLastMedicalReport(Integer studentId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return medicalReportService.getOrCreateTodayLastMedicalReportVo(user.getOrgId(), studentId);
     }
 
 }

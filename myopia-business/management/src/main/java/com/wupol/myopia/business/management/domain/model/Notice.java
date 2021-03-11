@@ -58,6 +58,11 @@ public class Notice {
     private String content;
 
     /**
+     * 资源ID
+     */
+    private Integer fileId;
+
+    /**
      * 文件url
      */
     private String downloadUrl;

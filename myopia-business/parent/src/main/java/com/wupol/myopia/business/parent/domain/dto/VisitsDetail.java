@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.parent.domain.dto;
 
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,5 +23,5 @@ public class VisitsDetail {
     /**
      * 详情
      */
-    private List<CountReportItems> items;
+    private List<ReportAndRecordVo> items;
 }

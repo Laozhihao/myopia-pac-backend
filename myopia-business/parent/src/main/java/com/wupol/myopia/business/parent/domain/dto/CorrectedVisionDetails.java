@@ -30,11 +30,11 @@ public class CorrectedVisionDetails {
         /**
          * 矫正视力
          */
-        private BigDecimal correctedVision;
+        private BigDecimal vision;
 
         /**
          * 创建时间
          */
-        private Date createTime;
+        private String createTime;
     }
 }

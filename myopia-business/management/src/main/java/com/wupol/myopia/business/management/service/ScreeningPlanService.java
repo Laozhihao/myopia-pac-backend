@@ -135,7 +135,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             throw new BusinessException("创建失败");
         }
         // 新增或更新筛查学校信息
-        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getSchools());
+        screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());
@@ -294,7 +294,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
     }
-
     /**
      * 通过筛查通知id获取实际筛查学生数
      *
@@ -311,9 +310,35 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
+    }
+
+    /**
+     * 根据筛查计划ID获取原始的筛查通知ID列表
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 根据原始筛查通知获取所有的筛查计划
+     * @param srcScreeningNoticeId
+     * @return
+     */
+    public List<ScreeningPlan> getBySrcScreeningNoticeId(Integer srcScreeningNoticeId) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, srcScreeningNoticeId);
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
     /**
