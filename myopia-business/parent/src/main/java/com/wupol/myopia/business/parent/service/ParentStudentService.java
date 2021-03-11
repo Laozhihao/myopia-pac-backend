@@ -19,9 +19,11 @@ import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.service.ResourceFileService;
+import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.management.service.VisionScreeningResultService;
 import com.wupol.myopia.business.management.util.StatUtil;
@@ -69,6 +71,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     @Resource
     private ResourceFileService resourceFileService;
 
+    @Resource
+    private SchoolService schoolService;
+
     /**
      * 孩子统计、孩子列表
      *
@@ -89,23 +94,32 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param request 请求入参
      * @return Student 学生
      */
-    public Student checkIdCard(CheckIdCardRequest request) {
+    public StudentDTO checkIdCard(CheckIdCardRequest request) {
         String idCard = request.getIdCard();
+        StudentDTO studentDTO = new StudentDTO();
         Student student = studentService.getByIdCard(idCard);
 
         if (null == student) {
             // 为空说明是新增
-            student = new Student();
             TwoTuple<Date, Integer> idCardInfo = getIdCardInfo(idCard);
-            student.setBirthday(idCardInfo.getFirst());
-            student.setGender(idCardInfo.getSecond());
+            studentDTO.setBirthday(idCardInfo.getFirst());
+            studentDTO.setGender(idCardInfo.getSecond());
+            return studentDTO;
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
                 throw new BusinessException("身份证数据异常");
             }
         }
-        return student;
+        BeanUtils.copyProperties(student, studentDTO);
+        if (StringUtils.isNotBlank(student.getSchoolNo())) {
+            // 学校编号不为空，则拼接学校信息
+            School school = schoolService.getBySchoolNo(student.getSchoolNo());
+            studentDTO.setSchoolId(school.getId());
+            studentDTO.setSchoolNo(school.getSchoolNo());
+            studentDTO.setSchoolName(school.getName());
+        }
+        return studentDTO;
     }
 
 
