@@ -207,12 +207,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
         ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
         if (Objects.nonNull(mydriasis)) {
-            if (CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
+            if (!CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
                 mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
             }
         }
         if (Objects.nonNull(nonMydriasis)) {
-            if (CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
+            if (!CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
                 nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
             }
         }

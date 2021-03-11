@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("h_medical_report")
+@TableName(value = "h_medical_report",autoResultMap = true)
 public class MedicalReport implements Serializable {
 
     private static final long serialVersionUID = 1L;
