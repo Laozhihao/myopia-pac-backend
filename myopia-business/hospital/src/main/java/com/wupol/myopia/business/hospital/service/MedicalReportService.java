@@ -6,6 +6,10 @@ import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
@@ -88,11 +92,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         }
 
         MedicalReport dbReport = getById(medicalReport.getId());
-        dbReport.setGlassesSituation(medicalReport.getGlassesSituation())
-                .setMedicalContent(medicalReport.getMedicalContent())
-                .setImageIdList(medicalReport.getImageIdList())
-                .setDoctorId(medicalRecord.getDoctorId());
-
+        if (Objects.nonNull(dbReport)) {
+            dbReport.setGlassesSituation(medicalReport.getGlassesSituation())
+                    .setMedicalContent(medicalReport.getMedicalContent())
+                    .setImageIdList(medicalReport.getImageIdList())
+                    .setDoctorId(medicalRecord.getDoctorId());
+        } else {
+            dbReport = medicalReport;
+        }
+        dbReport.setMedicalRecordId(medicalRecord.getId());
         updateReportConclusion(dbReport, medicalRecord); // 更新固化数据
         saveOrUpdate(dbReport);
     }
@@ -307,9 +315,9 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
         ReportConclusion conclusion = new ReportConclusion()
                 .setStudent(studentService.getById(report.getStudentId()))
-                .setHospitalName(hospitalService.getById(report.getHospitalId()).getName())
-                .setSignFileId(hospitalDoctorService.getById(report.getDoctorId()).getSignFileId());
-        if (Objects.nonNull(record)){
+                .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
+        Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
+        if (Objects.nonNull(doctor)) doctor.setSignFileId(doctor.getSignFileId());        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);

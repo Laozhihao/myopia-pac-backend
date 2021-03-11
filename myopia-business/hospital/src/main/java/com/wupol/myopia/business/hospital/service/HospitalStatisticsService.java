@@ -131,11 +131,11 @@ public class HospitalStatisticsService {
     private Map<String, Object> getGlassesInfo(List<MedicalReport> reportList) {
         Map<String, Object> map = new HashMap<>();
         // 隐形眼镜人数
-        map.put("contactLensCount", reportList.stream().filter(item-> item.getGlassesSituation().equals(MedicalReport.GLASSES_SITUATION_CONTACT_LENS)).count());
+        map.put("contactLensCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_CONTACT_LENS.equals(item.getGlassesSituation())).count());
         // ok镜人数
-        map.put("okGlassesCount", reportList.stream().filter(item-> item.getGlassesSituation().equals(MedicalReport.GLASSES_SITUATION_OK_GLASSES)).count());
+        map.put("okGlassesCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_OK_GLASSES.equals(item.getGlassesSituation())).count());
         // 配框架镜人数
-        map.put("commonGlassesCount", reportList.stream().filter(item-> item.getGlassesSituation().equals(MedicalReport.GLASSES_SITUATION_COMMON_GLASSES)).count());
+        map.put("commonGlassesCount", reportList.stream().filter(item-> MedicalReport.GLASSES_SITUATION_COMMON_GLASSES.equals(item.getGlassesSituation())).count());
         return map;
     }
 

@@ -64,7 +64,7 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
-        Integer studentId = hospitalStudentService.saveStudent(studentVo);
+        Integer studentId = hospitalStudentService.saveStudent(studentVo, true);
         hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
         return ApiResult.success("建档成功");
     }
@@ -77,8 +77,8 @@ public class HospitalStudentController {
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
             return ApiResult.failure("该学生未建档");
         }
-        hospitalStudentService.saveStudent(studentVo);
-        return ApiResult.success("建档成功");
+        hospitalStudentService.saveStudent(studentVo, false);
+        return ApiResult.success("更新成功");
     }
 
 
