@@ -30,6 +30,7 @@ public class MedicalReportController {
     @PostMapping()
     public Boolean saveReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        medicalReport.setHospitalId(user.getOrgId());
         medicalReportService.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
         return true;
     }
