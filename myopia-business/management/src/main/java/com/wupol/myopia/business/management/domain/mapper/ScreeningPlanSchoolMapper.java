@@ -27,4 +27,6 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
     List<ScreeningPlanSchool> selectHasPlanInPeriod(@Param("param") ScreeningPlanQuery screeningPlanQuery);
 
     List<ScreeningPlanSchool> countBySchoolId(@Param("schoolId") Integer schoolId);
+
+    Integer updateSchoolNameBySchoolId(@Param("schoolId") Integer schoolId, @Param("schoolName") String schoolName);
 }

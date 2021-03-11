@@ -3,8 +3,8 @@ package com.wupol.myopia.business.management.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
@@ -187,5 +187,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
             return new ArrayList<>();
         }
         return schoolService.getSchoolByIds(schoolIds);
+    }
+
+    /**
+     * 更新学校名称
+     *
+     * @param schoolId   学校ID
+     * @param schoolName 学校名称
+     */
+    public void updateSchoolNameBySchoolId(Integer schoolId, String schoolName) {
+        baseMapper.updateSchoolNameBySchoolId(schoolId, schoolName);
     }
 }
