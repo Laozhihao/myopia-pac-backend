@@ -242,8 +242,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @param studentId 学生ID
      * @return MedicalReport
      */
-    public MedicalReport getLatestVisitsReport(Integer studentId) {
-        return baseMapper.getLatestVisitsReport(studentId);
+    public MedicalReport getLastOneByStudentId(Integer studentId) {
+        return baseMapper.getLastOneByStudentId(studentId);
     }
 
     /**
