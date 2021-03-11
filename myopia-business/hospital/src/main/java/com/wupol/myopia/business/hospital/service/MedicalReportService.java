@@ -9,7 +9,6 @@ import com.wupol.myopia.business.hospital.domain.model.*;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
-import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.management.service.ResourceFileService;
@@ -145,7 +144,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             // 医生签名资源ID
             Integer doctorSignFileId = reportConclusionData.getSignFileId();
             responseDTO.setStudent(packageStudentInfo(student));
-            responseDTO.setReport(packageReportInfo(report, doctorSignFileId));
+
+            responseDTO.setReport(packageReportInfo(reportId, reportConclusionData.getReport(), doctorSignFileId));
             responseDTO.setHospitalName(reportConclusionData.getHospitalName());
         }
         // 检查单
@@ -178,24 +178,27 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     /**
      * 报告-设置报告、医生信息
      *
-     * @param report           报告
+     * @param reportId         报告ID
+     * @param reportInfo       固化报告
      * @param doctorSignFileId 医生签名资源ID
      * @return {@link StudentVisitReportResponseDTO.ReportInfo}
      */
-    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(MedicalReport report, Integer doctorSignFileId) {
-        StudentVisitReportResponseDTO.ReportInfo reportInfo = new StudentVisitReportResponseDTO.ReportInfo();
-        reportInfo.setReportId(report.getId());
-        reportInfo.setNo(report.getNo());
-        reportInfo.setCreateTime(report.getCreateTime());
-        reportInfo.setGlassesSituation(report.getGlassesSituation());
-        reportInfo.setMedicalContent(report.getMedicalContent());
-        if (!CollectionUtils.isEmpty(report.getImageIdList())) {
-            reportInfo.setImageUrlList(resourceFileService.getBatchResourcePath(report.getImageIdList()));
+    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(Integer reportId, ReportConclusion.ReportInfo reportInfo, Integer doctorSignFileId) {
+        StudentVisitReportResponseDTO.ReportInfo reportResult = new StudentVisitReportResponseDTO.ReportInfo();
+        if (Objects.nonNull(reportInfo)) {
+            reportResult.setReportId(reportId);
+            reportResult.setNo(reportInfo.getNo());
+            reportResult.setCreateTime(reportInfo.getCreateTime());
+            reportResult.setGlassesSituation(reportInfo.getGlassesSituation());
+            reportResult.setMedicalContent(reportInfo.getMedicalContent());
+            if (!CollectionUtils.isEmpty(reportInfo.getImageIdList())) {
+                reportResult.setImageUrlList(resourceFileService.getBatchResourcePath(reportInfo.getImageIdList()));
+            }
         }
         if (null != doctorSignFileId) {
-            reportInfo.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
+            reportResult.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
         }
-        return reportInfo;
+        return reportResult;
     }
 
     /**
