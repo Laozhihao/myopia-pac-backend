@@ -21,7 +21,8 @@ public class ReportConclusion {
     private String hospitalName;
     /** 医生签名id */
     private Integer signFileId;
-
+    /** 报告 */
+    private MedicalReport report;
     /**
      * 问诊内容
      */

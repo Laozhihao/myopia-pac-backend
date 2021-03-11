@@ -314,6 +314,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
         ReportConclusion conclusion = new ReportConclusion()
+                .setReport(report)
                 .setStudent(studentService.getById(report.getStudentId()))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
