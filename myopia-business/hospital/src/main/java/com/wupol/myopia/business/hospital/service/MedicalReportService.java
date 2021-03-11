@@ -15,6 +15,7 @@ import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -309,8 +310,10 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
+        ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
+        BeanUtils.copyProperties(report, reportInfo);
         ReportConclusion conclusion = new ReportConclusion()
-                .setReport(report)
+                .setReport(reportInfo)
                 .setStudent(studentService.getById(report.getStudentId()))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
