@@ -1,21 +1,17 @@
 package com.wupol.myopia.business.hospital.service;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.hospital.domain.model.*;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.management.domain.model.Hospital;
+import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
@@ -23,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -137,16 +132,13 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         if (null == report) {
             throw new BusinessException("数据异常");
         }
-
         // 学生
         Student student = studentService.getById(report.getStudentId());
         if (null == student) {
             throw new BusinessException("数据异常");
         }
-
         // 医生
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
-
         // 医院
         Hospital hospital = hospitalService.getById(report.getHospitalId());
 
@@ -161,7 +153,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             responseDTO.setVision(record.getVision());
             responseDTO.setBiometrics(record.getBiometrics());
             responseDTO.setDiopter(record.getDiopter());
-            responseDTO.setTosca(record.getTosca());
+            responseDTO.setTosca(packageToscaMedicalRecordImages(record.getTosca()));
             // 问诊内容
             responseDTO.setConsultation(record.getConsultation());
         }
@@ -202,6 +194,28 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
             reportInfo.setDoctorSign(resourceFileService.getResourcePath(doctor.getSignFileId()));
         }
         return reportInfo;
+    }
+
+    /**
+     * 报告-设置角膜地形图图片
+     *
+     * @param record 角膜地形图检查数据
+     * @return ToscaMedicalRecord
+     */
+    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord record) {
+        ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
+        ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
+        if (Objects.nonNull(mydriasis)) {
+            if (CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
+                mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
+            }
+        }
+        if (Objects.nonNull(nonMydriasis)) {
+            if (CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
+                nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
+            }
+        }
+        return record;
     }
 
     /**
