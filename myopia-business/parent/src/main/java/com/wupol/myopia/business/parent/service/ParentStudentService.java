@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
+import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -266,26 +267,26 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 获取最新的就诊报告
      *
      * @param studentId 学生ID
-     * @return StudentReportResponseDTO
+     * @return StudentVisitReportResponseDTO
      */
-    public StudentReportResponseDTO latestVisitsReport(Integer studentId) {
+    public StudentVisitReportResponseDTO latestVisitsReport(Integer studentId) {
         // 查找学生最近的就诊记录
         List<ReportAndRecordVo> visitLists = medicalReportService.getByStudentId(studentId);
         if (CollectionUtils.isEmpty(visitLists)) {
-            return new StudentReportResponseDTO();
+            return new StudentVisitReportResponseDTO();
         }
         ReportAndRecordVo reportAndRecordVo = visitLists.get(0);
-        return medicalReportService.getStudentReport(reportAndRecordVo.getReportId());
+        return medicalReportService.getStudentVisitReport(reportAndRecordVo.getReportId());
     }
 
     /**
      * 获取就诊报告详情
      *
      * @param request 请求入参
-     * @return StudentReportResponseDTO 学生就诊记录档案卡
+     * @return StudentVisitReportResponseDTO 学生就诊记录档案卡
      */
-    public StudentReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
-        return medicalReportService.getStudentReport(request.getReportId());
+    public StudentVisitReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
+        return medicalReportService.getStudentVisitReport(request.getReportId());
     }
 
     /**

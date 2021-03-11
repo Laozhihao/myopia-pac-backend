@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.hospital.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
+import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
+import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.model.ReportConclusion;
@@ -12,14 +15,15 @@ import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.HospitalService;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
+import com.wupol.myopia.business.management.domain.model.Hospital;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -94,7 +98,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setImageIdList(medicalReport.getImageIdList())
                 .setDoctorId(medicalRecord.getDoctorId());
 
-        updateReportConclusion(dbReport); // 更新固化数据
+        updateReportConclusion(dbReport, medicalRecord); // 更新固化数据
         saveOrUpdate(dbReport);
     }
 
@@ -123,21 +127,81 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * 获取学生的就诊档案详情（报告）
      *
      * @param reportId 报告ID
-     * @return responseDTO
+     * @return StudentVisitReportResponseDTO
      */
-    public StudentReportResponseDTO getStudentReport(Integer reportId) {
-        StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
+    public StudentVisitReportResponseDTO getStudentVisitReport(Integer reportId) {
+        StudentVisitReportResponseDTO responseDTO = new StudentVisitReportResponseDTO();
+
         // 报告
         MedicalReport report = getById(reportId);
-        responseDTO.setReport(report);
+        if (null == report) {
+            throw new BusinessException("数据异常");
+        }
+
+        // 学生
+        Student student = studentService.getById(report.getStudentId());
+        if (null == student) {
+            throw new BusinessException("数据异常");
+        }
+
+        // 医生
+        Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
+
+        // 医院
+        Hospital hospital = hospitalService.getById(report.getHospitalId());
+
+        responseDTO.setStudent(packageStudentInfo(student));
+        responseDTO.setHospitalName(hospital.getName());
+
+        responseDTO.setReport(packageReportInfo(report, doctor));
+
         // 检查单
-        MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
-        responseDTO.setRecord(record);
-        // 设置学生
-        responseDTO.setStudent(studentService.getById(report.getStudentId()));
-        // 设置医生
-        responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(report.getDoctorId()));
+        if (null != report.getMedicalRecordId()) {
+            MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
+            responseDTO.setVision(record.getVision());
+            responseDTO.setBiometrics(record.getBiometrics());
+            responseDTO.setDiopter(record.getDiopter());
+            responseDTO.setTosca(record.getTosca());
+            // 问诊内容
+            responseDTO.setConsultation(record.getConsultation());
+        }
         return responseDTO;
+    }
+
+    /**
+     * 报告-设置学生信息
+     *
+     * @param student 学生
+     * @return {@link StudentVisitReportResponseDTO.StudentInfo}
+     */
+    private StudentVisitReportResponseDTO.StudentInfo packageStudentInfo(Student student) {
+        StudentVisitReportResponseDTO.StudentInfo studentInfo = new StudentVisitReportResponseDTO.StudentInfo();
+        studentInfo.setName(student.getName());
+        studentInfo.setBirthday(student.getBirthday());
+        studentInfo.setGender(student.getGender());
+        return studentInfo;
+    }
+
+    /**
+     * 报告-设置报告、医生信息
+     *
+     * @param report 报告
+     * @param doctor 医生
+     * @return {@link StudentVisitReportResponseDTO.ReportInfo}
+     */
+    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(MedicalReport report, Doctor doctor) {
+        StudentVisitReportResponseDTO.ReportInfo reportInfo = new StudentVisitReportResponseDTO.ReportInfo();
+        reportInfo.setNo(report.getNo());
+        reportInfo.setCreateTime(report.getCreateTime());
+        reportInfo.setGlassesSituation(report.getGlassesSituation());
+        reportInfo.setMedicalContent(report.getMedicalContent());
+        if (!CollectionUtils.isEmpty(report.getImageIdList())) {
+            reportInfo.setImageUrlList(resourceFileService.getBatchResourcePath(report.getImageIdList()));
+        }
+        if (null != doctor.getSignFileId()) {
+            reportInfo.setDoctorSign(resourceFileService.getResourcePath(doctor.getSignFileId()));
+        }
+        return reportInfo;
     }
 
     /**
@@ -225,11 +289,14 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /** 更新报告的固化数据 */
-    private void updateReportConclusion(MedicalReport report) {
+    private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
         ReportConclusion conclusion = new ReportConclusion()
                 .setStudent(studentService.getById(report.getStudentId()))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName())
                 .setSignFileId(hospitalDoctorService.getById(report.getDoctorId()).getSignFileId());
+        if (Objects.nonNull(record)){
+            conclusion.setConsultation(record.getConsultation());
+        }
         report.setReportConclusionData(conclusion);
     }
 
