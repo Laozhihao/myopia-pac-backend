@@ -58,8 +58,6 @@ public class ScreeningAppController {
     private SchoolService schoolService;
     @Autowired
     private StudentService studentService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
 
     /**
@@ -277,28 +275,21 @@ public class ScreeningAppController {
             @RequestParam(value = "clazzName", required = false) String clazzName,
             @RequestParam(value = "studentName", required = false) String studentName,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "60") Integer size) throws IOException {
-
-        if (StringUtils.isBlank(studentName)) {
-            studentName = null;
-        }
-
+            @RequestParam(value = "size", defaultValue = "60") Integer size) {
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
-        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(deptId);
-        if (currentPlan == null) {
-            return ResultVOUtil.success();
-        }
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
+        studentName = StringUtils.isBlank(studentName)? null : studentName;
+       schoolName= StringUtils.isBlank(schoolName)? null : schoolName;
+
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setScreeningPlanId(currentPlan.getId())
+        screeningPlanSchoolStudent
                 .setScreeningOrgId(deptId.intValue())
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-/*        queryWrapper.eq(ScreeningPlanSchoolStudent::getSchoolName,schoolName)
-                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlan.getId())*/
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent);
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
@@ -323,9 +314,9 @@ public class ScreeningAppController {
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName) {
-        if (StringUtils.isBlank(studentName)) {
-            studentName = null;
-        }   
+
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
         List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size);
         if (isRandom) {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);

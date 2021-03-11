@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -323,29 +324,32 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return Collections.emptyList();
     }
 
-    // todo: wait for implement
+    /**
+     * @param screeningOrgId
+     * @return
+     */
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        return null;
+        List<ScreeningPlanSchool> screeningPlanSchools = this.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
+        return screeningPlanSchools.stream().map(screeningPlanSchool ->  screeningPlanSchool.getSchoolId().longValue()).collect(Collectors.toList());
+    }
+
+
+    /**
+     * @param screeningOrgId
+     * @return
+     */
+    public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
+        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
     }
 
     /**
      * 获取用户当前的计划
      * @param deptId
      */
-    public ScreeningPlan getCurrentPlan(Integer deptId) {
-        List<ScreeningPlan> screeningPlans = this.getByOrgId(deptId);
-        screeningPlans = screeningPlans.stream().filter(screeningPlan ->
-                screeningPlan.getStartTime().before(new Date()) && screeningPlan.getEndTime().after(new Date())
-        ).collect(Collectors.toList());
-
-        if (org.apache.commons.collections4.CollectionUtils.size(screeningPlans) != 1) {
-            // throw new RuntimeException("用户异常");
-        }
-        Optional<ScreeningPlan> screeningPlanOptional = screeningPlans.stream().findFirst();
-        if (screeningPlanOptional.isPresent()) {
-            return screeningPlanOptional.get();
-        }
-        return null;
+    public Set<Integer> getCurrentPlanIds(Integer deptId) {
+        List<ScreeningPlanSchool> screeningPlanSchools = getScreeningSchoolsByScreeningOrgId(deptId);
+        Set<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
+        return planIds;
     }
 
 }
