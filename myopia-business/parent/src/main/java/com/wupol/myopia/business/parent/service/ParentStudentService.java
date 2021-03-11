@@ -87,28 +87,25 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 检查身份证
      *
      * @param request 请求入参
-     * @return 学生ID
+     * @return Student 学生
      */
-    public CheckIdCardResponseDTO checkIdCard(CheckIdCardRequest request) {
-        CheckIdCardResponseDTO responseDTO = new CheckIdCardResponseDTO();
+    public Student checkIdCard(CheckIdCardRequest request) {
         String idCard = request.getIdCard();
         Student student = studentService.getByIdCard(idCard);
 
         if (null == student) {
             // 为空说明是新增
+            student = new Student();
             TwoTuple<Date, Integer> idCardInfo = getIdCardInfo(idCard);
-            responseDTO.setBirthday(idCardInfo.getFirst());
-            responseDTO.setGender(idCardInfo.getSecond());
+            student.setBirthday(idCardInfo.getFirst());
+            student.setGender(idCardInfo.getSecond());
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
                 throw new BusinessException("身份证数据异常");
             }
-            responseDTO.setStudentId(student.getId());
-            responseDTO.setBirthday(student.getBirthday());
-            responseDTO.setGender(student.getGender());
         }
-        return responseDTO;
+        return student;
     }
 
 
