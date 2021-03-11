@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.parent.domain.dto;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +23,7 @@ public class CheckIdCardResponseDTO {
     /**
      * 生日
      */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**

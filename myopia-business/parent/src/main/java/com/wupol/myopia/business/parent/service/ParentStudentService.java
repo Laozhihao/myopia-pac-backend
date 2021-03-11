@@ -42,7 +42,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,9 +150,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                     + idCard.substring(12, 14);
             gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 2 : 1;
         }
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            return new TwoTuple<>(format.parse(birthdayStr), gender);
+            return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
         } catch (ParseException e) {
             throw new BusinessException("身份证信息异常");
         }
