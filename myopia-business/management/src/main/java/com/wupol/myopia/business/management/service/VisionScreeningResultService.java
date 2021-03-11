@@ -14,6 +14,7 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -108,14 +109,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 .orderByDesc("create_time"));
     }
 
-
-    /**
+/*
+    *//**
      * 获取已有的筛查结果
      *
      * @param screeningResultBasicData
      * @return
      * @throws IOException
-     */
+     *//*
     public TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> getScreeningResultAndScreeningPlanSchoolStudent(ScreeningResultBasicData screeningResultBasicData) throws IOException {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
 
@@ -125,24 +126,25 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
         }
         // 获取已经存在的数据
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(),screeningResultBasicData.getIsState());
+        VisionScreeningResult visionScreeningResult = getScreeningResultD(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(),screeningResultBasicData.getIsState());
         TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> visionScreeningResultScreeningPlanSchoolStudentTwoTuple = new TwoTuple<>(visionScreeningResult, screeningPlanSchoolStudent);
         return visionScreeningResultScreeningPlanSchoolStudentTwoTuple;
-    }
+    }*/
 
     /**
      * 是否需要更新
      *
+     * @param isState
+     * @param screeningPlanId
      * @param planId
      * @param screeningOrgId
-     * @param isState
      * @return
      */
-    public VisionScreeningResult getScreeningResult(Integer planId, Integer screeningOrgId, Integer screeningPlanSchoolStudentId, Integer isState) throws IOException {
-        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setScreeningOrgId(screeningOrgId).setIsDoubleScreen(isState == 1);
+    public List<VisionScreeningResult> getScreeningResult(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId, Integer planId, Integer screeningOrgId, Integer screeningPlanSchoolStudentId) throws IOException {
+        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setScreeningOrgId(screeningOrgId);
         QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
-        VisionScreeningResult visionScreeningResult = getOne(queryWrapper);
-        return visionScreeningResult;
+        List<VisionScreeningResult> visionScreeningResults = list(queryWrapper);
+        return visionScreeningResults;
     }
 
     /**
@@ -152,13 +154,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      * @throws IOException
      */
-    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData,VisionScreeningResult visionScreeningResult ,ScreeningPlanSchoolStudent screeningPlanSchoolStudent) throws IOException {
         //获取VisionScreeningResult以及ScreeningPlanSchoolStudent
-        TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> screeningResultAndScreeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
-        //获取visionScreeningResult
-        VisionScreeningResult visionScreeningResult = screeningResultAndScreeningPlanSchoolStudent.getFirst();
+       // TwoTuple<VisionScreeningResult, ScreeningPlanSchoolStudent> screeningResultAndScreeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
         //获取ScreeningPlanSchoolStudent
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
+        //ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningResultAndScreeningPlanSchoolStudent.getSecond();
         //构建ScreeningResult
         return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setIsDoubleScreen(screeningResultBasicData.getIsState() == 1).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
     }
@@ -170,8 +170,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      * @throws IOException
      */
-    public VisionScreeningResult saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-        VisionScreeningResult visionScreeningResult = getScreeningResult(screeningResultBasicData);
+    public VisionScreeningResult saveOrUpdateStudentScreenData(VisionScreeningResult visionScreeningResult)   {
         if (visionScreeningResult.getId() != null) {
             //更新
             updateById(visionScreeningResult);
@@ -180,5 +179,28 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             save(visionScreeningResult);
         }
         return visionScreeningResult;
+    }
+
+    public  TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
+        //倒叙取出来最新的一条
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQuery);
+        if (screeningPlanSchoolStudent == null) {
+            throw new ManagementUncheckedException("无法找到screeningPlanSchoolStudent");
+        }
+        // 获取已经存在的数据
+        List<VisionScreeningResult> visionScreeningResults = getScreeningResult(screeningPlanSchoolStudent.getScreeningPlanId(), screeningPlanSchoolStudent.getScreeningOrgId(), screeningResultBasicData.getStudentId(), screeningResultBasicData.getIsState());
+        VisionScreeningResult currentVisionScreeningResult=null;
+        VisionScreeningResult anotherVisionScreeningResult=null;
+        for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
+            if (visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
+                currentVisionScreeningResult = visionScreeningResult;
+            } else {
+                anotherVisionScreeningResult = visionScreeningResult;
+            }
+        }
+        TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResultVisionScreeningResultTwoTuple = new TwoTuple<>();
+        return visionScreeningResultVisionScreeningResultTwoTuple;
+
     }
 }

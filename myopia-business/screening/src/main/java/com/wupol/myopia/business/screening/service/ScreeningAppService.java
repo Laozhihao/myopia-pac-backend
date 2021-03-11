@@ -159,7 +159,7 @@ public class ScreeningAppService {
         screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(studentName)) {
-            screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName,studentName);
+            screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
         screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent);
         Integer startIntem = (page - 1) * size;
@@ -263,8 +263,10 @@ public class ScreeningAppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-        VisionScreeningResult visionScreeningResult = visionScreeningResultService.saveOrUpdateStudentScreenData(screeningResultBasicData);
-        statConclusionService.saveOrUpdateStudentScreenData(visionScreeningResult);
+        TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
+        VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
+        currentVisionScreeningResult = visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
+        statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
     }
 
     /*

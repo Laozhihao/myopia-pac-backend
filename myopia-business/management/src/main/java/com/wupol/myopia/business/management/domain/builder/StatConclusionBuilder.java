@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.domain.builder;
 
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -27,11 +29,14 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class StatConclusionBuilder {
-    private VisionScreeningResult visionScreeningResult;
+    private VisionScreeningResult currentVisionScreeningResult;
+    private VisionScreeningResult anotherVisionScreeningResult;
     private ScreeningPlanSchoolStudent screeningPlanSchoolStudent;
     private StatConclusion statConclusion;
     private BasicData basicData;
     private Boolean isUpdate;
+    private final BigDecimal OTHERS_RANGE_VALUE = new BigDecimal(1.0);
+    private final BigDecimal AVE_RANGE_VALUE = new BigDecimal(0.5);
 
 
     private StatConclusionBuilder() {
@@ -53,8 +58,9 @@ public class StatConclusionBuilder {
      * @param visionScreeningResult
      * @return
      */
-    public StatConclusionBuilder setVisionScreeningResult(VisionScreeningResult visionScreeningResult) {
-        this.visionScreeningResult = visionScreeningResult;
+    public StatConclusionBuilder setCurrentVisionScreeningResult(VisionScreeningResult currentVisionScreeningResult, VisionScreeningResult rescreeningVisionScreeningResult) {
+        this.currentVisionScreeningResult = currentVisionScreeningResult;
+        this.anotherVisionScreeningResult = rescreeningVisionScreeningResult;
         return this;
     }
 
@@ -64,25 +70,25 @@ public class StatConclusionBuilder {
      * @return
      */
     public StatConclusion build() {
-        if (!ObjectsUtil.allNotNull(visionScreeningResult, screeningPlanSchoolStudent, statConclusion)) {
+        if (!ObjectsUtil.allNotNull(currentVisionScreeningResult, screeningPlanSchoolStudent, statConclusion)) {
             throw new ManagementUncheckedException("StatConclusion构建失败，缺少关键参数");
         }
         // 基本数据的准备
-        basicData = BasicData.getInstance(visionScreeningResult, screeningPlanSchoolStudent);
+        basicData = BasicData.getInstance(currentVisionScreeningResult, screeningPlanSchoolStudent);
         // 如果新增的话，设置基本的数据
         if (!isUpdate) {
             this.setBasicData();
         }
         // 设置视力相关的数据
-        if (visionScreeningResult.getVisionData() != null) {
+        if (currentVisionScreeningResult.getVisionData() != null) {
             this.setVisionRelatedData();
         }
         // 设置电脑验光的数据
-        if (visionScreeningResult.getComputerOptometry() != null) {
+        if (currentVisionScreeningResult.getComputerOptometry() != null) {
             this.setComputerRelatedData();
         }
         // 设置通用的数据
-        if (visionScreeningResult.getVisionData() != null && visionScreeningResult.getComputerOptometry() != null) {
+        if (currentVisionScreeningResult.getVisionData() != null && currentVisionScreeningResult.getComputerOptometry() != null) {
             this.setRecommendVisit();
             this.setMyopia();
             this.setWarningLevel();
@@ -97,7 +103,7 @@ public class StatConclusionBuilder {
      */
     private void setBasicData() {
         statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
-        statConclusion.setResultId(visionScreeningResult.getId());
+        statConclusion.setResultId(currentVisionScreeningResult.getId());
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());
         statConclusion.setTaskId(screeningPlanSchoolStudent.getScreeningTaskId());
         statConclusion.setPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
@@ -145,13 +151,13 @@ public class StatConclusionBuilder {
      * 电脑的其他数据
      */
     private void setComputerOtherData() {
-        statConclusion.setDistrictId(visionScreeningResult.getDistrictId());
-        statConclusion.setTaskId(visionScreeningResult.getTaskId());
-        statConclusion.setPlanId(visionScreeningResult.getPlanId());
+        statConclusion.setDistrictId(currentVisionScreeningResult.getDistrictId());
+        statConclusion.setTaskId(currentVisionScreeningResult.getTaskId());
+        statConclusion.setPlanId(currentVisionScreeningResult.getPlanId());
         statConclusion.setSchoolAge(basicData.schoolAge);
         statConclusion.setGender(basicData.gender);
         statConclusion.setSrcScreeningNoticeId(basicData.noticeId);
-        statConclusion.setResultId(visionScreeningResult.getId());
+        statConclusion.setResultId(currentVisionScreeningResult.getId());
         statConclusion.setIsRescreen(basicData.isRescreen);
     }
 
@@ -199,9 +205,9 @@ public class StatConclusionBuilder {
         }
     }*/
     private void setWarningLevel() {
-        if (!ObjectsUtil.allNotNull(basicData.leftAstigmatismWarningLevel,basicData.leftHyperopiaWarningLevel,basicData.rightAstigmatismWarningLevel
-        ,basicData.rightHyperopiaWarningLevel,basicData.leftMyopiaWarningLevel,basicData.rightMyopiaWarningLevel
-                ,basicData.leftNakedVisionWarningLevel,basicData.rightNakedVisionWarningLevel)) {
+        if (!ObjectsUtil.allNotNull(basicData.leftAstigmatismWarningLevel, basicData.leftHyperopiaWarningLevel, basicData.rightAstigmatismWarningLevel
+                , basicData.rightHyperopiaWarningLevel, basicData.leftMyopiaWarningLevel, basicData.rightMyopiaWarningLevel
+                , basicData.leftNakedVisionWarningLevel, basicData.rightNakedVisionWarningLevel)) {
             return;
         }
 
@@ -279,15 +285,97 @@ public class StatConclusionBuilder {
     }
 
     private void setRescreenErrorNum() {
-        if (basicData.isRescreen) {
-            // TODO: 需要与初筛数据对比获取错误项次
-            int rescreenErrorNum = 4;
-            statConclusion.setRescreenErrorNum(rescreenErrorNum);
+        if (anotherVisionScreeningResult != null) {
+            statConclusion.setRescreenErrorNum(calculateErrorNum());
         } else {
             statConclusion.setRescreenErrorNum(0);
         }
     }
 
+    /**
+     * 计算错误次数
+     *
+     * @return
+     */
+    private int calculateErrorNum() {
+        int errorNum = getNakedVisionErrorNum() + getCorrectedVisionErrorNum();
+        if (basicData.isWearingGlasses) {
+            errorNum += getSeErrorNum();
+        }
+        return errorNum;
+    }
+
+    /**
+     * 获取视力错误数
+     *
+     * @return
+     */
+    public int getNakedVisionErrorNum() {
+        int errorNum = 0;
+        VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
+        VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
+        if (currentVisionData != null && anotherVisionData != null) {
+            errorNum += inRange(currentVisionData.getLeftEyeData().getNakedVision(), anotherVisionData.getLeftEyeData().getNakedVision(), OTHERS_RANGE_VALUE);
+            errorNum += inRange(currentVisionData.getRightEyeData().getNakedVision(), anotherVisionData.getRightEyeData().getNakedVision(), OTHERS_RANGE_VALUE);
+        }
+        return errorNum;
+    }
+
+    /**
+     * 获取矫正视力错误数
+     *
+     * @return
+     */
+    public int getCorrectedVisionErrorNum() {
+        int errorNum = 0;
+        VisionDataDO currentVisionData = currentVisionScreeningResult.getVisionData();
+        VisionDataDO anotherVisionData = anotherVisionScreeningResult.getVisionData();
+        if (currentVisionData != null && anotherVisionData != null) {
+            errorNum += inRange(currentVisionData.getLeftEyeData().getCorrectedVision(), anotherVisionData.getLeftEyeData().getCorrectedVision(), OTHERS_RANGE_VALUE);
+            errorNum += inRange(currentVisionData.getRightEyeData().getCorrectedVision(), anotherVisionData.getRightEyeData().getCorrectedVision(), OTHERS_RANGE_VALUE);
+        }
+        return errorNum;
+    }
+
+
+    /**
+     * 获取等效球镜复测错误
+     *
+     * @return
+     */
+    public int getSeErrorNum() {
+        int errorNum = 0;
+        ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
+        ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
+        if (currentComputerOptometry != null && anotherComputerOptometry != null) {
+            errorNum += inRange(currentComputerOptometry.getLeftEyeData().getSph().add(currentComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getLeftEyeData().getSph().add(anotherComputerOptometry.getLeftEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+            errorNum += inRange(currentComputerOptometry.getRightEyeData().getSph().add(currentComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), anotherComputerOptometry.getRightEyeData().getSph().add(anotherComputerOptometry.getRightEyeData().getCyl().divide(new BigDecimal(2))), OTHERS_RANGE_VALUE);
+        }
+        return errorNum;
+    }
+
+
+    /**
+     * @param rightValue
+     * @param leftValue
+     * @param rangeValue
+     * @return
+     */
+    private int inRange(BigDecimal rightValue, BigDecimal leftValue, BigDecimal rangeValue) {
+        int errorNum = 0;
+        if (rightValue == null || leftValue == null || rangeValue == null) {
+            return errorNum;
+        }
+        //属于误差范围内
+        if (rightValue.compareTo(rangeValue) == 1) {
+            errorNum++;
+        }
+
+        if (leftValue.compareTo(rangeValue) == 1) {
+            errorNum++;
+        }
+        return errorNum;
+    }
 
     public StatConclusionBuilder setStatConclusion(StatConclusion statConclusion) {
         if (statConclusion == null) {
@@ -297,16 +385,15 @@ public class StatConclusionBuilder {
             isUpdate = false;
         } else {
             isUpdate = true;
-            this.statConclusion = statConclusion;
         }
         return this;
     }
 
     private void setValid() {
-        if (visionScreeningResult.getVisionData() == null || visionScreeningResult.getComputerOptometry() == null) {
+        if (currentVisionScreeningResult.getVisionData() == null || currentVisionScreeningResult.getComputerOptometry() == null) {
             statConclusion.setIsValid(false);
         }
-        statConclusion.setIsValid(StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry()));
+        statConclusion.setIsValid(StatUtil.isCompletedData(currentVisionScreeningResult.getVisionData(), currentVisionScreeningResult.getComputerOptometry()));
     }
 
     /**
