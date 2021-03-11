@@ -183,6 +183,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(MedicalReport report, Doctor doctor) {
         StudentVisitReportResponseDTO.ReportInfo reportInfo = new StudentVisitReportResponseDTO.ReportInfo();
+        reportInfo.setReportId(report.getId());
         reportInfo.setNo(report.getNo());
         reportInfo.setCreateTime(report.getCreateTime());
         reportInfo.setGlassesSituation(report.getGlassesSituation());

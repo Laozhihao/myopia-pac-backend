@@ -80,6 +80,7 @@ public class StudentVisitReportResponseDTO {
     @Getter
     public static class ReportInfo {
 
+        private Integer reportId;
         /**
          * 报告编号
          */
