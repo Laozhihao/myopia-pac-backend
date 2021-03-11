@@ -8,6 +8,7 @@ import com.wupol.myopia.business.management.service.RoleService;
 import com.wupol.myopia.business.management.validator.RoleAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.RoleUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +41,18 @@ public class RoleController {
                                             @RequestParam(defaultValue = "1") Integer current,
                                             @RequestParam(defaultValue = "10") Integer size) {
         return roleService.getRoleListByPage(param, current, size, CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 获取指定部门角色
+     *
+     * @param govDeptId 部门ID
+     * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
+     **/
+    @GetMapping("/{govDeptId}")
+    public List<RoleDTO> getGovDeptRole(@PathVariable("govDeptId") Integer govDeptId) {
+        Assert.notNull(govDeptId, "部门ID不能为空");
+        return roleService.getGovDeptRole(govDeptId, CurrentUserUtil.getCurrentUser());
     }
 
     /**
