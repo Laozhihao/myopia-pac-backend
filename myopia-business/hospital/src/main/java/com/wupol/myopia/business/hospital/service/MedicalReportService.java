@@ -6,10 +6,6 @@ import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
-import com.wupol.myopia.business.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
@@ -140,20 +136,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         if (null == report) {
             throw new BusinessException("数据异常");
         }
+        // 获取固化报告
+        ReportConclusion reportConclusionData = report.getReportConclusionData();
         // 学生
-        Student student = studentService.getById(report.getStudentId());
-        if (null == student) {
-            throw new BusinessException("数据异常");
-        }
-        // 医生
-        Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
-        // 医院
-        Hospital hospital = hospitalService.getById(report.getHospitalId());
+        Student student = reportConclusionData.getStudent();
+        // 医生签名资源ID
+        Integer doctorSignFileId = reportConclusionData.getSignFileId();
 
         responseDTO.setStudent(packageStudentInfo(student));
-        responseDTO.setHospitalName(hospital.getName());
-
-        responseDTO.setReport(packageReportInfo(report, doctor));
+        responseDTO.setHospitalName(reportConclusionData.getHospitalName());
+        responseDTO.setReport(packageReportInfo(report, doctorSignFileId));
 
         // 检查单
         if (null != report.getMedicalRecordId()) {
@@ -185,11 +177,11 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     /**
      * 报告-设置报告、医生信息
      *
-     * @param report 报告
-     * @param doctor 医生
+     * @param report           报告
+     * @param doctorSignFileId 医生签名资源ID
      * @return {@link StudentVisitReportResponseDTO.ReportInfo}
      */
-    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(MedicalReport report, Doctor doctor) {
+    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(MedicalReport report, Integer doctorSignFileId) {
         StudentVisitReportResponseDTO.ReportInfo reportInfo = new StudentVisitReportResponseDTO.ReportInfo();
         reportInfo.setReportId(report.getId());
         reportInfo.setNo(report.getNo());
@@ -199,8 +191,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         if (!CollectionUtils.isEmpty(report.getImageIdList())) {
             reportInfo.setImageUrlList(resourceFileService.getBatchResourcePath(report.getImageIdList()));
         }
-        if (null != doctor.getSignFileId()) {
-            reportInfo.setDoctorSign(resourceFileService.getResourcePath(doctor.getSignFileId()));
+        if (null != doctorSignFileId) {
+            reportInfo.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
         }
         return reportInfo;
     }
@@ -317,7 +309,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setStudent(studentService.getById(report.getStudentId()))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
-        if (Objects.nonNull(doctor)) doctor.setSignFileId(doctor.getSignFileId());        if (Objects.nonNull(record)){
+        if (Objects.nonNull(doctor)) doctor.setSignFileId(doctor.getSignFileId());
+        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);
