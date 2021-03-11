@@ -307,6 +307,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         if (!save(medicalReport)) {
             throw new BusinessException("创建报告失败");
         }
+        updateReportConclusion(medicalReport, null);
         return medicalReport;
     }
 
@@ -316,7 +317,10 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setStudent(studentService.getById(report.getStudentId()))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
-        if (Objects.nonNull(doctor)) doctor.setSignFileId(doctor.getSignFileId());        if (Objects.nonNull(record)){
+        if (Objects.nonNull(doctor)) {
+            doctor.setSignFileId(doctor.getSignFileId());
+        }
+        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);
