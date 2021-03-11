@@ -5,9 +5,11 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.hospital.domain.model.MedicalReport">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
     </resultMap>
     <resultMap id="MedicalReportVo" type="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
     </resultMap>
 
     <!-- 通用查询条件 -->

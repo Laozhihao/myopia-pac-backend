@@ -28,7 +28,8 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     @Autowired
     private ResourceFileService resourceFileService;
-
+    @Autowired
+    private MedicalReportService medicalReportService;
 
     /**
      * 获取学生最后一条检查记录
@@ -222,7 +223,10 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(medicalRecord)) {
             return medicalRecord;
         }
-        return createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        medicalRecord = createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        // 创建检查单的同时,创建对应的报告
+        medicalReportService.createMedicalReport(medicalRecord.getId(), hospitalId, departmentId, doctorId, studentId);
+        return medicalRecord;
     }
 
     /**
