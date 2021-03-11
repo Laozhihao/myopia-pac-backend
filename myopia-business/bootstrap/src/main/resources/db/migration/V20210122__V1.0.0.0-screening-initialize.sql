@@ -286,7 +286,7 @@ CREATE TABLE `m_school_vision_statistic`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校某次筛查计划统计视力情况表';
 
 -- ----------------------------
--- Table structure for m_vision_screening_result
+-- Table structure for m_screening_result
 -- ----------------------------
 DROP TABLE IF EXISTS `m_vision_screening_result`;
 CREATE TABLE `m_vision_screening_result`
