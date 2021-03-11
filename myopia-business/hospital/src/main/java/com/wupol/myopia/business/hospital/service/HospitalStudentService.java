@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
@@ -68,9 +69,9 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
             throw new BusinessException("未找到该学生");
         }
         // 设置最后的就诊日期
-        MedicalRecord medicalRecord = medicalRecordService.getLastOneByStudentId(studentDTO.getId());
-        if (Objects.nonNull(medicalRecord)) {
-            studentDTO.setLastVisitDate(medicalRecord.getCreateTime());
+        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getId());
+        if (Objects.nonNull(medicalReport)) {
+            studentDTO.setLastVisitDate(medicalReport.getCreateTime());
         }
         return studentDTO;
     }
