@@ -143,7 +143,7 @@ public class Student implements Serializable {
      * 头像
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private String avatar;
+    private Integer avatarFileId;
 
     /**
      * 当前情况

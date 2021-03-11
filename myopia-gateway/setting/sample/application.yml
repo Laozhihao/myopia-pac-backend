@@ -17,7 +17,7 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/management/**
+        - Path=/management/**, /hospital/**, /parent/**, /app/**
 
       - id: route_device
         uri: lb://myopia-device
@@ -93,3 +93,9 @@ white-list:
   - "/auth/login"
   - "/auth/refresh/token"
   - "/auth/rsa/publicKey"
+  - "/parent/wx/index"
+  - "/parent/wx/authorize"
+  - "/parent/wx/callback/login"
+  - "/parent/wx/callback/userInfo"
+  - "/parent/wx/smsCode/**"
+  - "/parent/wx/phone/bind"

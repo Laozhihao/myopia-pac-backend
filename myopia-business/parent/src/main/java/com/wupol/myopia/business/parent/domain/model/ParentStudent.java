@@ -26,7 +26,6 @@ public class ParentStudent implements Serializable {
     /**
      * 家长ID
      */
-    @TableId(value = "parent_id", type = IdType.AUTO)
     private Integer parentId;
 
     /**

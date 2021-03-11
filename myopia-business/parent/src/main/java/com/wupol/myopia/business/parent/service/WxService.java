@@ -12,7 +12,7 @@ import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.parent.client.WxClient;
 import com.wupol.myopia.business.parent.constant.WxConstant;
-import com.wupol.myopia.business.parent.domain.dto.WxAccessTokenInfo;
+import com.wupol.myopia.business.parent.domain.dto.WxAuthorizationInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxLoginInfo;
 import com.wupol.myopia.business.parent.domain.dto.WxUserInfo;
 import com.wupol.myopia.business.parent.domain.model.Parent;
@@ -68,9 +68,12 @@ public class WxService {
     }
 
     /**
-     * 获取微信access_token
-     */
-    public WxAccessTokenInfo getAccessTokenWithOpenId(String code) {
+     * 获取微信accessToken和openId
+     *
+     * @param code 微信回调的code
+     * @return com.wupol.myopia.business.parent.domain.dto.WxAuthorizationInfo
+     **/
+    public WxAuthorizationInfo getAccessTokenAndOpenId(String code) {
         Assert.hasLength(code, "微信code不能为空");
         String data = wxClient.getAccessToken(appId, appSecret, code, "authorization_code");
         logger.debug("获取wx access token返回值: {}", data);
@@ -81,12 +84,18 @@ public class WxService {
             logger.error("获取wx access token返回值: {}", dataJson);
             throw new BusinessException(dataJson.getString(WxConstant.WX_ERROR_MSG), dataJson.getInteger(WxConstant.WX_ERROR_CODE));
         }
-        return new WxAccessTokenInfo().setOpenId(openId).setAccessToken(accessToken);
+        return new WxAuthorizationInfo().setOpenId(openId).setAccessToken(accessToken);
     }
 
-    public WxUserInfo getWxUserInfo(WxAccessTokenInfo accessTokenWithOpenId) throws JsonProcessingException {
-        String data = wxClient.getUserInfo(accessTokenWithOpenId.getAccessToken(), accessTokenWithOpenId.getOpenId(), "zh_CN");
-        logger.debug("获取wx access token返回值: {}", data);
+    /**
+     * 获取微信个人信息
+     *
+     * @param wxAuthorizationInfo 微信access_token和openId等授权信息
+     * @return com.wupol.myopia.business.parent.domain.dto.WxUserInfo
+     **/
+    public WxUserInfo getWxUserInfo(WxAuthorizationInfo wxAuthorizationInfo) throws JsonProcessingException {
+        String data = wxClient.getUserInfo(wxAuthorizationInfo.getAccessToken(), wxAuthorizationInfo.getOpenId(), "zh_CN");
+        logger.debug("获取微信用户信息，返回值: {}", data);
         ObjectMapper objectMapper = new ObjectMapper();
         WxUserInfo wxUserInfo = objectMapper.readValue(data, WxUserInfo.class);
         if (Objects.isNull(wxUserInfo) || StringUtils.isEmpty(wxUserInfo.getNickname())) {
@@ -96,6 +105,12 @@ public class WxService {
         return wxUserInfo;
     }
 
+    /**
+     * 创建家长
+     *
+     * @param wxUserInfo 微信用户个人信息
+     * @return com.wupol.myopia.business.parent.domain.model.Parent
+     **/
     @Transactional(rollbackFor = Exception.class)
     public Parent addParentAndUser(WxUserInfo wxUserInfo) {
         Assert.notNull(wxUserInfo, "微信用户信息不能为空");
@@ -110,10 +125,16 @@ public class WxService {
         return parent;
     }
 
+    /**
+     * 绑定家长手机号码
+     *
+     * @param wxLoginInfo 手机信息
+     * @return void
+     **/
     public void bindPhoneToParent(WxLoginInfo wxLoginInfo) throws IOException {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
+        Assert.notNull(parent, "当前用户不存在");
         oauthService.modifyUser(new UserDTO().setId(parent.getUserId()).setPhone(wxLoginInfo.getPhone()).setUsername(wxLoginInfo.getPhone()).setPassword(parent.getHashKey()));
     }
-
 }

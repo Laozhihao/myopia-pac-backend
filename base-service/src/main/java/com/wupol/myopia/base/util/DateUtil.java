@@ -151,6 +151,34 @@ public class DateUtil {
     }
 
     /**
+     * 获取昨天零晨的时间
+     *
+     * @return long
+     **/
+    public static Date getYesterdayStartTime() {
+        Calendar cal=Calendar.getInstance();
+        cal.add(Calendar.DATE,-1);
+        cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        return cal.getTime();
+    }
+
+    /**
+     * 获取昨天最迟一秒的时间
+     *
+     * @return long
+     **/
+    public static Date getYesterdayEndTime() {
+        Calendar cal=Calendar.getInstance();
+        cal.add(Calendar.DATE,-1);
+        cal.set(Calendar.HOUR, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        return cal.getTime();
+    }
+
+    /**
      * 获取当前月份1号零晨的时间戳
      *
      * @param timezone  时区，格式如：GMT+2、GMT+0200、+2、+0200

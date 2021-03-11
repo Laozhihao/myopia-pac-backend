@@ -193,7 +193,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             Item item = new Item();
             item.screeningNum = schoolVisionStatistic.getPlanScreeningNumbers();
             item.screeningOrgName = schoolVisionStatistic.getScreeningOrgName();
-            item.actualScreeningNum = schoolVisionStatistic.getRealScreeningNumners();
+            item.actualScreeningNum = schoolVisionStatistic.getRealScreeningNumbers();
             item.averageVisionLeft = schoolVisionStatistic.getAvgLeftVision();
             item.averageVisionRight = schoolVisionStatistic.getAvgRightVision();
             item.lowVisionNum = schoolVisionStatistic.getLowVisionNumbers();

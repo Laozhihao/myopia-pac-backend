@@ -11,6 +11,7 @@ import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.HospitalService;
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.service.StudentService;
 import lombok.extern.log4j.Log4j2;
@@ -42,7 +43,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     private HospitalService hospitalService;
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
-
 
     /**
      * 获取学生报告列表
@@ -120,6 +120,27 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
+     * 获取学生的就诊档案详情（报告）
+     *
+     * @param reportId 报告ID
+     * @return responseDTO
+     */
+    public StudentReportResponseDTO getStudentReport(Integer reportId) {
+        StudentReportResponseDTO responseDTO = new StudentReportResponseDTO();
+        // 报告
+        MedicalReport report = getById(reportId);
+        responseDTO.setReport(report);
+        // 检查单
+        MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
+        responseDTO.setRecord(record);
+        // 设置学生
+        responseDTO.setStudent(studentService.getById(report.getStudentId()));
+        // 设置医生
+        responseDTO.setDoctor(hospitalDoctorService.getDoctorVoById(report.getDoctorId()));
+        return responseDTO;
+    }
+
+    /**
      * 统计就诊档案
      *
      * @param studentId 学生ID
@@ -159,6 +180,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
 
     public List<MedicalReport> getBy(MedicalReportQuery query) {
         return baseMapper.getBy(query);
+    }
+
+    /**
+     * 通过学生ID(只取当前时间的前一天)
+     *
+     * @param studentId 学生ID
+     * @return List<ReportAndRecordVo>
+     */
+    public List<ReportAndRecordVo> getByStudentId(Integer studentId) {
+        return baseMapper.getStudentId(studentId);
     }
 
     /**

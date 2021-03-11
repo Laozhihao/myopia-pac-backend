@@ -17,4 +17,6 @@ public interface ParentStudentMapper extends BaseMapper<ParentStudent> {
 
     List<ParentStudentVO> countParentStudent(@Param("parentId") Integer parentId);
 
+    ParentStudent getByParentIdAndStudentId(@Param("parentId") Integer parentId, @Param("studentId") Integer studentId);
+
 }

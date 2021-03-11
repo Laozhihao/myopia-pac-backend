@@ -14,6 +14,11 @@ import java.util.List;
 @Setter
 public class ReportCountResponseDTO {
 
+    /**
+     * 学生名称
+     */
+    private String name;
+
 
     /**
      * 筛查详情

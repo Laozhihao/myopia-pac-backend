@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     private StatConclusionMapper statConclusionMapper;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
-        return statConclusionMapper.selectLastOne(statConclusionQuery);
-    }
 
     /**
      * 获取筛查结论列表
@@ -53,6 +50,31 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return statConclusionMapper.selectList(queryWrapper);
     }
 
+    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
+        return statConclusionMapper.selectLastOne(statConclusionQuery);
+    }
+
+    /**
+     * 根据源通知ID获取处理后有效的筛查数据
+     *
+     * @param screeningNoticeId
+     * @return
+     */
+    public List<StatConclusion> getValidBySrcScreeningNoticeId(Integer screeningNoticeId) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
+                .eq(StatConclusion::getIsValid, true);
+        return statConclusionMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 根据筛查计划获取筛查结论Vo列表
+     * @param screeningPlanId
+     * @return
+     */
+    public List<StatConclusionVo> getValidVoByScreeningPlanId(Integer screeningPlanId) {
+        return statConclusionMapper.selectValidVoByScreeningPlanId(screeningPlanId);
+    }
     /**
      * 保存并更新
      *
@@ -75,26 +97,33 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param visionScreeningResult
      * @return
      */
-    private StatConclusion getScreeningConclusionResult(VisionScreeningResult visionScreeningResult) {
+    private StatConclusion getScreeningConclusionResult(
+            VisionScreeningResult visionScreeningResult) {
         if (visionScreeningResult == null) {
-
         }
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent =
+                screeningPlanSchoolStudentService.getById(
+                        visionScreeningResult.getScreeningPlanSchoolStudentId());
         if (screeningPlanSchoolStudent == null) {
-            throw new ManagementUncheckedException("数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = " + visionScreeningResult.getScreeningPlanSchoolStudentId());
+            throw new ManagementUncheckedException(
+                    "数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = "
+                    + visionScreeningResult.getScreeningPlanSchoolStudentId());
         }
         // 根据是否复查，查找结论表
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        StatConclusion statConclusion = new StatConclusion().setResultId(visionScreeningResult.getId());
+        StatConclusion statConclusion =
+                new StatConclusion().setResultId(visionScreeningResult.getId());
         statConclusion.setIsRescreen(visionScreeningResult.getIsDoubleScreen());
         queryWrapper.setEntity(statConclusion);
         statConclusion = baseMapper.selectOne(queryWrapper);
 
         //需要新增
-        StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setVisionScreeningResult(visionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
-                .build();
+        StatConclusionBuilder statConclusionBuilder =
+                StatConclusionBuilder.getStatConclusionBuilder();
+        statConclusion = statConclusionBuilder.setVisionScreeningResult(visionScreeningResult)
+                                 .setStatConclusion(statConclusion)
+                                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                                 .build();
         return statConclusion;
     }
 }

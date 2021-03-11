@@ -1,21 +1,24 @@
 package com.wupol.myopia.business.parent.controller;
 
-import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
-import com.wupol.myopia.business.parent.domain.dto.ParentBindRequest;
+import com.wupol.myopia.business.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.parent.service.ParentStudentService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
- * @Author HaoHao
- * @Date 2021-02-26
+ * 家长-孩子
+ *
+ * @author HaoHao
  */
 @ResponseResultBody
 @CrossOrigin
@@ -47,7 +50,7 @@ public class ParentStudentController {
 
     @GetMapping("{id}")
     public Object getStudent(@PathVariable("id") Integer id) {
-        return studentService.getById(id);
+        return parentStudentService.getStudentById(id);
     }
 
     @GetMapping("school/grade/list/{schoolId}")
@@ -61,8 +64,9 @@ public class ParentStudentController {
     }
 
     @PostMapping
-    public Object saveParentStudent(@RequestBody Student student) {
-        return studentService.saveStudent(student);
+    public Object saveParentStudent(@RequestBody Student student) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return parentStudentService.saveStudent(student, currentUser);
     }
 
     @GetMapping("school/getSchools/{schoolName}")
@@ -86,23 +90,17 @@ public class ParentStudentController {
     }
 
     @GetMapping("report/visits/latest/{id}")
-    public Object visitslatestReport(@PathVariable("id") Integer id) {
+    public Object visitsLatestReport(@PathVariable("id") Integer id) {
         return parentStudentService.latestVisitsReport(id);
     }
 
-    @GetMapping("report/visits/detail/{id}")
-    public Object getVisitsReportDetail(@PathVariable("id") Integer id) {
-        return parentStudentService.getVisitsReportDetails(id);
+    @GetMapping("report/visits/detail")
+    public Object getVisitsReportDetail(VisitsReportDetailRequest request) {
+        return parentStudentService.getVisitsReportDetails(request);
     }
 
     @GetMapping("report/screening/visionTrends/{studentId}")
     public Object screeningVisionTrends(@PathVariable("studentId") Integer studentId) {
         return parentStudentService.screeningVisionTrends(studentId);
-    }
-
-    @PostMapping("bind")
-    public Object parentBindStudent(@RequestBody ParentBindRequest request) {
-        parentStudentService.parentBindStudent(request);
-        return ApiResult.success();
     }
 }

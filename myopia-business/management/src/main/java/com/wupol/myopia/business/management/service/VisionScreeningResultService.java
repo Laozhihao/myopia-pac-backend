@@ -4,6 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
@@ -16,6 +25,15 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+
+import com.wupol.myopia.business.management.util.TwoTuple;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -88,7 +106,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
-        return Collections.emptyList();
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 
     /**

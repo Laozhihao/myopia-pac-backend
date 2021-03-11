@@ -82,6 +82,18 @@ public class RoleService {
     }
 
     /**
+     * 获取指定部门角色
+     *
+     * @param govDeptId 部门ID
+     * @param currentUser 当前登录用户
+     * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
+     **/
+    public List<RoleDTO> getGovDeptRole(Integer govDeptId, CurrentUser currentUser) {
+        Assert.isTrue(currentUser.isPlatformAdminUser() || govDeptId.equals(currentUser.getOrgId()), "没有权限访问该部门角色");
+        return oauthService.getRoleList(new RoleDTO().setOrgId(govDeptId));
+    }
+
+    /**
      * 新增角色
      *
      * @param param 角色数据
