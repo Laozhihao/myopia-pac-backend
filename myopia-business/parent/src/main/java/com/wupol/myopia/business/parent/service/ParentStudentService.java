@@ -6,7 +6,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.GlassesType;
-import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
@@ -707,18 +706,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return results.stream().map(result -> {
             CorrectedVisionDetails details = new CorrectedVisionDetails();
 
-            // 左眼
             CorrectedVisionDetails.Item left = new CorrectedVisionDetails.Item();
+            CorrectedVisionDetails.Item right = new CorrectedVisionDetails.Item();
+
             left.setLateriality(CommonConst.LEFT_EYE);
-            left.setVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
             left.setCreateTime(result.getCreateTime());
 
-            // 右眼
-            CorrectedVisionDetails.Item right = new CorrectedVisionDetails.Item();
             right.setLateriality(CommonConst.RIGHT_EYE);
-            right.setVision(result.getVisionData().getRightEyeData().getCorrectedVision());
             right.setCreateTime(result.getCreateTime());
 
+            VisionDataDO visionData = result.getVisionData();
+            if (Objects.nonNull(visionData)) {
+                // 左眼
+                left.setVision(visionData.getLeftEyeData().getCorrectedVision());
+                // 右眼
+                right.setVision(visionData.getRightEyeData().getCorrectedVision());
+            }
             details.setItem(Lists.newArrayList(left, right));
             return details;
         }).collect(Collectors.toList());
@@ -734,18 +737,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return results.stream().map(result -> {
             CylDetails details = new CylDetails();
 
-            // 左眼
             CylDetails.Item left = new CylDetails.Item();
+            CylDetails.Item right = new CylDetails.Item();
+
             left.setLateriality(CommonConst.LEFT_EYE);
             left.setCreateTime(result.getCreateTime());
-            left.setVision(result.getComputerOptometry().getLeftEyeData().getCyl());
 
-            // 右眼
-            CylDetails.Item right = new CylDetails.Item();
             right.setLateriality(CommonConst.RIGHT_EYE);
             right.setCreateTime(result.getCreateTime());
-            right.setVision(result.getComputerOptometry().getRightEyeData().getCyl());
 
+            ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+            if (Objects.nonNull(computerOptometry)) {
+                // 左眼
+                left.setVision(computerOptometry.getLeftEyeData().getCyl());
+                // 右眼
+                right.setVision(computerOptometry.getRightEyeData().getCyl());
+            }
             details.setItem(Lists.newArrayList(left, right));
             return details;
         }).collect(Collectors.toList());
@@ -761,18 +768,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return results.stream().map(result -> {
             SphDetails details = new SphDetails();
 
-            // 左眼
             SphDetails.Item left = new SphDetails.Item();
+            SphDetails.Item right = new SphDetails.Item();
+
             left.setLateriality(CommonConst.LEFT_EYE);
             left.setCreateTime(result.getCreateTime());
-            left.setVision(result.getComputerOptometry().getLeftEyeData().getSph());
 
-            // 右眼
-            SphDetails.Item right = new SphDetails.Item();
             right.setLateriality(CommonConst.RIGHT_EYE);
             right.setCreateTime(result.getCreateTime());
-            right.setVision(result.getComputerOptometry().getRightEyeData().getSph());
 
+            ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+            if (Objects.nonNull(computerOptometry)) {
+                // 左眼
+                left.setVision(computerOptometry.getLeftEyeData().getSph());
+                // 右眼
+                right.setVision(computerOptometry.getRightEyeData().getSph());
+            }
             details.setItem(Lists.newArrayList(left, right));
             return details;
         }).collect(Collectors.toList());
@@ -788,18 +799,21 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return results.stream().map(result -> {
             NakedVisionDetails details = new NakedVisionDetails();
 
-            // 左眼
             NakedVisionDetails.Item left = new NakedVisionDetails.Item();
+            NakedVisionDetails.Item right = new NakedVisionDetails.Item();
+
             left.setLateriality(CommonConst.LEFT_EYE);
             left.setCreateTime(result.getCreateTime());
-            left.setVision(result.getVisionData().getLeftEyeData().getNakedVision());
-
-            // 右眼
-            NakedVisionDetails.Item right = new NakedVisionDetails.Item();
             right.setLateriality(CommonConst.RIGHT_EYE);
             right.setCreateTime(result.getCreateTime());
-            right.setVision(result.getVisionData().getRightEyeData().getNakedVision());
 
+            VisionDataDO visionData = result.getVisionData();
+            if (Objects.nonNull(visionData)) {
+                // 左眼
+                left.setVision(visionData.getLeftEyeData().getNakedVision());
+                // 右眼
+                right.setVision(visionData.getRightEyeData().getNakedVision());
+            }
             details.setItem(Lists.newArrayList(left, right));
             return details;
         }).collect(Collectors.toList());
