@@ -53,4 +53,9 @@ public class StudentDTO extends Student {
      * 头像URL
      */
     private String avatar;
+
+    /**
+     * token
+     */
+    private String token;
 }
