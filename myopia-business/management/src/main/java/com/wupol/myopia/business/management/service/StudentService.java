@@ -569,12 +569,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<VisionResult> setVisionResult(VisionDataDO result) {
         VisionResult left = new VisionResult();
         VisionResult right = new VisionResult();
+
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
+            // 左眼
             left.setCorrectedVision(result.getLeftEyeData().getCorrectedVision());
             left.setNakedVision(result.getLeftEyeData().getNakedVision());
 
-            right.setLateriality(CommonConst.RIGHT_EYE);
+            // 右眼
             right.setCorrectedVision(result.getRightEyeData().getCorrectedVision());
             right.setNakedVision(result.getRightEyeData().getNakedVision());
         }
@@ -590,14 +593,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
         RefractoryResult left = new RefractoryResult();
         RefractoryResult right = new RefractoryResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
 
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
+            // 左眼
             left.setAxial(result.getLeftEyeData().getAxial());
             left.setSph(result.getLeftEyeData().getSph());
             left.setCyl(result.getLeftEyeData().getCyl());
 
-            right.setLateriality(CommonConst.RIGHT_EYE);
+            // 右眼
             right.setAxial(result.getRightEyeData().getAxial());
             right.setSph(result.getRightEyeData().getSph());
             right.setCyl(result.getRightEyeData().getCyl());
@@ -616,20 +621,22 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<CrossMirrorResult> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
         CrossMirrorResult left = new CrossMirrorResult();
         CrossMirrorResult right = new CrossMirrorResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
 
         if (null == result || null == result.getComputerOptometry()) {
             return Lists.newArrayList(right, left);
         }
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
 
-        left.setLateriality(CommonConst.LEFT_EYE);
+        // 左眼
         left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue()));
         left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases())) {
             left.setOther(true);
         }
 
-        right.setLateriality(CommonConst.RIGHT_EYE);
+        // 右眼
         right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue()));
         right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases())) {
