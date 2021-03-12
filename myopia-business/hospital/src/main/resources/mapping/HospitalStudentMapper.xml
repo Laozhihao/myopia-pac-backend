@@ -48,7 +48,7 @@
         FROM h_hospital_student hs
         LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id
         <include refid="Base_Where_Clause"/>
-        and mr.hospital_id = #{hospitalId}
+        and (mr.hospital_id = #{hospitalId} or mr.hospital_id is null)
         group by hs.student_id
     </select>
 
