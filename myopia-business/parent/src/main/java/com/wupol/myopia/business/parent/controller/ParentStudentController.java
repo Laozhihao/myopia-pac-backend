@@ -100,9 +100,4 @@ public class ParentStudentController {
     public Object screeningVisionTrends(@PathVariable("studentId") Integer studentId) {
         return parentStudentService.screeningVisionTrends(studentId);
     }
-
-    @GetMapping("getQrCode/{studentId}")
-    public Object getQrCode(@PathVariable("studentId") Integer studentId) {
-        return parentStudentService.getQrCode(studentId);
-    }
 }

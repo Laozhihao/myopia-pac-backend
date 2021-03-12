@@ -106,6 +106,6 @@ public class StudentController {
 
     @GetMapping("/screening/card/{resultId}")
     public Object getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentService.getCardDetails(resultId);
+        return studentService.packageCardDetails(resultId);
     }
 }
