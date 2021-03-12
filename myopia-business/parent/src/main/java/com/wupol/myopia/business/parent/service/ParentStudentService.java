@@ -2,6 +2,8 @@ package com.wupol.myopia.business.parent.service;
 
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -10,10 +12,7 @@ import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.constant.ParentReportConst;
-import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
@@ -73,6 +72,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     @Resource
     private SchoolService schoolService;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 孩子统计、孩子列表
@@ -176,6 +178,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentDTO
      * @throws IOException io异常
      */
+    @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudent(CurrentUser currentUser, Student student) throws IOException {
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
@@ -335,6 +338,25 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 裸眼视力详情
         responseDTO.setNakedVisionDetails(packageVisionTrendsByNakedVision(resultList));
         return responseDTO;
+    }
+
+    /**
+     * 获取学生授权二维码
+     *
+     * @param studentId 学生ID
+     * @return ApiResult<String>
+     */
+    public ApiResult<String> getQrCode(Integer studentId) {
+        Student student = studentService.getById(studentId);
+        if (Objects.isNull(student)) {
+            throw new BusinessException("学生数据异常");
+        }
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, student.getIdCard(), studentId);
+        redisUtil.del(key);
+        if (!redisUtil.set(key, studentId, 60 * 60)) {
+            throw new BusinessException("获取学生授权二维码失败");
+        }
+        return ApiResult.success(key);
     }
 
     /**

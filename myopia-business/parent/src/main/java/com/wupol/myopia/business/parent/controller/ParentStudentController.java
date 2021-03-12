@@ -6,7 +6,6 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
 import com.wupol.myopia.business.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.parent.service.ParentStudentService;
@@ -25,9 +24,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/parent/parentStudent")
 public class ParentStudentController {
-
-    @Resource
-    private StudentService studentService;
 
     @Resource
     private SchoolGradeService schoolGradeService;
@@ -103,5 +99,10 @@ public class ParentStudentController {
     @GetMapping("report/screening/visionTrends/{studentId}")
     public Object screeningVisionTrends(@PathVariable("studentId") Integer studentId) {
         return parentStudentService.screeningVisionTrends(studentId);
+    }
+
+    @GetMapping("getQrCode/{studentId}")
+    public Object getQrCode(@PathVariable("studentId") Integer studentId) {
+        return parentStudentService.getQrCode(studentId);
     }
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
@@ -71,6 +72,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 根据学生id列表获取学生信息
@@ -820,5 +824,19 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != student.getTownCode()) {
             dto.setTown(districtMaps.get(student.getTownCode()));
         }
+    }
+
+    /**
+     * 解析家长端的token，获取学生ID
+     *
+     * @param token token
+     * @return 学生ID
+     */
+    public Integer parseToken2StudentId(String token) {
+        Integer studentId = (Integer) redisUtil.get(token);
+        if (Objects.isNull(studentId)) {
+            throw new BusinessException("Token失效或过期，请重新获取");
+        }
+        return studentId;
     }
 }
