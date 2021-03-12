@@ -141,8 +141,8 @@ public class StatConclusionTest {
                     ? leftNakedVisionWarningLevel.code
                     : rightNakedVisionWarningLevel.code;
 
-            boolean isLowVision = StatUtil.isLowVision(leftNakedVisionWarningLevel)
-                    || StatUtil.isLowVision(rightNakedVisionWarningLevel);
+            boolean isLowVision = StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age)
+                    || StatUtil.isLowVision(visionData.getLeftEyeData().getNakedVision().floatValue(), age);
 
             boolean isRefractiveError =
                     StatUtil.isRefractiveError(isAstigmatism, isMyopia, isHyperopia);

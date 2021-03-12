@@ -10,6 +10,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningVO;
+import com.wupol.myopia.business.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.management.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ public class StatManagementController {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
+    @Autowired
+    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -230,5 +233,11 @@ public class StatManagementController {
     public BigScreeningVO getBigScreeningVO() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return districtBigScreenStatisticService.getLatestData(currentUser);
+    }
+
+    @GetMapping("/trigger")
+    public void statTaskTrigger() {
+        scheduledTasksExecutor.statistic();
+       return;
     }
 }

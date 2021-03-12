@@ -261,14 +261,20 @@ public class ScreeningAppService {
      * @param screeningResultBasicData
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
+
     public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
-        currentVisionScreeningResult = visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
-        statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
+        currentVisionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
+        allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
+        this.saveAll(allFirstAndSecondResult);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void saveAll(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
+        visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
+        statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
+    }
     /*
      *//**
      * 创建记录

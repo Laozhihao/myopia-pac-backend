@@ -5,6 +5,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
+import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
@@ -27,6 +28,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     private StatConclusionMapper statConclusionMapper;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 获取筛查结论列表
@@ -79,7 +82,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     /**
      * 保存并更新
      *
-     * @param visionScreeningResult
+     * @param allFirstAndSecondResult
      */
     public void saveOrUpdateStudentScreenData(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
         StatConclusion statConclusion = getScreeningConclusionResult(allFirstAndSecondResult);
@@ -107,11 +110,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         }
         // 根据是否复查，查找结论表
         StatConclusion statConclusion = this.getStatConclusion(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen());
-        //  尝试查找另外一半的数据
         //需要新增
+        SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
+                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
                 .build();
         return statConclusion;
     }
@@ -123,44 +126,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         queryWrapper.setEntity(statConclusion);
         return baseMapper.selectOne(queryWrapper);
     }
-
-    /**
-     * 获取统计数据
-     *
-     * @param visionScreeningResult
-     * @return
-     */
-    private StatConclusion getScreeningConclusionResult(
-            VisionScreeningResult visionScreeningResult) {
-        if (visionScreeningResult == null) {
-        }
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent =
-                screeningPlanSchoolStudentService.getById(
-                        visionScreeningResult.getScreeningPlanSchoolStudentId());
-        if (screeningPlanSchoolStudent == null) {
-            throw new ManagementUncheckedException(
-                    "数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = "
-                            + visionScreeningResult.getScreeningPlanSchoolStudentId());
-        }
-        // 根据是否复查，查找结论表
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        StatConclusion statConclusion =
-                new StatConclusion().setResultId(visionScreeningResult.getId());
-        statConclusion.setIsRescreen(visionScreeningResult.getIsDoubleScreen());
-        queryWrapper.setEntity(statConclusion);
-        statConclusion = baseMapper.selectOne(queryWrapper);
-
-        //需要新增
-        StatConclusionBuilder statConclusionBuilder =
-                StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setVisionScreeningResult(visionScreeningResult)
-                .setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
-                .build();
-        return statConclusion;
-    }
-}
-
 
 
 
