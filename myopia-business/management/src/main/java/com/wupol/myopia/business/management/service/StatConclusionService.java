@@ -28,10 +28,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
-        return statConclusionMapper.selectLastOne(statConclusionQuery);
-    }
-
     /**
      * 获取筛查结论列表
      *

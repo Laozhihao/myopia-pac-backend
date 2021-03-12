@@ -17,6 +17,7 @@ public class StatUtil {
      * 是否近视
      *
      * @param sphere   球镜
+     * @param sphere   球镜
      * @param cylinder 柱镜
      * @return
      */
@@ -99,14 +100,13 @@ public class StatUtil {
 
     /**
      * 是否建议就诊
-     *
-     * @param nakedVision      裸眼视力
-     * @param sphere           球镜
-     * @param cylinder         柱镜
+     * @param nakedVision 裸眼视力
+     * @param sphere 球镜
+     * @param cylinder 柱镜
      * @param isWearingGlasses
-     * @param correctVision    矫正视力
-     * @param age              年龄
-     * @param schoolAge        学龄
+     * @param correctVision 矫正视力
+     * @param age 年龄
+     * @param schoolAge 学龄
      * @return
      */
     public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,

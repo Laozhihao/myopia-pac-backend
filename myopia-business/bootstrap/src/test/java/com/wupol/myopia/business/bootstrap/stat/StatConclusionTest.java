@@ -4,14 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.constant.VisionCorrection;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO.ComputerOptometry;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.management.service.StatConclusionService;
 import com.wupol.myopia.business.management.service.StudentService;
@@ -45,6 +48,9 @@ public class StatConclusionTest {
     @Autowired
     private StatConclusionService statConclusionService;
 
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+
     @Test
     public void testInsert() throws IOException {
         VisionScreeningResult query = new VisionScreeningResult();
@@ -58,11 +64,17 @@ public class StatConclusionTest {
             ComputerOptometry leftData = computerOptometryDo.getLeftEyeData();
             ComputerOptometry rightData = computerOptometryDo.getRightEyeData();
 
+            int screeningPlanSchoolStudentId = result.getScreeningPlanSchoolStudentId();
             ScreeningPlanSchoolStudent planStudent =
-                    planStudentService.getById(result.getScreeningPlanSchoolStudentId());
+                    planStudentService.getById(screeningPlanSchoolStudentId);
 
             Student student = studentService.getById(result.getStudentId());
 
+            int schoolId = planStudent.getSchoolId();
+            String schoolClassName = planStudent.getClassName();
+            int gradeId = planStudent.getGradeId();
+            SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
+            String schoolGradeCode = schoolGrade.getGradeCode();
             int age = planStudent.getStudentAge();
             int districtId = result.getDistrictId();
             int gender = student.getGender();
@@ -71,13 +83,17 @@ public class StatConclusionTest {
             int resultId = result.getId();
             boolean isRescreen = result.getIsDoubleScreen();
             // TODO: 需要获取noticeId
-            int srcScreeningNoticeId = 0;
+            int srcScreeningNoticeId = 1;
             // TODO: 如何获取学龄
-            int schoolAge = 0;
+            int schoolAge = SchoolAge.HIGH.code;
             // TODO: 需要增加合法数据判断
             boolean isValid = true;
-            // TODO: 需要增加是否戴镜方法
-            boolean isWearingGlasses = false;
+            // TODO: 需要获取戴镜类型
+            int glassesType = GlassesType.CONTACT_LENS.code;
+            // TODO: 需要获取视力矫正状态
+            int visionCorrection = VisionCorrection.CORRECTED.code;
+
+            boolean isWearingGlasses = GlassesType.NOT_WEARING.code == 0 ? false : true;
 
             float leftCyl = leftData.getCyl().floatValue();
             float rightCyl = rightData.getCyl().floatValue();
@@ -98,14 +114,16 @@ public class StatConclusionTest {
             WarningLevel rightMyopiaWarningLevel =
                     StatUtil.getMyopiaWarningLevel(rightSph, rightCyl);
 
+            Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
+                    ? leftMyopiaWarningLevel.code
+                    : rightMyopiaWarningLevel.code;
+
             float leftNakedVision = visionData.getLeftEyeData().getNakedVision().floatValue();
             float rightNakedVision = visionData.getRightEyeData().getNakedVision().floatValue();
 
             float leftCorrectVision = visionData.getLeftEyeData().getCorrectedVision().floatValue();
             float rightCorrectVision =
                     visionData.getRightEyeData().getCorrectedVision().floatValue();
-
-            // boolean isWearingGlasses = visionData.getLeftEyeData().getGlassesType();
 
             boolean isHyperopia = StatUtil.isHyperopia(leftHyperopiaWarningLevel)
                     || StatUtil.isHyperopia(rightHyperopiaWarningLevel);
@@ -114,10 +132,14 @@ public class StatConclusionTest {
             boolean isMyopia = StatUtil.isMyopia(leftMyopiaWarningLevel)
                     || StatUtil.isMyopia(rightMyopiaWarningLevel);
 
-            WarningLevel leftNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
-                    visionData.getLeftEyeData().getNakedVision().floatValue(), age);
-            WarningLevel rightNakedVisionWarningLevel = StatUtil.getNakedVisionWarningLevel(
-                    visionData.getLeftEyeData().getNakedVision().floatValue(), age);
+            WarningLevel leftNakedVisionWarningLevel =
+                    StatUtil.getNakedVisionWarningLevel(leftNakedVision, age);
+            WarningLevel rightNakedVisionWarningLevel =
+                    StatUtil.getNakedVisionWarningLevel(rightNakedVision, age);
+            Integer nakedVisionWarningLevel =
+                    leftNakedVisionWarningLevel.code > rightNakedVisionWarningLevel.code
+                    ? leftNakedVisionWarningLevel.code
+                    : rightNakedVisionWarningLevel.code;
 
             boolean isLowVision = StatUtil.isLowVision(leftNakedVisionWarningLevel)
                     || StatUtil.isLowVision(rightNakedVisionWarningLevel);
@@ -166,9 +188,16 @@ public class StatConclusionTest {
             statConclusion.setIsHyperopia(isHyperopia);
             statConclusion.setIsAstigmatism(isAstigmatism);
             // statConclusion.setIsWearingGlasses(isWearingGlasses);
-            statConclusion.setGlassesType(GlassesType.NOT_WEARING.code);
+            statConclusion.setGlassesType(glassesType);
             statConclusion.setIsRecommendVisit(isRecommendVisit);
             statConclusion.setIsRescreen(isRescreen);
+            statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId);
+            statConclusion.setSchoolId(schoolId);
+            statConclusion.setSchoolClassName(schoolClassName);
+            statConclusion.setSchoolGradeCode(schoolGradeCode);
+            statConclusion.setVisionCorrection(visionCorrection);
+            statConclusion.setNakedVisionWarningLevel(nakedVisionWarningLevel);
+            statConclusion.setMyopiaWarningLevel(myopiaWarningLevel);
             if (isRescreen) {
                 // TODO: 需要与初筛数据对比获取错误项次
                 int rescreenErrorNum = 4;
