@@ -19,9 +19,6 @@ import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.model.*;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
@@ -157,6 +154,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             dto.setPassword(password);
         }
         baseMapper.updateById(school);
+        // 更新筛查计划中的学校
+        screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());
         School s = baseMapper.selectById(school.getId());
         BeanUtils.copyProperties(s, dto);
         dto.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
@@ -478,6 +477,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         return planPages;
 
     }
+
     /**
      * 获取学校的筛查记录详情
      *
@@ -509,9 +509,6 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
     }
-
-
-
 
 
     /**

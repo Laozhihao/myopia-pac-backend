@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 医院-医生
@@ -39,7 +40,9 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     public List<DoctorVo> getDoctorVoList(DoctorQuery query)  {
         List<DoctorVo> list = baseMapper.getDoctorVoList(query);
         list.forEach(item-> {
-            item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
+            if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
+                item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
+            }
 
         });
         return list;

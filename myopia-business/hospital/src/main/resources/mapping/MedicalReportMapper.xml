@@ -61,13 +61,12 @@
         where student_id = #{studentId};
     </select>
 
-    <select id="getLatestVisitsReport" resultMap="BaseResultMap">
+    <select id="getLastOneByStudentId" resultMap="BaseResultMap">
         select *
-        from h_medical_report report
-                     left join h_medical_record record on report.medical_record_id = record.id
-        where report.student_id = #{studentId}
-        order by record.create_time desc
-        limit 1
+        from h_medical_report mr
+        where mr.student_id = #{studentId}
+        order by mr.id desc
+            limit 1
     </select>
 
     <select id="getTodayLastMedicalReportVo" resultMap="MedicalReportVo">

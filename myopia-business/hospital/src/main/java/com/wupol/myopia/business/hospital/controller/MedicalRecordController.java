@@ -43,7 +43,7 @@ public class MedicalRecordController {
     @PostMapping("/consultation")
     public Boolean createConsultation(@RequestBody @Valid Consultation consultation) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addConsultationToMedicalRecord(consultation, user.getOrgId(), user.getId(), consultation.getStudentId());
+        medicalRecordService.addConsultationToMedicalRecord(consultation, user.getOrgId(), -1, consultation.getStudentId());
         return true;
     }
 
@@ -57,7 +57,7 @@ public class MedicalRecordController {
     @PostMapping("/vision")
     public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), user.getId(), vision.getStudentId());
+        medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), -1, vision.getStudentId());
         return true;
     }
 
@@ -71,7 +71,7 @@ public class MedicalRecordController {
     @PostMapping("/biometrics")
     public Boolean createBiometricsMedicalRecord(@RequestBody BiometricsMedicalRecord biometrics) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addBiometricsToMedicalRecord(biometrics, user.getOrgId(), user.getId(), biometrics.getStudentId());
+        medicalRecordService.addBiometricsToMedicalRecord(biometrics, user.getOrgId(), -1, biometrics.getStudentId());
         return true;
     }
 
@@ -85,7 +85,7 @@ public class MedicalRecordController {
     @PostMapping("/diopter")
     public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), user.getId(), diopter.getStudentId());
+        medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), -1, diopter.getStudentId());
         return true;
     }
 
@@ -98,7 +98,7 @@ public class MedicalRecordController {
     @PostMapping("/tosca")
     public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordService.addToscaToMedicalRecord(tosca, user.getOrgId(), user.getId(), tosca.getStudentId());
+        medicalRecordService.addToscaToMedicalRecord(tosca, user.getOrgId(), -1, tosca.getStudentId());
         return true;
     }
 
