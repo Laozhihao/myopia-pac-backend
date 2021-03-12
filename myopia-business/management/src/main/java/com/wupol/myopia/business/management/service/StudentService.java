@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -477,7 +476,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param resultId 筛查结果
      * @return StudentCardResponseDTO
      */
-    public StudentCardResponseDTO getCardDetails(Integer resultId) {
+    public StudentCardResponseDTO packageCardDetails(Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         return getStudentCardResponseDTO(visionScreeningResult);
     }
@@ -498,8 +497,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(visionScreeningResult);
-        responseDTO.setDetails(cardDetails);
+        responseDTO.setDetails(packageCardDetails(visionScreeningResult));
         return responseDTO;
     }
 
@@ -539,23 +537,23 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param result 筛查结果
      * @return CardDetails
      */
-    private CardDetails getCardDetails(VisionScreeningResult result) {
+    private CardDetails packageCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
-        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
-        //todo result.getVisionData().getLeftEyeData().getGlassesType()
-        glassesTypeObj.setType("1");
-        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
-        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
+        VisionDataDO visionData = result.getVisionData();
 
         // 获取学生数据
         Student student = baseMapper.selectById(result.getStudentId());
         if (null == student) {
             throw new BusinessException("数据异常");
         }
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        if (Objects.nonNull(visionData)) {
+            glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
+            details.setGlassesTypeObj(glassesTypeObj);
+        }
 
-        details.setGlassesTypeObj(glassesTypeObj);
-        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setVisionResults(setVisionResult(visionData));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
         details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
