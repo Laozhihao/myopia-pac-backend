@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.util;
 
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -16,6 +16,7 @@ public class StatUtil {
     /**
      * 是否近视
      *
+     * @param sphere   球镜
      * @param sphere   球镜
      * @param cylinder 柱镜
      * @return
@@ -77,36 +78,14 @@ public class StatUtil {
     }
 
     /**
-     * 是否视力低下
-     *
-     * @param nakedVision 裸眼视力
-     * @param age         年龄
-     * @return
-     */
-    public static boolean isLowVision(Float nakedVision, Integer age) {
-        return getNakedVisionWarningLevel(nakedVision, age).code > 0 ? true : false;
-    }
-
-    /**
-     * 是否视力低下
-     *
-     * @param lowVisionWarningLevel 视力低下预警级别
-     * @return
-     */
-    public static boolean isLowVision(WarningLevel lowVisionWarningLevel) {
-        return isWarningLevelGreatThanZero(lowVisionWarningLevel);
-    }
-
-    /**
      * 是否建议就诊
-     *
-     * @param nakedVision      裸眼视力
-     * @param sphere           球镜
-     * @param cylinder         柱镜
+     * @param nakedVision 裸眼视力
+     * @param sphere 球镜
+     * @param cylinder 柱镜
      * @param isWearingGlasses
-     * @param correctVision    矫正视力
-     * @param age              年龄
-     * @param schoolAge        学龄
+     * @param correctVision 矫正视力
+     * @param age 年龄
+     * @param schoolAge 学龄
      * @return
      */
     public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
@@ -185,6 +164,47 @@ public class StatUtil {
     }
 
     /**
+     * 判断是否视力低下
+     * @param nakedVision
+     * @param age
+     * @return
+     */
+    public static Boolean isLowVision(Float nakedVision, Integer age) {
+        if (nakedVision == null || age == null || age < 0) {
+            return null;
+        }
+        Boolean isLowVision = false;
+
+        switch (age) {
+            case 0:
+            case 1:
+            case 2:
+                if (nakedVision < 4.6f) {
+                    isLowVision = true;
+                }
+                ;
+                break;
+            case 3:
+                if (nakedVision < 4.7f) {
+                    isLowVision = true;
+                }
+                break;
+            case 4:
+            case 5:
+                if (nakedVision < 4.9f) {
+                    isLowVision = true;
+                }
+                break;
+            default:
+                if (nakedVision < 5.0f) {
+                    isLowVision = true;
+                }
+        }
+        return isLowVision;
+    }
+
+
+    /**
      * 返回远视预警级别
      *
      * @param sphere   球镜
@@ -193,7 +213,7 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getHyperopiaWarningLevel(Float sphere, Float cylinder, Integer age) {
-        if (sphere == null || cylinder == null || age ==null) {
+        if (sphere == null || cylinder == null || age == null) {
             return null;
         }
         Float se = getSphericalEquivalent(sphere, cylinder);
@@ -262,7 +282,7 @@ public class StatUtil {
      * @return
      */
     public static WarningLevel getMyopiaWarningLevel(Float sphere, Float cylinder) {
-        if (!ObjectsUtil.allNotNull(sphere,cylinder)) {
+        if (!ObjectsUtil.allNotNull(sphere, cylinder)) {
             return null;
         }
         Float se = getSphericalEquivalent(sphere, cylinder);
@@ -351,17 +371,17 @@ public class StatUtil {
      * @param computerOptometry
      * @return
      */
-    public static boolean isCompletedData(VisionDataDO visionData ,ComputerOptometryDO computerOptometry) {
-        if (visionData == null || visionData.getLeftEyeData() == null ||  visionData.getLeftEyeData().getGlassesType() == null) {
+    public static boolean isCompletedData(VisionDataDO visionData, ComputerOptometryDO computerOptometry) {
+        if (visionData == null || visionData.getLeftEyeData() == null || visionData.getLeftEyeData().getGlassesType() == null) {
             return false;
         }
         Integer glassesType = visionData.getLeftEyeData().getGlassesType();
         if (WearingGlassesSituation.NOT_WEARING_GLASSES_KEY.equals(glassesType)) {
-            return  visionData.validNakedVision();
-        } else if (WearingGlassesSituation.WEARING_FRAME_GLASSES_KEY.equals(glassesType) || WearingGlassesSituation.WEARING_CONTACT_LENS_KEY.equals(glassesType) ) {
-            return  visionData.validNakedVision() && visionData.validCorrectedVision() && Objects.nonNull(computerOptometry) && computerOptometry.valid();
+            return visionData.validNakedVision();
+        } else if (WearingGlassesSituation.WEARING_FRAME_GLASSES_KEY.equals(glassesType) || WearingGlassesSituation.WEARING_CONTACT_LENS_KEY.equals(glassesType)) {
+            return visionData.validNakedVision() && visionData.validCorrectedVision() && Objects.nonNull(computerOptometry) && computerOptometry.valid();
         } else if (WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(glassesType)) {
-            return  visionData.validCorrectedVision();
+            return visionData.validCorrectedVision();
         } else {
             return false;
         }
