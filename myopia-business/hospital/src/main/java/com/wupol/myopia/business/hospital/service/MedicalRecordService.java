@@ -5,6 +5,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
 import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
+import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
@@ -28,7 +29,8 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     @Autowired
     private ResourceFileService resourceFileService;
-
+    @Autowired
+    private MedicalReportService medicalReportService;
 
     /**
      * 获取学生最后一条检查记录
@@ -222,7 +224,10 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(medicalRecord)) {
             return medicalRecord;
         }
-        return createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        medicalRecord = createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
+        // 创建检查单的同时,创建对应的报告
+        medicalReportService.createMedicalReport(medicalRecord.getId(), hospitalId, departmentId, doctorId, studentId);
+        return medicalRecord;
     }
 
     /**
@@ -253,5 +258,4 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         baseMapper.insert(medicalRecord);
         return medicalRecord;
     }
-
 }

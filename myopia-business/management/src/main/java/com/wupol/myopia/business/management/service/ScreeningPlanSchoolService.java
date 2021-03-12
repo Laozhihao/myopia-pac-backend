@@ -3,8 +3,8 @@ package com.wupol.myopia.business.management.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
@@ -76,14 +76,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 批量更新或新增筛查计划的学校信息
      *
      * @param screeningPlanId
+     * @param screeningOrgId
      * @param screeningSchools
      */
-    public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, List<ScreeningPlanSchool> screeningSchools) {
+    public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 删除掉已有的不存在的学校信息
         List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.EMPTY_LIST : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
         if (!CollectionUtils.isEmpty(screeningSchools)) {
-            saveOrUpdateBatchByPlanId(screeningPlanId, screeningSchools);
+            saveOrUpdateBatchByPlanId(screeningPlanId, screeningOrgId, screeningSchools);
         }
     }
 
@@ -93,11 +94,11 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @param screeningPlanId
      * @param screeningSchools
      */
-    public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, List<ScreeningPlanSchool> screeningSchools) {
+    public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 1. 查出剩余的
         Map<Integer, Integer> schoolIdMap = getSchoolListsByPlanId(screeningPlanId).stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool::getId));
         // 2. 更新id，并批量新增或修改
-        screeningSchools.forEach(planSchool -> planSchool.setScreeningPlanId(screeningPlanId).setId(schoolIdMap.getOrDefault(planSchool.getSchoolId(), null)));
+        screeningSchools.forEach(planSchool -> planSchool.setScreeningPlanId(screeningPlanId).setScreeningOrgId(screeningOrgId).setId(schoolIdMap.getOrDefault(planSchool.getSchoolId(), null)));
         saveOrUpdateBatch(screeningSchools);
     }
 
@@ -186,5 +187,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
             return new ArrayList<>();
         }
         return schoolService.getSchoolByIds(schoolIds);
+    }
+
+    /**
+     * 更新学校名称
+     *
+     * @param schoolId   学校ID
+     * @param schoolName 学校名称
+     */
+    public void updateSchoolNameBySchoolId(Integer schoolId, String schoolName) {
+        baseMapper.updateSchoolNameBySchoolId(schoolId, schoolName);
     }
 }

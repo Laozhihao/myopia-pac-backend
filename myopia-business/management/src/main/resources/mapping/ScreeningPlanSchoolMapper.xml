@@ -69,4 +69,10 @@
         where msps.school_id = #{schoolId}
           and msp.release_status = 1
     </select>
+
+    <update id="updateSchoolNameBySchoolId">
+        update m_screening_plan_school
+        set school_name = #{schoolName}
+        where school_id = #{schoolId}
+    </update>
 </mapper>

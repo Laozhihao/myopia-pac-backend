@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.dto.login;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @Author HaoHao
@@ -9,6 +10,7 @@ import lombok.Data;
  **/
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class TokenInfoDTO {
     /**
      * 访问令牌

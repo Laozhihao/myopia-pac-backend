@@ -36,6 +36,11 @@ public class ScreeningPlanSchool implements Serializable {
     private Integer screeningPlanId;
 
     /**
+     * 筛查计划--指定的筛查机构id
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 筛查计划--执行的学校id
      */
     private Integer schoolId;
@@ -44,11 +49,6 @@ public class ScreeningPlanSchool implements Serializable {
      * 筛查计划--学校名字
      */
     private String schoolName;
-
-    /**
-     * 筛查计划--筛查机构id
-     */
-    private Integer screeningOrgId;
 
     /**
      * 创建时间

@@ -62,4 +62,10 @@
         limit 1
     </select>
 
+    <select id="getByStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
+        select record.id as recordId, report.id as reportId, record.create_time
+        from h_medical_record record
+                     left join h_medical_report report on record.id = report.medical_record_id
+                where record.student_id = #{studentId}
+    </select>
 </mapper>

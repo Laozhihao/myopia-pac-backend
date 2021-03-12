@@ -1,29 +1,22 @@
 package com.wupol.myopia.business.management.util;
 
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
-import com.amazonaws.util.Base64;
 import com.vistel.Interface.aws.S3Client;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.framework.core.util.DateUtil;
-import com.wupol.framework.core.util.StringUtils;
-import com.wupol.framework.exception.ValidateException;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.slf4j.Slf4j;
-import org.codehaus.plexus.util.IOUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Author: jacob
@@ -222,13 +215,15 @@ public final class S3Utils {
 
     /**
      * 上传文件到S3
+     *
      * @param file 文件
-     * @return 文件URL
+     * @return TwoTuple<String, Integer> left-文件URL right-资源文件ID
      * @throws UtilException 异常
      */
-    public String uploadFile(File file) throws UtilException {
+    public TwoTuple<String, Integer> uploadFile(File file) throws UtilException {
         // 上传
         ResourceFile resourceFile = uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName());
-        return resourceFileService.getResourcePath(resourceFile.getId());
+
+        return new TwoTuple<>(resourceFileService.getResourcePath(resourceFile.getId()), resourceFile.getId());
     }
 }

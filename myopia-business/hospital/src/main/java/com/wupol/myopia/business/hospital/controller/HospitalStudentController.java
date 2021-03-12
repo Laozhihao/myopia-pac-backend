@@ -9,6 +9,7 @@ import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,8 +35,12 @@ public class HospitalStudentController {
 
 
     @GetMapping()
-    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
-        return hospitalStudentService.getStudent(id, idCard, name);
+    public HospitalStudentDTO getStudent(String token, String idCard, String name) {
+        if (StringUtils.isEmpty(token)) {
+            return hospitalStudentService.getStudent(idCard, name);
+        } else {
+            return hospitalStudentService.getStudentByToken(token);
+        }
     }
 
     @GetMapping("/{id}")
@@ -44,7 +49,7 @@ public class HospitalStudentController {
     }
 
     @GetMapping("/recentList")
-    public List<Student> getRecentList() throws IOException {
+    public List<HospitalStudentDTO> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentService.getRecentList(user.getOrgId());
     }
@@ -64,7 +69,7 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
-        Integer studentId = hospitalStudentService.saveStudent(studentVo);
+        Integer studentId = hospitalStudentService.saveStudent(studentVo, true);
         hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
         return ApiResult.success("建档成功");
     }
@@ -77,8 +82,8 @@ public class HospitalStudentController {
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
             return ApiResult.failure("该学生未建档");
         }
-        hospitalStudentService.saveStudent(studentVo);
-        return ApiResult.success("建档成功");
+        hospitalStudentService.saveStudent(studentVo, false);
+        return ApiResult.success("更新成功");
     }
 
 

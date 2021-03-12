@@ -20,10 +20,6 @@ public class RefractoryResultItems {
     private String title;
 
     /**
-     * 轴位
-     */
-    private BigDecimal axial;
-    /**
      * 右眼
      */
     private Item od;
@@ -43,8 +39,31 @@ public class RefractoryResultItems {
 
         /**
          * 类型
+         * <p>
+         * 裸眼视力正常： 0
+         *
+         * 低下： 1
+         *
+         * 矫正视力
+         *
+         * 正常： 2
+         *
+         * 未矫： 3
+         *
+         * 欠矫：4
+         *
+         * 验光仪
+         *
+         * 正常：5
+         *
+         * 轻度：6
+         *
+         * 中度：7
+         *
+         * 重度：8
+         * </p>
          */
-        private String type;
+        private Integer type;
 
         /**
          * 类型名称

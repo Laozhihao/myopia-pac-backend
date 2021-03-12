@@ -33,8 +33,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 筛查机构
+ *
+ * @author HaoHao
  */
 @Service
 @Log4j2
@@ -60,9 +61,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-
-    @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
 
     @Resource
     private SchoolService schoolService;
@@ -294,8 +292,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 根据是否需要查询机构是否已有任务，返回时间段内已有任务的机构id
      *
-     * @param query
-     * @return
+     * @param query 条件
+     * @return List<Integer>
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQuery query) {
         if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
@@ -395,28 +393,30 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponse> taskPages = screeningPlanService.getPageByOrgId(request, orgId);
-        List<ScreeningOrgPlanResponse> tasks = taskPages.getRecords();
+        IPage<ScreeningOrgPlanResponse> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponse> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
-            return taskPages;
+            return planPages;
         }
-        tasks.forEach(this::extractedDTO);
-        return taskPages;
+        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
+        return planPages;
     }
 
     /**
      * 封装DTO
      *
-     * @param taskResponse 筛查端-记录详情
+     * @param planResponse 筛查端-记录详情
+     * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningOrgPlanResponse taskResponse) {
+    private void extractedDTO(ScreeningOrgPlanResponse planResponse, Integer orgId) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
-        List<ScreeningPlanSchoolVo> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(taskResponse.getId());
+        Integer planId = planResponse.getId();
+        List<ScreeningPlanSchoolVo> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
 
         // 设置筛查状态
-        taskResponse.setScreeningStatus(getScreeningStatus(taskResponse.getStartTime(), taskResponse.getEndTime()));
+        planResponse.setScreeningStatus(getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
@@ -430,18 +430,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 设置学校总数
         response.setSchoolCount(schoolIds.size());
 
-        // 查询学校统计
-        List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
-                .getBySchoolIds(taskResponse.getId(), schoolIds);
-        Map<Integer, SchoolVisionStatistic> schoolStatisticMaps = schoolStatistics
-                .stream().collect(Collectors.toMap(SchoolVisionStatistic::getSchoolId, Function.identity()));
-
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
         Map<Integer, School> schoolMaps = schools.stream()
                 .collect(Collectors.toMap(School::getId, Function.identity()));
 
-        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByTaskId(taskResponse.getId());
+        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(planId, orgId);
         // 员工信息
         if (!CollectionUtils.isEmpty(createUserIds)) {
             List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);
@@ -459,20 +453,16 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             if (null != schoolMaps.get(s)) {
                 detail.setSchoolName(schoolMaps.get(s).getName());
             }
-            if (null != schoolStatisticMaps.get(s)) {
-                detail.setRealScreeningNumbers(schoolStatisticMaps.get(s).getRealScreeningNumbers());
-            } else {
-                detail.setRealScreeningNumbers(0);
-            }
+            detail.setRealScreeningNumbers(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(s, orgId, planId).size());
             detail.setPlanScreeningNumbers(planStudentMaps.get(s));
-            detail.setScreeningPlanId(taskResponse.getId());
-            detail.setStartTime(taskResponse.getStartTime());
-            detail.setEndTime(taskResponse.getEndTime());
-            detail.setPlanTitle(taskResponse.getTitle());
+            detail.setScreeningPlanId(planId);
+            detail.setStartTime(planResponse.getStartTime());
+            detail.setEndTime(planResponse.getEndTime());
+            detail.setPlanTitle(planResponse.getTitle());
             details.add(detail);
         });
         response.setDetails(details);
-        taskResponse.setItems(response);
+        planResponse.setItems(response);
     }
 
     /**
@@ -527,6 +517,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private Integer getScreeningStatus(Date startDate, Date endDate) {
 
         Date nowDate = new Date();
+
+        // 结束时间加一天
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.DATE, 1);
+        endDate = calendar.getTime();
         if (nowDate.before(startDate)) {
             return 0;
         }
@@ -537,8 +533,5 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             return 2;
         }
         return 1;
-    }
-    public Object getRecordDetail(Integer id) {
-        return visionScreeningResultService.getByTaskId(id);
     }
 }

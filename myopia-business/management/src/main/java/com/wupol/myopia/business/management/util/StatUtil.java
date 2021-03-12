@@ -88,6 +88,7 @@ public class StatUtil {
 
     /**
      * 是否视力低下
+     *
      * @param lowVisionWarningLevel 视力低下预警级别
      * @return
      */
@@ -97,17 +98,18 @@ public class StatUtil {
 
     /**
      * 是否建议就诊
-     * @param nakedVision 裸眼视力
-     * @param sphere 球镜
-     * @param cylinder 柱镜
+     *
+     * @param nakedVision      裸眼视力
+     * @param sphere           球镜
+     * @param cylinder         柱镜
      * @param isWearingGlasses
-     * @param correctVision 矫正视力
-     * @param age 年龄
-     * @param schoolAge 学龄
+     * @param correctVision    矫正视力
+     * @param age              年龄
+     * @param schoolAge        学龄
      * @return
      */
     public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
-            boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
+                                           boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
         Float se = getSphericalEquivalent(sphere, cylinder);
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
@@ -134,6 +136,7 @@ public class StatUtil {
 
     /**
      * 判断预警级别是否大于0
+     *
      * @param warningLevel 预警级别
      * @return
      */

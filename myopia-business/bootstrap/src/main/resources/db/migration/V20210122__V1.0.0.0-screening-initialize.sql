@@ -113,6 +113,7 @@ CREATE TABLE `m_screening_plan_school`
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `screening_plan_id` int(10) unsigned NOT NULL COMMENT '筛查计划--计划id ',
+    `screening_org_id`  int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--指定的筛查机构id',
     `school_id`         int(10) unsigned NOT NULL COMMENT '筛查计划--执行的学校id',
     `school_name`       varchar(32)        DEFAULT NULL COMMENT '筛查计划--学校名字',
     `create_time`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -126,13 +127,22 @@ DROP TABLE IF EXISTS `m_screening_plan_school_student`;
 CREATE TABLE `m_screening_plan_school_student`
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+    `src_screening_notice_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查源通知id（也即task的来源通知id），自己创建时默认0',
+    `screening_task_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查任务id，自己创建时默认0',
     `screening_plan_id` int(10) unsigned NOT NULL COMMENT '筛查计划--计划id ',
+    `screening_org_id`  int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--指定的筛查机构id',
+    `district_id`       int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所处区域id',
     `school_id`         int(10) unsigned NOT NULL COMMENT '筛查计划--执行的学校id',
     `school_name`       varchar(32)  NOT NULL COMMENT '筛查计划--执行的学校名字',
     `grade_id`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--参与筛查的学生年级ID',
+    `grade_name`        varchar(32) null comment '年级名称',
+    `grade_type`        tinyint null comment '学龄段',
     `class_id`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--参与筛查的学生班级ID',
+    `class_name`        varchar(32) null comment '班级名称',
     `student_id`        int(10) unsigned NOT NULL COMMENT '筛查计划--参与筛查的学生id',
     `id_card`           varchar(32)  NOT NULL COMMENT '筛查计划--参与筛查的学生身份证号码',
+    `birthday`          timestamp null comment '出生日期',
+    `gender`            tinyint(1) null comment '性别 1-男 2-女',
     `student_age`       tinyint unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--参与筛查的学生年龄',
     `student_situation` varchar(1024) NOT NULL DEFAULT '' COMMENT '筛查计划--参与筛查的当时情况',
     `student_no`        varchar(64)  NOT NULL COMMENT '筛查计划--参与筛查的学生编号',
@@ -276,7 +286,7 @@ CREATE TABLE `m_school_vision_statistic`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校某次筛查计划统计视力情况表';
 
 -- ----------------------------
--- Table structure for m_vision_screening_result
+-- Table structure for m_screening_result
 -- ----------------------------
 DROP TABLE IF EXISTS `m_vision_screening_result`;
 CREATE TABLE `m_vision_screening_result`

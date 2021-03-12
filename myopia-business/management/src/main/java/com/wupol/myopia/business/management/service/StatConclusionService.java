@@ -56,6 +56,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
 
     /**
      * 根据源通知ID获取处理后有效的筛查数据
+     *
      * @param screeningNoticeId
      * @return
      */

@@ -1,5 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
@@ -37,6 +39,19 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      **/
     public List<Role> getRoleList(RoleDTO query) {
         return baseMapper.selectRoleList(query);
+    }
+
+    /**
+     * 获取角色列表 - 分页
+     *
+     * @param query 查询参数
+     * @return java.util.List<com.wupol.myopia.oauth.domain.model.Role>
+     **/
+    public IPage<Role> getRoleListByPage(RoleDTO query) {
+        Assert.notNull(query.getCurrent(), "页码为空");
+        Assert.notNull(query.getSize(), "页数为空");
+        Page<Role> page = new Page<>(query.getCurrent(), query.getSize());
+        return baseMapper.selectRoleList(page, query);
     }
 
     /**

@@ -50,7 +50,6 @@ public class Student implements Serializable {
     /**
      * 学号
      */
-    @NotBlank(message = "学号不能为空")
     private String sno;
 
     /**
@@ -143,7 +142,7 @@ public class Student implements Serializable {
      * 头像
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private String avatar;
+    private Integer avatarFileId;
 
     /**
      * 当前情况

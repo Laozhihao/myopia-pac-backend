@@ -33,11 +33,11 @@ public class CylDetails {
         /**
          * 柱镜
          */
-        private BigDecimal Cyl;
+        private BigDecimal vision;
 
         /**
          * 创建时间
          */
-        private Date createTime;
+        private String createTime;
     }
 }

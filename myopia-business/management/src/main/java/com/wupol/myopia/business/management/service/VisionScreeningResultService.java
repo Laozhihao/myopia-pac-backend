@@ -2,9 +2,9 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
@@ -69,11 +69,12 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 获取筛查人员ID
      *
-     * @param taskId 通知任务
-     * @return 学校ID
+     * @param planId 计划od
+     * @param orgId  机构ID
+     * @return UserId
      */
-    public List<Integer> getCreateUserIdByTaskId(Integer taskId) {
-        return baseMapper.getCreateUserIdByTaskId(taskId);
+    public List<Integer> getCreateUserIdByPlanId(Integer planId, Integer orgId) {
+        return baseMapper.getCreateUserIdByPlanIdAndOrgId(planId, orgId);
     }
 
     /**
@@ -196,5 +197,17 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             save(visionScreeningResult);
         }
         return visionScreeningResult;
+    }
+
+    /**
+     * 获取筛查结果
+     *
+     * @param schoolId 学校ID
+     * @param orgId    机构ID
+     * @param planId   计划ID
+     * @return List<VisionScreeningResult> 筛查结果
+     */
+    public List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(Integer schoolId, Integer orgId, Integer planId) {
+        return baseMapper.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId);
     }
 }

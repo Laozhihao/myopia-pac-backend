@@ -6,9 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wupol.myopia.business.hospital.domain.dos.ReportConclusionDataDO;
-import com.wupol.myopia.business.hospital.domain.handler.VisionMedicalRecordTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,7 +14,6 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 医院-检查报告
@@ -27,7 +23,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("h_medical_report")
+@TableName(value = "h_medical_report",autoResultMap = true)
 public class MedicalReport implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,8 +38,10 @@ public class MedicalReport implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-
+    /** 报告编号. 医院ID+生成日期时分秒（202011111111）+6位数排序（000001开始） */
+    private String no;
     /** 医院id */
+    @NotBlank(message = "医院id不能为空")
     private Integer hospitalId;
     /** 科室id */
     private Integer departmentId;
@@ -51,8 +49,9 @@ public class MedicalReport implements Serializable {
     @NotBlank(message = "学生id不能为空")
     private Integer studentId;
     /** 医生id */
+    @NotBlank(message = "医生id不能为空")
     private Integer doctorId;
-    /** 配镜情况。1配框架眼镜，2. OK眼镜，3配隐形眼镜 */
+    /** 配镜情况。0无, 1配框架眼镜，2. OK眼镜，3配隐形眼镜 */
     private Integer glassesSituation;
     /** 检查单id */
     private Integer medicalRecordId;
@@ -63,7 +62,7 @@ public class MedicalReport implements Serializable {
     private String medicalContent;
     /** 固化的结论数据*/
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private ReportConclusionDataDO reportConclusionData;
+    private ReportConclusion reportConclusionData;
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
