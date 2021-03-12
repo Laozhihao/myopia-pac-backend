@@ -9,6 +9,7 @@ import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,8 +35,12 @@ public class HospitalStudentController {
 
 
     @GetMapping()
-    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
-        return hospitalStudentService.getStudent(id, idCard, name);
+    public HospitalStudentDTO getStudent(String token, String idCard, String name) {
+        if (StringUtils.isEmpty(token)) {
+            return hospitalStudentService.getStudent(idCard, name);
+        } else {
+            return hospitalStudentService.getStudentByToken(token);
+        }
     }
 
     @GetMapping("/{id}")

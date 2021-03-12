@@ -47,15 +47,20 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     private MedicalReportService medicalReportService;
 
 
+    /** 获取学生信息 */
+    public HospitalStudentDTO getStudentByToken(String token) {
+        Integer studentId = studentService.parseToken2StudentId(token);
+        return getStudentById(studentId);
+    }
+
     /**
      * 获取学生信息
-     * @param id     学生id
      * @param idCard    学生的身份证
      * @param name    学生的姓名
      * @return
      */
-    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
-        return studentService.getHospitalStudentDetail(id, idCard, name);
+    public HospitalStudentDTO getStudent(String idCard, String name) {
+        return studentService.getHospitalStudentDetail(null, idCard, name);
     }
 
     /**
