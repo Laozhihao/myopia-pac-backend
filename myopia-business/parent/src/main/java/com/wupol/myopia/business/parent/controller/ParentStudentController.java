@@ -59,8 +59,9 @@ public class ParentStudentController {
     }
 
     @PutMapping("")
-    public Object updateParentStudent(@RequestBody Student student) {
-        return studentService.updateStudent(student);
+    public Object updateParentStudent(@RequestBody Student student) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return parentStudentService.updateStudent(currentUser,student);
     }
 
     @PostMapping

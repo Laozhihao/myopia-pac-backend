@@ -169,6 +169,27 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
+     * 更新孩子
+     *
+     * @param currentUser 当前用户
+     * @param student     学生
+     * @return StudentDTO
+     * @throws IOException io异常
+     */
+    public StudentDTO updateStudent(CurrentUser currentUser, Student student) throws IOException {
+        // 查找家长ID
+        Parent parent = parentService.getParentByUserId(currentUser.getId());
+        if (null == parent) {
+            throw new BusinessException("家长信息异常");
+        }
+
+        StudentDTO studentDTO = studentService.updateStudent(student);
+        // 绑定孩子
+        parentBindStudent(student.getId(), parent.getId());
+        return studentDTO;
+    }
+
+    /**
      * 新增孩子
      *
      * @param student     学生
@@ -330,7 +351,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         }
         ParentStudent checkResult = baseMapper.getByParentIdAndStudentId(parentId, studentId);
         if (null != checkResult) {
-            throw new BusinessException("已经绑定");
+            return;
         }
         parentStudent.setParentId(parentId);
         parentStudent.setStudentId(studentId);
