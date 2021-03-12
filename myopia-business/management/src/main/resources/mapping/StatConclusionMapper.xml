@@ -28,12 +28,18 @@
                 <if test="@Ognl@isNotEmpty(isMyopia)">and `is_myopia` = #{isMyopia}</if>
                 <if test="@Ognl@isNotEmpty(isHyperopia)">and `is_hyperopia` = #{isHyperopia}</if>
                 <if test="@Ognl@isNotEmpty(isAstigmatism)">and `is_astigmatism` = #{isAstigmatism}</if>
-                <if test="@Ognl@isNotEmpty(isWearingGlasses)">and `is_wearing_glasses` = #{isWearingGlasses}</if>
                 <if test="@Ognl@isNotEmpty(isRecommendVisit)">and `is_recommend_visit` = #{isRecommendVisit}</if>
                 <if test="@Ognl@isNotEmpty(isRescreen)">and `is_rescreen` = #{isRescreen}</if>
                 <if test="@Ognl@isNotEmpty(rescreenErrorNum)">and `rescreen_error_num` = #{rescreenErrorNum}</if>
                 <if test="@Ognl@isNotEmpty(isValid)">and `is_valid` = #{isValid}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(schoolGradeCode)">and `school_grade_code` = #{schoolGradeCode}</if>
+                <if test="@Ognl@isNotEmpty(schoolClassName)">and `school_class_name` = #{schoolClassName}</if>
+                <if test="@Ognl@isNotEmpty(myopiaWarningLevel)">and `myopia_warning_level` = #{myopiaWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(nakedVisionWarningLevel)">and `naked_vision_warning_level` = #{nakedVisionWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(glassesType)">and `glasses_type` = #{glassesType}</if>
+                <if test="@Ognl@isNotEmpty(visionCorrection)">and `vision_correction` = #{visionCorrection}</if>
                 <if test="@Ognl@isNotEmpty(startTime)">
                     and `create_time`
                     <![CDATA[>=]]>
@@ -56,7 +62,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, result_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism, is_wearing_glasses, is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time
+        id, result_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">

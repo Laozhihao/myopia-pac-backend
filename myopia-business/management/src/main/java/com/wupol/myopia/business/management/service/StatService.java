@@ -70,6 +70,9 @@ public class StatService {
     private SchoolService schoolService;
 
     @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Autowired
     ExcelFacade excelFacade;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
@@ -971,6 +974,55 @@ public class StatService {
     }
 
     /**
+     * 获取学校筛查报告数据
+     * @param srcScreeningNoticeId
+     * @param schoolId
+     * @return
+     * @throws IOException
+     */
+    public Map<String, Object> getSchoolStatData(int srcScreeningNoticeId, int schoolId)
+            throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
+        StatConclusionQuery query = new StatConclusionQuery();
+        query.setDistrictIds(districtIds);
+        query.setSrcScreeningNoticeId(srcScreeningNoticeId);
+        query.setSchoolId(schoolId);
+        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        if (statConclusions == null) {
+            return null;
+        }
+
+        Integer planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(
+                srcScreeningNoticeId, schoolId);
+
+        // Notice notice = noticeService.getById(srcScreeningNoticeId);
+        // Date startDate = notice.getStartTime();
+        // Date endDate = notice.getEndTime();
+        // List<StatConclusion> firstScreenConclusions =
+        //         statConclusions.stream()
+        //                 .filter(x -> x.getIsRescreen() == false)
+        //                 .collect(Collectors.toList());
+        // long totalFirstScreeningNum = firstScreenConclusions.size();
+        // List<Integer> schoolIds = statConclusions.stream()
+        //                                   .map(x -> x.getSchoolId())
+        //                                   .distinct()
+        //                                   .collect(Collectors.toList());
+
+        // List<StatConclusion> validConclusions = firstScreenConclusions.stream()
+        //                                                 .filter(x -> x.getIsValid() == true)
+        //                                                 .collect(Collectors.toList());
+        School school = schoolService.getById(schoolId);
+        String schoolName = school.getName();
+        return new HashMap<String, Object>() {
+            {
+                put("schoolName", schoolName);
+                put("planStudentNum", planStudentNum);
+            }
+        };
+    }
+
+    /**
      * 构建 性别 视力低下 统计
      * @param name 标题
      * @param statConclusions 统计数据
@@ -1215,22 +1267,6 @@ public class StatService {
                 put("name", name);
                 put("rowTotal", rowTotal);
                 put("list", list);
-            }
-        };
-    }
-
-    /**
-     * 获取学校筛查报告
-     * @param notificationId
-     * @param schoolId
-     * @return
-     */
-    public Map getSchoolStatData(int notificationId, int schoolId) {
-        // TODO: to be done
-        return new HashMap() {
-            {
-                put("key", 1);
-                put("key", 1);
             }
         };
     }

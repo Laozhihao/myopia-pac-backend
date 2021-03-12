@@ -77,11 +77,34 @@ public class StatController {
         return ApiResult.failure("internal error");
     }
 
+    /**
+     * 获取区域筛查报告
+     * @param notificationId 通知ID
+     * @param districtId 区域ID
+     * @return
+     */
     @GetMapping("/getDistrictReport")
     public ApiResult getDistrictReport(@RequestParam("notificationId") Integer notificationId,
             @RequestParam("districtId") Integer districtId) {
         try {
             return ApiResult.success(statService.getDistrictStatData(notificationId, districtId));
+        } catch (IOException e) {
+            log.error(e);
+            return ApiResult.failure("internal error");
+        }
+    }
+
+    /**
+     * 获取学校筛查报告
+     * @param notificationId 通知ID
+     * @param schoolId 学校ID
+     * @return
+     */
+    @GetMapping("/getSchoolReport")
+    public ApiResult getSchoolReport(@RequestParam("notificationId") Integer notificationId,
+            @RequestParam("schoolId") Integer schoolId) {
+        try {
+            return ApiResult.success(statService.getSchoolStatData(notificationId, schoolId));
         } catch (IOException e) {
             log.error(e);
             return ApiResult.failure("internal error");
@@ -103,4 +126,4 @@ public class StatController {
         }
         return ApiResult.failure("internal error");
     }
-    }
+}
