@@ -76,6 +76,18 @@ public class StatController {
         }
         return ApiResult.failure("internal error");
     }
+
+    @GetMapping("/getDistrictReport")
+    public ApiResult getDistrictReport(@RequestParam("notificationId") Integer notificationId,
+            @RequestParam("districtId") Integer districtId) {
+        try {
+            return ApiResult.success(statService.getDistrictStatData(notificationId, districtId));
+        } catch (IOException e) {
+            log.error(e);
+            return ApiResult.failure("internal error");
+        }
+    }
+
     /**
      * 分类统计数据
      *
@@ -91,5 +103,4 @@ public class StatController {
         }
         return ApiResult.failure("internal error");
     }
-
-}
+    }
