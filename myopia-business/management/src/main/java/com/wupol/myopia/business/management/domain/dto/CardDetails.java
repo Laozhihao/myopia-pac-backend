@@ -50,7 +50,7 @@ public class CardDetails {
         /**
          * 待镜类型
          */
-        private String type;
+        private Integer type;
         /**
          * 左眼视力
          */

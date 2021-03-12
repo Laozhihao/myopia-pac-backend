@@ -151,7 +151,7 @@ wechat:
   callback:
     url-host: http://myopia.nat100.top
   h5-client:
-    url-host: http://myopia.nat100.top
+    url-host: http://8.135.35.154:7001
 
 vistel:
   tools:

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -71,6 +71,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 根据学生id列表获取学生信息
@@ -473,7 +476,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param resultId 筛查结果
      * @return StudentCardResponseDTO
      */
-    public StudentCardResponseDTO getCardDetails(Integer resultId) {
+    public StudentCardResponseDTO packageCardDetails(Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         return getStudentCardResponseDTO(visionScreeningResult);
     }
@@ -494,8 +497,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(visionScreeningResult);
-        responseDTO.setDetails(cardDetails);
+        responseDTO.setDetails(packageCardDetails(visionScreeningResult));
         return responseDTO;
     }
 
@@ -535,23 +537,23 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param result 筛查结果
      * @return CardDetails
      */
-    private CardDetails getCardDetails(VisionScreeningResult result) {
+    private CardDetails packageCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
-        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
-        //todo result.getVisionData().getLeftEyeData().getGlassesType()
-        glassesTypeObj.setType("1");
-        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
-        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
+        VisionDataDO visionData = result.getVisionData();
 
         // 获取学生数据
         Student student = baseMapper.selectById(result.getStudentId());
         if (null == student) {
             throw new BusinessException("数据异常");
         }
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        if (Objects.nonNull(visionData)) {
+            glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
+            details.setGlassesTypeObj(glassesTypeObj);
+        }
 
-        details.setGlassesTypeObj(glassesTypeObj);
-        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setVisionResults(setVisionResult(visionData));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
         details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
@@ -645,12 +647,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
         EyeDiseasesResult left = new EyeDiseasesResult();
         EyeDiseasesResult right = new EyeDiseasesResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
             left.setEyeDiseases(result.getLeftEyeData().getEyeDiseases());
-
-            right.setLateriality(CommonConst.RIGHT_EYE);
             right.setEyeDiseases(result.getRightEyeData().getEyeDiseases());
+        } else {
+            left.setEyeDiseases(new ArrayList<>());
+            right.setEyeDiseases(new ArrayList<>());
         }
         return Lists.newArrayList(right, left);
     }
@@ -820,5 +824,19 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != student.getTownCode()) {
             dto.setTown(districtMaps.get(student.getTownCode()));
         }
+    }
+
+    /**
+     * 解析家长端的token，获取学生ID
+     *
+     * @param token token
+     * @return 学生ID
+     */
+    public Integer parseToken2StudentId(String token) {
+        Integer studentId = (Integer) redisUtil.get(token);
+        if (Objects.isNull(studentId)) {
+            throw new BusinessException("Token失效或过期，请重新获取");
+        }
+        return studentId;
     }
 }
