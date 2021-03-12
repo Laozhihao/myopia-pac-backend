@@ -647,12 +647,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
         EyeDiseasesResult left = new EyeDiseasesResult();
         EyeDiseasesResult right = new EyeDiseasesResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
             left.setEyeDiseases(result.getLeftEyeData().getEyeDiseases());
-
-            right.setLateriality(CommonConst.RIGHT_EYE);
             right.setEyeDiseases(result.getRightEyeData().getEyeDiseases());
+        } else {
+            left.setEyeDiseases(new ArrayList<>());
+            right.setEyeDiseases(new ArrayList<>());
         }
         return Lists.newArrayList(right, left);
     }
