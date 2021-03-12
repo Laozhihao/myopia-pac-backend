@@ -352,13 +352,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, student.getIdCard(), studentId);
-        String md5Key = SecureUtil.md5(key);
-        redisUtil.del(md5Key);
-        if (!redisUtil.set(md5Key, studentId, 60 * 60)) {
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId));
+        redisUtil.del(key);
+        if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
-        return md5Key;
+        return key;
     }
 
     /**
