@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.parent.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -101,8 +102,8 @@ public class ParentStudentController {
         return parentStudentService.screeningVisionTrends(studentId);
     }
 
-    @GetMapping("getQrCode/{studentId}")
-    public Object getQrCode(@PathVariable("studentId") Integer studentId) {
-        return parentStudentService.getQrCode(studentId);
+    @GetMapping("/getQrCode/{studentId}")
+    public Object getQrCode(@PathVariable("studentId")Integer studentId) {
+        return ApiResult.success(parentStudentService.getQrCode(studentId));
     }
 }

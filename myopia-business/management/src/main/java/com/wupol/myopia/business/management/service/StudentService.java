@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -477,7 +476,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param resultId 筛查结果
      * @return StudentCardResponseDTO
      */
-    public StudentCardResponseDTO getCardDetails(Integer resultId) {
+    public StudentCardResponseDTO packageCardDetails(Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         return getStudentCardResponseDTO(visionScreeningResult);
     }
@@ -498,8 +497,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         responseDTO.setInfo(cardInfo);
 
         // 获取结果记录
-        CardDetails cardDetails = getCardDetails(visionScreeningResult);
-        responseDTO.setDetails(cardDetails);
+        responseDTO.setDetails(packageCardDetails(visionScreeningResult));
         return responseDTO;
     }
 
@@ -539,23 +537,23 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param result 筛查结果
      * @return CardDetails
      */
-    private CardDetails getCardDetails(VisionScreeningResult result) {
+    private CardDetails packageCardDetails(VisionScreeningResult result) {
         CardDetails details = new CardDetails();
-        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
-        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
-        //todo result.getVisionData().getLeftEyeData().getGlassesType()
-        glassesTypeObj.setType("1");
-        glassesTypeObj.setLeftVision(new BigDecimal("4.5"));
-        glassesTypeObj.setRightVision(new BigDecimal("4.7"));
+        VisionDataDO visionData = result.getVisionData();
 
         // 获取学生数据
         Student student = baseMapper.selectById(result.getStudentId());
         if (null == student) {
             throw new BusinessException("数据异常");
         }
+        // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
+        CardDetails.GlassesTypeObj glassesTypeObj = new CardDetails.GlassesTypeObj();
+        if (Objects.nonNull(visionData)) {
+            glassesTypeObj.setType(visionData.getLeftEyeData().getGlassesType());
+            details.setGlassesTypeObj(glassesTypeObj);
+        }
 
-        details.setGlassesTypeObj(glassesTypeObj);
-        details.setVisionResults(setVisionResult(result.getVisionData()));
+        details.setVisionResults(setVisionResult(visionData));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
         details.setCrossMirrorResults(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
         details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
@@ -571,12 +569,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<VisionResult> setVisionResult(VisionDataDO result) {
         VisionResult left = new VisionResult();
         VisionResult right = new VisionResult();
+
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
+            // 左眼
             left.setCorrectedVision(result.getLeftEyeData().getCorrectedVision());
             left.setNakedVision(result.getLeftEyeData().getNakedVision());
 
-            right.setLateriality(CommonConst.RIGHT_EYE);
+            // 右眼
             right.setCorrectedVision(result.getRightEyeData().getCorrectedVision());
             right.setNakedVision(result.getRightEyeData().getNakedVision());
         }
@@ -592,14 +593,16 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
         RefractoryResult left = new RefractoryResult();
         RefractoryResult right = new RefractoryResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
 
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
+            // 左眼
             left.setAxial(result.getLeftEyeData().getAxial());
             left.setSph(result.getLeftEyeData().getSph());
             left.setCyl(result.getLeftEyeData().getCyl());
 
-            right.setLateriality(CommonConst.RIGHT_EYE);
+            // 右眼
             right.setAxial(result.getRightEyeData().getAxial());
             right.setSph(result.getRightEyeData().getSph());
             right.setCyl(result.getRightEyeData().getCyl());
@@ -618,20 +621,22 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<CrossMirrorResult> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
         CrossMirrorResult left = new CrossMirrorResult();
         CrossMirrorResult right = new CrossMirrorResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
 
         if (null == result || null == result.getComputerOptometry()) {
             return Lists.newArrayList(right, left);
         }
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
 
-        left.setLateriality(CommonConst.LEFT_EYE);
+        // 左眼
         left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue()));
         left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases())) {
             left.setOther(true);
         }
 
-        right.setLateriality(CommonConst.RIGHT_EYE);
+        // 右眼
         right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue()));
         right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases())) {
@@ -649,12 +654,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     private List<EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
         EyeDiseasesResult left = new EyeDiseasesResult();
         EyeDiseasesResult right = new EyeDiseasesResult();
+        left.setLateriality(CommonConst.LEFT_EYE);
+        right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
-            left.setLateriality(CommonConst.LEFT_EYE);
             left.setEyeDiseases(result.getLeftEyeData().getEyeDiseases());
-
-            right.setLateriality(CommonConst.RIGHT_EYE);
             right.setEyeDiseases(result.getRightEyeData().getEyeDiseases());
+        } else {
+            left.setEyeDiseases(new ArrayList<>());
+            right.setEyeDiseases(new ArrayList<>());
         }
         return Lists.newArrayList(right, left);
     }

@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.parent.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -225,6 +225,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null != studentDTO.getAvatarFileId()) {
             studentDTO.setAvatar(resourceFileService.getResourcePath(studentDTO.getAvatarFileId()));
         }
+        studentDTO.setToken(getQrCode(studentId));
         return studentDTO;
     }
 
@@ -343,20 +344,20 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     /**
      * 获取学生授权二维码
      *
-     * @param studentId 学生ID
+     * @param studentId 学生Id
      * @return ApiResult<String>
      */
-    public ApiResult<String> getQrCode(Integer studentId) {
+    public String getQrCode(Integer studentId) {
         Student student = studentService.getById(studentId);
         if (Objects.isNull(student)) {
-            throw new BusinessException("学生数据异常");
+            throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, student.getIdCard(), studentId);
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId));
         redisUtil.del(key);
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
-        return ApiResult.success(key);
+        return key;
     }
 
     /**
