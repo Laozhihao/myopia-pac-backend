@@ -197,11 +197,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return StudentDTO
      */
     public StudentDTO getStudentById(Integer studentId) {
-        StudentDTO studentDTO = new StudentDTO();
-        Student student = studentService.getById(studentId);
-        BeanUtils.copyProperties(student, studentDTO);
-        if (null != student.getAvatarFileId()) {
-            studentDTO.setAvatar(resourceFileService.getResourcePath(student.getAvatarFileId()));
+        StudentDTO studentDTO = studentService.getStudentById(studentId);
+        if (null != studentDTO.getAvatarFileId()) {
+            studentDTO.setAvatar(resourceFileService.getResourcePath(studentDTO.getAvatarFileId()));
         }
         return studentDTO;
     }
