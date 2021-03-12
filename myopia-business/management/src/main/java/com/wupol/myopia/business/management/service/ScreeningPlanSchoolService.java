@@ -186,7 +186,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
-        return schoolService.getSchoolByIds(schoolIds);
+        return  schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
     }
 
     /**

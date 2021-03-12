@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -203,6 +204,25 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthService.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         return baseMapper.updateById(school);
+    }
+
+    /**
+     * 获取学校的筛查记录详情
+     *
+     * @param schoolIds 筛查记录详情ID
+     * @return 详情
+     */
+    public List<School> getSchoolByIdsAndName(List<Long> schoolIds,String schoolName) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<School> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(School::getId,schoolIds);
+        if (StringUtils.isNotBlank(schoolName)) {
+            queryWrapper.like(School::getName,schoolName);
+        }
+        List<School> schools = baseMapper.selectList(queryWrapper);
+        return schools;
     }
 
     /**

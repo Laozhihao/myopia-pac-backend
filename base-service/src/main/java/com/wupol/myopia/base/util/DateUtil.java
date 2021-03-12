@@ -171,7 +171,7 @@ public class DateUtil {
      **/
     public static Date getYesterdayEndTime() {
         Calendar cal=Calendar.getInstance();
-        cal.add(Calendar.DATE,-1);
+
         cal.set(Calendar.HOUR, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);

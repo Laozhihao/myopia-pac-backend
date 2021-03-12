@@ -122,7 +122,7 @@ public class DistrictMonitorStatistic implements Serializable {
     public static DistrictMonitorStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
                                                  List<StatConclusion> statConclusions, Integer planScreeningNumbers) {
         DistrictMonitorStatistic statistic = new DistrictMonitorStatistic();
-        Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsWearingGlasses, Collectors.counting()));
+        Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
         Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
         Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
         Integer dsn = withoutGlassDsn * 4 + wearingGlassDsn * 6;
