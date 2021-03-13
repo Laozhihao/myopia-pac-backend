@@ -86,15 +86,13 @@ public class StatConclusionBuilder {
             this.setVisionRelatedData();
         }
         // 设置电脑验光的数据
-        if (currentVisionScreeningResult.getComputerOptometry() != null) {
+   /*     if (currentVisionScreeningResult.getComputerOptometry() != null) {
             this.setComputerRelatedData();
-        }
-        // 设置通用的数据
-        if (currentVisionScreeningResult.getVisionData() != null && currentVisionScreeningResult.getComputerOptometry() != null) {
-            this.setRecommendVisit();
-            this.setMyopia();
-            this.setLowVision();
-        }
+        }*/
+        this.setRefractiveError();
+        this.setRecommendVisit();
+        this.setMyopia();
+        this.setLowVision();
         this.setWarningLevel();
         this.setValid();
         this.setRescreenErrorNum();
@@ -140,8 +138,6 @@ public class StatConclusionBuilder {
 
 
     private void setComputerRelatedData() {
-        this.setRefractiveError();
-        this.setRecommendVisit();
         this.setComputerOtherData();
     }
 
@@ -215,27 +211,33 @@ public class StatConclusionBuilder {
 
 
     private void setLowVision() {
-        Boolean isLowVision = null;
-        if (ObjectsUtil.allNotNull(basicData.leftNakedVision, basicData.leftNakedVision)) {
-            isLowVision = StatUtil.isLowVision(basicData.leftNakedVision, basicData.age)
-                    || StatUtil.isLowVision(basicData.leftNakedVision, basicData.age);
+        boolean isLeftResult = false;
+        boolean isrightResult = false;
+        if (basicData.leftNakedVision != null) {
+            isLeftResult = StatUtil.isLowVision(basicData.leftNakedVision, basicData.age);
         }
+        if (basicData.rightNakedVision != null) {
+            isrightResult = StatUtil.isLowVision(basicData.rightNakedVision, basicData.age);
+        }
+        boolean isLowVision = isLeftResult || isrightResult;
         statConclusion.setIsLowVision(isLowVision);
     }
 
     private void setRefractiveError() {
-        Boolean isRefractiveError = null;
-        if (ObjectsUtil.allNotNull(basicData.isAstigmatism, statConclusion.getIsMyopia(), statConclusion.getIsHyperopia())) {
-            isRefractiveError = StatUtil.isRefractiveError(basicData.isAstigmatism, statConclusion.getIsMyopia(), statConclusion.getIsHyperopia());
-        }
+        boolean isRefractiveError = StatUtil.isRefractiveError(basicData.isAstigmatism != null ? basicData.isAstigmatism : false, statConclusion.getIsMyopia() != null ? statConclusion.getIsMyopia() : false, statConclusion.getIsHyperopia() != null ? statConclusion.getIsHyperopia() : false);
         statConclusion.setIsRefractiveError(isRefractiveError);
     }
 
     private void setMyopia() {
-        Boolean isMyopia = null;
-        if (ObjectsUtil.allNotNull(basicData.leftMyopiaWarningLevel, basicData.rightMyopiaWarningLevel)) {
-            isMyopia = StatUtil.isMyopia(basicData.leftMyopiaWarningLevel) || StatUtil.isMyopia(basicData.rightMyopiaWarningLevel);
+        boolean isLeftMyopia = false;
+        boolean isrightMyopia = false;
+        if (basicData.leftMyopiaWarningLevel != null) {
+            isLeftMyopia = StatUtil.isMyopia(basicData.leftMyopiaWarningLevel);
         }
+        if (basicData.rightMyopiaWarningLevel != null) {
+            isrightMyopia = StatUtil.isMyopia(basicData.rightMyopiaWarningLevel);
+        }
+        boolean isMyopia = isLeftMyopia || isrightMyopia;
         statConclusion.setIsMyopia(isMyopia);
     }
 
@@ -254,11 +256,11 @@ public class StatConclusionBuilder {
 
 
     private void setRecommendVisit() {
-        if (!ObjectsUtil.allNotNull(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
+/*        if (!ObjectsUtil.allNotNull(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
                 basicData.leftCorrectVision, basicData.age, basicData.schoolAge, basicData.rightNakedVision, basicData.rightSph, basicData.rightCyl,
                 basicData.rightCorrectVision)) {
             return;
-        }
+        }*/
         boolean isRecommendVisit =
                 StatUtil.isRecommendVisit(basicData.leftNakedVision, basicData.leftSph, basicData.leftCyl, basicData.isWearingGlasses,
                         basicData.leftCorrectVision, basicData.age, SchoolAge.get(basicData.schoolAge))
