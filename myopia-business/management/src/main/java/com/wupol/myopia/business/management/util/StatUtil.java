@@ -101,9 +101,6 @@ public class StatUtil {
 
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
-                return false;
-            }
-            if (isWearingGlasses) {
                 if (correctVision < 4.9) return true;
             } else {
 

@@ -150,10 +150,10 @@ public class ScreeningAppService {
      * @return
      */
     public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size) {
-        //ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId);
-     /*   if (currentPlan == null) {
-            throw new ManagementUncheckedException("该筛查机构没有合适的计划，screeningOrgId = " + screeningOrgId);
-        }*/
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
         // 获取学生数据
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
@@ -161,7 +161,7 @@ public class ScreeningAppService {
         if (StringUtils.isNotBlank(studentName)) {
             screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
-        screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent);
+        screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
         Integer startIntem = (page - 1) * size;
         screeningPlanSchoolStudentLambdaQueryWrapper.last("limit " + startIntem + "," + size);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
