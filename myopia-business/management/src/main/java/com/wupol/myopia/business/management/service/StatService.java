@@ -64,7 +64,7 @@ public class StatService {
     private ScreeningPlanService screeningPlanService;
 
     @Autowired
-    private NoticeService noticeService;
+    private ScreeningNoticeService screeningNoticeService;
 
     @Autowired
     private SchoolService schoolService;
@@ -754,7 +754,7 @@ public class StatService {
         String districtName = district.getName();
         int planScreeningNum =
                 screeningPlanService.getScreeningPlanStudentNum(srcScreeningNoticeId, currentUser);
-        Notice notice = noticeService.getById(srcScreeningNoticeId);
+        ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
         Date startDate = notice.getStartTime();
         Date endDate = notice.getEndTime();
         List<StatConclusion> firstScreenConclusions =
