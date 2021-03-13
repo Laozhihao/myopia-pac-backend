@@ -79,22 +79,38 @@ public class StatUtil {
 
     /**
      * 是否建议就诊
-     * @param nakedVision 裸眼视力
-     * @param sphere 球镜
-     * @param cylinder 柱镜
+     *
+     * @param nakedVision      裸眼视力
+     * @param sphere           球镜
+     * @param cylinder         柱镜
      * @param isWearingGlasses
-     * @param correctVision 矫正视力
-     * @param age 年龄
-     * @param schoolAge 学龄
+     * @param correctVision    矫正视力
+     * @param age              年龄
+     * @param schoolAge        学龄
      * @return
      */
-    public static boolean isRecommendVisit(float nakedVision, float sphere, float cylinder,
-                                           boolean isWearingGlasses, float correctVision, int age, SchoolAge schoolAge) {
-        Float se = getSphericalEquivalent(sphere, cylinder);
+    public static boolean isRecommendVisit(Float nakedVision, Float sphere, Float cylinder,
+                                           Boolean isWearingGlasses, Float correctVision, Integer age, SchoolAge schoolAge) {
+        if (nakedVision == null) {
+            return false;
+        }
+        Float se = null;
+        if (sphere != null && cylinder != null){
+           se = getSphericalEquivalent(sphere, cylinder);
+        }
+
         if (nakedVision < 4.9) {
+            if (isWearingGlasses) {
+                return false;
+            }
             if (isWearingGlasses) {
                 if (correctVision < 4.9) return true;
             } else {
+
+                if (schoolAge == null || se == null || cylinder == null) {
+                    return false;
+                }
+
                 switch (schoolAge) {
                     case PRIMARY:
                         if (se >= 0 && se < 2 && Math.abs(cylinder) < 1.5) return true;
@@ -108,7 +124,7 @@ public class StatUtil {
                     default:
                 }
             }
-        } else if (age >= 6 && se >= 2) {
+        } else if (age != null && se != null && age >= 6 && se >= 2) {
             return true;
         }
         return false;
@@ -133,7 +149,7 @@ public class StatUtil {
      */
     public static WarningLevel getNakedVisionWarningLevel(Float nakedVision, Integer age) {
         if (nakedVision == null || age == null) {
-              return null;
+            return null;
         }
         switch (age) {
             case 0:
@@ -165,6 +181,7 @@ public class StatUtil {
 
     /**
      * 判断是否视力低下
+     *
      * @param nakedVision
      * @param age
      * @return
@@ -321,7 +338,7 @@ public class StatUtil {
      */
     public static boolean isRefractiveError(
             boolean isAstigmatism, boolean isMyopia, boolean isHyperopia) {
-        return isAstigmatism && isMyopia && isHyperopia;
+        return isAstigmatism || isMyopia || isHyperopia;
     }
 
     /**
