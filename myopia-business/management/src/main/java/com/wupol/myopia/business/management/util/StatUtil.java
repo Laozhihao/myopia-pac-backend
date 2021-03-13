@@ -394,7 +394,7 @@ public class StatUtil {
         }
         Integer glassesType = visionData.getLeftEyeData().getGlassesType();
         if (WearingGlassesSituation.NOT_WEARING_GLASSES_KEY.equals(glassesType)) {
-            return visionData.validNakedVision();
+            return visionData.validNakedVision() && Objects.nonNull(computerOptometry) && computerOptometry.valid();
         } else if (WearingGlassesSituation.WEARING_FRAME_GLASSES_KEY.equals(glassesType) || WearingGlassesSituation.WEARING_CONTACT_LENS_KEY.equals(glassesType)) {
             return visionData.validNakedVision() && visionData.validCorrectedVision() && Objects.nonNull(computerOptometry) && computerOptometry.valid();
         } else if (WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(glassesType)) {
