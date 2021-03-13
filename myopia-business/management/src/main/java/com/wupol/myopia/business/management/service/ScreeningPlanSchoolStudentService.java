@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -175,6 +174,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public Map<Integer, Long> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
         return getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+    }
+
+    /**
+     * 获取学校筛查学生数
+     * @param srcScreeningNoticeId 通知ID
+     * @param schoolId 学校ID
+     * @return
+     */
+    public Integer countPlanSchoolStudent(int srcScreeningNoticeId, int schoolId) {
+        return baseMapper.selectCount(new QueryWrapper<ScreeningPlanSchoolStudent>()
+                                              .eq("school_id", schoolId)
+                                              .eq("src_screening_notice_id", srcScreeningNoticeId));
     }
 
     /**

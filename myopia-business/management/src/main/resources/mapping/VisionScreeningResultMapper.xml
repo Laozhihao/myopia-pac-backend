@@ -52,6 +52,7 @@
     <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
         select count(1) as count, student_id
         from m_vision_screening_result
+        where is_double_screen = 0
         group by student_id
     </select>
 
