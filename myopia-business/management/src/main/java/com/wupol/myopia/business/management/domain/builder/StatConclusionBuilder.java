@@ -174,6 +174,11 @@ public class StatConclusionBuilder {
     }
 
     private void setWarningLevel() {
+        // 特殊处理
+        if(basicData.glassesType == 3) {
+            statConclusion.setWarningLevel(2);
+            return;
+        }
         List<Integer> warningLevelList = new ArrayList() {
             {
                 if (basicData.leftAstigmatismWarningLevel != null) {
@@ -339,10 +344,10 @@ public class StatConclusionBuilder {
         return errorNum;
     }
 
-
     /**
-     * @param rightValue
-     * @param leftValue
+     * 判断是否在范围内
+     * @param beforeValue
+     * @param afterValue
      * @param rangeValue
      * @return
      */
