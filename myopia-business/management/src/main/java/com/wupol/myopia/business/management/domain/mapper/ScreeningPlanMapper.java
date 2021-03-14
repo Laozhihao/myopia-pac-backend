@@ -3,9 +3,9 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
@@ -35,6 +35,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     /**
      * 查找学校的id
+     *
      * @param districtIds
      * @param taskId
      * @return
@@ -46,6 +47,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     /**
      * 查找当前机构的未完成的说有学校id
+     *
      * @param screeningOrgId
      * @param releaseStatus
      * @param currentTimestamp
@@ -53,4 +55,13 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      */
     List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
 
+    /**
+     * 找到该机构的计划
+     *
+     * @param screeningOrgId
+     * @param screeningReleaseStatus
+     * @param currentTimeMillis
+     * @return
+     */
+    ScreeningPlan selectScreeningPlanByScreeningOrgId(Integer screeningOrgId, Integer schoolId, Integer releaseStatus, Long currentTimestamp);
 }

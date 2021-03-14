@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -21,6 +21,7 @@ import com.wupol.myopia.business.screening.result.ResultVOUtil;
 import com.wupol.myopia.business.screening.service.ScreeningAppService;
 import com.wupol.myopia.business.screening.utils.CommUtil;
 import com.wupol.myopia.business.screening.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RestController
 @RequestMapping("/app/screening")
+@Slf4j
 public class ScreeningAppController {
 
     @Autowired
@@ -58,6 +60,8 @@ public class ScreeningAppController {
     private SchoolService schoolService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
 
     /**
@@ -258,13 +262,11 @@ public class ScreeningAppController {
     /**
      * 获取学校年级班级对应的学生名称 //todo 暂时不分页
      *
-     * @param schoolId    学校id, 仅复测时有
      * @param schoolName  学校名称
      * @param gradeName   年级名称
      * @param clazzName   班级名称
      * @param studentName 学生名称
      * @param deptId      机构id
-     * @param isReview    是否复测
      * @return
      */
     @GetMapping("/school/findAllStudentName")
@@ -280,8 +282,8 @@ public class ScreeningAppController {
         Pageable pageable = PageRequest.of(page - 1, size);
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        studentName = StringUtils.isBlank(studentName)? null : studentName;
-       schoolName= StringUtils.isBlank(schoolName)? null : schoolName;
+        studentName = StringUtils.isBlank(studentName) ? null : studentName;
+        schoolName = StringUtils.isBlank(schoolName) ? null : schoolName;
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent
@@ -317,7 +319,7 @@ public class ScreeningAppController {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size);
+        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size);
         if (isRandom) {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);
         }
@@ -340,7 +342,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/student/save")
-    public ResultVO saveStudent(AppStudentDTO appStudentDTO) throws ParseException {
+    public ResultVO saveStudent(@RequestBody AppStudentDTO appStudentDTO) throws ParseException {
+        appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
         ResultVO resultVO = this.validStudentParam(appStudentDTO);
         if (resultVO != null) {
             return resultVO;
@@ -350,13 +353,21 @@ public class ScreeningAppController {
             return ResultVOUtil.error(ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getCode(), ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getMessage());
         }
         Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO);
-        studentService.saveStudent(student);
-        //增加到筛查计划id
-  /*      screeningPlanSchoolStudentService.insertByUpload(CurrentUserUtil.getCurrentUser().getId(), resultList, screeningPlanId, schoolId);
-        screeningPlanService.updateStudentNumbers(userId, screeningPlanId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlanId));
+        try {
+            studentService.saveStudent(student);
+            //获取当前的计划
+         } catch (Exception e) {
+            // app 就是这么干的。
+            return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR.getCode(),e.getMessage());
+        }
 
-        return resultVO.*/
-        return null;
+        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue());
+        if (currentPlan == null) {
+            log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。",CurrentUserUtil.getCurrentUser().getOrgId(),appStudentDTO.getSchoolId());
+            return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR);
+        }
+        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(),appStudentDTO.getSchoolId().intValue(),currentPlan);
+        return ResultVOUtil.success();
     }
 
 
@@ -385,8 +396,6 @@ public class ScreeningAppController {
     }
 
 
-
-
     /**
      * 校验学生数据的有效性
      *
@@ -402,13 +411,6 @@ public class ScreeningAppController {
             } else {
                 appStudentDTO.setBirthday(validDate);
             }
-        }
-        if (appStudentDTO.getDeptId() == null || appStudentDTO.getDeptId() == 0) {
-            return ResultVOUtil.error(ErrorEnum.SYS_STUDENT_DEPT_NULL.getCode(), ErrorEnum.SYS_STUDENT_DEPT_NULL.getMessage());
-        }
-
-        if (appStudentDTO.getUserId() == null || appStudentDTO.getUserId() == 0) {
-            return ResultVOUtil.error(ErrorEnum.SYS_STUDENT_USER_NULL.getCode(), ErrorEnum.SYS_STUDENT_USER_NULL.getMessage());
         }
         if (appStudentDTO.getSchoolId() == null || appStudentDTO.getSchoolId() == 0) {
             return ResultVOUtil.error(ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getCode(), ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getMessage());

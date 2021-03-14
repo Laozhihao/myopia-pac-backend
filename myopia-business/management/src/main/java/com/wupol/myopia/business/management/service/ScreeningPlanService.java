@@ -294,6 +294,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public List<ScreeningPlan> getByOrgId(Integer orgId) {
         return baseMapper.getByOrgId(orgId);
     }
+
     /**
      * 通过筛查通知id获取实际筛查学生数
      *
@@ -310,13 +311,14 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE);
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
     }
 
     /**
      * 根据筛查计划ID获取原始的筛查通知ID列表
+     *
      * @param screeningPlanIds
      * @return
      */
@@ -332,6 +334,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 根据原始筛查通知获取所有的筛查计划
+     *
      * @param srcScreeningNoticeId
      * @return
      */
@@ -347,7 +350,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         List<ScreeningPlanSchool> screeningPlanSchools = this.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
-        return screeningPlanSchools.stream().map(screeningPlanSchool ->  screeningPlanSchool.getSchoolId().longValue()).collect(Collectors.toList());
+        return screeningPlanSchools.stream().map(screeningPlanSchool -> screeningPlanSchool.getSchoolId().longValue()).collect(Collectors.toList());
     }
 
 
@@ -360,13 +363,31 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * @param screeningOrgId
+     * @return
+     */
+    public ScreeningPlan getScreeningPlansByScreeningOrgId(Integer screeningOrgId, Integer schoolId) {
+        return baseMapper.selectScreeningPlanByScreeningOrgId(screeningOrgId, schoolId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
+    }
+
+    /**
      * 获取用户当前的计划
+     *
      * @param deptId
      */
     public Set<Integer> getCurrentPlanIds(Integer deptId) {
         List<ScreeningPlanSchool> screeningPlanSchools = getScreeningSchoolsByScreeningOrgId(deptId);
         Set<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
         return planIds;
+    }
+
+    /**
+     * 获取用户当前的计划
+     *
+     * @param deptId
+     */
+    public  ScreeningPlan getCurrentPlan(Integer deptId, Integer schoolId) {
+         return getScreeningPlansByScreeningOrgId(deptId, schoolId);
     }
 
 }
