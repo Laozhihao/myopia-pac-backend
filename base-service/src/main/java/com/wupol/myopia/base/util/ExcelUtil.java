@@ -3,10 +3,13 @@ package com.wupol.myopia.base.util;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
+import com.alibaba.excel.write.handler.SheetWriteHandler;
+import com.alibaba.excel.write.merge.LoopMergeStrategy;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.core.config.composite.MergeStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +37,22 @@ public class ExcelUtil {
     public static File exportListToExcel(String fileNamePrefix, List data, Class head) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
         EasyExcel.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
+        return outputFile;
+    }
+
+    /**
+     * 导数据到Excel，返回Excel对应的File
+     * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
+     *
+     * @param fileNamePrefix    文件名前缀
+     * @param data              填充的数据
+     * @param sheetWriteHandler 表格生成处理器
+     * @param head              Excel表头定义类
+     * @return java.io.File
+     **/
+    public static File exportListToExcel(String fileNamePrefix, List data, SheetWriteHandler sheetWriteHandler,  Class head) throws IOException {
+        File outputFile = getOutputFile(fileNamePrefix);
+        EasyExcel.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
     }
 

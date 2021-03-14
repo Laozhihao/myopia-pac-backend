@@ -1,20 +1,24 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentCardResponseDTO;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +45,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StudentService studentService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ExcelFacade excelFacade;
 
     /**
      * 获取档案卡列表
@@ -76,7 +82,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return
      */
     @GetMapping("/export")
-    public Object getOrganizationExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) {
+    public Object getOrganizationExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException("筛查通知不存在");
@@ -84,8 +90,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (CommonConst.DEFAULT_ID.equals(districtId) && CommonConst.DEFAULT_ID.equals(schoolId)) {
             throw new BusinessException("层级与学校必须选择一个");
         }
-        //        CurrentUser user = CurrentUserUtil.getCurrentUser();
-//        excelFacade.generateScreeningOrganization(user.getId(), districtId);
+        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), screeningNoticeId, districtId, schoolId);
         return ApiResult.success();
     }
 }

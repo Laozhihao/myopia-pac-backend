@@ -2,6 +2,8 @@ package com.wupol.myopia.business.management.facade;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
+import com.alibaba.excel.write.merge.LoopMergeStrategy;
+import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
@@ -837,6 +839,24 @@ public class ExcelFacade {
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
         String content = String.format(CommonConst.CONTENT, "统计报表", "数据对比表", new Date());
+        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file).getSecond());
+    }
+
+    @Async
+    public void generateVisionScreeningResult(Integer userId, Integer screeningNoticeId, Integer districtId, Integer schoolId) throws IOException, UtilException {
+        // 设置文件名
+        StringBuilder builder = new StringBuilder().append("筛查数据");
+        District district = districtService.findOne(new District().setId(districtId));
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
+        }
+        builder.append("-").append(district.getName());
+        String fileName = builder.toString();
+        List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
+        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "筛查数据表", new Date());
+        log.info("导出文件: {}", fileName);
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 21, 22);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
         noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file).getSecond());
     }
 }
