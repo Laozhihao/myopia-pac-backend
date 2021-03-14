@@ -352,16 +352,16 @@ public class ScreeningAppController {
         if (school == null) {
             return ResultVOUtil.error(ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getCode(), ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getMessage());
         }
-        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO);
+        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO,school);
         try {
             studentService.saveStudent(student);
             //获取当前的计划
-         } catch (Exception e) {
+        } catch (Exception e) {
             // app 就是这么干的。
             return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR.getCode(),e.getMessage());
         }
-
         ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue());
+
         if (currentPlan == null) {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。",CurrentUserUtil.getCurrentUser().getOrgId(),appStudentDTO.getSchoolId());
             return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR);

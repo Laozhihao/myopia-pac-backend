@@ -141,8 +141,6 @@ public class ScreeningAppService {
     /**
      * 随机获取学生复测信息
      *
-     * @param pageRequest    分页
-     * @param schoolName     学校名称
      * @param schoolId       学校id
      * @param gradeName      年级名称
      * @param clazzName      班级名称
@@ -438,12 +436,12 @@ public class ScreeningAppService {
      *
      * @param currentUser
      * @param appStudentDTO
+     * @param school
      * @return
      */
-    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO) throws ParseException {
+    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO, School school) throws ParseException {
         Student student = new Student();
         Long schoolId = appStudentDTO.getSchoolId();
-        School school = schoolService.getById(schoolId);
         SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId.intValue(), appStudentDTO.getGrade());
         SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(),appStudentDTO.getClazz());
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
@@ -457,8 +455,11 @@ public class ScreeningAppService {
                 .setSno(appStudentDTO.getStudentNo())
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
-                .setAddress(appStudentDTO.getAddress());
-        //todo 地区和其他先不保存 student.setProvinceCode().setCityCode().setTownCode()
+                .setAddress(appStudentDTO.getAddress())
+                .setProvinceCode(school.getProvinceCode())
+                .setCityCode(school.getCityCode())
+                .setTownCode(school.getTownCode())
+                .setStatus(0);
         return student;
 
     }
