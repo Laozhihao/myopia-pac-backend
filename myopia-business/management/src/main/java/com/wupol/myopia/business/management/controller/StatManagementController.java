@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -10,6 +11,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningVO;
+import com.wupol.myopia.business.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.management.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class StatManagementController {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
+    @Autowired
+    private ScheduledTasksExecutor scheduledTasksExecutor;
+    @Autowired
+    private DistrictVisionStatisticService districtVisionStatisticService;
+    @Autowired
+    private DistrictMonitorStatisticService districtMonitorStatisticService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -230,5 +238,21 @@ public class StatManagementController {
     public BigScreeningVO getBigScreeningVO() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return districtBigScreenStatisticService.getLatestData(currentUser);
+    }
+
+    @GetMapping("/trigger")
+    public void statTaskTrigger() {
+        LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        districtAttentiveObjectsStatisticService.getBaseMapper().delete(districtAttentiveObjectsStatisticLambdaQueryWrapper);
+        LambdaQueryWrapper<DistrictMonitorStatistic> districtMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        districtMonitorStatisticService.getBaseMapper().delete(districtMonitorStatisticLambdaQueryWrapper);
+        LambdaQueryWrapper<DistrictVisionStatistic> districtVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        districtVisionStatisticService.getBaseMapper().delete(districtVisionStatisticLambdaQueryWrapper);
+        LambdaQueryWrapper<SchoolVisionStatistic> schoolVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        schoolVisionStatisticService.getBaseMapper().delete(schoolVisionStatisticLambdaQueryWrapper);
+        LambdaQueryWrapper<SchoolMonitorStatistic> schoolMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        schoolMonitorStatisticService.getBaseMapper().delete(schoolMonitorStatisticLambdaQueryWrapper);
+        scheduledTasksExecutor.statistic();
+        return;
     }
 }

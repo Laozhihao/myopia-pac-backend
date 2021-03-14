@@ -57,9 +57,7 @@ public class HospitalStatisticsService {
         // 累计就诊的人数
         map.put("totalMedicalPersonCount", medicalRecordService.count(new MedicalRecord().setHospitalId(hospitalId)));
         // 获取今天的统计信息
-        map.putAll(getTodayInfo(hospitalStudentList, medicalList));
-        // 眼镜信息
-        map.putAll(getGlassesInfo(reportList));
+        map.putAll(getTodayInfo(hospitalStudentList, medicalList, reportList));
         // 月新增信息
         map.putAll(getMonthInfo(hospitalStudentList, medicalList));
 
@@ -92,11 +90,14 @@ public class HospitalStatisticsService {
 
     /** 获取今天的统计信息 */
     private Map<String, Object> getTodayInfo(List<HospitalStudent> hospitalStudentList,
-                                             List<MedicalRecord> medicalList) {
+                                             List<MedicalRecord> medicalList,
+                                             List<MedicalReport> reportList) {
         Map<String, Object> map = new HashMap<>();
         List<HospitalStudent> todayHospitalStudentList = hospitalStudentList.stream()
                 .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date())).collect(Collectors.toList());
         List<MedicalRecord> todayMedicalList = medicalList.stream()
+                .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date())).collect(Collectors.toList());
+        List<MedicalReport> todayReportList = reportList.stream()
                 .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date())).collect(Collectors.toList());
         // Map<学生id，学生信息>，总的医院的学生信息
         Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentList.stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity()));
@@ -106,6 +107,8 @@ public class HospitalStatisticsService {
         map.put("consultationPersonCount", todayHospitalStudentList.size());
         // 复诊人数
         map.put("subsequentVisitPersonCount", getSubsequentVisitMedical(hospitalStudentMap, todayMedicalList).size());
+        // 眼镜信息
+        map.putAll(getGlassesInfo(todayReportList));
         return map;
     }
 

@@ -17,15 +17,15 @@ public interface WxConstant {
     /**
      * 家长端前端地址
      **/
-    String WX_H5_CLIENT_URL = "%s/#/?code=%s";
+    String WX_H5_CLIENT_URL = "%s/#/middle-transform?code=%s";
     /**
      * 家长端前端地址，带openId
      **/
-    String WX_H5_CLIENT_URL_WITH_OPENID = "%s/#/?code=%s&openId=%s";
+    String WX_H5_CLIENT_URL_WITH_OPENID = "%s/#/middle-transform?code=%s&openId=%s";
     /**
      * 家长端前端地址，带登录token相关信息
      **/
-    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d";
+    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/middle-transform?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d";
 
     /**
      * 微信api返回数据 - accessToken字段名
