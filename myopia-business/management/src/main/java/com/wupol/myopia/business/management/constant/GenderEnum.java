@@ -31,6 +31,6 @@ public enum GenderEnum {
     public static Integer getType(String name) {
         if (MALE.name.equals(name)) return MALE.type;
         if (FEMALE.name.equals(name)) return FEMALE.type;
-        return 0;
+        return -1;
     }
 }
