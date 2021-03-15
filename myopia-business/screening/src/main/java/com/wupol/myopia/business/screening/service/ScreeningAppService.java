@@ -159,7 +159,7 @@ public class ScreeningAppService {
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
             ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId);
-            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId + gradeName + clazzName;
+            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId;
             screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
         } else {
             Integer startIntem = (page - 1) * size;
@@ -257,11 +257,7 @@ public class ScreeningAppService {
      * @throws JsonProcessingException
      */
     private List<ScreeningPlanSchoolStudent> getCacheList(String key) throws JsonProcessingException {
-        Set<Integer> planStudentIds = (Set<Integer>) redisUtil.get(key);
-        if (org.apache.commons.collections4.CollectionUtils.isEmpty(planStudentIds)) {
-            return new ArrayList<>();
-        }
-        return screeningPlanSchoolStudentService.getBaseMapper().selectBatchIds(planStudentIds);
+       return  (List<ScreeningPlanSchoolStudent>) redisUtil.get(key);
     }
 
     /**
@@ -390,10 +386,8 @@ public class ScreeningAppService {
 
     /**
      * 上传筛查机构用户的签名图片
-     *
-     * @param deptId      筛查机构id
-     * @param currentUser 用户id
-     * @param file        签名
+     * @param currentUser
+     * @param file
      * @return
      */
     public String uploadSignPic(CurrentUser currentUser, MultipartFile file) {
