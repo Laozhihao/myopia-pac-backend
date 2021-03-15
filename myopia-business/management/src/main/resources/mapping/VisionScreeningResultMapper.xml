@@ -77,5 +77,6 @@
         where school_id = #{schoolId}
           and screening_org_id = #{orgId}
           and plan_id = #{planId}
+          and is_double_screen = 0
     </select>
 </mapper>
