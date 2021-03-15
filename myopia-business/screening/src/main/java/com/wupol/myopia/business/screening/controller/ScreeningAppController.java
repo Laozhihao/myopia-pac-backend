@@ -2,6 +2,7 @@ package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -313,6 +314,30 @@ public class ScreeningAppController {
             Integer size,
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
+            @RequestParam(value = "clazzName", required = false) String clazzName) throws JsonProcessingException {
+
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
+        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size,isRandom);
+        return ResultVOUtil.success(sysStudentList);
+    }
+
+    /**
+     * 随机获取学生复测质量控制
+     *
+     * @param
+     * @return
+     */
+/*    @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
+    public @ResponseBody
+    ResultVO findAllNameReview(
+            @RequestParam(value = "deptId") Integer deptId,
+            @RequestParam(value = "schoolId") Integer schoolId,
+            String studentName,
+            Integer current,
+            Integer size,
+            @RequestParam boolean isRandom,
+            @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName) {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
@@ -322,7 +347,7 @@ public class ScreeningAppController {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);
         }
         return ResultVOUtil.success(sysStudentList);
-    }
+    }*/
 
     /**
      * 更新复测质控结果 TODO

@@ -52,5 +52,4 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      * @return
      */
     List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
-
 }
