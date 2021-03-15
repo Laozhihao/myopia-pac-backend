@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.facade;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
-import com.alibaba.excel.write.merge.LoopMergeStrategy;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -856,7 +855,17 @@ public class ExcelFacade {
         String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "筛查数据表", new Date());
         log.info("导出文件: {}", fileName);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 21, 22);
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
-        noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file).getSecond());
+        if (CommonConst.DEFAULT_ID.equals(districtId)) {
+            File excelFile = ExcelUtil.exportListToExcel(fileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(excelFile).getSecond());
+        } else {
+            String folder = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
+            for(int i = 0; i < 3; i++) {
+                String name = String.format("%s%s", fileName, i);
+                ExcelUtil.exportListToExcelWithFolder(folder, name, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
+            }
+            File zipFile = ExcelUtil.zip(folder, content);
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(zipFile).getSecond());
+        }
     }
 }
