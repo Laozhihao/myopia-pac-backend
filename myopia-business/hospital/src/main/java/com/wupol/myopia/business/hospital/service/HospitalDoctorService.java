@@ -56,8 +56,9 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      */
     public List<Doctor> getDoctorList(Integer hospitalId,
                                       String like) throws IOException {
-        //TODO 待模糊查询
-        return baseMapper.getBy(new Doctor().setHospitalId(hospitalId));
+        DoctorQuery query = new DoctorQuery();
+        query.setLike(like).setHospitalId(hospitalId);
+        return baseMapper.getBy(query);
     }
 
     /**
@@ -66,9 +67,12 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param doctorId 医生id
      * @return
      */
-    public DoctorVo getDoctor(Integer hospitalId, Integer doctorId) throws IOException {
-        Doctor doctor = getById(doctorId);
-        return getDoctorVo(doctor);
+    public Doctor getDoctor(Integer hospitalId, Integer doctorId) {
+        DoctorQuery query = new DoctorQuery();
+        query.setHospitalId(hospitalId).setId(doctorId);
+        Doctor doctor = baseMapper.getBy(query)
+                .stream().findFirst().orElseThrow(()-> new BusinessException("未找到该医生"));
+        return doctor;
     }
 
     /**
@@ -92,32 +96,25 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @return
      */
     public void deleteDoctor(Integer hospitalId, Integer doctorId) throws IOException {
-        if (!removeById(doctorId)) {
+        Doctor doctor = getDoctor(hospitalId, doctorId);
+        if (!removeById(doctor.getId())) {
             throw new BusinessException("删除失败");
         }
     }
 
     /**
      * 获取医生，带Vo
-     * @param doctor
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
      * @return
-     * @throws IOException
      */
-    public DoctorVo getDoctorVo(Doctor doctor) {
+    public DoctorVo getDoctorVo(Integer hospitalId, Integer doctorId) {
+        Doctor doctor = getDoctor(hospitalId, doctorId);
         DoctorVo doctorVo = new DoctorVo();
         BeanUtils.copyProperties(doctor, doctorVo);
         return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
                 .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
     }
 
-    /**
-     * 获取医生-带头像
-     *
-     * @param doctorId 医生ID
-     * @return DoctorVo
-     */
-    public DoctorVo getDoctorVoById(Integer doctorId) {
-        return getDoctorVo(baseMapper.selectById(doctorId));
-    }
 
 }

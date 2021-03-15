@@ -8,12 +8,14 @@ import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
+import com.wupol.myopia.business.parent.domain.dto.CountReportItems;
 import com.wupol.myopia.business.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.parent.service.ParentStudentService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 家长-孩子
@@ -75,6 +77,11 @@ public class ParentStudentController {
     @GetMapping("report/count/{id}")
     public Object studentReportCount(@PathVariable("id") Integer id) {
         return parentStudentService.studentReportCount(id);
+    }
+
+    @GetMapping("report/screening/list/{id}")
+    public List<CountReportItems> getStudentCountReportItems(@PathVariable("id") Integer id) {
+        return parentStudentService.getStudentCountReportItems(id);
     }
 
     @GetMapping("report/screening/latest/{id}")
