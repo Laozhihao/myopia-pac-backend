@@ -142,7 +142,7 @@ CREATE TABLE `m_screening_plan_school_student`
     `student_id`        int(10) unsigned NOT NULL COMMENT '筛查计划--参与筛查的学生id',
     `id_card`           varchar(32)  NOT NULL COMMENT '筛查计划--参与筛查的学生身份证号码',
     `birthday`          timestamp null comment '出生日期',
-    `gender`            tinyint(1) null comment '性别 1-男 2-女',
+    `gender`            tinyint(1) null comment '性别 0-男 1-女',
     `student_age`       tinyint unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--参与筛查的学生年龄',
     `student_situation` varchar(1024) NOT NULL DEFAULT '' COMMENT '筛查计划--参与筛查的当时情况',
     `student_no`        varchar(64)  NOT NULL COMMENT '筛查计划--参与筛查的学生编号',

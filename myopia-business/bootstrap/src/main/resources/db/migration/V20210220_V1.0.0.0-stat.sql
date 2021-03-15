@@ -8,7 +8,7 @@ CREATE TABLE `m_stat_conclusion` (
     `plan_id` int NOT NULL COMMENT '计划ID',
     `district_id` int NOT NULL COMMENT '所属地区id',
     `school_age` int NOT NULL COMMENT '学龄',
-    `gender` int NOT NULL COMMENT '性别',
+    `gender` int NOT NULL COMMENT '性别 0-男 1-女',
     `warning_level` int DEFAULT NULL COMMENT '预警级别',
     `vision_l` int DEFAULT NULL COMMENT '左眼视力',
     `vision_r` int DEFAULT NULL COMMENT '右眼视力',

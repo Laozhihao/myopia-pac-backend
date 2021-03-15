@@ -7,8 +7,8 @@ package com.wupol.myopia.business.management.constant;
  * @Date 2020/12/21
  **/
 public enum GenderEnum {
-    MALE(1, "男"),
-    FEMALE(2, "女");
+    MALE(0, "男"),
+    FEMALE(1, "女");
 
     /** 类型 **/
     public final Integer type;
