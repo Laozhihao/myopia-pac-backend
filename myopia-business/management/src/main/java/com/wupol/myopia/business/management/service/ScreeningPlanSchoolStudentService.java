@@ -522,7 +522,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     /**
      * @param screeningPlanSchoolStudent
      */
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,Integer page,Integer size) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         //获取当前计划
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
@@ -531,7 +531,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         String studentName = screeningPlanSchoolStudent.getStudentName();
         screeningPlanSchoolStudent.setStudentName(null);
-        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
+        Integer startItem = (page - 1) * size;
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds).last("limit " + startItem + "," + size);;
         if (StringUtils.isNotBlank(studentName)) {
             queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }

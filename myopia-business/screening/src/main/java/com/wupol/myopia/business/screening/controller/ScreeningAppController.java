@@ -274,7 +274,7 @@ public class ScreeningAppController {
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName,
             @RequestParam(value = "studentName", required = false) String studentName,
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "current", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "60") Integer size) {
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -290,7 +290,7 @@ public class ScreeningAppController {
                 .setClassName(clazzName)
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent,page,size);
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
         Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
