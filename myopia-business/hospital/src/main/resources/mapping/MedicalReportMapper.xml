@@ -25,10 +25,10 @@
                 <if test="@Ognl@isNotEmpty(createTime)">and report.`create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and report.`update_time` = #{updateTime}</if>
                 <if test="startDate != null and @Ognl@isNotEmpty(startDate)">
-                    and DATE(`create_time`) &gt;= Date(#{startDate})
+                    and DATE(report.`create_time`) &gt;= Date(#{startDate})
                 </if>
                 <if test="endDate != null and @Ognl@isNotEmpty(endDate)">
-                    and DATE(`create_time`) &lt;= Date(#{endDate})
+                    and DATE(report.`create_time`) &lt;= Date(#{endDate})
                 </if>
             </trim>
         </where>
@@ -92,6 +92,6 @@
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
-          and report.create_time <![CDATA[<]]> date_sub(curdate(), interval 0 day)
+          and report.create_time &lt;= CURDATE()
     </select>
 </mapper>

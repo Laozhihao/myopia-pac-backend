@@ -52,9 +52,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return List<ScreeningResult>
      */
     public List<VisionScreeningResult> getByStudentId(Integer studentId) {
-        return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
-                .eq("student_id", studentId)
-                .orderByDesc("create_time"));
+        return baseMapper.getByStudentId(studentId);
     }
 
     /**

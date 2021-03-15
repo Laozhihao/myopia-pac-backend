@@ -79,4 +79,13 @@
           and plan_id = #{planId}
           and is_double_screen = 0
     </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+          and create_time &lt;= CURDATE()
+        group by create_time desc
+    </select>
 </mapper>
