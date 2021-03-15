@@ -20,7 +20,7 @@ import java.util.List;
 public interface DoctorMapper extends BaseMapper<Doctor> {
 
 
-    List<Doctor> getBy(Doctor query);
+    List<Doctor> getBy(DoctorQuery query);
     List<DoctorVo> getDoctorVoList(DoctorQuery query);
 
     IPage<Doctor> getByPage(@Param("page") Page<?> page, @Param("query") Doctor query);

@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS `h_doctor`;
 CREATE TABLE `h_doctor`
 (
     `id`              int          NOT NULL AUTO_INCREMENT,
-    `gender`          tinyint      NOT NULL DEFAULT 0 COMMENT '状态 0-男 1-女',
+    `gender`          tinyint      NOT NULL DEFAULT 0 COMMENT '性别 0-男 1-女',
     `name`            varchar(30)  NOT NULL COMMENT '名称',
     `user_id`         int          NOT NULL COMMENT '用户ID',
     `remark`          varchar(255) NULL COMMENT '说明',
