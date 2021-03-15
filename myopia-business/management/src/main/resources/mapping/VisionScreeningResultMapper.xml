@@ -58,6 +58,7 @@
         select count(1) as count, student_id
         from m_vision_screening_result
         where is_double_screen = 0
+<!--          and create_time &lt;= CURDATE()-->
         group by student_id
     </select>
 
