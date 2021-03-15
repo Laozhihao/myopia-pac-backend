@@ -70,6 +70,9 @@ public class StatService {
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
 
+    @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
+    private Resource exportStatContrastTemplate;
+
     /**
      * 预警信息
      * @return
@@ -289,10 +292,8 @@ public class StatService {
                 if (result2 != null) add(composeScreeningDataContrastVo("对比项2", result2));
             };
         };
-        ClassPathResource exportStatContrastTemplate =
-                new ClassPathResource("excel" + File.separator + "ExportStatContrastTemplate.xlsx");
         excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
-                exportStatContrastTemplate.getFile());
+                exportStatContrastTemplate.getInputStream());
     }
 
     /**
