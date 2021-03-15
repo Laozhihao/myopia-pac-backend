@@ -1,9 +1,8 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 
 import com.wupol.myopia.base.util.RegularUtils;
@@ -146,6 +145,46 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /**
+     * 省代码
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Long provinceCode;
+
+    /**
+     * 市代码
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Long cityCode;
+
+    /**
+     * 区代码
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Long areaCode;
+
+    /**
+     * 镇/乡代码
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Long townCode;
+
+    /**
+     * 详细地址
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String address;
+
+    /**
+     * 家长手机号码
+     */
+    private String parentPhone;
+
+    /**
+     * 民族 0-汉族
+     */
+    private Integer nation;
 
 
 }
