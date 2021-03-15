@@ -25,9 +25,11 @@ import com.wupol.myopia.business.management.facade.ExcelFacade;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -60,9 +62,6 @@ public class StatService {
 
     @Autowired
     ExcelFacade excelFacade;
-
-    @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
-    private Resource exportStatContrastTemplate;
 
     @Autowired
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
@@ -290,6 +289,8 @@ public class StatService {
                 if (result2 != null) add(composeScreeningDataContrastVo("对比项2", result2));
             };
         };
+        ClassPathResource exportStatContrastTemplate =
+                new ClassPathResource("excel" + File.separator + "ExportStatContrastTemplate.xlsx");
         excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
                 exportStatContrastTemplate.getFile());
     }
