@@ -55,13 +55,4 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      */
     List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
 
-    /**
-     * 找到该机构的计划
-     *
-     * @param screeningOrgId
-     * @param screeningReleaseStatus
-     * @param currentTimeMillis
-     * @return
-     */
-    ScreeningPlan selectScreeningPlanByScreeningOrgId(Integer screeningOrgId, Integer schoolId, Integer releaseStatus, Long currentTimestamp);
 }
