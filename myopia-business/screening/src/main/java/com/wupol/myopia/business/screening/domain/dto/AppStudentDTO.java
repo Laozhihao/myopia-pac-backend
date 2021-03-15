@@ -109,7 +109,7 @@ public class AppStudentDTO {
     /**
      * 部门ID
      */
-    private Long deptId;
+    private Integer deptId;
 
     /**
      *

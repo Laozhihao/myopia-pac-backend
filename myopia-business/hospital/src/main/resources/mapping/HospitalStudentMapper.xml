@@ -46,9 +46,8 @@
     <select id="getHospitalStudentVoList" resultMap="HospitalStudentVo">
         SELECT hs.hospital_id, hs.student_id, count(mr.student_id) as numOfVisits, max(mr.create_time) as lastVisitDate
         FROM h_hospital_student hs
-        LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id
+        LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id and hs.hospital_id = mr.hospital_id
         <include refid="Base_Where_Clause"/>
-        and (mr.hospital_id = #{hospitalId} or mr.hospital_id is null)
         group by hs.student_id
     </select>
 

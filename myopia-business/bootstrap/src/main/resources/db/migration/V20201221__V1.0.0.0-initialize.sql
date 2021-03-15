@@ -180,7 +180,7 @@ create table m_student
     grade_type          tinyint                             null comment '学龄段',
     class_id            int                                 null comment '班级ID',
     name                varchar(32)                         not null comment '学生姓名',
-    gender              tinyint(1)                          not null comment '性别 1-男 2-女',
+    gender              tinyint(1)                          not null comment '性别 0-男 1-女',
     birthday            timestamp                           null comment '出生日期',
     nation              tinyint                             null comment '民族 0-汉族',
     id_card             varchar(32)                         not null comment '身份证号码',

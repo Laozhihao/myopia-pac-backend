@@ -557,7 +557,7 @@ public class ExcelFacade {
                 break;
             }
 
-            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1)) {
                 throw new BusinessException("学生性别异常");
             }
 

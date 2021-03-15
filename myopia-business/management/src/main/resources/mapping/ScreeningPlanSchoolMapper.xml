@@ -68,6 +68,7 @@
                      left join m_screening_plan msp on msp.id = msps.screening_plan_id
         where msps.school_id = #{schoolId}
           and msp.release_status = 1
+<!--          and msps.create_time &lt;= CURDATE()-->
     </select>
 
     <update id="updateSchoolNameBySchoolId">

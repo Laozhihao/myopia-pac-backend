@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.parent.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -245,12 +246,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 学生筛查报告
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
-            CountReportItems items = new CountReportItems();
-            items.setId(s.getId());
-            items.setCreateTime(s.getCreateTime());
-            return items;
-        }).collect(Collectors.toList());
+        List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetail screeningDetail = new ScreeningDetail();
         screeningDetail.setTotal(screeningResults.size());
         screeningDetail.setItems(screeningLists);
@@ -264,6 +260,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         visitsDetail.setItems(visitLists);
         responseDTO.setVisitsDetail(visitsDetail);
         return responseDTO;
+    }
+
+    /** 学生筛查报告列表 */
+    public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
+        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
+        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
+            CountReportItems items = new CountReportItems();
+            items.setId(s.getId());
+            items.setCreateTime(s.getCreateTime());
+            return items;
+        }).collect(Collectors.toList());
+        return screeningLists;
     }
 
     /**
@@ -351,7 +359,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, student.getIdCard(), studentId);
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId));
         redisUtil.del(key);
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");

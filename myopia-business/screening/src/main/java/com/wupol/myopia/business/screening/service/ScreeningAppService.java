@@ -465,27 +465,18 @@ public class ScreeningAppService {
      *
      * @param currentUser
      * @param appStudentDTO
+     * @param school
      * @return
      */
-    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO) throws ParseException {
+    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO, School school) throws ParseException {
         Student student = new Student();
         Long schoolId = appStudentDTO.getSchoolId();
-        School school = schoolService.getById(schoolId);
-        if (school == null) {
-            throw new ManagementUncheckedException("无法找到该schoolId = " + schoolId);
-        }
         SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId.intValue(), appStudentDTO.getGrade());
-        if (schoolGrade == null) {
-            throw new ManagementUncheckedException("无法找到该grade = " + appStudentDTO.getGrade());
-        }
-        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), appStudentDTO.getClazz());
-        if (schoolClass == null) {
-            throw new ManagementUncheckedException("无法找到该class = " + appStudentDTO.getClazz());
-        }
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(),appStudentDTO.getClazz());
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         student.setName(appStudentDTO.getStudentName())
                 .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getGrade()))
-                .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2))
+                .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                 .setNation(StringUtils.isBlank(appStudentDTO.getClan()) ? null : NationEnum.getCode(appStudentDTO.getClan()))
                 .setSchoolNo(school.getSchoolNo())
                 .setGradeId(schoolGrade.getId())
@@ -493,15 +484,11 @@ public class ScreeningAppService {
                 .setSno(appStudentDTO.getStudentNo())
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
-                .setAddress(appStudentDTO.getAddress());
-
-        String provinceName = appStudentDTO.getProvince();
-        String cityName = appStudentDTO.getCity();
-        String areaName = appStudentDTO.getRegion();
-        String townName = appStudentDTO.getStreet();//地区
-        appStudentDTO.getAddress();//籍贯
-        districtService.getCodeByName(provinceName, cityName, areaName, townName);
-        //todo 地区和其他先不保存 student.setProvinceCode().setCityCode().setTownCode()
+                .setAddress(appStudentDTO.getAddress())
+                .setProvinceCode(school.getProvinceCode())
+                .setCityCode(school.getCityCode())
+                .setTownCode(school.getTownCode())
+                .setStatus(0);
         return student;
 
     }

@@ -117,7 +117,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Date birthday;
 
     /**
-     * 性别 1-男 2-女
+     * 性别 0-男 1-女
      */
     private Integer gender;
 

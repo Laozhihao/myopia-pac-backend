@@ -12,15 +12,12 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStud
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
-import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -55,9 +52,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return List<ScreeningResult>
      */
     public List<VisionScreeningResult> getByStudentId(Integer studentId) {
-        return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
-                .eq("student_id", studentId)
-                .orderByDesc("create_time"));
+        return baseMapper.getByStudentId(studentId);
     }
 
     /**

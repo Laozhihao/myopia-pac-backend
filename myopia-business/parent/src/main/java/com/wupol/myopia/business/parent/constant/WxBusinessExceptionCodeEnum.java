@@ -12,11 +12,11 @@ import lombok.Getter;
 @Getter
 public enum WxBusinessExceptionCodeEnum {
     // 微信端业务异常code枚举类
-    UNAUTHORIZED("WX401", "全部住校"),
-    FORBIDDEN("WX403", "部分住校"),
-    NOT_FOUND("WX404", "部分住校"),
-    OK("WX200", "不住校"),
-    INTERNAL_ERROR("WX500", "小学");
+    UNAUTHORIZED("WX401", "未授权"),
+    FORBIDDEN("WX403", "未绑定手机号码"),
+    NOT_FOUND("WX404", "访问资源不存在"),
+    OK("WX200", "成功"),
+    INTERNAL_ERROR("WX500", "系统异常");
 
     /** 类型 **/
     private final String code;

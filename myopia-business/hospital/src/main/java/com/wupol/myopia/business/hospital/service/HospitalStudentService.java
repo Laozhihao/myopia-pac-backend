@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,15 +48,20 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     private MedicalReportService medicalReportService;
 
 
+    /** 获取学生信息 */
+    public HospitalStudentDTO getStudentByToken(String token) {
+        Integer studentId = studentService.parseToken2StudentId(token);
+        return getStudentById(studentId);
+    }
+
     /**
      * 获取学生信息
-     * @param id     学生id
      * @param idCard    学生的身份证
      * @param name    学生的姓名
      * @return
      */
-    public HospitalStudentDTO getStudent(Integer id, String idCard, String name) {
-        return studentService.getHospitalStudentDetail(id, idCard, name);
+    public HospitalStudentDTO getStudent(String idCard, String name) {
+        return studentService.getHospitalStudentDetail(null, idCard, name);
     }
 
     /**
@@ -165,8 +171,8 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
         // 存在则更新,不存在则新增
         if (Objects.nonNull(oldStudent)) {
-            updateStudentInfoByAnotherStudent(student, oldStudent);
-            studentId = studentService.updateStudent(student).getId();
+            updateStudentInfoByAnotherStudent(oldStudent, student);
+            studentId = studentService.updateStudent(oldStudent).getId();
         } else{
             studentId = studentService.saveStudent(student);
         }
@@ -217,21 +223,21 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
     /** 从一个学生信息, 更新到另一个学生信息 */
     private void updateStudentInfoByAnotherStudent(Student target, Student source) {
-        if (Objects.nonNull(source.getId()) && Objects.isNull(target.getId())) target.setId(source.getId());
-        if (Objects.nonNull(source.getIdCard()) && Objects.isNull(target.getIdCard())) target.setIdCard(source.getIdCard());
-        if (Objects.nonNull(source.getName()) && Objects.isNull(target.getName())) target.setName(source.getName());
-        if (Objects.nonNull(source.getGender()) && Objects.isNull(target.getGender())) target.setGender(source.getGender());
-        if (Objects.nonNull(source.getBirthday()) && Objects.isNull(target.getBirthday())) target.setBirthday(source.getBirthday());
-        if (Objects.nonNull(source.getParentPhone()) && Objects.isNull(target.getParentPhone())) target.setParentPhone(source.getParentPhone());
-        if (Objects.nonNull(source.getMpParentPhone()) && Objects.isNull(target.getMpParentPhone())) target.setMpParentPhone(source.getMpParentPhone());
-        if (Objects.nonNull(source.getSchoolNo()) && Objects.isNull(target.getSchoolNo())) target.setSchoolNo(source.getSchoolNo());
-        if (Objects.nonNull(source.getGradeId()) && Objects.isNull(target.getGradeId())) target.setGradeId(source.getGradeId());
-        if (Objects.nonNull(source.getClassId()) && Objects.isNull(target.getClassId())) target.setClassId(source.getClassId());
-        if (Objects.nonNull(source.getProvinceCode()) && Objects.isNull(target.getProvinceCode())) target.setProvinceCode(source.getProvinceCode());
-        if (Objects.nonNull(source.getCityCode()) && Objects.isNull(target.getCityCode())) target.setCityCode(source.getCityCode());
-        if (Objects.nonNull(source.getAreaCode()) && Objects.isNull(target.getAreaCode())) target.setAreaCode(source.getAreaCode());
-        if (Objects.nonNull(source.getTownCode()) && Objects.isNull(target.getTownCode())) target.setTownCode(source.getTownCode());
-        if (Objects.nonNull(source.getAddress()) && Objects.isNull(target.getAddress())) target.setAddress(source.getAddress());
+        if (Objects.nonNull(source.getId())) target.setId(source.getId());
+        if (Objects.nonNull(source.getGradeId())) target.setGradeId(source.getGradeId());
+        if (Objects.nonNull(source.getClassId())) target.setClassId(source.getClassId());
+        if (!StringUtils.isEmpty(source.getIdCard())) target.setIdCard(source.getIdCard());
+        if (!StringUtils.isEmpty(source.getName())) target.setName(source.getName());
+        if (!StringUtils.isEmpty(source.getGender())) target.setGender(source.getGender());
+        if (!StringUtils.isEmpty(source.getBirthday())) target.setBirthday(source.getBirthday());
+        if (!StringUtils.isEmpty(source.getParentPhone())) target.setParentPhone(source.getParentPhone());
+        if (!StringUtils.isEmpty(source.getMpParentPhone())) target.setMpParentPhone(source.getMpParentPhone());
+        if (!StringUtils.isEmpty(source.getSchoolNo())) target.setSchoolNo(source.getSchoolNo());
+        if (!StringUtils.isEmpty(source.getProvinceCode())) target.setProvinceCode(source.getProvinceCode());
+        if (!StringUtils.isEmpty(source.getCityCode())) target.setCityCode(source.getCityCode());
+        if (!StringUtils.isEmpty(source.getAreaCode())) target.setAreaCode(source.getAreaCode());
+        if (!StringUtils.isEmpty(source.getTownCode())) target.setTownCode(source.getTownCode());
+        if (!StringUtils.isEmpty(source.getAddress())) target.setAddress(source.getAddress());
 
     }
 }

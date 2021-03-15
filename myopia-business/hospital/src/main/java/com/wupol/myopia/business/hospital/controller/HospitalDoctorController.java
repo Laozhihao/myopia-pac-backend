@@ -39,7 +39,7 @@ public class HospitalDoctorController {
     @GetMapping("/{id}")
     public DoctorVo getDoctor(@PathVariable("id") Integer id) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalDoctorService.getDoctor(user.getOrgId(), id);
+        return hospitalDoctorService.getDoctorVo(user.getOrgId(), id);
     }
 
     @PostMapping()

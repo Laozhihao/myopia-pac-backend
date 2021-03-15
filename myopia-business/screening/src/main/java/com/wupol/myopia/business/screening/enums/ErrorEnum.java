@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorEnum {
-
+    UNKNOWN_ERROR(-1,"未知异常"),
     SYS_ADMIN_USERNAME_NULL(11001,"请输入登录名"),
     SYS_ADMIN_DEPT_NULL(11002,"请输入部门信息"),
     SYS_ADMIN_ROLE_NULL(11003,"请输入角色信息"),
