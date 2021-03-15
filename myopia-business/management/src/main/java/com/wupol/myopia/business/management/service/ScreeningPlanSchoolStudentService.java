@@ -357,7 +357,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                     .setGender(student.getGender())
                     .setStudentAge(AgeUtil.countAge(student.getBirthday()))
                     .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent))
-                    .setStudentNo(dbStudent.getSno());
+                    .setStudentNo(dbStudent.getSno())
+                    .setNation(student.getNation())
+                    .setProvinceCode(student.getProvinceCode())
+                    .setCityCode(student.getCityCode())
+                    .setAreaCode(student.getAreaCode())
+                    .setTownCode(student.getTownCode())
+                    .setAddress(student.getAddress())
+                    .setParentPhone(student.getParentPhone());
             return existPlanStudent;
         }).collect(Collectors.toList());
         saveOrUpdateBatch(addOrUpdatePlanStudents);
