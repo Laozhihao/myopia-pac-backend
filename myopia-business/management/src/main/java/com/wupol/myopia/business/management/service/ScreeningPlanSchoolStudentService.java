@@ -556,11 +556,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 从学生中插入
-     *  @param currentUser
+     *
+     * @param currentUser
      * @param student
-     * @param grade
-     * @param clazz
+     * @param gradeName
+     * @param clazzName
      * @param schoolName
+     * @param schoolId
+     * @param currentPlan
      */
     public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, Integer schoolId,ScreeningPlan currentPlan) {
 
