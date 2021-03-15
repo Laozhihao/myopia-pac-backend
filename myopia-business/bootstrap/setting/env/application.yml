@@ -149,10 +149,10 @@ wechat:
   api:
     url-host: https://api.weixin.qq.com
   callback:
-    url-host: http://myopia.nat100.top
+    url-host: http://wupol.com
   h5-client:
     url-host: http://8.135.35.154:7001
 
 vistel:
   tools:
-    remoteAddress: http://tools.internal
+    remoteAddress: http://myopia.nat100.top
