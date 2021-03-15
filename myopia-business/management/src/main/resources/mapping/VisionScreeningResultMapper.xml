@@ -85,7 +85,7 @@
         <include refid="Base_Column_List"/>
         from m_vision_screening_result
         where student_id = #{studentId}
-          and create_time &lt;= CURDATE()
+<!--          and create_time &lt;= CURDATE()-->
         group by create_time desc
     </select>
 </mapper>
