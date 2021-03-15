@@ -39,6 +39,12 @@
                 <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
                 <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
+                <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
+                <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
+                <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
+                <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
+                <if test="@Ognl@isNotEmpty(nation)">and `nation` = #{nation}</if>
             </trim>
         </where>
     </sql>
@@ -47,7 +53,7 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, district_id, school_id, school_name,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
-        student_situation, student_no, student_name, create_time
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code,parent_phone,nation
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -82,10 +88,10 @@
 
     <select id="selectPageByQuery" resultMap="StudentDTO" parameterType="java.util.Map">
         SELECT
-          ms.id, ms.sno, ms.name, ms.gender, ms.birthday, ms.province_code, ms.city_code, ms.area_code, ms.town_code, ms.address, ms.id_card, ms.nation, ms.parent_phone, msg.name as grade_name, msc.name as class_name
+        mspss.student_id as id, mspss.student_no as sno, mspss.student_name as name, mspss.gender, mspss.birthday, mspss.province_code, mspss.city_code, mspss.area_code, mspss.town_code, mspss.address, mspss.id_card, mspss.nation, mspss.parent_phone, msg.name as grade_name, msc.name as class_name
         FROM
         m_screening_plan_school_student mspss
-        LEFT JOIN m_student ms ON mspss.student_id = ms.id
+<!--        LEFT JOIN m_student ms ON mspss.student_id = ms.id-->
         LEFT JOIN m_school_grade msg ON msg.id = mspss.grade_id
         LEFT JOIN m_school_class msc ON msc.id = mspss.class_id
         <where>
@@ -93,19 +99,19 @@
                 AND mspss.screening_plan_id = #{param.screeningPlanId}
                 AND mspss.school_id = #{param.schoolId}
                 <if test="param.nameLike != null and param.nameLike != ''">
-                    and ms.`name` like CONCAT('%',#{param.nameLike},'%')
+                    and mspss.`student_name` like CONCAT('%',#{param.nameLike},'%')
                 </if>
                 <if test="param.idCardLike != null and param.idCardLike != ''">
-                    and ms.`id_card` like CONCAT('%',#{param.idCardLike},'%')
+                    and mspss.`id_card` like CONCAT('%',#{param.idCardLike},'%')
                 </if>
                 <if test="param.snoLike != null and param.snoLike != ''">
-                    and ms.`sno` like CONCAT('%',#{param.snoLike},'%')
+                    and mspss.`student_no` like CONCAT('%',#{param.snoLike},'%')
                 </if>
                 <if test="param.phoneLike != null and param.phoneLike != ''">
-                    and ms.`parent_phone` like CONCAT('%',#{param.phoneLike},'%')
+                    and mspss.`parent_phone` like CONCAT('%',#{param.phoneLike},'%')
                 </if>
                 <if test="param.gender != null and param.gender != ''">
-                    and ms.`gender` = #{param.gender}
+                    and mspss.`gender` = #{param.gender}
                 </if>
                 <if test="param.gradeList != null">
                     and mspss.`grade_id` in <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>

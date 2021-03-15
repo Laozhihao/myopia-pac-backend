@@ -289,7 +289,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 1. 筛选出需新增的学生并新增
         addStudents(userId, idCardExistStudents, excelIdCardStudentMap);
         // 2. 已有的要判断是否需更新
-        updateStudents(idCardExistStudents, excelIdCardStudentMap);
+        updateStudents(idCardExistStudents, excelIdCardStudentMap, screeningPlan.getId(), schoolId);
         // 3. 处理筛查学生
         addOrUpdateScreeningPlanStudents(screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents);
     }
@@ -365,18 +365,26 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新学生数据
-     *
-     * @param idCardExistStudents
+     *  @param idCardExistStudents
      * @param excelIdCardStudentMap
+     * @param screeningPlanId
+     * @param schoolId
      */
-    private void updateStudents(Map<String, Student> idCardExistStudents, Map<String, StudentVo> excelIdCardStudentMap) {
+    private void updateStudents(Map<String, Student> idCardExistStudents,
+                                Map<String, StudentVo> excelIdCardStudentMap,
+                                Integer screeningPlanId, Integer schoolId) {
         List<String> needCheckUpdateStudentIdCards = CompareUtil.getRetain(idCardExistStudents.keySet(), excelIdCardStudentMap.keySet());
         List<Student> updateStudents = new ArrayList<>();
+        // 查找通过身份证查找计划中的学生
+        Map<String, ScreeningPlanSchoolStudent> planSchoolStudentMaps = getByIdCards(screeningPlanId, schoolId, needCheckUpdateStudentIdCards).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        // 需要更新计划中的学生信息
+        List<ScreeningPlanSchoolStudent> updatePlanStudent =new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
             StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
+                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard,new ScreeningPlanSchoolStudent());
                 BeanUtils.copyProperties(student, updateStudent);
                 updateStudent.setName(excelStudent.getName())
                         .setSchoolNo(excelStudent.getSchoolNo())
@@ -394,9 +402,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                         .setAddress(StringUtils.getDefaultIfBlank(excelStudent.getAddress(), student.getAddress()))
                         .setParentPhone(StringUtils.getDefaultIfBlank(excelStudent.getParentPhone(), student.getParentPhone()));
                 updateStudents.add(updateStudent);
+                BeanUtils.copyProperties(updateStudent, planSchoolStudent);
+                planSchoolStudent.setStudentNo(updateStudent.getSno());
+                planSchoolStudent.setStudentName(updateStudent.getName());
+                planSchoolStudent.setStudentId(updateStudent.getId());
+                updatePlanStudent.add(planSchoolStudent);
             }
         });
         studentService.updateBatchById(updateStudents);
+        updateBatchById(updatePlanStudent);
     }
 
     /**
@@ -556,11 +570,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 从学生中插入
-     *  @param currentUser
+     *
+     * @param currentUser
      * @param student
-     * @param grade
-     * @param clazz
+     * @param gradeName
+     * @param clazzName
      * @param schoolName
+     * @param schoolId
+     * @param currentPlan
      */
     public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, Integer schoolId,ScreeningPlan currentPlan) {
 

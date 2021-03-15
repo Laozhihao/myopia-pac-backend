@@ -10,6 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -64,8 +65,8 @@ public class ExcelUtil {
      * @return
      * @throws IOException
      */
-    public static File exportHorizonListToExcel(String fileNamePrefix, List data, File template)
-            throws IOException {
+    public static File exportHorizonListToExcel(
+            String fileNamePrefix, List data, InputStream template) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
         ExcelWriter excelWriter = EasyExcel.write(outputFile).withTemplate(template).build();
         WriteSheet writeSheet = EasyExcel.writerSheet().build();
