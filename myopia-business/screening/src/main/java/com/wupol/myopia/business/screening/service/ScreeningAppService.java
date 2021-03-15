@@ -229,17 +229,21 @@ public class ScreeningAppService {
     public List<ScreeningPlanSchoolStudent> getRandomData(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents, String cacheKey, Date endTime) throws JsonProcessingException {
         //查找上次随机筛选的学生
         List<ScreeningPlanSchoolStudent> cacheList = this.getCacheList(cacheKey);
+        // 如果cacheList 是null 说明没有数据,
+        if(cacheList == null) {
+            cacheList = new ArrayList<>();
+        }
         int dataSize = CollectionUtils.size(screeningPlanSchoolStudents);
-        int cacheSize = CollectionUtils.size(cacheList);
-        //几乎不可能
+        int  cacheSize = CollectionUtils.size(cacheList);
+
         int newResultSize = (int) (dataSize * 0.06 - cacheSize);
         //数据长度没有变化
         if (newResultSize <= 0 && cacheSize != 0) {
             return cacheList;
         }
         //初始化数据
-        if (newResultSize == 0) {
-            newResultSize += 1;
+        if (newResultSize <=  0) {
+            newResultSize = 1;
         }
         Collections.shuffle(screeningPlanSchoolStudents);
         screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream().limit(newResultSize).collect(Collectors.toList());
