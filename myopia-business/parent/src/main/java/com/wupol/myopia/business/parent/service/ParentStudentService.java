@@ -246,12 +246,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         // 学生筛查报告
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
-            CountReportItems items = new CountReportItems();
-            items.setId(s.getId());
-            items.setCreateTime(s.getCreateTime());
-            return items;
-        }).collect(Collectors.toList());
+        List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetail screeningDetail = new ScreeningDetail();
         screeningDetail.setTotal(screeningResults.size());
         screeningDetail.setItems(screeningLists);
@@ -265,6 +260,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         visitsDetail.setItems(visitLists);
         responseDTO.setVisitsDetail(visitsDetail);
         return responseDTO;
+    }
+
+    /** 学生筛查报告列表 */
+    public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
+        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
+        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
+            CountReportItems items = new CountReportItems();
+            items.setId(s.getId());
+            items.setCreateTime(s.getCreateTime());
+            return items;
+        }).collect(Collectors.toList());
+        return screeningLists;
     }
 
     /**
