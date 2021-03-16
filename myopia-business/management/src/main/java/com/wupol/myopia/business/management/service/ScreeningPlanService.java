@@ -359,7 +359,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
-        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
+        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 
     /**
@@ -380,7 +380,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public ScreeningPlan getCurrentPlan(Integer screeningOrgId,Integer schoolId) {
-          ScreeningPlan screeningPlan = baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
+          ScreeningPlan screeningPlan = baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
         return screeningPlan;
     }
 
