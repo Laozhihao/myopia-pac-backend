@@ -67,7 +67,9 @@ public class UserService extends BaseService<UserMapper, User> {
         Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
         if (!StringUtils.isEmpty(queryParam.getRoleName())) {
             List<Integer> userIds = roleService.getUserIdList(new Role().setChName(queryParam.getRoleName()).setOrgId(queryParam.getOrgId()).setSystemCode(queryParam.getSystemCode()));
-            queryParam.setUserIds(userIds);
+            if (!CollectionUtils.isEmpty(userIds)) {
+                queryParam.setUserIds(userIds);
+            }
         }
         Page<UserWithRole> page = new Page<>(queryParam.getCurrent(), queryParam.getSize());
         IPage<UserWithRole> userPage = baseMapper.selectUserListWithRole(page, queryParam);

@@ -65,7 +65,7 @@
                 <if test="param.orgIds != null">
                     and u.`org_id` IN <foreach collection="param.orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
-                <if test="@Ognl@isNotEmpty(param.userIds)">
+                <if test="param.userIds != null">
                     and u.`id` IN <foreach collection="param.userIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="param.phones != null">
