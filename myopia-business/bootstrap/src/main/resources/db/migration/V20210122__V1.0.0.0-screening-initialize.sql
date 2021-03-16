@@ -280,7 +280,7 @@ CREATE TABLE `m_school_vision_statistic`
     `vision_label0_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警人数（默认0）',
     `vision_label0_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label1_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警人数（默认0）',
-    `vision_label1_ratio`      decimal(4,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label1_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label2_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警人数（默认0）',
     `vision_label2_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label3_numbers`    int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警人数（默认0）',
