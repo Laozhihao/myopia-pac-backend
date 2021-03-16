@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public class MathUtil {
 
     /**
-     * 除法，四舍五入保留两位小数位
+     * 除法，乘100后，四舍五入保留两位小数位。如45.34%，保存45.34
      * @param numerator 分子
      * @param denominator 分母
      * @return
@@ -17,13 +17,9 @@ public class MathUtil {
         if (numerator == 0 || denominator == 0) {
             return BigDecimal.ZERO;
         }
+        BigDecimal hundred = new BigDecimal(100);
         BigDecimal n = new BigDecimal(numerator);
         BigDecimal d = new BigDecimal(denominator);
-        return n.divide(d, 2, BigDecimal.ROUND_HALF_UP);
+        return n.multiply(hundred).divide(d, 2, BigDecimal.ROUND_HALF_UP);
     }
-
-    public static void main(String[] args) {
-        System.out.println(divide(3, 8));
-    }
-
 }
