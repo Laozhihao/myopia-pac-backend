@@ -11,8 +11,7 @@ public enum SchoolAge {
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
     HIGH(2, "高中"),
-    VOCATIONAL_HIGH(3, "职业高中"),
-    UNIVERSITY(4, "大学");
+    VOCATIONAL_HIGH(3, "职业高中");
 
     /** 学龄段ID */
     public final Integer code;
