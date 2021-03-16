@@ -159,7 +159,7 @@ public class ScreeningAppService {
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
             ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId);
-            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId;
+            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId +  gradeName + clazzName;
             screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
         } else {
             Integer startIntem = (page - 1) * size;
