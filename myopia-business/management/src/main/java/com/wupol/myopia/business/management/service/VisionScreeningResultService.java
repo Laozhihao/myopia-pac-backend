@@ -87,10 +87,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
-//        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
-//        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
-//        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
-        return baseMapper.getPlanIdsByTime(new Date(), new Date());
+        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
+        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 
     /**
