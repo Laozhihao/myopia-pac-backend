@@ -70,12 +70,18 @@
                visionResult.glasses_type  as glassesType,
                visionResult.warning_level as visionLabel,
                visionResult.vision_l      as visionL,
-               visionResult.vision_r      as visionR
+               visionResult.vision_r      as visionR,
+               visionResult.create_time   as lastScreeningTime
         from m_student ms
                      left join m_school school on ms.school_no = school.school_no
                      left join m_school_grade msg on ms.grade_id = msg.id
                      left join m_school_class msc on ms.class_id = msc.id
-                     left join (select mvsr.student_id, msc.glasses_type, msc.warning_level, msc.vision_l, msc.vision_r
+                     left join (select mvsr.student_id,
+                                       msc.glasses_type,
+                                       msc.warning_level,
+                                       msc.vision_l,
+                                       msc.vision_r,
+                                       mvsr.create_time
                                 from m_vision_screening_result mvsr
                                              left join m_stat_conclusion msc on mvsr.id = msc.result_id
                                 group by mvsr.student_id, mvsr.create_time
