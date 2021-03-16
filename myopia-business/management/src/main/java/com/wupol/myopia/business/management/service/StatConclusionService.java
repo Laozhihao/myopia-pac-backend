@@ -41,33 +41,19 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return statConclusionMapper.listByQuery(statConclusionQuery);
     }
 
+    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
+        return statConclusionMapper.selectLastOne(statConclusionQuery);
+    }
+
     /**
-     * 根据源通知ID获取处理后有效的筛查数据
+     * 根据源通知ID获取筛查数据
      *
      * @param screeningNoticeId
      * @return
      */
     public List<StatConclusion> getBySrcScreeningNoticeId(Integer screeningNoticeId) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
-                .eq(StatConclusion::getIsValid, true);
-        return statConclusionMapper.selectList(queryWrapper);
-    }
-
-    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
-        return statConclusionMapper.selectLastOne(statConclusionQuery);
-    }
-
-    /**
-     * 根据源通知ID获取处理后有效的筛查数据
-     *
-     * @param screeningNoticeId
-     * @return
-     */
-    public List<StatConclusion> getValidBySrcScreeningNoticeId(Integer screeningNoticeId) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId)
-                .eq(StatConclusion::getIsValid, true);
+        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId);
         return statConclusionMapper.selectList(queryWrapper);
     }
 
@@ -76,8 +62,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningPlanId
      * @return
      */
-    public List<StatConclusionVo> getValidVoByScreeningPlanId(Integer screeningPlanId) {
-        return statConclusionMapper.selectValidVoByScreeningPlanId(screeningPlanId);
+    public List<StatConclusionVo> getVoByScreeningPlanId(Integer screeningPlanId) {
+        return statConclusionMapper.selectVoByScreeningPlanId(screeningPlanId);
     }
     /**
      * 保存并更新
