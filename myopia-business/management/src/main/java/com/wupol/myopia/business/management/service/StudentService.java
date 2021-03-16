@@ -161,7 +161,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             student.setMpParentPhone(parentPhone);
         } else {
             // 不为空拼接
-            student.setMpParentPhone(student.getMpParentPhone() + "," + parentPhone);
+            student.setMpParentPhone(parentPhoneStr + "," + parentPhone);
         }
         updateById(student);
     }
