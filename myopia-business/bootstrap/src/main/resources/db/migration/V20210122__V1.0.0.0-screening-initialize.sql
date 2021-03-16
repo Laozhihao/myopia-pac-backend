@@ -124,7 +124,7 @@ CREATE TABLE `m_screening_plan_school`
 -- Table structure for m_screening_plan_school_student
 -- ----------------------------
 DROP TABLE IF EXISTS `m_screening_plan_school_student`;
-CREATE TABLE `m_screening_plan_school_student`
+create table m_screening_plan_school_student
 (
     `id`                int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `src_screening_notice_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所属的筛查源通知id（也即task的来源通知id），自己创建时默认0',
@@ -142,12 +142,19 @@ CREATE TABLE `m_screening_plan_school_student`
     `student_id`        int(10) unsigned NOT NULL COMMENT '筛查计划--参与筛查的学生id',
     `id_card`           varchar(32)  NOT NULL COMMENT '筛查计划--参与筛查的学生身份证号码',
     `birthday`          timestamp null comment '出生日期',
-    `gender`            tinyint(1) null comment '性别 1-男 2-女',
+    `gender`            tinyint(1) null comment '性别 0-男 1-女',
     `student_age`       tinyint unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--参与筛查的学生年龄',
     `student_situation` varchar(1024) NOT NULL DEFAULT '' COMMENT '筛查计划--参与筛查的当时情况',
     `student_no`        varchar(64)  NOT NULL COMMENT '筛查计划--参与筛查的学生编号',
     `student_name`      varchar(8)   NOT NULL COMMENT '筛查计划--参与筛查的学生名字',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查计划--创建时间',
+    `province_code`           bigint                                     null comment '省代码',
+    `city_code`               bigint                                     null comment '市代码',
+    `area_code`               int                                        null comment '区代码',
+    `town_code`               bigint                                     null comment '镇/乡代码',
+    `address`                 varchar(128)                               null comment '详细地址',
+    `nation`                  tinyint                                    null comment '民族 0-汉族',
+    `parent_phone`            varchar(16)                                null comment '家长手机号码',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='参与筛查计划的学生表';
 

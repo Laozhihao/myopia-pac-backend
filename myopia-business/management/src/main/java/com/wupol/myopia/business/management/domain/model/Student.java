@@ -74,7 +74,7 @@ public class Student implements Serializable {
     private String name;
 
     /**
-     * 性别 1-男 2-女
+     * 性别 0-男 1-女
      */
     @NotNull(message = "性别不能为空")
     private Integer gender;

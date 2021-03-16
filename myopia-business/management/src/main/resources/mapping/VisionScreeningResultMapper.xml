@@ -4,7 +4,12 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.VisionScreeningResult">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="biometric_data" property="biometricData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="other_eye_diseases" property="otherEyeDiseases"/>
     </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -53,6 +58,7 @@
         select count(1) as count, student_id
         from m_vision_screening_result
         where is_double_screen = 0
+<!--          and create_time &lt;= CURDATE()-->
         group by student_id
     </select>
 
@@ -77,5 +83,15 @@
         where school_id = #{schoolId}
           and screening_org_id = #{orgId}
           and plan_id = #{planId}
+          and is_double_screen = 0
+    </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+<!--          and create_time &lt;= CURDATE()-->
+        group by create_time desc
     </select>
 </mapper>

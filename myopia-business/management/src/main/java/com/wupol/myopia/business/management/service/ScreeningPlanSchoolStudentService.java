@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -101,7 +102,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
         }
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = baseMapper.selectList(queryWrapper);
         return screeningPlanSchoolStudents;
     }
@@ -115,7 +116,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return new ArrayList<>();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
         List<ScreeningPlanSchoolStudent> screeningPlanSchools = baseMapper.selectList(queryWrapper);
         return screeningPlanSchools;
     }
@@ -178,14 +179,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 获取学校筛查学生数
+     *
      * @param srcScreeningNoticeId 通知ID
-     * @param schoolId 学校ID
+     * @param schoolId             学校ID
      * @return
      */
     public Integer countPlanSchoolStudent(int srcScreeningNoticeId, int schoolId) {
         return baseMapper.selectCount(new QueryWrapper<ScreeningPlanSchoolStudent>()
-                                              .eq("school_id", schoolId)
-                                              .eq("src_screening_notice_id", srcScreeningNoticeId));
+                .eq("school_id", schoolId)
+                .eq("src_screening_notice_id", srcScreeningNoticeId));
     }
 
     /**
@@ -287,7 +289,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 1. 筛选出需新增的学生并新增
         addStudents(userId, idCardExistStudents, excelIdCardStudentMap);
         // 2. 已有的要判断是否需更新
-        updateStudents(idCardExistStudents, excelIdCardStudentMap);
+        updateStudents(idCardExistStudents, excelIdCardStudentMap, screeningPlan.getId(), schoolId);
         // 3. 处理筛查学生
         addOrUpdateScreeningPlanStudents(screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents);
     }
@@ -328,6 +330,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 处理筛查学生
+     *
      * @param screeningPlan
      * @param schoolId
      * @param school
@@ -354,7 +357,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                     .setGender(student.getGender())
                     .setStudentAge(AgeUtil.countAge(student.getBirthday()))
                     .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent))
-                    .setStudentNo(dbStudent.getSno());
+                    .setStudentNo(dbStudent.getSno())
+                    .setNation(student.getNation())
+                    .setProvinceCode(student.getProvinceCode())
+                    .setCityCode(student.getCityCode())
+                    .setAreaCode(student.getAreaCode())
+                    .setTownCode(student.getTownCode())
+                    .setAddress(student.getAddress())
+                    .setParentPhone(student.getParentPhone());
             return existPlanStudent;
         }).collect(Collectors.toList());
         saveOrUpdateBatch(addOrUpdatePlanStudents);
@@ -362,17 +372,26 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新学生数据
-     * @param idCardExistStudents
+     *  @param idCardExistStudents
      * @param excelIdCardStudentMap
+     * @param screeningPlanId
+     * @param schoolId
      */
-    private void updateStudents(Map<String, Student> idCardExistStudents, Map<String, StudentVo> excelIdCardStudentMap) {
+    private void updateStudents(Map<String, Student> idCardExistStudents,
+                                Map<String, StudentVo> excelIdCardStudentMap,
+                                Integer screeningPlanId, Integer schoolId) {
         List<String> needCheckUpdateStudentIdCards = CompareUtil.getRetain(idCardExistStudents.keySet(), excelIdCardStudentMap.keySet());
         List<Student> updateStudents = new ArrayList<>();
+        // 查找通过身份证查找计划中的学生
+        Map<String, ScreeningPlanSchoolStudent> planSchoolStudentMaps = getByIdCards(screeningPlanId, schoolId, needCheckUpdateStudentIdCards).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        // 需要更新计划中的学生信息
+        List<ScreeningPlanSchoolStudent> updatePlanStudent =new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
             StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
+                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard,new ScreeningPlanSchoolStudent());
                 BeanUtils.copyProperties(student, updateStudent);
                 updateStudent.setName(excelStudent.getName())
                         .setSchoolNo(excelStudent.getSchoolNo())
@@ -390,13 +409,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                         .setAddress(StringUtils.getDefaultIfBlank(excelStudent.getAddress(), student.getAddress()))
                         .setParentPhone(StringUtils.getDefaultIfBlank(excelStudent.getParentPhone(), student.getParentPhone()));
                 updateStudents.add(updateStudent);
+                BeanUtils.copyProperties(updateStudent, planSchoolStudent);
+                planSchoolStudent.setStudentNo(updateStudent.getSno());
+                planSchoolStudent.setStudentName(updateStudent.getName());
+                planSchoolStudent.setStudentId(updateStudent.getId());
+                updatePlanStudent.add(planSchoolStudent);
             }
         });
         studentService.updateBatchById(updateStudents);
+        updateBatchById(updatePlanStudent);
     }
 
     /**
      * 新增学生数据
+     *
      * @param userId
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
@@ -533,7 +559,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     /**
      * @param screeningPlanSchoolStudent
      */
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,Integer page,Integer size) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         //获取当前计划
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
@@ -542,10 +568,50 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         String studentName = screeningPlanSchoolStudent.getStudentName();
         screeningPlanSchoolStudent.setStudentName(null);
-        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds);
+        Integer startItem = (page - 1) * size;
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds).last("limit " + startItem + "," + size);;
         if (StringUtils.isNotBlank(studentName)) {
             queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 从学生中插入
+     *
+     * @param currentUser
+     * @param student
+     * @param gradeName
+     * @param clazzName
+     * @param schoolName
+     * @param schoolId
+     * @param currentPlan
+     */
+    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, Integer schoolId,ScreeningPlan currentPlan) {
+
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
+        screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
+        screeningPlanSchoolStudent.setIdCard(student.getIdCard())
+                .setSrcScreeningNoticeId(currentPlan.getSrcScreeningNoticeId())
+                .setScreeningTaskId(currentPlan.getScreeningTaskId())
+                .setScreeningPlanId(currentPlan.getId())
+                .setScreeningOrgId(currentUser.getOrgId())
+                .setDistrictId(currentPlan.getDistrictId())
+                .setSchoolId(schoolId)
+                .setSchoolName(schoolName)
+                .setStudentId(student.getId());
+
+        screeningPlanSchoolStudent.setStudentName(student.getName())
+                .setGradeId(student.getGradeId())
+                .setGradeName(gradeName)
+                .setGradeType(GradeCodeEnum.getByName(gradeName).getType())
+                .setClassId(student.getClassId())
+                .setClassName(clazzName)
+                .setBirthday(student.getBirthday())
+                .setGender(student.getGender())
+                .setStudentAge(AgeUtil.countAge(student.getBirthday()))
+                .setStudentSituation(SerializationUtil.serializeWithoutException(student))
+                .setStudentNo(student.getSno());
+        save(screeningPlanSchoolStudent);
     }
 }

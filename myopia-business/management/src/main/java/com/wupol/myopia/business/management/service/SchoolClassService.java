@@ -144,10 +144,10 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param clazz
      * @return
      */
-    public SchoolClass getByClassNameAndSchoolId(Integer schoolid, String clazz) {
+    public SchoolClass getByClassNameAndSchoolId(Integer schoolid,Integer gradeId, String clazz) {
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setSchoolId(schoolid).setName(clazz);
+        schoolClass.setSchoolId(schoolid).setName(clazz).setGradeId(gradeId);
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }

@@ -557,7 +557,7 @@ public class ExcelFacade {
                 break;
             }
 
-            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1)) {
                 throw new BusinessException("学生性别异常");
             }
 
@@ -832,7 +832,7 @@ public class ExcelFacade {
      * @throws UtilException
      */
     public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
-                                   File template) throws IOException, UtilException {
+            InputStream template) throws IOException, UtilException {
         String fileName = "统计对比报表";
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);

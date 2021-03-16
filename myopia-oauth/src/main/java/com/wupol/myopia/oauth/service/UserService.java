@@ -65,11 +65,14 @@ public class UserService extends BaseService<UserMapper, User> {
         }
         // 防止跨系统查询
         Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+        Page<UserWithRole> page = new Page<>(queryParam.getCurrent(), queryParam.getSize());
         if (!StringUtils.isEmpty(queryParam.getRoleName())) {
             List<Integer> userIds = roleService.getUserIdList(new Role().setChName(queryParam.getRoleName()).setOrgId(queryParam.getOrgId()).setSystemCode(queryParam.getSystemCode()));
+            if (CollectionUtils.isEmpty(userIds)) {
+                return page;
+            }
             queryParam.setUserIds(userIds);
         }
-        Page<UserWithRole> page = new Page<>(queryParam.getCurrent(), queryParam.getSize());
         IPage<UserWithRole> userPage = baseMapper.selectUserListWithRole(page, queryParam);
         // 获取角色信息
         List<UserWithRole> userWithRoles = userPage.getRecords();
