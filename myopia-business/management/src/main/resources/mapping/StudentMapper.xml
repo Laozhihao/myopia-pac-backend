@@ -62,11 +62,25 @@
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
-        select ms.*, school.name as schoolName, school.id as schoolId, msg.name as gradeName, msc.name as className
+        select ms.*,
+               school.name                as schoolName,
+               school.id                  as schoolId,
+               msg.name                   as gradeName,
+               msc.name                   as className,
+               visionResult.glasses_type  as glassesType,
+               visionResult.warning_level as visionLabel,
+               visionResult.vision_l      as visionL,
+               visionResult.vision_r      as visionR
         from m_student ms
                      left join m_school school on ms.school_no = school.school_no
                      left join m_school_grade msg on ms.grade_id = msg.id
                      left join m_school_class msc on ms.class_id = msc.id
+                     left join (select mvsr.student_id, msc.glasses_type, msc.warning_level, msc.vision_l, msc.vision_r
+                                from m_vision_screening_result mvsr
+                                             left join m_stat_conclusion msc on mvsr.id = msc.result_id
+                                group by mvsr.student_id, mvsr.create_time
+                                order by mvsr.create_time desc) visionResult on visionResult.student_id = ms.id
+
                 where ms.status != 2
         <if test="sno != null">
             and ms.sno like CONCAT('%', #{sno}, '%')
@@ -90,7 +104,7 @@
             </foreach>
         </if>
         <if test="visionLabels != null and visionLabels.size() != 0">
-            and ms.vision_label in
+            and visionResult.warning_level in
             <foreach collection="visionLabels" item="id" index="index" open="(" close=")" separator=",">
                 #{id}
             </foreach>

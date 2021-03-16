@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 /**
  * 学生DTO
  *
@@ -58,4 +60,19 @@ public class StudentDTO extends Student {
      * token
      */
     private String token;
+
+    /**
+     * 戴镜类型
+     */
+    private Integer glassesType;
+
+    /**
+     * 左眼视力
+     */
+    private BigDecimal visionL;
+
+    /**
+     * 右眼视力
+     */
+    private BigDecimal visionR;
 }
