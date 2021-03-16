@@ -87,6 +87,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private GovDeptService govDeptService;
 
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
+
     /**
      * 新增学校
      *
@@ -429,7 +432,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public Object getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+    public IPage<ScreeningPlanResponse> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
@@ -468,11 +471,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 if (null == schoolVisionStatistic) {
                     p.setItems(new ArrayList<>());
                 } else {
-                    p.setItems(Lists.newArrayList(schoolVisionStatistic));
+                    SchoolVisionStatisticDTO statisticDTO = new SchoolVisionStatisticDTO();
+                    BeanUtils.copyProperties(schoolVisionStatistic,statisticDTO);
+                    statisticDTO.setIncludeScreeningNumbers(visionScreeningResultService.countIncludeScreeningNumbers(schoolId, p.getId()));
+                    p.setItems(Lists.newArrayList(statisticDTO));
                 }
-
             });
-
         }
         return planPages;
 

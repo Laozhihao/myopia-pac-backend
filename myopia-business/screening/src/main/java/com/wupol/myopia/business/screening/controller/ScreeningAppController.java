@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -276,7 +278,7 @@ public class ScreeningAppController {
             @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName,
             @RequestParam(value = "studentName", required = false) String studentName,
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "current", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "60") Integer size) {
         //获取当前筛查机构正在执行的所有计划。
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -292,7 +294,7 @@ public class ScreeningAppController {
                 .setClassName(clazzName)
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent,page,size);
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
         Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
@@ -315,6 +317,30 @@ public class ScreeningAppController {
             Integer size,
             @RequestParam boolean isRandom,
             @RequestParam(value = "gradeName", required = false) String gradeName,
+            @RequestParam(value = "clazzName", required = false) String clazzName) throws JsonProcessingException {
+
+        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
+        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
+        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size,isRandom);
+        return ResultVOUtil.success(sysStudentList);
+    }
+
+    /**
+     * 随机获取学生复测质量控制
+     *
+     * @param
+     * @return
+     */
+/*    @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
+    public @ResponseBody
+    ResultVO findAllNameReview(
+            @RequestParam(value = "deptId") Integer deptId,
+            @RequestParam(value = "schoolId") Integer schoolId,
+            String studentName,
+            Integer current,
+            Integer size,
+            @RequestParam boolean isRandom,
+            @RequestParam(value = "gradeName", required = false) String gradeName,
             @RequestParam(value = "clazzName", required = false) String clazzName) {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
@@ -324,7 +350,7 @@ public class ScreeningAppController {
             sysStudentList = screeningAppService.getRandomData(sysStudentList);
         }
         return ResultVOUtil.success(sysStudentList);
-    }
+    }*/
 
     /**
      * 更新复测质控结果 TODO

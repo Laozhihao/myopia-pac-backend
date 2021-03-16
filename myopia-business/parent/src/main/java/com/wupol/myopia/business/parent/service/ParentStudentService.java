@@ -185,10 +185,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-
         StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
-        parentBindStudent(student.getId(), parent.getId());
+        bindStudent(parent, student.getId());
         return studentDTO;
     }
 
@@ -207,11 +206,24 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-
+        // 保存孩子
         Integer studentId = studentService.saveStudent(student);
         // 绑定孩子
-        parentBindStudent(studentId, parent.getId());
+        bindStudent(parent, studentId);
         return studentId;
+    }
+
+    /**
+     * 绑定孩子，更新孩子绑定家长手机号码
+     *
+     * @param parent    家长信息
+     * @param studentId 学生ID
+     */
+    private void bindStudent(Parent parent, Integer studentId) {
+        // 更新孩子绑定家长手机号码
+        studentService.updateMpParentPhone(studentId, parent.getPhone());
+        // 绑定孩子
+        parentBindStudent(studentId, parent.getId());
     }
 
     /**
@@ -262,7 +274,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return responseDTO;
     }
 
-    /** 学生筛查报告列表 */
+    /**
+     * 学生筛查报告列表
+     */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
         List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {

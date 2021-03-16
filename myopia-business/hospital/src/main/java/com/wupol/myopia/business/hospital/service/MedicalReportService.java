@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.hospital.service;
 
+import com.wupol.framework.core.util.DateFormatUtil;
+import com.wupol.framework.core.util.RandomUtil;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
@@ -20,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 医院-检查报告
@@ -42,6 +47,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     private HospitalService hospitalService;
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 获取学生报告列表
@@ -297,8 +304,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     public MedicalReport createMedicalReport(Integer medicalRecordId, Integer hospitalId, Integer departmentId, Integer doctorId, Integer studentId) {
         MedicalReport medicalReport = new MedicalReport()
-                //TODO 待修改规则
-                .setNo(String.valueOf(hospitalId)+System.currentTimeMillis())
+                .setNo(generateReportSn(hospitalId))
                 .setMedicalRecordId(medicalRecordId)
                 .setHospitalId(hospitalId)
                 .setDepartmentId(departmentId)
@@ -322,11 +328,24 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
             doctor.setSignFileId(doctor.getSignFileId());
-        }
-        if (Objects.nonNull(record)){
+        }        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);
+    }
+
+    /**
+     * 报告编号：医院ID+生成日期时分秒（202011111111）+6位数排序（000001开始）
+     * @param hospitalId 医院id
+     * @return
+     */
+    private String generateReportSn(Integer hospitalId) {
+        String sn = DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_DATE_AND_TIME_WITHOUT_SEPERATOR);
+        String key = sn.substring(0,8);
+        sn = hospitalId + sn;
+        key = hospitalId + key;
+        Long count = redisUtil.incr(key, 1L);
+        return String.format(sn+"%06d", count);
     }
 
 }

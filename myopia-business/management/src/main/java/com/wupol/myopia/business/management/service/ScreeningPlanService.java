@@ -359,15 +359,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
-        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
-    }
-
-    /**
-     * @param screeningOrgId
-     * @return
-     */
-    public ScreeningPlan getScreeningPlansByScreeningOrgId(Integer screeningOrgId, Integer schoolId) {
-        return baseMapper.selectScreeningPlanByScreeningOrgId(screeningOrgId, schoolId, ScreeningConstant.SCREENING_RELEASE_STATUS, System.currentTimeMillis());
+        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 
     /**
@@ -383,11 +375,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 获取用户当前的计划
-     *
-     * @param deptId
+     * @param screeningOrgId
+     * @param schoolId
+     * @return
      */
-    public  ScreeningPlan getCurrentPlan(Integer deptId, Integer schoolId) {
-         return getScreeningPlansByScreeningOrgId(deptId, schoolId);
+    public ScreeningPlan getCurrentPlan(Integer screeningOrgId,Integer schoolId) {
+          ScreeningPlan screeningPlan = baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
+        return screeningPlan;
     }
 
 }

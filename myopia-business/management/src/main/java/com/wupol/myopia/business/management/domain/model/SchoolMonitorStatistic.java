@@ -7,6 +7,12 @@ import java.math.BigDecimal;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -137,5 +143,28 @@ public class SchoolMonitorStatistic implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
+                                               Integer screeningNoticeId, Integer screeningTaskId, Integer districtId,
+                                               List<StatConclusionVo> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
+        SchoolMonitorStatistic statistic = new SchoolMonitorStatistic();
+        Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
+        Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
+        Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
+        Integer rescreeningItemNumbers = withoutGlassDsn * 4 + wearingGlassDsn * 6;
+        Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
+        int dsn = statConclusions.size();
+        statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
+                .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
+                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId)
+                .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
+                .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
+                .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)
+                .setDsn(dsn).setRescreeningItemNumbers(rescreeningItemNumbers)
+                .setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, rescreeningItemNumbers))
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumbers);
+        //TODO investigationNumbers暂不处理
+        return statistic;
+    }
 
 }

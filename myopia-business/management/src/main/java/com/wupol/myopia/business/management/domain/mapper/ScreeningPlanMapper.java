@@ -12,6 +12,7 @@ import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     Set<Integer> selectSchoolIds(Set<Integer> districtIds, Integer taskId);
 
 
-    ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
+    ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus,Date currentDate);
 
     /**
      * 查找当前机构的未完成的说有学校id
@@ -53,15 +54,6 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
      * @param currentTimestamp
      * @return
      */
-    List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Long currentTimestamp);
+    List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Date currentDate);
 
-    /**
-     * 找到该机构的计划
-     *
-     * @param screeningOrgId
-     * @param screeningReleaseStatus
-     * @param currentTimeMillis
-     * @return
-     */
-    ScreeningPlan selectScreeningPlanByScreeningOrgId(Integer screeningOrgId, Integer schoolId, Integer releaseStatus, Long currentTimestamp);
 }
