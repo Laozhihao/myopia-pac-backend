@@ -77,10 +77,10 @@ public class AuthController {
             oAuth2AccessToken = tokenEndpoint.postAccessToken(principal, parameters).getBody();
         } catch (InvalidGrantException e) {
             logger.error("登录失败", e);
-            return ApiResult.failure(e.getMessage());
+            return ApiResult.failure("账号或密码错误!");
         } catch (Exception e) {
             logger.error("登录失败", e);
-            return ApiResult.failure("登录失败");
+            return ApiResult.failure(e.getMessage());
         }
         if (Objects.isNull(oAuth2AccessToken)) {
             return ApiResult.failure("登录失败");
