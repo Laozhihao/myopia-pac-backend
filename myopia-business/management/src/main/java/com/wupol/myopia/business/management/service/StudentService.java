@@ -160,8 +160,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             // 为空新增
             student.setMpParentPhone(parentPhone);
         } else {
-            // 不为空拼接
-            student.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+            // 家长手机号码是否已经存在
+            if (StringUtils.countMatches(parentPhoneStr, parentPhone) == 0) {
+                // 不存在拼接家长手机号码
+                student.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+            }
         }
         updateById(student);
     }
