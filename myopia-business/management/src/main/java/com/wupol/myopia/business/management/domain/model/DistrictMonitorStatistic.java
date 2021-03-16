@@ -56,6 +56,10 @@ public class DistrictMonitorStatistic implements Serializable {
      * 监测情况--所属的地区id（筛查范围）
      */
     private Integer districtId;
+    /**
+     * 监测情况--复测项数目
+     */
+    private Integer rescreeningItemNumbers;
 
     /**
      * 监测情况--戴镜人数（默认0）
@@ -120,20 +124,22 @@ public class DistrictMonitorStatistic implements Serializable {
     private Date createTime;
 
     public static DistrictMonitorStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
-                                                 List<StatConclusion> statConclusions, Integer planScreeningNumbers) {
+                                                 List<StatConclusion> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
         DistrictMonitorStatistic statistic = new DistrictMonitorStatistic();
         Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
         Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
         Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
-        Integer dsn = withoutGlassDsn * 4 + wearingGlassDsn * 6;
+        Integer rescreeningItemNumbers = withoutGlassDsn * 4 + wearingGlassDsn * 6;
         Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
-        int realScreeningNumber = statConclusions.size();
+        int dsn = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
-                .setFinishRatio(MathUtil.divide(realScreeningNumber, planScreeningNumbers))
+                .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
                 .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
                 .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)
-                .setDsn(dsn).setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, dsn))
-                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber);
+                .setDsn(dsn).setRescreeningItemNumbers(rescreeningItemNumbers)
+                .setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, rescreeningItemNumbers))
+                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumbers);
+        //TODO investigationNumbers暂不处理
         return statistic;
     }
 }

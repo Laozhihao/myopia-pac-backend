@@ -52,7 +52,8 @@
         and p.screening_org_id = #{screeningOrgId}
         and p.release_status = #{releaseStatus}
         and sps.school_id = #{schoolId}
-        and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
+        and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
+                    <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
     </select>
 
     <select id="getPlanLists" resultMap="BaseResultDTOMap">
@@ -72,8 +73,10 @@
         p.id = sps.screening_plan_id
         and p.screening_org_id = #{screeningOrgId}
         and p.release_status = #{releaseStatus}
-        and  #{currentTimestamp} BETWEEN UNIX_TIMESTAMP(start_time) * 1000 AND  UNIX_TIMESTAMP(end_time) * 1000
+        and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
+                    <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
     </select>
+
 
 
     <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
@@ -148,5 +151,6 @@
         from m_screening_plan msp
         where screening_org_id = #{orgId}
           and release_status = 1
+<!--        and create_time &lt;= CURDATE()-->
     </select>
 </mapper>

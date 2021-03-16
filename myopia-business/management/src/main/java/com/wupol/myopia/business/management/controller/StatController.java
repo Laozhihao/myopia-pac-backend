@@ -3,13 +3,15 @@ package com.wupol.myopia.business.management.controller;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.management.service.StatReportService;
 import com.wupol.myopia.business.management.service.StatService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.log4j.Log4j2;
-
 import java.io.IOException;
+
+import lombok.extern.log4j.Log4j2;
 
 @ResponseResultBody
 @CrossOrigin
@@ -19,6 +21,9 @@ import java.io.IOException;
 public class StatController {
     @Autowired
     private StatService statService;
+
+    @Autowired
+    private StatReportService statReportService;
 
     /**
      * 获取预警信息
@@ -87,7 +92,8 @@ public class StatController {
     public ApiResult getDistrictReport(@RequestParam("notificationId") Integer notificationId,
             @RequestParam("districtId") Integer districtId) {
         try {
-            return ApiResult.success(statService.getDistrictStatData(notificationId, districtId));
+            return ApiResult.success(
+                    statReportService.getDistrictStatData(notificationId, districtId));
         } catch (IOException e) {
             log.error(e);
             return ApiResult.failure("internal error");
@@ -104,7 +110,7 @@ public class StatController {
     public ApiResult getSchoolReport(@RequestParam("notificationId") Integer notificationId,
             @RequestParam("schoolId") Integer schoolId) {
         try {
-            return ApiResult.success(statService.getSchoolStatData(notificationId, schoolId));
+            return ApiResult.success(statReportService.getSchoolStatData(notificationId, schoolId));
         } catch (IOException e) {
             log.error(e);
             return ApiResult.failure("internal error");

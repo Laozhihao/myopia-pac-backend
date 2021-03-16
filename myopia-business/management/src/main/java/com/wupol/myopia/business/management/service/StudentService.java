@@ -147,6 +147,29 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
+     * 更新绑定家长手机号码
+     *
+     * @param studentId   学生ID
+     * @param parentPhone 家长手机号码
+     */
+    @Transactional
+    public void updateMpParentPhone(Integer studentId, String parentPhone) {
+        Student student = getById(studentId);
+        String parentPhoneStr = student.getMpParentPhone();
+        if (StringUtils.isBlank(parentPhoneStr)) {
+            // 为空新增
+            student.setMpParentPhone(parentPhone);
+        } else {
+            // 家长手机号码是否已经存在
+            if (StringUtils.countMatches(parentPhoneStr, parentPhone) == 0) {
+                // 不存在拼接家长手机号码
+                student.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+            }
+        }
+        updateById(student);
+    }
+
+    /**
      * 更新学生
      *
      * @param student 学生实体类

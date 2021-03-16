@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.screening.result;
 
 
+import com.wupol.myopia.business.screening.enums.ErrorEnum;
+
 /**
  * Created by 武帅龙
  * 2017-12-10 18:03
@@ -40,5 +42,10 @@ public class ResultVOUtil {
         resultVO.setMessage(message);
         return resultVO;
     }
-
+    public static ResultVO error(ErrorEnum errorEnum) {
+        ResultVO resultVO = new ResultVO();
+        resultVO.setCode(errorEnum.getCode());
+        resultVO.setMessage(errorEnum.getMessage());
+        return resultVO;
+    }
 }

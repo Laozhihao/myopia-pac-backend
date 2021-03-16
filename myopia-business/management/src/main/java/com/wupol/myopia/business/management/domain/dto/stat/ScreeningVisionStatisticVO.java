@@ -93,6 +93,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         ScreeningVisionStatisticVO.Item item = new ScreeningVisionStatisticVO.Item();
         item.setFocusTargetsNum(districtVisionStatistic.getKeyWarningNumbers())
                 .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumbers())
+                .setValidScreeningNum(districtVisionStatistic.getValidScreeningNumbers())
                 .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision())
                 .setAverageVisionRight(districtVisionStatistic.getAvgRightVision())
                 .setLowVisionNum(districtVisionStatistic.getLowVisionNumbers())
@@ -140,6 +141,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 实际筛查学生数
          */
         private Integer actualScreeningNum;
+        /**
+         * 实际筛查学生数
+         */
+        private Integer validScreeningNum;
         /**
          * 左眼平均视力
          */

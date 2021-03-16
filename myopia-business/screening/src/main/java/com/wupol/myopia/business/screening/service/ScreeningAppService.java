@@ -1,17 +1,17 @@
 package com.wupol.myopia.business.screening.service;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.JsonUtil;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
@@ -20,10 +20,6 @@ import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
-import com.wupol.myopia.business.management.service.SchoolClassService;
-import com.wupol.myopia.business.management.service.SchoolGradeService;
-import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.service.StudentService;
 import com.wupol.myopia.business.management.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
@@ -83,6 +79,8 @@ public class ScreeningAppService {
     private ResourceFileService resourceFileService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 查询学校的年级名称
@@ -137,34 +135,57 @@ public class ScreeningAppService {
 
     }
 
-
     /**
-     * 随机获取学生复测信息
-     *
-     * @param pageRequest    分页
-     * @param schoolName     学校名称
-     * @param schoolId       学校id
-     * @param gradeName      年级名称
-     * @param clazzName      班级名称
-     * @param screeningOrgId 机构id
+     * 获取学生复测数据
+     * @param schoolId
+     * @param gradeName
+     * @param clazzName
+     * @param screeningOrgId
+     * @param studentName
+     * @param page
+     * @param size
+     * @param isRandom
      * @return
+     * @throws JsonProcessingException
      */
-    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size) {
-        //ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId);
-     /*   if (currentPlan == null) {
-            throw new ManagementUncheckedException("该筛查机构没有合适的计划，screeningOrgId = " + screeningOrgId);
-        }*/
+    public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom) throws JsonProcessingException {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new ArrayList<>();
+        }
         // 获取学生数据
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = getScreeningPlanSchoolStudentLambdaQueryWrapper(schoolId, gradeName, clazzName, screeningOrgId, studentName, currentPlanIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents;
+        if (isRandom) {
+            screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
+            ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId);
+            String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId +  gradeName + clazzName;
+            screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
+        } else {
+            Integer startIntem = (page - 1) * size;
+            screeningPlanSchoolStudentLambdaQueryWrapper.last("limit " + startIntem + "," + size);
+            screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
+        }
+        return getSysStudents(screeningPlanSchoolStudents);
+    }
+
+    private LambdaQueryWrapper<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentLambdaQueryWrapper(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Set<Integer> currentPlanIds) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(studentName)) {
             screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
-        screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent);
-        Integer startIntem = (page - 1) * size;
-        screeningPlanSchoolStudentLambdaQueryWrapper.last("limit " + startIntem + "," + size);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
+        screeningPlanSchoolStudentLambdaQueryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
+        return screeningPlanSchoolStudentLambdaQueryWrapper;
+    }
+
+    /**
+     * 获取sysStudents
+     * @param screeningPlanSchoolStudents
+     * @return
+     */
+    public List<SysStudent> getSysStudents(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents) {
         Set<Integer> screeningPlanStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return new ArrayList<>();
@@ -198,21 +219,49 @@ public class ScreeningAppService {
     }
 
     /**
-     * todo 每次随机6%
-     * 缺少： 1.同步功能 2.累计同步的功能
-     *
-     * @param sysStudents
+     * 随机获取数据
+     * @param screeningPlanSchoolStudents
+     * @param cacheKey
+     * @param endTime
      * @return
+     * @throws JsonProcessingException
      */
-    public List<SysStudent> getRandomData(List<SysStudent> sysStudents) {
-        int result = (int) (sysStudents.size() * 0.06) + 1;
-        if (result > sysStudents.size()) {
-            return new ArrayList<>();
+    public List<ScreeningPlanSchoolStudent> getRandomData(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents, String cacheKey, Date endTime) throws JsonProcessingException {
+        //查找上次随机筛选的学生
+        List<ScreeningPlanSchoolStudent> cacheList = this.getCacheList(cacheKey);
+        // 如果cacheList 是null 说明没有数据,
+        if(cacheList == null) {
+            cacheList = new ArrayList<>();
         }
-        // 随机打乱顺序
-        Collections.shuffle(sysStudents);
-        sysStudents = sysStudents.subList(0, result);
-        return sysStudents;
+        int dataSize = CollectionUtils.size(screeningPlanSchoolStudents);
+        int  cacheSize = CollectionUtils.size(cacheList);
+
+        int newResultSize = (int) (dataSize * 0.06 - cacheSize);
+        //数据长度没有变化
+        if (newResultSize <= 0 && cacheSize != 0) {
+            return cacheList;
+        }
+        //初始化数据
+        if (newResultSize <=  0) {
+            newResultSize = 1;
+        }
+        Collections.shuffle(screeningPlanSchoolStudents);
+        screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream().limit(newResultSize).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(screeningPlanSchoolStudents)) {
+            cacheList.addAll(screeningPlanSchoolStudents);
+            redisUtil.set(cacheKey, cacheList, endTime.getTime() - System.currentTimeMillis());
+        }
+        return cacheList;
+    }
+
+    /**
+     * 获取随机复测数据
+     * @param key
+     * @return
+     * @throws JsonProcessingException
+     */
+    private List<ScreeningPlanSchoolStudent> getCacheList(String key) throws JsonProcessingException {
+       return  (List<ScreeningPlanSchoolStudent>) redisUtil.get(key);
     }
 
     /**
@@ -261,7 +310,6 @@ public class ScreeningAppService {
      * @param screeningResultBasicData
      * @return
      */
-
     public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
@@ -270,37 +318,16 @@ public class ScreeningAppService {
         this.saveAll(allFirstAndSecondResult);
     }
 
+    /**
+     * 保存所有
+     * @param allFirstAndSecondResult
+     */
     @Transactional(rollbackFor = Exception.class)
     public void saveAll(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
     }
-    /*
-     *//**
-     * 创建记录
-     *
-     * @param visionDataDTO
-     * @param screeningPlan
-     *//*
-    private void createScreeningResultAndSave(VisionDataDTO visionDataDTO, ScreeningPlan screeningPlan) {
-        VisionScreeningResult visionScreeningResult = new VisionScreeningResult()
-                .setCreateTime(new Date())
-                .setPlanId(screeningPlan.getId())
-                .setTaskId(screeningPlan.getScreeningTaskId())
-                .setDistrictId(screeningPlan.getDistrictId())
-                .setIsDoubleScreen(false)
-                .setStudentId(visionDataDTO.getStudentId())
-                .setSchoolId(visionDataDTO.getSchoolId())
-                .setGlassesType(WearingGlassesSituation.getKey(visionDataDTO.getGlassesType()).get())
-                .setRightNakedVision(visionDataDTO.getRightNakedVision())
-                .setLeftNakedVision(visionDataDTO.getLeftNakedVision())
-                .setRightCorrectedVision(visionDataDTO.getRightCorrectedVision())
-                .setLeftCorrectedVision(visionDataDTO.getLeftCorrectedVision());
-        boolean isSaveSuccess = screeningResultService.save(visionScreeningResult);
-        if (!isSaveSuccess) {
-            throw new ManagementUncheckedException("screeningResultService.save失败，screeningResult =  " + JsonUtil.objectToJsonString(visionScreeningResult));
-        }
-    }*/
+
 
     /**
      * 保存原始数据
@@ -363,10 +390,8 @@ public class ScreeningAppService {
 
     /**
      * 上传筛查机构用户的签名图片
-     *
-     * @param deptId      筛查机构id
-     * @param currentUser 用户id
-     * @param file        签名
+     * @param currentUser
+     * @param file
      * @return
      */
     public String uploadSignPic(CurrentUser currentUser, MultipartFile file) {
@@ -438,27 +463,18 @@ public class ScreeningAppService {
      *
      * @param currentUser
      * @param appStudentDTO
+     * @param school
      * @return
      */
-    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO) throws ParseException {
+    public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO, School school) throws ParseException {
         Student student = new Student();
         Long schoolId = appStudentDTO.getSchoolId();
-        School school = schoolService.getById(schoolId);
-        if (school == null) {
-            throw new ManagementUncheckedException("无法找到该schoolId = " + schoolId);
-        }
         SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId.intValue(), appStudentDTO.getGrade());
-        if (schoolGrade == null) {
-            throw new ManagementUncheckedException("无法找到该grade = " + appStudentDTO.getGrade());
-        }
-        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), appStudentDTO.getClazz());
-        if (schoolClass == null) {
-            throw new ManagementUncheckedException("无法找到该class = " + appStudentDTO.getClazz());
-        }
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(),appStudentDTO.getClazz());
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         student.setName(appStudentDTO.getStudentName())
                 .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getGrade()))
-                .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2))
+                .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                 .setNation(StringUtils.isBlank(appStudentDTO.getClan()) ? null : NationEnum.getCode(appStudentDTO.getClan()))
                 .setSchoolNo(school.getSchoolNo())
                 .setGradeId(schoolGrade.getId())
@@ -466,15 +482,11 @@ public class ScreeningAppService {
                 .setSno(appStudentDTO.getStudentNo())
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
-                .setAddress(appStudentDTO.getAddress());
-
-        String provinceName = appStudentDTO.getProvince();
-        String cityName = appStudentDTO.getCity();
-        String areaName = appStudentDTO.getRegion();
-        String townName = appStudentDTO.getStreet();//地区
-        appStudentDTO.getAddress();//籍贯
-        districtService.getCodeByName(provinceName, cityName, areaName, townName);
-        //todo 地区和其他先不保存 student.setProvinceCode().setCityCode().setTownCode()
+                .setAddress(appStudentDTO.getAddress())
+                .setProvinceCode(school.getProvinceCode())
+                .setCityCode(school.getCityCode())
+                .setTownCode(school.getTownCode())
+                .setStatus(0);
         return student;
 
     }
