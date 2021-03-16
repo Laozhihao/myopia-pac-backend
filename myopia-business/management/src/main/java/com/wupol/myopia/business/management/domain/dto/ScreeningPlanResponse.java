@@ -24,5 +24,5 @@ public class ScreeningPlanResponse extends ScreeningPlan {
     /**
      * 详情
      */
-    private List<SchoolVisionStatistic> items;
+    private List<SchoolVisionStatisticDTO> items;
 }
