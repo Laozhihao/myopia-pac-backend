@@ -279,13 +279,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
+        return screeningResults.stream().map(s -> {
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
             return items;
         }).collect(Collectors.toList());
-        return screeningLists;
     }
 
     /**
