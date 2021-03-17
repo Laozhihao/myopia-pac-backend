@@ -16,6 +16,7 @@ import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -114,6 +115,13 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
 
+    public List<StatConclusionVo> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> childDistrictIds) {
+        //TODO
+        return Collections.emptyList();
+    }
 
-
+    public List<StatConclusionVo> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
+        //TODO
+        return Collections.emptyList();
+    }
 }

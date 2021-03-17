@@ -392,7 +392,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。",CurrentUserUtil.getCurrentUser().getOrgId(),appStudentDTO.getSchoolId());
             return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR);
         }
-        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(),appStudentDTO.getSchoolId().intValue(),currentPlan);
+        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(), school.getSchoolNo(),appStudentDTO.getSchoolId().intValue(),currentPlan);
         return ResultVOUtil.success();
     }
 

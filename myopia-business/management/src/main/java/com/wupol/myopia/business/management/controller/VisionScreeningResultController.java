@@ -12,6 +12,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,8 @@ import java.util.stream.Collectors;
 public class VisionScreeningResultController extends BaseController<VisionScreeningResultService, VisionScreeningResult> {
 
     @Autowired
+    private DistrictService districtService;
+    @Autowired
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
@@ -45,6 +48,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StudentService studentService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private StatConclusionService statConclusionService;
     @Autowired
     private ExcelFacade excelFacade;
 
@@ -90,7 +95,17 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (CommonConst.DEFAULT_ID.equals(districtId) && CommonConst.DEFAULT_ID.equals(schoolId)) {
             throw new BusinessException("层级与学校必须选择一个");
         }
-        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), screeningNoticeId, districtId, schoolId);
+
+        List<StatConclusionVo> statConclusionVos = new ArrayList<>();
+        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
+            // 合计的要包括自己层级的筛查数据
+            List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+            statConclusionVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
+        }
+        if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+            statConclusionVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+        }
+        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionVos, districtId, schoolId);
         return ApiResult.success();
     }
 }
