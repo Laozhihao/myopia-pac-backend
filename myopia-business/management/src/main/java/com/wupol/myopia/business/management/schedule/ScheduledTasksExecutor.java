@@ -52,7 +52,7 @@ public class ScheduledTasksExecutor {
      * 筛查数据统计
      */
     //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-//    @Scheduled(cron = "0 * * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 * * * * ?", zone = "GMT+8:00")
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
@@ -67,11 +67,11 @@ public class ScheduledTasksExecutor {
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
         genDistrictStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
-        districtAttentiveObjectsStatisticService.saveBatch(districtAttentiveObjectsStatistics);
-        districtMonitorStatisticService.saveBatch(districtMonitorStatistics);
-        districtVisionStatisticService.saveBatch(districtVisionStatistics);
-        schoolVisionStatisticService.saveBatch(schoolVisionStatistics);
-        schoolMonitorStatisticService.saveBatch(schoolMonitorStatistics);
+//        districtAttentiveObjectsStatisticService.saveBatch(districtAttentiveObjectsStatistics);
+//        districtMonitorStatisticService.saveBatch(districtMonitorStatistics);
+//        districtVisionStatisticService.saveBatch(districtVisionStatistics);
+//        schoolVisionStatisticService.saveBatch(schoolVisionStatistics);
+//        schoolMonitorStatisticService.saveBatch(schoolMonitorStatistics);
     }
 
     /**
@@ -115,6 +115,10 @@ public class ScheduledTasksExecutor {
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(yesterdayScreeningPlanIds);
         //2. 分别处理每个通知的区域层级统计
         screeningNoticeIds.forEach(screeningNoticeId -> {
+            if (CommonConst.DEFAULT_ID.equals(screeningNoticeId)) {
+                // 单点筛查机构创建的数据不需要统计
+                return;
+            }
             //2.1 查出对应的筛查数据(结果)
             List<StatConclusion> statConclusions = statConclusionService.getBySrcScreeningNoticeId(screeningNoticeId);
             if (CollectionUtils.isEmpty(statConclusions)) {

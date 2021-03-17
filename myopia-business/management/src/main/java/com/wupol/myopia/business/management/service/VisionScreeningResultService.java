@@ -82,14 +82,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 获取昨天筛查数据的筛查计划Id
+     * 获取昨天筛查数据的筛查计划Id（必须有筛查通知，也就是省级配置的筛查机构筛查的数据）
      *
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
         Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
         Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
-        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
+        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 
     /**
