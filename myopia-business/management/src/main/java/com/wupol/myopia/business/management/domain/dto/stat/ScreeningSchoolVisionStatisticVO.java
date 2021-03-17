@@ -66,6 +66,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer actualScreeningNum;
 
         /**
+         * 纳入统计的实际筛查学生数
+         */
+        private Integer validScreeningNum;
+
+        /**
          * 左眼平均视力
          */
         private BigDecimal averageVisionLeft;
@@ -194,6 +199,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.screeningNum = schoolVisionStatistic.getPlanScreeningNumbers();
             item.screeningOrgName = schoolVisionStatistic.getScreeningOrgName();
             item.actualScreeningNum = schoolVisionStatistic.getRealScreeningNumbers();
+            item.validScreeningNum = schoolVisionStatistic.getValidScreeningNumbers();
             item.averageVisionLeft = schoolVisionStatistic.getAvgLeftVision();
             item.averageVisionRight = schoolVisionStatistic.getAvgRightVision();
             item.lowVisionNum = schoolVisionStatistic.getLowVisionNumbers();

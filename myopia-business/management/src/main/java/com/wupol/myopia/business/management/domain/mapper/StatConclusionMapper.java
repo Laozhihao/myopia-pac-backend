@@ -33,6 +33,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @param screeningPlanId
      * @return
      */
-    List<StatConclusionVo> selectValidVoByScreeningPlanId(
+    List<StatConclusionVo> selectVoByScreeningPlanId(
             @Param("screeningPlanId") Integer screeningPlanId);
 }
