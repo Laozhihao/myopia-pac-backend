@@ -171,7 +171,8 @@ public class DateUtil {
      **/
     public static Date getYesterdayEndTime() {
         Calendar cal=Calendar.getInstance();
-
+        //TODO 方便测试，暂时查询到今天
+        //cal.add(Calendar.DATE,-1);
         cal.set(Calendar.HOUR, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);
