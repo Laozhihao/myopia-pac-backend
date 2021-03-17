@@ -257,10 +257,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setName(student.getName());
 
         // 学生筛查报告
-        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
         List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetail screeningDetail = new ScreeningDetail();
-        screeningDetail.setTotal(screeningResults.size());
+        screeningDetail.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r->r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
         screeningDetail.setItems(screeningLists);
         responseDTO.setScreeningDetail(screeningDetail);
 
