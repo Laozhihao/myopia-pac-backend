@@ -550,7 +550,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         axialItems.setTitle("轴位A");
 
         RefractoryResultItems sphItems = new RefractoryResultItems();
-        sphItems.setTitle("球镜SE");
+        sphItems.setTitle("等效球镜SE");
 
         // 柱镜
         RefractoryResultItems cylItems = new RefractoryResultItems();

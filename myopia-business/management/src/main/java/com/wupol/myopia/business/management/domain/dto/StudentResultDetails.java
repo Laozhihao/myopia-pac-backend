@@ -46,6 +46,11 @@ public class StudentResultDetails {
     private BigDecimal sph;
 
     /**
+     * 等效球镜
+     */
+    private BigDecimal se;
+
+    /**
      * 柱镜
      */
     private BigDecimal cyl;

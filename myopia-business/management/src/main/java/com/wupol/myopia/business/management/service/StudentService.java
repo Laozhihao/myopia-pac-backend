@@ -461,15 +461,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != result.getComputerOptometry()) {
             // 左眼--电脑验光
             leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-            leftDetails.setSph(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
+            leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
                     result.getComputerOptometry().getLeftEyeData().getCyl()));
             leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
 
             // 左眼--电脑验光
             rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-            rightDetails.setSph(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
+            rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
                     result.getComputerOptometry().getRightEyeData().getCyl()));
             rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
         }
         if (null != result.getBiometricData()) {
             // 左眼--生物测量
@@ -637,14 +639,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != result) {
             // 左眼
             left.setAxial(result.getLeftEyeData().getAxial());
-            left.setSph(calculationSE(result.getLeftEyeData().getSph(),
-                    result.getLeftEyeData().getCyl()));
+            left.setSph(result.getLeftEyeData().getSph());
             left.setCyl(result.getLeftEyeData().getCyl());
 
             // 右眼
             right.setAxial(result.getRightEyeData().getAxial());
-            right.setSph(calculationSE(result.getRightEyeData().getSph(),
-                    result.getRightEyeData().getCyl()));
+            right.setSph(result.getRightEyeData().getSph());
             right.setCyl(result.getRightEyeData().getCyl());
         }
         return Lists.newArrayList(right, left);
