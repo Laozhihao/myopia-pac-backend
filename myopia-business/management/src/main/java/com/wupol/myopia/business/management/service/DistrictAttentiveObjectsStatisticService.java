@@ -33,9 +33,14 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
      * @param districtIds
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds) {
+    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds,  Integer currentDistrictId, boolean isTotal,boolean isCurrent) {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
+        queryWrapper.eq(DistrictAttentiveObjectsStatistic::getIsTotal,isTotal);
+        if (isTotal) {
+            queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
+        } else {
+            queryWrapper.eq(DistrictAttentiveObjectsStatistic::getDistrictId,currentDistrictId);
+        }
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }
