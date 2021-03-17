@@ -970,7 +970,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return 等效球镜
      */
     private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        return sph.add(getMultiply(cyl, "0.5"))
+        return sph.add(cyl.multiply(new BigDecimal("0.5")))
                 .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
