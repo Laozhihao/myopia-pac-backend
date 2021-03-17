@@ -67,11 +67,11 @@ public class ScheduledTasksExecutor {
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
         genDistrictStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
-//        districtAttentiveObjectsStatisticService.saveBatch(districtAttentiveObjectsStatistics);
-//        districtMonitorStatisticService.saveBatch(districtMonitorStatistics);
-//        districtVisionStatisticService.saveBatch(districtVisionStatistics);
-//        schoolVisionStatisticService.saveBatch(schoolVisionStatistics);
-//        schoolMonitorStatisticService.saveBatch(schoolMonitorStatistics);
+        districtAttentiveObjectsStatisticService.saveBatch(districtAttentiveObjectsStatistics);
+        districtMonitorStatisticService.saveBatch(districtMonitorStatistics);
+        districtVisionStatisticService.saveBatch(districtVisionStatistics);
+        schoolVisionStatisticService.saveBatch(schoolVisionStatistics);
+        schoolMonitorStatisticService.saveBatch(schoolMonitorStatistics);
     }
 
     /**
