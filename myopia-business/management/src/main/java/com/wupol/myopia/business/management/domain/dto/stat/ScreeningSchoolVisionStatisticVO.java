@@ -168,6 +168,11 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         private Integer recommendVisitNum;
 
         /**
+         * 通知id
+         */
+        private Integer screeningNoticeId;
+
+        /**
          * 建议就诊数比例
          */
         private BigDecimal recommendVisitRatio;
@@ -192,9 +197,10 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
          * 获取实例
          * @param schoolVisionStatistic
          * @param districtName
+         * @param screeningNoticeId
          * @return
          */
-        public static Item getInstance(SchoolVisionStatistic schoolVisionStatistic, String districtName) {
+        public static Item getInstance(SchoolVisionStatistic schoolVisionStatistic, String districtName, Integer screeningNoticeId) {
             Item item = new Item();
             item.screeningNum = schoolVisionStatistic.getPlanScreeningNumbers();
             item.screeningOrgName = schoolVisionStatistic.getScreeningOrgName();
@@ -224,6 +230,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
             item.screeningRangeName = schoolVisionStatistic.getSchoolName();
             item.districtName = districtName;
             item.schoolId = schoolVisionStatistic.getSchoolId();
+            item.screeningNoticeId = screeningNoticeId;
             item.screeningOrgId = schoolVisionStatistic.getScreeningOrgId();
             item.schoolType = SchoolEnum.getTypeName(schoolVisionStatistic.getSchoolType());
             item.screeningPlanId = schoolVisionStatistic.getScreeningPlanId();
@@ -267,7 +274,7 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
     private void setItemData(List<SchoolVisionStatistic> schoolVisionStatistics, String districtName) {
         // 下级数据 + 当前数据 + 合计数据
         Set<ScreeningSchoolVisionStatisticVO.Item> items = schoolVisionStatistics.stream().map(schoolVisionStatistic ->
-                Item.getInstance(schoolVisionStatistic,districtName)
+                Item.getInstance(schoolVisionStatistic,districtName,getScreeningNoticeId())
         ).collect(Collectors.toSet());
         contents = items;
     }
