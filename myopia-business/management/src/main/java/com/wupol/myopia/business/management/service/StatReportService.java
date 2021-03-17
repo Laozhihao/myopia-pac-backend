@@ -441,7 +441,10 @@ public class StatReportService {
                 put("schoolAgeGlassesTypeDesc",
                         composeSchoolAgeGlassesTypeDesc(
                                 "schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable));
-                put("schoolAgeGenderVisionUncorrectedTable", schoolAgeGenderVisionUncorrectedTable);
+                put("schoolAgeGenderVisionUncorrectedDesc",
+                        composeSchoolAgeGenderVisionUncorrectedDesc(
+                                "schoolAgeGenderVisionUncorrectedTable",
+                                schoolAgeGenderVisionUncorrectedTable));
                 put("schoolAgeGenderVisionUnderCorrectedTable",
                         schoolAgeGenderVisionUnderCorrectedTable);
                 put("schoolAgeWarningLevelTable", schoolAgeWarningLevelTable);
@@ -490,6 +493,60 @@ public class StatReportService {
         List<TableBasicStatParams> list = (List<TableBasicStatParams>) totalConclusion.get("list");
         Map<String, Object> conclusionDesc = this.composeGenderRatio(list);
         conclusionDesc.put(title, schoolAgeGenderVisionTable);
+        return conclusionDesc;
+    }
+
+    /**
+     * 构造 学龄/性别/视力矫正情况 描述
+     * @param title 表格描述
+     * @param schoolAgeGenderVisionUncorrectedTable 表格数据
+     * @return
+     */
+    private Map<String, Object> composeSchoolAgeGenderVisionUncorrectedDesc(
+            String title, List<Map<String, Object>> schoolAgeGenderVisionUncorrectedTable) {
+        int size = schoolAgeGenderVisionUncorrectedTable.size();
+        Map<String, Object> totalConclusion = schoolAgeGenderVisionUncorrectedTable.get(size - 1);
+        List<TableBasicStatParams> totalList =
+                (List<TableBasicStatParams>) totalConclusion.get("list");
+        int primaryToHighMyopiaNum = 0;
+        int primaryToHighUncorrectedNum = 0;
+        int primaryToHighUncorrectedRatio = 0;
+        List<BasicStatParams> sortedList = new ArrayList<>();
+        for (int i = 0; i < schoolAgeGenderVisionUncorrectedTable.size(); i++) {
+            Map<String, Object> item = schoolAgeGenderVisionUncorrectedTable.get(i);
+            String schoolAgeName = (String) item.get("name");
+            if (schoolAgeName.equals("total")) {
+                continue;
+            }
+            SchoolAge schoolAge = SchoolAge.valueOf(schoolAgeName);
+            List<TableBasicStatParams> list = (List<TableBasicStatParams>) item.get("list");
+            TableBasicStatParams params =
+                    list.stream().filter(x -> x.getTitle().equals("total")).findFirst().get();
+            sortedList.add(new BasicStatParams(schoolAgeName, params.getRatio(), null));
+            switch (schoolAge) {
+                case KINDERGARTEN:
+                    break;
+                case PRIMARY:
+                case JUNIOR:
+                case HIGH:
+                    primaryToHighMyopiaNum += params.getTotal();
+                    primaryToHighUncorrectedNum += params.getNum();
+                    primaryToHighUncorrectedRatio += params.getRatio();
+                    break;
+                case VOCATIONAL_HIGH:
+                    break;
+                default:
+            }
+        }
+        Collections.sort(
+                sortedList, Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        Map<String, Object> conclusionDesc = new HashMap<>();
+        conclusionDesc.put("totalList", totalList);
+        conclusionDesc.put("sortedList", sortedList);
+        conclusionDesc.put("primaryToHighMyopiaNum", primaryToHighMyopiaNum);
+        conclusionDesc.put("primaryToHighUncorrectedNum", primaryToHighUncorrectedNum);
+        conclusionDesc.put("primaryToHighUncorrectedRatio", primaryToHighUncorrectedRatio);
+        conclusionDesc.put(title, schoolAgeGenderVisionUncorrectedTable);
         return conclusionDesc;
     }
 
