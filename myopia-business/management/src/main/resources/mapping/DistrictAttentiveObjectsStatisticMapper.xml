@@ -36,4 +36,25 @@
         id, is_total, screening_notice_id, screening_task_id, district_id, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, student_numbers, update_time, create_time
     </sql>
 
+    <insert id="batchSaveOrUpdate">
+        INSERT INTO m_district_attentive_objects_statistic
+        (is_total, screening_notice_id, screening_task_id, district_id,
+        vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio,
+        vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio,
+        key_warning_numbers, student_numbers)
+        VALUES
+        <foreach collection="list" item="entity" separator=",">
+            (#{entity.isTotal}, #{entity.screeningNoticeId}, #{entity.screeningTaskId}, #{entity.districtId},
+            #{entity.visionLabel0Numbers}, #{entity.visionLabel0Ratio}, #{entity.visionLabel1Numbers}, #{entity.visionLabel1Ratio},
+            #{entity.visionLabel2Numbers}, #{entity.visionLabel2Ratio}, #{entity.visionLabel3Numbers}, #{entity.visionLabel3Ratio},
+            #{entity.keyWarningNumbers}, #{entity.studentNumbers})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        vision_label0_numbers=values(vision_label0_numbers),vision_label0_ratio=values(vision_label0_ratio),
+        vision_label1_numbers=values(vision_label1_numbers),vision_label1_ratio=values(vision_label1_ratio),
+        vision_label2_numbers=values(vision_label2_numbers),vision_label2_ratio=values(vision_label2_ratio),
+        vision_label3_numbers=values(vision_label3_numbers),vision_label3_ratio=values(vision_label3_ratio),
+        key_warning_numbers=values(key_warning_numbers),student_numbers=values(student_numbers),
+        update_time = now()
+    </insert>
 </mapper>

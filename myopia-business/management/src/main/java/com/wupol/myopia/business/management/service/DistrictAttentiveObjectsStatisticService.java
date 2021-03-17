@@ -59,4 +59,15 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param districtAttentiveObjectsStatistics
+     */
+    public void batchSaveOrUpdate(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics) {
+        if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+    }
 }

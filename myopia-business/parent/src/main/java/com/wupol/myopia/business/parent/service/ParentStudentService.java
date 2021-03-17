@@ -156,12 +156,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             birthdayStr = "19" + idCard.substring(6, 8) + "-"
                     + idCard.substring(8, 10) + "-"
                     + idCard.substring(10, 12);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? 2 : 1;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? 1 : 0;
         } else if (flag && idCard.length() == 18) {
             birthdayStr = idCard.substring(6, 10) + "-"
                     + idCard.substring(10, 12) + "-"
                     + idCard.substring(12, 14);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 2 : 1;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 1 : 0;
         }
         try {
             return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
@@ -560,14 +560,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 球镜
             RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
-            leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
+            leftSphItems.setVision(calculationSE(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl()));
             TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
             leftSphItems.setTypeName(leftSphType.getFirst());
             leftSphItems.setType(leftSphType.getSecond());
             sphItems.setOs(leftSphItems);
 
             RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
-            rightSphItems.setVision(date.getRightEyeData().getSph().toString());
+            rightSphItems.setVision(calculationSE(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl()));
             TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
             rightSphItems.setTypeName(rightSphType.getFirst());
             rightSphItems.setType(rightSphType.getSecond());
@@ -576,14 +576,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 柱镜
             RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
-            leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
+            leftCylItems.setVision(date.getLeftEyeData().getCyl());
             TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
             leftCylItems.setType(leftCylType.getSecond());
             leftCylItems.setTypeName(leftCylType.getFirst());
             cylItems.setOs(leftCylItems);
 
             RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
-            rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
+            rightCylItems.setVision(date.getRightEyeData().getCyl());
             TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
             rightCylItems.setType(rightCylType.getSecond());
             rightCylItems.setTypeName(rightCylType.getFirst());
@@ -592,13 +592,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 轴位
             RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-            leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
+            leftAxialItems.setVision(date.getLeftEyeData().getAxial());
             leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
             axialItems.setOs(leftAxialItems);
 
             RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-            rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
-            rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
+            rightAxialItems.setVision(date.getRightEyeData().getAxial());
+            rightAxialItems.setTypeName(getAxialTypeName(date.getRightEyeData().getAxial()));
             axialItems.setOd(rightAxialItems);
             items.add(axialItems);
 
@@ -941,6 +941,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                         (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
+                return "没有建议";
             }
         }
         // SE >= 0
@@ -991,6 +992,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
+     * 判断是否在某个区间，左闭右比区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    private Boolean isBetweenAll(BigDecimal val, BigDecimal start, BigDecimal end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) <= 0;
+    }
+
+    /**
      * 获取散光轴位
      *
      * @param axial 轴位
@@ -1010,14 +1023,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
+        BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             String str;
             if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
-                str = "近视" + getMultiply(se.abs()) + "度";
+                str = "近视" + seVal + "度";
             } else {
-                str = getMultiply(se.abs()) + "度";
+                str = seVal + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(myopiaWarningLevel));
         } else {
@@ -1025,9 +1039,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (sph.compareTo(new BigDecimal("0.50")) > 0) {
-                str = "远视" + getMultiply(se.abs()) + "度";
+                str = "远视" + seVal + "度";
             } else {
-                str = getMultiply(se.abs()) + "度";
+                str = seVal + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(hyperopiaWarningLevel));
         }
@@ -1041,17 +1055,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
-        return new TwoTuple<>("散光" + getMultiply(cyl.abs()) + "度", astigmatismWarningLevel.code + 5);
-    }
-
-    /**
-     * 获取结果度数
-     *
-     * @param abs 绝对值
-     * @return BigDecimal
-     */
-    private BigDecimal getMultiply(BigDecimal abs) {
-        return abs.multiply(new BigDecimal("100"));
+        BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
+        if (isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
+            return new TwoTuple<>(cylVal + "度", astigmatismWarningLevel.code + 5);
+        }
+        return new TwoTuple<>("散光" + cylVal + "度", astigmatismWarningLevel.code + 5);
     }
 
     /**
