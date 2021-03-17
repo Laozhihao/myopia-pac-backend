@@ -914,7 +914,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
         if (nakedVision.compareTo(new BigDecimal("4.9")) < 0) {
             // 裸眼视力小于4.9
-            if (glassesType > 2) {
+            if (glassesType >= 1) {
                 // 佩戴眼镜
                 if (correctedVision.compareTo(new BigDecimal("4.9")) < 0) {
                     // 矫正视力小于4.9
