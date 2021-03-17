@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -43,19 +44,32 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
      * @return
      * @throws IOException
      */
-    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndUser(Integer noticeId, Integer districtId, CurrentUser user) throws IOException {
+    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndUser(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal, boolean isCurrent) throws IOException {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
-        if (user.isScreeningUser()) {
-            throw new BusinessException("筛查人员没有权限访问该数据");
-        }
         LambdaQueryWrapper<DistrictVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DistrictVisionStatistic::getScreeningNoticeId, noticeId);
-        Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
-        districtIds.add(districtId);
-        queryWrapper.in(DistrictVisionStatistic::getDistrictId, districtIds);
+        queryWrapper.eq(DistrictVisionStatistic::getIsTotal, istotal);
+        if (isCurrent) {
+            queryWrapper.eq(DistrictVisionStatistic::getDistrictId, currentDistrictId);
+        } else {
+            Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
+            districtIds.add(currentDistrictId);
+            queryWrapper.in(DistrictVisionStatistic::getDistrictId, districtIds);
+        }
         List<DistrictVisionStatistic> districtVisionStatistics = baseMapper.selectList(queryWrapper);
         return districtVisionStatistics;
+    }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param districtVisionStatistics
+     */
+    public void batchSaveOrUpdate(List<DistrictVisionStatistic> districtVisionStatistics) {
+        if (CollectionUtils.isEmpty(districtVisionStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(districtVisionStatistics);
     }
 }

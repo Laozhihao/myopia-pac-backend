@@ -175,7 +175,7 @@ public class StatConclusionBuilder {
 
     private void setWarningLevel() {
         // 特殊处理
-        if(basicData.glassesType == 3) {
+        if(basicData.glassesType != null && basicData.glassesType == 3) {
             statConclusion.setWarningLevel(2);
             return;
         }

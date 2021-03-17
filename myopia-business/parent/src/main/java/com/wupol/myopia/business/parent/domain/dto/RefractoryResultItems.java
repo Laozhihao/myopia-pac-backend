@@ -29,13 +29,20 @@ public class RefractoryResultItems {
      */
     private Item os;
 
+    public RefractoryResultItems(String title) {
+        this.title = title;
+    }
+
+    public RefractoryResultItems() {
+    }
+
     @Getter
     @Setter
     public static class Item {
         /**
          * 视力
          */
-        private String vision;
+        private BigDecimal vision;
 
         /**
          * 类型

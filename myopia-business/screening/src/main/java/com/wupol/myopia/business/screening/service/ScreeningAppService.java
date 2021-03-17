@@ -473,7 +473,7 @@ public class ScreeningAppService {
         SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId.intValue(), schoolGrade.getId(),appStudentDTO.getClazz());
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
         student.setName(appStudentDTO.getStudentName())
-                .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getGrade()))
+                .setGender(StringUtils.isBlank(appStudentDTO.getGrade()) ? null : GenderEnum.getType(appStudentDTO.getSex()))
                 .setBirthday(StringUtils.isBlank(appStudentDTO.getBirthday()) ? null : DateFormatUtil.parseDate(appStudentDTO.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
                 .setNation(StringUtils.isBlank(appStudentDTO.getClan()) ? null : NationEnum.getCode(appStudentDTO.getClan()))
                 .setSchoolNo(school.getSchoolNo())
@@ -486,6 +486,7 @@ public class ScreeningAppService {
                 .setProvinceCode(school.getProvinceCode())
                 .setCityCode(school.getCityCode())
                 .setTownCode(school.getTownCode())
+                .setParentPhone(appStudentDTO.getStudentPhone())
                 .setStatus(0);
         return student;
 

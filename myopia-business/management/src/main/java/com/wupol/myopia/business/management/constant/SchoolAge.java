@@ -41,4 +41,14 @@ public enum SchoolAge {
         }
         return schoolAgeList;
     }
+
+    /**
+     * 是否初中生（包括初中、高中、职业高中）
+     *
+     * @param schoolAge 学龄段
+     * @return Boolean
+     */
+    public static Boolean isMiddleSchool(Integer schoolAge) {
+        return JUNIOR.code.equals(schoolAge) || HIGH.code.equals(schoolAge) || VOCATIONAL_HIGH.code.equals(schoolAge);
+    }
 }

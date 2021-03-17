@@ -84,18 +84,31 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param currentDistrictId
      * @param currentRangeName
      * @param districtIdNameMap
+     * @param currentDistrictAttentiveObjectsStatistic
      * @return
      */
-    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, Map<Integer, String> districtIdNameMap) {
+    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, Map<Integer, String> districtIdNameMap, DistrictAttentiveObjectsStatistic currentDistrictAttentiveObjectsStatistic ) {
         if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
             return null;
         }
         FocusObjectsStatisticVO focusObjectsStatisticVO = new FocusObjectsStatisticVO();
         //设置基础数据
         focusObjectsStatisticVO.setBasicData(currentDistrictId, currentRangeName);
+        //设置当前数据
+        focusObjectsStatisticVO.setCurrentData(currentDistrictAttentiveObjectsStatistic);
         //设置统计数据
         focusObjectsStatisticVO.setItemData(currentDistrictId, districtAttentiveObjectsStatistics, districtIdNameMap);
         return focusObjectsStatisticVO;
+    }
+
+    /**
+     * 设置当前数据
+     * @param currentDistrictAttentiveObjectsStatistic
+     */
+    private void setCurrentData(DistrictAttentiveObjectsStatistic currentDistrictAttentiveObjectsStatistic) {
+        if (currentDistrictAttentiveObjectsStatistic != null) {
+            currentData = this.getItem(districtId,getScreeningRangeName(),currentDistrictAttentiveObjectsStatistic);
+        }
     }
 
     /**
@@ -111,21 +124,14 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
             Integer districtId = districtAttentiveObjectsStatistic.getDistrictId();
             String rangeName;
             //是合计数据
-            if (districtAttentiveObjectsStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
+            if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
                 rangeName = TOTAL_RANGE_NAME;
                 FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
                 totalData = item;
                 return null;
             }
             rangeName = districtIdNameMap.get(districtId);
-            FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
-            if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
-                currentData = item;
-                return null;
-            } else if (districtAttentiveObjectsStatistic.getIsTotal() != 1){
-                return item;
-            }
-            return null;
+            return this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }

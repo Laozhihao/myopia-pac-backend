@@ -117,7 +117,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     private Date createTime;
 
     public static DistrictAttentiveObjectsStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
-                                                          List<StatConclusion> statConclusions) {
+                                                          List<StatConclusion> statConclusions, Integer totalPlanStudentNum) {
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
@@ -131,7 +131,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
                 .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, studentNumber))
                 .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, studentNumber))
                 .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, studentNumber))
-                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(studentNumber);
+                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(totalPlanStudentNum);
         return statistic;
     }
 }

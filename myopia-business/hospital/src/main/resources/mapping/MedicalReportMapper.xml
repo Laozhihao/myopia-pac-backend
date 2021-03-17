@@ -20,6 +20,7 @@
                 <if test="@Ognl@isNotEmpty(studentId)">and report.`student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and report.`hospital_id` = #{hospitalId}</if>
                 <if test="@Ognl@isNotEmpty(departmentId)">and report.`department_id` = #{departmentId}</if>
+                <if test="@Ognl@isNotEmpty(medicalRecordId)">and report.`medical_record_id` = #{medicalRecordId}</if>
                 <if test="@Ognl@isNotEmpty(glassesSituation)">and report.`glasses_situation` = #{glassesSituation}</if>
                 <if test="@Ognl@isNotEmpty(doctorId)">and report.`doctor_id` = #{doctorId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and report.`create_time` = #{createTime}</if>
@@ -92,6 +93,7 @@
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
-<!--          and report.create_time &lt; CURDATE()-->
+        <!--          and report.create_time &lt; CURDATE()-->
+        order by report.create_time desc
     </select>
 </mapper>

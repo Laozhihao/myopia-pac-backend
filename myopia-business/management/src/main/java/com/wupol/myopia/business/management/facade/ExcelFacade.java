@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.facade;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
+import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
@@ -832,11 +833,52 @@ public class ExcelFacade {
      * @throws UtilException
      */
     public void exportStatContrast(Integer userId, List<ScreeningDataContrastVo> exportList,
-            InputStream template) throws IOException, UtilException {
+                                   InputStream template) throws IOException, UtilException {
         String fileName = "统计对比报表";
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
         String content = String.format(CommonConst.CONTENT, "统计报表", "数据对比表", new Date());
         noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(file).getSecond());
+    }
+
+    @Async
+    public void generateVisionScreeningResult(Integer userId, List<StatConclusionVo> statConclusionVos, Integer districtId, Integer schoolId) throws IOException, UtilException {
+        // 获取文件需显示的名称
+        String districtOrSchoolName = getDistrictOrSchoolName(districtId, schoolId);
+        // 设置导出的文件名
+        String fileName = String.format("%s-筛查数据", districtOrSchoolName);
+        String content = String.format(CommonConst.CONTENT, districtOrSchoolName, "筛查数据", new Date());
+        List<VisionScreeningResultExportVo> exportList = new ArrayList<>();
+        log.info("导出文件: {}", fileName);
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 21, 22);
+        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
+            String folder = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
+            for (int i = 0; i < 3; i++) {
+                String excelFileName = String.format("学校%s-筛查数据", i);
+                ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
+            }
+            File zipFile = ExcelUtil.zip(folder, fileName);
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(zipFile).getSecond());
+        } else if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+            File excelFile = ExcelUtil.exportListToExcel(fileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
+            noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(excelFile).getSecond());
+        }
+    }
+
+    private String getDistrictOrSchoolName(Integer districtId, Integer schoolId) throws IOException {
+        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
+            District district = districtService.getById(districtId);
+            if (Objects.isNull(district)) {
+                throw new BusinessException("未找到该行政区域");
+            }
+            return district.getName();
+        } else if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+            School school = schoolService.getById(schoolId);
+            if (Objects.isNull(school)) {
+                throw new BusinessException("未找到该学校");
+            }
+            return school.getName();
+        }
+        throw new BusinessException("层级或学校必须选择一个");
     }
 }
