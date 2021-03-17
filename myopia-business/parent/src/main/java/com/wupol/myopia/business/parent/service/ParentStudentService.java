@@ -824,9 +824,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
                 // 左眼
-                left.setVision(computerOptometry.getLeftEyeData().getCyl());
+                left.setVision(computerOptometry.getLeftEyeData().getCyl().multiply(new BigDecimal("100")));
                 // 右眼
-                right.setVision(computerOptometry.getRightEyeData().getCyl());
+                right.setVision(computerOptometry.getRightEyeData().getCyl().multiply(new BigDecimal("100"));
             }
             details.setItem(Lists.newArrayList(left, right));
             return details;
