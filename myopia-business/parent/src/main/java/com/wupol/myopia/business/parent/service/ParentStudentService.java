@@ -110,7 +110,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         } else {
             // 检查与姓名是否匹配
             if (!StringUtils.equals(request.getName(), student.getName())) {
-                throw new BusinessException("身份证数据异常");
+                throw new BusinessException("身份证号与学生姓名不一致");
             }
         }
         BeanUtils.copyProperties(student, studentDTO);
