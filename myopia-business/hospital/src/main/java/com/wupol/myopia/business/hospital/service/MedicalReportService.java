@@ -310,10 +310,10 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
                 .setStudentId(studentId);
+        updateReportConclusion(medicalReport, null);
         if (!save(medicalReport)) {
             throw new BusinessException("创建报告失败");
         }
-        updateReportConclusion(medicalReport, null);
         return medicalReport;
     }
 

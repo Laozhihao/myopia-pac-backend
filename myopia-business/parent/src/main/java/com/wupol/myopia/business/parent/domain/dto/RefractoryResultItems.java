@@ -35,7 +35,7 @@ public class RefractoryResultItems {
         /**
          * 视力
          */
-        private String vision;
+        private BigDecimal vision;
 
         /**
          * 类型

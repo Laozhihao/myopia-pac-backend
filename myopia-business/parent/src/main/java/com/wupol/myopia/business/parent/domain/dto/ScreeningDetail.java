@@ -17,7 +17,7 @@ public class ScreeningDetail {
     /**
      * 总数
      */
-    private Integer total;
+    private Long total;
 
     /**
      * 详情

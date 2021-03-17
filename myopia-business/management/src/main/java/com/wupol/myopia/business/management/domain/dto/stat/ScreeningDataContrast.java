@@ -12,6 +12,9 @@ public class ScreeningDataContrast {
     /** 实际筛查学生数 */
     private long actualScreeningNum;
 
+    /** 有效筛查学生数 */
+    private long validScreeningNum;
+
     /** 左眼平均视力 */
     private Float averageVisionLeft;
 
