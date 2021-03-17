@@ -74,21 +74,42 @@
                visionResult.is_astigmatism as isAstigmatism,
                visionResult.create_time    as lastScreeningTime
         from m_student ms
-                     left join m_school school on ms.school_no = school.school_no
-                     left join m_school_grade msg on ms.grade_id = msg.id
-                     left join m_school_class msc on ms.class_id = msc.id
-                     left join (select mvsr.student_id,
-                                       msc.glasses_type,
-                                       msc.warning_level,
-                                       msc.is_myopia,
-                                       msc.is_hyperopia,
-                                       msc.is_astigmatism,
-                                       mvsr.create_time
-                                from m_vision_screening_result mvsr
-                                             left join m_stat_conclusion msc on mvsr.id = msc.result_id
-                                group by mvsr.student_id
-                            ) visionResult on visionResult.student_id = ms.id
-
+                     left join
+                     m_school school
+                             on ms.school_no = school.school_no
+                     left join
+                     m_school_grade msg
+                             on ms.grade_id = msg.id
+                     left join
+                     m_school_class msc
+                             on ms.class_id = msc.id
+                     left join
+                     (
+                             select mvsr.student_id,
+                                    msc.glasses_type,
+                                    msc.warning_level,
+                                    msc.is_myopia,
+                                    msc.is_hyperopia,
+                                    msc.is_astigmatism,
+                                    mvsr.create_time
+                             from ((select *
+                                    from m_vision_screening_result as a
+                                                 inner join
+                                                 (
+                                                         select temp.student_id       as tempStudentId,
+                                                                max(temp.create_time) as maxTime
+                                                         from m_vision_screening_result as temp
+                                                         group by student_id
+                                                         ) as b
+                                                         on a.student_id = b.tempStudentId
+                                                                 and a.create_time = b.maxTime
+                                     )) as mvsr
+                                          left join
+                                          m_stat_conclusion msc
+                                                  on mvsr.id = msc.result_id
+                             group by mvsr.student_id
+                             ) visionResult
+                             on visionResult.student_id = ms.id
                 where ms.status != 2
         <if test="sno != null and sno != ''">
             and ms.sno like CONCAT('%', #{sno}, '%')
