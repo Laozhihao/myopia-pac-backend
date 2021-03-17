@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.service.DistrictService;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
 import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.parent.domain.dto.CheckIdCardRequest;
@@ -36,6 +37,9 @@ public class ParentStudentController {
 
     @Resource
     private ParentStudentService parentStudentService;
+
+    @Resource
+    private DistrictService districtService;
 
     @GetMapping("count/{parentId}")
     public Object countParentStudent(@PathVariable("parentId") Integer parentId) {
@@ -112,5 +116,10 @@ public class ParentStudentController {
     @GetMapping("/getQrCode/{studentId}")
     public Object getQrCode(@PathVariable("studentId")Integer studentId) {
         return ApiResult.success(parentStudentService.getQrCode(studentId));
+    }
+
+    @GetMapping("/getTownInfo/{areaCode}")
+    public Object getTownInfo(@PathVariable("areaCode")Long areaCode) {
+        return districtService.getNextDistrictByCode(areaCode);
     }
 }
