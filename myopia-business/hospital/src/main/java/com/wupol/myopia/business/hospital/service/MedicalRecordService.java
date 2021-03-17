@@ -187,7 +187,10 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                             Integer doctorId,
                                             Integer studentId) {
         MedicalRecord medicalRecord = getOrCreateTodayMedicalRecord(hospitalId, departmentId, doctorId, studentId);
-        if (Objects.nonNull(consultation)) medicalRecord.setConsultation(consultation);
+        if (Objects.nonNull(consultation)) {
+            medicalRecord.setConsultation(consultation);
+            medicalReportService.updateReportConclusion(medicalRecord);
+        }
         if (Objects.nonNull(vision)) medicalRecord.setVision(vision);
         if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
         if (Objects.nonNull(diopter)) medicalRecord.setDiopter(diopter);

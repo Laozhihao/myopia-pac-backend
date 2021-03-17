@@ -63,9 +63,11 @@
     </select>
 
     <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from m_vision_screening_result
         where student_id = #{studentId}
+          and is_double_screen = 0
         order by create_time desc
         limit 1
     </select>

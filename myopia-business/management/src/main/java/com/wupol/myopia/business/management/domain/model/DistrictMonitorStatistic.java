@@ -139,7 +139,8 @@ public class DistrictMonitorStatistic implements Serializable {
                 .setDsn(dsn).setRescreeningItemNumbers(rescreeningItemNumbers)
                 .setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, rescreeningItemNumbers))
                 .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumbers);
-        //TODO investigationNumbers暂不处理
+        //TODO investigationNumbers暂时处理为0
+        statistic.setInvestigationNumbers(0);
         return statistic;
     }
 }
