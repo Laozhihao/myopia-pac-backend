@@ -319,17 +319,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /** 更新报告的固化数据 */
-    public void updateReportConclusion(MedicalRecord record) {
-        updateReportConclusion(null, record);
+    public void updateReportConclusionWithSave(MedicalRecord record) {
+        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
+        medicalReportQuery.setMedicalRecordId(record.getId());
+        MedicalReport report = getBy(medicalReportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该检查单"));
+        updateReportConclusion(report, record);
+        updateById(report);
     }
 
     /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
-        if (Objects.isNull(report)) {
-        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
-            medicalReportQuery.setMedicalRecordId(record.getId());
-            report = getBy(medicalReportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该检查单"));
-        }
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
         ReportConclusion conclusion = new ReportConclusion()
@@ -339,7 +338,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
             doctor.setSignFileId(doctor.getSignFileId());
-        }        if (Objects.nonNull(record)){
+        }
+        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);

@@ -124,7 +124,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return studentDTO;
     }
 
-
     /**
      * 通过身份证获取个人信息
      *
@@ -156,12 +155,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             birthdayStr = "19" + idCard.substring(6, 8) + "-"
                     + idCard.substring(8, 10) + "-"
                     + idCard.substring(10, 12);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? 1 : 0;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
         } else if (flag && idCard.length() == 18) {
             birthdayStr = idCard.substring(6, 10) + "-"
                     + idCard.substring(10, 12) + "-"
                     + idCard.substring(12, 14);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 1 : 0;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
         }
         try {
             return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
@@ -275,6 +274,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
     /**
      * 学生筛查报告列表
+     *
+     * @param studentId 学生ID
+     * @return List<CountReportItems>
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
@@ -546,19 +548,19 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
-        RefractoryResultItems axialItems = new RefractoryResultItems();
-        axialItems.setTitle("轴位A");
 
         RefractoryResultItems sphItems = new RefractoryResultItems();
         sphItems.setTitle("等效球镜SE");
 
-        // 柱镜
         RefractoryResultItems cylItems = new RefractoryResultItems();
         cylItems.setTitle("柱镜DC");
 
+        RefractoryResultItems axialItems = new RefractoryResultItems();
+        axialItems.setTitle("轴位A");
+
         if (null != date) {
 
-            // 球镜
+            // 等效球镜SE
             RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
             leftSphItems.setVision(calculationSE(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl()));
             TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
@@ -574,7 +576,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             sphItems.setOd(rightSphItems);
             items.add(sphItems);
 
-            // 柱镜
+            // 柱镜DC
             RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
             leftCylItems.setVision(date.getLeftEyeData().getCyl());
             TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
@@ -590,7 +592,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             cylItems.setOd(rightCylItems);
             items.add(cylItems);
 
-            // 轴位
+            // 轴位A
             RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
             leftAxialItems.setVision(date.getLeftEyeData().getAxial());
             leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
@@ -606,9 +608,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                     leftSphType.getSecond(), rightSphType.getSecond(),
                     leftCylType.getSecond(), rightCylType.getSecond()));
         }
-        items.add(axialItems);
         items.add(sphItems);
         items.add(cylItems);
+        items.add(axialItems);
         return new TwoTuple<>(items, 0);
     }
 
@@ -929,19 +931,19 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             } else {
                 // 没有佩戴眼镜
                 boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
-                // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生 && -0.5<=SE<3 && Cyl <1.5)
+                // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生、高中、职业高中 && -0.5<=SE<3 && Cyl <1.5)
                 if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
+                        (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
                 ) {
                     return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
-                    // (小学生 && !(0 <= SE < 2)) || (初中生 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
+                    // (小学生 && !(0 <= SE < 2)) || (初中生、高中、职业高中 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
                 } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
+                        (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
-                return "没有建议";
+                return "";
             }
         }
         // SE >= 0
