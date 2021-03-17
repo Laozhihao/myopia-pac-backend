@@ -123,7 +123,7 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
         DistrictScreeningMonitorStatisticVO.Item item = new DistrictScreeningMonitorStatisticVO.Item();
         item.setScreeningRangeName(rangeName)
                 //todo
-                .setRescreenItemNum(districtMonitorStatistic.getDsn())
+                .setRescreenItemNum(districtMonitorStatistic.getRescreeningItemNumbers())
                 .setRescreenNum(districtMonitorStatistic.getDsn())
                 .setActualScreeningNum(districtMonitorStatistic.getRealScreeningNumbers())
                 .setScreeningNum(districtMonitorStatistic.getPlanScreeningNumbers())

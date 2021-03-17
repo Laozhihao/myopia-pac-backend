@@ -25,11 +25,9 @@ import com.wupol.myopia.business.management.facade.ExcelFacade;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -518,6 +516,7 @@ public class StatService {
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
+                .validScreeningNum(validFirstScreeningNum)
                 .averageVisionLeft(averageVision.getAverageVisionLeft())
                 .averageVisionRight(averageVision.getAverageVisionRight())
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))

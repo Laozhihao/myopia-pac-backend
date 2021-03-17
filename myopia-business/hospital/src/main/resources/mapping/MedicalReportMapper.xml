@@ -92,6 +92,6 @@
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
-          and report.create_time &lt; CURDATE()
+<!--          and report.create_time &lt; CURDATE()-->
     </select>
 </mapper>

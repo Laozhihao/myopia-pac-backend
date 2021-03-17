@@ -2,11 +2,9 @@ package com.wupol.myopia.business.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -41,8 +39,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
+ * Date 2020-12-22
  */
 @Service
 @Log4j2
@@ -221,8 +219,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (StringUtils.isNotBlank(schoolName)) {
             queryWrapper.like(School::getName,schoolName);
         }
-        List<School> schools = baseMapper.selectList(queryWrapper);
-        return schools;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -429,7 +426,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public Object getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+    public IPage<ScreeningPlanResponse> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
@@ -470,9 +467,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 } else {
                     p.setItems(Lists.newArrayList(schoolVisionStatistic));
                 }
-
             });
-
         }
         return planPages;
 
@@ -488,28 +483,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
-        List<School> schools = baseMapper.selectBatchIds(schoolIds);
-        return schools;
+        return baseMapper.selectBatchIds(schoolIds);
     }
-
-    /**
-     * 批量通过学校获取
-     *
-     * @param schoolNos 学校编码Lists
-     * @return Map<String, String>
-     */
-    public Map<String, School> getNameBySchoolNos(List<String> schoolNos) {
-        if (CollectionUtils.isEmpty(schoolNos)) {
-            return Maps.newHashMap();
-        }
-        List<School> schoolNo = baseMapper.selectList(new QueryWrapper<School>().in("school_no", schoolNos));
-
-        if (CollectionUtils.isEmpty(schoolNo)) {
-            return Maps.newHashMap();
-        }
-        return schoolNo.stream().collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
-    }
-
 
     /**
      * 模糊查询所有学校名称

@@ -198,6 +198,10 @@ public class SchoolVisionStatistic implements Serializable {
      */
     private Integer realScreeningNumbers;
     /**
+     * 视力情况--纳入统计的实际筛查学生数量（默认0）
+     */
+    private Integer validScreeningNumbers;
+    /**
      * 视力情况--重点视力对象人数
      */
     private Integer focusTargetsNumbers;
@@ -215,7 +219,7 @@ public class SchoolVisionStatistic implements Serializable {
     private Date createTime;
 
     public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId, Integer districtId,
-                                              List<StatConclusionVo> statConclusions, Integer planScreeningNumbers) {
+                                              List<StatConclusionVo> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumber) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
         Integer wearingGlassNumber =
                 (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
@@ -231,7 +235,6 @@ public class SchoolVisionStatistic implements Serializable {
         Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
         double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
         double avgRightVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).average().orElse(0);
-        int realScreeningNumber = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
                 .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(districtId)
@@ -245,7 +248,7 @@ public class SchoolVisionStatistic implements Serializable {
                 .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, realScreeningNumber))
                 .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, realScreeningNumber))
                 .setTreatmentAdviceNumbers(treatmentAdviceNumber).setTreatmentAdviceRatio(MathUtil.divide(treatmentAdviceNumber, realScreeningNumber))
-                .setKeyWarningNumbers(keyWarningNumbers)
+                .setKeyWarningNumbers(keyWarningNumbers).setFocusTargetsNumbers(keyWarningNumbers).setValidScreeningNumbers(statConclusions.size())
                 .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumber);
         return statistic;
     }

@@ -93,6 +93,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         ScreeningVisionStatisticVO.Item item = new ScreeningVisionStatisticVO.Item();
         item.setFocusTargetsNum(districtVisionStatistic.getKeyWarningNumbers())
                 .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumbers())
+                .setValidScreeningNum(districtVisionStatistic.getValidScreeningNumbers())
                 .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision())
                 .setAverageVisionRight(districtVisionStatistic.getAvgRightVision())
                 .setLowVisionNum(districtVisionStatistic.getLowVisionNumbers())
@@ -114,7 +115,9 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setScreeningRangeName(rangeName)
                 .setRefractiveErrorRatio(districtVisionStatistic.getAmetropiaRatio())
                 .setWarningLevelZeroNum(districtVisionStatistic.getVisionLabel0Numbers())
-                .setWarningLevelZeroRatio(districtVisionStatistic.getVisionLabel0Ratio());
+                .setWarningLevelZeroRatio(districtVisionStatistic.getVisionLabel0Ratio())
+                .setDistrictId(districtId)
+                .setScreeningNoticeId(super.getScreeningNoticeId());
         return item;
     }
 
@@ -140,6 +143,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 实际筛查学生数
          */
         private Integer actualScreeningNum;
+        /**
+         * 实际筛查学生数
+         */
+        private Integer validScreeningNum;
         /**
          * 左眼平均视力
          */
@@ -231,6 +238,16 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
+
+        /**
+         * 筛查通知id
+         */
+        private Integer screeningNoticeId;
+
+        /**
+         * 地区id
+         */
+        private Integer districtId;
 
         /**
          * 建议就诊数比例

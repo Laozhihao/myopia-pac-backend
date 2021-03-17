@@ -185,7 +185,7 @@ create table m_student
     nation              tinyint                             null comment '民族 0-汉族',
     id_card             varchar(32)                         not null comment '身份证号码',
     parent_phone        varchar(16)                         null comment '家长手机号码',
-    mp_parent_phone     varchar(16)                         null comment '家长公众号手机号码',
+    mp_parent_phone     varchar(128)                        null comment '家长公众号手机号码',
     province_code       bigint                              null comment '省代码',
     city_code           bigint                              null comment '市代码',
     area_code           bigint                              null comment '区代码',

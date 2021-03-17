@@ -731,4 +731,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         return districtIds;
     }
+
+    /**
+     * 获取当前code的孩子节点
+     *
+     * @param code code
+     * @return List<District>
+     */
+    public List<District> getNextDistrictByCode(Long code) {
+        return baseMapper.selectChildNodeByParentCode(code);
+    }
 }
