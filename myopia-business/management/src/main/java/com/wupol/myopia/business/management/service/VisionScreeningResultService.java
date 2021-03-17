@@ -220,15 +220,4 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return visionScreeningResultVisionScreeningResultTwoTuple;
 
     }
-
-    /**
-     * 统计纳入统计的实际筛查数
-     *
-     * @param schoolId 学校ID
-     * @param planId   计划ID
-     * @return 统计个数
-     */
-    public Integer countIncludeScreeningNumbers(Integer schoolId, Integer planId) {
-        return baseMapper.countIncludeScreeningNumbers(schoolId, planId);
-    }
 }

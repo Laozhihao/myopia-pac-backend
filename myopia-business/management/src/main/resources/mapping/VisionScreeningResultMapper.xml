@@ -94,13 +94,4 @@
 <!--          and create_time &lt;= CURDATE()-->
         group by create_time desc
     </select>
-
-    <select id="countIncludeScreeningNumbers" resultType="java.lang.Integer">
-        select count(1)
-        from m_stat_conclusion msc
-                     left join m_vision_screening_result mvsr on msc.result_id = mvsr.id
-        where mvsr.school_id = #{schoolId}
-          and mvsr.plan_id = #{planId}
-          and msc.is_valid = 1
-    </select>
 </mapper>
