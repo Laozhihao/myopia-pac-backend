@@ -93,6 +93,6 @@
                      left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
         <!--          and report.create_time &lt; CURDATE()-->
-        order by create_time desc
+        order by report.create_time desc
     </select>
 </mapper>
