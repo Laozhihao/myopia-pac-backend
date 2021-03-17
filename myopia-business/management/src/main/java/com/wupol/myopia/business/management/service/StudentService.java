@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -460,12 +461,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != result.getComputerOptometry()) {
             // 左眼--电脑验光
             leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+            leftDetails.setSph(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
+                    result.getComputerOptometry().getLeftEyeData().getCyl()));
             leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
 
             // 左眼--电脑验光
             rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+            rightDetails.setSph(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
+                    result.getComputerOptometry().getRightEyeData().getCyl()));
             rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
         }
         if (null != result.getBiometricData()) {
@@ -491,6 +494,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         }
         return Lists.newArrayList(rightDetails, leftDetails);
+    }
+
+    /**
+     * 计算 等效球镜
+     *
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @return 等效球镜
+     */
+    private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        return sph.add(cyl.multiply(new BigDecimal("0.5")))
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -622,12 +637,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != result) {
             // 左眼
             left.setAxial(result.getLeftEyeData().getAxial());
-            left.setSph(result.getLeftEyeData().getSph());
+            left.setSph(calculationSE(result.getLeftEyeData().getSph(),
+                    result.getLeftEyeData().getCyl()));
             left.setCyl(result.getLeftEyeData().getCyl());
 
             // 右眼
             right.setAxial(result.getRightEyeData().getAxial());
-            right.setSph(result.getRightEyeData().getSph());
+            right.setSph(calculationSE(result.getRightEyeData().getSph(),
+                    result.getRightEyeData().getCyl()));
             right.setCyl(result.getRightEyeData().getCyl());
         }
         return Lists.newArrayList(right, left);

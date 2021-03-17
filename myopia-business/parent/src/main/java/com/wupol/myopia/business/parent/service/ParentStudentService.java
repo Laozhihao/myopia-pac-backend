@@ -259,7 +259,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 学生筛查报告
         List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetail screeningDetail = new ScreeningDetail();
-        screeningDetail.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r->r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
+        screeningDetail.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
         screeningDetail.setItems(screeningLists);
         responseDTO.setScreeningDetail(screeningDetail);
 
@@ -278,7 +278,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        return screeningResults.stream().filter(s->s.getIsDoubleScreen().equals(Boolean.FALSE)).map(s -> {
+        return screeningResults.stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE)).map(s -> {
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
@@ -349,7 +349,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId)
-                .stream().filter(s->s.getIsDoubleScreen().equals(Boolean.FALSE))
+                .stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE))
                 .collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));
@@ -855,9 +855,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
                 // 左眼
-                left.setVision(computerOptometry.getLeftEyeData().getSph());
+                left.setVision(calculationSE(computerOptometry.getLeftEyeData().getSph(),
+                        computerOptometry.getLeftEyeData().getCyl()));
                 // 右眼
-                right.setVision(computerOptometry.getRightEyeData().getSph());
+                right.setVision(calculationSE(computerOptometry.getRightEyeData().getSph(),
+                        computerOptometry.getRightEyeData().getCyl()));
             }
             details.setItem(Lists.newArrayList(left, right));
             return details;
