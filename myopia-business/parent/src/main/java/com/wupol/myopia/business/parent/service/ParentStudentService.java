@@ -932,16 +932,16 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生 && -0.5<=SE<3 && Cyl <1.5)
                 if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
+                        (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
                 ) {
                     return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                     // (小学生 && !(0 <= SE < 2)) || (初中生 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
                 } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
                         ||
-                        (SchoolAge.JUNIOR.code.equals(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
+                        (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
                     return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
                 }
-                return "没有建议";
+                return "";
             }
         }
         // SE >= 0
