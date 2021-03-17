@@ -1020,7 +1020,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             // 远视
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (sph.compareTo(new BigDecimal("0.50")) < 0) {
+            if (sph.compareTo(new BigDecimal("0.50")) > 0) {
                 str = "远视" + getMultiply(sph.abs()) + "度";
             } else {
                 str = getMultiply(sph.abs()) + "度";
