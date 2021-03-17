@@ -63,17 +63,19 @@
     </select>
 
     <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from m_vision_screening_result
         where student_id = #{studentId}
+          and is_double_screen = 0
         order by create_time desc
         limit 1
     </select>
 
-    <select id="getPlanIdsByTime" resultType="java.lang.Integer">
+    <select id="getHaveSrcScreeningNoticePlanIdsByTime" resultType="java.lang.Integer">
         SELECT DISTINCT plan_id
         FROM m_vision_screening_result
-        WHERE DATE(update_time) between DATE(#{startTime}) and DATE(#{endTime})
+        WHERE task_id != 0 AND DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
     </select>
 
     <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
@@ -93,14 +95,5 @@
         where student_id = #{studentId}
 <!--          and create_time &lt;= CURDATE()-->
         group by create_time desc
-    </select>
-
-    <select id="countIncludeScreeningNumbers" resultType="java.lang.Integer">
-        select count(1)
-        from m_stat_conclusion msc
-                     left join m_vision_screening_result mvsr on msc.result_id = mvsr.id
-        where mvsr.school_id = #{schoolId}
-          and mvsr.plan_id = #{planId}
-          and msc.is_valid = 1
     </select>
 </mapper>

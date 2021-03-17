@@ -63,15 +63,16 @@
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
         select ms.*,
-               school.name                as schoolName,
-               school.id                  as schoolId,
-               msg.name                   as gradeName,
-               msc.name                   as className,
-               visionResult.glasses_type  as glassesType,
-               visionResult.warning_level as visionLabel,
-               visionResult.vision_l      as visionL,
-               visionResult.vision_r      as visionR,
-               visionResult.create_time   as lastScreeningTime
+               school.name                 as schoolName,
+               school.id                   as schoolId,
+               msg.name                    as gradeName,
+               msc.name                    as className,
+               visionResult.glasses_type   as glassesType,
+               visionResult.warning_level  as visionLabel,
+               visionResult.is_myopia      as isMyopia,
+               visionResult.is_hyperopia   as isHyperopia,
+               visionResult.is_astigmatism as isAstigmatism,
+               visionResult.create_time    as lastScreeningTime
         from m_student ms
                      left join m_school school on ms.school_no = school.school_no
                      left join m_school_grade msg on ms.grade_id = msg.id
@@ -79,12 +80,13 @@
                      left join (select mvsr.student_id,
                                        msc.glasses_type,
                                        msc.warning_level,
-                                       msc.vision_l,
-                                       msc.vision_r,
+                                       msc.is_myopia,
+                                       msc.is_hyperopia,
+                                       msc.is_astigmatism,
                                        mvsr.create_time
                                 from m_vision_screening_result mvsr
                                              left join m_stat_conclusion msc on mvsr.id = msc.result_id
-                                group by mvsr.student_id, mvsr.create_time
+                                group by mvsr.student_id
                                 order by mvsr.create_time desc) visionResult on visionResult.student_id = ms.id
 
                 where ms.status != 2

@@ -516,6 +516,7 @@ public class StatService {
         return ScreeningDataContrast.builder()
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
+                .validScreeningNum(validFirstScreeningNum)
                 .averageVisionLeft(averageVision.getAverageVisionLeft())
                 .averageVisionRight(averageVision.getAverageVisionRight())
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))

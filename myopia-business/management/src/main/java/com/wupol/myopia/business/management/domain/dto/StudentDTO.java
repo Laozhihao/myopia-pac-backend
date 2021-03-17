@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.math.BigDecimal;
-
 /**
  * 学生DTO
  *
@@ -67,12 +65,17 @@ public class StudentDTO extends Student {
     private Integer glassesType;
 
     /**
-     * 左眼视力
+     * 是否近视
      */
-    private BigDecimal visionL;
+    private Boolean isMyopia;
 
     /**
-     * 右眼视力
+     * 是否远视
      */
-    private BigDecimal visionR;
+    private Boolean isHyperopia;
+
+    /**
+     * 是否散光
+     */
+    private Boolean isAstigmatism;
 }

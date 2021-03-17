@@ -28,9 +28,18 @@ class ScreeningBasicResult {
      * 筛查结束时间
      */
     private Date screeningEndTime;
+    /**
+     * 通知id
+     */
+    private Integer screeningNoticeId;
 
+    /**
+     * 设置noticeId
+     * @param screeningNotice
+     */
      void setDataByScreeningNotice(ScreeningNotice screeningNotice)  {
         this.title = screeningNotice.getTitle();
+        this.screeningNoticeId = screeningNotice.getId();
         this.screeningEndTime = screeningNotice.getEndTime();
         this.screeningStartTime = screeningNotice.getStartTime();
     }
