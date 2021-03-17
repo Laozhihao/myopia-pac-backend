@@ -606,9 +606,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                     leftSphType.getSecond(), rightSphType.getSecond(),
                     leftCylType.getSecond(), rightCylType.getSecond()));
         }
-        items.add(axialItems);
         items.add(sphItems);
         items.add(cylItems);
+        items.add(axialItems);
         return new TwoTuple<>(items, 0);
     }
 
