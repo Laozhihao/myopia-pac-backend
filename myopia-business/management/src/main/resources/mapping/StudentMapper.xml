@@ -90,7 +90,7 @@
                                 order by mvsr.create_time desc) visionResult on visionResult.student_id = ms.id
 
                 where ms.status != 2
-        <if test="sno != null">
+        <if test="sno != null and sno != ''">
             and ms.sno like CONCAT('%', #{sno}, '%')
         </if>
         <if test="idCard != null and idCard != ''">

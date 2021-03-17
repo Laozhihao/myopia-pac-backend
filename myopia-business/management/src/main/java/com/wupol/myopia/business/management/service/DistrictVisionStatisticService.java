@@ -44,18 +44,20 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
      * @return
      * @throws IOException
      */
-    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndUser(Integer noticeId, Integer districtId, CurrentUser user) throws IOException {
+    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndUser(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal, boolean isCurrent) throws IOException {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
-        if (user.isScreeningUser()) {
-            throw new BusinessException("筛查人员没有权限访问该数据");
-        }
         LambdaQueryWrapper<DistrictVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DistrictVisionStatistic::getScreeningNoticeId, noticeId);
-        Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(districtId);
-        districtIds.add(districtId);
-        queryWrapper.in(DistrictVisionStatistic::getDistrictId, districtIds);
+        queryWrapper.eq(DistrictVisionStatistic::getIsTotal, istotal);
+        if (isCurrent) {
+            queryWrapper.eq(DistrictVisionStatistic::getDistrictId, currentDistrictId);
+        } else {
+            Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
+            districtIds.add(currentDistrictId);
+            queryWrapper.in(DistrictVisionStatistic::getDistrictId, districtIds);
+        }
         List<DistrictVisionStatistic> districtVisionStatistics = baseMapper.selectList(queryWrapper);
         return districtVisionStatistics;
     }

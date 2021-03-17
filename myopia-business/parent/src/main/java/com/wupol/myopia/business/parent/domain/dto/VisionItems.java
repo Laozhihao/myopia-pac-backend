@@ -29,6 +29,13 @@ public class VisionItems {
      */
     private Item os;
 
+    public VisionItems(String title) {
+        this.title = title;
+    }
+
+    public VisionItems() {
+    }
+
     @Getter
     @Setter
     public static class Item {
