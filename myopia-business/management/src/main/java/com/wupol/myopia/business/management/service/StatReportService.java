@@ -438,7 +438,9 @@ public class StatReportService {
                 put("schoolAgeMyopiaLevelDesc",
                         composeSchoolAgeMyopiaLevelDesc(
                                 "schoolAgeMyopiaLevelTable", schoolAgeMyopiaLevelTable));
-                put("schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable);
+                put("schoolAgeGlassesTypeDesc",
+                        composeSchoolAgeGlassesTypeDesc(
+                                "schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable));
                 put("schoolAgeGenderVisionUncorrectedTable", schoolAgeGenderVisionUncorrectedTable);
                 put("schoolAgeGenderVisionUnderCorrectedTable",
                         schoolAgeGenderVisionUnderCorrectedTable);
@@ -514,6 +516,35 @@ public class StatReportService {
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("sortedList", schoolAgeMyopiaRatio);
         conclusionDesc.put(title, schoolAgeMyopiaLevelTable);
+        return conclusionDesc;
+    }
+
+    /**
+     * 构造 学龄/视力情况 描述
+     * @param schoolAgeGenderLowVisionTable
+     * @return
+     */
+    private Map<String, Object> composeSchoolAgeGlassesTypeDesc(
+            String title, List<Map<String, Object>> schoolAgeGlassesTypeTable) {
+        int size = schoolAgeGlassesTypeTable.size();
+        List<BasicStatParams> schoolAgeMyopiaRatio = new ArrayList<>();
+        Map<String, Object> conclusionDesc = new HashMap<>();
+        Map<String, Object> totalStat = schoolAgeGlassesTypeTable.get(size - 1);
+        List<BasicStatParams> list = (List<BasicStatParams>) totalStat.get("list");
+        Long wearingNum = 0L;
+        float wearingRatio = 0;
+        for (BasicStatParams params : list) {
+            if (!params.getTitle().equals(GlassesType.NOT_WEARING.name())) {
+                wearingNum += params.getNum();
+                wearingRatio += params.getRatio();
+            }
+        }
+        Collections.sort(schoolAgeMyopiaRatio,
+                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        conclusionDesc.put("wearingNum", wearingNum);
+        conclusionDesc.put("wearingRatio", wearingRatio);
+        conclusionDesc.put("list", list);
+        conclusionDesc.put(title, schoolAgeGlassesTypeTable);
         return conclusionDesc;
     }
 
