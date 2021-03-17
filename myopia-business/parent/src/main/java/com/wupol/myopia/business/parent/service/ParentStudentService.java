@@ -348,7 +348,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId)
+                .stream().filter(s->s.getIsDoubleScreen().equals(Boolean.FALSE))
+                .collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));
         // 柱镜详情
