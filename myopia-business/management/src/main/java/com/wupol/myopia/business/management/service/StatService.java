@@ -635,7 +635,7 @@ public class StatService {
 
         List<DistrictAttentiveObjectsStatistic> currentAttentiveObjectsStatistics =
                 districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(
-                        districtIds,districtId,true,false);
+                        districtIds,districtId,false,true);
         DistrictAttentiveObjectsStatistic  currentDistrictAttentiveObjectsStatistic = null;
         if (CollectionUtils.isNotEmpty(currentAttentiveObjectsStatistics)) {
             currentDistrictAttentiveObjectsStatistic = currentAttentiveObjectsStatistics.stream().findFirst().get();
