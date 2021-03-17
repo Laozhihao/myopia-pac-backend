@@ -991,6 +991,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
+     * 判断是否在某个区间，左闭右比区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    private Boolean isBetweenAll(BigDecimal val, BigDecimal start, BigDecimal end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) <= 0;
+    }
+
+    /**
      * 获取散光轴位
      *
      * @param axial 轴位
@@ -1010,15 +1022,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
         BigDecimal se = calculationSE(sph, cyl);
-        BigDecimal seStr = se.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
+        BigDecimal seVal = se.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             String str;
             if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
-                str = "近视" + seStr + "度";
+                str = "近视" + seVal + "度";
             } else {
-                str = seStr + "度";
+                str = seVal + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(myopiaWarningLevel));
         } else {
@@ -1026,9 +1038,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (sph.compareTo(new BigDecimal("0.50")) > 0) {
-                str = "远视" + seStr + "度";
+                str = "远视" + seVal + "度";
             } else {
-                str = seStr + "度";
+                str = seVal + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(hyperopiaWarningLevel));
         }
@@ -1042,7 +1054,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
-        return new TwoTuple<>("散光" + cyl.abs().multiply(new BigDecimal("100")) + "度", astigmatismWarningLevel.code + 5);
+        BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
+        if (isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
+            return new TwoTuple<>(cylVal + "度", astigmatismWarningLevel.code + 5);
+        }
+        return new TwoTuple<>("散光" + cylVal + "度", astigmatismWarningLevel.code + 5);
     }
 
     /**
