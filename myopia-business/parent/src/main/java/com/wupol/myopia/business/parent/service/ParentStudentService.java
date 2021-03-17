@@ -560,14 +560,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 球镜
             RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
-            leftSphItems.setVision(date.getLeftEyeData().getSph().toString());
+            leftSphItems.setVision(calculationSE(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl()));
             TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
             leftSphItems.setTypeName(leftSphType.getFirst());
             leftSphItems.setType(leftSphType.getSecond());
             sphItems.setOs(leftSphItems);
 
             RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
-            rightSphItems.setVision(date.getRightEyeData().getSph().toString());
+            rightSphItems.setVision(calculationSE(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl()));
             TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
             rightSphItems.setTypeName(rightSphType.getFirst());
             rightSphItems.setType(rightSphType.getSecond());
@@ -576,14 +576,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 柱镜
             RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
-            leftCylItems.setVision(date.getLeftEyeData().getCyl().toString());
+            leftCylItems.setVision(date.getLeftEyeData().getCyl());
             TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
             leftCylItems.setType(leftCylType.getSecond());
             leftCylItems.setTypeName(leftCylType.getFirst());
             cylItems.setOs(leftCylItems);
 
             RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
-            rightCylItems.setVision(date.getRightEyeData().getCyl().toString());
+            rightCylItems.setVision(date.getRightEyeData().getCyl());
             TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
             rightCylItems.setType(rightCylType.getSecond());
             rightCylItems.setTypeName(rightCylType.getFirst());
@@ -592,12 +592,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 轴位
             RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-            leftAxialItems.setVision(date.getLeftEyeData().getAxial().toString());
+            leftAxialItems.setVision(date.getLeftEyeData().getAxial());
             leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
             axialItems.setOs(leftAxialItems);
 
             RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-            rightAxialItems.setVision(date.getRightEyeData().getAxial().toString());
+            rightAxialItems.setVision(date.getRightEyeData().getAxial());
             rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
             axialItems.setOd(rightAxialItems);
             items.add(axialItems);
@@ -1015,9 +1015,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             String str;
             if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
-                str = "近视" + getMultiply(se.abs()) + "度";
+                str = "近视" + se.abs() + "度";
             } else {
-                str = getMultiply(se.abs()) + "度";
+                str = se.abs() + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(myopiaWarningLevel));
         } else {
@@ -1025,9 +1025,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (sph.compareTo(new BigDecimal("0.50")) > 0) {
-                str = "远视" + getMultiply(se.abs()) + "度";
+                str = "远视" + se.abs() + "度";
             } else {
-                str = getMultiply(se.abs()) + "度";
+                str = se.abs() + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(hyperopiaWarningLevel));
         }
@@ -1041,17 +1041,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
-        return new TwoTuple<>("散光" + getMultiply(cyl.abs()) + "度", astigmatismWarningLevel.code + 5);
-    }
-
-    /**
-     * 获取结果度数
-     *
-     * @param abs 绝对值
-     * @return BigDecimal
-     */
-    private BigDecimal getMultiply(BigDecimal abs) {
-        return abs.multiply(new BigDecimal("100"));
+        return new TwoTuple<>("散光" + cyl.abs().multiply(new BigDecimal("100")) + "度", astigmatismWarningLevel.code + 5);
     }
 
     /**
