@@ -9,6 +9,7 @@ import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
@@ -318,6 +319,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /** 更新报告的固化数据 */
+    public void updateReportConclusionWithSave(MedicalRecord record) {
+        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
+        medicalReportQuery.setMedicalRecordId(record.getId());
+        MedicalReport report = getBy(medicalReportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该检查单"));
+        updateReportConclusion(report, record);
+        updateById(report);
+    }
+
+    /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
@@ -328,7 +338,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
             doctor.setSignFileId(doctor.getSignFileId());
-        }        if (Objects.nonNull(record)){
+        }
+        if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());
         }
         report.setReportConclusionData(conclusion);
