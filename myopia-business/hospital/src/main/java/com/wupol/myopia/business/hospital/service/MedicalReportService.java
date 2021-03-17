@@ -9,6 +9,7 @@ import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.hospital.domain.model.*;
+import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
@@ -318,7 +319,17 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /** 更新报告的固化数据 */
+    public void updateReportConclusion(MedicalRecord record) {
+        updateReportConclusion(null, record);
+    }
+
+    /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report, MedicalRecord record) {
+        if (Objects.isNull(report)) {
+        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
+            medicalReportQuery.setMedicalRecordId(record.getId());
+            report = getBy(medicalReportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该检查单"));
+        }
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
         ReportConclusion conclusion = new ReportConclusion()

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -54,5 +55,16 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
         queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIds);
         List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
         return districtMonitorStatistics;
+    }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param districtMonitorStatistics
+     */
+    public void batchSaveOrUpdate(List<DistrictMonitorStatistic> districtMonitorStatistics) {
+        if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(districtMonitorStatistics);
     }
 }

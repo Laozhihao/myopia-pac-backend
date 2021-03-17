@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper;
+import com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import org.apache.commons.collections4.CollectionUtils;
@@ -93,5 +94,16 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
         }
         List<SchoolVisionStatistic> schoolVisionStatistics = baseMapper.selectList(queryWrapper);
         return schoolVisionStatistics;
+    }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param schoolVisionStatistics
+     */
+    public void batchSaveOrUpdate(List<SchoolVisionStatistic> schoolVisionStatistics) {
+        if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(schoolVisionStatistics);
     }
 }
