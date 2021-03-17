@@ -598,7 +598,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
             rightAxialItems.setVision(date.getRightEyeData().getAxial());
-            rightAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
+            rightAxialItems.setTypeName(getAxialTypeName(date.getRightEyeData().getAxial()));
             axialItems.setOd(rightAxialItems);
             items.add(axialItems);
 
