@@ -1008,11 +1008,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            return new TwoTuple<>("近视" + sph.abs() + "度", warningLevel2Type(myopiaWarningLevel));
+            return new TwoTuple<>("近视" + sph.abs().multiply(new BigDecimal("100")) + "度", warningLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
-            return new TwoTuple<>("远视" + sph.abs() + "度", warningLevel2Type(hyperopiaWarningLevel));
+            return new TwoTuple<>("远视" + sph.abs().multiply(new BigDecimal("100")) + "度", warningLevel2Type(hyperopiaWarningLevel));
         }
     }
 
