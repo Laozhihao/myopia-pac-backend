@@ -156,12 +156,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             birthdayStr = "19" + idCard.substring(6, 8) + "-"
                     + idCard.substring(8, 10) + "-"
                     + idCard.substring(10, 12);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? 1 : 0;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
         } else if (flag && idCard.length() == 18) {
             birthdayStr = idCard.substring(6, 10) + "-"
                     + idCard.substring(10, 12) + "-"
                     + idCard.substring(12, 14);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? 1 : 0;
+            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
         }
         try {
             return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
