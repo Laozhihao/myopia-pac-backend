@@ -1007,14 +1007,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     private TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
+        BigDecimal se = calculationSE(sph, cyl);
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             String str;
             if (sph.compareTo(new BigDecimal("-0.50")) < 0) {
-                str = "近视" + getMultiply(sph.abs()) + "度";
+                str = "近视" + getMultiply(se.abs()) + "度";
             } else {
-                str = getMultiply(sph.abs()) + "度";
+                str = getMultiply(se.abs()) + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(myopiaWarningLevel));
         } else {
@@ -1022,9 +1023,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
             if (sph.compareTo(new BigDecimal("0.50")) > 0) {
-                str = "远视" + getMultiply(sph.abs()) + "度";
+                str = "远视" + getMultiply(se.abs()) + "度";
             } else {
-                str = getMultiply(sph.abs()) + "度";
+                str = getMultiply(se.abs()) + "度";
             }
             return new TwoTuple<>(str, warningLevel2Type(hyperopiaWarningLevel));
         }
