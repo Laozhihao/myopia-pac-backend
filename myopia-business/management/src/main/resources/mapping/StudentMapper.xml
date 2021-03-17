@@ -87,7 +87,7 @@
                                 from m_vision_screening_result mvsr
                                              left join m_stat_conclusion msc on mvsr.id = msc.result_id
                                 group by mvsr.student_id
-                                order by mvsr.create_time desc) visionResult on visionResult.student_id = ms.id
+                            ) visionResult on visionResult.student_id = ms.id
 
                 where ms.status != 2
         <if test="sno != null and sno != ''">
