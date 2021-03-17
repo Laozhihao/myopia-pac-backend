@@ -279,13 +279,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        List<CountReportItems> screeningLists = screeningResults.stream().map(s -> {
+        return screeningResults.stream().map(s -> {
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
             return items;
         }).collect(Collectors.toList());
-        return screeningLists;
     }
 
     /**
@@ -1008,11 +1007,11 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (sph.compareTo(new BigDecimal("0.00")) <= 0) {
             // 近视
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            return new TwoTuple<>("近视" + sph.abs() + "度", warningLevel2Type(myopiaWarningLevel));
+            return new TwoTuple<>("近视" + getMultiply(sph.abs()) + "度", warningLevel2Type(myopiaWarningLevel));
         } else {
             // 远视
             WarningLevel hyperopiaWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
-            return new TwoTuple<>("远视" + sph.abs() + "度", warningLevel2Type(hyperopiaWarningLevel));
+            return new TwoTuple<>("远视" + getMultiply(sph.abs()) + "度", warningLevel2Type(hyperopiaWarningLevel));
         }
     }
 
@@ -1024,7 +1023,17 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     private TwoTuple<String, Integer> getCylTypeName(BigDecimal cyl) {
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
-        return new TwoTuple<>("散光" + cyl.abs() + "度", astigmatismWarningLevel.code + 5);
+        return new TwoTuple<>("散光" + getMultiply(cyl.abs()) + "度", astigmatismWarningLevel.code + 5);
+    }
+
+    /**
+     * 获取结果度数
+     *
+     * @param abs 绝对值
+     * @return BigDecimal
+     */
+    private BigDecimal getMultiply(BigDecimal abs) {
+        return abs.multiply(new BigDecimal("100"));
     }
 
     /**
