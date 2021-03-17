@@ -201,7 +201,7 @@ public class StatReportService {
         StatConclusionQuery query = composeDistrictQuery(districtId, currentUser);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
-        if (statConclusions == null) {
+        if (statConclusions == null || statConclusions.size() == 0) {
             return null;
         }
         District district = districtService.getById(districtId);
@@ -314,6 +314,7 @@ public class StatReportService {
                         add(composeGenderLowVisionStat("total", validConclusions));
                     }
                 };
+
         List<Map<String, Object>> schoolAgeGenderMyopiaTable =
                 new ArrayList<Map<String, Object>>() {
                     {
@@ -434,7 +435,9 @@ public class StatReportService {
                         composeSchoolAgeGenderVisionDesc(
                                 "schoolAgeGenderMyopiaTable", schoolAgeGenderMyopiaTable));
                 put("schoolGradeGenderMyopiaTable", schoolGradeGenderMyopiaTable);
-                put("schoolAgeMyopiaLevelTable", schoolAgeMyopiaLevelTable);
+                put("schoolAgeMyopiaLevelDesc",
+                        composeSchoolAgeMyopiaLevelDesc(
+                                "schoolAgeMyopiaLevelTable", schoolAgeMyopiaLevelTable));
                 put("schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable);
                 put("schoolAgeGenderVisionUncorrectedTable", schoolAgeGenderVisionUncorrectedTable);
                 put("schoolAgeGenderVisionUnderCorrectedTable",
@@ -483,17 +486,43 @@ public class StatReportService {
         int size = schoolAgeGenderVisionTable.size();
         Map<String, Object> totalConclusion = schoolAgeGenderVisionTable.get(size - 1);
         List<TableBasicStatParams> list = (List<TableBasicStatParams>) totalConclusion.get("list");
-        Map<String, Object> conclusionDesc = this.composeLabelRatio(list);
+        Map<String, Object> conclusionDesc = this.composeGenderRatio(list);
         conclusionDesc.put(title, schoolAgeGenderVisionTable);
         return conclusionDesc;
     }
 
     /**
-     * 构造
+     * 构造 学龄/视力情况 描述
+     * @param schoolAgeGenderLowVisionTable
+     * @return
+     */
+    private Map<String, Object> composeSchoolAgeMyopiaLevelDesc(
+            String title, List<Map<String, Object>> schoolAgeMyopiaLevelTable) {
+        int size = schoolAgeMyopiaLevelTable.size();
+        List<BasicStatParams> schoolAgeMyopiaRatio = new ArrayList<>();
+        Map<String, Object> conclusionDesc = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            Map<String, Object> stats = schoolAgeMyopiaLevelTable.get(i);
+            List<BasicStatParams> list = (List<BasicStatParams>) stats.get("list");
+            Float ratio = (Float) list.get(list.size() - 1).getRatio();
+            if (i != size - 1) {
+                String name = (String) stats.get("name");
+                schoolAgeMyopiaRatio.add(new BasicStatParams(name, ratio, null));
+            }
+        }
+        Collections.sort(schoolAgeMyopiaRatio,
+                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        conclusionDesc.put("sortedList", schoolAgeMyopiaRatio);
+        conclusionDesc.put(title, schoolAgeMyopiaLevelTable);
+        return conclusionDesc;
+    }
+
+    /**
+     * 构造 性别 占比
      * @param list
      * @return
      */
-    private Map<String, Object> composeLabelRatio(List<TableBasicStatParams> list) {
+    private Map<String, Object> composeGenderRatio(List<TableBasicStatParams> list) {
         float maleRatio = list.stream()
                                   .filter(x -> x.getTitle().equals(GenderEnum.MALE.name()))
                                   .map(x -> x.getRatio())
