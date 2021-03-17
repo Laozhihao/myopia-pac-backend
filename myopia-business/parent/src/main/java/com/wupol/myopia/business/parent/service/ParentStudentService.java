@@ -297,7 +297,15 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
         VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
         if (null == result) {
-            return new ScreeningReportResponseDTO();
+            ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
+            ScreeningReportDetail detail = new ScreeningReportDetail();
+            detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"),
+                    new VisionItems("裸眼视力")));
+            detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("等效球镜SE"),
+                    new RefractoryResultItems("柱镜DC"),
+                    new RefractoryResultItems("轴位A")));
+            responseDTO.setDetail(detail);
+            return responseDTO;
         }
         return packageScreeningReport(visionScreeningResultService.getById(result.getId()));
     }
