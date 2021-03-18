@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.parent.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -383,8 +384,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId));
-        redisUtil.del(key);
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId) + IdUtil.simpleUUID());
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
