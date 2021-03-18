@@ -1072,9 +1072,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
         BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
         if (isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
-            return new TwoTuple<>(cylVal + "度", astigmatismWarningLevel.code + 5);
+            return new TwoTuple<>(cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
         }
-        return new TwoTuple<>("散光" + cylVal + "度", astigmatismWarningLevel.code + 5);
+        return new TwoTuple<>("散光" + cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
     }
 
     /**
