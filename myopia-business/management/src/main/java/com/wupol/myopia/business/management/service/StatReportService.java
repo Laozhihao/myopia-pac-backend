@@ -374,10 +374,10 @@ public class StatReportService {
                                             .stream()
                                             .filter(x -> x.getIsMyopia())
                                             .collect(Collectors.toList());
-                            add(composeSchoolGenderVisionUncorrectedStat(
+                            add(composeGenderVisionUncorrectedStat(
                                     schoolAgeName, schoolAgeMyopiaConclusions));
                         }
-                        add(composeSchoolGenderVisionUncorrectedStat("total", myopiaConclusions));
+                        add(composeGenderVisionUncorrectedStat("total", myopiaConclusions));
                     }
                 };
         List<Map<String, Object>> schoolAgeGenderVisionUnderCorrectedTable =
@@ -391,10 +391,10 @@ public class StatReportService {
                                                     -> x.getVisionCorrection()
                                                             != VisionCorrection.NORMAL.code)
                                             .collect(Collectors.toList());
-                            add(composeSchoolGenderVisionUnderCorrectedStat(
+                            add(composeGenderVisionUnderCorrectedStat(
                                     schoolAgeName, schoolAgeVisionCorrectionConclusions));
                         }
-                        add(composeSchoolGenderVisionUnderCorrectedStat(
+                        add(composeGenderVisionUnderCorrectedStat(
                                 "total", visionCorrectionConclusions));
                     }
                 };
@@ -403,10 +403,10 @@ public class StatReportService {
                 new ArrayList<Map<String, Object>>() {
                     {
                         for (String schoolAgeName : schoolAgeMap.keySet()) {
-                            add(composeSchoolAgeWarningLevelStat(
+                            add(composeWarningLevelStat(
                                     schoolAgeName, schoolAgeMap.get(schoolAgeName)));
                         }
-                        add(composeSchoolAgeWarningLevelStat("total", validConclusions));
+                        add(composeWarningLevelStat("total", validConclusions));
                     }
                 };
         return new HashMap<String, Object>() {
@@ -840,14 +840,157 @@ public class StatReportService {
                                 warning3Num));
                     }
                 });
-                put("genderLowVisionLevelDesc",
-
-                        composeGenderLowVisionLevelDesc(validConclusions));
+                put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
                 put("schoolGradeLowVisionLevelDesc",
                         composeSchoolGradeLowVisionLevelDesc(validConclusions));
+                put("schoolGradeMyopiaLevelDesc",
+                        composeSchoolGradeMyopiaLevelDesc(validConclusions));
                 put("schoolGradeClassLowVisionLevelTable",
                         composeSchoolGradeClassLowVisionLevelTable(
                                 schoolGradeItems, validConclusions));
+                put("schoolGradeClassMyopiaLevelTable",
+                        composeSchoolGradeClassMyopiaLevelTable(
+                                schoolGradeItems, validConclusions));
+                put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
+                put("schoolGradeWearingTypeDesc",
+                        composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
+                put("schoolGradeGenderUncorrectedDesc",
+                        composeSchoolGradeGenderUncorrectedDesc(
+                                schoolGradeItems, validConclusions));
+                put("schoolGradeGenderUnderCorrectedDesc",
+                        composeSchoolGradeGenderUnderCorrectedDesc(
+                                schoolGradeItems, validConclusions));
+                put("schoolGradeWarningLevelDesc",
+                        composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
+            }
+        };
+    }
+
+    /**
+     *
+     * 构建 年级 预警级别 统计
+     * @param statConclusions 统计数据
+     * @return
+     */
+    private Map<String, Object> composeSchoolGradeWarningLevelDesc(
+            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<Map<String, Object>> schoolGradeGenderVisionTable =
+                new ArrayList<Map<String, Object>>();
+        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
+            List<StatConclusion> list =
+                    statConclusions.stream()
+                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .collect(Collectors.toList());
+            schoolGradeGenderVisionTable.add(composeWarningLevelStat(gradeCodeEnum.name(), list));
+        }
+        Map<String, Object> totalStat = composeWarningLevelStat("total", statConclusions);
+        schoolGradeGenderVisionTable.add(totalStat);
+        List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
+        long totalWarningNum = totalStatList.stream().mapToLong(x -> x.getNum()).sum();
+        long totalSize = statConclusions.size();
+        return new HashMap<String, Object>() {
+            {
+                put("list", schoolGradeGenderVisionTable);
+                put("totalStatList", totalStatList);
+                put("totalWarningNum", totalWarningNum);
+                put("totalWarningRatio", convertToPercentage(totalWarningNum * 1f / totalSize));
+            }
+        };
+    }
+
+    /**
+     * 构建 年级 性别 视力未矫情况 统计
+     * @param statConclusions 统计数据
+     * @return
+     */
+    private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
+            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<Map<String, Object>> schoolGradeGenderVisionTable =
+                new ArrayList<Map<String, Object>>();
+        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
+            List<StatConclusion> list =
+                    statConclusions.stream()
+                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .collect(Collectors.toList());
+            schoolGradeGenderVisionTable.add(
+                    composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
+        }
+        Map<String, Object> totalStat =
+                composeGenderVisionUncorrectedStat("total", statConclusions);
+        schoolGradeGenderVisionTable.add(totalStat);
+        List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
+        return new HashMap<String, Object>() {
+            {
+                put("list", schoolGradeGenderVisionTable);
+                put("totalStatList", totalStatList);
+            }
+        };
+    }
+
+    /**
+     * 构建 年级 性别 视力欠矫情况 统计
+     * @param statConclusions 统计数据
+     * @return
+     */
+    private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
+            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<Map<String, Object>> schoolGradeGenderVisionTable =
+                new ArrayList<Map<String, Object>>();
+        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
+            List<StatConclusion> list =
+                    statConclusions.stream()
+                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .collect(Collectors.toList());
+            schoolGradeGenderVisionTable.add(
+                    composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
+        }
+        Map<String, Object> totalStat =
+                composeGenderVisionUnderCorrectedStat("total", statConclusions);
+        schoolGradeGenderVisionTable.add(totalStat);
+        List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
+        return new HashMap<String, Object>() {
+            {
+                put("list", schoolGradeGenderVisionTable);
+                put("totalStatList", totalStatList);
+            }
+        };
+    }
+
+    /**
+     * 构建 年级 戴镜情况 统计
+     * @param statConclusions 统计数据
+     * @return
+     */
+    private Map<String, Object> composeSchoolGradeWearingTypeDesc(
+            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<Map<String, Object>> schoolGradeWearingTypeTable =
+                new ArrayList<Map<String, Object>>();
+        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
+            List<StatConclusion> list =
+                    statConclusions.stream()
+                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .collect(Collectors.toList());
+            schoolGradeWearingTypeTable.add(composeGlassesTypeStat(gradeCodeEnum.name(), list));
+        }
+        Map<String, Object> totalStat = composeGlassesTypeStat("total", statConclusions);
+        schoolGradeWearingTypeTable.add(totalStat);
+
+        long totalSize = statConclusions.size();
+        Long totalWearingNum =
+                statConclusions.stream()
+                        .filter(x -> x.getGlassesType() != GlassesType.NOT_WEARING.code)
+                        .count();
+        List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
+        return new HashMap<String, Object>() {
+            {
+                put("list", schoolGradeWearingTypeTable);
+                put("totalWearingNum", totalWearingNum);
+                put("totalWearingRatio", convertToPercentage(totalWearingNum * 1f / totalSize));
+                put("totalStatList", totalStatList);
             }
         };
     }
@@ -890,8 +1033,82 @@ public class StatReportService {
             {
                 put("list", list);
                 put("averageVision", totalStat.get("averageVision"));
-                put("lowVisionRatio", lastTotalLevelStat.getRatio());
-                put("topLowVisionStat", topLowVisionRatioStat);
+                put("totalRatio", lastTotalLevelStat.getRatio());
+                put("topStat", topLowVisionRatioStat);
+            }
+        };
+    }
+
+    /**
+     * 构建 性别 近视 统计
+     * @param statConclusions 统计数据
+     * @return
+     */
+    private Map<String, Object> composeGenderMyopiaLevelDesc(List<StatConclusion> statConclusions) {
+        List<StatConclusion> maleList = statConclusions.stream()
+                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
+                                                .collect(Collectors.toList());
+        List<StatConclusion> femaleList =
+                statConclusions.stream()
+                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .collect(Collectors.toList());
+        Map<String, Object> maleStat = composeMyopiaLevelStat(GenderEnum.MALE.name(), maleList);
+        Map<String, Object> femaleStat =
+                composeMyopiaLevelStat(GenderEnum.FEMALE.name(), femaleList);
+        Map<String, Object> totalStat = composeMyopiaLevelStat("total", statConclusions);
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>() {
+            {
+                add(maleStat);
+                add(femaleStat);
+                add(totalStat);
+            }
+        };
+        int totalSize = totalStat.size();
+        List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
+        BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
+        BasicStatParams topMyopiaRatioStat =
+                totalLevelStat.subList(0, totalSize - 1)
+                        .stream()
+                        .max(Comparator.comparing(BasicStatParams::getRatio))
+                        .get();
+        // totalLevelStat.subList(0, totalLevelStat.size()-1).stream().max()
+        return new HashMap<String, Object>() {
+            {
+                put("list", list);
+                put("totalRatio", lastTotalLevelStat.getRatio());
+                put("topStat", topMyopiaRatioStat);
+            }
+        };
+    }
+
+    /**
+     * 构建 年级 视力低下 统计
+     * @param statConclusions
+     * @return
+     */
+    private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(
+            List<StatConclusion> statConclusions) {
+        List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
+                    statConclusions.stream()
+                            .filter(x -> x.getSchoolGradeCode().equals(gradeCode.getCode()))
+                            .collect(Collectors.toList()));
+            list.add(lowVisionLevelStat);
+            List<BasicStatParams> paramsList =
+                    (List<BasicStatParams>) lowVisionLevelStat.get("list");
+            schoolGradeMyopiaRatioList.add(new BasicStatParams(
+                    gradeCode.name(), paramsList.get(paramsList.size() - 1).getRatio(), null));
+        }
+        list.add(composeMyopiaLevelStat("total", statConclusions));
+        Collections.sort(schoolGradeMyopiaRatioList,
+                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        return new HashMap<String, Object>() {
+            {
+                put("list", list);
+                put("sortedStat", schoolGradeMyopiaRatioList);
             }
         };
     }
@@ -965,6 +1182,40 @@ public class StatReportService {
     }
 
     /**
+     * 构建 年级 班级 近视 统计
+     * @param statConclusions
+     * @return
+     */
+    private List<Map<String, Object>> composeSchoolGradeClassMyopiaLevelTable(
+            List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
+        List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
+        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+            List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
+            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            SchoolGradeItems schoolGradeItem =
+                    schoolGradeItems.stream()
+                            .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
+                            .findFirst()
+                            .orElse(null);
+            if (schoolGradeItem == null) {
+                continue;
+            }
+
+            List<SchoolClass> schoolClasses = schoolGradeItem.getChild();
+            for (SchoolClass schoolClass : schoolClasses) {
+                Map<String, Object> myopiaLevelStat = composeMyopiaLevelStat(schoolClass.getName(),
+                        statConclusions.stream()
+                                .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
+                                .collect(Collectors.toList()));
+                classList.add(myopiaLevelStat);
+            }
+            gradeList.add(new HashMap() {
+                { put(gradeCode.name(), classList); }
+            });
+        }
+        return gradeList;
+    }
+    /**
      * 构建 性别 视力低下 统计
      * @param name 标题
      * @param statConclusions 统计数据
@@ -973,7 +1224,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderLowVisionStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate = x -> x.getIsLowVision();
-        return composeSchoolAgeGenderPredicateStat(name, statConclusions, predicate);
+        return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
     /**
@@ -985,7 +1236,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate = x -> x.getIsMyopia();
-        return composeSchoolAgeGenderPredicateStat(name, statConclusions, predicate);
+        return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
     /**
@@ -994,11 +1245,11 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeSchoolGenderVisionUncorrectedStat(
+    private Map<String, Object> composeGenderVisionUncorrectedStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
                 x -> x.getVisionCorrection() == VisionCorrection.UNCORRECTED.code;
-        return composeSchoolAgeGenderPredicateStat(name, statConclusions, predicate);
+        return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
     /**
@@ -1007,11 +1258,11 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeSchoolGenderVisionUnderCorrectedStat(
+    private Map<String, Object> composeGenderVisionUnderCorrectedStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
                 x -> x.getVisionCorrection() == VisionCorrection.UNDER_CORRECTED.code;
-        return composeSchoolAgeGenderPredicateStat(name, statConclusions, predicate);
+        return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
     /**
@@ -1021,7 +1272,7 @@ public class StatReportService {
      * @param predicate
      * @return
      */
-    private Map<String, Object> composeSchoolAgeGenderPredicateStat(String name,
+    private Map<String, Object> composeGenderPredicateStat(String name,
             List<StatConclusion> statConclusions, Predicate<StatConclusion> predicate) {
         long rowTotal = statConclusions.size();
 
@@ -1103,7 +1354,7 @@ public class StatReportService {
      * @param statConclusions 统计数据
      * @return
      */
-    private Map<String, Object> composeSchoolAgeWarningLevelStat(
+    private Map<String, Object> composeWarningLevelStat(
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
         Long levelZeroNum = statConclusions.stream()
