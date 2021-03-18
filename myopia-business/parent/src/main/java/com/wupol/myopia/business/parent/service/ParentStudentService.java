@@ -1068,7 +1068,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             // 右眼为空取左眼
             return new TwoTuple<>(left, CommonConst.LEFT_EYE);
         }
-        if (left.compareTo(right) <= 0) {
+        if (left.compareTo(right) == 0) {
+            return new TwoTuple<>(left, CommonConst.SAME_EYE);
+        }
+        if (left.compareTo(right) < 0) {
             return new TwoTuple<>(left, CommonConst.LEFT_EYE);
         }
         return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
@@ -1284,8 +1287,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             }
         }
 
+        // 裸眼视力是否小于4.9
         if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
-            // 裸眼视力小于4.9
+            // 是否佩戴眼镜
             if (glassesType >= 1) {
                 BigDecimal visionVal;
                 // 判断两只眼睛的裸眼视力是否相同
@@ -1301,7 +1305,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                         visionVal = rightCorrectedVision;
                     }
                 }
-                // 佩戴眼镜
                 if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
                     // 矫正视力小于4.9
                     return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
