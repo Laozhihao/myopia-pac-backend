@@ -1261,7 +1261,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
         // 判断两只眼睛的裸眼视力是否相同
-        if (nakedVisionResult.getSecond().equals(CommonConst.SAME_EYE)) {
+        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
             // 取等效球镜值大的眼别
             if (leftSe.compareTo(rightSe) >= 0) {
                 // 取右眼
@@ -1292,8 +1292,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             // 是否佩戴眼镜
             if (glassesType >= 1) {
                 BigDecimal visionVal;
-                // 判断两只眼睛的裸眼视力是否相同
-                if (nakedVisionResult.getSecond().equals(CommonConst.SAME_EYE)) {
+                // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
+                if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
                     // 获取矫正视力低的眼球
                     visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
                 } else {
@@ -1338,5 +1338,20 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
             }
         }
+    }
+
+    /**
+     * 两眼的值是否都在4.9的同侧
+     *
+     * @param leftNakedVision  左裸眼视力
+     * @param rightNakedVision 右裸眼数据
+     * @return Boolean
+     */
+    private Boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
+        return ((leftNakedVision.compareTo(new BigDecimal("4.9")) < 0) &&
+                (rightNakedVision.compareTo(new BigDecimal("4.9")) < 0))
+                ||
+                ((leftNakedVision.compareTo(new BigDecimal("4.9")) >= 0) &&
+                        (rightNakedVision.compareTo(new BigDecimal("4.9")) >= 0));
     }
 }
