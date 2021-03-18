@@ -53,7 +53,7 @@
         left join m_hospital h on report.hospital_id = h.id
         left join h_medical_record hmr on hmr.id = report.medical_record_id
         <include refid="Base_Where_Clause"/>
-
+        order by report.id desc
     </select>
 
     <select id="countReportBySchoolId" resultType="java.lang.Integer">
