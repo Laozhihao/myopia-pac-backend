@@ -240,6 +240,9 @@ public class StatManagementController {
         return districtBigScreenStatisticService.getLatestData(currentUser);
     }
 
+    /**
+     * 为了测试方便
+     */
     @GetMapping("/trigger")
     public void statTaskTrigger() {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
