@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
@@ -40,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -888,8 +890,9 @@ public class ExcelFacade {
             StatConclusionExportVo vo = vos.get(i);
             VisionScreeningResultExportVo exportVo = new VisionScreeningResultExportVo();
             BeanUtils.copyProperties(vo, exportVo);
+            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
             exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(NationEnum.getName(vo.getNation()))
-                    .setGlassesTypeDesc(GlassesType.get(vo.getGlassesType()).desc).setIsRescreenDesc("否");
+                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否");
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             exportVos.add(exportVo);
@@ -906,16 +909,12 @@ public class ExcelFacade {
     private void genReScreeningData(Map<Integer, StatConclusionExportVo> rescreenPlanStudentIdVoMap, StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
         StatConclusionExportVo rescreenVo = rescreenPlanStudentIdVoMap.get(vo.getScreeningPlanSchoolStudentId());
         if (Objects.nonNull(rescreenVo)) {
-            VisionDataDO.VisionData reLeftEyeVisonData = vo.getVisionData().getLeftEyeData();
-            VisionDataDO.VisionData reRightEyeVisionData = vo.getVisionData().getRightEyeData();
-            ComputerOptometryDO.ComputerOptometry reLeftEyeComputerData = vo.getComputerOptometry().getLeftEyeData();
-            ComputerOptometryDO.ComputerOptometry reRightEyeComputerData = vo.getComputerOptometry().getRightEyeData();
-            exportVo.setReScreenNakedVisions(eyeDateFormat(reRightEyeVisionData.getNakedVision(), reLeftEyeVisonData.getNakedVision()))
-                    .setReScreenCorrectedVisions(eyeDateFormat(reRightEyeVisionData.getCorrectedVision(), reLeftEyeVisonData.getCorrectedVision()))
-                    .setReScreenSphs(eyeDateFormat(reRightEyeComputerData.getSph(), reLeftEyeComputerData.getSph()))
-                    .setReScreenCyls(eyeDateFormat(reRightEyeComputerData.getCyl(), reLeftEyeComputerData.getCyl()))
-                    .setReScreenAxials(eyeDateFormat(reRightEyeComputerData.getAxial(), reLeftEyeComputerData.getAxial()))
-                    .setReScreenSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent(reRightEyeComputerData.getSph(), reRightEyeComputerData.getCyl()), StatUtil.getSphericalEquivalent(reLeftEyeComputerData.getSph(), reLeftEyeComputerData.getCyl())))
+            exportVo.setReScreenNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                    .setReScreenCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                    .setReScreenSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                    .setReScreenCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                    .setReScreenAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                    .setReScreenSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
                     .setIsRescreenDesc("是");
         }
     }
@@ -926,16 +925,12 @@ public class ExcelFacade {
      * @param exportVo
      */
     private void genScreeningData(StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
-        VisionDataDO.VisionData leftEyeVisonData = vo.getVisionData().getLeftEyeData();
-        VisionDataDO.VisionData rightEyeVisionData = vo.getVisionData().getRightEyeData();
-        ComputerOptometryDO.ComputerOptometry leftEyeComputerData = vo.getComputerOptometry().getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry rightEyeComputerData = vo.getComputerOptometry().getRightEyeData();
-        exportVo.setNakedVisions(eyeDateFormat(rightEyeVisionData.getNakedVision(), leftEyeVisonData.getNakedVision()))
-                .setCorrectedVisions(eyeDateFormat(rightEyeVisionData.getCorrectedVision(), leftEyeVisonData.getCorrectedVision()))
-                .setSphs(eyeDateFormat(rightEyeComputerData.getSph(), leftEyeComputerData.getSph()))
-                .setCyls(eyeDateFormat(rightEyeComputerData.getCyl(), leftEyeComputerData.getCyl()))
-                .setAxials(eyeDateFormat(rightEyeComputerData.getAxial(), leftEyeComputerData.getAxial()))
-                .setSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent(rightEyeComputerData.getSph(), rightEyeComputerData.getCyl()), StatUtil.getSphericalEquivalent(leftEyeComputerData.getSph(), leftEyeComputerData.getCyl())));
+        exportVo.setNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                .setCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                .setSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                .setCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                .setAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                .setSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))));
     }
 
     /**
