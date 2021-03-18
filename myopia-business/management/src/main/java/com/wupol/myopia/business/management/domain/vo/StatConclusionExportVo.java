@@ -82,6 +82,26 @@ public class StatConclusionExportVo extends StatConclusion {
     private String parentPhone;
 
     /**
+     * 省代码
+     */
+    private Long provinceCode;
+
+    /**
+     * 市代码
+     */
+    private Long cityCode;
+
+    /**
+     * 区代码
+     */
+    private Long areaCode;
+
+    /**
+     * 镇/乡代码
+     */
+    private Long townCode;
+
+    /**
      * 详细地址
      */
     private String address;
