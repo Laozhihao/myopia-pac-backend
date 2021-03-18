@@ -479,6 +479,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(leftNakedVision) && Objects.isNull(rightNakedVision)) {
             return "";
         }
+
+        // 获取左右眼的矫正视力
+        BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
+        BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
+        if (Objects.isNull(leftCorrectedVision) && Objects.isNull(rightCorrectedVision)) {
+            return "";
+        }
         // 取裸眼视力的结果
         TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
         // 获取矫正视力
@@ -487,8 +494,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal sph;
         // 柱镜
         BigDecimal cyl;
-        BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
-        BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
+
         // 根据严重的眼镜提供医生建议
         if (leftNakedVision.compareTo(rightNakedVision) == 0) {
             // 如果两只眼睛视力相同，取矫正低的
