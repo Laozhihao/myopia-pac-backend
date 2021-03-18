@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
@@ -10,12 +11,15 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStud
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
 
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -113,7 +117,26 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectOne(queryWrapper);
     }
 
+    /**
+     * 根据筛查通知ID与区域Id列表查出导出的筛查数据
+     * @param screeningNoticeId
+     * @param districtIds
+     * @return
+     */
+    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, districtIds);
+    }
 
-
-
+    /**
+     * 根据筛查通知ID与学校Id查出导出的筛查数据
+     * @param screeningNoticeId
+     * @param schoolId
+     * @return
+     */
+    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
+        return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+    }
 }

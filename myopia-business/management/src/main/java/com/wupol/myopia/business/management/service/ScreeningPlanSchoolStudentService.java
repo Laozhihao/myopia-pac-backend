@@ -345,7 +345,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
-                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setStudentId(dbStudent.getId());
+                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
             }
             existPlanStudent.setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
@@ -587,7 +587,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param schoolId
      * @param currentPlan
      */
-    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, Integer schoolId,ScreeningPlan currentPlan) {
+    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolId,ScreeningPlan currentPlan) {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
@@ -599,6 +599,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .setDistrictId(currentPlan.getDistrictId())
                 .setSchoolId(schoolId)
                 .setSchoolName(schoolName)
+                .setSchoolNo(schoolNo)
                 .setStudentId(student.getId());
 
         screeningPlanSchoolStudent.setStudentName(student.getName())

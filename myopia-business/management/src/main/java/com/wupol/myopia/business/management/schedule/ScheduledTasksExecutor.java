@@ -76,6 +76,7 @@ public class ScheduledTasksExecutor {
 
     /**
      * 按学校生成统计数据
+     *
      * @param yesterdayScreeningPlanIds
      * @param schoolVisionStatistics
      */
@@ -106,6 +107,7 @@ public class ScheduledTasksExecutor {
 
     /**
      * 按区域层级生成统计数据
+     *
      * @param yesterdayScreeningPlanIds
      * @param districtAttentiveObjectsStatistics
      * @param districtMonitorStatistics
@@ -136,24 +138,25 @@ public class ScheduledTasksExecutor {
 
     /**
      * 生成层级的统计数据
+     *
      * @param screeningNoticeId
      * @param districtId
      * @param districtScreeningPlans
      * @param districtAttentiveObjectsStatistics
      * @param districtMonitorStatistics
      * @param districtVisionStatistics
-     * @param districtStatConclusions 所有的筛查数据
+     * @param districtStatConclusions            所有的筛查数据
      */
     private void genStatisticsByDistrictId(Integer screeningNoticeId, Integer districtId, Map<Integer, List<ScreeningPlan>> districtScreeningPlans, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, List<StatConclusion>> districtStatConclusions) {
-        List<District> childDistrictList = new ArrayList<>();
+        List<District> childDistricts = new ArrayList<>();
+        List<Integer> childDistrictIds = new ArrayList<>();
         try {
-            childDistrictList = districtService.getSpecificDistrictTree(districtId);
+            // 合计的要包括自己层级的筛查数据
+            childDistricts = districtService.getChildDistrictByParentIdPriorityCache(districtId);
+            childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         } catch (IOException e) {
             log.error("获取区域层级失败", e);
         }
-        // 合计的要包括自己层级的筛查数据
-        List<Integer> childDistrictIds = new ArrayList<>();
-        getAllIdsWithChild(childDistrictIds, childDistrictList);
         //2.4 层级循环处理并添加到对应的统计中
         List<Integer> haveStatConclusionsChildDistrictIds = CompareUtil.getRetain(childDistrictIds, districtStatConclusions.keySet());
         List<Integer> haveScreeningPlansChildDistrictIds = CompareUtil.getRetain(childDistrictIds, districtScreeningPlans.keySet());
@@ -162,17 +165,17 @@ public class ScheduledTasksExecutor {
         List<StatConclusion> selfStatConclusions = districtStatConclusions.getOrDefault(districtId, Collections.emptyList());
         List<ScreeningPlan> selfScreeningPlans = districtScreeningPlans.getOrDefault(districtId, Collections.emptyList());
 
-        genTotalStatistics(screeningNoticeId, districtId, totalScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics,  totalStatConclusions);
-        genSelfStatistics(screeningNoticeId, districtId, selfScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics,  selfStatConclusions);
+        genTotalStatistics(screeningNoticeId, districtId, totalScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics, totalStatConclusions);
+        genSelfStatistics(screeningNoticeId, districtId, selfScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics, selfStatConclusions);
         if (totalStatConclusions.size() != selfStatConclusions.size()) {
-            //下层级有数据，需要递归统计
-            haveStatConclusionsChildDistrictIds.stream().filter(childDistrictId -> !districtId.equals(childDistrictId))
-                    .forEach(childDistrictId -> genStatisticsByDistrictId(screeningNoticeId, childDistrictId, districtScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics, districtStatConclusions));
+            //递归统计下层级数据
+            childDistricts.forEach(childDistrict -> genStatisticsByDistrictId(screeningNoticeId, childDistrict.getId(), districtScreeningPlans, districtAttentiveObjectsStatistics, districtMonitorStatistics, districtVisionStatistics, districtStatConclusions));
         }
     }
 
     /**
      * 生成自己层级的筛查数据
+     *
      * @param screeningNoticeId
      * @param districtId
      * @param screeningPlans
@@ -194,13 +197,14 @@ public class ScheduledTasksExecutor {
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
         Integer screeningTaskId = selfStatConclusions.get(0).getTaskId();
         Integer totalPlanStudentNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
-        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList())));
+        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum));
         districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
         districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
     }
 
     /**
      * 生成层级所能看到的总的筛查数据
+     *
      * @param screeningNoticeId
      * @param districtId
      * @param screeningPlans
@@ -222,22 +226,8 @@ public class ScheduledTasksExecutor {
         // 层级总的筛查数据不一定属于同一个任务，所以取默认0
         Integer screeningTaskId = CommonConst.DEFAULT_ID;
         Integer totalPlanStudentNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
-        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList())));
+        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum));
         districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
         districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
-    }
-
-    /**
-     * 获取层级所有子孙层级的ID
-     * @param childDistrictIds
-     * @param childDistrictList
-     */
-    private void getAllIdsWithChild(List<Integer> childDistrictIds, List<District> childDistrictList) {
-        childDistrictIds.addAll(childDistrictList.stream().map(District::getId).collect(Collectors.toList()));
-        childDistrictList.forEach(district -> {
-            if (CollectionUtils.hasLength(district.getChild())) {
-                getAllIdsWithChild(childDistrictIds, district.getChild());
-            }
-        });
     }
 }

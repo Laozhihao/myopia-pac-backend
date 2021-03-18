@@ -29,6 +29,13 @@ public class RefractoryResultItems {
      */
     private Item os;
 
+    public RefractoryResultItems(String title) {
+        this.title = title;
+    }
+
+    public RefractoryResultItems() {
+    }
+
     @Getter
     @Setter
     public static class Item {

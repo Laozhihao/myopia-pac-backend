@@ -65,18 +65,31 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
      * @param currentRangeName
      * @param screeningNotice
      * @param districtIdNameMap
+     * @param currentDistrictMonitorStatistic
      * @return
      */
-    public static DistrictScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
+    public static DistrictScreeningMonitorStatisticVO getInstance(List<DistrictMonitorStatistic> districtMonitorStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap, DistrictMonitorStatistic currentDistrictMonitorStatistic) {
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return getImmutableEmptyInstance();
         }
         DistrictScreeningMonitorStatisticVO districtScreeningMonitorStatisticVO = new DistrictScreeningMonitorStatisticVO();
         //设置基础数据
         districtScreeningMonitorStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
+        //设置当前数据
+        districtScreeningMonitorStatisticVO.setCurrentData(currentDistrictMonitorStatistic);
         //设置统计数据
         districtScreeningMonitorStatisticVO.setItemData(currentDistrictId, districtMonitorStatistics, districtIdNameMap);
         return districtScreeningMonitorStatisticVO;
+    }
+
+    /**
+     * 设置当前层级数据
+     * @param currentDistrictMonitorStatistic
+     */
+    private void setCurrentData(DistrictMonitorStatistic currentDistrictMonitorStatistic) {
+        if (currentDistrictMonitorStatistic != null) {
+            currentData = this.getItem(getScreeningRangeName(), currentDistrictMonitorStatistic);
+        }
     }
 
     /**
@@ -92,22 +105,14 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
             Integer districtId = districtMonitorStatistic.getDistrictId();
             String rangeName = "";
             //是合计数据
-            if (districtMonitorStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
+            if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
                 rangeName = "合计";
                 Item item = this.getItem(rangeName, districtMonitorStatistic);
                 totalData = item;
                 return null;
             }
             rangeName = districtIdNameMap.get(districtId);
-            DistrictScreeningMonitorStatisticVO.Item item = this.getItem(rangeName, districtMonitorStatistic);
-            if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
-                currentData = item;
-                return null;
-            } else if (districtMonitorStatistic.getIsTotal() != 1){
-                return item;
-            } else {
-                return null;
-            }
+            return this.getItem(rangeName, districtMonitorStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }
