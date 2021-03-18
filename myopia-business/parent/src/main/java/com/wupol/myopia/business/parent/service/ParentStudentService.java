@@ -387,7 +387,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId) + IdUtil.simpleUUID());
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
@@ -1248,6 +1248,21 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         return ParentReportConst.CORRECTED_NORMAL;
     }
 
+    /**
+     * 获取医生建议
+     *
+     * @param leftNakedVision      左-裸眼
+     * @param rightNakedVision     右-裸眼
+     * @param leftCorrectedVision  左-矫正视力
+     * @param rightCorrectedVision 右-矫正视力
+     * @param leftSph              左-柱镜
+     * @param rightSph             右-柱镜
+     * @param leftCyl              左-球镜
+     * @param rightCyl             右-球镜
+     * @param glassesType          戴镜类型
+     * @param schoolAge            学龄段
+     * @return 医生建议
+     */
     private String packageDoctorAdvice2(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                         BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                         BigDecimal leftSph, BigDecimal rightSph,
