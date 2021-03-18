@@ -882,7 +882,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public Integer parseToken2StudentId(String token) {
         Integer studentId = (Integer) redisUtil.get(token);
         if (Objects.isNull(studentId)) {
-            throw new BusinessException("Token失效或过期，请重新获取");
+            throw new BusinessException("学生二维码已经失效！");
         }
         return studentId;
     }

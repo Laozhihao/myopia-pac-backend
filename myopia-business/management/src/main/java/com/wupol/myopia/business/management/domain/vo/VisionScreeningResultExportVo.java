@@ -1,13 +1,16 @@
 package com.wupol.myopia.business.management.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.excel.annotation.write.style.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 筛查数据导出
@@ -17,6 +20,7 @@ import java.io.Serializable;
 @HeadRowHeight(25)
 @HeadStyle(fillPatternType = FillPatternType.NO_FILL, borderBottom = BorderStyle.NONE, borderLeft = BorderStyle.NONE, borderRight = BorderStyle.NONE)
 @HeadFontStyle(fontHeightInPoints = 11)
+@ContentStyle(horizontalAlignment = HorizontalAlignment.CENTER)
 // 将第1-2行的2-3列合并成一个单元格
 @OnceAbsoluteMerge(firstRowIndex = 0, lastRowIndex = 1, firstColumnIndex = 0, lastColumnIndex = 12)
 @ColumnWidth(20)
@@ -29,89 +33,87 @@ public class VisionScreeningResultExportVo implements Serializable {
     public static final String TOP_HEADER2 = "视力复测";
 
     @ExcelProperty("序号")
-    private String name;
+    private Integer id;
 
     @ExcelProperty("姓名")
-    private String type;
+    private String studentName;
 
     @ExcelProperty("性别")
-    private String configType;
+    private String genderDesc;
 
+    @DateTimeFormat("yyyy年MM月dd日")
     @ExcelProperty("出生日期")
-    private String phone;
+    private Date birthDay;
 
-    @ExcelProperty("民族")
-    private Integer personSituation;
+    @ExcelProperty(value = "民族")
+    private String nationDesc;
 
     @ExcelProperty("学校编码")
-    private String remark;
+    private String schoolNo;
 
     @ExcelProperty("学校名称")
-    private Integer screeningCount;
+    private String schoolName;
 
     @ExcelProperty("年级")
-    private String districtName;
+    private String gradeName;
 
     @ExcelProperty("班级")
-    private String province;
+    private String className;
 
     @ExcelProperty("学号")
-    private String city;
+    private String studentNo;
 
     @ExcelProperty("身份证号")
-    private String area;
+    private String idCard;
 
     @ExcelProperty("手机号码")
-    private String town;
+    private String parentPhone;
 
     @ExcelProperty("地址")
     private String address;
 
     @ExcelProperty({TOP_HEADER, "戴镜情况"})
-    private String createUser;
+    private String glassesTypeDesc;
 
     @ExcelProperty({TOP_HEADER, "裸眼（右/左）"})
-    private String createTime1;
+    private String nakedVisions;
 
     @ExcelProperty({TOP_HEADER, "矫正（右/左）"})
-    private String createTime2;
+    private String correctedVisions;
 
     @ExcelProperty({TOP_HEADER, "球镜（右/左）"})
-    private String createTime3;
+    private String sphs;
 
     @ExcelProperty({TOP_HEADER, "柱镜（右/左）"})
-    private String createTime4;
+    private String cyls;
 
     @ExcelProperty({TOP_HEADER, "轴位（右/左）"})
-    private String createTime5;
+    private String axials;
 
     @ExcelProperty({TOP_HEADER, "等效球镜（右/左）"})
-    private String createTime6;
-
-    @ExcelProperty({TOP_HEADER, "串镜（右/左）"})
-    private String createTime7;
+    private String sphericalEquivalents;
 
     @ExcelProperty({"预警级别", "预警级别"})
-    private String createTime14;
+    private Integer warningLevel;
 
     @ExcelProperty({"是否复测", "是否复测"})
-    private String createTime15;
+    private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER2, "裸眼（右/左）"})
-    private String createTime8;
+    private String reScreenNakedVisions;
 
     @ExcelProperty({TOP_HEADER2, "矫正（右/左）"})
-    private String createTime9;
+    private String reScreenCorrectedVisions;
 
     @ExcelProperty({TOP_HEADER2, "球镜（右/左）"})
-    private String createTime10;
+    private String reScreenSphs;
 
     @ExcelProperty({TOP_HEADER2, "柱镜（右/左）"})
-    private String createTime11;
+    private String reScreenCyls;
 
     @ExcelProperty({TOP_HEADER2, "轴位（右/左）"})
-    private String createTime12;
+    private String reScreenAxials;
 
     @ExcelProperty({TOP_HEADER2, "等效球镜（右/左）"})
-    private String createTime13;
+    private String reScreenSphericalEquivalents;
 }

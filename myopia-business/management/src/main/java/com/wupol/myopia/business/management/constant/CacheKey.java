@@ -82,5 +82,8 @@ public interface CacheKey {
      */
     String SMS_TOKEN_FAIL_COUNT = "sms:code:fail_count:phone_%s";
 
-    String PARENT_STUDENT_QR_CODE = "parent:student:qrcode:token_%s";
+    /**
+     * 获取学生二维码
+     */
+    String PARENT_STUDENT_QR_CODE = "qrcode:token_%s";
 }

@@ -96,6 +96,12 @@ public interface CommonConst {
      * 右眼
      */
     Integer RIGHT_EYE = 1;
+
+    /**
+     * 相同眼球
+     */
+    Integer SAME_EYE = 2;
+
     /**
      * 是
      */

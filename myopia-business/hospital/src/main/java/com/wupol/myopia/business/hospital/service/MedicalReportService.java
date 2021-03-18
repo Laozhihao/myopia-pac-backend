@@ -337,7 +337,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
-            doctor.setSignFileId(doctor.getSignFileId());
+            conclusion.setSignFileId(doctor.getSignFileId());
         }
         if (Objects.nonNull(record)){
             conclusion.setConsultation(record.getConsultation());

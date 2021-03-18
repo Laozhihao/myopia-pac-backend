@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
@@ -11,8 +12,11 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
+import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
+import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -22,9 +26,11 @@ import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.*;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
+import com.wupol.myopia.business.management.util.StatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
@@ -35,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -842,43 +849,97 @@ public class ExcelFacade {
     }
 
     @Async
-    public void generateVisionScreeningResult(Integer userId, List<StatConclusionVo> statConclusionVos, Integer districtId, Integer schoolId) throws IOException, UtilException {
-        // 获取文件需显示的名称
-        String districtOrSchoolName = getDistrictOrSchoolName(districtId, schoolId);
+    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportVo> statConclusionExportVos, Integer districtId, Integer schoolId, String districtOrSchoolName) throws IOException, UtilException {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.CONTENT, districtOrSchoolName, "筛查数据", new Date());
-        List<VisionScreeningResultExportVo> exportList = new ArrayList<>();
         log.info("导出文件: {}", fileName);
-        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 21, 22);
+        OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (!CommonConst.DEFAULT_ID.equals(districtId)) {
             String folder = String.format("%s-%s", System.currentTimeMillis(), UUID.randomUUID());
-            for (int i = 0; i < 3; i++) {
-                String excelFileName = String.format("学校%s-筛查数据", i);
-                ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
-            }
+            Map<String, List<StatConclusionExportVo>> schoolNameMap = statConclusionExportVos.stream().collect(Collectors.groupingBy(StatConclusionExportVo::getSchoolName));
+            schoolNameMap.keySet().forEach(schoolName -> {
+                List<VisionScreeningResultExportVo> visionScreeningResultExportVos = genVisionScreeningResultExportVos(schoolNameMap.getOrDefault(schoolName, Collections.emptyList()));
+                String excelFileName = String.format("%s-筛查数据", schoolName);
+                try {
+                    ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportVo.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
             File zipFile = ExcelUtil.zip(folder, fileName);
             noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(zipFile).getSecond());
         } else if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-            File excelFile = ExcelUtil.exportListToExcel(fileName, exportList, mergeStrategy, VisionScreeningResultExportVo.class);
+            List<VisionScreeningResultExportVo> visionScreeningResultExportVos = genVisionScreeningResultExportVos(statConclusionExportVos);
+            File excelFile = ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportVo.class);
             noticeService.createExportNotice(userId, content, content, s3Utils.uploadFile(excelFile).getSecond());
         }
     }
 
-    private String getDistrictOrSchoolName(Integer districtId, Integer schoolId) throws IOException {
-        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
-            District district = districtService.getById(districtId);
-            if (Objects.isNull(district)) {
-                throw new BusinessException("未找到该行政区域");
-            }
-            return district.getName();
-        } else if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-            School school = schoolService.getById(schoolId);
-            if (Objects.isNull(school)) {
-                throw new BusinessException("未找到该学校");
-            }
-            return school.getName();
+    /**
+     * 生成筛查数据
+     * @param statConclusionExportVos
+     * @return
+     */
+    private List<VisionScreeningResultExportVo> genVisionScreeningResultExportVos(List<StatConclusionExportVo> statConclusionExportVos) {
+        Map<Boolean, List<StatConclusionExportVo>> isRescreenMap = statConclusionExportVos.stream().collect(Collectors.groupingBy(StatConclusionExportVo::getIsRescreen));
+        Map<Integer, StatConclusionExportVo> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportVo::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
+        List<VisionScreeningResultExportVo> exportVos = new ArrayList<>();
+        List<StatConclusionExportVo> vos = isRescreenMap.getOrDefault(false, Collections.emptyList());
+        for(int i = 0; i < vos.size(); i++) {
+            StatConclusionExportVo vo = vos.get(i);
+            VisionScreeningResultExportVo exportVo = new VisionScreeningResultExportVo();
+            BeanUtils.copyProperties(vo, exportVo);
+            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
+            exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(NationEnum.getName(vo.getNation()))
+                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否");
+            genScreeningData(vo, exportVo);
+            genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
+            exportVos.add(exportVo);
         }
-        throw new BusinessException("层级或学校必须选择一个");
+        return exportVos;
+    }
+
+    /**
+     * 组装复筛数据
+     * @param rescreenPlanStudentIdVoMap
+     * @param vo
+     * @param exportVo
+     */
+    private void genReScreeningData(Map<Integer, StatConclusionExportVo> rescreenPlanStudentIdVoMap, StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
+        StatConclusionExportVo rescreenVo = rescreenPlanStudentIdVoMap.get(vo.getScreeningPlanSchoolStudentId());
+        if (Objects.nonNull(rescreenVo)) {
+            exportVo.setReScreenNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                    .setReScreenCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                    .setReScreenSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                    .setReScreenCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                    .setReScreenAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                    .setReScreenSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+                    .setIsRescreenDesc("是");
+        }
+    }
+
+    /**
+     * 组装初筛数据
+     * @param vo
+     * @param exportVo
+     */
+    private void genScreeningData(StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
+        exportVo.setNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                .setCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                .setSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                .setCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                .setAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                .setSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))));
+    }
+
+    /**
+     * 眼别数据格式化
+     * @param rightEyeData
+     * @param leftEyeData
+     * @return
+     */
+    private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
+        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData, Objects.isNull(leftEyeData) ? "--" : leftEyeData);
     }
 }
