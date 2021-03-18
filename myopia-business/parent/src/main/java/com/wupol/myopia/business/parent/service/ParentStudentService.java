@@ -44,7 +44,10 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -484,17 +487,32 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal sph;
         // 柱镜
         BigDecimal cyl;
+        BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
+        BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
         // 根据严重的眼镜提供医生建议
-        if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
-            // 左眼
-            correctedVision = visionData.getLeftEyeData().getCorrectedVision();
-            sph = computerOptometry.getLeftEyeData().getSph();
-            cyl = computerOptometry.getLeftEyeData().getCyl();
+        if (leftNakedVision.compareTo(rightNakedVision) == 0) {
+            // 如果两只眼睛视力相同，取矫正低的
+            if (leftCorrectedVision.compareTo(rightCorrectedVision) <= 0) {
+                correctedVision = leftCorrectedVision;
+                sph = computerOptometry.getLeftEyeData().getSph();
+                cyl = computerOptometry.getLeftEyeData().getCyl();
+            } else {
+                correctedVision = rightCorrectedVision;
+                sph = computerOptometry.getRightEyeData().getSph();
+                cyl = computerOptometry.getRightEyeData().getCyl();
+            }
         } else {
-            // 右眼
-            correctedVision = visionData.getRightEyeData().getCorrectedVision();
-            sph = computerOptometry.getRightEyeData().getSph();
-            cyl = computerOptometry.getRightEyeData().getCyl();
+            if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
+                // 左眼
+                correctedVision = leftCorrectedVision;
+                sph = computerOptometry.getLeftEyeData().getSph();
+                cyl = computerOptometry.getLeftEyeData().getCyl();
+            } else {
+                // 右眼
+                correctedVision = rightCorrectedVision;
+                sph = computerOptometry.getRightEyeData().getSph();
+                cyl = computerOptometry.getRightEyeData().getCyl();
+            }
         }
         return packageDoctorAdvice(resultVision.getFirst(), correctedVision, sph, cyl, glassesType, gradeType);
     }
@@ -1021,7 +1039,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
-     * 取视力值高的眼球
+     * 取视力值低的眼球
      *
      * @param left  左眼
      * @param right 右眼
