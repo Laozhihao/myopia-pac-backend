@@ -16,13 +16,11 @@ import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -106,10 +104,28 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
         }
+        initAddressFullPath(statConclusionExportVos);
         // 获取文件需显示的名称
         String districtOrSchoolName = getDistrictOrSchoolName(districtId, schoolId);
         excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, districtId, schoolId, districtOrSchoolName);
         return ApiResult.success();
+    }
+
+    /**
+     * 组装全地址
+     * @param statConclusionExportVos
+     */
+    private void initAddressFullPath(List<StatConclusionExportVo> statConclusionExportVos) {
+        Set<Long> districtCode = new HashSet<>();
+        statConclusionExportVos.forEach(vo -> {
+            districtCode.add(vo.getProvinceCode());
+            districtCode.add(vo.getCityCode());
+            districtCode.add(vo.getTownCode());
+            districtCode.add(vo.getAreaCode());
+        });
+        Set<Long> notNullDistrictCode = districtCode.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Long, String> districtCodeNameMap = districtService.getByCodes(new ArrayList<>(notNullDistrictCode)).stream().collect(Collectors.toMap(District::getCode, District::getName));
+        statConclusionExportVos.forEach(vo -> vo.setAddress(String.join(districtCodeNameMap.getOrDefault(vo.getProvinceCode(), ""), districtCodeNameMap.getOrDefault(vo.getCityCode(), ""), districtCodeNameMap.getOrDefault(vo.getAreaCode(), ""), districtCodeNameMap.getOrDefault(vo.getTownCode(), ""), vo.getAddress())));
     }
 
     /**
