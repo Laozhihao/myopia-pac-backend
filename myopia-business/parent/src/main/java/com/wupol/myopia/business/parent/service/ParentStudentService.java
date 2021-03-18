@@ -483,48 +483,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 获取左右眼的矫正视力
         BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
         BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
-        if (Objects.isNull(leftCorrectedVision) && Objects.isNull(rightCorrectedVision)) {
-            return "";
-        }
-        // 取裸眼视力的结果
-        TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
-        // 获取矫正视力
-        BigDecimal correctedVision;
-        // 球镜
-        BigDecimal sph;
-        // 柱镜
-        BigDecimal cyl;
 
-        // 根据严重的眼镜提供医生建议
         BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
         BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
         BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
         BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-        if (leftNakedVision.compareTo(rightNakedVision) == 0) {
-            // 如果两只眼睛视力相同，取矫正低的
-            if (leftCorrectedVision.compareTo(rightCorrectedVision) <= 0) {
-                correctedVision = leftCorrectedVision;
-                sph = leftSph;
-                cyl = leftCyl;
-            } else {
-                correctedVision = rightCorrectedVision;
-                sph = rightSph;
-                cyl = rightCyl;
-            }
-        } else {
-            if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
-                // 左眼
-                correctedVision = leftCorrectedVision;
-                sph = leftSph;
-                cyl = leftCyl;
-            } else {
-                // 右眼
-                correctedVision = rightCorrectedVision;
-                sph = rightSph;
-                cyl = rightCyl;
-            }
-        }
-//        return packageDoctorAdvice(resultVision.getFirst(), correctedVision, sph, cyl, glassesType, gradeType);
+
         return packageDoctorAdvice2(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph, leftCyl, rightCyl,
@@ -1275,17 +1239,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         BigDecimal cyl;
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
-        // 判断两只眼睛的裸眼视力是否相同
+        // 判断两只眼睛的裸眼视力是否都在4.9的同侧
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
             // 取等效球镜值大的眼别
             if (leftSe.compareTo(rightSe) >= 0) {
-                // 取右眼
-                se = rightSe;
-                cyl = rightCyl;
-            } else {
                 // 取左眼
                 se = leftSe;
                 cyl = leftCyl;
+
+            } else {
+                // 取右眼
+                se = rightSe;
+                cyl = rightCyl;
             }
         } else {
             // 裸眼视力不同，取视力低的眼别
