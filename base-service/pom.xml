@@ -131,6 +131,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- utils -->
+        <dependency>
+            <groupId>com.vistel</groupId>
+            <artifactId>utils</artifactId>
+            <version>3.3.0-RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -33,6 +34,9 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @param screeningPlanId
      * @return
      */
-    List<StatConclusionVo> selectValidVoByScreeningPlanId(
-            @Param("screeningPlanId") Integer screeningPlanId);
+    List<StatConclusionVo> selectVoByScreeningPlanId(@Param("screeningPlanId") Integer screeningPlanId);
+
+    List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId,@Param("districtIds") List<Integer> districtIds);
+
+    List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId,@Param("schoolId") Integer schoolId);
 }

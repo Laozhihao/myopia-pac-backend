@@ -47,44 +47,58 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
      */
     private Set<Item> subordinateDatas;
 
-    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap) {
+    public static ScreeningVisionStatisticVO getInstance(List<DistrictVisionStatistic> districtVisionStatistics, Integer currentDistrictId, String currentRangeName, ScreeningNotice screeningNotice, Map<Integer, String> districtIdNameMap,  DistrictVisionStatistic currentDistrictVisionStatistic) {
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return null;
         }
         ScreeningVisionStatisticVO screeningVisionStatisticVO = new ScreeningVisionStatisticVO();
         //设置基础数据
         screeningVisionStatisticVO.setBasicData(currentDistrictId, currentRangeName, screeningNotice);
+        //设置当前数据
+        screeningVisionStatisticVO.setCurrentData(currentDistrictVisionStatistic);
         //设置统计数据
         screeningVisionStatisticVO.setItemData(currentDistrictId, districtVisionStatistics, districtIdNameMap);
         return screeningVisionStatisticVO;
     }
 
+    /**
+     *  设置当前层级的数据
+     * @param currentDistrictVisionStatistic
+     */
+    private void setCurrentData(DistrictVisionStatistic currentDistrictVisionStatistic) {
+        if (currentDistrictVisionStatistic != null) {
+            currentData = this.getItem(districtId, rangeName, currentDistrictVisionStatistic);
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
     public static ScreeningVisionStatisticVO getImmutableEmptyInstance() {
         return new ScreeningVisionStatisticVO();
     }
 
+    /**
+     * 设置item数据
+     * @param currentDistrictId
+     * @param districtVisionStatistics
+     * @param districtIdNameMap
+     */
     private void setItemData(Integer currentDistrictId, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         Set<ScreeningVisionStatisticVO.Item> subordinateItemSet = districtVisionStatistics.stream().map(districtVisionStatistic -> {
             Integer districtId = districtVisionStatistic.getDistrictId();
             String rangeName = "";
             //是合计数据
-            if (districtVisionStatistic.getIsTotal() == 1 && currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
+            if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
                 rangeName = "合计";
                 ScreeningVisionStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
                 totalData = item;
                 return null;
             }
             rangeName = districtIdNameMap.get(districtId);
-            ScreeningVisionStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
-            if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
-                currentData = item;
-                return null;
-            } else if (districtVisionStatistic.getIsTotal() != 1){
-                return item;
-            } else {
-                return null;
-            }
+            return this.getItem(districtId, rangeName, districtVisionStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }
@@ -93,6 +107,7 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         ScreeningVisionStatisticVO.Item item = new ScreeningVisionStatisticVO.Item();
         item.setFocusTargetsNum(districtVisionStatistic.getKeyWarningNumbers())
                 .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumbers())
+                .setValidScreeningNum(districtVisionStatistic.getValidScreeningNumbers())
                 .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision())
                 .setAverageVisionRight(districtVisionStatistic.getAvgRightVision())
                 .setLowVisionNum(districtVisionStatistic.getLowVisionNumbers())
@@ -114,7 +129,9 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
                 .setScreeningRangeName(rangeName)
                 .setRefractiveErrorRatio(districtVisionStatistic.getAmetropiaRatio())
                 .setWarningLevelZeroNum(districtVisionStatistic.getVisionLabel0Numbers())
-                .setWarningLevelZeroRatio(districtVisionStatistic.getVisionLabel0Ratio());
+                .setWarningLevelZeroRatio(districtVisionStatistic.getVisionLabel0Ratio())
+                .setDistrictId(districtId)
+                .setScreeningNoticeId(super.getScreeningNoticeId());
         return item;
     }
 
@@ -140,6 +157,10 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 实际筛查学生数
          */
         private Integer actualScreeningNum;
+        /**
+         * 实际筛查学生数
+         */
+        private Integer validScreeningNum;
         /**
          * 左眼平均视力
          */
@@ -231,6 +252,16 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
          * 建议就诊数
          */
         private Integer recommendVisitNum;
+
+        /**
+         * 筛查通知id
+         */
+        private Integer screeningNoticeId;
+
+        /**
+         * 地区id
+         */
+        private Integer districtId;
 
         /**
          * 建议就诊数比例

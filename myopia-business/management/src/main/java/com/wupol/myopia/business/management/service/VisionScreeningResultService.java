@@ -3,14 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
-import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
@@ -18,17 +11,9 @@ import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultM
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
-import org.springframework.stereotype.Service;
-
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
@@ -97,14 +82,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 获取昨天筛查数据的筛查计划Id
+     * 获取昨天筛查数据的筛查计划Id（必须有筛查通知，也就是省级配置的筛查机构筛查的数据）
      *
      * @return
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
         Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
         Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
-        return baseMapper.getPlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
+        return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
 
     /**
@@ -156,8 +141,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 是否需要更新
      *
-     * @param isState
-     * @param screeningPlanId
      * @param planId
      * @param screeningOrgId
      * @return

@@ -138,7 +138,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/findSchoolByDeptId")
-    public ResultVO getSchoolByScreeningOrgId(Integer deptId) {
+    public ResultVO listSchoolByScreeningOrgId(Integer deptId) {
         //筛查机构未完成的学校的信息
         return ResultVOUtil.success(screeningAppService.getSchoolByScreeningOrgId(deptId));
     }
@@ -262,7 +262,7 @@ public class ScreeningAppController {
     //分割线----------------------
 
     /**
-     * 获取学校年级班级对应的学生名称 //todo 暂时不分页
+     * 获取学校年级班级对应的学生名称
      *
      * @param schoolName  学校名称
      * @param gradeName   年级名称
@@ -272,7 +272,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public ResultVO getStudentNameBySchoolNameAndGradeNameAndClassName(
+    public ResultVO findAllStudentName(
             @RequestParam(value = "deptId") Integer deptId,
             @RequestParam(value = "schoolName") String schoolName,
             @RequestParam(value = "gradeName", required = false) String gradeName,
@@ -392,7 +392,7 @@ public class ScreeningAppController {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。",CurrentUserUtil.getCurrentUser().getOrgId(),appStudentDTO.getSchoolId());
             return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR);
         }
-        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(),appStudentDTO.getSchoolId().intValue(),currentPlan);
+        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(), school.getSchoolNo(),appStudentDTO.getSchoolId().intValue(),currentPlan);
         return ResultVOUtil.success();
     }
 

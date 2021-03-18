@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class StatConclusionVo extends StatConclusion{
+public class StatConclusionVo extends StatConclusion {
     /** 学校Id */
     private Integer schoolId;
 }

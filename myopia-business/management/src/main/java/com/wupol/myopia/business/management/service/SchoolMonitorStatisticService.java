@@ -50,4 +50,15 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
         List<SchoolMonitorStatistic> SchoolMonitorStatistics = baseMapper.selectList(queryWrapper);
         return SchoolMonitorStatistics;
     }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param schoolMonitorStatistics
+     */
+    public void batchSaveOrUpdate(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
+        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(schoolMonitorStatistics);
+    }
 }

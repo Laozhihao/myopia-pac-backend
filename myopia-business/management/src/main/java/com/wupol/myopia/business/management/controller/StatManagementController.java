@@ -104,7 +104,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/district")
-    public List<District> getDistrictByTaskId(@RequestParam Integer noticeId) throws IOException {
+    public List<District> getDistrictByNoticeId(@RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
@@ -118,7 +118,7 @@ public class StatManagementController {
 
 
     /**
-     * 根据地区id获取学校情况
+     * 根据地区id获取学校情况 todo 可能不用
      *
      * @param
      * @return
@@ -212,6 +212,13 @@ public class StatManagementController {
         return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, districtName, screeningNotice);
     }
 
+    /**
+     * 获取学校监控统计
+     * @param districtId
+     * @param noticeId
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/school/screening-monitor-result")
     public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         // 获取当前层级下，所有参与任务的学校

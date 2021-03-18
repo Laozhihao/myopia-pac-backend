@@ -219,6 +219,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 从缓存获取以指定行政区域为根节点的行政区域树的所有行政区域ID
+     *
+     * @param districtId 根节点行政区域
+     * @return java.util.List<Integer>
+     **/
+    public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) throws IOException {
+        List<Integer> childDistrictIds = new ArrayList<>();
+        // 获取以指定行政区域为根节点的行政区域树
+        try {
+            List<District> childDistrictList = getSpecificDistrictTree(districtId);
+            getAllIds(childDistrictIds, childDistrictList);
+        } catch (Exception e) {
+            log.error("获取区域层级失败", e);
+        }
+        return childDistrictIds;
+    }
+
+    /**
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param rootCode 指定的行政区域代码编号
@@ -279,11 +297,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return districtIds;
     }
 
+    /**
+     * 获取层级所有子孙层级的ID
+     * @param districtIds
+     * @param childs
+     */
     private void getAllIds(List<Integer> districtIds, List<District> childs) {
         if (CollectionUtils.isEmpty(childs)) {
             return;
         }
-        districtIds.addAll(childs.stream().map(District::getId).collect(Collectors.toList()));
+        districtIds.addAll(childs.stream().filter(Objects::nonNull).map(District::getId).collect(Collectors.toList()));
         childs.forEach(district -> getAllIds(districtIds, district.getChild()));
     }
 
@@ -730,5 +753,15 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         return districtIds;
+    }
+
+    /**
+     * 获取当前code的孩子节点
+     *
+     * @param code code
+     * @return List<District>
+     */
+    public List<District> getNextDistrictByCode(Long code) {
+        return baseMapper.selectChildNodeByParentCode(code);
     }
 }

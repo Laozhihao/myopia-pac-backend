@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -160,8 +161,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             // 为空新增
             student.setMpParentPhone(parentPhone);
         } else {
-            // 不为空拼接
-            student.setMpParentPhone(student.getMpParentPhone() + "," + parentPhone);
+            // 家长手机号码是否已经存在
+            if (StringUtils.countMatches(parentPhoneStr, parentPhone) == 0) {
+                // 不存在拼接家长手机号码
+                student.setMpParentPhone(parentPhoneStr + "," + parentPhone);
+            }
         }
         updateById(student);
     }
@@ -457,13 +461,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null != result.getComputerOptometry()) {
             // 左眼--电脑验光
             leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+            leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
+                    result.getComputerOptometry().getLeftEyeData().getCyl()));
             leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
 
             // 左眼--电脑验光
             rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+            rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
+                    result.getComputerOptometry().getRightEyeData().getCyl()));
             rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
         }
         if (null != result.getBiometricData()) {
             // 左眼--生物测量
@@ -488,6 +496,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
         }
         return Lists.newArrayList(rightDetails, leftDetails);
+    }
+
+    /**
+     * 计算 等效球镜
+     *
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @return 等效球镜
+     */
+    private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        return sph.add(cyl.multiply(new BigDecimal("0.5")))
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     /**

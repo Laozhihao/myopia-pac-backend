@@ -11,8 +11,7 @@ public enum SchoolAge {
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
     HIGH(2, "高中"),
-    VOCATIONAL_HIGH(3, "职业高中"),
-    UNIVERSITY(4, "大学");
+    VOCATIONAL_HIGH(3, "职业高中");
 
     /** 学龄段ID */
     public final Integer code;
@@ -41,5 +40,15 @@ public enum SchoolAge {
             schoolAgeList.add(schoolAgeVO);
         }
         return schoolAgeList;
+    }
+
+    /**
+     * 是否初中生（包括初中、高中、职业高中）
+     *
+     * @param schoolAge 学龄段
+     * @return Boolean
+     */
+    public static Boolean isMiddleSchool(Integer schoolAge) {
+        return JUNIOR.code.equals(schoolAge) || HIGH.code.equals(schoolAge) || VOCATIONAL_HIGH.code.equals(schoolAge);
     }
 }

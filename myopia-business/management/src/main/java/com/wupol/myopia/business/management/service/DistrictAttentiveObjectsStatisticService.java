@@ -33,9 +33,14 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
      * @param districtIds
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds) {
+    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds,  Integer currentDistrictId, boolean isTotal,boolean isCurrent) {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
+        queryWrapper.eq(DistrictAttentiveObjectsStatistic::getIsTotal,isTotal);
+        if (isCurrent) {
+            queryWrapper.eq(DistrictAttentiveObjectsStatistic::getDistrictId,currentDistrictId);
+        } else {
+            queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
+        }
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }
@@ -58,5 +63,16 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
         // 查找这些通知的所有数据
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
+    }
+
+    /**
+     * 根据唯一索引批量新增或更新
+     * @param districtAttentiveObjectsStatistics
+     */
+    public void batchSaveOrUpdate(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics) {
+        if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
+            return;
+        }
+        baseMapper.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
     }
 }

@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -349,6 +350,20 @@ public class StatUtil {
     public static boolean isRefractiveError(Float sphere, Float cylinder, Integer age) {
         return isAstigmatism(cylinder) && isMyopia(sphere, cylinder)
                 && isHyperopia(sphere, cylinder, age);
+    }
+
+    /**
+     * 计算等效球镜
+     *
+     * @param sphere   球镜
+     * @param cylinder 柱镜
+     * @return
+     */
+    public static Float getSphericalEquivalent(BigDecimal sphere, BigDecimal cylinder) {
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
+            return null;
+        }
+        return getSphericalEquivalent(sphere.floatValue(), cylinder.floatValue());
     }
 
     /**

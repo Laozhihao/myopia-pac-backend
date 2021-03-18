@@ -133,6 +133,7 @@ create table m_screening_plan_school_student
     `screening_org_id`  int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--指定的筛查机构id',
     `district_id`       int(10) unsigned NOT NULL DEFAULT 0 COMMENT '筛查计划--所处区域id',
     `school_id`         int(10) unsigned NOT NULL COMMENT '筛查计划--执行的学校id',
+    `school_no`         varchar(64)  NOT NULL DEFAULT '' COMMENT '筛查计划--执行的学校编号',
     `school_name`       varchar(32)  NOT NULL COMMENT '筛查计划--执行的学校名字',
     `grade_id`          int(10) unsigned NOT NULL DEFAULT '0' COMMENT '筛查计划--参与筛查的学生年级ID',
     `grade_name`        varchar(32) null comment '年级名称',
@@ -178,10 +179,11 @@ CREATE TABLE `m_district_attentive_objects_statistic`
     `vision_label3_ratio`    decimal(5,2) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警比例（均为整数，如10.01%，数据库则是1001）',
     `key_warning_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--重点视力对象数量（默认0）',
     `student_numbers`        int(10) unsigned NOT NULL COMMENT '重点视力对象--学生总数 ',
-    `update_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '重点视力对象--更新时间',
+    `update_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '重点视力对象--更新时间',
     `is_total`               tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
     `create_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `district_attentive_objects_statistic_unique` (screening_notice_id, district_id, is_total)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='某个地区层级最新统计的重点视力对象情况表';
 
 -- ----------------------------
@@ -207,9 +209,10 @@ CREATE TABLE `m_district_monitor_statistic`
     `plan_screening_numbers` int(10) NOT NULL DEFAULT '0' COMMENT '监测情况--计划的学生数量（默认0）',
     `real_screening_numbers` int(10) NOT NULL DEFAULT '0' COMMENT '监测情况--实际筛查的学生数量（默认0）',
     `is_total`              tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
-    `update_time`           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '监测情况--更新时间',
+    `update_time`           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '监测情况--更新时间',
     `create_time`           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `district_monitor_statistic_unique` (screening_notice_id, district_id, is_total)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区层级某次筛查计划统计监控监测情况表';
 
 -- ----------------------------
@@ -244,11 +247,13 @@ CREATE TABLE `m_district_vision_statistic`
     `treatment_advice_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊数量（默认0）',
     `treatment_advice_ratio`   decimal(5,2) NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
     `plan_screening_numbers`   int(10) unsigned DEFAULT '0' COMMENT '视力情况--计划的学生数量（默认0）',
-    `real_screening_numbers`   int(10) COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `real_screening_numbers`   int(10) unsigned DEFAULT '0' COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `valid_screening_numbers`  int(10) unsigned DEFAULT '0' COMMENT '视力情况--纳入统计的实际筛查学生数量（默认0）',
     `is_total`                 tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
-    `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
+    `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
     `create_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `district_vision_statistic_unique` (screening_notice_id, district_id, is_total)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区层级某次筛查计划统计视力情况表';
 
 -- ----------------------------
@@ -280,7 +285,7 @@ CREATE TABLE `m_school_vision_statistic`
     `vision_label0_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警人数（默认0）',
     `vision_label0_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--零级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label1_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警人数（默认0）',
-    `vision_label1_ratio`      decimal(4,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label1_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--一级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label2_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警人数（默认0）',
     `vision_label2_ratio`      decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--二级预警比例（均为整数，如10.01%，数据库则是1001）',
     `vision_label3_numbers`    int(11) NOT NULL DEFAULT '0' COMMENT '视力情况--三级预警人数（默认0）',
@@ -289,11 +294,13 @@ CREATE TABLE `m_school_vision_statistic`
     `treatment_advice_numbers` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊数量（默认0）',
     `treatment_advice_ratio`   decimal(5,2) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--建议就诊比例（均为整数，如10.01%，数据库则是1001）',
     `plan_screening_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--计划的学生数量（默认0）',
-    `real_screening_numbers`   int(11) DEFAULT NULL COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `real_screening_numbers`   int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--实际筛查的学生数量（默认0）',
+    `valid_screening_numbers`  int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--纳入统计的实际筛查学生数量（默认0）',
     `focus_targets_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '视力情况--重点视力对象数量（默认0）',
-    `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
+    `update_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '视力情况--更新时间',
     `create_time`              timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `school_vision_statistic_unique` (screening_plan_id, school_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校某次筛查计划统计视力情况表';
 
 -- ----------------------------
@@ -322,9 +329,10 @@ CREATE TABLE `m_school_monitor_statistic` (
     `plan_screening_numbers` int(11) NOT NULL DEFAULT '0' COMMENT '监测情况--计划的学生数量（默认0）',
     `real_screening_numbers` int(11) NOT NULL DEFAULT '0' COMMENT '监测情况--实际筛查的学生数量（默认0）',
     `rescreening_item_numbers` int(11) NOT NULL DEFAULT '0' COMMENT '监测情况-复测项数量',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '监测情况--更新时间',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '监测情况--更新时间',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`) USING BTREE
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `school_monitor_statistic_unique` (screening_task_id, screening_org_id, school_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区层级某次筛查计划统计监控监测情况表';
 
 -- ----------------------------

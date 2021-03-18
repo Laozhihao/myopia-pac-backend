@@ -67,6 +67,11 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Integer schoolId;
 
     /**
+     * 筛查计划--执行的学校编号
+     */
+    private String schoolNo;
+
+    /**
      * 筛查计划--执行的学校名字
      */
     private String schoolName;
