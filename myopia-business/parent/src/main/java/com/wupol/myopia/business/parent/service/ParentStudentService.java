@@ -1187,16 +1187,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
-     * 获取最大值
-     *
-     * @param val 数值
-     * @return Integer 最大值
-     */
-    private Integer getIntegerMax(Integer... val) {
-        return Arrays.stream(val).max(Comparator.naturalOrder()).orElse(null);
-    }
-
-    /**
      * 矫正状态
      *
      * @param nakedVision     裸眼视力
