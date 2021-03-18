@@ -437,7 +437,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 生物测量
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
         // 医生建议一（这里-5是为了type的偏移量）
-        responseDTO.setDoctorAdvice1(refractoryResult.getSecond() - 5);
+        Integer doctorAdvice1 = refractoryResult.getSecond() - 5;
+        if (doctorAdvice1.equals(-5)) {
+            responseDTO.setDoctorAdvice1(null);
+        } else {
+            responseDTO.setDoctorAdvice1(doctorAdvice1);
+        }
         // 医生建议二
         responseDTO.setDoctorAdvice2(getDoctorAdviceDetail(result, student.getGradeType()));
         if (null != visionData) {
