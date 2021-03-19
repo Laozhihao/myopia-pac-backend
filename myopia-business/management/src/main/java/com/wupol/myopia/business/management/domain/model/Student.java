@@ -210,7 +210,7 @@ public class Student implements Serializable {
         return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
                 !this.gender.equals(excelStudent.gender) ||
                 !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
-                (Objects.nonNull(excelStudent.nation) && !this.nation.equals(excelStudent.nation)) ||
+                (Objects.nonNull(excelStudent.nation) && (Objects.nonNull(this.nation)) && !this.nation.equals(excelStudent.nation)) ||
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
                 !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
