@@ -85,5 +85,5 @@ public interface CacheKey {
     /**
      * 获取学生二维码
      */
-    String PARENT_STUDENT_QR_CODE = "qrcode:token_%s";
+    String PARENT_STUDENT_QR_CODE = "QRCODE:TOKEN_%s";
 }
