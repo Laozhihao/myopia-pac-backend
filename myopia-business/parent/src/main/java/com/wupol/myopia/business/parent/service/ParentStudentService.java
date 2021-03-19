@@ -288,6 +288,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
+            items.setUpdateTime(s.getUpdateTime());
             return items;
         }).collect(Collectors.toList());
     }
