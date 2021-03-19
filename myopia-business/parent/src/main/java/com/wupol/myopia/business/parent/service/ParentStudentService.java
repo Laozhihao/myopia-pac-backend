@@ -388,8 +388,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String md5 = SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID());
-        String key = StringUtils.upperCase(String.format(CacheKey.PARENT_STUDENT_QR_CODE, md5));
+        String md5 = StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, md5);
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
