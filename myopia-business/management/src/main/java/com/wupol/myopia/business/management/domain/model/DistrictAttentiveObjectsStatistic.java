@@ -100,7 +100,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     private Integer keyWarningNumbers;
 
     /**
-     * 重点视力对象--学生总数
+     * 重点视力对象--筛查学生总数
      */
     private Integer studentNumbers;
 
@@ -117,7 +117,7 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     private Date createTime;
 
     public static DistrictAttentiveObjectsStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
-                                                          List<StatConclusion> statConclusions, Integer totalPlanStudentNum) {
+                                                          List<StatConclusion> statConclusions, Integer realScreeningNum) {
         Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
@@ -125,13 +125,22 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
-        int studentNumber = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
-                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, studentNumber))
-                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, studentNumber))
-                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, studentNumber))
-                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, studentNumber))
-                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(totalPlanStudentNum);
+                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, realScreeningNum))
+                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, realScreeningNum))
+                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, realScreeningNum))
+                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, realScreeningNum))
+                .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(realScreeningNum);
+        return statistic;
+    }
+
+    public static DistrictAttentiveObjectsStatistic empty() {
+        DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
+        statistic.setVisionLabel0Numbers(0).setVisionLabel0Ratio(BigDecimal.ZERO)
+                .setVisionLabel1Numbers(0).setVisionLabel1Ratio(BigDecimal.ZERO)
+                .setVisionLabel2Numbers(0).setVisionLabel2Ratio(BigDecimal.ZERO)
+                .setVisionLabel3Numbers(0).setVisionLabel3Ratio(BigDecimal.ZERO)
+                .setKeyWarningNumbers(0).setStudentNumbers(0);
         return statistic;
     }
 }

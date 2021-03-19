@@ -886,4 +886,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         return studentId;
     }
+
+    /**
+     * 统计筛查区域中的所有包含指定视力标签的学生总数
+     * @param districtId
+     * @param visionLabels 指定的视力标签（可为null）
+     * @return
+     */
+    public Integer countByDistrictIdAndVisionLabels(Integer districtId, List<Integer> visionLabels) {
+        if (Objects.isNull(districtId)) {
+            return 0;
+        }
+        return baseMapper.selectCountByDistrictIdAndVisionLabels(districtId, visionLabels);
+    }
 }

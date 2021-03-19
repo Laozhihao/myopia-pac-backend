@@ -51,4 +51,5 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     List<Student> getByIdCardsAndStatus(@Param("idCards") List<String> idCards, @Param("status") Integer status);
 
+    Integer selectCountByDistrictIdAndVisionLabels(@Param("districtId") Integer districtId, @Param("visionLabels") List<Integer> visionLabels);
 }

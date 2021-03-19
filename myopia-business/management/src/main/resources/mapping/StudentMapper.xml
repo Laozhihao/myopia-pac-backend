@@ -252,4 +252,17 @@
         </foreach>
         and status = #{status}
     </select>
+
+    <select id="selectCountByDistrictIdAndVisionLabels" resultType="java.lang.Integer">
+        select count(1)
+        from m_student mst
+        left join m_school msc on mst.school_no = msc.school_no
+        where msc.district_id = #{districtId}
+        <if test="visionLabels != null and visionLabels.size() != 0">
+            and mst.vision_label in
+            <foreach collection="visionLabels" item="visionLabel" index="index" open="(" close=")" separator=",">
+                #{visionLabel}
+            </foreach>
+        </if>
+    </select>
 </mapper>

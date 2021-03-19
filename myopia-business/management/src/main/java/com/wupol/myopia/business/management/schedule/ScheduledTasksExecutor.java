@@ -52,7 +52,7 @@ public class ScheduledTasksExecutor {
      * 筛查数据统计
      */
     //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-//    @Scheduled(cron = "*/20 * * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 */2 * * * ?", zone = "GMT+8:00")
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
@@ -99,8 +99,8 @@ public class ScheduledTasksExecutor {
                 Map<Boolean, List<StatConclusionVo>> isRescreenTotalMap = schoolStatConclusion.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
                 List<StatConclusionVo> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
                 Map<Boolean, List<StatConclusionVo>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
-                schoolVisionStatistics.add(SchoolVisionStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, screeningPlan.getDistrictId(), isRescreenMap.getOrDefault(false, Collections.emptyList()), screeningPlan.getStudentNumbers(), isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
-                schoolMonitorStatistics.add(SchoolMonitorStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlan.getDistrictId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), screeningPlan.getStudentNumbers(), isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
+                schoolVisionStatistics.add(SchoolVisionStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), screeningPlan.getStudentNumbers(), isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
+                schoolMonitorStatistics.add(SchoolMonitorStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), screeningPlan.getStudentNumbers(), isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
             });
         });
     }
@@ -197,9 +197,10 @@ public class ScheduledTasksExecutor {
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
         Integer screeningTaskId = selfStatConclusions.get(0).getTaskId();
         Integer totalPlanStudentNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
-        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum));
-        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
+        Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
+        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum));
+        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, realScreeningStudentNum));
+        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, realScreeningStudentNum));
     }
 
     /**
@@ -226,8 +227,9 @@ public class ScheduledTasksExecutor {
         // 层级总的筛查数据不一定属于同一个任务，所以取默认0
         Integer screeningTaskId = CommonConst.DEFAULT_ID;
         Integer totalPlanStudentNum = screeningPlans.stream().mapToInt(ScreeningPlan::getStudentNumbers).sum();
-        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum));
-        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size()));
+        Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
+        districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum));
+        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), totalPlanStudentNum, realScreeningStudentNum));
+        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), totalPlanStudentNum, realScreeningStudentNum));
     }
 }

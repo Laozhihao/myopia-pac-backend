@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,14 +34,17 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
      * @param districtIds
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds,  Integer currentDistrictId, boolean isTotal,boolean isCurrent) {
+    public List<DistrictAttentiveObjectsStatistic> getStatisticDtoByDistrictIdAndTaskId(Set<Integer> districtIds,  Integer currentDistrictId, Boolean isTotal,boolean isCurrent) {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(DistrictAttentiveObjectsStatistic::getIsTotal,isTotal);
+        if (Objects.nonNull(isTotal)) {
+            queryWrapper.eq(DistrictAttentiveObjectsStatistic::getIsTotal,isTotal);
+        }
         if (isCurrent) {
             queryWrapper.eq(DistrictAttentiveObjectsStatistic::getDistrictId,currentDistrictId);
         } else {
             queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtIds);
         }
+        queryWrapper.orderByDesc(DistrictAttentiveObjectsStatistic::getUpdateTime);
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }
