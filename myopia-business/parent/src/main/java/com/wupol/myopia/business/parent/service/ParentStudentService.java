@@ -432,7 +432,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetail responseDTO = new ScreeningReportDetail();
-        responseDTO.setScreeningDate(result.getCreateTime());
+        responseDTO.setScreeningDate(result.getUpdateTime());
         VisionDataDO visionData = result.getVisionData();
         // 视力检查结果
         responseDTO.setVisionResultItems(packageVisionResult(visionData, age));
