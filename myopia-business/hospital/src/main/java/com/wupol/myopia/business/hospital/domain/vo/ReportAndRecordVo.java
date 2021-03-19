@@ -22,5 +22,7 @@ public class ReportAndRecordVo {
 
     private Date createTime;
 
+    private Date updateTime;
+
     private String hospitalName;
 }
