@@ -880,7 +880,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生ID
      */
     public Integer parseToken2StudentId(String token) {
-        Integer studentId = (Integer) redisUtil.get(token);
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, token);
+        Integer studentId = (Integer) redisUtil.get(key);
         if (Objects.isNull(studentId)) {
             throw new BusinessException("学生二维码已经失效！");
         }
