@@ -10,13 +10,11 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.StudentCardResponseDTO;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
-import com.wupol.myopia.business.management.domain.vo.VisionScreeningResultExportVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
+import com.wupol.myopia.business.management.interfaces.HasName;
 import com.wupol.myopia.business.management.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -41,6 +39,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private StudentService studentService;
     @Autowired
@@ -79,36 +79,58 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     /**
-     * 导出筛查数据（districtId与schoolId不能同时为0）
+     * 导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
      * @param screeningNoticeId
+     * @param screeningOrgId 筛查机构ID，默认0
      * @param districtId 层级ID，默认0
      * @param schoolId 学校ID，默认0
      * @return
      */
     @GetMapping("/export")
-    public Object getOrganizationExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
-        if (Objects.isNull(screeningNotice)) {
-            throw new BusinessException("筛查通知不存在");
-        }
-        if (CommonConst.DEFAULT_ID.equals(districtId) && CommonConst.DEFAULT_ID.equals(schoolId)) {
-            throw new BusinessException("层级与学校必须选择一个");
-        }
-
+    public Object getOrganizationExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+        // 参数校验
+        validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId);
         List<StatConclusionExportVo> statConclusionExportVos = new ArrayList<>();
+        // 获取文件需显示的名称的机构/学校/区域前缀
+        String exportFileNamePrefix = "";
+        Boolean isSchoolExport = false;
+        if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
+            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
+        }
         if (!CommonConst.DEFAULT_ID.equals(districtId)) {
+            exportFileNamePrefix = checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
             // 合计的要包括自己层级的筛查数据
             List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
         }
         if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+            exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
+            isSchoolExport = true;
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
         }
         initAddressFullPath(statConclusionExportVos);
         // 获取文件需显示的名称
-        String districtOrSchoolName = getDistrictOrSchoolName(districtId, schoolId);
-        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, districtId, schoolId, districtOrSchoolName);
+        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
         return ApiResult.success();
+    }
+
+    /**
+     * 校验筛查数据导出参数
+     * @param screeningNoticeId
+     * @param screeningOrgId
+     * @param districtId
+     * @param schoolId
+     */
+    private void validateExportParams(Integer screeningNoticeId, Integer screeningOrgId, Integer districtId, Integer schoolId) {
+        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
+        if (Objects.isNull(screeningNotice)) {
+            throw new BusinessException("筛查通知不存在");
+        }
+        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, districtId, schoolId);
+        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
+            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
+        }
     }
 
     /**
@@ -129,26 +151,15 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     /**
-     * 获取学校或区域层级名称
-     * @param districtId
-     * @param schoolId
+     * 判空并获取名称
+     * @param object
+     * @param desc
      * @return
-     * @throws IOException
      */
-    private String getDistrictOrSchoolName(Integer districtId, Integer schoolId) throws IOException {
-        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
-            District district = districtService.getById(districtId);
-            if (Objects.isNull(district)) {
-                throw new BusinessException("未找到该行政区域");
-            }
-            return district.getName();
-        } else if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-            School school = schoolService.getById(schoolId);
-            if (Objects.isNull(school)) {
-                throw new BusinessException("未找到该学校");
-            }
-            return school.getName();
+    private <T extends HasName> String checkNotNullAndGetName(T object, String desc) {
+        if (Objects.isNull(object)) {
+            throw new BusinessException(String.format("未找到该%s", desc));
         }
-        throw new BusinessException("层级或学校必须选择一个");
+        return object.getName();
     }
 }

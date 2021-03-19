@@ -114,4 +114,16 @@
         AND msc.school_id = #{schoolId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
+
+    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
+        SELECT mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_no, mspss.school_name, mspss.grade_name, mspss.class_name,
+        mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
+        mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id
+        FROM m_stat_conclusion msc
+        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
+        AND mvsr.screening_org_id = #{screeningOrgId}
+        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+    </select>
 </mapper>

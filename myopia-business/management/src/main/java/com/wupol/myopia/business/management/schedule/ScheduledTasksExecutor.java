@@ -52,7 +52,7 @@ public class ScheduledTasksExecutor {
      * 筛查数据统计
      */
     //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-    @Scheduled(cron = "0 */2 * * * ?", zone = "GMT+8:00")
+//    @Scheduled(cron = "0 * * * * ?", zone = "GMT+8:00")
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
