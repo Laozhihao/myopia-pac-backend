@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -147,7 +148,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         });
         Set<Long> notNullDistrictCode = districtCode.stream().filter(Objects::nonNull).collect(Collectors.toSet());
         Map<Long, String> districtCodeNameMap = districtService.getByCodes(new ArrayList<>(notNullDistrictCode)).stream().collect(Collectors.toMap(District::getCode, District::getName));
-        statConclusionExportVos.forEach(vo -> vo.setAddress(String.join(districtCodeNameMap.getOrDefault(vo.getProvinceCode(), ""), districtCodeNameMap.getOrDefault(vo.getCityCode(), ""), districtCodeNameMap.getOrDefault(vo.getAreaCode(), ""), districtCodeNameMap.getOrDefault(vo.getTownCode(), ""), vo.getAddress())));
+        statConclusionExportVos.forEach(vo -> vo.setAddress(String.join(districtCodeNameMap.getOrDefault(vo.getProvinceCode(), ""), districtCodeNameMap.getOrDefault(vo.getCityCode(), ""), districtCodeNameMap.getOrDefault(vo.getAreaCode(), ""), districtCodeNameMap.getOrDefault(vo.getTownCode(), ""), StringUtils.getDefaultIfBlank(vo.getAddress(), ""))));
     }
 
     /**

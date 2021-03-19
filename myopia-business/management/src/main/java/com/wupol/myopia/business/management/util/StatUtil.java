@@ -359,11 +359,11 @@ public class StatUtil {
      * @param cylinder 柱镜
      * @return
      */
-    public static Float getSphericalEquivalent(BigDecimal sphere, BigDecimal cylinder) {
+    public static BigDecimal getSphericalEquivalent(BigDecimal sphere, BigDecimal cylinder) {
         if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getSphericalEquivalent(sphere.floatValue(), cylinder.floatValue());
+        return cylinder.divide(new BigDecimal(2)).add(sphere);
     }
 
     /**

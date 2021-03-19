@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -899,7 +900,8 @@ public class ExcelFacade {
             BeanUtils.copyProperties(vo, exportVo);
             GlassesType glassesType = GlassesType.get(vo.getGlassesType());
             exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(NationEnum.getName(vo.getNation()))
-                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否");
+                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
+                    .setWarningLevelDesc(WarningLevel.getDesc(vo.getWarningLevel()));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             exportVos.add(exportVo);
@@ -916,12 +918,12 @@ public class ExcelFacade {
     private void genReScreeningData(Map<Integer, StatConclusionExportVo> rescreenPlanStudentIdVoMap, StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
         StatConclusionExportVo rescreenVo = rescreenPlanStudentIdVoMap.get(vo.getScreeningPlanSchoolStudentId());
         if (Objects.nonNull(rescreenVo)) {
-            exportVo.setReScreenNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
-                    .setReScreenCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                    .setReScreenSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                    .setReScreenCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                    .setReScreenAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
-                    .setReScreenSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+            exportVo.setReScreenNakedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), 1))
+                    .setReScreenCorrectedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION), 1))
+                    .setReScreenSphs(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
+                    .setReScreenCyls(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
+                    .setReScreenAxials(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
+                    .setReScreenSphericalEquivalents(eyeDataFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)), 2))
                     .setIsRescreenDesc("是");
         }
     }
@@ -932,12 +934,12 @@ public class ExcelFacade {
      * @param exportVo
      */
     private void genScreeningData(StatConclusionExportVo vo, VisionScreeningResultExportVo exportVo) {
-        exportVo.setNakedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
-                .setCorrectedVisions(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                .setSphs(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setCyls(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setAxials(eyeDateFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
-                .setSphericalEquivalents(eyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL))));
+        exportVo.setNakedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), 1))
+                .setCorrectedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION), 1))
+                .setSphs(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
+                .setCyls(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
+                .setAxials(eyeDataFormat((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
+                .setSphericalEquivalents(eyeDataFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)), 2));
     }
 
     /**
@@ -946,7 +948,15 @@ public class ExcelFacade {
      * @param leftEyeData
      * @return
      */
-    private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
-        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData, Objects.isNull(leftEyeData) ? "--" : leftEyeData);
+    private String eyeDataFormat(BigDecimal rightEyeData, BigDecimal leftEyeData, int scale) {
+        // 不足两位小数补0
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        if (scale == 0) {
+            decimalFormat = new DecimalFormat("#");
+        }
+        if (scale == 1) {
+            decimalFormat = new DecimalFormat("0.0");
+        }
+        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData), Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
     }
 }
