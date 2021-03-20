@@ -190,14 +190,15 @@ public class DistrictVisionStatistic implements Serializable {
     private Date createTime;
 
     public static DistrictVisionStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
-                                                List<StatConclusion> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumber) {
+                                                List<StatConclusion> statConclusions, List<StatConclusion> totalStatConclusions, Integer planScreeningNumbers) {
         DistrictVisionStatistic statistic = new DistrictVisionStatistic();
-        Integer wearingGlassNumber =
-                (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+        Integer realScreeningNumber = totalStatConclusions.size();
+        Integer wearingGlassNumber = (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
         Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        // 预警人群、建议就诊使用所有筛查数据（有效、无效）
+        Map<Integer, Long> visionLabelNumberMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
