@@ -1,16 +1,16 @@
 package com.wupol.myopia.business.management.domain.dto.stat;
 
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -84,32 +84,30 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * @param currentDistrictId
      * @param currentRangeName
      * @param districtIdNameMap
+     * @param currentDistrictAttentiveObjectsStatistic
      * @return
      */
-    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, Map<Integer, String> districtIdNameMap) {
+    public static FocusObjectsStatisticVO getInstance(List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Integer currentDistrictId, String currentRangeName, Map<Integer, String> districtIdNameMap, DistrictAttentiveObjectsStatistic currentDistrictAttentiveObjectsStatistic ) {
         if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
             return null;
         }
-        Map<Integer, List<DistrictAttentiveObjectsStatistic>> isTotalListMap = districtAttentiveObjectsStatistics.stream().collect(Collectors.groupingBy(DistrictAttentiveObjectsStatistic::getIsTotal));
-        Map<Integer, List<DistrictAttentiveObjectsStatistic>> districtTotalStatisticsMap = isTotalListMap.getOrDefault(CommonConst.IS_TOTAL, Collections.emptyList()).stream().collect(Collectors.groupingBy(DistrictAttentiveObjectsStatistic::getDistrictId));
-        Map<Integer, List<DistrictAttentiveObjectsStatistic>> districtNotTotalStatisticsMap = isTotalListMap.getOrDefault(CommonConst.NOT_TOTAL, Collections.emptyList()).stream().collect(Collectors.groupingBy(DistrictAttentiveObjectsStatistic::getDistrictId));
         FocusObjectsStatisticVO focusObjectsStatisticVO = new FocusObjectsStatisticVO();
         //设置基础数据
         focusObjectsStatisticVO.setBasicData(currentDistrictId, currentRangeName);
         //设置当前数据
-        focusObjectsStatisticVO.setCurrentData(districtNotTotalStatisticsMap.getOrDefault(currentDistrictId, Collections.emptyList()));
+        focusObjectsStatisticVO.setCurrentData(currentDistrictAttentiveObjectsStatistic);
         //设置统计数据
-        focusObjectsStatisticVO.setItemData(currentDistrictId, districtIdNameMap, districtTotalStatisticsMap);
+        focusObjectsStatisticVO.setItemData(currentDistrictId, districtAttentiveObjectsStatistics, districtIdNameMap);
         return focusObjectsStatisticVO;
     }
 
     /**
      * 设置当前数据
-     * @param statistics
+     * @param currentDistrictAttentiveObjectsStatistic
      */
-    private void setCurrentData(List<DistrictAttentiveObjectsStatistic> statistics) {
-        if (statistics != null) {
-            currentData = this.getItem(districtId,getScreeningRangeName(), reCountByStatisticList(statistics));
+    private void setCurrentData(DistrictAttentiveObjectsStatistic currentDistrictAttentiveObjectsStatistic) {
+        if (currentDistrictAttentiveObjectsStatistic != null) {
+            currentData = this.getItem(districtId,getScreeningRangeName(),currentDistrictAttentiveObjectsStatistic);
         }
     }
 
@@ -117,38 +115,25 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      * 设置统计数据
      *
      * @param currentDistrictId
+     * @param districtAttentiveObjectsStatistics
      * @param districtIdNameMap
-     * @param districtTotalStatisticsMap 区域层级汇总数据Map
      */
-    private void setItemData(Integer currentDistrictId, Map<Integer, String> districtIdNameMap, Map<Integer, List<DistrictAttentiveObjectsStatistic>> districtTotalStatisticsMap) {
-        // 由于重点视力对象的统计没有区分筛查通知，所以需拿到所有的区域的汇总数据再重新计算
-        // 当前汇总数据
-        this.totalData = this.getItem(districtId, TOTAL_RANGE_NAME, reCountByStatisticList(districtTotalStatisticsMap.getOrDefault(districtId, Collections.emptyList())));
-        // 下级汇总数据
-        this.subordinateDatas = districtTotalStatisticsMap.keySet().stream().filter(id -> !currentDistrictId.equals(id)).map(id -> this.getItem(id, districtIdNameMap.get(id), reCountByStatisticList(districtTotalStatisticsMap.getOrDefault(id, Collections.emptyList())))).filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
-    /**
-     * 根据列表重新计算统计内容
-     * 因为数据库中分了筛查通知维度，所以需要重新计算
-     * @param statisticList
-     * @return
-     */
-    private DistrictAttentiveObjectsStatistic reCountByStatisticList(List<DistrictAttentiveObjectsStatistic> statisticList) {
-        if (CollectionUtils.isEmpty(statisticList)) {
-            return DistrictAttentiveObjectsStatistic.empty();
-        }
-        Integer studentNumbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getStudentNumbers).sum();
-        Integer keyWarningNumbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getKeyWarningNumbers).sum();
-        Integer visionLabel0Numbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getVisionLabel0Numbers).sum();
-        Integer visionLabel1Numbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getVisionLabel1Numbers).sum();
-        Integer visionLabel2Numbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getVisionLabel2Numbers).sum();
-        Integer visionLabel3Numbers = statisticList.stream().mapToInt(DistrictAttentiveObjectsStatistic::getVisionLabel3Numbers).sum();
-        return new DistrictAttentiveObjectsStatistic().setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(studentNumbers)
-                .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, studentNumbers))
-                .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, studentNumbers))
-                .setVisionLabel2Numbers(visionLabel2Numbers).setVisionLabel2Ratio(MathUtil.divide(visionLabel2Numbers, studentNumbers))
-                .setVisionLabel3Numbers(visionLabel3Numbers).setVisionLabel3Ratio(MathUtil.divide(visionLabel3Numbers, studentNumbers));
+    private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
+        // 下级数据 + 当前数据 + 合计数据
+        Set<FocusObjectsStatisticVO.Item> subordinateItemSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
+            Integer districtId = districtAttentiveObjectsStatistic.getDistrictId();
+            String rangeName;
+            //是合计数据
+            if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
+                rangeName = TOTAL_RANGE_NAME;
+                FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
+                totalData = item;
+                return null;
+            }
+            rangeName = districtIdNameMap.get(districtId);
+            return this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+        this.subordinateDatas = subordinateItemSet;
     }
 
     /**

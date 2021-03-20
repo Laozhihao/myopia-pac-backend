@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public class DistrictAttentiveObjectsStatisticService extends BaseService<DistrictAttentiveObjectsStatisticMapper, DistrictAttentiveObjectsStatistic> {
 
     @Autowired
-    private ScreeningNoticeService screeningNoticeService;
+    private DistrictService districtService;
 
     /**
      * 获取统计数据
@@ -55,16 +56,11 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
      * @param user
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getDataByUser(CurrentUser user) {
+    public List<DistrictAttentiveObjectsStatistic> getDataByUser(CurrentUser user) throws IOException {
         LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        // 所有能看到的通知
-        List<ScreeningNotice> screeningNotices = screeningNoticeService.getRelatedNoticeByUser(user);
-        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
-        if (CollectionUtils.isEmpty(screeningNoticeIds)) {
-            return new ArrayList<>();
-        }
-        queryWrapper.in(DistrictAttentiveObjectsStatistic::getScreeningNoticeId, screeningNoticeIds);
-        // 查找这些通知的所有数据
+        // 调整为根据districtId获取
+        queryWrapper.in(DistrictAttentiveObjectsStatistic::getDistrictId, districtService.getCurrentUserDistrictTreeAllIds(user));
+        // 查找所有数据
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
         return districtAttentiveObjectsStatistics;
     }

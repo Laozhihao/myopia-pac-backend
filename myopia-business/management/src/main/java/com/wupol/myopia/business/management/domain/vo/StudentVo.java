@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.domain.vo;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,5 +19,7 @@ public class StudentVo extends Student{
     private String gradeName;
     /** 班级名 */
     private String className;
+    /** 学生学校所在的区域层级 */
+    private Integer districtId;
 
 }

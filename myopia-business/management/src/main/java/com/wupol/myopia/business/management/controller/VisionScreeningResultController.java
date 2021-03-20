@@ -110,7 +110,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             isSchoolExport = true;
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
         }
-        initAddressFullPath(statConclusionExportVos);
+        statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
         return ApiResult.success();
@@ -132,23 +132,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
             throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
         }
-    }
-
-    /**
-     * 组装全地址
-     * @param statConclusionExportVos
-     */
-    private void initAddressFullPath(List<StatConclusionExportVo> statConclusionExportVos) {
-        Set<Long> districtCode = new HashSet<>();
-        statConclusionExportVos.forEach(vo -> {
-            districtCode.add(vo.getProvinceCode());
-            districtCode.add(vo.getCityCode());
-            districtCode.add(vo.getTownCode());
-            districtCode.add(vo.getAreaCode());
-        });
-        Set<Long> notNullDistrictCode = districtCode.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-        Map<Long, String> districtCodeNameMap = districtService.getByCodes(new ArrayList<>(notNullDistrictCode)).stream().collect(Collectors.toMap(District::getCode, District::getName));
-        statConclusionExportVos.forEach(vo -> vo.setAddress(String.join(districtCodeNameMap.getOrDefault(vo.getProvinceCode(), ""), districtCodeNameMap.getOrDefault(vo.getCityCode(), ""), districtCodeNameMap.getOrDefault(vo.getAreaCode(), ""), districtCodeNameMap.getOrDefault(vo.getTownCode(), ""), StringUtils.getDefaultIfBlank(vo.getAddress(), ""))));
     }
 
     /**

@@ -619,10 +619,10 @@ public class StatService {
      */
     public FocusObjectsStatisticVO getFocusObjectsStatisticVO(
             Integer districtId, List<District> districts, Set<Integer> districtIds) {
-        //根据层级获取数据(当前层级，下级层级，汇总+自身的数据）
+        //根据层级获取数据(当前层级，下级层级，汇总数据）
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics =
                 districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(
-                        districtIds,districtId,null,false);
+                        districtIds,districtId,true,false);
         if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
             return FocusObjectsStatisticVO.getImmutableEmptyInstance();
         }
@@ -632,9 +632,17 @@ public class StatService {
         Map<Integer, String> districtIdNameMap = districts.stream().collect(
                 Collectors.toMap(District::getId, District::getName, (v1, v2) -> v2));
         districtIdNameMap.put(districtId, currentRangeName);
+
+        List<DistrictAttentiveObjectsStatistic> currentAttentiveObjectsStatistics =
+                districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(
+                        districtIds,districtId,false,true);
+        DistrictAttentiveObjectsStatistic  currentDistrictAttentiveObjectsStatistic = null;
+        if (CollectionUtils.isNotEmpty(currentAttentiveObjectsStatistics)) {
+            currentDistrictAttentiveObjectsStatistic = currentAttentiveObjectsStatistics.stream().findFirst().get();
+        }
         //获取数据
         return FocusObjectsStatisticVO.getInstance(districtAttentiveObjectsStatistics, districtId,
-                currentRangeName, districtIdNameMap);
+                currentRangeName, districtIdNameMap,currentDistrictAttentiveObjectsStatistic);
     }
 
     /**
