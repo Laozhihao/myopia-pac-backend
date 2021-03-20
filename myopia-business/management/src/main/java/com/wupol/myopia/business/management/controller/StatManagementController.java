@@ -31,6 +31,8 @@ public class StatManagementController {
     @Autowired
     private DistrictService districtService;
     @Autowired
+    private SchoolService schoolService;
+    @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
@@ -98,7 +100,7 @@ public class StatManagementController {
     }
 
     /**
-     * 根据筛查任务获取地区id
+     * 根据筛查任务获取任务所有筛查学校的地区
      *
      * @param
      * @return
@@ -110,9 +112,9 @@ public class StatManagementController {
             throw new BusinessException("找不到该notice");
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        //查看该通知发布层级的 地区树
+        //查看该通知所有筛查学校的层级的 地区树
         List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
-        Set<Integer> districts = screeningPlans.stream().map(ScreeningPlan::getDistrictId).collect(Collectors.toSet());
+        Set<Integer> districts = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         return districtService.getValidDistrictTree(currentUser, districts);
     }
 

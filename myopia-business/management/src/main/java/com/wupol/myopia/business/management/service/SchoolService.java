@@ -772,9 +772,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param screeningPlanIds
      * @return
      */
-    public List<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
+    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
         if (CollectionUtils.isEmpty(screeningPlanIds)) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
         return baseMapper.selectDistrictIdsByScreeningPlanIds(screeningPlanIds);
     }
