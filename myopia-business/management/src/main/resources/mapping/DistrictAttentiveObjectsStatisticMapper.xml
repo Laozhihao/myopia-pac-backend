@@ -11,8 +11,6 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
-                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label0_numbers` = #{visionLabel0Numbers}</if>
                 <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label0_ratio` = #{visionLabel0Ratio}</if>
@@ -33,18 +31,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, is_total, screening_notice_id, screening_task_id, district_id, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, student_numbers, update_time, create_time
+        id, is_total, district_id, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, student_numbers, update_time, create_time
     </sql>
 
     <insert id="batchSaveOrUpdate">
         INSERT INTO m_district_attentive_objects_statistic
-        (is_total, screening_notice_id, screening_task_id, district_id,
+        (is_total, district_id,
         vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio,
         vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio,
         key_warning_numbers, student_numbers)
         VALUES
         <foreach collection="list" item="entity" separator=",">
-            (#{entity.isTotal}, #{entity.screeningNoticeId}, #{entity.screeningTaskId}, #{entity.districtId},
+            (#{entity.isTotal}, #{entity.districtId},
             #{entity.visionLabel0Numbers}, #{entity.visionLabel0Ratio}, #{entity.visionLabel1Numbers}, #{entity.visionLabel1Ratio},
             #{entity.visionLabel2Numbers}, #{entity.visionLabel2Ratio}, #{entity.visionLabel3Numbers}, #{entity.visionLabel3Ratio},
             #{entity.keyWarningNumbers}, #{entity.studentNumbers})
