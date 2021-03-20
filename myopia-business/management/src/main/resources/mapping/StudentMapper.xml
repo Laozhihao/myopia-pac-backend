@@ -9,6 +9,9 @@
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
     </resultMap>
 
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.StudentVo">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -253,16 +256,13 @@
         and status = #{status}
     </select>
 
-    <select id="selectCountByDistrictIdAndVisionLabels" resultType="java.lang.Integer">
-        select count(1)
+    <select id="selectBySchoolDistrictIds" resultMap="VoResultMap">
+        select mst.id, mst.vision_label, msc.district_id
         from m_student mst
         left join m_school msc on mst.school_no = msc.school_no
-        where msc.district_id = #{districtId}
-        <if test="visionLabels != null and visionLabels.size() != 0">
-            and mst.vision_label in
-            <foreach collection="visionLabels" item="visionLabel" index="index" open="(" close=")" separator=",">
-                #{visionLabel}
-            </foreach>
-        </if>
+        where msc.district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+          #{districtId}
+        </foreach>
     </select>
 </mapper>

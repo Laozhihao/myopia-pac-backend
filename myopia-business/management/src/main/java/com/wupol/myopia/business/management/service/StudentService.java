@@ -22,6 +22,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -889,15 +890,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 统计筛查区域中的所有包含指定视力标签的学生总数
-     * @param districtId
-     * @param visionLabels 指定的视力标签（可为null）
+     * 根据区域层级Id获取其学校的所有学生数据
+     * @param districtIds
      * @return
      */
-    public Integer countByDistrictIdAndVisionLabels(Integer districtId, List<Integer> visionLabels) {
-        if (Objects.isNull(districtId)) {
-            return 0;
+    public List<StudentVo> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
         }
-        return baseMapper.selectCountByDistrictIdAndVisionLabels(districtId, visionLabels);
+        return baseMapper.selectBySchoolDistrictIds(districtIds);
     }
 }

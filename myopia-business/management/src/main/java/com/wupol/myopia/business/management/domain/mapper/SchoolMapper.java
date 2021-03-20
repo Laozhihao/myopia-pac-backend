@@ -38,4 +38,6 @@ public interface SchoolMapper extends BaseMapper<School> {
     List<School> getByDistrictId(@Param("districtId") Integer districtId);
 
     List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
+
+    List<Integer> selectDistrictIdsByScreeningPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
 }

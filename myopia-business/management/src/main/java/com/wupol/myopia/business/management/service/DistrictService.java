@@ -189,6 +189,19 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取以当前登录用户所属行政区域为根节点的行政区域树所有ID
+     *
+     * @param currentUser 当前登录用户
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<Integer> getCurrentUserDistrictTreeAllIds(CurrentUser currentUser) throws IOException {
+        List<District> districtTrees = getCurrentUserDistrictTree(currentUser);
+        List<Integer> districtIds = new ArrayList<>();
+        getAllIds(districtIds, districtTrees);
+        return districtIds;
+    }
+
+    /**
      * 获取非平台管理员用户的行政区域
      *
      * @param currentUser 当前登录用户
@@ -281,15 +294,34 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定行政区域所属省份的所有行政区域树
+     * @param districtId 行政区域Id
+     * @return
+     */
+    private District getProvinceDistrictTreePriorityCacheById(Integer districtId) {
+        District district = getById(districtId);
+        Assert.notNull(district, "无效行政区域ID：" + districtId);
+        return getProvinceDistrictTreePriorityCache(district.getCode());
+    }
+
+    /**
+     * 获取指定行政区域所在省份的层级ID
+     * @param districtId 行政区域Id
+     * @return
+     */
+    public Integer getProvinceId(Integer districtId) {
+        District district = getProvinceDistrictTreePriorityCacheById(districtId);
+        return district.getId();
+    }
+
+    /**
      * 获取指定行政区域所属省份的所有行政区域的id列表
      *
      * @param districtId 行政区域ID
      * @return List
      **/
     public List<Integer> getProvinceAllDistrictIds(Integer districtId) {
-        District district = getById(districtId);
-        Assert.notNull(district, "无效行政区域ID：" + districtId);
-        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCacheById(districtId);
         List<Integer> districtIds = new ArrayList<>();
         districtIds.add(provinceDistrictTreePriorityCache.getId());
         getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
@@ -477,14 +509,27 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
 
     /**
-     * 根据行政区域代码编号，获取以其作为根节点的行政区区域树
+     * 根据行政区域Id，获取以其作为根节点的行政区区域树
      *
-     * @param districtId 行政区域代码
+     * @param districtId 行政区域Id
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public District getDistrictTree(Integer districtId) {
         District district = getById(districtId);
         return getDistrictTree(district.getCode());
+    }
+
+    /**
+     * 根据行政区域Id，获取以其作为根节点的行政区区域树的所有ID
+     *
+     * @param districtId 行政区域Id
+     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
+     **/
+    public List<Integer> getDistrictTreeAllIds(Integer districtId) {
+        List<District> districtTree = getDistrictTree(districtId);
+        List<Integer> districtIds = new ArrayList<>();
+        getAllIds(districtIds, districtTree);
+        return districtIds;
     }
 
     /**

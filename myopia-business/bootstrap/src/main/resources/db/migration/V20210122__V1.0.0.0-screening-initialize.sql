@@ -187,6 +187,31 @@ CREATE TABLE `m_district_attentive_objects_statistic`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='某个地区层级最新统计的重点视力对象情况表';
 
 -- ----------------------------
+-- Table structure for m_district_attentive_objects_statistic
+-- ----------------------------
+DROP TABLE IF EXISTS `m_district_attentive_objects_statistic`;
+CREATE TABLE `m_district_attentive_objects_statistic`
+(
+    `id`                     int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+    `district_id`            int(10) unsigned NOT NULL COMMENT '重点视力对象--所属的地区id',
+    `vision_label0_numbers`  int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警人数（默认0）',
+    `vision_label0_ratio`    decimal(5,2) NOT NULL DEFAULT '0' COMMENT '重点视力对象--零级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label1_numbers`  int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警人数（默认0）',
+    `vision_label1_ratio`    decimal(5,2) NOT NULL DEFAULT '0' COMMENT '重点视力对象--一级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label2_numbers`  int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警人数（默认0）',
+    `vision_label2_ratio`    decimal(5,2) NOT NULL DEFAULT '0' COMMENT '重点视力对象--二级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `vision_label3_numbers`  int(10) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警人数（默认0）',
+    `vision_label3_ratio`    decimal(5,2) NOT NULL DEFAULT '0' COMMENT '重点视力对象--三级预警比例（均为整数，如10.01%，数据库则是1001）',
+    `key_warning_numbers`    int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--重点视力对象数量（默认0）',
+    `student_numbers`        int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重点视力对象--学生总数 ',
+    `update_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '重点视力对象--更新时间',
+    `is_total`               tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '是否合计数据',
+    `create_time`            timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `district_attentive_objects_statistic_unique` (district_id, is_total)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='某个地区层级最新统计的重点视力对象情况表';
+
+-- ----------------------------
 -- Table structure for m_district_monitor_statistic
 -- ----------------------------
 DROP TABLE IF EXISTS `m_district_monitor_statistic`;
