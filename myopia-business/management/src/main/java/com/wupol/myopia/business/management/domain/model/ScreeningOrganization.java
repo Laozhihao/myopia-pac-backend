@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
 import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;
+import com.wupol.myopia.business.management.interfaces.HasName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,7 +25,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_organization")
-public class ScreeningOrganization implements Serializable {
+public class ScreeningOrganization implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
 

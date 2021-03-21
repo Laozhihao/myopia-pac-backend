@@ -766,4 +766,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolResponseDTO;
         }).collect(Collectors.toList());
     }
+
+    /**
+     * 获取筛查计划关联学校的层级ID
+     * @param screeningPlanIds
+     * @return
+     */
+    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptySet();
+        }
+        return baseMapper.selectDistrictIdsByScreeningPlanIds(screeningPlanIds);
+    }
 }

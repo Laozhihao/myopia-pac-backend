@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -218,27 +219,29 @@ public class SchoolVisionStatistic implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId, Integer districtId,
-                                              List<StatConclusionVo> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumber) {
+    public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
+                                              List<StatConclusionVo> statConclusions, List<StatConclusionVo> totalStatConclusions, Integer planScreeningNumbers) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
+        Integer realScreeningNumber = totalStatConclusions.size();
         Integer wearingGlassNumber =
                 (int) statConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
         Integer myopiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsMyopia).count();
         Integer ametropiaNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
         Integer lowVisionNumber = (int) statConclusions.stream().filter(StatConclusion::getIsLowVision).count();
-        Map<Integer, Long> visionLabelNumberMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        // 预警人群、建议就诊使用所有筛查数据（有效、无效）
+        Map<Integer, Long> visionLabelNumberMap = totalStatConclusions.stream().filter(stat -> Objects.nonNull(stat.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
-        Integer treatmentAdviceNumber = (int) statConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
+        Integer treatmentAdviceNumber = (int) totalStatConclusions.stream().filter(StatConclusion::getIsRecommendVisit).count();
         double avgLeftVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).average().orElse(0);
         double avgRightVision = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).average().orElse(0);
         int validScreeningNumbers = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
-                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(districtId)
+                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(school.getDistrictId())
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
                 .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
                 .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(MathUtil.divide(myopiaNumber, validScreeningNumbers))

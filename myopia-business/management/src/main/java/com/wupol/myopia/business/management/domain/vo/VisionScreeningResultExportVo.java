@@ -41,9 +41,9 @@ public class VisionScreeningResultExportVo implements Serializable {
     @ExcelProperty("性别")
     private String genderDesc;
 
-    @DateTimeFormat("yyyy年MM月dd日")
+    @DateTimeFormat("yyyy/MM/dd")
     @ExcelProperty("出生日期")
-    private Date birthDay;
+    private Date birthday;
 
     @ExcelProperty(value = "民族")
     private String nationDesc;
@@ -94,7 +94,7 @@ public class VisionScreeningResultExportVo implements Serializable {
     private String sphericalEquivalents;
 
     @ExcelProperty({"预警级别", "预警级别"})
-    private Integer warningLevel;
+    private String warningLevelDesc;
 
     @ExcelProperty({"是否复测", "是否复测"})
     private String isRescreenDesc;

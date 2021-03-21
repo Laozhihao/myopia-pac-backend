@@ -22,6 +22,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -880,10 +881,23 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生ID
      */
     public Integer parseToken2StudentId(String token) {
-        Integer studentId = (Integer) redisUtil.get(token);
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, token);
+        Integer studentId = (Integer) redisUtil.get(key);
         if (Objects.isNull(studentId)) {
-            throw new BusinessException("Token失效或过期，请重新获取");
+            throw new BusinessException("学生二维码已经失效！");
         }
         return studentId;
+    }
+
+    /**
+     * 根据区域层级Id获取其学校的所有学生数据
+     * @param districtIds
+     * @return
+     */
+    public List<StudentVo> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectBySchoolDistrictIds(districtIds);
     }
 }

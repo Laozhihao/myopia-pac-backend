@@ -47,23 +47,23 @@ public class DiopterMedicalRecord {
 
         // 检影验光
         /** 右眼球镜 */
-        private String retinoscopyesRightSphere;
+        private String retinoscopyRightSphere;
         /** 左眼球镜 */
-        private String retinoscopyesLeftSphere;
+        private String retinoscopyLeftSphere;
         /** 右眼柱镜 */
-        private String retinoscopyesRightCylinder;
+        private String retinoscopyRightCylinder;
         /** 左眼柱镜 */
-        private String retinoscopyesLeftCylinder;
+        private String retinoscopyLeftCylinder;
         /** 右眼轴位 */
-        private String retinoscopyesRightAxis;
+        private String retinoscopyRightAxis;
         /** 左眼轴位 */
-        private String retinoscopyesLeftAxis;
+        private String retinoscopyLeftAxis;
         /** 右眼视力 */
-        private String retinoscopyesRightVision;
+        private String retinoscopyRightVision;
         /** 左眼视力 */
-        private String retinoscopyesLeftVision;
+        private String retinoscopyLeftVision;
         /** 检影瞳距 */
-        private String retinoscopyesPupilDistance;
+        private String retinoscopyPupilDistance;
         /** 主导眼。1右眼，2左眼。非散瞳验光必填 */
         private String mainEye;
         /** 双眼平衡法。非散瞳验光必填。 */

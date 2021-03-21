@@ -44,7 +44,10 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -285,6 +288,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             CountReportItems items = new CountReportItems();
             items.setId(s.getId());
             items.setCreateTime(s.getCreateTime());
+            items.setUpdateTime(s.getUpdateTime());
             return items;
         }).collect(Collectors.toList());
     }
@@ -384,11 +388,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, SecureUtil.md5(student.getIdCard() + studentId) + IdUtil.simpleUUID());
+        String md5 = StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
+        String key = String.format(CacheKey.PARENT_STUDENT_QR_CODE, md5);
         if (!redisUtil.set(key, studentId, 60 * 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
-        return key;
+        return md5;
     }
 
     /**
@@ -427,7 +432,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetail responseDTO = new ScreeningReportDetail();
-        responseDTO.setScreeningDate(result.getCreateTime());
+        responseDTO.setScreeningDate(result.getUpdateTime());
         VisionDataDO visionData = result.getVisionData();
         // 视力检查结果
         responseDTO.setVisionResultItems(packageVisionResult(visionData, age));
@@ -437,7 +442,12 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 生物测量
         responseDTO.setBiometricItems(packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
         // 医生建议一（这里-5是为了type的偏移量）
-        responseDTO.setDoctorAdvice1(refractoryResult.getSecond() - 5);
+        Integer doctorAdvice1 = refractoryResult.getSecond() - 5;
+        if (doctorAdvice1.equals(-5)) {
+            responseDTO.setDoctorAdvice1(null);
+        } else {
+            responseDTO.setDoctorAdvice1(doctorAdvice1);
+        }
         // 医生建议二
         responseDTO.setDoctorAdvice2(getDoctorAdviceDetail(result, student.getGradeType()));
         if (null != visionData) {
@@ -468,27 +478,23 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         // 获取左右眼的裸眼视力
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
-        // 取裸眼视力的结果
-        TwoTuple<BigDecimal, Integer> resultVision = getResultVision(leftNakedVision, rightNakedVision);
-        // 获取矫正视力
-        BigDecimal correctedVision;
-        // 球镜
-        BigDecimal sph;
-        // 柱镜
-        BigDecimal cyl;
-        // 根据严重的眼镜提供医生建议
-        if (resultVision.getSecond().equals(CommonConst.LEFT_EYE)) {
-            // 左眼
-            correctedVision = visionData.getLeftEyeData().getCorrectedVision();
-            sph = computerOptometry.getLeftEyeData().getSph();
-            cyl = computerOptometry.getLeftEyeData().getCyl();
-        } else {
-            // 右眼
-            correctedVision = visionData.getRightEyeData().getCorrectedVision();
-            sph = computerOptometry.getRightEyeData().getSph();
-            cyl = computerOptometry.getRightEyeData().getCyl();
+        if (Objects.isNull(leftNakedVision) && Objects.isNull(rightNakedVision)) {
+            return "";
         }
-        return packageDoctorAdvice(resultVision.getFirst(), correctedVision, sph, cyl, glassesType, gradeType);
+
+        // 获取左右眼的矫正视力
+        BigDecimal leftCorrectedVision = visionData.getLeftEyeData().getCorrectedVision();
+        BigDecimal rightCorrectedVision = visionData.getRightEyeData().getCorrectedVision();
+
+        BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
+        BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
+        BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
+        BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+
+        return packageDoctorAdvice2(leftNakedVision, rightNakedVision,
+                leftCorrectedVision, rightCorrectedVision,
+                leftSph, rightSph, leftCyl, rightCyl,
+                glassesType, gradeType);
     }
 
     /**
@@ -516,30 +522,42 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             // 左裸眼视力
             VisionItems.Item leftNakedVision = new VisionItems.Item();
             BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
-            leftNakedVision.setVision(leftNakedVisionValue);
-            leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
-            nakedVision.setOs(leftNakedVision);
+            if (Objects.nonNull(leftNakedVisionValue)) {
+                leftNakedVision.setVision(leftNakedVisionValue);
+                leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
+                nakedVision.setOs(leftNakedVision);
+            }
 
             // 右裸眼视力
             VisionItems.Item rightNakedVision = new VisionItems.Item();
             BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
-            rightNakedVision.setVision(rightNakedVisionValue);
-            rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
-            nakedVision.setOd(rightNakedVision);
+            if (Objects.nonNull(rightNakedVisionValue)) {
+                rightNakedVision.setVision(rightNakedVisionValue);
+                rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
+                nakedVision.setOd(rightNakedVision);
+            }
 
             // 左矫正视力
             VisionItems.Item leftCorrectedVision = new VisionItems.Item();
             BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
-            leftCorrectedVision.setVision(leftCorrectedVisionValue);
-            leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
-            correctedVision.setOs(leftCorrectedVision);
+            if (Objects.nonNull(leftCorrectedVisionValue)) {
+                leftCorrectedVision.setVision(leftCorrectedVisionValue);
+                if (Objects.nonNull(leftNakedVisionValue)) {
+                    leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
+                }
+                correctedVision.setOs(leftCorrectedVision);
+            }
 
             // 右矫正视力
             VisionItems.Item rightCorrectedVision = new VisionItems.Item();
             BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
-            rightCorrectedVision.setVision(rightCorrectedVisionValue);
-            rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
-            correctedVision.setOd(rightCorrectedVision);
+            if (Objects.nonNull(rightCorrectedVisionValue)) {
+                rightCorrectedVision.setVision(rightCorrectedVisionValue);
+                if (Objects.nonNull(rightNakedVisionValue)) {
+                    rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
+                }
+                correctedVision.setOd(rightCorrectedVision);
+            }
         }
         itemsList.add(correctedVision);
         itemsList.add(nakedVision);
@@ -556,6 +574,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     private TwoTuple<List<RefractoryResultItems>, Integer> packageRefractoryResult(ComputerOptometryDO date, Integer age) {
 
         List<RefractoryResultItems> items = new ArrayList<>();
+        Integer maxType = 0;
 
         RefractoryResultItems sphItems = new RefractoryResultItems();
         sphItems.setTitle("等效球镜SE");
@@ -566,60 +585,96 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         RefractoryResultItems axialItems = new RefractoryResultItems();
         axialItems.setTitle("轴位A");
 
-        if (null != date) {
+        if (Objects.nonNull(date)) {
 
-            // 等效球镜SE
-            RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
-            leftSphItems.setVision(calculationSE(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl()));
-            TwoTuple<String, Integer> leftSphType = getSphTypeName(date.getLeftEyeData().getSph(), date.getLeftEyeData().getCyl(), age);
-            leftSphItems.setTypeName(leftSphType.getFirst());
-            leftSphItems.setType(leftSphType.getSecond());
-            sphItems.setOs(leftSphItems);
+            // 左眼数据
+            ComputerOptometryDO.ComputerOptometry leftEyeData = date.getLeftEyeData();
 
-            RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
-            rightSphItems.setVision(calculationSE(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl()));
-            TwoTuple<String, Integer> rightSphType = getSphTypeName(date.getRightEyeData().getSph(), date.getRightEyeData().getCyl(), age);
-            rightSphItems.setTypeName(rightSphType.getFirst());
-            rightSphItems.setType(rightSphType.getSecond());
-            sphItems.setOd(rightSphItems);
+            BigDecimal leftSph = leftEyeData.getSph();
+            BigDecimal leftCyl = leftEyeData.getCyl();
+
+            BigDecimal rightSph = date.getRightEyeData().getSph();
+            BigDecimal rightCyl = date.getRightEyeData().getCyl();
+
+            BigDecimal leftAxial = leftEyeData.getAxial();
+            BigDecimal rightAxial = date.getRightEyeData().getAxial();
+
+            // 左眼等效球镜SE
+            if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
+                RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
+                // 等效球镜SE
+                leftSphItems.setVision(calculationSE(leftSph, leftCyl));
+                TwoTuple<String, Integer> leftSphType = getSphTypeName(leftSph, leftCyl, age);
+                leftSphItems.setTypeName(leftSphType.getFirst());
+                Integer type = leftSphType.getSecond();
+                // 取最大的type
+                maxType = maxType > type ? maxType : type;
+                leftSphItems.setType(type);
+                sphItems.setOs(leftSphItems);
+            }
+            // 右眼等效球镜SE
+            if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
+                RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
+                // 等效球镜SE
+                rightSphItems.setVision(calculationSE(rightSph, rightCyl));
+                TwoTuple<String, Integer> rightSphType = getSphTypeName(rightSph, rightCyl, age);
+                rightSphItems.setTypeName(rightSphType.getFirst());
+                Integer type = rightSphType.getSecond();
+                // 取最大的type
+                maxType = maxType > type ? maxType : type;
+                rightSphItems.setType(type);
+                sphItems.setOd(rightSphItems);
+            }
             items.add(sphItems);
 
-            // 柱镜DC
-            RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
-            leftCylItems.setVision(date.getLeftEyeData().getCyl());
-            TwoTuple<String, Integer> leftCylType = getCylTypeName(date.getLeftEyeData().getCyl());
-            leftCylItems.setType(leftCylType.getSecond());
-            leftCylItems.setTypeName(leftCylType.getFirst());
-            cylItems.setOs(leftCylItems);
-
-            RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
-            rightCylItems.setVision(date.getRightEyeData().getCyl());
-            TwoTuple<String, Integer> rightCylType = getCylTypeName(date.getRightEyeData().getCyl());
-            rightCylItems.setType(rightCylType.getSecond());
-            rightCylItems.setTypeName(rightCylType.getFirst());
-            cylItems.setOd(rightCylItems);
+            // 左眼柱镜DC
+            if (Objects.nonNull(leftCyl)) {
+                RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
+                leftCylItems.setVision(leftCyl);
+                TwoTuple<String, Integer> leftCylType = getCylTypeName(leftCyl);
+                Integer type = leftCylType.getSecond();
+                leftCylItems.setType(type);
+                // 取最大的type
+                maxType = maxType > type ? maxType : type;
+                leftCylItems.setTypeName(leftCylType.getFirst());
+                cylItems.setOs(leftCylItems);
+            }
+            // 右眼柱镜DC
+            if (Objects.nonNull(rightCyl)) {
+                RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
+                rightCylItems.setVision(rightCyl);
+                TwoTuple<String, Integer> rightCylType = getCylTypeName(rightCyl);
+                Integer type = rightCylType.getSecond();
+                rightCylItems.setType(type);
+                // 取最大的type
+                maxType = maxType > type ? maxType : type;
+                rightCylItems.setTypeName(rightCylType.getFirst());
+                cylItems.setOd(rightCylItems);
+            }
             items.add(cylItems);
 
-            // 轴位A
-            RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-            leftAxialItems.setVision(date.getLeftEyeData().getAxial());
-            leftAxialItems.setTypeName(getAxialTypeName(date.getLeftEyeData().getAxial()));
-            axialItems.setOs(leftAxialItems);
-
-            RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-            rightAxialItems.setVision(date.getRightEyeData().getAxial());
-            rightAxialItems.setTypeName(getAxialTypeName(date.getRightEyeData().getAxial()));
-            axialItems.setOd(rightAxialItems);
+            // 左眼轴位A
+            if (Objects.nonNull(leftAxial)) {
+                RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
+                leftAxialItems.setVision(leftAxial);
+                leftAxialItems.setTypeName(getAxialTypeName(leftAxial));
+                axialItems.setOs(leftAxialItems);
+            }
+            // 右眼轴位A
+            if (Objects.nonNull(rightAxial)) {
+                RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
+                rightAxialItems.setVision(rightAxial);
+                rightAxialItems.setTypeName(getAxialTypeName(rightAxial));
+                axialItems.setOd(rightAxialItems);
+            }
             items.add(axialItems);
 
-            return new TwoTuple<>(items, getIntegerMax(
-                    leftSphType.getSecond(), rightSphType.getSecond(),
-                    leftCylType.getSecond(), rightCylType.getSecond()));
+            return new TwoTuple<>(items, maxType);
         }
         items.add(sphItems);
         items.add(cylItems);
         items.add(axialItems);
-        return new TwoTuple<>(items, 0);
+        return new TwoTuple<>(items, maxType);
     }
 
     /**
@@ -964,14 +1019,25 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
-     * 取视力值高的眼球
+     * 取视力值低的眼球
      *
      * @param left  左眼
      * @param right 右眼
      * @return TwoTuple<BigDecimal, Integer> left-视力 right-左右眼
      */
     private TwoTuple<BigDecimal, Integer> getResultVision(BigDecimal left, BigDecimal right) {
-        if (left.compareTo(right) <= 0) {
+        if (Objects.isNull(left) || Objects.isNull(right)) {
+            // 左眼为空取右眼
+            if (Objects.isNull(left)) {
+                return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
+            }
+            // 右眼为空取左眼
+            return new TwoTuple<>(left, CommonConst.LEFT_EYE);
+        }
+        if (left.compareTo(right) == 0) {
+            return new TwoTuple<>(left, CommonConst.SAME_EYE);
+        }
+        if (left.compareTo(right) < 0) {
             return new TwoTuple<>(left, CommonConst.LEFT_EYE);
         }
         return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
@@ -1067,9 +1133,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         WarningLevel astigmatismWarningLevel = StatUtil.getAstigmatismWarningLevel(cyl.floatValue());
         BigDecimal cylVal = cyl.abs().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_DOWN);
         if (isBetweenAll(cyl, new BigDecimal("-0.5"), new BigDecimal("0.5"))) {
-            return new TwoTuple<>(cylVal + "度", astigmatismWarningLevel.code + 5);
+            return new TwoTuple<>(cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
         }
-        return new TwoTuple<>("散光" + cylVal + "度", astigmatismWarningLevel.code + 5);
+        return new TwoTuple<>("散光" + cylVal + "度", warningLevel2Type(astigmatismWarningLevel));
     }
 
     /**
@@ -1122,16 +1188,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     }
 
     /**
-     * 获取最大值
-     *
-     * @param val 数值
-     * @return Integer 最大值
-     */
-    private Integer getIntegerMax(Integer... val) {
-        return Arrays.stream(val).max(Comparator.naturalOrder()).orElse(null);
-    }
-
-    /**
      * 矫正状态
      *
      * @param nakedVision     裸眼视力
@@ -1156,5 +1212,131 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             }
         }
         return ParentReportConst.CORRECTED_NORMAL;
+    }
+
+    /**
+     * 获取医生建议
+     *
+     * @param leftNakedVision      左-裸眼
+     * @param rightNakedVision     右-裸眼
+     * @param leftCorrectedVision  左-矫正视力
+     * @param rightCorrectedVision 右-矫正视力
+     * @param leftSph              左-柱镜
+     * @param rightSph             右-柱镜
+     * @param leftCyl              左-球镜
+     * @param rightCyl             右-球镜
+     * @param glassesType          戴镜类型
+     * @param schoolAge            学龄段
+     * @return 医生建议
+     */
+    private String packageDoctorAdvice2(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                        BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                        BigDecimal leftSph, BigDecimal rightSph,
+                                        BigDecimal leftCyl, BigDecimal rightCyl,
+                                        Integer glassesType, Integer schoolAge) {
+
+        TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
+
+        BigDecimal se;
+        BigDecimal cyl;
+        BigDecimal leftSe = calculationSE(leftSph, leftCyl);
+        BigDecimal rightSe = calculationSE(rightSph, rightCyl);
+        // 判断两只眼睛的裸眼视力是否都在4.9的同侧
+        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+            // 取等效球镜值大的眼别
+            if (leftSe.compareTo(rightSe) >= 0) {
+                // 取左眼
+                se = leftSe;
+                cyl = leftCyl;
+
+            } else {
+                // 取右眼
+                se = rightSe;
+                cyl = rightCyl;
+            }
+        } else {
+            // 裸眼视力不同，取视力低的眼别
+            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
+                // 左眼的数据
+                cyl = leftCyl;
+                // 左眼的等效球镜
+                se = leftSe;
+            } else {
+                // 取右眼的数据
+                cyl = leftCyl;
+                // 取右眼的等效球镜
+                se = rightSe;
+            }
+        }
+
+        // 裸眼视力是否小于4.9
+        if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
+            // 是否佩戴眼镜
+            if (glassesType >= 1) {
+                if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
+                    return "";
+                }
+                BigDecimal visionVal;
+                // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
+                if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+                    // 获取矫正视力低的眼球
+                    visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
+                } else {
+                    if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
+                        // 取左眼数据
+                        visionVal = leftCorrectedVision;
+                    } else {
+                        // 取右眼数据
+                        visionVal = rightCorrectedVision;
+                    }
+                }
+                if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
+                    // 矫正视力小于4.9
+                    return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
+                } else {
+                    // 矫正视力大于4.9
+                    return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
+                }
+            } else {
+                // 没有佩戴眼镜
+                boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
+                // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生、高中、职业高中 && -0.5<=SE<3 && Cyl <1.5)
+                if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
+                        ||
+                        (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
+                ) {
+                    return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
+                    // (小学生 && !(0 <= SE < 2)) || (初中生、高中、职业高中 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
+                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
+                        ||
+                        (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
+                    return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
+                }
+                return "";
+            }
+        } else {
+            // SE >= 0
+            if (se.compareTo(new BigDecimal("0.00")) >= 0) {
+                return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
+            } else {
+                // SE < 0
+                return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+            }
+        }
+    }
+
+    /**
+     * 两眼的值是否都在4.9的同侧
+     *
+     * @param leftNakedVision  左裸眼视力
+     * @param rightNakedVision 右裸眼数据
+     * @return Boolean
+     */
+    private Boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
+        return ((leftNakedVision.compareTo(new BigDecimal("4.9")) < 0) &&
+                (rightNakedVision.compareTo(new BigDecimal("4.9")) < 0))
+                ||
+                ((leftNakedVision.compareTo(new BigDecimal("4.9")) >= 0) &&
+                        (rightNakedVision.compareTo(new BigDecimal("4.9")) >= 0));
     }
 }

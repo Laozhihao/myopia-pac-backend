@@ -3,7 +3,6 @@ package com.wupol.myopia.business.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
@@ -13,9 +12,8 @@ import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
-import com.wupol.myopia.business.management.util.TwoTuple;
-
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -166,6 +164,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     private List<BigScreenStatDataDTO> getBigScreenStatDataDTOList(List<StatConclusion> statConclusionList) {
       return   statConclusionList.stream().map(statConclusion ->    BigScreenStatDataDTO.getInstance(statConclusion)).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据筛查通知ID与筛查机构Id查出导出的筛查数据
+     * @param screeningNoticeId
+     * @param screeningOrgId
+     * @return
+     */
+    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
+        return baseMapper.selectExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
     }
 }
 

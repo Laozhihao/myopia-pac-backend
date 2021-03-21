@@ -1,20 +1,14 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

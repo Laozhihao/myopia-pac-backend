@@ -145,7 +145,7 @@ public class SchoolMonitorStatistic implements Serializable {
     private Date createTime;
 
     public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
-                                               Integer screeningNoticeId, Integer screeningTaskId, Integer districtId,
+                                               Integer screeningNoticeId, Integer screeningTaskId,
                                                List<StatConclusionVo> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
         SchoolMonitorStatistic statistic = new SchoolMonitorStatistic();
         Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
@@ -156,7 +156,7 @@ public class SchoolMonitorStatistic implements Serializable {
         int dsn = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
-                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId)
+                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(school.getDistrictId())
                 .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
                 .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
                 .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)

@@ -28,6 +28,7 @@
                 <if test="@Ognl@isNotEmpty(biometricData)">and `biometric_data` = #{biometricData}</if>
                 <if test="@Ognl@isNotEmpty(otherEyeDiseasesDTO)">and `other_eye_diseases` = #{otherEyeDiseasesDTO}</if>
                 <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -35,7 +36,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, create_time
+        id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, update_time, create_time
     </sql>
 
     <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
