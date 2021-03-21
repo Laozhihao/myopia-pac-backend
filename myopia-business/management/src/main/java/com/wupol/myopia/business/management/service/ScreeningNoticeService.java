@@ -246,7 +246,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @param orgType
      * @return
      */
-    private List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
+    public List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
         if (CollectionUtils.isEmpty(orgIds) || orgType == null) {
             return new ArrayList<>();
         }

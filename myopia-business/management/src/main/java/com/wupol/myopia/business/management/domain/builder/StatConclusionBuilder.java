@@ -112,6 +112,7 @@ public class StatConclusionBuilder {
         statConclusion.setDistrictId(screeningPlanSchoolStudent.getDistrictId());
         statConclusion.setSchoolAge(basicData.schoolAge);
         statConclusion.setGender(basicData.gender);
+        statConclusion.setAge(basicData.age);
         statConclusion.setIsRescreen(basicData.isRescreen);
         statConclusion.setRescreenErrorNum(0);
         statConclusion.setSchoolId(screeningPlanSchoolStudent.getSchoolId());

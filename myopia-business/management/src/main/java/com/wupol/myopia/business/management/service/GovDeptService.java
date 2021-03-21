@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -217,4 +218,14 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return baseMapper.selectBatchIds(govDeptIds);
     }
 
+    /**
+     * 获取所有的省级部门
+     * @return
+     */
+    public List<GovDept> getProviceGovDept(){
+        LambdaQueryWrapper<GovDept> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(GovDept::getPid,1);//省级部门
+        queryWrapper.eq(GovDept::getStatus,0);//启用
+        return baseMapper.selectList(queryWrapper);
+    }
 }

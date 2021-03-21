@@ -5,6 +5,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
+import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
@@ -21,6 +22,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author Jacob
@@ -139,4 +142,30 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
     }
+
+    /**
+     * 获取通知
+     * @param cityDistrictIdList
+     * @param noticeId
+     * @return
+     */
+    public List<BigScreenStatDataDTO> getByNoticeidAndDistrictIds(Set<Integer> cityDistrictIdList, Integer noticeId) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
+        queryWrapper.eq(StatConclusion::getIsRescreen,false);
+        queryWrapper.eq(StatConclusion::getIsValid,true);
+        List<StatConclusion> statConclusionList = baseMapper.selectList(queryWrapper);
+        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = this.getBigScreenStatDataDTOList(statConclusionList);
+        return  bigScreenStatDataDTOs;
+    }
+
+    /**
+     * 获取大屏统计的基础数据
+     * @param statConclusionList
+     * @return
+     */
+    private List<BigScreenStatDataDTO> getBigScreenStatDataDTOList(List<StatConclusion> statConclusionList) {
+      return   statConclusionList.stream().map(statConclusion ->    BigScreenStatDataDTO.getInstance(statConclusion)).collect(Collectors.toList());
+    }
 }
+
