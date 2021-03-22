@@ -526,9 +526,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<Integer> getDistrictTreeAllIds(Integer districtId) {
-        List<District> districtTree = getDistrictTree(districtId);
+        District districtTree = getDistrictTree(districtId);
         List<Integer> districtIds = new ArrayList<>();
-        getAllIds(districtIds, districtTree);
+        districtIds.add(districtTree.getId());
+        getAllIds(districtIds, districtTree.getChild());
         return districtIds;
     }
 

@@ -102,6 +102,7 @@
                                                          select temp.student_id       as tempStudentId,
                                                                 max(temp.create_time) as maxTime
                                                          from m_vision_screening_result as temp
+                                                         where temp.is_double_screen = 0
                                                          group by student_id
                                                          ) as b
                                                          on a.student_id = b.tempStudentId

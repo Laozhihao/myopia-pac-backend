@@ -58,7 +58,12 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--所处区域id
      */
-    private Integer districtId;
+    private Integer planDistrictId;
+
+    /**
+     * 筛查计划--学生学校所处区域id
+     */
+    private Integer schoolDistrictId;
 
     /**
      * 筛查计划--执行的学校id
