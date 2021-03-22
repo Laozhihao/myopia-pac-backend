@@ -53,4 +53,14 @@
             (#{templateId}, #{item.districtId}, #{item.districtName})
         </foreach>
     </insert>
+
+    <select id="getByTemplateIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_template_district
+                where template_id in
+        <foreach collection="templateIds" open="(" close=")" separator="," item="templateId">
+            #{templateId}
+        </foreach>
+    </select>
 </mapper>

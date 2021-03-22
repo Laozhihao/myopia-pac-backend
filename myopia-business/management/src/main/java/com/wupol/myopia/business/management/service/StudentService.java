@@ -891,8 +891,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     /**
      * 根据区域层级Id获取其学校的所有学生数据
-     * @param districtIds
-     * @return
+     *
+     * @param districtIds 行政区域id
+     * @return List<StudentVo>
      */
     public List<StudentVo> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {

@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -12,7 +11,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper;
@@ -61,17 +59,6 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     public boolean updateById(ScreeningTask entity, Integer userId) {
         entity.setOperateTime(new Date()).setOperatorId(userId);
         return updateById(entity);
-    }
-
-    /**
-     * 通过ID获取ScreeningTask列表
-     *
-     * @param pageRequest 分页入参
-     * @param ids         ids
-     * @return {@link IPage} 统一分页返回体
-     */
-    public IPage<ScreeningOrgPlanResponse> getTaskByIds(PageRequest pageRequest, List<Integer> ids) {
-        return baseMapper.getTaskByIds(pageRequest.toPage(), ids);
     }
 
     /**
@@ -168,9 +155,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param govDeptId
      */
     public boolean checkIsCreated(Integer screeningNoticeId, Integer govDeptId) {
-        QueryWrapper<ScreeningTask> query = new QueryWrapper<>();
-        query.eq("screening_notice_id", screeningNoticeId).eq("gov_dept_id", govDeptId);
-        return baseMapper.selectCount(query) > 0;
+        return baseMapper.countByNoticeIdAndGovId(screeningNoticeId, govDeptId) > 0;
     }
 
     /**
@@ -194,8 +179,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     public Integer getYear(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        return year;
+        return calendar.get(Calendar.YEAR);
     }
 
     /**
@@ -210,8 +194,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
             queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
         }
         queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
-        return screeningTasks;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -224,8 +207,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningTask::getScreeningNoticeId,screeningNoticeIds);
         queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningTask> screeningTasks = baseMapper.selectList(queryWrapper);
-        return screeningTasks;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -235,13 +217,12 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
         List<ScreeningNotice> screeningNotices = screeningNoticeService.listByIds(screeningNoticeIds);
-        Set<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+        return screeningNotices.stream().filter(screeningNotice ->
                 year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
         ).map(screeningNotice -> {
             ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
             screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
             return screeningNoticeNameVO;
         }).collect(Collectors.toSet());
-        return screeningNoticeNameVOS;
     }
 }
