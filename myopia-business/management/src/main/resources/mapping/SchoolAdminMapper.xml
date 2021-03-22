@@ -35,4 +35,11 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_admin
+        where school_id = #{schoolId}
+    </select>
 </mapper>

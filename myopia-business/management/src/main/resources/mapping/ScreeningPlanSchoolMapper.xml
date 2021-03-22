@@ -76,4 +76,27 @@
         set school_name = #{schoolName}
         where school_id = #{schoolId}
     </update>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where school_id = #{schoolId}
+    </select>
+
+    <select id="getOneByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where screening_plan_id = #{planId}
+          and school_id = #{schoolId}
+        limit 1
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where screening_plan_id = #{planId}
+    </select>
 </mapper>

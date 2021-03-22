@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 医院-员工表Mapper接口
@@ -10,5 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Date 2020-12-22
  */
 public interface HospitalAdminMapper extends BaseMapper<HospitalAdmin> {
+
+    HospitalAdmin getByHospitalId(@Param("hospitalId") Integer hospitalId);
 
 }
