@@ -122,9 +122,9 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-
-    <select id="selectReportVoByScreeningNoticeIdAndSchoolId" resultMap="ReportVoResultMap" parameterType="java.util.Map">
-        SELECT mspss.student_name,
+    <select id="selectReportVoByQuery" resultMap="ReportVoResultMap" parameterType="java.util.Map">
+        SELECT
+         mspss.student_name,
          mspss.gender,
          mspss.school_id,
          mspss.grade_name,
@@ -138,9 +138,12 @@
         FROM m_stat_conclusion msc
         LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND msc.is_valid = 1
+        WHERE msc.is_valid = 1
         AND msc.is_rescreen = 0
+        <if test="@Ognl@isNotEmpty(screeningNoticeId)">
+            and msc.src_screening_notice_id = #{screeningNoticeId}</if>
+        <if test="@Ognl@isNotEmpty(planId)">
+            and msc.plan_id = #{planId}</if>
         AND msc.school_id = #{schoolId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>

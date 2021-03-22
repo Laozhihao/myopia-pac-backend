@@ -149,9 +149,9 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionReportVo> getReportVoByScreeningNoticeIdAndSchoolId(
-            Integer screeningNoticeId, Integer schoolId) {
-        return baseMapper.selectReportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId); 
+    public List<StatConclusionReportVo> getReportVo(
+            Integer screeningNoticeId, Integer planId, Integer schoolId) {
+        return baseMapper.selectReportVoByQuery(screeningNoticeId, planId, schoolId);
     }
 
     /**

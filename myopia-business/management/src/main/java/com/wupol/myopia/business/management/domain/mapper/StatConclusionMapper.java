@@ -41,9 +41,11 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId,@Param("schoolId") Integer schoolId);
 
-    List<StatConclusionReportVo> selectReportVoByScreeningNoticeIdAndSchoolId(
+    List<StatConclusionReportVo> selectReportVoByQuery(
             @Param("screeningNoticeId") Integer screeningNoticeId,
-            @Param("schoolId") Integer schoolId);
+            @Param("planId") Integer planId,
+            @Param("schoolId") Integer schoolId
+            );
 
     List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId,@Param("screeningOrgId") Integer screeningOrgId);
 }
