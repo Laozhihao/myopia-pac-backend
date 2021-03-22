@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -27,14 +26,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 学校-年级Service
+ *
+ * @author Simple4H
  */
 @Service
 public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGrade> {
 
     @Resource
     private SchoolService schoolService;
+
     @Resource
     private SchoolClassService schoolClassService;
 
@@ -177,10 +178,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 统计
      */
     public Integer countGradeByCode(Integer schoolId, String code) {
-        return baseMapper.selectCount(new QueryWrapper<SchoolGrade>()
-                .eq("school_id", schoolId)
-                .eq("grade_code", code)
-                .eq("status", CommonConst.STATUS_NOT_DELETED));
+        return baseMapper.countBySchoolIdAndCode(schoolId, code);
     }
 
     /**
@@ -200,12 +198,11 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 查询学校年级
      *
      * @param query 查询条件
-     * @return
+     * @return List<SchoolGrade>
      */
     public List<SchoolGrade> getBy(SchoolGradeQuery query) {
         return baseMapper.getBy(query);
     }
-
 
 
     /**
@@ -232,18 +229,19 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 根据学校Id获取所有年级
      *
-     * @param schoolId
-     * @return
+     * @param schoolId 学校ID
+     * @return List<SchoolGrade>
      */
     public List<SchoolGrade> getBySchoolId(Integer schoolId) {
-        return baseMapper.selectList(new QueryWrapper<SchoolGrade>().eq("school_id", schoolId));
+        return baseMapper.getBySchoolId(schoolId);
     }
 
     /**
      * 根据schoolId获取年级名
-     * @param schoolId
-     * @param gradeName
-     * @return
+     *
+     * @param schoolId  学校ID
+     * @param gradeName 年级名称
+     * @return SchoolGrade
      */
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
         LambdaQueryWrapper<SchoolGrade> schoolGradeExportVOLambdaQueryWrapper = new LambdaQueryWrapper<>();

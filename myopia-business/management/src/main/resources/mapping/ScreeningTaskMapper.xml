@@ -74,4 +74,12 @@
         </where>
         order by mst.create_time desc
     </select>
+
+    <select id="countByNoticeIdAndGovId" resultType="java.lang.Integer">
+        select count(1)
+        <include refid="Base_Column_List"/>
+        from m_screening_task
+        where screening_notice_id = #{noticeId}
+          and gov_dept_id = #{govId}
+    </select>
 </mapper>

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindItem;
 import com.wupol.myopia.business.management.domain.mapper.TemplateDistrictMapper;
@@ -24,7 +23,7 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
      * @return List<TemplateDistrict>
      */
     public List<TemplateDistrict> getByTemplateIds(List<Integer> templateIds) {
-        return baseMapper.selectList(new QueryWrapper<TemplateDistrict>().in("template_id", templateIds));
+        return baseMapper.getByTemplateIds(templateIds);
     }
 
     /**
