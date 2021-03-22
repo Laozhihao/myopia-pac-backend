@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -33,7 +34,7 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     StudentDTO getStudentById(@Param("id") Integer id);
 
-    List<Student> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
+    List<StudentDTO> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
 
     List<StudentCountVO> countStudentBySchoolNo();
 
@@ -51,4 +52,5 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     List<Student> getByIdCardsAndStatus(@Param("idCards") List<String> idCards, @Param("status") Integer status);
 
+    List<StudentVo> selectBySchoolDistrictIds(@Param("districtIds") List<Integer> districtIds);
 }

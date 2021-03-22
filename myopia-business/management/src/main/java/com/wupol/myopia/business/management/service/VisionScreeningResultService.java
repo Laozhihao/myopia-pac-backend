@@ -41,27 +41,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 通过计划ID获取结果
-     *
-     * @param planId 计划ID
-     * @return 结果
-     */
-    public VisionScreeningResult getByPlanId(Integer planId) {
-        return baseMapper.selectOne(new QueryWrapper<VisionScreeningResult>().eq("plan_id", planId));
-    }
-
-    /**
-     * 获取学校ID
-     *
-     * @param taskId 通知任务
-     * @param orgId  机构ID
-     * @return 学校ID
-     */
-    public List<Integer> getSchoolIdByTaskId(Integer taskId, Integer orgId) {
-        return baseMapper.getSchoolIdByTaskId(taskId, orgId);
-    }
-
-    /**
      * 获取筛查人员ID
      *
      * @param planId 计划od
@@ -84,7 +63,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 获取昨天筛查数据的筛查计划Id（必须有筛查通知，也就是省级配置的筛查机构筛查的数据）
      *
-     * @return
+     * @return 筛查计划Id
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
         Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
@@ -95,8 +74,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 根据筛查计划关联的存档的学生id
      *
-     * @param screeningPlanSchoolStudentIds
-     * @return
+     * @param screeningPlanSchoolStudentIds 计划的学生ID
+     * @return List<VisionScreeningResult>
      */
     public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -114,19 +93,12 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getLatestResultByStudentId(studentId);
     }
 
-    public List<VisionScreeningResult> getByTaskId(Integer taskId) {
-        return baseMapper.selectList(new QueryWrapper<VisionScreeningResult>()
-                .eq("task_id", taskId)
-                .orderByDesc("create_time"));
-    }
-
-    /*
-     *//**
+    /**
      * 获取已有的筛查结果
      *
-     * @param screeningResultBasicData
-     * @return
-     * @throws IOException
+     * @param screeningResultBasicData 筛查结果基本数据
+     * @return ScreeningPlanSchoolStudent
+     * @throws IOException 异常
      */
     public ScreeningPlanSchoolStudent getScreeningResultAndScreeningPlanSchoolStudent(ScreeningResultBasicData screeningResultBasicData) throws IOException {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
@@ -141,25 +113,24 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 是否需要更新
      *
-     * @param planId
-     * @param screeningOrgId
-     * @return
+     * @param planId 计划ID
+     * @param screeningOrgId 筛查机构ID
+     * @return List<VisionScreeningResult>
      */
     public List<VisionScreeningResult> getScreeningResult(Integer planId, Integer screeningOrgId, Integer screeningPlanSchoolStudentId) throws IOException {
         VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setScreeningOrgId(screeningOrgId);
         QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
-        List<VisionScreeningResult> visionScreeningResults = list(queryWrapper);
-        return visionScreeningResults;
+        return list(queryWrapper);
     }
 
     /**
      * 获取筛查数据
      *
-     * @param screeningResultBasicData
-     * @return
-     * @throws IOException
+     * @param screeningResultBasicData 筛查结果基本数据
+     * @return VisionScreeningResult
+     * @throws IOException 异常
      */
-    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult  ) throws IOException {
+    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult) throws IOException {
         //获取VisionScreeningResult以及ScreeningPlanSchoolStudent
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
         //构建ScreeningResult
@@ -197,7 +168,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     public TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) throws IOException {
-         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudentQuery = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
         //倒叙取出来最新的一条
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQuery);
         if (screeningPlanSchoolStudent == null) {

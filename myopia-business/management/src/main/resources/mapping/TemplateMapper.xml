@@ -28,4 +28,11 @@
         <!--@mbg.generated-->
         id, `type`, `name`, create_time, update_time
     </sql>
+
+    <select id="getByType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_template
+        where type = #{type}
+    </select>
 </mapper>

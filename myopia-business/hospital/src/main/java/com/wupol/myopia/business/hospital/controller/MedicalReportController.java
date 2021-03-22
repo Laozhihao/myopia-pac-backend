@@ -35,10 +35,17 @@ public class MedicalReportController {
         return true;
     }
 
+    /**
+     * 获取学生的诊断列表
+     * @param studentId         学生id
+     * @param filterHospital    是否按医院过滤
+     * @return
+     */
     @GetMapping("/list")
-    public List<MedicalReportVo> getStudentReportList(Integer studentId) {
+    public List<MedicalReportVo> getStudentReportList(Integer studentId, Boolean filterHospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return medicalReportService.getReportListByStudentId(user.getOrgId(), studentId);
+        Integer hospitalId = filterHospital ? user.getOrgId() : null;
+        return medicalReportService.getReportListByStudentId(hospitalId, studentId);
     }
 
     @GetMapping("/{reportId}")

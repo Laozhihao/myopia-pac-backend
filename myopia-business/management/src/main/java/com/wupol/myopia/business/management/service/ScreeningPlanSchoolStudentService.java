@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sun.org.apache.bcel.internal.generic.INEG;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,13 +11,10 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.*;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.ImportExcelEnum;
-import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -345,7 +343,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             if (Objects.isNull(existPlanStudent)) {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
-                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setDistrictId(screeningPlan.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
+                        .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
             }
             existPlanStudent.setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
@@ -587,7 +585,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param schoolId
      * @param currentPlan
      */
-    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolId,ScreeningPlan currentPlan) {
+    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId,ScreeningPlan currentPlan) {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
@@ -596,7 +594,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .setScreeningTaskId(currentPlan.getScreeningTaskId())
                 .setScreeningPlanId(currentPlan.getId())
                 .setScreeningOrgId(currentUser.getOrgId())
-                .setDistrictId(currentPlan.getDistrictId())
+                .setPlanDistrictId(currentPlan.getDistrictId())
+                .setSchoolDistrictId(schoolDistrictId)
                 .setSchoolId(schoolId)
                 .setSchoolName(schoolName)
                 .setSchoolNo(schoolNo)
@@ -614,5 +613,21 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .setStudentSituation(SerializationUtil.serializeWithoutException(student))
                 .setStudentNo(student.getSno());
         save(screeningPlanSchoolStudent);
+        screeningPlanService.updateStudentNumbers(currentUser.getId(), currentPlan.getId(), getCountByScreeningPlanId(currentPlan.getId()));
+    }
+
+    /**
+     * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生总数
+     * @param screeningNoticeId
+     * @return
+     */
+    public Map<Integer, Long> getDistrictPlanStudentCountBySrcScreeningNoticeId(Integer screeningNoticeId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, screeningNoticeId);
+        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 }

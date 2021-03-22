@@ -109,9 +109,10 @@ public class StatConclusionBuilder {
         statConclusion.setTaskId(screeningPlanSchoolStudent.getScreeningTaskId());
         statConclusion.setPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
         statConclusion.setCreateTime(new Date());
-        statConclusion.setDistrictId(screeningPlanSchoolStudent.getDistrictId());
+        statConclusion.setDistrictId(screeningPlanSchoolStudent.getSchoolDistrictId());
         statConclusion.setSchoolAge(basicData.schoolAge);
         statConclusion.setGender(basicData.gender);
+        statConclusion.setAge(basicData.age);
         statConclusion.setIsRescreen(basicData.isRescreen);
         statConclusion.setRescreenErrorNum(0);
         statConclusion.setSchoolId(screeningPlanSchoolStudent.getSchoolId());

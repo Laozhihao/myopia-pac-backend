@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.interfaces.HasName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -19,7 +20,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_school")
-public class School implements Serializable {
+public class School implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
 

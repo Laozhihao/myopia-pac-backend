@@ -9,6 +9,9 @@
     <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
     </resultMap>
 
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.StudentVo">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -38,6 +41,10 @@
                 <if test="@Ognl@isNotEmpty(lastScreeningTime)">and `last_screening_time` = #{lastScreeningTime}</if>
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `glassesType` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `isMyopia` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `isHyperopia` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `isAstigmatism` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
 
@@ -58,7 +65,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, create_time, update_time
+        id, school_no, create_user_id, sno, grade_id, grade_type, class_id, name, gender, birthday, nation, id_card, parent_phone, mp_parent_phone, province_code, city_code, area_code, town_code, address, avatar_file_id, current_situation, vision_label, last_screening_time, remark, status, glasses_type,is_myopia,is_hyperopia,is_astigmatism,create_time, update_time
     </sql>
 
     <select id="getStudentListByCondition" resultMap="BaseResultMapDTO">
@@ -99,6 +106,7 @@
                                                          select temp.student_id       as tempStudentId,
                                                                 max(temp.create_time) as maxTime
                                                          from m_vision_screening_result as temp
+                                                         where temp.is_double_screen = 0
                                                          group by student_id
                                                          ) as b
                                                          on a.student_id = b.tempStudentId
@@ -139,7 +147,7 @@
             </foreach>
         </if>
         <if test="startScreeningTime != null">
-            and ms.last_screening_time between #{startScreeningTime} and #{endScreeningTime}
+            and visionResult.create_time between #{startScreeningTime} and #{endScreeningTime}
         </if>
         <if test="schoolName != null and schoolName != ''">
             and school.name like CONCAT('%', #{schoolName}, '%')
@@ -167,7 +175,7 @@
         where ms.id = #{id}
     </select>
 
-    <select id="getByOtherId" resultMap="BaseResultMap">
+    <select id="getByOtherId" resultMap="BaseResultMapDTO">
         select student.*
         from m_student student
                      left join m_school school on student.school_no = school.school_no
@@ -251,5 +259,15 @@
             #{idCard}
         </foreach>
         and status = #{status}
+    </select>
+
+    <select id="selectBySchoolDistrictIds" resultMap="VoResultMap">
+        select mst.id, mst.vision_label, msc.district_id
+        from m_student mst
+        left join m_school msc on mst.school_no = msc.school_no
+        where msc.district_id in
+        <foreach collection="districtIds" item="districtId" index="index" open="(" close=")" separator=",">
+          #{districtId}
+        </foreach>
     </select>
 </mapper>

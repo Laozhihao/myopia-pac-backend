@@ -9,6 +9,7 @@ import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 学校表Mapper接口
@@ -38,4 +39,6 @@ public interface SchoolMapper extends BaseMapper<School> {
     List<School> getByDistrictId(@Param("districtId") Integer districtId);
 
     List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
+
+    Set<Integer> selectDistrictIdsByScreeningPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
 }

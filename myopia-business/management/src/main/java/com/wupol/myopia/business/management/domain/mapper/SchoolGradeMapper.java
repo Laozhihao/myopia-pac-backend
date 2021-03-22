@@ -34,11 +34,16 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
 
     /**
      * 通过学校ID和年级id查找
+     *
      * @param schoolId
      * @param gradeName
      * @param clazzName
      * @return
      */
     StudentClazzDTO selectListBySchoolIdAndGradeId(Integer schoolId, String gradeName, String clazzName);
+
+    List<SchoolGrade> getBySchoolId(@Param("schoolId") Integer schoolId);
+
+    Integer countBySchoolIdAndCode(@Param("schoolId") Integer schoolId, @Param("code") String code);
 
 }

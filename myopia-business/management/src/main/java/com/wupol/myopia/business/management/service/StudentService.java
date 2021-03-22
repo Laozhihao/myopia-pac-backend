@@ -22,6 +22,7 @@ import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
@@ -383,7 +384,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param schoolId 学校Id
      * @return 学生列表
      */
-    public List<Student> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
+    public List<StudentDTO> getBySchoolIdAndGradeIdAndClassId(Integer schoolId, Integer classId, Integer gradeId) {
         return baseMapper.getByOtherId(schoolId, classId, gradeId);
     }
 
@@ -886,5 +887,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生二维码已经失效！");
         }
         return studentId;
+    }
+
+    /**
+     * 根据区域层级Id获取其学校的所有学生数据
+     *
+     * @param districtIds 行政区域id
+     * @return List<StudentVo>
+     */
+    public List<StudentVo> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectBySchoolDistrictIds(districtIds);
     }
 }

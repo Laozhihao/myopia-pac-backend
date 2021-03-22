@@ -32,8 +32,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-21
+ * 医院Service
+ *
+ * @author Simple4H
  */
 @Service
 @Log4j2

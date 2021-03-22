@@ -6,6 +6,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 
 import java.util.List;
+
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +26,8 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
     List<ScreeningTaskOrgVo> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
 
     List<ScreeningTaskOrgVo> selectVoListByScreeningTaskId(@Param("screeningTaskId") Integer screeningTaskId);
+
+    List<ScreeningTaskOrg> getByTaskId(@Param("taskId") Integer taskId);
+
+    ScreeningTaskOrg getOneByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 }

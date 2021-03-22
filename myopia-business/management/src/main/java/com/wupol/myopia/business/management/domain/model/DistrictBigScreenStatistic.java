@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.management.domain.dos.AvgVisionDO;
+import com.wupol.myopia.business.management.domain.dos.BigScreenScreeningDO;
+import com.wupol.myopia.business.management.handler.BigScreenScreeningDOHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -55,38 +58,38 @@ public class DistrictBigScreenStatistic implements Serializable {
     /**
      * realScreening
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object realScreening;
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    private BigScreenScreeningDO realScreening;
     /**
      * lowVision
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object lowVision;
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    private BigScreenScreeningDO lowVision;
     /**
      * myopia
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object myopia;
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    private BigScreenScreeningDO myopia;
     /**
      * ametropia
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object ametropia;
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    private BigScreenScreeningDO ametropia;
     /**
      * focusOjects
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object focusObjects;
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    private BigScreenScreeningDO focusObjects;
     /**
      * avgVision
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object avgVision;
+    private AvgVisionDO avgVision;
 
     /**
      * 大屏展示--地图json
      */
-    @TableField("mapData")
+    @TableField(value = "mapData",typeHandler = JacksonTypeHandler.class)
     private Object mapdata;
 
     /**
@@ -100,5 +103,6 @@ public class DistrictBigScreenStatistic implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
 
 }

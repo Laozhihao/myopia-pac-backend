@@ -31,45 +31,28 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private SchoolService schoolService;
-    /**
-     * 通过学校ID获取计划
-     *
-     * @param schoolId 学校ID
-     * @return List<ScreeningPlanSchool>
-     */
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 根据学校ID获取筛查计划的学校
      *
-     * @param schoolId
-     * @return
+     * @param schoolId 学校ID
+     * @return List<ScreeningPlanSchool>
      */
     public List<ScreeningPlanSchool> getBySchoolId(Integer schoolId) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningPlanSchool>()
-                        .eq("school_id", schoolId));
-    }
-
-    /**
-     * 学校筛查统计
-     *
-     * @return List<SchoolScreeningCountVO>
-     */
-    public List<SchoolScreeningCountVO> countScreeningTime() {
-        return baseMapper.countScreeningTime();
+        return baseMapper.getBySchoolId(schoolId);
     }
 
     /**
      * 查询计划的学校
      *
-     * @param screeningPlanId
-     * @param schoolId
-     * @return
+     * @param screeningPlanId 计划ID
+     * @param schoolId 学校ID
+     * @return ScreeningPlanSchool
      */
     public ScreeningPlanSchool getOne(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectOne(new QueryWrapper<ScreeningPlanSchool>().eq("screening_plan_id", screeningPlanId).eq("school_id", schoolId));
+        return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId,schoolId);
     }
 
     /**
@@ -109,7 +92,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @return
      */
     public List<ScreeningPlanSchool> getSchoolListsByPlanId(Integer screeningPlanId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchool>().eq("screening_plan_id", screeningPlanId));
+        return baseMapper.getByPlanId(screeningPlanId);
     }
 
     /**

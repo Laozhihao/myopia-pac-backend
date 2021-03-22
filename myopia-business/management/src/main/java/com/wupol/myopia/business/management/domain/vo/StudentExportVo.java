@@ -79,7 +79,7 @@ public class StudentExportVo implements Serializable {
     private String address;
 
     @ExcelProperty({TOP_HEADER, "视力标签"})
-    private Integer label;
+    private String label;
 
     @ExcelProperty({TOP_HEADER, "视力情况"})
     private String situation;

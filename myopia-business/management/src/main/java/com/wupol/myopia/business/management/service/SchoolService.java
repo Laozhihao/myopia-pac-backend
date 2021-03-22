@@ -39,8 +39,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * 学校Service
+ *
  * @author HaoHao
- * Date 2020-12-22
  */
 @Service
 @Log4j2
@@ -210,14 +211,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolIds 筛查记录详情ID
      * @return 详情
      */
-    public List<School> getSchoolByIdsAndName(List<Long> schoolIds,String schoolName) {
+    public List<School> getSchoolByIdsAndName(List<Long> schoolIds, String schoolName) {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<School> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(School::getId,schoolIds);
+        queryWrapper.in(School::getId, schoolIds);
         if (StringUtils.isNotBlank(schoolName)) {
-            queryWrapper.like(School::getName,schoolName);
+            queryWrapper.like(School::getName, schoolName);
         }
         return baseMapper.selectList(queryWrapper);
     }
@@ -765,5 +766,18 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             schoolResponseDTO.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
             return schoolResponseDTO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取筛查计划关联学校的层级ID
+     *
+     * @param screeningPlanIds 计划ID
+     * @return Set<Integer>
+     */
+    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptySet();
+        }
+        return baseMapper.selectDistrictIdsByScreeningPlanIds(screeningPlanIds);
     }
 }

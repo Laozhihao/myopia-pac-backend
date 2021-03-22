@@ -8,7 +8,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
 import com.wupol.myopia.business.management.domain.model.*;
-import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,35 +38,14 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
-     * 通过筛查机构ID获取筛查任务关联
-     *
-     * @param orgId 筛查机构ID
-     * @return 结果 筛查任务关联Lists
-     */
-    public List<ScreeningTaskOrg> getTaskOrgListsByOrgId(Integer orgId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("screening_org_id", orgId));
-    }
-
-    /**
-     * 通过机构ID统计通知任务
-     * <p>可以多个一个机构ids，这样就不用全表查数据</p></p>
-     *
-     * @return List<OrgScreeningCountVO>
-     */
-    public List<OrgScreeningCountVO> countScreeningTime() {
-        return baseMapper.countScreeningTimeByOrgId();
-    }
-
-    /**
      * 通过筛查任务ID获取所有关联的筛查机构信息
      *
-     * @param screeningTaskId
-     * @return
+     * @param screeningTaskId 筛查任务ID
+     * @return List<ScreeningTaskOrg>
      */
     public List<ScreeningTaskOrg> getOrgListsByTaskId(Integer screeningTaskId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningTaskOrg>().eq("screening_task_id", screeningTaskId));
+        return baseMapper.getByTaskId(screeningTaskId);
     }
-
 
     /**
      * 根据任务Id获取机构列表-带机构名称
@@ -91,12 +69,13 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
 
     /**
      * 查询任务的筛查机构
-     * @param screeningTaskId
-     * @param screeningOrgId
-     * @return
+     *
+     * @param screeningTaskId 筛查任务ID
+     * @param screeningOrgId  机构ID
+     * @return ScreeningTaskOrg
      */
     public ScreeningTaskOrg getOne(Integer screeningTaskId, Integer screeningOrgId) {
-        return baseMapper.selectOne(new QueryWrapper<ScreeningTaskOrg>().eq("screening_task_id", screeningTaskId).eq("screening_org_id", screeningOrgId));
+        return baseMapper.getOneByTaskIdAndOrgId(screeningTaskId, screeningOrgId);
     }
 
     /**
