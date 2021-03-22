@@ -344,7 +344,7 @@ public class StatReportService {
                 new ArrayList<Map<String, Object>>() {
                     {
                         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-                            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+                            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
                             add(composeGenderMyopiaStat(gradeCode.name(),
                                     validConclusions.stream()
                                             .filter(x
@@ -501,7 +501,9 @@ public class StatReportService {
 
     /**
      * 构造 学龄/性别/视力情况 描述
-     * @param schoolAgeGenderLowVisionTable
+     *
+     * @param title 标题
+     * @param schoolAgeGenderVisionTable  学龄视力表
      * @return
      */
     private Map<String, Object> composeSchoolAgeGenderVisionDesc(
@@ -631,10 +633,13 @@ public class StatReportService {
         return conclusionDesc;
     }
 
+
     /**
      * 构造 学龄/视力情况 描述
-     * @param schoolAgeGenderLowVisionTable
-     * @return
+     *
+     * @param title 标题
+     * @param schoolAgeMyopiaLevelTable 学龄期近视水平表
+     * @return Map<String, Object>
      */
     private Map<String, Object> composeSchoolAgeMyopiaLevelDesc(
             String title, List<Map<String, Object>> schoolAgeMyopiaLevelTable) {
@@ -659,7 +664,8 @@ public class StatReportService {
 
     /**
      * 构造 学龄/视力情况 描述
-     * @param schoolAgeGenderLowVisionTable
+     * @param title 标题
+     * @param schoolAgeGlassesTypeTable  学龄眼镜类型表
      * @return
      */
     private Map<String, Object> composeSchoolAgeGlassesTypeDesc(
@@ -1145,7 +1151,7 @@ public class StatReportService {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
                     statConclusions.stream()
                             .filter(x -> x.getSchoolGradeCode().equals(gradeCode.getCode()))
@@ -1177,7 +1183,7 @@ public class StatReportService {
         List<BasicStatParams> schoolGradeLowVisionRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.name(),
                     statConclusions.stream()
                             .filter(x -> x.getSchoolGradeCode().equals(gradeCode.getCode()))
@@ -1209,7 +1215,7 @@ public class StatReportService {
         List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
-            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
@@ -1248,7 +1254,7 @@ public class StatReportService {
         List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
-            if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
+            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))

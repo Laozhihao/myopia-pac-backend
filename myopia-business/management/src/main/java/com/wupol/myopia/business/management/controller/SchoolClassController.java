@@ -14,8 +14,7 @@ import javax.validation.Valid;
 /**
  * 班级控制层
  *
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
  */
 @ResponseResultBody
 @CrossOrigin
@@ -26,6 +25,12 @@ public class SchoolClassController {
     @Resource
     private SchoolClassService schoolClassService;
 
+    /**
+     * 保存班级
+     *
+     * @param schoolClass 班级实体
+     * @return 新增数量
+     */
     @PostMapping()
     public Object saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -33,12 +38,24 @@ public class SchoolClassController {
         return schoolClassService.saveClass(schoolClass);
     }
 
+    /**
+     * 删除班级
+     *
+     * @param id 班级ID
+     * @return 删除数量
+     */
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolClassService.deletedClass(id, user.getId());
     }
 
+    /**
+     * 更新班级
+     *
+     * @param schoolClass 班级实体
+     * @return 班级实体
+     */
     @PutMapping()
     public Object updateClass(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -46,6 +63,12 @@ public class SchoolClassController {
         return schoolClassService.updateClass(schoolClass);
     }
 
+    /**
+     * 获取年级ID获取班级列表
+     *
+     * @param gradeId 年级ID
+     * @return 班级列表
+     */
     @GetMapping("all")
     public Object getAllClassList(Integer gradeId) {
         if (null == gradeId) {

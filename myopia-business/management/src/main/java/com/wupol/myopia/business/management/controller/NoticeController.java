@@ -24,28 +24,57 @@ public class NoticeController {
     @Resource
     private NoticeService noticeService;
 
+    /**
+     * 获取通知列表
+     *
+     * @param pageRequest 分页请求
+     * @return 通知列表
+     */
     @GetMapping("list")
     public Object getLists(PageRequest pageRequest) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.getLists(pageRequest, currentUser);
     }
 
+    /**
+     * 消息已读
+     *
+     * @param ids 消息id
+     * @return 是否更新成功
+     */
     @PostMapping("read")
     public Object readNotice(@RequestBody List<Integer> ids) {
         return noticeService.readNotice(ids);
     }
 
+    /**
+     * 删除消息
+     *
+     * @param ids 消息id
+     * @return 是否删除成功
+     */
     @PostMapping("deleted")
     public Object deletedNotice(@RequestBody List<Integer> ids) {
         return noticeService.deletedNotice(ids);
     }
 
+    /**
+     * 未读消息统计
+     *
+     * @return 未读列表
+     */
     @GetMapping("unreadCount")
     public Object unreadCount() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.unreadCount(currentUser);
     }
 
+    /**
+     * 筛查通知已读
+     *
+     * @param screeningNoticeId 筛查通知ID
+     * @return 是否成功
+     */
     @PostMapping("screeningNotice/{screeningNoticeId}")
     public Object readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
