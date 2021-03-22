@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -759,29 +758,6 @@ public class StatReportService {
                 validConclusions.stream()
                         .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
                         .collect(Collectors.toList());
-        // List<StatConclusion> kindergartenList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> primaryList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> juniorList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> highList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> vocationalHighList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> myopiaConclusions =
-        //         validConclusions.stream().filter(x ->
-        //         x.getIsMyopia()).collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
