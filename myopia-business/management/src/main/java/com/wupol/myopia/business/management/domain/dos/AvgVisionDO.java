@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.domain.dos;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @Description
@@ -8,6 +9,7 @@ import lombok.Data;
  * @Author by Jacob
  */
 @Data
+@NoArgsConstructor
 public class AvgVisionDO {
     private Double leftEyeVision;
     private Double rightEyeVision;
