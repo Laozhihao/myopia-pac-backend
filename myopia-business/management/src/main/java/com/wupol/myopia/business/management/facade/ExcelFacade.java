@@ -900,9 +900,9 @@ public class ExcelFacade {
             VisionScreeningResultExportVo exportVo = new VisionScreeningResultExportVo();
             BeanUtils.copyProperties(vo, exportVo);
             GlassesType glassesType = GlassesType.get(vo.getGlassesType());
-            exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(NationEnum.getName(vo.getNation()))
+            exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
                     .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
-                    .setWarningLevelDesc(WarningLevel.getDesc(vo.getWarningLevel()));
+                    .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             exportVos.add(exportVo);
