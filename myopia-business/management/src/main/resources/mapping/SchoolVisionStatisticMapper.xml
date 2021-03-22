@@ -95,4 +95,14 @@
         update_time = now()
     </insert>
 
+    <select id="getByPlanIdsAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_vision_statistic where
+                screening_plan_id in
+        <foreach collection="planIds" open="(" close=")" separator="," item="planId">
+            #{planId}
+        </foreach>
+        and school_id = #{schoolIds}
+    </select>
 </mapper>

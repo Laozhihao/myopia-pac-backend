@@ -116,11 +116,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public void deleteByPlanIdAndExcludeSchoolIds(Integer screeningPlanId, List<Integer> excludeSchoolIds) {
         Assert.notNull(screeningPlanId);
-        QueryWrapper<ScreeningPlanSchool> query = new QueryWrapper<ScreeningPlanSchool>().eq("screening_plan_id", screeningPlanId);
-        if (!CollectionUtils.isEmpty(excludeSchoolIds)) {
-            query.notIn("school_id", excludeSchoolIds);
-        }
-        baseMapper.delete(query);
+        baseMapper.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
         screeningPlanSchoolStudentService.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
     }
 

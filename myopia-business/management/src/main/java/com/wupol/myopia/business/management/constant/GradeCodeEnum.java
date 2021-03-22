@@ -54,9 +54,7 @@ public enum GradeCodeEnum {
      */
     ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code),
     TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code),
-    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code),
-
-    OTHER("其他", "90", -1);
+    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code);
 
     private final String name;
 

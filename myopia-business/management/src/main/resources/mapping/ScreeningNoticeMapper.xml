@@ -91,4 +91,32 @@
              </foreach>
     </select>
 
+    <select id="getByTaskId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_screening_notice
+        where screening_task_id = #{taskId}
+          and type = 1
+    </select>
+
+    <select id="getByIdsOrderByCreateTime" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_screening_notice
+                where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <select id="checkTitleExist" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice where gov_dept_id = #{govDeptId}
+                                  and title = #{title}
+                                  and release_status = 1
+                                  and type = 0
+        <if test="screeningNoticeId != null">
+            and id != #{screeningNoticeId}
+        </if>
+    </select>
 </mapper>

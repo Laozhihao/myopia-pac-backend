@@ -14,4 +14,6 @@ import java.util.List;
 public interface ScreeningOrganizationAdminMapper extends BaseMapper<ScreeningOrganizationAdmin> {
 
     List<ScreeningOrganizationAdmin> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
+
+    ScreeningOrganizationAdmin getByOrgId(@Param("orgId") Integer orgId);
 }

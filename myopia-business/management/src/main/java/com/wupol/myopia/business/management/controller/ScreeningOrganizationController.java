@@ -31,7 +31,7 @@ import java.io.IOException;
 public class ScreeningOrganizationController {
 
     @Autowired
-    private ScreeningOrganizationService saveScreeningOrganization;
+    private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private ExcelFacade excelFacade;
 
@@ -47,35 +47,35 @@ public class ScreeningOrganizationController {
         if (user.isGovDeptUser()) {
             screeningOrganization.setConfigType(0);
         }
-        return saveScreeningOrganization.saveScreeningOrganization(screeningOrganization);
+        return screeningOrganizationService.saveScreeningOrganization(screeningOrganization);
     }
 
     @PutMapping()
     public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return saveScreeningOrganization.updateScreeningOrganization(user, screeningOrganization);
+        return screeningOrganizationService.updateScreeningOrganization(user, screeningOrganization);
     }
 
     @GetMapping("{id}")
     public Object getScreeningOrganization(@PathVariable("id") Integer id) {
         CurrentUserUtil.getCurrentUser();
-        return saveScreeningOrganization.getScreeningOrgDetails(id);
+        return screeningOrganizationService.getScreeningOrgDetails(id);
     }
 
     @DeleteMapping("{id}")
     public Object deletedScreeningOrganization(@PathVariable("id") Integer id) {
-        return saveScreeningOrganization.deletedById(id);
+        return screeningOrganizationService.deletedById(id);
     }
 
     @GetMapping("list")
     public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return saveScreeningOrganization.getScreeningOrganizationList(pageRequest, query, user);
+        return screeningOrganizationService.getScreeningOrganizationList(pageRequest, query, user);
     }
 
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest request) {
-        return saveScreeningOrganization.updateStatus(request);
+        return screeningOrganizationService.updateStatus(request);
     }
 
     @GetMapping("/export")
@@ -87,12 +87,12 @@ public class ScreeningOrganizationController {
 
     @PostMapping("/reset")
     public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        return saveScreeningOrganization.resetPassword(request.getId());
+        return screeningOrganizationService.resetPassword(request.getId());
     }
 
     @GetMapping("/record/lists/{orgId}")
     public Object getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
-        return saveScreeningOrganization.getRecordLists(request, orgId);
+        return screeningOrganizationService.getRecordLists(request, orgId);
     }
 
     /**
@@ -104,7 +104,7 @@ public class ScreeningOrganizationController {
     @GetMapping("/listByGovDept")
     public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
 
-        return saveScreeningOrganization.getScreeningOrganizationListByGovDeptId(query);
+        return screeningOrganizationService.getScreeningOrganizationListByGovDeptId(query);
     }
 
     @GetMapping("/getDistrictId")
