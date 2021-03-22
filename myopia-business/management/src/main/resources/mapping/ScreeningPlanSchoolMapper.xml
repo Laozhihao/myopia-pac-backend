@@ -99,4 +99,15 @@
         from m_screening_plan_school
         where screening_plan_id = #{planId}
     </select>
+
+    <delete id="deleteByPlanIdAndExcludeSchoolIds">
+        delete
+        from m_screening_plan_school where screening_plan_id = #{planId}
+        <if test="schoolIds != null and schoolIds.size() != 0">
+            and school_id not in
+            <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+    </delete>
 </mapper>
