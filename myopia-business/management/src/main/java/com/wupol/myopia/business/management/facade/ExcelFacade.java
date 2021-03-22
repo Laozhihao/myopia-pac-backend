@@ -15,6 +15,7 @@ import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.*;
+import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
@@ -423,7 +424,7 @@ public class ExcelFacade {
         District district = districtService.findOne(new District().setId(school.getDistrictId()));
 
         // 查询学生
-        List<Student> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
+        List<StudentDTO> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
 
         // 为空直接导出
         String content = String.format(CommonConst.CONTENT,
@@ -434,7 +435,7 @@ public class ExcelFacade {
             return;
         }
         // 获取年级班级信息
-        List<Integer> classIdList = list.stream().map(Student::getClassId).collect(Collectors.toList());
+        List<Integer> classIdList = list.stream().map(StudentDTO::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = Maps.newHashMap();
         if (!CollectionUtils.isEmpty(classIdList)) {
             classMap = schoolClassService.getClassMapByIds(classIdList);
@@ -447,7 +448,7 @@ public class ExcelFacade {
                         StudentScreeningCountVO::getCount));
 
         List<StudentExportVo> exportList = new ArrayList<>();
-        for (Student item : list) {
+        for (StudentDTO item : list) {
             StudentExportVo exportVo = new StudentExportVo()
                     .setNo(item.getSno())
                     .setName(item.getName())
@@ -461,8 +462,8 @@ public class ExcelFacade {
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
-                    .setLabel(item.getVisionLabel())
-                    .setSituation(item.getCurrentSituation())
+                    .setLabel(item.visionLabel2Str())
+                    .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     //TODO 就诊次数
                     .setVisitsCount(886)

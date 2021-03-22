@@ -58,24 +58,4 @@ public class StudentDTO extends Student {
      * token
      */
     private String token;
-
-    /**
-     * 戴镜类型
-     */
-    private Integer glassesType;
-
-    /**
-     * 是否近视
-     */
-    private Boolean isMyopia;
-
-    /**
-     * 是否远视
-     */
-    private Boolean isHyperopia;
-
-    /**
-     * 是否散光
-     */
-    private Boolean isAstigmatism;
 }

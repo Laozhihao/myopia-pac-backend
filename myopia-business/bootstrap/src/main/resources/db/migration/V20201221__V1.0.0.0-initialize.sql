@@ -197,6 +197,10 @@ create table m_student
     last_screening_time timestamp                           null comment '最近筛选时间',
     remark              varchar(256)                        null comment '备注',
     status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
+    glasses_type        int                                 null comment '戴镜类型',
+    is_myopia           tinyint(1)                          null comment '是否近视',
+    is_hyperopia        tinyint(1)                          null comment '是否远视',
+    is_astigmatism      tinyint(1)                          null comment '是否散光',
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
