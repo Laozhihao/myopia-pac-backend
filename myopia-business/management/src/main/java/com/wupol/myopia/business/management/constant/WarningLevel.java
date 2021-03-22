@@ -25,7 +25,10 @@ public enum WarningLevel {
                 .orElse(null);
     }
 
-    public static String getDesc(int code) {
+    public static String getDesc(Integer code) {
+        if (Objects.isNull(code)) {
+            return "";
+        }
         WarningLevel warningLevel = get(code);
         return Objects.isNull(warningLevel) ? "" : warningLevel.desc;
     }
