@@ -65,6 +65,10 @@ public class ScheduledTasksExecutor {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
         }
+        statisticByPlanIds(yesterdayScreeningPlanIds);
+    }
+
+    public void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
         List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
         List<DistrictVisionStatistic> districtVisionStatistics = new ArrayList<>();
