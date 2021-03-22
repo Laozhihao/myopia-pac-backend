@@ -145,14 +145,24 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
     /**
+     * 根据筛查计划ID与学校Id查出导出的筛查数据
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    public List<StatConclusionExportVo> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
      * 根据筛查通知ID与学校Id查出报告的筛查数据
      * @param screeningNoticeId
      * @param schoolId
      * @return
      */
-    public List<StatConclusionReportVo> getReportVoByScreeningNoticeIdAndSchoolId(
-            Integer screeningNoticeId, Integer schoolId) {
-        return baseMapper.selectReportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId); 
+    public List<StatConclusionReportVo> getReportVo(
+            Integer screeningNoticeId, Integer planId, Integer schoolId) {
+        return baseMapper.selectReportVoByQuery(screeningNoticeId, planId, schoolId);
     }
 
     /**
@@ -188,6 +198,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
         return baseMapper.selectExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
+    }
+
+    /**
+     * 根据筛查计划ID与筛查机构Id查出导出的筛查数据
+     * @param screeningPlanId
+     * @param screeningOrgId
+     * @return
+     */
+    public List<StatConclusionExportVo> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
+        return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
     }
 
     /**

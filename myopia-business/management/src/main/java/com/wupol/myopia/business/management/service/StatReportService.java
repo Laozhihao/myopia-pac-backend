@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSONPath;
+import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.constant.GlassesType;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -724,32 +724,41 @@ public class StatReportService {
 
     /**
      * 获取学校筛查报告数据
-     * @param srcScreeningNoticeId
-     * @param schoolId
+     * @param srcScreeningNoticeId 通知ID
+     * @param planId 计划ID
+     * @param schoolId 学校ID
      * @return
      * @throws IOException
      */
-    public Map<String, Object> getSchoolStatData(int srcScreeningNoticeId, int schoolId)
-            throws IOException {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
+    public Map<String, Object> getSchoolStatData(
+            Integer srcScreeningNoticeId, Integer planId, int schoolId) throws IOException {
+        Date startDate = null;
+        Date endDate = null;
+        Integer planStudentNum = 0;
         StatConclusionQuery query = new StatConclusionQuery();
         query.setSchoolId(schoolId);
-        query.setDistrictIds(districtIds);
-        query.setSrcScreeningNoticeId(srcScreeningNoticeId);
+        if (srcScreeningNoticeId != null) {
+            ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
+            query.setSrcScreeningNoticeId(srcScreeningNoticeId);
+            startDate = notice.getStartTime();
+            endDate = notice.getEndTime();
+            planStudentNum =screeningPlanSchoolStudentService.countPlanSchoolStudent(
+                srcScreeningNoticeId, schoolId);
+        }  else if (planId != null) {
+            query.setPlanId(planId);
+            ScreeningPlan sp = screeningPlanService.getById(planId);
+            startDate = sp.getStartTime();
+            endDate = sp.getEndTime();
+            planStudentNum = sp.getStudentNumbers();
+        }else{
+            throw new ParameterNotFoundException("Parameters not illegal");
+        }
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
         if (statConclusions == null) {
             return null;
         }
-        Integer planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(
-                srcScreeningNoticeId, schoolId);
-
         School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
-
-        ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
-        Date startDate = notice.getStartTime();
-        Date endDate = notice.getEndTime();
 
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
@@ -765,29 +774,6 @@ public class StatReportService {
                 validConclusions.stream()
                         .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
                         .collect(Collectors.toList());
-        // List<StatConclusion> kindergartenList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> primaryList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> juniorList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> highList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> vocationalHighList =
-        //         validConclusions.stream()
-        //                 .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
-        //                 .collect(Collectors.toList());
-        // List<StatConclusion> myopiaConclusions =
-        //         validConclusions.stream().filter(x ->
-        //         x.getIsMyopia()).collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
@@ -805,17 +791,12 @@ public class StatReportService {
                 (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2;
 
         List<SchoolGradeItems> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
-
-        return new HashMap<String, Object>() {
+        List<StatConclusionReportVo> statConclusionReportVos =
+                statConclusionService.getReportVo(
+                        srcScreeningNoticeId, planId, schoolId);
+        Map<String, Object> resultMap = new HashMap<String, Object>() {
             {
                 put("schoolName", schoolName);
-                if (startDate != null) {
-                    put("startDate", startDate.getTime());
-                }
-                if (endDate != null) {
-                    put("endDate", endDate.getTime());
-                }
-                put("planStudentNum", planStudentNum);
                 put("actualScreeningNum", totalFirstScreeningNum);
                 put("validFirstScreeningNum", validFirstScreeningNum);
                 put("maleNum", maleList.size());
@@ -880,9 +861,17 @@ public class StatReportService {
 
                 put("schoolClassStudentStatList",
                         composeSchoolClassStudentStatList(
-                                srcScreeningNoticeId, schoolId, schoolGradeItems));
+                                 schoolId, schoolGradeItems, statConclusionReportVos));
             }
         };
+        if (startDate != null) {
+            resultMap.put("startDate", startDate.getTime());
+        }
+        if (endDate != null) {
+            resultMap.put("endDate", endDate.getTime());
+        }
+        resultMap.put("planStudentNum", planStudentNum);
+        return resultMap;
     }
 
     /**
@@ -893,10 +882,7 @@ public class StatReportService {
      * @return
      */
     private List<Map<String, List>> composeSchoolClassStudentStatList(
-            int screeningNoticeId, int schoolId, List<SchoolGradeItems> schoolGradeItemList) {
-        List<StatConclusionReportVo> statConclusionReportVos =
-                statConclusionService.getReportVoByScreeningNoticeIdAndSchoolId(
-                        screeningNoticeId, schoolId);
+            int schoolId, List<SchoolGradeItems> schoolGradeItemList, List<StatConclusionReportVo> statConclusionReportVos) {
         List<Map<String, List>> schoolStudentStatList = new ArrayList<>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
@@ -1212,10 +1198,9 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassLowVisionLevelTable(
             List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
+        // List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
-            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
@@ -1232,16 +1217,17 @@ public class StatReportService {
                         statConclusions.stream()
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
+                lowVisionLevelStat.put("grade", gradeCode.name());
                 classList.add(lowVisionLevelStat);
             }
-            gradeList.add(new HashMap() {
-                {
-                    put("name", gradeCode.name());
-                    put("list", classList);
-                }
-            });
+            // gradeList.add(new HashMap() {
+            //     {
+            //         put("name", gradeCode.name());
+            //         put("list", classList);
+            //     }
+            // });
         }
-        return gradeList;
+        return classList;
     }
 
     /**
@@ -1251,10 +1237,9 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassMyopiaLevelTable(
             List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
+        // List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
-            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
@@ -1270,16 +1255,18 @@ public class StatReportService {
                         statConclusions.stream()
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
+                myopiaLevelStat.put("grade", gradeCode.name());
                 classList.add(myopiaLevelStat);
             }
-            gradeList.add(new HashMap() {
-                {
-                    put("name", gradeCode.name());
-                    put("list", classList);
-                }
-            });
+            // gradeList.add(new HashMap() {
+            //     {
+            //         put("name", gradeCode.name());
+            //         put("list", classList);
+            //     }
+            // });
         }
-        return gradeList;
+        return classList;
+        // return gradeList;
     }
     /**
      * 构建 性别 视力低下 统计

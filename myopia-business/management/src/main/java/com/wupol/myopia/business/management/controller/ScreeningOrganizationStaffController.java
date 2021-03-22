@@ -5,9 +5,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.dto.OrganizationStaffRequest;
-import com.wupol.myopia.business.management.domain.dto.StaffResetPasswordRequest;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationStaffService;
@@ -22,8 +20,9 @@ import javax.validation.Valid;
 import java.io.IOException;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 筛查人员Controller
+ *
+ * @author Simple4H
  */
 @ResponseResultBody
 @CrossOrigin
@@ -37,18 +36,35 @@ public class ScreeningOrganizationStaffController {
     @Autowired
     private ExcelFacade excelFacade;
 
+    /**
+     * 筛查人员列表
+     *
+     * @param request 查询条件
+     * @return 机构人员列表
+     */
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
+    /**
+     * 删除筛查人员
+     *
+     * @param id 人员ID
+     * @return 删除
+     */
     @DeleteMapping("{id}")
     public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.deletedOrganizationStaff(id, user.getId());
     }
 
+    /**
+     * 新增筛查人员
+     *
+     * @param screeningOrganizationStaff 筛查人员实体
+     * @return 账号密码 {@link UsernameAndPasswordDTO}
+     */
     @PostMapping()
     public Object insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -57,6 +73,12 @@ public class ScreeningOrganizationStaffController {
         return screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaff);
     }
 
+    /**
+     * 更新筛查人员
+     *
+     * @param screeningOrganizationStaff 筛查人员实体
+     * @return 筛查人员实体
+     */
     @PutMapping()
     public Object updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -64,18 +86,38 @@ public class ScreeningOrganizationStaffController {
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
     }
 
+    /**
+     * 更新筛查人员状态
+     *
+     * @param statusRequest 请求入参
+     * @return 用户信息 {@link UserDTO}
+     */
     @PutMapping("status")
     public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getCurrentUser();
         return ApiResult.success(screeningOrganizationStaffService.updateStatus(statusRequest));
     }
 
+    /**
+     * 重置密码
+     *
+     * @param request 请求入参
+     * @return 账号密码 {@link UsernameAndPasswordDTO}
+     */
     @PostMapping("reset")
     public Object resetPassword(@RequestBody @Valid StaffResetPasswordRequest request) {
         CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.resetPassword(request);
     }
 
+    /**
+     * 导出筛查人员
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @return 是否成功
+     * @throws IOException   IO异常
+     * @throws UtilException 文件异常
+     */
     @GetMapping("/export")
     public Object getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
@@ -83,7 +125,13 @@ public class ScreeningOrganizationStaffController {
         return ApiResult.success();
     }
 
-
+    /**
+     * 导入筛查人员
+     *
+     * @param file           上传人员的文件
+     * @param screeningOrgId 筛查机构
+     * @return 是否成功
+     */
     @PostMapping("/import/{screeningOrgId}")
     public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
@@ -91,6 +139,12 @@ public class ScreeningOrganizationStaffController {
         return ApiResult.success();
     }
 
+    /**
+     * 导出-导入模板
+     *
+     * @return 导入模板
+     * @throws IOException IO异常
+     */
     @GetMapping("/import/demo")
     public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
         return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());

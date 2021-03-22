@@ -16,8 +16,7 @@ import javax.validation.Valid;
 /**
  * 年级控制层
  *
- * @Author HaoHao
- * @Date 2020-12-22
+ * @author HaoHao
  */
 @ResponseResultBody
 @CrossOrigin
@@ -28,6 +27,12 @@ public class SchoolGradeController {
     @Resource
     private SchoolGradeService schoolGradeService;
 
+    /**
+     * 更新年级
+     *
+     * @param schoolGrade 年级实体
+     * @return 新增个数
+     */
     @PostMapping()
     public Object saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -35,12 +40,25 @@ public class SchoolGradeController {
         return schoolGradeService.saveGrade(schoolGrade);
     }
 
+    /**
+     * 删除年级
+     *
+     * @param id 年级ID
+     * @return 删除个数
+     */
     @DeleteMapping("{id}")
     public Object deletedGrade(@PathVariable("id") Integer id) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return schoolGradeService.deletedGrade(id, currentUser);
     }
 
+    /**
+     * 年级列表
+     *
+     * @param pageRequest 分页请求
+     * @param schoolId    学校ID
+     * @return 年级列表
+     */
     @GetMapping("list")
     public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
         if (null == schoolId) {
@@ -49,6 +67,12 @@ public class SchoolGradeController {
         return schoolGradeService.getGradeList(pageRequest, schoolId);
     }
 
+    /**
+     * 获取年级列表（不分页）
+     *
+     * @param schoolId 学校ID
+     * @return 年级列表
+     */
     @GetMapping("all")
     public Object getAllGradeList(Integer schoolId) {
         if (null == schoolId) {
@@ -57,11 +81,22 @@ public class SchoolGradeController {
         return schoolGradeService.getAllGradeList(schoolId);
     }
 
+    /**
+     * 获取年级编码
+     *
+     * @return 年级编码
+     */
     @GetMapping("getGradeCode")
     public Object getGradeCode() {
         return GradeCodeEnum.getGradeCodeList();
     }
 
+    /**
+     * 更新年级
+     *
+     * @param schoolGrade 年级实体
+     * @return 年级实体
+     */
     @PutMapping("")
     public Object updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();

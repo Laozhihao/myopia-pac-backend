@@ -107,10 +107,13 @@ public class StatController {
      * @return
      */
     @GetMapping("/getSchoolReport")
-    public ApiResult getSchoolReport(@RequestParam("notificationId") Integer notificationId,
+    public ApiResult getSchoolReport(
+            @RequestParam(name = "notificationId", required = false) Integer notificationId,
+            @RequestParam(name = "planId", required = false) Integer planId,
             @RequestParam("schoolId") Integer schoolId) {
         try {
-            return ApiResult.success(statReportService.getSchoolStatData(notificationId, schoolId));
+            return ApiResult.success(
+                    statReportService.getSchoolStatData(notificationId, planId, schoolId));
         } catch (IOException e) {
             log.error(e);
             return ApiResult.failure("internal error");
