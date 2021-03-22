@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -49,8 +50,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
-    /** 根据code查地址 */
-    public District getByCode(Long code) throws BusinessException{
+    /**
+     * 根据code查地址
+     */
+    public District getByCode(Long code) throws BusinessException {
         return baseMapper.selectOne(new QueryWrapper<District>().eq("code", code));
     }
 
@@ -329,7 +332,25 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定行政区域所属省份的所有行政区域的id列表
+     *
+     * @param districtId 行政区域ID
+     * @return List
+     **/
+    public List<Integer> getAllDistrictIds(Integer districtId) {
+        District district = getById(districtId);
+        Assert.notNull(district, "无效行政区域ID：" + districtId);
+        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        List<Integer> districtIds = new ArrayList<>();
+        districtIds.add(provinceDistrictTreePriorityCache.getId());
+        getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
+        return districtIds;
+    }
+
+
+    /**
      * 获取层级所有子孙层级的ID
+     *
      * @param districtIds
      * @param childs
      */
@@ -816,5 +837,19 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public List<District> getNextDistrictByCode(Long code) {
         return baseMapper.selectChildNodeByParentCode(code);
+    }
+
+    /**
+     * 获取某个省，所有城市下，所有地区id
+     *
+     * @param districtId
+     * @return
+     */
+    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
+        List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
+        Map<District, Set<Integer>> districtSetMap = cityDistrictList.stream().collect(Collectors.toMap(Function.identity(), cityDistrict -> {
+         return new HashSet<>(getAllDistrictIds(cityDistrict.getId()));
+        }));
+        return districtSetMap;
     }
 }

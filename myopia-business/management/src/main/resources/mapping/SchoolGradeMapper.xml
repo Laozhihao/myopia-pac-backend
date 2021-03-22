@@ -75,4 +75,19 @@
         where msg.status != 2
         and msg.school_id = #{schoolId}
     </select>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade
+        where school_id = #{schoolId}
+    </select>
+
+    <select id="countBySchoolIdAndCode" resultType="java.lang.Integer">
+        select count(1)
+        from m_school_grade
+        where school_id = #{schoolId}
+          and grade_code = #{code}
+          and status = 0
+    </select>
 </mapper>

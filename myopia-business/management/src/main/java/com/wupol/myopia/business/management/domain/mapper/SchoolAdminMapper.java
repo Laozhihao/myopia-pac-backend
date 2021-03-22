@@ -16,4 +16,6 @@ public interface SchoolAdminMapper extends BaseMapper<SchoolAdmin> {
 
     List<SchoolAdmin> getBySchoolIds(@Param("schoolIds") List<Integer> schoolIds);
 
+    SchoolAdmin getBySchoolId(@Param("schoolId") Integer schoolId);
+
 }

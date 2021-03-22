@@ -135,4 +135,51 @@
         left join m_student ms on mspss.student_id = ms.id
         where mspss.screening_plan_id = #{screeningPlanId} and mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}
     </select>
+
+    <select id="findByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where student_id = #{studentId}
+    </select>
+
+    <select id="findByPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+    </select>
+
+    <select id="findByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+          and school_id = #{schoolId}
+    </select>
+
+    <select id="countByPlanId" resultType="java.lang.Integer">
+        select count(1)
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+    </select>
+
+    <select id="countBySchoolIdAndNoticeId" resultType="java.lang.Integer">
+        select count(1)
+        from m_screening_plan_school_student
+        where school_id = #{schoolId}
+          and src_screening_notice_id = #{noticeId}
+    </select>
+
+    <delete id="deleteByPlanIdAndExcludeSchoolIds">
+        delete
+        from m_screening_plan_school_student
+                where screening_plan_id = #{screeningPlanId}
+        <if test="excludeSchoolIds != null and excludeSchoolIds.size() != 0">
+            and school_id not in
+            <foreach collection="excludeSchoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+    </delete>
 </mapper>

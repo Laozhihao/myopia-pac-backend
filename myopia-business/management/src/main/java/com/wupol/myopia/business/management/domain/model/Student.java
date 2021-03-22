@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.common.constant.GlassesType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -171,6 +172,26 @@ public class Student implements Serializable {
     private Integer status;
 
     /**
+     * 戴镜类型
+     */
+    private Integer glassesType;
+
+    /**
+     * 是否近视
+     */
+    private Boolean isMyopia;
+
+    /**
+     * 是否远视
+     */
+    private Boolean isHyperopia;
+
+    /**
+     * 是否散光
+     */
+    private Boolean isAstigmatism;
+
+    /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
@@ -220,5 +241,51 @@ public class Student implements Serializable {
                 (Objects.nonNull(excelStudent.townCode)) ||
                 (StringUtils.isNotBlank(excelStudent.address)) ||
                 (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
+    }
+
+    /**
+     * 视力标签预警
+     *
+     * @return String
+     */
+    public String visionLabel2Str() {
+        if (Objects.isNull(visionLabel)) {
+            return "";
+        }
+        switch (visionLabel){
+            case 0:return "0级预警";
+            case 1:return "1级预警";
+            case 2:return "2级预警";
+            case 3:return "3级预警";
+            default: return "";
+        }
+    }
+
+    /**
+     * 视力情况
+     *
+     * @return 视力情况
+     */
+    public String situation2Str() {
+        StringBuilder result = new StringBuilder();
+        if (Objects.nonNull(glassesType)) {
+            result.append(GlassesType.get(glassesType).desc).append("、");
+        }
+        if (Objects.nonNull(isMyopia)) {
+            if (isMyopia) {
+                result.append("近视、");
+            }
+        }
+        if (Objects.nonNull(isHyperopia)) {
+            if (isHyperopia) {
+                result.append("远视、");
+            }
+        }
+        if (Objects.nonNull(isAstigmatism)) {
+            if (isAstigmatism) {
+                result.append("散光");
+            }
+        }
+        return result.toString();
     }
 }

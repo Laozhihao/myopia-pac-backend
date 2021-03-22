@@ -37,8 +37,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 筛查人员
+ *
+ * @author Simple4H
  */
 @Service
 @Log4j2
@@ -57,21 +58,15 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 获取机构人员列表
      *
      * @param request     请求入参
-     * @param currentUser 当前登录用户
      * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request, CurrentUser currentUser) {
+    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
         UserDTOQuery userQuery = new UserDTOQuery();
-
-        // 非平台管理员需要机构ID进行过滤
-//        if (!currentUser.isPlatformAdminUser()) {
-//            userQuery.setOrgId(request.getScreeningOrgId());
-//        }
-        userQuery.setOrgId(request.getScreeningOrgId());
 
         // 搜索条件
         userQuery.setCurrent(request.getCurrent())
                 .setSize(request.getSize())
+                .setOrgId(request.getScreeningOrgId())
                 .setRealName(request.getName())
                 .setIdCard(request.getIdCard())
                 .setPhone(request.getPhone())
@@ -282,14 +277,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 批量新增, 自动生成编号
      */
-    public Boolean saveBatch(List<ScreeningOrganizationStaffVo> list) {
-        if (CollectionUtils.isEmpty(list)) return false;
+    public void saveBatch(List<ScreeningOrganizationStaffVo> list) {
+        if (CollectionUtils.isEmpty(list)) return;
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
         if (null == organization) {
             throw new BusinessException("数据异常,找不到筛查机构的数据,id为:" + list.get(0).getScreeningOrgId());
         }
-        return super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff) item).collect(Collectors.toList()));
+        super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff) item).collect(Collectors.toList()));
     }
 
     /**
@@ -358,7 +353,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
             screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().get();
         }
-        if (screeningOrganizationStaff != null && screeningOrganizationStaff.getId() !=null ) {
+        if (screeningOrganizationStaff.getId() != null) {
             screeningOrganizationStaff.setSignFileId(resourceFile.getId());
             updateById(screeningOrganizationStaff);
         }

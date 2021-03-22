@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolAdminMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
@@ -10,8 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 学校管理员
+ *
+ * @author Simple4H
  */
 @Service
 public class SchoolAdminService extends BaseService<SchoolAdminMapper, SchoolAdmin> {
@@ -34,10 +34,14 @@ public class SchoolAdminService extends BaseService<SchoolAdminMapper, SchoolAdm
         baseMapper.insert(schoolAdmin);
     }
 
+    /**
+     * 通过学校ID获取学校管理员
+     *
+     * @param id 学校ID
+     * @return SchoolAdmin
+     */
     public SchoolAdmin getAdminBySchoolId(Integer id) {
-        return baseMapper
-                .selectOne(new QueryWrapper<SchoolAdmin>()
-                        .eq("school_id", id));
+        return baseMapper.getBySchoolId(id);
     }
 
     /**

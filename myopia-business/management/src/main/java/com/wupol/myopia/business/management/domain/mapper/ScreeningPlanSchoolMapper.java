@@ -29,4 +29,12 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
     List<ScreeningPlanSchool> countBySchoolId(@Param("schoolId") Integer schoolId);
 
     Integer updateSchoolNameBySchoolId(@Param("schoolId") Integer schoolId, @Param("schoolName") String schoolName);
+
+    List<ScreeningPlanSchool> getBySchoolId(@Param("schoolId") Integer schoolId);
+
+    ScreeningPlanSchool getOneByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+
+    List<ScreeningPlanSchool> getByPlanId(@Param("planId") Integer planId);
+
+    Integer deleteByPlanIdAndExcludeSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
 }

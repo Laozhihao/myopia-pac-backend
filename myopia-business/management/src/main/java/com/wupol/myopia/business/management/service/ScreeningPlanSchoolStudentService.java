@@ -64,7 +64,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("student_id", studentId));
+        return baseMapper.findByStudentId(studentId);
     }
 
 /*    public ScreeningPlanSchoolStudent getByScreeningPlanSchoolStudentId(Integer studentId) {
@@ -82,8 +82,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<StudentScreeningInfoWithResultDTO> getStudentInfoWithResult(ScreeningResultSearchDTO screeningResultSearchDTO) {
-        List<StudentScreeningInfoWithResultDTO> visionScreeningResults = baseMapper.selectStudentInfoWithResult(screeningResultSearchDTO);
-        return visionScreeningResults;
+        return baseMapper.selectStudentInfoWithResult(screeningResultSearchDTO);
     }
 
     /**
@@ -101,8 +100,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return new ArrayList<>();
         }
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = baseMapper.selectList(queryWrapper);
-        return screeningPlanSchoolStudents;
+        return baseMapper.selectList(queryWrapper);
     }
 
     public List<ScreeningPlanSchoolStudent> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
@@ -115,8 +113,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchools = baseMapper.selectList(queryWrapper);
-        return screeningPlanSchools;
+        return baseMapper.selectList(queryWrapper);
     }
 
 
@@ -128,11 +125,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public void deleteByPlanIdAndExcludeSchoolIds(Integer screeningPlanId, List<Integer> excludeSchoolIds) {
         Assert.notNull(screeningPlanId, "筛查计划ID不能为空");
-        QueryWrapper<ScreeningPlanSchoolStudent> query = new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId);
-        if (CollectionUtils.hasLength(excludeSchoolIds)) {
-            query.notIn("school_id", excludeSchoolIds);
-        }
-        baseMapper.delete(query);
+        baseMapper.deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
     }
 
     /**
@@ -142,7 +135,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId));
+        return baseMapper.findByPlanId(screeningPlanId);
     }
 
     /**
@@ -152,7 +145,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectList(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId).eq("school_id", schoolId));
+        return baseMapper.findByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -162,7 +155,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Integer getCountByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.selectCount(new QueryWrapper<ScreeningPlanSchoolStudent>().eq("screening_plan_id", screeningPlanId));
+        return baseMapper.countByPlanId(screeningPlanId);
     }
 
     /**
@@ -183,9 +176,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Integer countPlanSchoolStudent(int srcScreeningNoticeId, int schoolId) {
-        return baseMapper.selectCount(new QueryWrapper<ScreeningPlanSchoolStudent>()
-                .eq("school_id", schoolId)
-                .eq("src_screening_notice_id", srcScreeningNoticeId));
+        return baseMapper.countBySchoolIdAndNoticeId(schoolId, srcScreeningNoticeId);
     }
 
     /**
@@ -613,6 +604,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .setStudentSituation(SerializationUtil.serializeWithoutException(student))
                 .setStudentNo(student.getSno());
         save(screeningPlanSchoolStudent);
+        screeningPlanService.updateStudentNumbers(currentUser.getId(), currentPlan.getId(), getCountByScreeningPlanId(currentPlan.getId()));
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -32,7 +31,6 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
     @Resource
     private TemplateDistrictService templateDistrictService;
 
-
     /**
      * 获取模板列表
      *
@@ -44,7 +42,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         List<TemplateResponse> responses = new ArrayList<>();
 
         // 根据类型查模板
-        List<Template> templateList = baseMapper.selectList(new QueryWrapper<Template>().eq("type", type));
+        List<Template> templateList = baseMapper.getByType(type);
 
         if (CollectionUtils.isEmpty(templateList)) {
             return responses;
@@ -123,9 +121,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      */
     public Boolean check(Integer type, List<TemplateBindItem> list) {
         // 根据类型查模板
-        List<Template> templateList = baseMapper
-                .selectList(new QueryWrapper<Template>()
-                        .eq("type", type));
+        List<Template> templateList = baseMapper.getByType(type);
 
         // 根据模板ID获取所有的行政ID
         List<TemplateDistrict> allDistrict = templateDistrictService.getByTemplateIds(

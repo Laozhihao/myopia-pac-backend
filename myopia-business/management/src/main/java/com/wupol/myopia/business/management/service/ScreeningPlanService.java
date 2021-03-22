@@ -2,13 +2,12 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
@@ -173,13 +172,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     /**
      * 校验筛查机构是否已创建计划
      *
-     * @param screeningTaskId
-     * @param screeningOrgId
+     * @param screeningTaskId 通知ID
+     * @param screeningOrgId 机构ID
      */
     public boolean checkIsCreated(Integer screeningTaskId, Integer screeningOrgId) {
-        QueryWrapper<ScreeningPlan> query = new QueryWrapper<>();
-        query.eq("screening_task_id", screeningTaskId).eq("screening_org_id", screeningOrgId);
-        return baseMapper.selectCount(query) > 0;
+        return baseMapper.countByTaskIdAndOrgId(screeningTaskId,screeningOrgId) > 0;
     }
 
     /**
@@ -216,8 +213,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, screeningNoticeIds);
         queryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(queryWrapper);
-        return screeningPlans;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -237,8 +233,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
-        return screeningPlans;
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
     /**
@@ -263,14 +258,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public Set<ScreeningPlanNameVO> getScreeningPlanNameVOs(List<ScreeningPlan> screeningPlans, Integer year) {
-        Set<ScreeningPlanNameVO> screeningPlanNameVOs = screeningPlans.stream().filter(screeningPlan ->
+        return screeningPlans.stream().filter(screeningPlan ->
                 year.equals(screeningNoticeService.getYear(screeningPlan.getStartTime())) || year.equals(screeningNoticeService.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {
             ScreeningPlanNameVO screeningTaskNameVO = new ScreeningPlanNameVO();
             screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
             return screeningTaskNameVO;
         }).collect(Collectors.toSet());
-        return screeningPlanNameVOs;
     }
 
 
@@ -369,8 +363,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public Set<Integer> getCurrentPlanIds(Integer deptId) {
         List<ScreeningPlanSchool> screeningPlanSchools = getScreeningSchoolsByScreeningOrgId(deptId);
-        Set<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
-        return planIds;
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
 
     /**
@@ -380,8 +373,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public ScreeningPlan getCurrentPlan(Integer screeningOrgId,Integer schoolId) {
-          ScreeningPlan screeningPlan = baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
-        return screeningPlan;
+        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 
 }

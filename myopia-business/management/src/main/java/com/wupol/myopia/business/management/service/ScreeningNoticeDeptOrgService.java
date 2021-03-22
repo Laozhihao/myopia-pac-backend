@@ -52,9 +52,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      * @return
      */
     public ScreeningNoticeDeptOrg getByScreeningNoticeIdAndAcceptOrgId(Integer screeningNoticeId, Integer acceptOrgId) {
-        QueryWrapper<ScreeningNoticeDeptOrg> query = new QueryWrapper<>();
-        query.eq("screening_notice_id", screeningNoticeId).eq("accept_org_id", acceptOrgId);
-        return baseMapper.selectOne(query);
+        return baseMapper.getByNoticeIdAndOrgId(screeningNoticeId, acceptOrgId);
     }
 
     /**
@@ -71,13 +69,11 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
     /**
      * 根据通知ID查询
      *
-     * @param screeningNoticeId
-     * @return
+     * @param screeningNoticeId 通知ID
+     * @return List<ScreeningNoticeDeptOrg>
      */
     public List<ScreeningNoticeDeptOrg> getByScreeningNoticeId(Integer screeningNoticeId) {
-        QueryWrapper<ScreeningNoticeDeptOrg> query = new QueryWrapper<>();
-        query.eq("screening_notice_id", screeningNoticeId);
-        return baseMapper.selectList(query);
+        return baseMapper.getByNoticeId(screeningNoticeId);
     }
 
     /**

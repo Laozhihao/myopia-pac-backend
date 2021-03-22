@@ -76,4 +76,38 @@
         set school_name = #{schoolName}
         where school_id = #{schoolId}
     </update>
+
+    <select id="getBySchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where school_id = #{schoolId}
+    </select>
+
+    <select id="getOneByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where screening_plan_id = #{planId}
+          and school_id = #{schoolId}
+        limit 1
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school
+        where screening_plan_id = #{planId}
+    </select>
+
+    <delete id="deleteByPlanIdAndExcludeSchoolIds">
+        delete
+        from m_screening_plan_school where screening_plan_id = #{planId}
+        <if test="schoolIds != null and schoolIds.size() != 0">
+            and school_id not in
+            <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+    </delete>
 </mapper>
