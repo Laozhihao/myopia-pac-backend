@@ -160,7 +160,7 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-    <select id="selectReportVoByScreeningNoticeIdAndSchoolId" resultMap="ReportVoResultMap" parameterType="java.util.Map">
+    <select id="selectReportVoByQuery" resultMap="ReportVoResultMap" parameterType="java.util.Map">
         SELECT mspss.student_name,
          mspss.gender,
          mspss.school_id,

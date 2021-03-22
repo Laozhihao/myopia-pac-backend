@@ -1218,7 +1218,6 @@ public class StatReportService {
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("grade", gradeCode.name());
-                lowVisionLevelStat.put("classNum", schoolClasses.size());
                 classList.add(lowVisionLevelStat);
             }
             // gradeList.add(new HashMap() {
@@ -1257,7 +1256,6 @@ public class StatReportService {
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("grade", gradeCode.name());
-                myopiaLevelStat.put("classNum", schoolClasses.size());
                 classList.add(myopiaLevelStat);
             }
             // gradeList.add(new HashMap() {
