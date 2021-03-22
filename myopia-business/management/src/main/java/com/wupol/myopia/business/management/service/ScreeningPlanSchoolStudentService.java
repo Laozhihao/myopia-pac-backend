@@ -613,6 +613,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .setStudentSituation(SerializationUtil.serializeWithoutException(student))
                 .setStudentNo(student.getSno());
         save(screeningPlanSchoolStudent);
+        screeningPlanService.updateStudentNumbers(currentUser.getId(), currentPlan.getId(), getCountByScreeningPlanId(currentPlan.getId()));
     }
 
     /**
