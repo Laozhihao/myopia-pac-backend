@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
 import com.wupol.myopia.business.management.domain.vo.VisionScreeningResultReportVo;
 import com.wupol.myopia.business.management.util.StatUtil;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -757,26 +759,26 @@ public class StatReportService {
                 validConclusions.stream()
                         .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
                         .collect(Collectors.toList());
-        List<StatConclusion> kindergartenList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> primaryList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> juniorList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> highList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> vocationalHighList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
-                        .collect(Collectors.toList());
+        // List<StatConclusion> kindergartenList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> primaryList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> juniorList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> highList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> vocationalHighList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
+        //                 .collect(Collectors.toList());
         // List<StatConclusion> myopiaConclusions =
         //         validConclusions.stream().filter(x ->
         //         x.getIsMyopia()).collect(Collectors.toList());
@@ -902,11 +904,17 @@ public class StatReportService {
                                                 && x.getClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList());
                 schoolClassStatList.add(new HashMap() {
-                    { put(schoolClass.getName(), studentStatList); }
+                    {
+                        put("name", schoolClass.getName());
+                        put("list", genVisionScreeningResultReportVos(studentStatList));
+                    }
                 });
             }
             schoolStudentStatList.add(new HashMap() {
-                { put(gradeCodeEnum.getName(), schoolClassStatList); }
+                {
+                    put("name", gradeCodeEnum.name());
+                    put("list", schoolClassStatList);
+                }
             });
         }
         return schoolStudentStatList;
@@ -1221,7 +1229,10 @@ public class StatReportService {
                 classList.add(lowVisionLevelStat);
             }
             gradeList.add(new HashMap() {
-                { put(gradeCode.name(), classList); }
+                {
+                    put("name", gradeCode.name());
+                    put("list", classList);
+                }
             });
         }
         return gradeList;
@@ -1256,7 +1267,10 @@ public class StatReportService {
                 classList.add(myopiaLevelStat);
             }
             gradeList.add(new HashMap() {
-                { put(gradeCode.name(), classList); }
+                {
+                    put("name", gradeCode.name());
+                    put("list", classList);
+                }
             });
         }
         return gradeList;
@@ -1513,13 +1527,35 @@ public class StatReportService {
     }
 
     /**
+     * 生成筛查数据
+     * @param statConclusionExportVos
+     * @return
+     */
+    private List<VisionScreeningResultReportVo> genVisionScreeningResultReportVos(
+            List<StatConclusionReportVo> statConclusionExportVos) {
+        List<VisionScreeningResultReportVo> reportVos = new ArrayList<>();
+        for (int i = 0; i < statConclusionExportVos.size(); i++) {
+            StatConclusionReportVo vo = statConclusionExportVos.get(i);
+            VisionScreeningResultReportVo reportVo = new VisionScreeningResultReportVo();
+            BeanUtils.copyProperties(vo, reportVo);
+            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
+            reportVo.setId(i + 1)
+                    .setGenderDesc(GenderEnum.getName(vo.getGender()))
+                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc);
+            genScreeningData(vo, reportVo);
+            reportVos.add(reportVo);
+        }
+        return reportVos;
+    }
+
+    /**
      * 组装初筛数据
      * @param vo
-     * @param exportVo
+     * @param reportVo
      */
     private void genScreeningData(
-            StatConclusionReportVo vo, VisionScreeningResultReportVo exportVo) {
-        exportVo.setNakedVisions(
+            StatConclusionReportVo vo, VisionScreeningResultReportVo reportVo) {
+        reportVo.setNakedVisions(
                         eyeDateFormat((BigDecimal) JSONPath.eval(
                                               vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
                                 (BigDecimal) JSONPath.eval(
@@ -1548,7 +1584,9 @@ public class StatReportService {
                                         (BigDecimal) JSONPath.eval(
                                                 vo, ScreeningResultPahtConst.LEFTEYE_SPH),
                                         (BigDecimal) JSONPath.eval(
-                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL))));
+                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+                .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
+                .setCorrectionType(vo.getCorrectionType());
     }
 
     /**

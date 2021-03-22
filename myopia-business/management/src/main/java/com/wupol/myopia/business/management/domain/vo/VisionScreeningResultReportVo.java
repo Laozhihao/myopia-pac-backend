@@ -46,6 +46,6 @@ public class VisionScreeningResultReportVo implements Serializable {
     /** 预警级别, 预警级别 */
     private Integer lowVisionWarningLevel;
 
-    /** 矫正分析 */
-    private String correctionDesc;
+    /** 矫正类型 */
+    private Integer correctionType;
 }
