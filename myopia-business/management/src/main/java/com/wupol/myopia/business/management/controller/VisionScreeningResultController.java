@@ -80,7 +80,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     /**
-     * 导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
+     * 筛查通知-导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
      * @param screeningNoticeId
      * @param screeningOrgId 筛查机构ID，默认0
      * @param districtId 层级ID，默认0
@@ -88,7 +88,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return
      */
     @GetMapping("/export")
-    public Object getOrganizationExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+    public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         // 参数校验
         validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId);
         List<StatConclusionExportVo> statConclusionExportVos = new ArrayList<>();
@@ -117,6 +117,36 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     /**
+     * 筛查计划-导出筛查数据（screeningOrgId与schoolId不能同时为0）
+     * @param screeningPlanId
+     * @param screeningOrgId 筛查机构ID，默认0
+     * @param schoolId 学校ID，默认0
+     * @return
+     */
+    @GetMapping("/plan/export")
+    public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+        // 参数校验
+        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
+        List<StatConclusionExportVo> statConclusionExportVos = new ArrayList<>();
+        // 获取文件需显示的名称的机构/学校/区域前缀
+        String exportFileNamePrefix = "";
+        Boolean isSchoolExport = false;
+        if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
+            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
+        }
+        if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+            exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
+            isSchoolExport = true;
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+        }
+        statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+        // 获取文件需显示的名称
+        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
+        return ApiResult.success();
+    }
+
+    /**
      * 校验筛查数据导出参数
      * @param screeningNoticeId
      * @param screeningOrgId
@@ -129,6 +159,23 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("筛查通知不存在");
         }
         List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, districtId, schoolId);
+        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
+            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
+        }
+    }
+
+    /**
+     * 校验筛查数据导出参数
+     * @param screeningPlanId
+     * @param screeningOrgId
+     * @param schoolId
+     */
+    private void validatePlanExportParams(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+        if (Objects.isNull(screeningPlan)) {
+            throw new BusinessException("筛查计划不存在");
+        }
+        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, schoolId);
         if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
             throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
         }
