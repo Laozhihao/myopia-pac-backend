@@ -110,16 +110,18 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * 导出Excel-通知
      *
      * @param createUserId 创建人
+     * @param noticeUserId 通知人
      * @param title        标题
      * @param content      内容
      * @param fileId       资源文件ID
+     * @param type         类型
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createExportNotice(Integer createUserId, String title, String content, Integer fileId) {
+    public void createExportNotice(Integer createUserId, Integer noticeUserId, String title, String content, Integer fileId, Byte type) {
         Notice notice = new Notice();
         notice.setCreateUserId(createUserId);
-        notice.setNoticeUserId(createUserId);
-        notice.setType(CommonConst.NOTICE_STATION_LETTER);
+        notice.setNoticeUserId(noticeUserId);
+        notice.setType(type);
         notice.setTitle(title);
         notice.setContent(content);
         notice.setFileId(fileId);

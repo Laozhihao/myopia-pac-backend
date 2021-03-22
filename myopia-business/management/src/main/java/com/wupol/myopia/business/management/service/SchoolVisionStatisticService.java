@@ -1,11 +1,9 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper;
-import com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,16 +27,6 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
     private ScreeningPlanService screeningPlanService;
 
     /**
-     * 通过taskId获取列表
-     *
-     * @param taskId taskId
-     * @return List<SchoolVisionStatistic>
-     */
-    public List<SchoolVisionStatistic> getByTaskId(Integer taskId) {
-        return baseMapper.selectList(new QueryWrapper<SchoolVisionStatistic>().eq("screening_task_id", taskId));
-    }
-
-    /**
      * 通过planId、学校ID获取列表
      *
      * @param planIds  planIds
@@ -46,32 +34,15 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
      * @return List<SchoolVisionStatistic>
      */
     public List<SchoolVisionStatistic> getByPlanIdsAndSchoolId(List<Integer> planIds, Integer schoolId) {
-        return baseMapper
-                .selectList(new QueryWrapper<SchoolVisionStatistic>()
-                        .in("screening_plan_id", planIds)
-                        .eq("school_id", schoolId));
-    }
-
-    /**
-     * 通过taskId和schoolIds获取统计信息
-     *
-     * @param taskId    通知任务ID
-     * @param schoolIds 学校ID
-     * @return List<SchoolVisionStatistic>
-     */
-    public List<SchoolVisionStatistic> getBySchoolIds(Integer taskId, List<Integer> schoolIds) {
-        return baseMapper
-                .selectList(new QueryWrapper<SchoolVisionStatistic>()
-                        .eq("screening_task_id", taskId)
-                        .in("school_id", schoolIds));
+        return baseMapper.getByPlanIdsAndSchoolId(planIds, schoolId);
     }
 
     /**
      * 根据条件查找所有数据
      *
-     * @param noticeId
-     * @param user
-     * @return
+     * @param noticeId 通知ID
+     * @param user 用户
+     * @return List<SchoolVisionStatistic>
      */
     public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) {
         if (noticeId == null || user == null) {
@@ -92,13 +63,13 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
             queryWrapper.in(SchoolVisionStatistic::getScreeningOrgId,screeningOrgIds);
             queryWrapper.eq(SchoolVisionStatistic::getDistrictId, districtId);
         }
-        List<SchoolVisionStatistic> schoolVisionStatistics = baseMapper.selectList(queryWrapper);
-        return schoolVisionStatistics;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
      * 根据唯一索引批量新增或更新
-     * @param schoolVisionStatistics
+     *
+     * @param schoolVisionStatistics 学校某次筛查计划统计视力情况
      */
     public void batchSaveOrUpdate(List<SchoolVisionStatistic> schoolVisionStatistics) {
         if (CollectionUtils.isEmpty(schoolVisionStatistics)) {

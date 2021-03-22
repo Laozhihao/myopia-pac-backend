@@ -8,8 +8,13 @@
     <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.StatConclusionVo"></resultMap>
     <!-- ExportVo查询映射结果 -->
     <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo">
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
+    </resultMap>
+
+    <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -100,7 +105,8 @@
         LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND msc.district_id IN <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
+        AND msc.district_id IN
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -116,15 +122,26 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_no, mspss.school_name, mspss.grade_name, mspss.class_name,
-        mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
-        mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id
+
+    <select id="selectReportVoByScreeningNoticeIdAndSchoolId" resultMap="ReportVoResultMap" parameterType="java.util.Map">
+        SELECT mspss.student_name,
+         mspss.gender,
+         mspss.school_id,
+         mspss.grade_name,
+         mspss.class_name,
+         mvsr.vision_data,
+         mvsr.computer_optometry,
+         msc.school_grade_code,
+         msc.glasses_type,
+         msc.naked_vision_warning_level,
+         msc.screening_plan_school_student_id
         FROM m_stat_conclusion msc
         LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
+        AND msc.is_valid = 1
+        AND msc.is_rescreen = 0
+        AND msc.school_id = #{schoolId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 </mapper>

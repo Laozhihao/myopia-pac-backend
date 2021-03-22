@@ -21,9 +21,13 @@ import java.util.Set;
  */
 public interface ScreeningNoticeDeptOrgMapper extends BaseMapper<ScreeningNoticeDeptOrg> {
 
-    IPage<ScreeningNoticeVo> selectPageByQuery(@Param("page")IPage<ScreeningNotice> page, @Param("param")ScreeningNoticeQuery query);
+    IPage<ScreeningNoticeVo> selectPageByQuery(@Param("page") IPage<ScreeningNotice> page, @Param("param") ScreeningNoticeQuery query);
 
     Integer updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId(@Param("screeningNoticeId") Integer noticeId, @Param("acceptOrgId") Integer acceptOrgId, @Param("screeningTaskPlanId") Integer genTaskOrPlanId, @Param("operatorId") Integer userId, @Param("operationStatus") Integer operationStatus);
 
     List<ScreeningNotice> selectByAcceptIdAndType(Integer type, Integer acceptOrgId);
+
+    ScreeningNoticeDeptOrg getByNoticeIdAndOrgId(@Param("noticeId") Integer noticeId, @Param("orgId") Integer orgId);
+
+    List<ScreeningNoticeDeptOrg> getByNoticeId(@Param("noticeId") Integer noticeId);
 }
