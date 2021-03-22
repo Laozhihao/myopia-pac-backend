@@ -304,8 +304,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (null == result) {
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
             ScreeningReportDetail detail = new ScreeningReportDetail();
+            // 视力检查结果
             detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"),
                     new VisionItems("裸眼视力")));
+            // 验光仪检查结果
             detail.setRefractoryResultItems(Lists.newArrayList(new RefractoryResultItems("等效球镜SE"),
                     new RefractoryResultItems("柱镜DC"),
                     new RefractoryResultItems("轴位A")));
