@@ -19,8 +19,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 学校-班级Service
+ *
+ * @author Simple4H
  */
 @Service
 public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolClass> {
@@ -122,7 +123,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param schoolName 学校名称
      * @param gradeName  年级名称
      * @param deptId     部门id
-     * @return
+     * @return List<SchoolClass>
      */
     public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
         return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
@@ -131,8 +132,8 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     /**
      * 根据学校Id获取所有班级
      *
-     * @param schoolId
-     * @return
+     * @param schoolId 学校ID
+     * @return List<SchoolClassVo>
      */
     public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
         return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
@@ -140,14 +141,15 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
 
     /**
      * 根据schoolId 获取班级名
-     * @param schoolid
-     * @param clazz
-     * @return
+     *
+     * @param schoolId  学校ID
+     * @param className 班级名称
+     * @return SchoolClass
      */
-    public SchoolClass getByClassNameAndSchoolId(Integer schoolid,Integer gradeId, String clazz) {
+    public SchoolClass getByClassNameAndSchoolId(Integer schoolId, Integer gradeId, String className) {
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setSchoolId(schoolid).setName(clazz).setGradeId(gradeId);
+        schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId);
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }

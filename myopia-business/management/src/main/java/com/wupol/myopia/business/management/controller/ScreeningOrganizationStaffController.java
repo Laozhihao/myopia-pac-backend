@@ -40,7 +40,7 @@ public class ScreeningOrganizationStaffController {
     @GetMapping("list")
     public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationStaffService.getOrganizationStaffList(request, currentUser);
+        return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
     @DeleteMapping("{id}")

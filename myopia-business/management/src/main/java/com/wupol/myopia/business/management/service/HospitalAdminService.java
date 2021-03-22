@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.HospitalAdminMapper;
 import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
@@ -8,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @Author HaoHao
- * @Date 2020-12-22
+ * 医院管理员
+ *
+ * @author Simple4H
  */
 @Service
 public class HospitalAdminService extends BaseService<HospitalAdminMapper, HospitalAdmin> {
@@ -21,7 +21,6 @@ public class HospitalAdminService extends BaseService<HospitalAdminMapper, Hospi
      * @param hospitalId   医院ID
      * @param userId       用户ID
      * @param govDeptId    部门ID
-     * @return 新增个数
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveAdmin(Integer createUserId, Integer hospitalId, Integer userId, Integer govDeptId) {
@@ -40,8 +39,6 @@ public class HospitalAdminService extends BaseService<HospitalAdminMapper, Hospi
      * @return admin
      */
     public HospitalAdmin getByHospitalId(Integer hospitalId) {
-        return baseMapper
-                .selectOne(new QueryWrapper<HospitalAdmin>()
-                        .eq("hospital_id", hospitalId));
+        return baseMapper.getByHospitalId(hospitalId);
     }
 }
