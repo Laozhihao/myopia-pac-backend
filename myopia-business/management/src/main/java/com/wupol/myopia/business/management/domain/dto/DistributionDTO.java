@@ -7,6 +7,7 @@ import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  * @Author by Jacob todo 这些字段的定义是早期给到前端，为节省前端的更改成本，字段名暂时不修改。
  */
 @Data
+@NoArgsConstructor
 public class DistributionDTO implements Serializable {
 
     /**
