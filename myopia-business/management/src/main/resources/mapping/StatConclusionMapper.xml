@@ -24,6 +24,7 @@
                 <if test="@Ognl@isNotEmpty(screeningPlanSchoolStudentId)">and `screening_plan_school_student_id` = #{screeningPlanSchoolStudentId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(schoolAge)">and `school_age` = #{schoolAge}</if>
+                <if test="@Ognl@isNotEmpty(age)">and `age` = #{age}</if>
                 <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
                 <if test="@Ognl@isNotEmpty(warningLevel)">and `warning_level` = #{warningLevel}</if>
                 <if test="@Ognl@isNotEmpty(visionL)">and `vision_l` = #{visionL}</if>
@@ -67,7 +68,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, result_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction
+        id, age, result_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">

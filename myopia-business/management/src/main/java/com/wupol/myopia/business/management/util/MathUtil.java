@@ -22,4 +22,41 @@ public class MathUtil {
         BigDecimal d = new BigDecimal(denominator);
         return n.multiply(hundred).divide(d, 2, BigDecimal.ROUND_HALF_UP);
     }
+
+    /**
+     * 四舍五入
+     *
+     * @param num
+     * @return
+     */
+    public static double getFormatNumWith2Scale(Double num) {
+        if (num == null) {
+            num = 0.0D;
+        }
+        return  getFormatNum(2,num);
+    }
+
+    /**
+     * 保留一位小数
+     * @param num
+     * @return
+     */
+    public static double getFormatNumWith1Scale(Double num) {
+        if (num == null) {
+            num = 0.0D;
+        }
+        return  getFormatNum(1,num);
+    }
+
+    /**
+     * 格式化数字（四舍五入）
+     * @param scale 保留几位小数
+     * @param num  原数字
+     * @return
+     */
+    private static double getFormatNum(int scale,double num) {
+        BigDecimal bigDecimal = new BigDecimal(num);
+        bigDecimal = bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.doubleValue();
+    }
 }

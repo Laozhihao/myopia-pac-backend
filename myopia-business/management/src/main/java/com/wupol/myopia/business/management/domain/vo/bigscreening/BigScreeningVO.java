@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.domain.vo.bigscreening;
 
+import com.wupol.myopia.business.management.domain.model.DistrictBigScreenStatistic;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +12,6 @@ import java.util.Date;
  * @Date 2021/3/7 20:46
  * @Author by Jacob
  */
-@NoArgsConstructor
 @Data
 public class BigScreeningVO {
 
@@ -32,42 +33,60 @@ public class BigScreeningVO {
      * validDataNum
      */
     private Long validDataNum;
+    /**
+     * realScreening
+     */
     private Object realScreening;
     /**
      * lowVision
      */
-//    @TableField(typeHandler = JacksonTypeHandler.class)
-//    private LowVisionDTO lowVision;
     private Object lowVision;
     /**
      * myopia
      */
-    //   @TableField(typeHandler = JacksonTypeHandler.class)
-    // private MyopiaDTO myopia;
     private Object myopia;
     /**
      * ametropia
      */
-/*    @TableField(typeHandler = JacksonTypeHandler.class)
-    private AmetropiaDTO ametropia;
-    */
-
     private Object ametropia;
     /**
      * focusOjects
      */
-/*    @TableField(typeHandler = JacksonTypeHandler.class)
-    private FocusOjectsDTO focusObjects;   */
     private Object focusObjects;
     /**
      * avgVision
      */
-/*    @TableField(typeHandler = JacksonTypeHandler.class)
-    private AvgVisionDTO avgVision;    */
-
     private Object avgVision;
     /**
      * mapData
      */
     private Object mapData;
+
+
+    private BigScreeningVO() {
+
+    }
+
+    /**
+     *  创建对象
+     * @param screeningNotice
+     * @param districtBigScreenStatistic
+     * @return
+     */
+    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic) {
+        BigScreeningVO bigScreeningVO = new BigScreeningVO();
+        bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
+        bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
+        bigScreeningVO.setAvgVision(districtBigScreenStatistic.getAvgVision());
+        bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
+        bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
+        bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
+        bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
+        bigScreeningVO.setTitle(screeningNotice.getTitle());//todo 地区名加什么上去
+        bigScreeningVO.setValidDataNum(districtBigScreenStatistic.getValidDataNum());
+        bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
+        bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());
+        bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
+        return bigScreeningVO;
+    }
 }

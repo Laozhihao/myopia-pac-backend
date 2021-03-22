@@ -202,7 +202,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
+    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtId);
@@ -250,6 +250,9 @@ public class StatManagementController {
         return districtBigScreenStatisticService.getLatestData(currentUser);
     }
 
+    /**
+     * 为了测试方便
+     */
     @GetMapping("/trigger")
     public void statTaskTrigger() {
 //        LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -264,6 +267,15 @@ public class StatManagementController {
 //        schoolMonitorStatisticService.getBaseMapper().delete(schoolMonitorStatisticLambdaQueryWrapper);
         scheduledTasksExecutor.statistic();
         return;
+    }
+
+    /**
+     * 触发大屏统计（todo 为了测试方便）
+     * @throws IOException
+     */
+    @GetMapping("/big")
+    public void statBigScreen() throws IOException {
+     scheduledTasksExecutor.statisticBigScreen();
     }
 
     @GetMapping("/triggerAll")

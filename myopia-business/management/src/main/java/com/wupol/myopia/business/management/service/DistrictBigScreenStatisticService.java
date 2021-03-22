@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.DistrictBigScreenStatisticMapper;
+import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningVO;
@@ -18,26 +20,49 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
 
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private DistrictService districtService;
+
     /**
      * 获取最新的数据
+     *
      * @param currentUser
      */
     public BigScreeningVO getLatestData(CurrentUser currentUser) {
-        DistrictBigScreenStatistic districtBigScreenStatistic = baseMapper.selectById(1);
-        BigScreeningVO bigScreeningVO = new BigScreeningVO();
-        bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
-        bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
-        bigScreeningVO.setAvgVision(districtBigScreenStatistic.getAvgVision());
-        bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
-        bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
-        bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
-        bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
-        bigScreeningVO.setTitle("广东省近视防控中心");
-        bigScreeningVO.setValidDataNum(234243234L);
-        ScreeningNotice screeningNotice = screeningNoticeService.getBaseMapper().selectById(2);
-        bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
-        bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());
-        bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
-        return bigScreeningVO;
+        if (!currentUser.isGovDeptUser()) {
+            //todo 日志 异常
+            return null;
+        }
+        //根据角色获取当前的id
+        District district = districtService.getNotPlatformAdminUserDistrict(currentUser);
+        if (district == null) {
+            //todo 日志 异常
+            return null;
+        }
+        //查找最新的noticeId
+        ScreeningNotice screeningNotice = screeningNoticeService.getLatestNoticeByUser(currentUser);
+        if (screeningNotice == null) {
+            return null;
+        }
+        //根据noticeId 和 districtId 查找数据
+        DistrictBigScreenStatistic districtBigScreenStatistic = this.getByNoticeIdAndDistrictId(screeningNotice.getId(), district.getId());
+        if (districtBigScreenStatistic == null) {
+            return null;
+        }
+        //对数据进行整合
+        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic);
+    }
+
+    /**
+     * 根据通知id和地区id获取数据
+     *
+     * @param noticeId
+     * @param districtId
+     * @return
+     */
+    private DistrictBigScreenStatistic getByNoticeIdAndDistrictId(Integer noticeId, Integer districtId) {
+        LambdaQueryWrapper<DistrictBigScreenStatistic> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DistrictBigScreenStatistic::getScreeningNoticeId, noticeId).eq(DistrictBigScreenStatistic::getDistrictId, districtId);
+        return baseMapper.selectOne(queryWrapper);
     }
 }

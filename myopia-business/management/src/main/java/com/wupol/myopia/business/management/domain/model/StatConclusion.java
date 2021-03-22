@@ -45,6 +45,9 @@ public class StatConclusion implements Serializable {
     /** 性别 */
     private Integer gender;
 
+    /** 年龄 */
+    private Integer age;
+
     /** 预警级别 */
     private Integer warningLevel;
 
