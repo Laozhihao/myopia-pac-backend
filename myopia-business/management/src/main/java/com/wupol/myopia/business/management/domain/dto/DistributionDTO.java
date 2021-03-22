@@ -142,7 +142,7 @@ public class DistributionDTO implements Serializable {
          */
         private void setNum() {
             long matchStudentNum = bigScreenStatDataDTOList.stream().filter(Objects::nonNull).count();
-            double ratio = MathUtil.getFormatNumWith2Scale(matchStudentNum / (double) realScreeningNum);
+            double ratio = MathUtil.getFormatNumWith2Scale(matchStudentNum / (double) realScreeningNum * 100);
             NumDTO numDTO = new NumDTO();
             numDTO.studentNum = screeningStudentNum;
             numDTO.studentDistribution = ratio;
@@ -160,7 +160,7 @@ public class DistributionDTO implements Serializable {
                 statisticDistrictDTO.cityName =cityDistrictIdNameMap.get(cityDistrictId);
                 statisticDistrictDTO.num = num;
                 statisticDistrictDTO.cityDistrictId = cityDistrictId;
-                statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(num / (double) screeningStudentNum);
+                statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(num / (double) screeningStudentNum * 100);
                 statisticDistrictList.add(statisticDistrictDTO);
             });
             this.statisticDistrict = statisticDistrictList;
@@ -173,7 +173,7 @@ public class DistributionDTO implements Serializable {
         private void setSchoolAgeData() {
             SchoolAgeDTO schoolAgeDTO = new SchoolAgeDTO();
             bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolAge, Collectors.collectingAndThen(Collectors.counting(), e ->
-                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum)
+                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             ))).forEach((schoolAgeType, ratio) -> {
                 if (SchoolAge.KINDERGARTEN.code == schoolAgeType) {
                     schoolAgeDTO.kindergarten = ratio;
@@ -196,7 +196,15 @@ public class DistributionDTO implements Serializable {
          * 设置年龄数据
          */
         public void setAgeData() {
-            Map<String, Double> ageRatioMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(item -> {
+            Map<String, Double> ageDemoRatioMap = new HashMap<>();
+            ageDemoRatioMap.put("0-3",0.0D);
+            ageDemoRatioMap.put("4-6",0.0D);
+            ageDemoRatioMap.put("7-9",0.0D);
+            ageDemoRatioMap.put("10-12",0.0D);
+            ageDemoRatioMap.put("13-15",0.0D);
+            ageDemoRatioMap.put("16-18",0.0D);
+            ageDemoRatioMap.put("19 以上",0.0D);
+            Map<String, Double> ageResultRatioMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(item -> {
                 if (0 <= item.getAge() && item.getAge() <= 3) {
                     return "0-3";
                 }
@@ -226,9 +234,10 @@ public class DistributionDTO implements Serializable {
                 }
                 return null;
             }, Collectors.collectingAndThen(Collectors.counting(), e ->
-                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum)
+                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             )));
-            this.age = ageRatioMap;
+            ageDemoRatioMap.putAll(ageResultRatioMap);
+            this.age = ageDemoRatioMap;
         }
 
         /**
@@ -236,7 +245,7 @@ public class DistributionDTO implements Serializable {
          */
         private void setGenderData() {
             Map<Integer, Double> genderDataMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getGender, Collectors.collectingAndThen(Collectors.counting(), e ->
-                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum)
+                    MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             )));
             GenderDTO genderDTO = new GenderDTO();
             genderDTO.male = MathUtil.getFormatNumWith2Scale(genderDataMap.get(GenderEnum.MALE.type));
