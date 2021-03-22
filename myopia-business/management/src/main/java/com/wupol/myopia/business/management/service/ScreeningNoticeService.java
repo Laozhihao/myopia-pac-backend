@@ -104,7 +104,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
             boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
             // 3. 为消息中心创建通知
             List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(govOrgIds)){
+            if (!CollectionUtils.isEmpty(govOrgIds)) {
                 ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
                 List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
                 if (!CollectionUtils.isEmpty(toUserIds)) {
@@ -185,23 +185,6 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = new ArrayList<>();
-        //todo 待确认再删除
-/*        if (user.isGovDeptUser()) {
-            //查找所有的上级部门
-            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
-            superiorGovIds.add(user.getOrgId());
-            //查找政府发布的通知
-            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
-        } else if (user.isPlatformAdminUser()) {
-            screeningNotices = this.getAllReleaseNotice();
-        } else if (user.isScreeningUser()) {
-            //该部门发布的通知
-            Set<Integer> screeningOrgs = new HashSet<>();
-            screeningOrgs.add(user.getOrgId());
-            screeningNotices = this.getNoticeByReleaseOrgId(screeningOrgs, ScreeningNotice.TYPE_ORG);
-            //该部门接收到的通知
-            screeningNotices.addAll(screeningNoticeDeptOrgService.selectByAcceptIdAndType(user.getOrgId(), ScreeningNotice.TYPE_ORG));
-        }*/
         if (user.isGovDeptUser()) {
             //查找所有的上级部门
             Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
@@ -263,7 +246,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @param orgType
      * @return
      */
-    private List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
+    public List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
         if (CollectionUtils.isEmpty(orgIds) || orgType == null) {
             return new ArrayList<>();
         }
@@ -344,4 +327,25 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         return screeningNoticeNameVOS;
     }
 
+    /**
+     * 获取最新
+     *
+     * @param currentUser
+     * @return
+     */
+    public ScreeningNotice getLatestNoticeByUser(CurrentUser currentUser) {
+        // 获取发布的筛查通知最新的数据
+        Set<Integer> govDeptIds = new HashSet<>();
+        govDeptIds.add(currentUser.getOrgId());
+        List<ScreeningNotice> screeningNotices = this.getNoticeByReleaseOrgId(govDeptIds, ScreeningNotice.TYPE_GOV_DEPT);
+        // 最新排序
+        List<ScreeningNotice> screeningNoticeList = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
+        // 取出第一条
+        Optional<ScreeningNotice> screeningNoticeOptional = screeningNoticeList.stream().findFirst();
+        if (screeningNoticeOptional.isPresent()) {
+            return screeningNoticeOptional.get();
+        } else {
+            return null;
+        }
+    }
 }
