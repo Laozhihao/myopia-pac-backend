@@ -46,4 +46,12 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
             @Param("schoolId") Integer schoolId);
 
     List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId,@Param("screeningOrgId") Integer screeningOrgId);
+
+    /**
+     * 根据筛查通知ID获取学校ID
+     *
+     * @param noticeId 筛查通知ID
+     * @return java.util.List<java.lang.Integer>
+     **/
+    List<Integer> selectSchoolIdByNoticeId(Integer noticeId);
 }
