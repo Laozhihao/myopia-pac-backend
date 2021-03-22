@@ -69,4 +69,19 @@
         accept_org_id = #{acceptOrgId}
     </select>
 
+    <select id="getByNoticeIdAndOrgId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice_dept_org
+        where screening_notice_id = #{noticeId}
+          and accept_org_id = #{orgId}
+        limit 1
+    </select>
+
+    <select id="getByNoticeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice_dept_org
+        where screening_notice_id = #{noticeId}
+    </select>
 </mapper>
