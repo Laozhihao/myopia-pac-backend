@@ -13,10 +13,14 @@ public enum SchoolAge {
     HIGH(2, "高中"),
     VOCATIONAL_HIGH(3, "职业高中");
 
-    /** 学龄段ID */
+    /**
+     * 学龄段ID
+     */
     public final Integer code;
 
-    /** 学龄段描述 */
+    /**
+     * 学龄段描述
+     */
     public final String desc;
 
     SchoolAge(Integer code, String desc) {
@@ -24,6 +28,12 @@ public enum SchoolAge {
         this.code = code;
     }
 
+    /**
+     * 通过code 获取学龄段
+     *
+     * @param code code
+     * @return 学龄段
+     */
     public static SchoolAge get(Integer code) {
         return Arrays.stream(SchoolAge.values())
                 .filter(item -> item.code.equals(code))
@@ -31,6 +41,11 @@ public enum SchoolAge {
                 .orElse(null);
     }
 
+    /**
+     * 获取所有的学龄段
+     *
+     * @return 学龄段列表
+     */
     public static List<SchoolAgeVO> getSchoolAgeList() {
         List<SchoolAgeVO> schoolAgeList = new ArrayList<>();
         for (SchoolAge value : values()) {

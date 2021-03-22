@@ -72,7 +72,7 @@ public enum NationEnum {
     TATAR(54, "塔塔尔族"),
     NANAI(55, "赫哲族"),
     LHOBA(56, "珞巴族"),
-    OTHER(57,"其他");
+    OTHER(57, "其他");
 
     private final Integer code;
 
@@ -83,6 +83,11 @@ public enum NationEnum {
         this.name = name;
     }
 
+    /**
+     * 获取民族列表
+     *
+     * @return 民族列表
+     */
     public static List<Nation> getNationList() {
         List<Nation> nationLists = new ArrayList<>();
         for (NationEnum value : values()) {
@@ -97,6 +102,9 @@ public enum NationEnum {
 
     /**
      * 根据类型获取描述
+     *
+     * @param nation 民族
+     * @return 描述
      */
     public static String getName(Integer nation) {
         NationEnum h = Arrays.stream(NationEnum.values()).filter(item -> item.code.equals(nation)).findFirst().orElse(null);
@@ -107,7 +115,7 @@ public enum NationEnum {
      * 通过名称获取code
      *
      * @param name 民族名称
-     * @return code
+     * @return code 民族code
      */
     public static Integer getCode(String name) {
         NationEnum h = Arrays.stream(NationEnum.values())

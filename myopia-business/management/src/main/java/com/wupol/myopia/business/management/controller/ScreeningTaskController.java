@@ -3,35 +3,36 @@ package com.wupol.myopia.business.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningTaskOrgService;
+import com.wupol.myopia.business.management.service.ScreeningTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.service.ScreeningTaskService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Alix
- * @Date 2021-01-20
+ * date 2021-01-20
  */
 @ResponseResultBody
 @CrossOrigin
@@ -50,7 +51,6 @@ public class ScreeningTaskController {
      * 新增
      *
      * @param screeningTaskDTO 新增参数
-     * @return Object
      */
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
@@ -86,7 +86,7 @@ public class ScreeningTaskController {
     /**
      * 查看筛查任务
      *
-     * @param id ID
+     * @param id 筛查通知ID
      * @return Object
      */
     @GetMapping("{id}")
@@ -98,11 +98,10 @@ public class ScreeningTaskController {
      * 更新筛查通知
      *
      * @param screeningTaskDTO 更新参数
-     * @return Object
      */
     @PutMapping()
     public void updateInfo(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
-        validateExistAndAuthorize(screeningTaskDTO.getId(), CommonConst.STATUS_RELEASE);
+        validateExistAndAuthorize(screeningTaskDTO.getId());
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
             throw new ValidationException("筛查开始时间不能早于今天");
@@ -118,17 +117,17 @@ public class ScreeningTaskController {
      * 校验计划是否存在与发布状态
      * 同时校验权限
      *
-     * @param screeningTaskId
-     * @param releaseStatus
+     * @param screeningTaskId 筛查通知ID
+     * @return ScreeningTask 筛查通知
      */
-    private ScreeningTask validateExistAndAuthorize(Integer screeningTaskId, Integer releaseStatus) {
+    private ScreeningTask validateExistAndAuthorize(Integer screeningTaskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         // 校验用户机构
         if (user.isScreeningUser()) {
             // 筛查机构，无权限处理
             throw new ValidationException("无权限");
         }
-        ScreeningTask screeningTask = validateExistWithReleaseStatus(screeningTaskId, releaseStatus);
+        ScreeningTask screeningTask = validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_RELEASE);
         if (user.isGovDeptUser()) {
             // 政府部门人员，需校验是否同部门
             Assert.isTrue(user.getOrgId().equals(screeningTask.getGovDeptId()), "无该部门权限");
@@ -139,7 +138,8 @@ public class ScreeningTaskController {
     /**
      * 校验筛查任务是否存在且校验发布状态
      *
-     * @param id
+     * @param id 筛查通知id
+     * @return 筛查通知
      */
     private ScreeningTask validateExistWithReleaseStatus(Integer id, Integer releaseStatus) {
         ScreeningTask screeningTask = validateExist(id);
@@ -153,8 +153,8 @@ public class ScreeningTaskController {
     /**
      * 校验筛查通知是否存在
      *
-     * @param id
-     * @return
+     * @param id 筛查通知ID
+     * @return 筛查通知
      */
     private ScreeningTask validateExist(Integer id) {
         if (Objects.isNull(id)) {
@@ -175,7 +175,7 @@ public class ScreeningTaskController {
      * @return Object
      */
     @GetMapping("page")
-    public IPage queryInfo(PageRequest page, ScreeningTaskQuery query) {
+    public IPage<ScreeningTaskVo> queryInfo(PageRequest page, ScreeningTaskQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (!user.isPlatformAdminUser()) {
             query.setGovDeptId(user.getOrgId());
@@ -200,7 +200,6 @@ public class ScreeningTaskController {
      * 新增筛查机构
      *
      * @param screeningTaskOrgs 新增参数
-     * @return Object
      */
     @PostMapping("orgs/{screeningTaskId}")
     public void addOrgsInfo(@PathVariable Integer screeningTaskId, @RequestBody @Valid List<ScreeningTaskOrg> screeningTaskOrgs) {
@@ -238,13 +237,12 @@ public class ScreeningTaskController {
     /**
      * 根据ID删除（这里默认所有表的主键字段都为“id”,且自增）
      *
-     * @param id ID
-     * @return void
+     * @param id 筛查通知ID
      */
     @DeleteMapping("{id}")
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
-        validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
+        validateExistAndAuthorize(id);
         screeningTaskService.removeWithOrgs(id, CurrentUserUtil.getCurrentUser());
     }
 
@@ -252,12 +250,11 @@ public class ScreeningTaskController {
      * 发布
      *
      * @param id ID
-     * @return void
      */
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
         // 已发布，直接返回
-        ScreeningTask screeningTask = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
+        ScreeningTask screeningTask = validateExistAndAuthorize(id);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningTask.getStartTime())) {
             throw new ValidationException("筛查开始时间不能早于今天");
