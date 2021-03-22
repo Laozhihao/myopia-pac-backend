@@ -30,4 +30,16 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<StudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
+
+    List<ScreeningPlanSchoolStudent> findByStudentId(@Param("studentId") Integer studentId);
+
+    List<ScreeningPlanSchoolStudent> findByPlanId(Integer planId);
+
+    List<ScreeningPlanSchoolStudent> findByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+
+    Integer countByPlanId(Integer planId);
+
+    Integer countBySchoolIdAndNoticeId(@Param("schoolId") Integer schoolId, @Param("noticeId") Integer noticeId);
+
+    Integer deleteByPlanIdAndExcludeSchoolIds(@Param("screeningPlanId") Integer screeningPlanId, @Param("excludeSchoolIds") List<Integer> excludeSchoolIds);
 }
