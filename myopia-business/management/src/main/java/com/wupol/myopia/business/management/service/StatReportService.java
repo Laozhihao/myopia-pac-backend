@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSONPath;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.management.constant.VisionCorrection;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
@@ -17,11 +19,16 @@ import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
+import com.wupol.myopia.business.management.domain.vo.VisionScreeningResultReportVo;
+import com.wupol.myopia.business.management.util.StatUtil;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +36,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -750,26 +759,26 @@ public class StatReportService {
                 validConclusions.stream()
                         .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
                         .collect(Collectors.toList());
-        List<StatConclusion> kindergartenList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> primaryList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> juniorList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> highList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
-                        .collect(Collectors.toList());
-        List<StatConclusion> vocationalHighList =
-                validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
-                        .collect(Collectors.toList());
+        // List<StatConclusion> kindergartenList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> primaryList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> juniorList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> highList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
+        //                 .collect(Collectors.toList());
+        // List<StatConclusion> vocationalHighList =
+        //         validConclusions.stream()
+        //                 .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
+        //                 .collect(Collectors.toList());
         // List<StatConclusion> myopiaConclusions =
         //         validConclusions.stream().filter(x ->
         //         x.getIsMyopia()).collect(Collectors.toList());
@@ -862,8 +871,53 @@ public class StatReportService {
                                 schoolGradeItems, validConclusions));
                 put("schoolGradeWarningLevelDesc",
                         composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
+
+                put("schoolClassStudentStatList",
+                        composeSchoolClassStudentStatList(
+                                srcScreeningNoticeId, schoolId, schoolGradeItems));
             }
         };
+    }
+
+    /**
+     * 构建 学校每个班级的学生详情
+     * @param screeningNoticeId 通知ID
+     * @param schoolId 学校ID
+     * @param schoolGradeItemList 学校班级列表
+     * @return
+     */
+    private List<Map<String, List>> composeSchoolClassStudentStatList(
+            int screeningNoticeId, int schoolId, List<SchoolGradeItems> schoolGradeItemList) {
+        List<StatConclusionReportVo> statConclusionReportVos =
+                statConclusionService.getReportVoByScreeningNoticeIdAndSchoolId(
+                        screeningNoticeId, schoolId);
+        List<Map<String, List>> schoolStudentStatList = new ArrayList<>();
+        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
+            List<SchoolClass> schoolClasses = schoolGradeItems.getChild();
+            List<Map<String, List>> schoolClassStatList = new ArrayList<>();
+            for (SchoolClass schoolClass : schoolClasses) {
+                List<StatConclusionReportVo> studentStatList =
+                        statConclusionReportVos.stream()
+                                .filter(x
+                                        -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode())
+                                                && x.getClassName().equals(schoolClass.getName()))
+                                .collect(Collectors.toList());
+                schoolClassStatList.add(new HashMap() {
+                    {
+                        put("name", schoolClass.getName());
+                        put("list", genVisionScreeningResultReportVos(studentStatList));
+                    }
+                });
+            }
+            schoolStudentStatList.add(new HashMap() {
+                {
+                    put("name", gradeCodeEnum.name());
+                    put("list", schoolClassStatList);
+                }
+            });
+        }
+        return schoolStudentStatList;
     }
 
     /**
@@ -1175,7 +1229,10 @@ public class StatReportService {
                 classList.add(lowVisionLevelStat);
             }
             gradeList.add(new HashMap() {
-                { put(gradeCode.name(), classList); }
+                {
+                    put("name", gradeCode.name());
+                    put("list", classList);
+                }
             });
         }
         return gradeList;
@@ -1210,7 +1267,10 @@ public class StatReportService {
                 classList.add(myopiaLevelStat);
             }
             gradeList.add(new HashMap() {
-                { put(gradeCode.name(), classList); }
+                {
+                    put("name", gradeCode.name());
+                    put("list", classList);
+                }
             });
         }
         return gradeList;
@@ -1464,5 +1524,79 @@ public class StatReportService {
                 put("list", list);
             }
         };
+    }
+
+    /**
+     * 生成筛查数据
+     * @param statConclusionExportVos
+     * @return
+     */
+    private List<VisionScreeningResultReportVo> genVisionScreeningResultReportVos(
+            List<StatConclusionReportVo> statConclusionExportVos) {
+        List<VisionScreeningResultReportVo> reportVos = new ArrayList<>();
+        for (int i = 0; i < statConclusionExportVos.size(); i++) {
+            StatConclusionReportVo vo = statConclusionExportVos.get(i);
+            VisionScreeningResultReportVo reportVo = new VisionScreeningResultReportVo();
+            BeanUtils.copyProperties(vo, reportVo);
+            GlassesType glassesType = GlassesType.get(vo.getGlassesType());
+            reportVo.setId(i + 1)
+                    .setGenderDesc(GenderEnum.getName(vo.getGender()))
+                    .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc);
+            genScreeningData(vo, reportVo);
+            reportVos.add(reportVo);
+        }
+        return reportVos;
+    }
+
+    /**
+     * 组装初筛数据
+     * @param vo
+     * @param reportVo
+     */
+    private void genScreeningData(
+            StatConclusionReportVo vo, VisionScreeningResultReportVo reportVo) {
+        reportVo.setNakedVisions(
+                        eyeDateFormat((BigDecimal) JSONPath.eval(
+                                              vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
+                                (BigDecimal) JSONPath.eval(
+                                        vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                .setCorrectedVisions(
+                        eyeDateFormat((BigDecimal) JSONPath.eval(vo,
+                                              ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION),
+                                (BigDecimal) JSONPath.eval(
+                                        vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                .setSphs(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                .setCyls(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL),
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                .setAxials(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL),
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                .setSphericalEquivalents(
+                        eyeDateFormat(StatUtil.getSphericalEquivalent(
+                                              (BigDecimal) JSONPath.eval(
+                                                      vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
+                                              (BigDecimal) JSONPath.eval(
+                                                      vo, ScreeningResultPahtConst.RIGHTEYE_CYL)),
+                                StatUtil.getSphericalEquivalent(
+                                        (BigDecimal) JSONPath.eval(
+                                                vo, ScreeningResultPahtConst.LEFTEYE_SPH),
+                                        (BigDecimal) JSONPath.eval(
+                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+                .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
+                .setCorrectionType(vo.getCorrectionType());
+    }
+
+    /**
+     * 眼别数据格式化
+     * @param rightEyeData
+     * @param leftEyeData
+     * @return
+     */
+    private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
+        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData,
+                Objects.isNull(leftEyeData) ? "--" : leftEyeData);
     }
 }

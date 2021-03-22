@@ -12,8 +12,10 @@ import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
+
+import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -139,6 +141,17 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+    }
+
+    /**
+     * 根据筛查通知ID与学校Id查出报告的筛查数据
+     * @param screeningNoticeId
+     * @param schoolId
+     * @return
+     */
+    public List<StatConclusionReportVo> getReportVoByScreeningNoticeIdAndSchoolId(
+            Integer screeningNoticeId, Integer schoolId) {
+        return baseMapper.selectReportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId); 
     }
 
     /**

@@ -17,6 +17,11 @@ import java.util.List;
 @Setter
 public class BigScreenScreeningDO implements Serializable {
 
+
+    public BigScreenScreeningDO() {
+
+    }
+
     /**
      * 占比情况
      */

@@ -35,4 +35,12 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getByOrgId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization_admin
+        where screening_org_id = #{orgId}
+        limit 1
+    </select>
 </mapper>

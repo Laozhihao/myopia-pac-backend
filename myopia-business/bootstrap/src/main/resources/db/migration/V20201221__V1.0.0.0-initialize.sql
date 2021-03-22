@@ -100,27 +100,31 @@ create table m_school
 (
     id              int auto_increment comment 'id'
         primary key,
-    school_no       varchar(64)                         not null comment '学校编号',
-    create_user_id  int                                 null comment '创建人ID',
-    gov_dept_id     int                                 not null comment '部门ID',
-    district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(512)                        not null comment '行政区域json',
-    name            varchar(32)                         not null comment '学校名称',
-    kind            tinyint                             not null comment '学校性质 0-公办 1-私办 2-其他',
-    kind_desc       varchar(32)                         null comment '学校性质描述 0-公办 1-私办 2-其他',
-    lodge_status    tinyint                             null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
-    type            tinyint                             not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
-    province_code   bigint                              null comment '省代码',
-    city_code       bigint                              null comment '市代码',
-    area_code       bigint                              null comment '区代码',
-    town_code       bigint                              null comment '镇/乡代码',
-    address         varchar(128)                        null comment '详细地址',
-    remark          varchar(128)                        null comment '说明',
-    status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time     timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time     timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    school_no       varchar(64)                            not null comment '学校编号',
+    create_user_id  int                                    null comment '创建人ID',
+    gov_dept_id     int                                    not null comment '部门ID',
+    district_id     int                                    not null comment '行政区域ID',
+    district_detail varchar(512) default ''                not null comment '行政区域json',
+    name            varchar(32)                            not null comment '学校名称',
+    kind            tinyint                                not null comment '学校性质 0-公办 1-私办 2-其他',
+    kind_desc       varchar(32)                            null comment '学校性质描述 0-公办 1-私办 2-其他',
+    lodge_status    tinyint                                null comment '寄宿状态 0-全部住校 1-部分住校 2-不住校',
+    type            tinyint                                not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他',
+    province_code   bigint                                 null comment '省代码',
+    city_code       bigint                                 null comment '市代码',
+    area_code       bigint                                 null comment '区代码',
+    town_code       bigint                                 null comment '镇/乡代码',
+    address         varchar(128)                           null comment '详细地址',
+    remark          varchar(128)                           null comment '说明',
+    status          tinyint      default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
+    create_time     timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time     timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint m_school_name_uindex
+        unique (name),
+    constraint m_school_school_no_uindex
+        unique (school_no)
 )
-    comment '学校表';
+    comment '学校表' charset = utf8mb4;
 
 DROP TABLE IF EXISTS m_school_admin;
 create table m_school_admin
@@ -205,9 +209,6 @@ create table m_student
     update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '学校-学生表' charset = utf8mb4;
-
-create unique index m_school_school_no_uindex
-    on m_school (school_no);
 
 DROP TABLE IF EXISTS `m_district`;
 CREATE TABLE `m_district`  (
@@ -304,6 +305,3 @@ create unique index m_hospital_name_uindex
 
 create unique index m_screening_organization_name_uindex
     on m_screening_organization (name);
-
-create unique index m_school_name_uindex
-    on m_school (name);

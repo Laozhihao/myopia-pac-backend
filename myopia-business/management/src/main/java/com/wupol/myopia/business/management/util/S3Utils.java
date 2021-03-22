@@ -217,13 +217,12 @@ public final class S3Utils {
      * 上传文件到S3
      *
      * @param file 文件
-     * @return TwoTuple<String, Integer> left-文件URL right-资源文件ID
+     * @return 资源文件ID
      * @throws UtilException 异常
      */
-    public TwoTuple<String, Integer> uploadFile(File file) throws UtilException {
+    public Integer uploadFile(File file) throws UtilException {
         // 上传
         ResourceFile resourceFile = uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName());
-
-        return new TwoTuple<>(resourceFileService.getResourcePath(resourceFile.getId()), resourceFile.getId());
+        return resourceFile.getId();
     }
 }

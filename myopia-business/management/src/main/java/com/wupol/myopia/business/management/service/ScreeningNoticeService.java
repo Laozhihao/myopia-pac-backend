@@ -125,11 +125,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
-        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("gov_dept_id", govDeptId).eq("title", title).eq("release_status", CommonConst.STATUS_RELEASE).eq("type", ScreeningNotice.TYPE_GOV_DEPT);
-        if (Objects.nonNull(screeningNoticeId)) {
-            queryWrapper.ne("id", screeningNoticeId);
-        }
-        return baseMapper.selectList(queryWrapper).size() > 0;
+        return baseMapper.checkTitleExist(govDeptId, title, screeningNoticeId).size() > 0;
     }
 
     /**
@@ -150,10 +146,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return List<ScreeningNotice>
      */
     public List<ScreeningNotice> getByIds(List<Integer> ids) {
-        return baseMapper
-                .selectList(new QueryWrapper<ScreeningNotice>()
-                        .in("id", ids)
-                        .orderByDesc("create_time"));
+        return baseMapper.getByIdsOrderByCreateTime(ids);
     }
 
     /**
@@ -163,8 +156,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public ScreeningNotice getByScreeningTaskId(Integer screeningTaskId) {
-        QueryWrapper<ScreeningNotice> queryWrapper = new QueryWrapper<ScreeningNotice>().eq("screening_task_id", screeningTaskId).eq("type", ScreeningNotice.TYPE_ORG);
-        return baseMapper.selectOne(queryWrapper);
+        return baseMapper.getByTaskId(screeningTaskId);
     }
 
     /**
@@ -235,8 +227,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         screeningNoticeLambdaQueryWrapper
                 .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)
                 .eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
-        List<ScreeningNotice> screeningNotices = baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
-        return screeningNotices;
+        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
     }
 
     /**
@@ -286,8 +277,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     public Integer getYear(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        return year;
+        return calendar.get(Calendar.YEAR);
     }
 
     /**
@@ -301,7 +291,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         if (screeningNotice == null) {
             throw new BusinessException("无法找到该通知");
         }
-        if (screeningNotice.getReleaseStatus() != CommonConst.STATUS_RELEASE) {
+        if (!screeningNotice.getReleaseStatus().equals(CommonConst.STATUS_RELEASE)) {
             throw new BusinessException("该通知未发布");
         }
         return screeningNotice;
@@ -317,14 +307,13 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     public List<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
         List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
         screeningNotices = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
-        List<ScreeningNoticeNameVO> screeningNoticeNameVOS = screeningNotices.stream().filter(screeningNotice ->
+        return screeningNotices.stream().filter(screeningNotice ->
                 year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
         ).map(screeningNotice -> {
             ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
             screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
             return screeningNoticeNameVO;
         }).collect(Collectors.toList());
-        return screeningNoticeNameVOS;
     }
 
     /**
@@ -342,10 +331,6 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         List<ScreeningNotice> screeningNoticeList = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
         // 取出第一条
         Optional<ScreeningNotice> screeningNoticeOptional = screeningNoticeList.stream().findFirst();
-        if (screeningNoticeOptional.isPresent()) {
-            return screeningNoticeOptional.get();
-        } else {
-            return null;
-        }
+        return screeningNoticeOptional.orElse(null);
     }
 }
