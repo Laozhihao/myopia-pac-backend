@@ -48,6 +48,9 @@ import lombok.Data;
 @Service
 @Slf4j
 public class StatService {
+    private final static int WEARING_GLASSES_RESCREEN_INDEX_NUM = 6;
+    private final static int WITHOUT_GLASSES_RESCREEN_INDEX_NUM = 4;
+
     @Autowired
     private StatConclusionService statConclusionService;
 
@@ -461,17 +464,17 @@ public class StatService {
         long totalScreeningNum = rescreenConclusions.size();
         long wearingGlassesNum =
                 rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        long wearingGlassesIndexNum = wearingGlassesNum * 6;
+        long wearingGlassesIndexNum = wearingGlassesNum * WEARING_GLASSES_RESCREEN_INDEX_NUM;
         long withoutGlassesNum = totalScreeningNum - wearingGlassesNum;
-        long withoutGlassesIndexNum = withoutGlassesNum * 4;
+        long withoutGlassesIndexNum = withoutGlassesNum * WITHOUT_GLASSES_RESCREEN_INDEX_NUM;
         long errorIndexNum =
                 rescreenConclusions.stream().mapToLong(x -> x.getRescreenErrorNum()).sum();
         return RescreenStat.builder()
                 .rescreenNum(rescreenConclusions.size())
+                .wearingGlassesRescreenIndexNum(WEARING_GLASSES_RESCREEN_INDEX_NUM)
+                .withoutGlassesRescreenIndexNum(WITHOUT_GLASSES_RESCREEN_INDEX_NUM)
                 .wearingGlassesRescreenNum(wearingGlassesNum)
-                .wearingGlassesRescreenIndexNum(wearingGlassesIndexNum)
                 .withoutGlassesRescreenNum(withoutGlassesNum)
-                .withoutGlassesRescreenIndexNum(withoutGlassesIndexNum)
                 .rescreenItemNum(wearingGlassesIndexNum + withoutGlassesIndexNum)
                 .incorrectItemNum(errorIndexNum)
                 .incorrectRatio(convertToPercentage(

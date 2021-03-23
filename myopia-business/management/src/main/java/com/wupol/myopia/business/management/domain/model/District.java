@@ -11,7 +11,6 @@ import com.wupol.myopia.business.management.interfaces.HasName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 行政区域表
