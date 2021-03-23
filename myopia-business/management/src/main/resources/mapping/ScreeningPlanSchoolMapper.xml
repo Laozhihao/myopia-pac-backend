@@ -110,4 +110,13 @@
             </foreach>
         </if>
     </delete>
+
+    <select id="getBySchoolIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school where school_id in
+        <foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+            #{schoolId}
+        </foreach>
+    </select>
 </mapper>

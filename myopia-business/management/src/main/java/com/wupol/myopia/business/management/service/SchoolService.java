@@ -269,8 +269,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
                 .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
 
+        // 学校筛查次数
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService
+                .getBySchoolIds(schools.stream().map(School::getId)
+                        .collect(Collectors.toList()));
+        Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
+
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap,
+                studentCountMaps, planSchoolMaps));
         return schoolDtoIPage;
     }
 
@@ -324,9 +331,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param currentUser      当前登录用户
      * @param userDTOMap       用户信息
      * @param studentCountMaps 学生统计
+     * @param planSchoolMaps   学校筛查统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap, Map<String, Integer> studentCountMaps) {
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap,
+                                                             Map<String, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
         return s -> {
             // 创建人
             s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
@@ -338,12 +347,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
 
             // 筛查次数
-            List<ScreeningPlanSchool> countPlans = screeningPlanSchoolService.countBySchoolId(s.getId());
-            if (CollectionUtils.isEmpty(countPlans)) {
-                s.setScreeningCount(0);
-            } else {
-                s.setScreeningCount(countPlans.size());
-            }
+            s.setScreeningCount(planSchoolMaps.getOrDefault(s.getId(), 0L));
 
             // 学生统计
             s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));

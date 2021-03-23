@@ -290,6 +290,16 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过orgIds获取计划
+     *
+     * @param orgIds 机构Ids
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByOrgIds(List<Integer> orgIds) {
+        return baseMapper.getByOrgIds(orgIds);
+    }
+
+    /**
      * 通过筛查通知id获取实际筛查学生数
      *
      * @param noticeId
@@ -308,6 +318,24 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
+    }
+
+    /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @return
+     */
+    public Integer getScreeningPlanStudentNumByNoticeId(Integer noticeId) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper =
+                new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId)
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(ScreeningPlan::getStudentNumbers)
+                .sum();
     }
 
     /**
