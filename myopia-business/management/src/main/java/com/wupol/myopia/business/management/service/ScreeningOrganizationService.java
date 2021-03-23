@@ -222,19 +222,26 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 query.getGovDeptId(), query.getPhone(), query.getStatus());
 
         // 为空直接返回
-        List<ScreeningOrgResponseDTO> records = orgLists.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
+        List<ScreeningOrgResponseDTO> orgListsRecords = orgLists.getRecords();
+        if (CollectionUtils.isEmpty(orgListsRecords)) {
             return orgLists;
         }
 
         // 获取筛查人员信息
         Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
-                .getOrgStaffMapByIds(records.stream().map(ScreeningOrganization::getId)
+                .getOrgStaffMapByIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
                         .collect(Collectors.toList()));
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+
+        // 筛查次数
+        List<ScreeningPlan> planLists = screeningPlanService
+                .getByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
+                        .collect(Collectors.toList()));
+        Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
+                .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
         // 封装DTO
-        records.forEach(r -> {
+        orgListsRecords.forEach(r -> {
             // 同一部门才能更新
             if (currentUser.isPlatformAdminUser()) {
                 r.setCanUpdate(true);
@@ -253,7 +260,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
 
             // 筛查次数
-            r.setScreeningTime(screeningPlanService.getByOrgId(r.getId()).size());
+            r.setScreeningTime(orgPlanMaps.getOrDefault(r.getId(),0L));
             r.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
 
             // 详细地址

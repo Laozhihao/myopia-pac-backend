@@ -290,6 +290,16 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过orgIds获取计划
+     *
+     * @param orgIds 机构Ids
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByOrgIds(List<Integer> orgIds) {
+        return baseMapper.getByOrgIds(orgIds);
+    }
+
+    /**
      * 通过筛查通知id获取实际筛查学生数
      *
      * @param noticeId
