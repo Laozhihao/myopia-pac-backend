@@ -99,3 +99,8 @@ white-list:
   - "/parent/wx/callback/userInfo"
   - "/parent/wx/smsCode/**"
   - "/parent/wx/phone/bind"
+  # 筛查报告数据接口（内网访问）
+  - "/management/stat/getDistrictReport"
+  - "/management/stat/getSchoolReport"
+  # 档案卡报告接口（内网访问）
+  - "/management/screeningResult/list-result"
