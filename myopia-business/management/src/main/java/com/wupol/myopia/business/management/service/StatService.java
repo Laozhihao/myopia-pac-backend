@@ -109,7 +109,7 @@ public class StatService {
                 warningConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
         long warning3Num =
                 warningConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
-        long focusTargetsNum = warning1Num + warning2Num + warning3Num;
+        long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
         return WarningInfo.builder()
                 .statTime(startDate.atStartOfDay(zoneId).toInstant().toEpochMilli())
                 .endTime(endDate.atStartOfDay(zoneId).toInstant().toEpochMilli() - 1)
@@ -528,7 +528,7 @@ public class StatService {
                         convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
                 .myopiaNum(myopiaNum)
                 .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
-                .focusTargetsNum(warning1Num + warning2Num + warning3Num)
+                .focusTargetsNum(warning0Num + warning1Num + warning2Num + warning3Num)
                 .warningLevelZeroRatio(
                         convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
                 .warningLevelOneRatio(
