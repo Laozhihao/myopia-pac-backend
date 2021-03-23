@@ -22,11 +22,22 @@ public class StudentArchivesController {
     @Resource
     private TemplateService templateService;
 
+    /**
+     * 获取模板列表
+     *
+     * @return 模板列表
+     */
     @GetMapping("lists")
     public Object getLists() {
         return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
     }
 
+    /**
+     * 保存模板
+     *
+     * @param request 请求入参
+     * @return 是否成功
+     */
     @PutMapping("save")
     public Object save(@RequestBody TemplateBindRequest request) {
         return templateService.districtBind(request, CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);

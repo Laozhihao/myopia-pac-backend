@@ -12,5 +12,8 @@ import lombok.Setter;
 @Setter
 public class ScreeningReportResponseDTO {
 
+    /**
+     * 详情
+     */
     private ScreeningReportDetail detail;
 }

@@ -45,6 +45,9 @@ public class ScreeningReportDetail {
      */
     private List<RefractoryResultItems> refractoryResultItems;
 
+    /**
+     * 生物测量
+     */
     private List<BiometricItems> biometricItems;
 
 }

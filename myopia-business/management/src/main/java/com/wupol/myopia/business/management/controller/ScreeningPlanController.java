@@ -23,6 +23,7 @@ import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
@@ -38,7 +39,6 @@ import javax.validation.ValidationException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * 筛查计划相关接口
  *
  * @author Alix
- * @Date 2021-01-20
+ * date 2021-01-20
  */
 @ResponseResultBody
 @CrossOrigin
@@ -91,7 +91,6 @@ public class ScreeningPlanController {
      * 新增
      *
      * @param screeningPlanDTO 新增参数
-     * @return Object
      */
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
@@ -144,10 +143,9 @@ public class ScreeningPlanController {
      * 更新筛查计划
      *
      * @param screeningPlanDTO 更新参数
-     * @return Object
      */
     @PutMapping()
-    public void updateInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) throws AccessDeniedException {
+    public void updateInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
@@ -162,8 +160,8 @@ public class ScreeningPlanController {
      * 校验计划是否存在与发布状态
      * 同时校验权限
      *
-     * @param screeningPlanId
-     * @param releaseStatus
+     * @param screeningPlanId 筛查计划ID
+     * @param releaseStatus 发布状态
      */
     private ScreeningPlan validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -184,7 +182,9 @@ public class ScreeningPlanController {
      * 校验筛查任务是否存在且校验发布状态
      * 返回该筛查计划
      *
-     * @param id
+     * @param id 筛查计划ID
+     * @param releaseStatus 发布状态
+     * @return 筛查计划
      */
     private ScreeningPlan validateExistWithReleaseStatusAndReturn(Integer id, Integer releaseStatus) {
         ScreeningPlan screeningPlan = validateExist(id);
@@ -198,8 +198,8 @@ public class ScreeningPlanController {
     /**
      * 校验筛查计划是否存在
      *
-     * @param id
-     * @return
+     * @param id 筛查计划ID
+     * @return 筛查计划
      */
     private ScreeningPlan validateExist(Integer id) {
         if (Objects.isNull(id)) {
@@ -217,10 +217,10 @@ public class ScreeningPlanController {
      *
      * @param query 查询参数
      * @param page  分页数据
-     * @return Object
+     * @return IPage<ScreeningPlanVo>
      */
     @GetMapping("page")
-    public IPage queryInfo(PageRequest page, ScreeningPlanQuery query) {
+    public IPage<ScreeningPlanVo> queryInfo(PageRequest page, ScreeningPlanQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -235,7 +235,7 @@ public class ScreeningPlanController {
      * 获取计划学校
      *
      * @param screeningPlanId 计划ID
-     * @return Object
+     * @return List<ScreeningPlanSchoolVo>
      */
     @GetMapping("schools/{screeningPlanId}")
     public List<ScreeningPlanSchoolVo> querySchoolsInfo(@PathVariable Integer screeningPlanId) {
@@ -249,7 +249,7 @@ public class ScreeningPlanController {
      *
      * @param screeningPlanId 计划ID
      * @param schoolId        学校ID
-     * @return Object
+     * @return List<SchoolGradeVo>
      */
     @GetMapping("grades/{screeningPlanId}/{schoolId}")
     public List<SchoolGradeVo> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
@@ -263,7 +263,6 @@ public class ScreeningPlanController {
      *
      * @param screeningPlanId 筛查计划ID
      * @param screeningPlanSchools 新增的学校列表
-     * @return Object
      */
     @PostMapping("schools/{screeningPlanId}")
     public void addSchoolsInfo(@PathVariable Integer screeningPlanId, @RequestBody @Valid List<ScreeningPlanSchool> screeningPlanSchools) {
@@ -279,8 +278,7 @@ public class ScreeningPlanController {
     /**
      * 根据ID删除（这里默认所有表的主键字段都为“id”,且自增）
      *
-     * @param id ID
-     * @return void
+     * @param id 筛查计划ID
      */
     @DeleteMapping("{id}")
     public void deleteInfo(@PathVariable Integer id) {
@@ -292,8 +290,7 @@ public class ScreeningPlanController {
     /**
      * 发布
      *
-     * @param id ID
-     * @return void
+     * @param id 筛查计划ID
      */
     @PostMapping("{id}")
     public void release(@PathVariable Integer id) {
@@ -323,8 +320,8 @@ public class ScreeningPlanController {
 
     /**
      * 校验学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
-     * @param screeningPlan
-     * @param schoolListsByPlanId
+     * @param screeningPlan 筛查计划
+     * @param schoolListsByPlanId 筛查计划中的学校
      */
     private void validateSchoolLegal(ScreeningPlan screeningPlan, List<ScreeningPlanSchool> schoolListsByPlanId) {
         // 学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
@@ -341,10 +338,10 @@ public class ScreeningPlanController {
      *
      * @param query 查询参数
      * @param page  分页数据
-     * @return Object
+     * @return IPage<StudentDTO>
      */
     @GetMapping("students/page")
-    public IPage queryStudentInfos(PageRequest page, StudentQuery query) {
+    public IPage<StudentDTO> queryStudentInfos(PageRequest page, StudentQuery query) {
         validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
         return screeningPlanSchoolStudentService.getPage(query, page);
     }
@@ -352,10 +349,10 @@ public class ScreeningPlanController {
     /**
      * 导入筛查计划的学生数据
      *
-     * @param file
-     * @param screeningPlanId
-     * @param schoolId
-     * @throws IOException
+     * @param file 学生文件
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId 学校ID
+     * @throws IOException IO异常
      */
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
     public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
@@ -374,8 +371,8 @@ public class ScreeningPlanController {
     /**
      * 导出筛查计划的学生二维码信息
      *
-     * @param schoolClassInfo
-     * @throws IOException
+     * @param schoolClassInfo 参与筛查计划的学生
+     * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
     public Object downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
@@ -408,8 +405,8 @@ public class ScreeningPlanController {
     /**
      * 导出筛查计划的学生告知书
      *
-     * @param schoolClassInfo
-     * @throws IOException
+     * @param schoolClassInfo 参与筛查计划的学生
+     * @return PDF的URL
      */
     @GetMapping("/export/notice")
     public Object downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
