@@ -7,6 +7,8 @@ import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @Description
  * @Date 2021/1/25 23:22
@@ -34,6 +36,7 @@ public class ScreeningResultBuilder {
                 this.setOtherInfo();
             } else {
                 screeningResultBasicData.buildScreeningResultData(visionScreeningResult);
+                visionScreeningResult.setUpdateTime(new Date());
             }
             isEnd = true;
             return visionScreeningResult;

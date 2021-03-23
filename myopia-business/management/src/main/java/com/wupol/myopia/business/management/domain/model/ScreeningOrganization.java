@@ -150,6 +150,6 @@ public class ScreeningOrganization implements Serializable, HasName {
      * 筛查次数
      */
     @TableField(exist = false)
-    private Integer screeningTime;
+    private Long screeningTime;
 
 }
