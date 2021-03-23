@@ -311,6 +311,24 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过筛查通知id获取实际筛查学生数
+     *
+     * @param noticeId
+     * @return
+     */
+    public Integer getScreeningPlanStudentNumByNoticeId(Integer noticeId) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper =
+                new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId)
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlans.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(ScreeningPlan::getStudentNumbers)
+                .sum();
+    }
+
+    /**
      * 根据筛查计划ID获取原始的筛查通知ID列表
      *
      * @param screeningPlanIds

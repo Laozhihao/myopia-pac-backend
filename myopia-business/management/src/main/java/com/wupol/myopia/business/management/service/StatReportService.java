@@ -2,8 +2,6 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.constant.GlassesType;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
@@ -17,7 +15,6 @@ import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
 import com.wupol.myopia.business.management.domain.dto.stat.TableBasicStatParams;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
@@ -73,27 +70,17 @@ public class StatReportService {
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件
      * @param districtId 区域 id
-     * @param currentUser 当前用户
      * @return
      * @throws IOException
      */
-    private StatConclusionQuery composeDistrictQuery(Integer districtId, CurrentUser currentUser)
-            throws IOException {
+    private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
         StatConclusionQuery query = new StatConclusionQuery();
-        List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
-        if (districtId != null && districtId >= 0) {
-            List<District> districts =
-                    districtService.getChildDistrictByParentIdPriorityCache(districtId);
-            List<Integer> selectDistrictIds =
-                    districts.stream().map(District::getId).collect(Collectors.toList());
-            selectDistrictIds.add(districtId);
-            if (userDistrictIds != null) {
-                selectDistrictIds.retainAll(userDistrictIds);
-            }
-            query.setDistrictIds(selectDistrictIds);
-        } else {
-            query.setDistrictIds(userDistrictIds);
-        }
+        List<District> districts =
+                districtService.getChildDistrictByParentIdPriorityCache(districtId);
+        List<Integer> selectDistrictIds =
+                districts.stream().map(District::getId).collect(Collectors.toList());
+        selectDistrictIds.add(districtId);
+        query.setDistrictIds(selectDistrictIds);
         return query;
     }
 
@@ -117,23 +104,6 @@ public class StatReportService {
                 put("total", total);
             }
         };
-    }
-
-    /**
-     * 获取当前用户所有权限的区域ID
-     * @return
-     * @throws IOException
-     */
-    private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) throws IOException {
-        if (currentUser.isPlatformAdminUser() || currentUser.getOrgId() == null) {
-            return null;
-        }
-        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-        District userDistrict = districtService.getById(govDept.getDistrictId());
-        List<District> districts =
-                districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
-        districts.add(userDistrict);
-        return districts.stream().map(District::getId).collect(Collectors.toList());
     }
 
     /**
@@ -211,8 +181,7 @@ public class StatReportService {
      * @throws IOException
      */
     public Map getDistrictStatData(int srcScreeningNoticeId, int districtId) throws IOException {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        StatConclusionQuery query = composeDistrictQuery(districtId, currentUser);
+        StatConclusionQuery query = composeDistrictQuery(districtId);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
         if (statConclusions == null || statConclusions.size() == 0) {
@@ -221,7 +190,7 @@ public class StatReportService {
         District district = districtService.getById(districtId);
         String districtName = district.getName();
         int planScreeningNum =
-                screeningPlanService.getScreeningPlanStudentNum(srcScreeningNoticeId, currentUser);
+                screeningPlanService.getScreeningPlanStudentNumByNoticeId(srcScreeningNoticeId);
         ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
         Date startDate = notice.getStartTime();
         Date endDate = notice.getEndTime();
