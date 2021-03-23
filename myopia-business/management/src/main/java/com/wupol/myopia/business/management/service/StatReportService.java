@@ -1198,8 +1198,8 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassLowVisionLevelTable(
             List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
-        // List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
+        int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
@@ -1217,15 +1217,10 @@ public class StatReportService {
                         statConclusions.stream()
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
+                lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());
                 classList.add(lowVisionLevelStat);
             }
-            // gradeList.add(new HashMap() {
-            //     {
-            //         put("name", gradeCode.name());
-            //         put("list", classList);
-            //     }
-            // });
         }
         return classList;
     }
@@ -1237,8 +1232,8 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassMyopiaLevelTable(
             List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
-        // List<Map<String, Object>> gradeList = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
+        int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
@@ -1255,18 +1250,12 @@ public class StatReportService {
                         statConclusions.stream()
                                 .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
                                 .collect(Collectors.toList()));
+                myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
                 classList.add(myopiaLevelStat);
             }
-            // gradeList.add(new HashMap() {
-            //     {
-            //         put("name", gradeCode.name());
-            //         put("list", classList);
-            //     }
-            // });
         }
         return classList;
-        // return gradeList;
     }
     /**
      * 构建 性别 视力低下 统计
