@@ -1215,6 +1215,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                     return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
                 }
             } else {
+                // 没有佩戴眼镜
+                // TODO: 需要取结论严重的那只眼
                 // 判断两只眼睛的裸眼视力是否都在4.9的同侧
                 if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
                     // 取等效球镜值大的眼别
