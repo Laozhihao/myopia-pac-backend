@@ -145,4 +145,31 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         baseMapper.batchCreateScreeningNotice(createUserId, linkId, toUserIds,
                 type, title, content, startTime, endTime);
     }
+
+    /**
+     * 发送导出成功通知
+     *
+     * @param createUserId 创建用户ID
+     * @param noticeUserId 通知用户ID
+     * @param keyContent 关键内容
+     * @param fileId 导出文件ID
+     * @return void
+     **/
+    public void sendExportSuccessNotice(Integer createUserId, Integer noticeUserId, String keyContent, Integer fileId) {
+        String fullContent = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, keyContent, new Date());
+        createExportNotice(createUserId, noticeUserId, fullContent, fullContent, fileId, CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 发送导出失败通知
+     *
+     * @param createUserId 创建用户ID
+     * @param noticeUserId 通知用户ID
+     * @param keyContent 关键内容
+     * @return void
+     **/
+    public void sendExportFailNotice(Integer createUserId, Integer noticeUserId, String keyContent) {
+        String fullContent = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_FAILURE, keyContent);
+        createExportNotice(createUserId, noticeUserId, fullContent, fullContent, null, CommonConst.NOTICE_STATION_LETTER);
+    }
 }

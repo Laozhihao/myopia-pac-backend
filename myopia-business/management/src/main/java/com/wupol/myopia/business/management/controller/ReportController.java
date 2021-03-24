@@ -1,10 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.service.ReportService;
+import com.wupol.myopia.business.management.export.ExportStrategy;
+import com.wupol.myopia.business.management.export.constant.ExportReportServiceNameConstant;
+import com.wupol.myopia.business.management.export.domain.ExportCondition;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +30,7 @@ import java.util.Objects;
 public class ReportController {
 
     @Autowired
-    private ReportService reportService;
+    private ExportStrategy exportStrategy;
 
     /**
      * 导出区域的筛查报告
@@ -39,9 +40,10 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/district/export")
-    public ApiResult exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) throws UtilException {
+    public ApiResult exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) {
         // TODO: 权限校验、导出次数限制
-        reportService.exportDistrictReport(notificationId, districtId, CurrentUserUtil.getCurrentUser());
+        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setDistrictId(districtId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
         return ApiResult.success();
     }
 
@@ -58,6 +60,8 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             return ApiResult.failure("筛查通知ID或者筛查计划ID不能为空");
         }
+        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
         return ApiResult.success();
     }
 
@@ -70,6 +74,8 @@ public class ReportController {
      **/
     @GetMapping("/screeningOrg/export")
     public ApiResult exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) {
+        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
         return ApiResult.success();
     }
 
