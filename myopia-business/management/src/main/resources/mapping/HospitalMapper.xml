@@ -59,7 +59,6 @@
         <if test="status != null">
             and h.status = #{status}
         </if>
-
         <if test="name != null and name != ''">
             and h.name like CONCAT('%', #{name}, '%')
         </if>
