@@ -174,7 +174,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen,false);
-        queryWrapper.eq(StatConclusion::getIsValid,true);
         List<StatConclusion> statConclusionList = baseMapper.selectList(queryWrapper);
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = this.getBigScreenStatDataDTOList(statConclusionList);
         return  bigScreenStatDataDTOs;

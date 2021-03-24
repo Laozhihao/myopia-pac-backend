@@ -98,6 +98,9 @@ public class BigScreeningVO {
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
         bigScreeningVO.setTitle(districtName+"近视防控中心");
         bigScreeningVO.setValidDataNum(districtBigScreenStatistic.getValidDataNum());
+        bigScreeningVO.setPlanScreeningNum(districtBigScreenStatistic.getPlanScreeningNum());
+        bigScreeningVO.setRealScreeningNum(districtBigScreenStatistic.getRealScreeningNum());
+        bigScreeningVO.setProgressRate(districtBigScreenStatistic.getProgressRate());
         bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
         bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());
         bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
