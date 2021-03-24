@@ -354,14 +354,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtIds
      * @param childs
      */
-    private void getAllIds(List<Integer> districtIds, List<District> childs) {
+    public void getAllIds(List<Integer> districtIds, List<District> childs) {
         if (CollectionUtils.isEmpty(childs)) {
             return;
         }
         districtIds.addAll(childs.stream().filter(Objects::nonNull).map(District::getId).collect(Collectors.toList()));
         childs.forEach(district -> getAllIds(districtIds, district.getChild()));
     }
-
 
     /**
      * 获取指定的行政区及其子区域组成的区域树
