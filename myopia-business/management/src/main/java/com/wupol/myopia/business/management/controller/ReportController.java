@@ -79,5 +79,14 @@ public class ReportController {
         return ApiResult.success();
     }
 
+    @GetMapping("/school/archives")
+    public ApiResult exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) {
+        return ApiResult.success();
+    }
+
+    @GetMapping("/screeningOrg/archives")
+    public ApiResult exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) {
+        return ApiResult.success();
+    }
 
 }
