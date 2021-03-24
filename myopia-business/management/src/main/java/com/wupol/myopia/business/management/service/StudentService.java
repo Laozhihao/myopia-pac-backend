@@ -327,7 +327,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             StudentScreeningResultItems item = new StudentScreeningResultItems();
             List<StudentResultDetails> result = packageDTO(r);
             item.setDetails(result);
-            item.setScreeningDate(r.getCreateTime());
+            item.setScreeningDate(r.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
             if (null != r.getVisionData() && null != r.getVisionData().getLeftEyeData() && null != r.getVisionData().getLeftEyeData().getGlassesType()) {
                 item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
@@ -750,7 +750,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null == student) {
             return studentDTO;
         }
-
         BeanUtils.copyProperties(student, studentDTO);
 
         // 地区Maps
