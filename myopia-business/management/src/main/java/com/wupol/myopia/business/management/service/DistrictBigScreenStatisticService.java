@@ -50,7 +50,7 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
             return null;
         }
         //对数据进行整合
-        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic);
+        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
     }
 
     /**

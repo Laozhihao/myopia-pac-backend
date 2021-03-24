@@ -175,4 +175,14 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public void updateSchoolNameBySchoolId(Integer schoolId, String schoolName) {
         baseMapper.updateSchoolNameBySchoolId(schoolId, schoolName);
     }
+
+    /**
+     * 通过学校id获取筛查计划关联的学校
+     *
+     * @param schoolIds 学校Ids
+     * @return List<ScreeningPlanSchool>
+     */
+    public List<ScreeningPlanSchool> getBySchoolIds(List<Integer> schoolIds) {
+        return baseMapper.getBySchoolIds(schoolIds);
+    }
 }

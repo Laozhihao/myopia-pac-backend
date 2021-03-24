@@ -44,18 +44,19 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     Set<Integer> selectSchoolIds(Set<Integer> districtIds, Integer taskId);
 
 
-    ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus,Date currentDate);
+    ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus, Date currentDate);
 
     /**
      * 查找当前机构的未完成的说有学校id
      *
      * @param screeningOrgId
      * @param releaseStatus
-     * @param currentTimestamp
      * @return
      */
     List<ScreeningPlanSchool> selectScreeningSchools(Integer screeningOrgId, Integer releaseStatus, Date currentDate);
 
     Integer countByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
+
+    List<ScreeningPlan> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
 
 }

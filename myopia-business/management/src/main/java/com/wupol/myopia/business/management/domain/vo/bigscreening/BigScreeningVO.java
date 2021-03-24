@@ -71,9 +71,10 @@ public class BigScreeningVO {
      *  创建对象
      * @param screeningNotice
      * @param districtBigScreenStatistic
+     * @param districtName
      * @return
      */
-    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic) {
+    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName) {
         BigScreeningVO bigScreeningVO = new BigScreeningVO();
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
@@ -82,7 +83,7 @@ public class BigScreeningVO {
         bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
-        bigScreeningVO.setTitle(screeningNotice.getTitle());//todo 地区名加什么上去
+        bigScreeningVO.setTitle(districtName+"近视防控中心");
         bigScreeningVO.setValidDataNum(districtBigScreenStatistic.getValidDataNum());
         bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
         bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());

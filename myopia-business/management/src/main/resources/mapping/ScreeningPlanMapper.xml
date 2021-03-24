@@ -160,4 +160,13 @@
         where screening_task_id = #{taskId}
           and screening_org_id = #{orgId}
     </select>
+
+    <select id="getByOrgIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan where screening_org_id in
+        <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
+            #{orgId}
+        </foreach>
+    </select>
 </mapper>
