@@ -1193,8 +1193,10 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                         leftNakedVision, rightNakedVision, nakedVisionResult);
             } else {
                 // 没有佩戴眼镜
-                TwoTuple<Integer, String> left = getNotWearingGlasses(leftCyl, leftSe, schoolAge);
-                TwoTuple<Integer, String> right = getNotWearingGlasses(rightCyl, rightSe, schoolAge);
+                TwoTuple<Integer, String> left = getNotWearingGlasses(leftCyl, leftSe,
+                        schoolAge, leftNakedVision);
+                TwoTuple<Integer, String> right = getNotWearingGlasses(rightCyl, rightSe,
+                        schoolAge, rightNakedVision);
                 // 取结论严重的那只眼
                 if (left.getFirst() >= right.getFirst()) {
                     return left.getSecond();
@@ -1302,12 +1304,18 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     /**
      * 没有戴镜情况下获取结论
      *
-     * @param cyl       柱镜
-     * @param se        等效球镜
-     * @param schoolAge 学龄段
+     * @param cyl         柱镜
+     * @param se          等效球镜
+     * @param schoolAge   学龄段
+     * @param nakedVision 裸眼视力
      * @return TwoTuple<Integer, String>
      */
-    private TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se, Integer schoolAge) {
+    private TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
+                                                           Integer schoolAge, BigDecimal nakedVision) {
+        // 是否大于4.9，大于4.9直接返回
+        if (nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
+            return new TwoTuple<>(0, "");
+        }
         boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
         // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生、高中、职业高中 && -0.5<=SE<3 && Cyl <1.5)
         if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
