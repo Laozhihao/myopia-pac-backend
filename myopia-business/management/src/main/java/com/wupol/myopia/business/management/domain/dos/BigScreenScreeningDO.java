@@ -23,6 +23,10 @@ public class BigScreenScreeningDO implements Serializable {
     }
 
     /**
+     *
+     */
+    private Long  planScreeningNum;
+    /**
      * 占比情况
      */
     private DistributionDTO distribution;
@@ -30,6 +34,14 @@ public class BigScreenScreeningDO implements Serializable {
      * 实际筛查数
      */
     private Long realScreeningNum;
+    /**
+     * 数量
+     */
+    private Long num;
+    /**
+     * 百分比
+     */
+    private double ratio;
     /**
      * 地图位置
      */
@@ -46,6 +58,14 @@ public class BigScreenScreeningDO implements Serializable {
         this.distribution = distributionDTO;
         this.realScreeningNum = realScreeningNum;
         this.mapLocationData = mapLocationData;
+        if (distributionDTO.getNum() != null) {
+            this.num = distributionDTO.getNum().getStudentNum();
+            this.ratio = distributionDTO.getNum().getStudentDistribution();
+        }
+    }
+
+    public void setPlanScreeningStudentNum(Long  planScreeningNum){
+        this.planScreeningNum = planScreeningNum;
     }
 
 }
