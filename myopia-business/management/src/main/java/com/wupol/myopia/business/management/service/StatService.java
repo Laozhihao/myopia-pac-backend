@@ -64,6 +64,9 @@ public class StatService {
     private ScreeningPlanService screeningPlanService;
 
     @Autowired
+    private SchoolService schoolService;
+
+    @Autowired
     ExcelFacade excelFacade;
 
     @Autowired
@@ -176,6 +179,35 @@ public class StatService {
     }
 
     /**
+     * 获取用户对应权限的可对比区域ID
+     * @param notificationId1
+     * @param notificationId2
+     * @return
+     * @throws IOException
+     */
+    public List<District> getDataContrastDistrictTree(
+            Integer notificationId1, Integer notificationId2) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<ScreeningPlan> screeningPlans1 =
+                screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                        notificationId1, currentUser);
+        Set<Integer> districtIds1 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                screeningPlans1.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+
+        if (notificationId2 != null) {
+            List<ScreeningPlan> screeningPlans2 =
+                    screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                            notificationId1, currentUser);
+            Set<Integer> districtIds2 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                    screeningPlans2.stream()
+                            .map(ScreeningPlan::getId)
+                            .collect(Collectors.toList()));
+            districtIds1.retainAll(districtIds2);
+        }
+        return districtService.getValidDistrictTree(currentUser, districtIds1);
+    }
+
+    /**
      * 分类统计
      * @param notificationId 通知ID
      * @return
@@ -183,11 +215,17 @@ public class StatService {
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Integer> districtIds = currentUser.isPlatformAdminUser()
-                ? null
-                : this.getCurrentUserDistrictIds(currentUser);
+        List<ScreeningPlan> screeningPlans =
+                screeningPlanService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
+        Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        List<District> validDistricts =
+                districtService.getValidDistrictTree(currentUser, districtIds);
+        List<Integer> validDistrictIds = new ArrayList<>();
+        districtService.getAllIds(validDistrictIds, validDistricts);
+
         StatConclusionQuery query = new StatConclusionQuery();
-        query.setDistrictIds(districtIds);
+        query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
         if (statConclusions == null) {
@@ -289,7 +327,7 @@ public class StatService {
                 getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
         ScreeningDataContrast result1 = contrastResultMap.get("result1");
         ScreeningDataContrast result2 = contrastResultMap.get("result2");
-        List<ScreeningDataContrastVo> exportList = new ArrayList() {
+        List<ScreeningDataContrastVo> exportList = new ArrayList<ScreeningDataContrastVo>() {
             {
                 if (result1 != null) add(composeScreeningDataContrastVo("对比项1", result1));
                 if (result2 != null) add(composeScreeningDataContrastVo("对比项2", result2));
@@ -342,6 +380,7 @@ public class StatService {
                 .title(title)
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
+                .validScreeningNum(contrast.getValidScreeningNum())
                 .averageVisionLeft(contrast.getAverageVisionLeft())
                 .averageVisionRight(contrast.getAverageVisionRight())
                 .lowVisionRatio(contrast.getLowVisionRatio() + "%")
@@ -378,10 +417,9 @@ public class StatService {
         }
         GovDept govDept = govDeptService.getById(currentUser.getOrgId());
         District userDistrict = districtService.getById(govDept.getDistrictId());
-        List<District> districts =
-                districtService.getChildDistrictByParentIdPriorityCache(userDistrict.getId());
-        districts.add(userDistrict);
-        return districts.stream().map(District::getId).collect(Collectors.toList());
+        List<Integer> districtIds =
+                districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
+        return districtIds;
     }
 
     /**
@@ -729,5 +767,12 @@ public class StatService {
         //获取数据
         return DistrictScreeningMonitorStatisticVO.getInstance(districtMonitorStatistics,
                 districtId, currentRangeName, screeningNotice, districtIdNameMap,currentDistrictMonitorStatistic);
+    }
+
+    public List<District> getNotificationDistrictsIntersection(Integer nid1, Integer nid2)
+            throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
+        return new ArrayList();
     }
 }

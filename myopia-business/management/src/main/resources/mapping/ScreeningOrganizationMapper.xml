@@ -55,11 +55,7 @@
         select
         <include refid="Base_Column_List"/>
         from m_screening_organization mso
-<!--                where mso.gov_dept_id in-->
-<!--        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">-->
-<!--            #{id}-->
-<!--        </foreach>-->
-        where id IS NOT NULL
+                where 1=1
         <if test="name != null and name != ''">
             and mso.name like CONCAT('%', #{name}, '%')
         </if>
@@ -82,15 +78,6 @@
             and mso.status = #{status}
         </if>
         order by mso.create_time desc
-    </select>
-
-    <select id="getLastOrgByNo" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_organization mso
-        where mso.org_no like CONCAT('%', #{code}, '%')
-        order by mso.org_no + 0 desc
-        limit 1
     </select>
 
     <select id="getBy" resultMap="BaseResultMap">
