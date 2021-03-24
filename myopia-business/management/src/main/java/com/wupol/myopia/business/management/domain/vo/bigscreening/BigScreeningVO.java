@@ -34,6 +34,19 @@ public class BigScreeningVO {
      */
     private Long validDataNum;
     /**
+     * planScreeningNum
+     */
+    private Long planScreeningNum;
+    /**
+     * progressRate
+     */
+    private Double progressRate;
+    /**
+     * realScreeningNum
+     */
+    private Long  realScreeningNum;
+
+    /**
      * realScreening
      */
     private Object realScreening;
