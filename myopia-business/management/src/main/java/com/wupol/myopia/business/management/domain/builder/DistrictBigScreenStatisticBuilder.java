@@ -24,11 +24,13 @@ public class DistrictBigScreenStatisticBuilder {
 
 
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
-    private Long realScreeningNum;
+    private Long realValidScreeningNum;
+    private Long planScreeningNum;
     private Object mapJsonObject;
     private Map<Integer, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
+    private Long realScreeningNum;
 
     public static DistrictBigScreenStatisticBuilder getBuilder() {
         return new DistrictBigScreenStatisticBuilder();
@@ -63,6 +65,7 @@ public class DistrictBigScreenStatisticBuilder {
         DistrictBigScreenStatistic districtBigScreenStatistic = new DistrictBigScreenStatistic();
         //获取真实的数据
         BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
+        realScreeningData.setPlanScreeningStudentNum(planScreeningNum);
         districtBigScreenStatistic.setRealScreening(realScreeningData);
         //获取视力低下的地区
         List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
@@ -83,7 +86,10 @@ public class DistrictBigScreenStatisticBuilder {
         //平均视力
         TwoTuple<Double, Double> leftRightNakedVision = this.getAvgNakedVision();
         //其他数据
-        districtBigScreenStatistic.setValidDataNum(bigScreenStatDataDTOList.stream().count());
+        districtBigScreenStatistic.setValidDataNum(realValidScreeningNum);
+        districtBigScreenStatistic.setRealScreeningNum(realScreeningNum);
+        districtBigScreenStatistic.setPlanScreeningNum(planScreeningNum);
+        districtBigScreenStatistic.setProgressRate(MathUtil.getFormatNumWith2Scale( (double) realScreeningNum / planScreeningNum * 100));
         districtBigScreenStatistic.setMapdata(mapJsonObject);
         districtBigScreenStatistic.setAvgVision(new AvgVisionDO(leftRightNakedVision.getFirst(), leftRightNakedVision.getSecond()));
         districtBigScreenStatistic.setDistrictId(districtId);
@@ -115,11 +121,28 @@ public class DistrictBigScreenStatisticBuilder {
         return this;
     }
     /**
+     * @param realValidScreeningNum
+     * @return
+     */
+    public DistrictBigScreenStatisticBuilder setRealValidScreeningNum(Long realValidScreeningNum) {
+        this.realValidScreeningNum = realValidScreeningNum;
+        return this;
+    }
+    /**
      * @param realScreeningNum
      * @return
      */
     public DistrictBigScreenStatisticBuilder setRealScreeningNum(Long realScreeningNum) {
         this.realScreeningNum = realScreeningNum;
+        return this;
+    }
+
+    /**
+     * @param planScreeningNum
+     * @return
+     */
+    public DistrictBigScreenStatisticBuilder setPlanScreeningNum(Long planScreeningNum) {
+        this.planScreeningNum = planScreeningNum;
         return this;
     }
 
@@ -156,11 +179,11 @@ public class DistrictBigScreenStatisticBuilder {
         DistributionDTO distributionDTO = DistributionDTO.Builder.getBuilder()
                 .setScreeningStudentNum(bigScreenStatDataDTOList.stream().count())
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOList)
-                .setRealScreeningNum(realScreeningNum)
+                .setRealScreeningNum(realValidScreeningNum)
                 .build();
         //设置地图数据
         List<BigScreenScreeningDO.MapLocationDataDTO> mapLocationData =  this.getMapLocationData(distributionDTO.getStatisticDistrict());
-        return new BigScreenScreeningDO(distributionDTO, realScreeningNum, mapLocationData);
+        return new BigScreenScreeningDO(distributionDTO, realValidScreeningNum, mapLocationData);
     }
 
     /**

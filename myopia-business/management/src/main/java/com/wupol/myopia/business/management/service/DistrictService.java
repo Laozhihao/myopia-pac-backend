@@ -338,12 +338,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return List
      **/
     public List<Integer> getAllDistrictIds(Integer districtId) {
-        District district = getById(districtId);
-        Assert.notNull(district, "无效行政区域ID：" + districtId);
-        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        District districtTree = getDistrictTree(districtId);
+        Assert.notNull(districtTree, "无效行政区域ID：" + districtId);
         List<Integer> districtIds = new ArrayList<>();
-        districtIds.add(provinceDistrictTreePriorityCache.getId());
-        getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
+        getAllIds(districtIds, districtTree.getChild());
+        districtIds.add(districtTree.getId());
         return districtIds;
     }
 
@@ -354,14 +353,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtIds
      * @param childs
      */
-    private void getAllIds(List<Integer> districtIds, List<District> childs) {
+    public void getAllIds(List<Integer> districtIds, List<District> childs) {
         if (CollectionUtils.isEmpty(childs)) {
             return;
         }
         districtIds.addAll(childs.stream().filter(Objects::nonNull).map(District::getId).collect(Collectors.toList()));
         childs.forEach(district -> getAllIds(districtIds, district.getChild()));
     }
-
 
     /**
      * 获取指定的行政区及其子区域组成的区域树

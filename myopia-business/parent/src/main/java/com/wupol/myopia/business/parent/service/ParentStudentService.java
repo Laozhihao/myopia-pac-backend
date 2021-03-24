@@ -1181,8 +1181,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                                        Integer glassesType, Integer schoolAge) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
-        BigDecimal se;
-        BigDecimal cyl;
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
@@ -1190,114 +1188,24 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
             // 是否佩戴眼镜
             if (glassesType >= 1) {
-                if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
-                    return "";
-                }
-                BigDecimal visionVal;
-                // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
-                if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-                    // 获取矫正视力低的眼球
-                    visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
-                } else {
-                    if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                        // 取左眼数据
-                        visionVal = leftCorrectedVision;
-                    } else {
-                        // 取右眼数据
-                        visionVal = rightCorrectedVision;
-                    }
-                }
-                if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
-                    // 矫正视力小于4.9
-                    return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
-                } else {
-                    // 矫正视力大于4.9
-                    return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
-                }
+                return getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
+                        leftNakedVision, rightNakedVision, nakedVisionResult);
             } else {
-                // 判断两只眼睛的裸眼视力是否都在4.9的同侧
-                if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-                    // 取等效球镜值大的眼别
-                    if (leftSe.compareTo(rightSe) >= 0) {
-                        // 取左眼
-                        se = leftSe;
-                        cyl = leftCyl;
-
-                    } else {
-                        // 取右眼
-                        se = rightSe;
-                        cyl = rightCyl;
-                    }
-                } else {
-                    // 裸眼视力不同，取视力低的眼别
-                    if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                        // 左眼的数据
-                        cyl = leftCyl;
-                        // 左眼的等效球镜
-                        se = leftSe;
-                    } else {
-                        // 取右眼的数据
-                        cyl = leftCyl;
-                        // 取右眼的等效球镜
-                        se = rightSe;
-                    }
-                }
                 // 没有佩戴眼镜
-                boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
-                // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生、高中、职业高中 && -0.5<=SE<3 && Cyl <1.5)
-                if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
-                        ||
-                        (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
-                ) {
-                    return "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
-                    // (小学生 && !(0 <= SE < 2)) || (初中生、高中、职业高中 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
-                } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
-                        ||
-                        (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
-                    return "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。";
+                TwoTuple<Integer, String> left = getNotWearingGlasses(leftCyl, leftSe,
+                        schoolAge, leftNakedVision);
+                TwoTuple<Integer, String> right = getNotWearingGlasses(rightCyl, rightSe,
+                        schoolAge, rightNakedVision);
+                // 取结论严重的那只眼
+                if (left.getFirst() >= right.getFirst()) {
+                    return left.getSecond();
+                } else {
+                    return right.getSecond();
                 }
-                return "";
             }
         } else {
-            // 判断两只眼睛的裸眼视力是否都在4.9的同侧
-            if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-                // 取等效球镜严重的眼别
-                if (leftSe.compareTo(new BigDecimal("0.00")) <= 0
-                        || rightSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                    if (leftSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                        // 取左眼
-                        se = leftSe;
-                    } else {
-                        // 取右眼
-                        se = rightSe;
-                    }
-                } else {
-                    // 取等效球镜值大的眼别
-                    if (leftSe.compareTo(rightSe) >= 0) {
-                        // 取左眼
-                        se = leftSe;
-                    } else {
-                        // 取右眼
-                        se = rightSe;
-                    }
-                }
-            } else {
-                // 裸眼视力不同，取视力低的眼别
-                if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                    // 左眼的等效球镜
-                    se = leftSe;
-                } else {
-                    // 右眼的等效球镜
-                    se = rightSe;
-                }
-            }
-            // SE >= 0
-            if (se.compareTo(new BigDecimal("0.00")) >= 0) {
-                return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
-            } else {
-                // SE < 0
-                return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
-            }
+            // 正常裸眼视力获取结论
+            return nakedVisionNormal(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         }
     }
 
@@ -1314,5 +1222,130 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 ||
                 ((leftNakedVision.compareTo(new BigDecimal("4.9")) >= 0) &&
                         (rightNakedVision.compareTo(new BigDecimal("4.9")) >= 0));
+    }
+
+    /**
+     * 戴镜获取结论
+     *
+     * @param leftCorrectedVision  左眼矫正视力
+     * @param rightCorrectedVision 右眼矫正视力
+     * @param leftNakedVision      左眼裸眼视力
+     * @param rightNakedVision     右眼裸眼视力
+     * @param nakedVisionResult    取视力值低的眼球
+     * @return 结论
+     */
+    private String getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                       BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                       TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+        if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
+            return "";
+        }
+        BigDecimal visionVal;
+        // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
+        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+            // 获取矫正视力低的眼球
+            visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
+        } else {
+            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
+                // 取左眼数据
+                visionVal = leftCorrectedVision;
+            } else {
+                // 取右眼数据
+                visionVal = rightCorrectedVision;
+            }
+        }
+        if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
+            // 矫正视力小于4.9
+            return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
+        } else {
+            // 矫正视力大于4.9
+            return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
+        }
+    }
+
+    /**
+     * 没有戴镜情况下获取结论
+     *
+     * @param cyl         柱镜
+     * @param se          等效球镜
+     * @param schoolAge   学龄段
+     * @param nakedVision 裸眼视力
+     * @return TwoTuple<Integer, String>
+     */
+    private TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
+                                                           Integer schoolAge, BigDecimal nakedVision) {
+        // 是否大于4.9，大于4.9直接返回
+        if (nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
+            return new TwoTuple<>(0, "");
+        }
+        boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
+        // (小学生 && 0<=SE<2 && Cyl <1.5) || (初中生、高中、职业高中 && -0.5<=SE<3 && Cyl <1.5)
+        if ((SchoolAge.PRIMARY.code.equals(schoolAge) && isBetweenLeft(se, "0.00", "2.00") && checkCyl)
+                ||
+                (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
+        ) {
+            return new TwoTuple<>(1, "裸眼远视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。");
+            // (小学生 && !(0 <= SE < 2)) || (初中生、高中、职业高中 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
+        } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
+                ||
+                (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
+            return new TwoTuple<>(2, "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。");
+        }
+        return new TwoTuple<>(0, "");
+    }
+
+    /**
+     * 正常裸眼视力获取结论
+     *
+     * @param leftNakedVision   左眼裸眼视力
+     * @param rightNakedVision  右眼裸眼视力
+     * @param leftSe            左眼等效球镜
+     * @param rightSe           右眼等效球镜
+     * @param nakedVisionResult 取视力值低的眼球
+     * @return 结论
+     */
+    private String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                     BigDecimal leftSe, BigDecimal rightSe,
+                                     TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+        BigDecimal se;
+        // 判断两只眼睛的裸眼视力是否都在4.9的同侧
+        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+            // 取等效球镜严重的眼别
+            if (leftSe.compareTo(new BigDecimal("0.00")) <= 0
+                    || rightSe.compareTo(new BigDecimal("0.00")) <= 0) {
+                if (leftSe.compareTo(new BigDecimal("0.00")) <= 0) {
+                    // 取左眼
+                    se = leftSe;
+                } else {
+                    // 取右眼
+                    se = rightSe;
+                }
+            } else {
+                // 取等效球镜值大的眼别
+                if (leftSe.compareTo(rightSe) >= 0) {
+                    // 取左眼
+                    se = leftSe;
+                } else {
+                    // 取右眼
+                    se = rightSe;
+                }
+            }
+        } else {
+            // 裸眼视力不同，取视力低的眼别
+            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
+                // 左眼的等效球镜
+                se = leftSe;
+            } else {
+                // 右眼的等效球镜
+                se = rightSe;
+            }
+        }
+        // SE >= 0
+        if (se.compareTo(new BigDecimal("0.00")) >= 0) {
+            return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
+        } else {
+            // SE < 0
+            return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+        }
     }
 }

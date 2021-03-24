@@ -130,7 +130,7 @@
     </select>
 
     <select id="selectByGradeAndClass" resultMap="StudentDTO" parameterType="java.util.Map">
-        select mspss.student_name as name, mspss.student_no as sno, ms.gender
+        select mspss.student_name as name, mspss.student_no as sno, ms.gender, ms.id
         from m_screening_plan_school_student mspss
         left join m_student ms on mspss.student_id = ms.id
         where mspss.screening_plan_id = #{screeningPlanId} and mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}

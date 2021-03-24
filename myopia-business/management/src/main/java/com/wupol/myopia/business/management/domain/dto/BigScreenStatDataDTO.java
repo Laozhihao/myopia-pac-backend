@@ -52,15 +52,18 @@ public class BigScreenStatDataDTO {
     /**
      * 左眼视力
      */
-    private float visionL;
+    private Float visionL;
     /**
      * 右眼视力
      */
-    private float visionR;
+    private Float visionR;
     /**
      * 城市地区id
      */
     private Integer cityDistrictId;
+
+    /** 是否有效数据 */
+    private Boolean isValid;
 
     private BigScreenStatDataDTO() {
 
@@ -83,6 +86,7 @@ public class BigScreenStatDataDTO {
         bigScreenStatDataDTO.warningLevel = statConclusion.getWarningLevel();
         bigScreenStatDataDTO.visionL = statConclusion.getVisionL();
         bigScreenStatDataDTO.visionR = statConclusion.getVisionR();
+        bigScreenStatDataDTO.isValid = statConclusion.getIsValid();
         bigScreenStatDataDTO.setDistrictId(statConclusion.getDistrictId());
         return bigScreenStatDataDTO;
     }
