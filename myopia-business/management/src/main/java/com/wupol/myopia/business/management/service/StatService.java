@@ -380,6 +380,7 @@ public class StatService {
                 .title(title)
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
+                .validScreeningNum(contrast.getValidScreeningNum())
                 .averageVisionLeft(contrast.getAverageVisionLeft())
                 .averageVisionRight(contrast.getAverageVisionRight())
                 .lowVisionRatio(contrast.getLowVisionRatio() + "%")

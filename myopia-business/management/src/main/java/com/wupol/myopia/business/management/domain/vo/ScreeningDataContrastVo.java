@@ -17,6 +17,9 @@ public class ScreeningDataContrastVo {
     @ExcelProperty("实际筛查学生数")
     private long actualScreeningNum;
 
+    @ExcelProperty("有效筛查学生数")
+    private long validScreeningNum;
+
     @ExcelProperty("平均视力(左)")
     private Float averageVisionLeft;
 
