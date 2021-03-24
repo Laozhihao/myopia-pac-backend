@@ -157,3 +157,10 @@ wechat:
 vistel:
   tools:
     remoteAddress: http://myopia.nat100.top
+
+### 报告相关
+report:
+  pdf:
+    save-path: /app/pdf/
+  html:
+    url-host: http://172.17.0.1:7002
