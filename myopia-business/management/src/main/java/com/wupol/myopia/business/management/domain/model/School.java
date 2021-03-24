@@ -144,7 +144,7 @@ public class School implements Serializable, HasName {
      * 筛查次数
      */
     @TableField(exist = false)
-    private Integer screeningCount;
+    private Long screeningCount;
 
     /**
      * 创建人

@@ -50,9 +50,6 @@ public class StatReportService {
     private DistrictService districtService;
 
     @Autowired
-    private GovDeptService govDeptService;
-
-    @Autowired
     private ScreeningPlanService screeningPlanService;
 
     @Autowired
