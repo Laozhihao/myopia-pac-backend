@@ -84,15 +84,6 @@
         order by mso.create_time desc
     </select>
 
-    <select id="getLastOrgByNo" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_organization mso
-        where mso.org_no like CONCAT('%', #{code}, '%')
-        order by mso.org_no + 0 desc
-        limit 1
-    </select>
-
     <select id="getBy" resultMap="BaseResultMap">
         select *
         from m_screening_organization
