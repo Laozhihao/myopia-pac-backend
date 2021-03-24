@@ -1181,7 +1181,6 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                                        Integer glassesType, Integer schoolAge) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
-        BigDecimal se;
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
 
@@ -1205,45 +1204,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 }
             }
         } else {
-            // 判断两只眼睛的裸眼视力是否都在4.9的同侧
-            if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-                // 取等效球镜严重的眼别
-                if (leftSe.compareTo(new BigDecimal("0.00")) <= 0
-                        || rightSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                    if (leftSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                        // 取左眼
-                        se = leftSe;
-                    } else {
-                        // 取右眼
-                        se = rightSe;
-                    }
-                } else {
-                    // 取等效球镜值大的眼别
-                    if (leftSe.compareTo(rightSe) >= 0) {
-                        // 取左眼
-                        se = leftSe;
-                    } else {
-                        // 取右眼
-                        se = rightSe;
-                    }
-                }
-            } else {
-                // 裸眼视力不同，取视力低的眼别
-                if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                    // 左眼的等效球镜
-                    se = leftSe;
-                } else {
-                    // 右眼的等效球镜
-                    se = rightSe;
-                }
-            }
-            // SE >= 0
-            if (se.compareTo(new BigDecimal("0.00")) >= 0) {
-                return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
-            } else {
-                // SE < 0
-                return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
-            }
+            // 正常裸眼视力获取结论
+            return nakedVisionNormal(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         }
     }
 
@@ -1330,5 +1292,60 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return new TwoTuple<>(2, "裸眼远视力下降，屈光不正筛查阳性。建议：请到医疗机构接受检查，明确诊断并及时采取措施。");
         }
         return new TwoTuple<>(0, "");
+    }
+
+    /**
+     * 正常裸眼视力获取结论
+     *
+     * @param leftNakedVision   左眼裸眼视力
+     * @param rightNakedVision  右眼裸眼视力
+     * @param leftSe            左眼等效球镜
+     * @param rightSe           右眼等效球镜
+     * @param nakedVisionResult 取视力值低的眼球
+     * @return 结论
+     */
+    private String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                     BigDecimal leftSe, BigDecimal rightSe,
+                                     TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+        BigDecimal se;
+        // 判断两只眼睛的裸眼视力是否都在4.9的同侧
+        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+            // 取等效球镜严重的眼别
+            if (leftSe.compareTo(new BigDecimal("0.00")) <= 0
+                    || rightSe.compareTo(new BigDecimal("0.00")) <= 0) {
+                if (leftSe.compareTo(new BigDecimal("0.00")) <= 0) {
+                    // 取左眼
+                    se = leftSe;
+                } else {
+                    // 取右眼
+                    se = rightSe;
+                }
+            } else {
+                // 取等效球镜值大的眼别
+                if (leftSe.compareTo(rightSe) >= 0) {
+                    // 取左眼
+                    se = leftSe;
+                } else {
+                    // 取右眼
+                    se = rightSe;
+                }
+            }
+        } else {
+            // 裸眼视力不同，取视力低的眼别
+            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
+                // 左眼的等效球镜
+                se = leftSe;
+            } else {
+                // 右眼的等效球镜
+                se = rightSe;
+            }
+        }
+        // SE >= 0
+        if (se.compareTo(new BigDecimal("0.00")) >= 0) {
+            return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
+        } else {
+            // SE < 0
+            return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+        }
     }
 }
