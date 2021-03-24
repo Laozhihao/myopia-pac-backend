@@ -10,12 +10,10 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.builder.DistrictBigScreenStatisticBuilder;
-import com.wupol.myopia.business.management.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import com.wupol.myopia.business.management.domain.vo.StudentVo;
-import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningVO;
 import com.wupol.myopia.business.management.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.ClientProtocolException;
@@ -341,22 +339,26 @@ public class ScheduledTasksExecutor {
      * @throws IOException
      */
     private DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
-        District district = districtService.getById(provinceDistrictId);
-        List<District> cityDistrictList = districtService.getChildDistrictByParentIdPriorityCache(district.getCode());
-        Set<Integer> cityDistrictIdList = cityDistrictList.stream().map(District::getId).collect(Collectors.toSet());
+        //获取城市下面的地区 id
+        Set<Integer> cityDistrictIdList = districtService.getChildDistrictIdsByDistrictId(provinceDistrictId);
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = statConclusionService.getByNoticeidAndDistrictIds(cityDistrictIdList, screeningNotice.getId());
+        int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         if (CollectionUtils.isEmpty(bigScreenStatDataDTOs)) {
             return null;
         }
         //将所在区域按城市分
         Map<District, Set<Integer>> districtSetMap = districtService.getCityAllDistrictIds(provinceDistrictId);
+        //过滤掉无效数据
+        bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
         this.updateCityName(bigScreenStatDataDTOs, districtSetMap);
-        //Map<Integer, String> districtIdNameMap = districtSet.stream().filter(Objects::nonNull).collect(Collectors.toMap(e -> e.getId(), e -> e.getName()));
         //获取地图数据
         BigScreenMap bigScreenMap = bigScreenMapService.getByDistrictId(provinceDistrictId);
+        //构建数据
         DistrictBigScreenStatistic districtBigScreenStatistic = DistrictBigScreenStatisticBuilder.getBuilder()
-                .setRealScreeningNum((long) CollectionUtils.size(bigScreenStatDataDTOs))
+                .setRealValidScreeningNum((long) CollectionUtils.size(bigScreenStatDataDTOs))
+                .setPlanScreeningNum(screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId()))
+                .setRealScreeningNum((long)realScreeningNum)
                 .setDistrictId(provinceDistrictId)
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOs)
                 .setMapJson(bigScreenMap.getJson())

@@ -173,10 +173,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * 校验筛查机构是否已创建计划
      *
      * @param screeningTaskId 通知ID
-     * @param screeningOrgId 机构ID
+     * @param screeningOrgId  机构ID
      */
     public boolean checkIsCreated(Integer screeningTaskId, Integer screeningOrgId) {
-        return baseMapper.countByTaskIdAndOrgId(screeningTaskId,screeningOrgId) > 0;
+        return baseMapper.countByTaskIdAndOrgId(screeningTaskId, screeningOrgId) > 0;
     }
 
     /**
@@ -396,12 +396,39 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 获取用户当前的计划
+     *
      * @param screeningOrgId
      * @param schoolId
      * @return
      */
-    public ScreeningPlan getCurrentPlan(Integer screeningOrgId,Integer schoolId) {
-        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId,screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
+    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId) {
+        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
+
+    /**
+     * 根据通知获取学生
+     * @param noticeId
+     * @return
+     */
+    public long getAllPlanStudentNumByNoticeId(Integer noticeId) {
+        List<ScreeningPlan> allPlans = this.getAllPlanByNoticeId(noticeId);
+        Integer allPlanStudentNums = allPlans.stream().map(ScreeningPlan::getStudentNumbers).reduce(0, Integer::sum);
+        return allPlanStudentNums.longValue();
+    }
+
+    /**
+     * 获取所有的计划筛查学生数
+     *
+     * @param noticeId
+     * @return
+     */
+    public List<ScreeningPlan> getAllPlanByNoticeId(Integer noticeId) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setSrcScreeningNoticeId(noticeId);
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
 
 }

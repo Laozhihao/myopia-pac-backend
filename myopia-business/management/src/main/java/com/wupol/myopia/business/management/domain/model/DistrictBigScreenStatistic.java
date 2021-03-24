@@ -45,16 +45,26 @@ public class DistrictBigScreenStatistic implements Serializable {
      * 大屏展示--地区的id
      */
     private Integer districtId;
-
     /**
      * 大屏展示--政府部门id
      */
     private Integer govDeptId;
-
     /**
      * validDataNum
      */
     private Long validDataNum;
+    /**
+     * planScreeningNum
+     */
+    private Long planScreeningNum;
+    /**
+     * progressRate
+     */
+    private Double progressRate;
+    /**
+     * realScreeningNum
+     */
+    private Long  realScreeningNum;
     /**
      * realScreening
      */
