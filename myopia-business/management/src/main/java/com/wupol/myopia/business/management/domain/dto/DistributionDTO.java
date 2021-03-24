@@ -197,13 +197,13 @@ public class DistributionDTO implements Serializable {
          */
         public void setAgeData() {
             Map<String, Double> ageDemoRatioMap = new HashMap<>();
-            ageDemoRatioMap.put("0-3",0.0D);
-            ageDemoRatioMap.put("4-6",0.0D);
-            ageDemoRatioMap.put("7-9",0.0D);
-            ageDemoRatioMap.put("10-12",0.0D);
-            ageDemoRatioMap.put("13-15",0.0D);
-            ageDemoRatioMap.put("16-18",0.0D);
-            ageDemoRatioMap.put("19 以上",0.0D);
+            ageDemoRatioMap.put("0-3",null);
+            ageDemoRatioMap.put("4-6",null);
+            ageDemoRatioMap.put("7-9",null);
+            ageDemoRatioMap.put("10-12",null);
+            ageDemoRatioMap.put("13-15",null);
+            ageDemoRatioMap.put("16-18",null);
+            ageDemoRatioMap.put("19 以上",null);
             Map<String, Double> ageResultRatioMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(item -> {
                 if (0 <= item.getAge() && item.getAge() <= 3) {
                     return "0-3";
@@ -296,12 +296,12 @@ public class DistributionDTO implements Serializable {
          * kindergarten : 15.3
          * vocationalHigh : 17.3
          */
-        private double high;
-        private double junior;
-        private double primary;
-        private double university;
-        private double kindergarten;
-        private double vocationalHigh;
+        private Double high;
+        private Double junior;
+        private Double primary;
+        private Double university;
+        private Double kindergarten;
+        private Double vocationalHigh;
 
     }
 
