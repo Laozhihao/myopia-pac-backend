@@ -750,7 +750,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (null == student) {
             return studentDTO;
         }
-
         BeanUtils.copyProperties(student, studentDTO);
 
         // 地区Maps
