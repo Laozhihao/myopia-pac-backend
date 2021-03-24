@@ -179,6 +179,35 @@ public class StatService {
     }
 
     /**
+     * 获取用户对应权限的可对比区域ID
+     * @param notificationId1
+     * @param notificationId2
+     * @return
+     * @throws IOException
+     */
+    public List<District> getDataContrastDistrictTree(
+            Integer notificationId1, Integer notificationId2) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<ScreeningPlan> screeningPlans1 =
+                screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                        notificationId1, currentUser);
+        Set<Integer> districtIds1 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                screeningPlans1.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+
+        if (notificationId2 != null) {
+            List<ScreeningPlan> screeningPlans2 =
+                    screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                            notificationId1, currentUser);
+            Set<Integer> districtIds2 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                    screeningPlans2.stream()
+                            .map(ScreeningPlan::getId)
+                            .collect(Collectors.toList()));
+            districtIds1.retainAll(districtIds2);
+        }
+        return districtService.getValidDistrictTree(currentUser, districtIds1);
+    }
+
+    /**
      * 分类统计
      * @param notificationId 通知ID
      * @return
