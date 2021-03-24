@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
@@ -116,8 +117,6 @@ public class DistributionDTO implements Serializable {
             if (CollectionUtils.isEmpty(bigScreenStatDataDTOList) || screeningStudentNum == null || screeningStudentNum < 0) {
                 throw new BusinessException("构建对象DistributionDTO失败，部分构建参数为空");
             }
-            //将bigScreenStatDataDTOList的数据完善下
-            this.getCompletedBigScreenStatDataDTOList();
             //设置总数的比例
             this.setNum();
             //设置性别参数
@@ -129,12 +128,6 @@ public class DistributionDTO implements Serializable {
             //设置城市数据
             this.setCityData();
             return new DistributionDTO(this);
-        }
-
-        /**
-         * 将城市的数据填满
-         */
-        private void getCompletedBigScreenStatDataDTOList() {
         }
 
         /**
@@ -164,6 +157,8 @@ public class DistributionDTO implements Serializable {
                 statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(num / (double) screeningStudentNum * 100);
                 statisticDistrictList.add(statisticDistrictDTO);
             });
+            Collections.sort(statisticDistrictList,
+                    Comparator.comparingDouble(StatisticDistrictDTO::getRatio));
             this.statisticDistrict = statisticDistrictList;
         }
 
