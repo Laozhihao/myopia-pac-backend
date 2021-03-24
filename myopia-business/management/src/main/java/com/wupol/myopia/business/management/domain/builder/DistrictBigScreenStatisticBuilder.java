@@ -25,6 +25,7 @@ public class DistrictBigScreenStatisticBuilder {
 
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
     private Long realScreeningNum;
+    private Long planScreeningNum;
     private Object mapJsonObject;
     private Map<Integer, List<Double>> cityCenterMap;
     private Integer districtId;
@@ -63,6 +64,7 @@ public class DistrictBigScreenStatisticBuilder {
         DistrictBigScreenStatistic districtBigScreenStatistic = new DistrictBigScreenStatistic();
         //获取真实的数据
         BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
+        realScreeningData.setPlanScreeningStudentNum(planScreeningNum);
         districtBigScreenStatistic.setRealScreening(realScreeningData);
         //获取视力低下的地区
         List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
@@ -120,6 +122,14 @@ public class DistrictBigScreenStatisticBuilder {
      */
     public DistrictBigScreenStatisticBuilder setRealScreeningNum(Long realScreeningNum) {
         this.realScreeningNum = realScreeningNum;
+        return this;
+    }
+    /**
+     * @param planScreeningNum
+     * @return
+     */
+    public DistrictBigScreenStatisticBuilder setPlanScreeningNum(Long planScreeningNum) {
+        this.planScreeningNum = planScreeningNum;
         return this;
     }
 

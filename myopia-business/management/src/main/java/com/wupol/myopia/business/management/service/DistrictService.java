@@ -338,12 +338,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return List
      **/
     public List<Integer> getAllDistrictIds(Integer districtId) {
-        District district = getById(districtId);
-        Assert.notNull(district, "无效行政区域ID：" + districtId);
-        District provinceDistrictTreePriorityCache = getProvinceDistrictTreePriorityCache(district.getCode());
+        District districtTree = getDistrictTree(districtId);
+        Assert.notNull(districtTree, "无效行政区域ID：" + districtId);
         List<Integer> districtIds = new ArrayList<>();
-        districtIds.add(provinceDistrictTreePriorityCache.getId());
-        getAllIds(districtIds, provinceDistrictTreePriorityCache.getChild());
+        getAllIds(districtIds, districtTree.getChild());
+        districtIds.add(districtTree.getId());
         return districtIds;
     }
 

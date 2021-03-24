@@ -23,11 +23,7 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
                                                                            @Param("districtId") Integer districtId, @Param("govDeptId") Integer govDeptId,
                                                                            @Param("phone") String phone, @Param("status") Integer status);
 
-    ScreeningOrganization getLastOrgByNo(@Param("code") Integer code);
-
     List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query);
-
-    ScreeningOrganization getLastOrgByNo(@Param("code") Long code);
 
     ScreeningOrgResponseDTO getOrgById(@Param("id") Integer id);
 
