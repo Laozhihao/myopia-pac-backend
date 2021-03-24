@@ -145,6 +145,7 @@ public class DistributionDTO implements Serializable {
             double ratio = MathUtil.getFormatNumWith2Scale(matchStudentNum / (double) realScreeningNum * 100);
             NumDTO numDTO = new NumDTO();
             numDTO.studentNum = screeningStudentNum;
+            numDTO.realScreeningNum = realScreeningNum;
             numDTO.studentDistribution = ratio;
             this.num = numDTO;
         }
@@ -232,7 +233,7 @@ public class DistributionDTO implements Serializable {
                 if (19 <= item.getAge() && item.getAge() <= 145) {
                     return "19 以上";
                 }
-                return null;
+                return "异常数据";
             }, Collectors.collectingAndThen(Collectors.counting(), e ->
                     MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             )));
@@ -268,6 +269,7 @@ public class DistributionDTO implements Serializable {
          */
         private Long studentNum;
         private double studentDistribution;
+        public Long realScreeningNum;
     }
 
     @Getter

@@ -110,6 +110,7 @@ public class ScheduledTasksExecutor {
 
     /**
      * 重点视力对象
+     *
      * @param yesterdayScreeningPlanIds
      * @param districtAttentiveObjectsStatistics
      */
@@ -215,7 +216,7 @@ public class ScheduledTasksExecutor {
      * @param districtPlanStudentCountMap
      * @param districtMonitorStatistics
      * @param districtVisionStatistics
-     * @param districtStatConclusions            所有的筛查数据
+     * @param districtStatConclusions     所有的筛查数据
      */
     private void genStatisticsByDistrictId(Integer screeningNoticeId, Integer districtId, Map<Integer, Long> districtPlanStudentCountMap, List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, List<StatConclusion>> districtStatConclusions) {
         List<District> childDistricts = new ArrayList<>();
@@ -373,12 +374,15 @@ public class ScheduledTasksExecutor {
      */
     private void updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
         bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
-            districtSetMap.forEach((cityDistrict, districtIds) -> {
+            Set<District> districtSet = districtSetMap.keySet();
+            for (District cityDistrict : districtSet) {
+                Set<Integer> districtIds = districtSetMap.get(cityDistrict);
                 if (districtIds.contains(bigScreenStatDataDTO.getDistrictId()) || cityDistrict.getId().equals(bigScreenStatDataDTO.getDistrictId())) {
                     bigScreenStatDataDTO.setCityDistrictId(cityDistrict.getId());
                     bigScreenStatDataDTO.setCityDistrictName(cityDistrict.getName());
+                    break;
                 }
-            });
+            }
             return bigScreenStatDataDTO;
         }).collect(Collectors.toList());
     }
@@ -390,7 +394,7 @@ public class ScheduledTasksExecutor {
     public void generator() {
         // 找到所有省级的地区
         LambdaQueryWrapper<District> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(District::getParentCode,"100000000");
+        queryWrapper.eq(District::getParentCode, "100000000");
         List<District> districts = districtService.getBaseMapper().selectList(queryWrapper);
         // 转换成地区code 访问json
         districts.stream().forEach(district -> {
@@ -419,10 +423,10 @@ public class ScheduledTasksExecutor {
             Map<Integer, JSONArray> longJSONArrayHashMap = new HashMap<>();
             Object json = bigScreenMap.getJson();
             Object read = JSONPath.read(JSON.toJSONString(json), "$.features");
-            JSONArray features = (JSONArray)read;
-            features.stream().forEach(feature->{
-                String name = (String)JSONPath.read(JSON.toJSONString(feature), "$.properties.name");
-                Integer code = (Integer)JSONPath.read(JSON.toJSONString(feature), "$.properties.adcode");
+            JSONArray features = (JSONArray) read;
+            features.stream().forEach(feature -> {
+                String name = (String) JSONPath.read(JSON.toJSONString(feature), "$.properties.name");
+                Integer code = (Integer) JSONPath.read(JSON.toJSONString(feature), "$.properties.adcode");
                 District district = districtService.getByCode(code * 1000L);
                 if (district == null) {
                     try {
@@ -432,20 +436,21 @@ public class ScheduledTasksExecutor {
                         e.printStackTrace();
                     }
                 }
-                JSONArray center = (JSONArray)JSONPath.read(JSON.toJSONString(feature), "$.properties.center");
+                JSONArray center = (JSONArray) JSONPath.read(JSON.toJSONString(feature), "$.properties.center");
                 //string 转换成long
-                longJSONArrayHashMap.put(district.getId(),center);
+                longJSONArrayHashMap.put(district.getId(), center);
             });
             // todo 待修改 bigScreenMap.setCityCenterLocation(longJSONArrayHashMap);
-             bigScreenMapService.getBaseMapper().updateById(bigScreenMap);
+            bigScreenMapService.getBaseMapper().updateById(bigScreenMap);
         });
     }
 
     /**
      * todo 待确认删除
+     *
      * @return
      */
-    public Object getJSONObject(Long code)     {
+    public Object getJSONObject(Long code) {
         code = code / 1000;
         if (code.equals(830000)) {
             //高德的台湾省是710000

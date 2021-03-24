@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import com.wupol.myopia.business.management.interfaces.HasName;
 import lombok.Data;
@@ -19,7 +20,6 @@ import lombok.experimental.Accessors;
  * @Date 2020-12-23
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_district")
 public class District implements Serializable, HasName {
@@ -47,4 +47,18 @@ public class District implements Serializable, HasName {
 
     @TableField(exist = false)
     private List<District> child;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof District)) return false;
+        District district = (District) o;
+        return Objects.equals(getId(), district.getId()) && Objects.equals(getName(), district.getName()) && Objects.equals(getCode(), district.getCode()) && Objects.equals(getParentCode(), district.getParentCode()) && Objects.equals(getAreaCode(), district.getAreaCode()) && Objects.equals(getMonitorCode(), district.getMonitorCode()) && Objects.equals(getChild(), district.getChild());
+    }
+
+    @Override
+    public int hashCode() {
+        // 这里不包含child
+        return Objects.hash(getId(), getName(), getCode(), getParentCode(), getAreaCode(), getMonitorCode());
+    }
 }
