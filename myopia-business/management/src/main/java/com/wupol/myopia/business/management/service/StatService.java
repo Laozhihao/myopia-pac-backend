@@ -55,6 +55,9 @@ public class StatService {
     private StatConclusionService statConclusionService;
 
     @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Autowired
     private DistrictService districtService;
 
     @Autowired
@@ -158,10 +161,9 @@ public class StatService {
         }
 
         List<StatConclusion> resultConclusion1 = statConclusionService.listByQuery(query);
-        List<ScreeningPlan> screeningPlans1 =
-                screeningPlanService.getBySrcScreeningNoticeId(notificationId1);
-        int planScreeningNum1 = this.getPlanScreeningStudentNum(screeningPlans1, currentUser);
-
+        List<Integer> validDistrictIds1 =
+                this.getValidDistrictIdsByNotificationId(notificationId1, currentUser);
+        int planScreeningNum1 = this.getPlanScreeningStudentNum(notificationId1, validDistrictIds1);
         ScreeningDataContrast data1 =
                 composeScreeningDataContrast(resultConclusion1, planScreeningNum1);
 
@@ -170,24 +172,35 @@ public class StatService {
         if (notificationId2 != null && notificationId2 >= 0) {
             query.setSrcScreeningNoticeId(notificationId2);
             List<StatConclusion> resultConclusion2 = statConclusionService.listByQuery(query);
-            List<ScreeningPlan> screeningPlans2 =
-                    screeningPlanService.getBySrcScreeningNoticeId(notificationId2);
-            int planScreeningNum2 = this.getPlanScreeningStudentNum(screeningPlans2, currentUser);
+            List<Integer> validDistrictIds2 =
+                    this.getValidDistrictIdsByNotificationId(notificationId2, currentUser);
+            int planScreeningNum2 =
+                    this.getPlanScreeningStudentNum(notificationId2, validDistrictIds2);
             result.put(
                     "result2", composeScreeningDataContrast(resultConclusion2, planScreeningNum2));
         }
         return result;
     }
 
+    /**
+     * 获取用户有效的区域Id列表
+     * @param notificationId
+     * @param currentUser
+     * @return
+     * @throws IOException
+     */
     public List<Integer> getValidDistrictIdsByNotificationId(
             int notificationId, CurrentUser currentUser) throws IOException {
         List<ScreeningPlan> screeningPlans =
                 screeningPlanService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        if (currentUser.isPlatformAdminUser()) {
+            return districtIds.stream().collect(Collectors.toList());
+        }
+        List<Integer> validDistrictIds = new ArrayList<>();
         List<District> validDistricts =
                 districtService.getValidDistrictTree(currentUser, districtIds);
-        List<Integer> validDistrictIds = new ArrayList<>();
         districtService.getAllIds(validDistrictIds, validDistricts);
         return validDistrictIds;
     }
@@ -229,14 +242,8 @@ public class StatService {
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<ScreeningPlan> screeningPlans =
-                screeningPlanService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
-        Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
-                screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-        List<District> validDistricts =
-                districtService.getValidDistrictTree(currentUser, districtIds);
-        List<Integer> validDistrictIds = new ArrayList<>();
-        districtService.getAllIds(validDistrictIds, validDistricts);
+        List<Integer> validDistrictIds =
+                this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
 
         StatConclusionQuery query = new StatConclusionQuery();
         query.setDistrictIds(validDistrictIds);
@@ -309,11 +316,7 @@ public class StatService {
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
 
-        int planScreeningNum = screeningPlans.stream()
-                                       .filter(x -> validDistrictIds.contains(x.getDistrictId()))
-                                       .mapToInt(ScreeningPlan::getStudentNumbers)
-                                       .sum();
-
+        int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         return ScreeningClassStat.builder()
                 .notificationId(notificationId)
                 .screeningNum(planScreeningNum)
@@ -329,18 +332,26 @@ public class StatService {
                 .build();
     }
 
-    private Integer getPlanScreeningStudentNum(
-            List<ScreeningPlan> screeningPlans, CurrentUser currentUser) throws IOException {
-        Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
-                screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-        List<District> validDistricts =
-                districtService.getValidDistrictTree(currentUser, districtIds);
-        List<Integer> validDistrictIds = new ArrayList<>();
-        districtService.getAllIds(validDistrictIds, validDistricts);
-        return screeningPlans.stream()
-                .filter(x -> validDistrictIds.contains(x.getDistrictId()))
-                .mapToInt(ScreeningPlan::getStudentNumbers)
-                .sum();
+    /**
+     * 获取区域学生计划筛查数量
+     * @param notificationId 通知ID
+     * @param validDistrictIds 筛选区域ID
+     * @return
+     * @throws IOException
+     */
+    private Integer getPlanScreeningStudentNum(int notificationId, List<Integer> validDistrictIds)
+            throws IOException {
+        Map<Integer, Long> planDistrictStudentMap =
+                screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
+                        notificationId);
+        int planStudentNum = 0;
+        for (Integer districtId : planDistrictStudentMap.keySet()) {
+            if (!validDistrictIds.contains(districtId)) {
+                continue;
+            }
+            planStudentNum += planDistrictStudentMap.get(districtId);
+        }
+        return planStudentNum;
     }
 
     /**
