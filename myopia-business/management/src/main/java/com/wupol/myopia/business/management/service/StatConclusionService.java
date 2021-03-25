@@ -78,7 +78,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      *
      * @param allFirstAndSecondResult
      */
-    public void saveOrUpdateStudentScreenData(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
+    public StatConclusion saveOrUpdateStudentScreenData(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
         StatConclusion statConclusion = getScreeningConclusionResult(allFirstAndSecondResult);
         if (statConclusion.getId() != null) {
             //更新
@@ -87,12 +87,13 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
             //创建
             save(statConclusion);
         }
+        return statConclusion;
     }
 
     /**
      * 获取统计数据
      *
-     * @param visionScreeningResult
+     * @param allFirstAndSecondResult
      * @return
      */
     private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {

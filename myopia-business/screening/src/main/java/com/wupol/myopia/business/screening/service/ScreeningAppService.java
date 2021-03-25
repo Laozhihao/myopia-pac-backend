@@ -74,8 +74,6 @@ public class ScreeningAppService {
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Autowired
-    private DistrictService districtService;
-    @Autowired
     private ResourceFileService resourceFileService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
@@ -324,8 +322,35 @@ public class ScreeningAppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveAll(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
+        //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
-        statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
+        //更新vision_result表
+        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
+        //更新学生表的数据
+        this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
+    }
+
+    /**
+     * 更新学生数据
+     * @param visionScreeningResult
+     * @param statConclusion
+     */
+    private void updateStudentVisionData(VisionScreeningResult visionScreeningResult,StatConclusion statConclusion) {
+        //获取学生数据
+        Integer studentId = visionScreeningResult.getStudentId();
+        Student student = studentService.getById(studentId);
+        if (student == null) {
+            throw new ManagementUncheckedException("无法通过id找到student，id = " + studentId);
+        }
+        //填充数据
+        student.setIsAstigmatism(statConclusion.getIsAstigmatism());
+        student.setIsHyperopia(statConclusion.getIsHyperopia());
+        student.setIsMyopia(statConclusion.getIsMyopia());
+        student.setGlassesType(statConclusion.getGlassesType());
+        student.setVisionLabel(statConclusion.getWarningLevel());
+        student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
+        student.setUpdateTime(new Date());
+        studentService.updateStudent(student);
     }
 
 
