@@ -45,8 +45,8 @@ RUN apk add --no-cache ttf-dejavu
 # install wkhtmltopdf
 #RUN apk add --no-cache wkhtmltopdf
 # install fonts
-#RUN wget -O /usr/share/fonts/simsun.ttf http://mirror.vistel.cn/fonts/simsun.ttf
-#RUN wget -O /usr/share/fonts/simsun.ttc http://mirror.vistel.cn/fonts/simsun.ttc
+RUN wget -O /usr/share/fonts/simsun.ttf http://mirror.vistel.cn/fonts/simsun.ttf
+RUN wget -O /usr/share/fonts/simsun.ttc http://mirror.vistel.cn/fonts/simsun.ttc
 
 COPY --from=app-builder /build/myopia-business/bootstrap/target/myopia-business.jar /app/
 CMD ["java", "-jar", "/app/myopia-business.jar"]
