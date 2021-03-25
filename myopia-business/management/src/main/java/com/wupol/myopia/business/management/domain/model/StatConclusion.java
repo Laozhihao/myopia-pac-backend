@@ -113,4 +113,9 @@ public class StatConclusion implements Serializable {
 
     /** 视力矫正状态 */
     private Integer visionCorrection;
+
+    /**
+     * 筛查计划--指定的筛查机构id
+     */
+    private Integer screeningOrgId;
 }

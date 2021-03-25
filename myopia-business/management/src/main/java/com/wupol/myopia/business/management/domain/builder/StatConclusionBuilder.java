@@ -105,6 +105,7 @@ public class StatConclusionBuilder {
     private void setBasicData() {
         statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
         statConclusion.setResultId(currentVisionScreeningResult.getId());
+        statConclusion.setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId());
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());
         statConclusion.setTaskId(screeningPlanSchoolStudent.getScreeningTaskId());
         statConclusion.setPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
@@ -138,10 +139,6 @@ public class StatConclusionBuilder {
     }
 
 
-    private void setComputerRelatedData() {
-        this.setComputerOtherData();
-    }
-
     /**
      * 设置screeningPlanSchoolStudent的数据
      *
@@ -157,21 +154,6 @@ public class StatConclusionBuilder {
         statConclusion.setGlassesType(basicData.glassesType);
         statConclusion.setVisionR(basicData.rightNakedVision == null ? 0.0f : basicData.rightNakedVision);
         statConclusion.setVisionL(basicData.leftNakedVision == null ? 0.0f : basicData.leftNakedVision);
-    }
-
-
-    /**
-     * 电脑的其他数据
-     */
-    private void setComputerOtherData() {
-        statConclusion.setDistrictId(currentVisionScreeningResult.getDistrictId());
-        statConclusion.setTaskId(currentVisionScreeningResult.getTaskId());
-        statConclusion.setPlanId(currentVisionScreeningResult.getPlanId());
-        statConclusion.setSchoolAge(basicData.schoolAge);
-        statConclusion.setGender(basicData.gender);
-        statConclusion.setSrcScreeningNoticeId(basicData.noticeId);
-        statConclusion.setResultId(currentVisionScreeningResult.getId());
-        statConclusion.setIsRescreen(basicData.isRescreen);
     }
 
     private void setWarningLevel() {
