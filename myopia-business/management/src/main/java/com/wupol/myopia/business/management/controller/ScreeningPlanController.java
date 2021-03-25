@@ -386,7 +386,7 @@ public class ScreeningPlanController {
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%1$-10s", student.getId()), config, "jpg")));
+            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -422,7 +422,7 @@ public class ScreeningPlanController {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%1$-10s", student.getId()), config, "jpg")));
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);
