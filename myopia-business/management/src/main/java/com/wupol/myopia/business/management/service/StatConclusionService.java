@@ -18,6 +18,7 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -174,7 +175,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen,false);
-        queryWrapper.eq(StatConclusion::getIsValid,true);
         List<StatConclusion> statConclusionList = baseMapper.selectList(queryWrapper);
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = this.getBigScreenStatDataDTOList(statConclusionList);
         return  bigScreenStatDataDTOs;
@@ -207,6 +207,28 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public List<StatConclusionExportVo> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
+    }
+
+    /**
+     * 根据筛查通知ID获取学校ID
+     *
+     * @param noticeId 筛查通知ID
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getSchoolIdByNoticeId(Integer noticeId) {
+        Assert.notNull(noticeId, "筛查通知ID不能为空");
+        return baseMapper.selectSchoolIdByNoticeId(noticeId);
+    }
+
+    /**
+     * 根据筛查机构ID获取学校ID
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @return java.util.List<java.lang.Integer>
+     **/
+    public List<Integer> getSchoolIdByScreeningOrgId(Integer screeningOrgId) {
+        Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
+        return baseMapper.selectSchoolIdByScreeningOrgId(screeningOrgId);
     }
 }
 

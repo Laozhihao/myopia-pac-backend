@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
@@ -116,8 +117,6 @@ public class DistributionDTO implements Serializable {
             if (CollectionUtils.isEmpty(bigScreenStatDataDTOList) || screeningStudentNum == null || screeningStudentNum < 0) {
                 throw new BusinessException("构建对象DistributionDTO失败，部分构建参数为空");
             }
-            //将bigScreenStatDataDTOList的数据完善下
-            this.getCompletedBigScreenStatDataDTOList();
             //设置总数的比例
             this.setNum();
             //设置性别参数
@@ -132,12 +131,6 @@ public class DistributionDTO implements Serializable {
         }
 
         /**
-         * 将城市的数据填满
-         */
-        private void getCompletedBigScreenStatDataDTOList() {
-        }
-
-        /**
          * 设置总的占比分布
          */
         private void setNum() {
@@ -145,6 +138,7 @@ public class DistributionDTO implements Serializable {
             double ratio = MathUtil.getFormatNumWith2Scale(matchStudentNum / (double) realScreeningNum * 100);
             NumDTO numDTO = new NumDTO();
             numDTO.studentNum = screeningStudentNum;
+            numDTO.realScreeningNum = realScreeningNum;
             numDTO.studentDistribution = ratio;
             this.num = numDTO;
         }
@@ -163,6 +157,8 @@ public class DistributionDTO implements Serializable {
                 statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(num / (double) screeningStudentNum * 100);
                 statisticDistrictList.add(statisticDistrictDTO);
             });
+            Collections.sort(statisticDistrictList,
+                    Comparator.comparingDouble(StatisticDistrictDTO::getRatio));
             this.statisticDistrict = statisticDistrictList;
         }
 
@@ -197,13 +193,13 @@ public class DistributionDTO implements Serializable {
          */
         public void setAgeData() {
             Map<String, Double> ageDemoRatioMap = new HashMap<>();
-            ageDemoRatioMap.put("0-3",0.0D);
-            ageDemoRatioMap.put("4-6",0.0D);
-            ageDemoRatioMap.put("7-9",0.0D);
-            ageDemoRatioMap.put("10-12",0.0D);
-            ageDemoRatioMap.put("13-15",0.0D);
-            ageDemoRatioMap.put("16-18",0.0D);
-            ageDemoRatioMap.put("19 以上",0.0D);
+            ageDemoRatioMap.put("0-3",null);
+            ageDemoRatioMap.put("4-6",null);
+            ageDemoRatioMap.put("7-9",null);
+            ageDemoRatioMap.put("10-12",null);
+            ageDemoRatioMap.put("13-15",null);
+            ageDemoRatioMap.put("16-18",null);
+            ageDemoRatioMap.put("19 以上",null);
             Map<String, Double> ageResultRatioMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(item -> {
                 if (0 <= item.getAge() && item.getAge() <= 3) {
                     return "0-3";
@@ -232,7 +228,7 @@ public class DistributionDTO implements Serializable {
                 if (19 <= item.getAge() && item.getAge() <= 145) {
                     return "19 以上";
                 }
-                return null;
+                return "异常数据";
             }, Collectors.collectingAndThen(Collectors.counting(), e ->
                     MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             )));
@@ -268,6 +264,7 @@ public class DistributionDTO implements Serializable {
          */
         private Long studentNum;
         private double studentDistribution;
+        public Long realScreeningNum;
     }
 
     @Getter
@@ -296,12 +293,12 @@ public class DistributionDTO implements Serializable {
          * kindergarten : 15.3
          * vocationalHigh : 17.3
          */
-        private double high;
-        private double junior;
-        private double primary;
-        private double university;
-        private double kindergarten;
-        private double vocationalHigh;
+        private Double high;
+        private Double junior;
+        private Double primary;
+        private Double university;
+        private Double kindergarten;
+        private Double vocationalHigh;
 
     }
 

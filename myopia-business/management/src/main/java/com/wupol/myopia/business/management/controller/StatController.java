@@ -135,4 +135,22 @@ public class StatController {
         }
         return ApiResult.failure("internal error");
     }
+
+    /**
+     * 获取用户对应权限的可对比区域ID
+     *
+     * @param notificationId 通知ID
+     * @return
+     */
+    @GetMapping("/dataContrastDistrictTree")
+    public ApiResult getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
+            @RequestParam(value = "nid2", required = false) Integer notificationId2) {
+        try {
+            return ApiResult.success(
+                    statService.getDataContrastDistrictTree(notificationId1, notificationId2));
+        } catch (IOException e) {
+            log.error(e);
+        }
+        return ApiResult.failure("internal error");
+    }
 }
