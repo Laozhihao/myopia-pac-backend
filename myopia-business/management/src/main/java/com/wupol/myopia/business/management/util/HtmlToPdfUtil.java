@@ -35,8 +35,7 @@ public class HtmlToPdfUtil {
             parent.mkdirs();
         }
         // "--window-status 1" 允许js异步请求
-//        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--window-status", "1", htmlSrcPath, pdfFilePath);
-        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, htmlSrcPath, pdfFilePath);
+        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--window-status", "1", htmlSrcPath, pdfFilePath);
         log.debug(processBuilder.command().toString());
         processBuilder.redirectErrorStream(true);
         BufferedReader br = null;
