@@ -112,7 +112,7 @@ public class ExcelFacade {
         ScreeningOrganizationQuery query = new ScreeningOrganizationQuery();
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
-        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "筛查机构数据表", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "筛查机构数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
@@ -196,7 +196,7 @@ public class ExcelFacade {
         builder.append("-").append(orgName);
         String fileName = builder.toString();
 
-        String content = String.format(CommonConst.CONTENT, orgName, "筛查机构人员数据表", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, orgName + "筛查机构人员数据表", new Date());
         if (CollectionUtils.isEmpty(userList)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
@@ -245,7 +245,7 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
 
-        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "医院数据", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "医院数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
@@ -310,7 +310,7 @@ public class ExcelFacade {
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
 
-        String content = String.format(CommonConst.CONTENT, districtService.getTopDistrictName(district.getCode()), "学校数据", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "学校数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
@@ -427,8 +427,8 @@ public class ExcelFacade {
         List<StudentDTO> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
 
         // 为空直接导出
-        String content = String.format(CommonConst.CONTENT,
-                districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName, "学生数据表", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
+                districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName + "学生数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
@@ -844,7 +844,7 @@ public class ExcelFacade {
         String fileName = "统计对比报表";
         log.info("导出文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
-        String content = String.format(CommonConst.CONTENT, "统计报表", "数据对比表", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS + "统计报表", "数据对比表", new Date());
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFile(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -861,7 +861,7 @@ public class ExcelFacade {
     public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportVo> statConclusionExportVos, Boolean isSchoolExport, String districtOrSchoolName) throws IOException, UtilException {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
-        String content = String.format(CommonConst.CONTENT, districtOrSchoolName, "筛查数据", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
         log.info("导出文件: {}", fileName);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (isSchoolExport) {

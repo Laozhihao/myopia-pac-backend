@@ -83,9 +83,14 @@ public interface CommonConst {
     Byte NOTICE_SCREENING_PLAN = 3;
 
     /**
-     * 通知-导出内容
+     * 导出消息通知内容-成功
      */
-    String CONTENT = "%s-%s已经导出，点击下载，申请时间：%tF%n";
+    String EXPORT_MESSAGE_CONTENT_SUCCESS = "【导出成功】%s，点击下载，申请时间：%tF%n";
+
+    /**
+     * 导出消息通知内容-失败
+     */
+    String EXPORT_MESSAGE_CONTENT_FAILURE = "【导出失败】%s，请稍后重试";
 
     /**
      * 左眼
