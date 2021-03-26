@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.management.export;
 
 import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.export.constant.FileNameConstant;
 import com.wupol.myopia.business.management.export.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.management.service.SchoolService;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.management.service.StatConclusionService;
 import com.wupol.myopia.business.management.util.HtmlToPdfUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class GeneratePdfFileService {
     private SchoolService schoolService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 生成筛查报告PDF文件 - 行政区域
@@ -42,6 +46,10 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateDistrictScreeningReportPdfFile(String saveDirectory, String fileName, Integer noticeId, Integer districtId) {
+        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
+        Assert.hasLength(fileName, "文件名为空");
+        Assert.notNull(noticeId, "筛查通知ID为空");
+        Assert.notNull(districtId, "行政区域ID为空");
         String htmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_REPORT_HTML_URL, htmlUrlHost, noticeId, districtId);
         boolean isSuccessful = HtmlToPdfUtil.convert(htmlUrl, Paths.get(saveDirectory, fileName + ".pdf").toString());
         Assert.isTrue(isSuccessful, "【生成行政区域报告PDF文件异常】" + fileName);
@@ -86,9 +94,7 @@ public class GeneratePdfFileService {
      * @return void
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
-        if (CollectionUtils.isEmpty(schoolIdList)) {
-            return;
-        }
+        Assert.notEmpty(schoolIdList, "学校ID集为空");
         schoolIdList.forEach(schoolId -> generateSchoolScreeningReportPdfFile(saveDirectory, noticeId, planId, schoolId));
     }
 
@@ -121,8 +127,8 @@ public class GeneratePdfFileService {
     public void generateScreeningOrgArchivesPdfFileBatch(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, "文件保存目录路径为空");
         Assert.notNull(planId, "筛查计划ID为空");
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
-        schoolIdList.forEach(x -> generateSchoolArchivesPdfFile(saveDirectory, planId, x));
+        List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.getSchoolListsByPlanId(planId);
+        screeningPlanSchoolList.forEach(x -> generateSchoolArchivesPdfFile(saveDirectory, planId, x.getSchoolId()));
     }
 
     /**

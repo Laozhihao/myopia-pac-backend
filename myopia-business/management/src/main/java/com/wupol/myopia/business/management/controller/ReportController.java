@@ -6,8 +6,10 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.export.ExportStrategy;
 import com.wupol.myopia.business.management.export.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.management.export.domain.ExportCondition;
+import com.wupol.myopia.business.management.service.StatConclusionService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,6 +34,8 @@ public class ReportController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+    @Autowired
+    private StatConclusionService statConclusionService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -73,6 +78,10 @@ public class ReportController {
      **/
     @GetMapping("/screeningOrg/export")
     public ApiResult exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) {
+        List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
+        if (CollectionUtils.isEmpty(schoolIdList)) {
+            return ApiResult.failure("暂无筛查数据，无法生成筛查报告");
+        }
         ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
         return ApiResult.success();

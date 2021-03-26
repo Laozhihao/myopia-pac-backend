@@ -33,9 +33,9 @@ public class ExportDistrictScreeningService extends BaseExportFileService {
      **/
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        // 区域
+        // 区域筛查报告
         generateReportPdfService.generateDistrictScreeningReportPdfFile(fileSavePath, fileName, exportCondition.getNotificationId(), exportCondition.getDistrictId());
-        // 学校
+        // 学校筛查报告
         generateReportPdfService.generateSchoolScreeningReportPdfFileByNoticeId(fileSavePath, exportCondition.getNotificationId(), exportCondition.getDistrictId());
     }
 

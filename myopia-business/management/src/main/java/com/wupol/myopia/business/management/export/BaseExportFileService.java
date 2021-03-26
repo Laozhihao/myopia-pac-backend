@@ -77,7 +77,7 @@ public abstract class BaseExportFileService implements ExportFileService {
      **/
     @Override
     public Integer uploadFile(File zipFile) throws UtilException {
-        return s3Utils.uploadS3AndGetResourceFile(zipFile.getAbsolutePath(), UUID.randomUUID().toString() + "_" + zipFile.getName()).getId();
+        return s3Utils.uploadFileToS3(zipFile);
     }
 
     /**
