@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper;
@@ -41,29 +42,35 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
      * 根据条件查找所有数据
      *
      * @param noticeId 通知ID
-     * @param user 用户
+     * @param user     用户
      * @return List<SchoolVisionStatistic>
      */
     public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
-        LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
         if (user.isScreeningUser()) {
+            LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
             queryWrapper.eq(SchoolVisionStatistic::getScreeningOrgId, user.getOrgId());
-        } else {
-            Set<Integer> noticeIds = new HashSet<>();
-            noticeIds.add(noticeId);
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-            Set<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toSet());//todo
-            if (CollectionUtils.isEmpty(screeningOrgIds)) {
-                return new ArrayList<>();
-            }
-            queryWrapper.in(SchoolVisionStatistic::getScreeningOrgId,screeningOrgIds);
-            queryWrapper.eq(SchoolVisionStatistic::getDistrictId, districtId);
+            return baseMapper.selectList(queryWrapper);
         }
-        return baseMapper.selectList(queryWrapper);
+        Set<Integer> noticeIds = new HashSet<>();
+        noticeIds.add(noticeId);
+        List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo
+        if (CollectionUtils.isEmpty(screeningOrgIds)) {
+            return new ArrayList<>();
+        }
+        List<SchoolVisionStatistic> statistics = new ArrayList<>();
+        Lists.partition(screeningOrgIds, 100).forEach(screeningOrgIdList -> {
+            LambdaQueryWrapper<SchoolVisionStatistic> query = new LambdaQueryWrapper<>();
+            query.eq(SchoolVisionStatistic::getScreeningNoticeId, noticeId);
+            query.eq(SchoolVisionStatistic::getDistrictId, districtId);
+            query.in(SchoolVisionStatistic::getScreeningOrgId, screeningOrgIdList);
+            statistics.addAll(baseMapper.selectList(query));
+        });
+        return statistics;
     }
 
     /**
@@ -75,6 +82,6 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
         if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
             return;
         }
-        baseMapper.batchSaveOrUpdate(schoolVisionStatistics);
+        Lists.partition(schoolVisionStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
     }
 }

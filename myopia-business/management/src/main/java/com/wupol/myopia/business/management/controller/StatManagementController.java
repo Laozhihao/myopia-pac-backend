@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,10 +50,6 @@ public class StatManagementController {
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
     @Autowired
     private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private DistrictMonitorStatisticService districtMonitorStatisticService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -209,10 +206,13 @@ public class StatManagementController {
         if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
             return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
         }
-        //获取当前范围名
-        String districtName = districtService.getDistrictNameByDistrictId(districtId);
+        //学校id
+        List<Integer> schoolIds = schoolVisionStatistics.stream().map(SchoolVisionStatistic::getSchoolId).collect(Collectors.toList());
+        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
+        //获取学校的地区
+        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
         //获取数据
-        return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, districtName, screeningNotice);
+        return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, screeningNotice);
     }
 
     /**

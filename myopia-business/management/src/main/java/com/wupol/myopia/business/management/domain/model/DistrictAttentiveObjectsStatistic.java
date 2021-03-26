@@ -135,14 +135,4 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
                 .setKeyWarningNumbers(keyWarningNumbers).setStudentNumbers(totalStudentNumbers);
         return statistic;
     }
-
-    public static DistrictAttentiveObjectsStatistic empty() {
-        DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
-        statistic.setVisionLabel0Numbers(0).setVisionLabel0Ratio(BigDecimal.ZERO)
-                .setVisionLabel1Numbers(0).setVisionLabel1Ratio(BigDecimal.ZERO)
-                .setVisionLabel2Numbers(0).setVisionLabel2Ratio(BigDecimal.ZERO)
-                .setVisionLabel3Numbers(0).setVisionLabel3Ratio(BigDecimal.ZERO)
-                .setKeyWarningNumbers(0).setStudentNumbers(0);
-        return statistic;
-    }
 }
