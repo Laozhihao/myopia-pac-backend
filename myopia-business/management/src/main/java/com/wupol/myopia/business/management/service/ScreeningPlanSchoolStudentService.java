@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sun.org.apache.bcel.internal.generic.INEG;
@@ -336,7 +337,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
             }
-            existPlanStudent.setStudentName(student.getName())
+            existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
                     .setGradeName(student.getGradeName())
                     .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType())
@@ -361,7 +362,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新学生数据
-     *  @param idCardExistStudents
+     *
+     * @param idCardExistStudents
      * @param excelIdCardStudentMap
      * @param screeningPlanId
      * @param schoolId
@@ -374,13 +376,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 查找通过身份证查找计划中的学生
         Map<String, ScreeningPlanSchoolStudent> planSchoolStudentMaps = getByIdCards(screeningPlanId, schoolId, needCheckUpdateStudentIdCards).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
         // 需要更新计划中的学生信息
-        List<ScreeningPlanSchoolStudent> updatePlanStudent =new ArrayList<>();
+        List<ScreeningPlanSchoolStudent> updatePlanStudent = new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
             StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
-                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard,new ScreeningPlanSchoolStudent());
+                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
                 BeanUtils.copyProperties(student, updateStudent);
                 updateStudent.setName(excelStudent.getName())
                         .setSchoolNo(excelStudent.getSchoolNo())
@@ -548,7 +550,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     /**
      * @param screeningPlanSchoolStudent
      */
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,Integer page,Integer size) {
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer page, Integer size) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         //获取当前计划
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
@@ -558,7 +560,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         String studentName = screeningPlanSchoolStudent.getStudentName();
         screeningPlanSchoolStudent.setStudentName(null);
         Integer startItem = (page - 1) * size;
-        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId,currentPlanIds).last("limit " + startItem + "," + size);;
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).last("limit " + startItem + "," + size);
+        ;
         if (StringUtils.isNotBlank(studentName)) {
             queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }
@@ -576,7 +579,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param schoolId
      * @param currentPlan
      */
-    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId,ScreeningPlan currentPlan) {
+    public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId, ScreeningPlan currentPlan) {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
@@ -609,6 +612,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生总数
+     *
      * @param screeningNoticeId
      * @return
      */
@@ -620,5 +624,31 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return Collections.emptyMap();
         }
         return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
+     * 通过实体获取一条数据
+     * @param screeningPlanSchoolStudent
+     * @return
+     */
+    public ScreeningPlanSchoolStudent getOneByEntity(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = this.getByEntity(screeningPlanSchoolStudent);
+        int size = CollectionUtils.size(screeningPlanSchoolStudents);
+        if (size != 1) {
+            throw new ManagementUncheckedException("查找一条数据，实际出现"+ size + "条，参数 = " + JSON.toJSONString(screeningPlanSchoolStudents));
+        }
+       return screeningPlanSchoolStudents.get(0);
+    }
+
+    /**
+     * 根据实体查找数据
+     * @param screeningPlanSchoolStudent
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByEntity(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.setEntity(screeningPlanSchoolStudent);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = baseMapper.selectList(queryWrapper);
+        return screeningPlanSchoolStudents;
     }
 }

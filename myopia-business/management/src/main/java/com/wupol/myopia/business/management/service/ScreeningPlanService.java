@@ -424,7 +424,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<ScreeningPlan> getAllPlanByNoticeId(Integer noticeId) {
         ScreeningPlan screeningPlan = new ScreeningPlan();
-        screeningPlan.setSrcScreeningNoticeId(noticeId);
+        screeningPlan.setSrcScreeningNoticeId(noticeId).setReleaseStatus(CommonConst.STATUS_RELEASE);
         LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId);
         return baseMapper.selectList(queryWrapper);

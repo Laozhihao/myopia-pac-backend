@@ -21,7 +21,7 @@ public class HtmlToPdfUtil {
     private static final String HTML_TO_PDF_TOOL_COMMAND = "wkhtmltopdf";
 
     /**
-     * 转换
+     * 转换 TODO:超时处理
      *
      * @param htmlSrcPath html页面地址（可以是网页或者本地html文件绝对路径）
      * @param pdfFilePath 生成的PDF绝对路径

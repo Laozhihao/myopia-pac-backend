@@ -112,23 +112,24 @@ public class ScreeningAppController {
     }
 
     /**
-     * 获取学生
+     * 获取学生的信息：
      *
      * @param
      * @return
      */
     @GetMapping("/student/findOneById")
-    public ResultVO getStudentById(@RequestParam String studentId, Long deptId) {
-
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(studentId);
-        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        if (studentVO == null) {
+    public ResultVO getStudentById(String studentId, String planStudentId, @RequestParam Integer deptId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
+        if (StringUtils.isNotBlank(planStudentId)) {
+            screeningPlanSchoolStudent.setId(Integer.valueOf(planStudentId));
+        } else {
+            screeningPlanSchoolStudent.setStudentId(Integer.valueOf(studentId)).setScreeningOrgId(deptId);
+        }
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByEntity(screeningPlanSchoolStudent);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return ResultVOUtil.error(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
         }
-        Map<String, Object> map = CommUtil.beanToMap(studentVO);
-        map.put("eye", null);
-        map.put("biology", null);
-        return ResultVOUtil.success(StudentVO.getInstance(screeningPlanSchoolStudent));
+        return ResultVOUtil.success(StudentVO.getInstance(screeningPlanSchoolStudents.get(0)));
     }
 
     /**
@@ -294,7 +295,7 @@ public class ScreeningAppController {
                 .setClassName(clazzName)
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent,page,size);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent, page, size);
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
         Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
@@ -321,7 +322,7 @@ public class ScreeningAppController {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId,studentName,current,size,isRandom);
+        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
         return ResultVOUtil.success(sysStudentList);
     }
 
@@ -378,21 +379,21 @@ public class ScreeningAppController {
         if (school == null) {
             return ResultVOUtil.error(ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getCode(), ErrorEnum.SYS_SCHOOL_IS_NOT_EXIST.getMessage());
         }
-        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO,school);
+        Student student = screeningAppService.getStudent(CurrentUserUtil.getCurrentUser(), appStudentDTO, school);
         try {
             studentService.saveStudent(student);
             //获取当前的计划
         } catch (Exception e) {
             // app 就是这么干的。
-            return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR.getCode(),e.getMessage());
+            return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR.getCode(), e.getMessage());
         }
         ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue());
 
         if (currentPlan == null) {
-            log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。",CurrentUserUtil.getCurrentUser().getOrgId(),appStudentDTO.getSchoolId());
+            log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ResultVOUtil.error(ErrorEnum.UNKNOWN_ERROR);
         }
-        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(),student,appStudentDTO.getGrade(),appStudentDTO.getClazz(),appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(),currentPlan);
+        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan);
         return ResultVOUtil.success();
     }
 
