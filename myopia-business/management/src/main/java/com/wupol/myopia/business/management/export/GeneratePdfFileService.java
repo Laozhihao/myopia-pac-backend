@@ -4,6 +4,7 @@ import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.export.constant.FileNameConstant;
 import com.wupol.myopia.business.management.export.constant.HtmlPageUrlConstant;
+import com.wupol.myopia.business.management.service.DistrictService;
 import com.wupol.myopia.business.management.service.SchoolService;
 import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.management.service.StatConclusionService;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -35,6 +35,8 @@ public class GeneratePdfFileService {
     private StatConclusionService statConclusionService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 生成筛查报告PDF文件 - 行政区域
@@ -65,8 +67,8 @@ public class GeneratePdfFileService {
     public void generateSchoolScreeningReportPdfFileByNoticeId(String saveDirectory, Integer noticeId, Integer districtId) {
         Assert.hasLength(saveDirectory, "文件保存目录路径为空");
         Assert.notNull(noticeId, "筛查通知ID为空");
-        // TODO：根据districtId过滤学校
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByNoticeId(noticeId);
+        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+        List<Integer> schoolIdList = statConclusionService.getSchoolIdsByScreeningNoticeIdAndDistrictIds(noticeId, districtIds);
         generateSchoolScreeningReportPdfFileBatch(saveDirectory, noticeId, null, schoolIdList);
     }
 

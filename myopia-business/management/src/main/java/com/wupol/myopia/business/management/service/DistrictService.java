@@ -240,7 +240,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId 根节点行政区域
      * @return java.util.List<Integer>
      **/
-    public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) throws IOException {
+    public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) {
         List<Integer> childDistrictIds = new ArrayList<>();
         // 获取以指定行政区域为根节点的行政区域树
         try {

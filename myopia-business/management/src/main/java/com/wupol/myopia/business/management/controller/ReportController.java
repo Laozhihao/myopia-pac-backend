@@ -3,9 +3,11 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.export.ExportStrategy;
 import com.wupol.myopia.business.management.export.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.management.export.domain.ExportCondition;
+import com.wupol.myopia.business.management.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.management.service.StatConclusionService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class ReportController {
     private ExportStrategy exportStrategy;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -80,7 +84,7 @@ public class ReportController {
     public ApiResult exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) {
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
         if (CollectionUtils.isEmpty(schoolIdList)) {
-            return ApiResult.failure("暂无筛查数据，无法生成筛查报告");
+            return ApiResult.failure("暂无筛查数据，无法导出筛查报告");
         }
         ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
@@ -96,6 +100,10 @@ public class ReportController {
      **/
     @GetMapping("/school/archives")
     public ApiResult exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+            return ApiResult.failure("次计划下该学校暂无筛查学生数据，无法导出档案卡");
+        }
         ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
         return ApiResult.success();
