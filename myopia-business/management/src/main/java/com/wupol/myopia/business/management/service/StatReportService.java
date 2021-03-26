@@ -310,12 +310,11 @@ public class StatReportService {
                 new ArrayList<Map<String, Object>>() {
                     {
                         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-                            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
                             add(composeGenderMyopiaStat(gradeCode.name(),
                                     validConclusions.stream()
                                             .filter(x
-                                                    -> x.getSchoolGradeCode().equals(
-                                                            gradeCode.getCode()))
+                                                    -> gradeCode.getCode().equals(
+                                                            x.getSchoolGradeCode()))
                                             .collect(Collectors.toList())));
                         }
                         add(composeGenderMyopiaStat("total", validConclusions));
@@ -665,12 +664,12 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderRatio(List<TableBasicStatParams> list) {
         float maleRatio = list.stream()
-                                  .filter(x -> x.getTitle().equals(GenderEnum.MALE.name()))
+                                  .filter(x -> GenderEnum.MALE.name().equals(x.getTitle()))
                                   .map(x -> x.getRatio())
                                   .findFirst()
                                   .get();
         float femaleRatio = list.stream()
-                                    .filter(x -> x.getTitle().equals(GenderEnum.FEMALE.name()))
+                                    .filter(x -> GenderEnum.FEMALE.name().equals(x.getTitle()))
                                     .map(x -> x.getRatio())
                                     .findFirst()
                                     .get();
@@ -773,32 +772,22 @@ public class StatReportService {
                 put("lowVisionRatio",
                         convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
                 put("averageVision", averageVisionValue);
-                put("warningLevelStat", new ArrayList() {
+                put("warningLevelStat", new ArrayList<BasicStatParams>() {
                     {
                         add(new BasicStatParams("warningTotal",
-                                convertToPercentage(
-
-                                        warningNum * 1f / validFirstScreeningNum),
+                                convertToPercentage(warningNum * 1f / validFirstScreeningNum),
                                 warningNum));
                         add(new BasicStatParams("warning0",
-                                convertToPercentage(
-
-                                        warning0Num * 1f / validFirstScreeningNum),
+                                convertToPercentage(warning0Num * 1f / validFirstScreeningNum),
                                 warning0Num));
                         add(new BasicStatParams("warning1",
-                                convertToPercentage(
-
-                                        warning1Num * 1f / validFirstScreeningNum),
+                                convertToPercentage(warning1Num * 1f / validFirstScreeningNum),
                                 warning1Num));
                         add(new BasicStatParams("warning2",
-                                convertToPercentage(
-
-                                        warning2Num * 1f / validFirstScreeningNum),
+                                convertToPercentage(warning2Num * 1f / validFirstScreeningNum),
                                 warning2Num));
                         add(new BasicStatParams("warning3",
-                                convertToPercentage(
-
-                                        warning3Num * 1f / validFirstScreeningNum),
+                                convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                                 warning3Num));
                     }
                 });
@@ -858,8 +847,8 @@ public class StatReportService {
                 List<StatConclusionReportVo> studentStatList =
                         statConclusionReportVos.stream()
                                 .filter(x
-                                        -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode())
-                                                && x.getClassName().equals(schoolClass.getName()))
+                                        -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())
+                                                && schoolClass.getName().equals(x.getClassName()))
                                 .collect(Collectors.toList());
                 schoolClassStatList.add(new HashMap() {
                     {
@@ -892,7 +881,7 @@ public class StatReportService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(composeWarningLevelStat(gradeCodeEnum.name(), list));
         }
@@ -924,7 +913,7 @@ public class StatReportService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
@@ -954,7 +943,7 @@ public class StatReportService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
@@ -984,7 +973,7 @@ public class StatReportService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCodeEnum.getCode()))
+                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeWearingTypeTable.add(composeGlassesTypeStat(gradeCodeEnum.name(), list));
         }
@@ -1103,10 +1092,9 @@ public class StatReportService {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCode.getCode()))
+                            .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList()));
             list.add(lowVisionLevelStat);
             List<BasicStatParams> paramsList =
@@ -1135,10 +1123,9 @@ public class StatReportService {
         List<BasicStatParams> schoolGradeLowVisionRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            // if (gradeCode.equals(GradeCodeEnum.OTHER)) continue;
             Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.name(),
                     statConclusions.stream()
-                            .filter(x -> x.getSchoolGradeCode().equals(gradeCode.getCode()))
+                            .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList()));
             list.add(lowVisionLevelStat);
             List<BasicStatParams> paramsList =
@@ -1169,7 +1156,7 @@ public class StatReportService {
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
-                            .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
+                            .filter(x -> gradeCode.getCode().equals(x.getGradeCode()))
                             .findFirst()
                             .orElse(null);
             if (schoolGradeItem == null) {
@@ -1181,7 +1168,7 @@ public class StatReportService {
                 Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(
                         schoolClass.getName(),
                         statConclusions.stream()
-                                .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
+                                .filter(x -> schoolClass.getName().equals(x.getSchoolClassName()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());
@@ -1203,7 +1190,7 @@ public class StatReportService {
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItems schoolGradeItem =
                     schoolGradeItems.stream()
-                            .filter(x -> x.getGradeCode().equals(gradeCode.getCode()))
+                            .filter(x -> gradeCode.getCode().equals(x.getGradeCode()))
                             .findFirst()
                             .orElse(null);
             if (schoolGradeItem == null) {
@@ -1214,7 +1201,7 @@ public class StatReportService {
             for (SchoolClass schoolClass : schoolClasses) {
                 Map<String, Object> myopiaLevelStat = composeMyopiaLevelStat(schoolClass.getName(),
                         statConclusions.stream()
-                                .filter(x -> x.getSchoolClassName().equals(schoolClass.getName()))
+                                .filter(x -> schoolClass.getName().equals(x.getSchoolClassName()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
