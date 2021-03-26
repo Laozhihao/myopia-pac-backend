@@ -1,14 +1,13 @@
 package com.wupol.myopia.business.management.export.archives;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.export.domain.ExportCondition;
+import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.export.BaseExportFileService;
-import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.service.StatConclusionService;
+import com.wupol.myopia.business.management.export.constant.FileNameConstant;
+import com.wupol.myopia.business.management.export.domain.ExportCondition;
+import com.wupol.myopia.business.management.export.GeneratePdfFileService;
+import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 导出学校的档案卡
@@ -20,9 +19,9 @@ import java.util.List;
 public class ExportSchoolArchivesService extends BaseExportFileService {
 
     @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
+    private SchoolService schoolService;
     @Autowired
-    private StatConclusionService statConclusionService;
+    private GeneratePdfFileService generateReportPdfService;
 
     /**
      * 生成文件
@@ -34,7 +33,7 @@ public class ExportSchoolArchivesService extends BaseExportFileService {
      **/
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateSchoolPdfFileByScreeningOrgId(fileSavePath, exportCondition.getScreeningOrgId(), exportCondition.getPlanId());
+        generateReportPdfService.generateSchoolArchivesPdfFile(fileSavePath, exportCondition.getScreeningOrgId(), exportCondition.getPlanId());
     }
 
     /**
@@ -45,20 +44,7 @@ public class ExportSchoolArchivesService extends BaseExportFileService {
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-        return String.format(PDF_REPORT_FILE_NAME, screeningOrganization.getName());
-    }
-
-    /**
-     * 通过筛查ID，生成学校筛查报告PDF文件
-     *
-     * @param saveDirectory 保存目录
-     * @param screeningOrgId 筛查机构ID
-     * @param planId 筛查计划ID
-     * @return void
-     **/
-    private void generateSchoolPdfFileByScreeningOrgId(String saveDirectory, Integer screeningOrgId, Integer planId) {
-        List<Integer> schoolIdList = statConclusionService.getSchoolIdByScreeningOrgId(screeningOrgId);
-        generateSchoolPdfFileBatch(saveDirectory, null, planId, schoolIdList);
+        School school = schoolService.getById(exportCondition.getSchoolId());
+        return String.format(FileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
     }
 }

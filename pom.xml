@@ -84,7 +84,7 @@
             </snapshots>
         </repository>
         <!-- Vistel repository -->
-        <!--<repository>
+        <repository>
             <id>vistel-private-release-repository</id>
             <name>Release Repository for Vistel</name>
             <url>s3p://vistel-registry/maven/release</url>
@@ -101,7 +101,7 @@
                 <updatePolicy>always</updatePolicy>
                 <checksumPolicy>fail</checksumPolicy>
             </snapshots>
-        </repository>-->
+        </repository>
     </repositories>
 
     <build>

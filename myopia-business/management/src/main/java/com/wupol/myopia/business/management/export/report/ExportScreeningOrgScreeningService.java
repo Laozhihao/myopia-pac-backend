@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.export.report;
 
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.export.BaseExportFileService;
+import com.wupol.myopia.business.management.export.GeneratePdfFileService;
 import com.wupol.myopia.business.management.export.constant.FileNameConstant;
 import com.wupol.myopia.business.management.export.domain.ExportCondition;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
@@ -20,7 +21,7 @@ public class ExportScreeningOrgScreeningService extends BaseExportFileService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private GenerateReportPdfService generateReportPdfService;
+    private GeneratePdfFileService generateReportPdfService;
 
     /**
      * 生成文件
@@ -32,7 +33,7 @@ public class ExportScreeningOrgScreeningService extends BaseExportFileService {
      **/
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateSchoolPdfFileByScreeningOrgId(fileSavePath, exportCondition.getScreeningOrgId(), exportCondition.getPlanId());
+        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
     }
 
     /**
@@ -44,7 +45,7 @@ public class ExportScreeningOrgScreeningService extends BaseExportFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-        return String.format(FileNameConstant.PDF_REPORT_FILE_NAME, screeningOrganization.getName());
+        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
     }
 
 }

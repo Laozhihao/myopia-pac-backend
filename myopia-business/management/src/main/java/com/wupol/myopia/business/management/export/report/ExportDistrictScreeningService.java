@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.export.report;
 
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.export.BaseExportFileService;
+import com.wupol.myopia.business.management.export.GeneratePdfFileService;
 import com.wupol.myopia.business.management.export.constant.FileNameConstant;
 import com.wupol.myopia.business.management.export.domain.ExportCondition;
 import com.wupol.myopia.business.management.service.DistrictService;
@@ -20,7 +21,7 @@ public class ExportDistrictScreeningService extends BaseExportFileService {
     @Autowired
     private DistrictService districtService;
     @Autowired
-    private GenerateReportPdfService generateReportPdfService;
+    private GeneratePdfFileService generateReportPdfService;
 
     /**
      * 生成文件
@@ -33,9 +34,9 @@ public class ExportDistrictScreeningService extends BaseExportFileService {
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         // 区域
-        generateReportPdfService.generateDistrictPdfFile(fileSavePath, fileName, exportCondition.getNotificationId(), exportCondition.getDistrictId());
+        generateReportPdfService.generateDistrictScreeningReportPdfFile(fileSavePath, fileName, exportCondition.getNotificationId(), exportCondition.getDistrictId());
         // 学校
-        generateReportPdfService.generateSchoolPdfFileByNoticeId(fileSavePath, exportCondition.getNotificationId());
+        generateReportPdfService.generateSchoolScreeningReportPdfFileByNoticeId(fileSavePath, exportCondition.getNotificationId(), exportCondition.getDistrictId());
     }
 
     /**
@@ -48,6 +49,6 @@ public class ExportDistrictScreeningService extends BaseExportFileService {
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(FileNameConstant.PDF_REPORT_FILE_NAME, districtFullName);
+        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, districtFullName);
     }
 }

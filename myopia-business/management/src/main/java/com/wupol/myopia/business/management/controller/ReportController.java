@@ -33,7 +33,7 @@ public class ReportController {
     private ExportStrategy exportStrategy;
 
     /**
-     * 导出区域的筛查报告
+     * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
      *
      * @param notificationId 筛查通知ID
      * @param districtId 行政区域ID
@@ -41,7 +41,6 @@ public class ReportController {
      **/
     @GetMapping("/district/export")
     public ApiResult exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) {
-        // TODO: 权限校验、导出次数限制
         ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setDistrictId(districtId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
         return ApiResult.success();
@@ -60,7 +59,7 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             return ApiResult.failure("筛查通知ID或者筛查计划ID不能为空");
         }
-        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setPlanId(planId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
         return ApiResult.success();
     }
@@ -79,13 +78,31 @@ public class ReportController {
         return ApiResult.success();
     }
 
+    /**
+     * 导出学校档案卡
+     *
+     * @param planId 筛查计划ID
+     * @param schoolId 学校ID
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
     @GetMapping("/school/archives")
     public ApiResult exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) {
+        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
         return ApiResult.success();
     }
 
+    /**
+     * 导出筛查机构档案卡
+     *
+     * @param planId 筛查计划ID
+     * @param screeningOrgId 筛查机构ID
+     * @return com.wupol.myopia.base.domain.ApiResult
+     **/
     @GetMapping("/screeningOrg/archives")
     public ApiResult exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) {
+        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
         return ApiResult.success();
     }
 

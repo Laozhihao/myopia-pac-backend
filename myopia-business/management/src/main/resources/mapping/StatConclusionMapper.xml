@@ -190,7 +190,7 @@
         select distinct school_id from m_stat_conclusion where src_screening_notice_id = #{noticeId}
     </select>
 
-    <select id="selectSchoolIdByScreeningOrgId" resultType="int" parameterType="integer">
-        select distinct school_id from m_stat_conclusion where screening_org_id = #{screeningOrgId}
+    <select id="selectSchoolIdByPlanId" resultType="int" parameterType="integer">
+        select distinct school_id from m_stat_conclusion where plan_id = #{planId}
     </select>
 </mapper>

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.export.report;
 
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.export.BaseExportFileService;
+import com.wupol.myopia.business.management.export.GeneratePdfFileService;
 import com.wupol.myopia.business.management.export.constant.FileNameConstant;
 import com.wupol.myopia.business.management.export.domain.ExportCondition;
 import com.wupol.myopia.business.management.service.SchoolService;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class ExportSchoolScreeningService extends BaseExportFileService {
 
     @Autowired
-    private GenerateReportPdfService generateReportPdfService;
+    private GeneratePdfFileService generateReportPdfService;
     @Autowired
     private SchoolService schoolService;
 
@@ -32,7 +33,7 @@ public class ExportSchoolScreeningService extends BaseExportFileService {
      **/
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateSchoolPdfFile(fileSavePath, exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
+        generateReportPdfService.generateSchoolScreeningReportPdfFile(fileSavePath, exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
     }
 
     /**
@@ -44,6 +45,6 @@ public class ExportSchoolScreeningService extends BaseExportFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(FileNameConstant.PDF_REPORT_FILE_NAME, school.getName());
+        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
     }
 }
