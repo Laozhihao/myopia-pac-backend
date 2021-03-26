@@ -700,8 +700,7 @@ public class StatService {
             Integer districtId, List<District> districts, Set<Integer> districtIds) {
         //根据层级获取数据(当前层级，下级层级，汇总数据）
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics =
-                districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(
-                        districtIds,districtId,true,false);
+                districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdsAndTaskId(districtIds,true);
         if (CollectionUtils.isEmpty(districtAttentiveObjectsStatistics)) {
             return FocusObjectsStatisticVO.getImmutableEmptyInstance();
         }
@@ -713,8 +712,7 @@ public class StatService {
         districtIdNameMap.put(districtId, currentRangeName);
 
         List<DistrictAttentiveObjectsStatistic> currentAttentiveObjectsStatistics =
-                districtAttentiveObjectsStatisticService.getStatisticDtoByDistrictIdAndTaskId(
-                        districtIds,districtId,false,true);
+                districtAttentiveObjectsStatisticService.getStatisticDtoByCurrentDistrictIdAndTaskId(districtId,false);
         DistrictAttentiveObjectsStatistic  currentDistrictAttentiveObjectsStatistic = null;
         if (CollectionUtils.isNotEmpty(currentAttentiveObjectsStatistics)) {
             currentDistrictAttentiveObjectsStatistic = currentAttentiveObjectsStatistics.stream().findFirst().get();
@@ -736,8 +734,8 @@ public class StatService {
             Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
         //查找合计数据（当前层级 + 下级）
         List<DistrictVisionStatistic> districtVisionStatistics =
-                districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(
-                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),true,false);
+                districtVisionStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
+                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),true);
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return ScreeningVisionStatisticVO.getImmutableEmptyInstance();
         }
@@ -754,8 +752,8 @@ public class StatService {
 
         //查找当前层级的数据（非合计数据）
         List<DistrictVisionStatistic> currentDistrictVisionStatistics =
-                districtVisionStatisticService.getStatisticDtoByNoticeIdAndUser(
-                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),false,true);
+                districtVisionStatisticService.getStatisticDtoByNoticeIdAndCurrentDistrictId(
+                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),false);
         DistrictVisionStatistic currentDistrictVisionStatistic = null;
         if (CollectionUtils.isNotEmpty(currentDistrictVisionStatistics)) {
             currentDistrictVisionStatistic = currentDistrictVisionStatistics.stream().findFirst().get();
@@ -778,8 +776,8 @@ public class StatService {
             throws IOException {
         //根据层级获取数据(当前层级，下级层级，汇总数据）
         List<DistrictMonitorStatistic> districtMonitorStatistics =
-                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndUser(
-                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),true,false);
+                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
+                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),true);
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return DistrictScreeningMonitorStatisticVO.getImmutableEmptyInstance();
         }
@@ -796,8 +794,8 @@ public class StatService {
 
         //查找当前层级的数据（非合计数据）
         List<DistrictMonitorStatistic> currentDistrictMonitorStatistics =
-                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndUser(
-                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),false,true);
+                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndCurrentDistrictId(
+                        noticeId, districtId, CurrentUserUtil.getCurrentUser(),false);
         DistrictMonitorStatistic  currentDistrictMonitorStatistic = null;
         if (CollectionUtils.isNotEmpty(currentDistrictMonitorStatistics)) {
             currentDistrictMonitorStatistic = currentDistrictMonitorStatistics.stream().findFirst().get();
