@@ -126,7 +126,7 @@ public class GeneratePdfFileService {
      * @param planId 筛查计划ID
      * @return void
      **/
-    public void generateScreeningOrgArchivesPdfFileBatch(String saveDirectory, Integer planId) {
+    public void generateScreeningOrgArchivesPdfFile(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, "文件保存目录路径为空");
         Assert.notNull(planId, "筛查计划ID为空");
         List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.getSchoolListsByPlanId(planId);

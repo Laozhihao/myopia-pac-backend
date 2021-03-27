@@ -33,7 +33,7 @@ public class ExportSchoolArchivesService extends BaseExportFileService {
      **/
     @Override
     public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateSchoolArchivesPdfFile(fileSavePath, exportCondition.getScreeningOrgId(), exportCondition.getPlanId());
+        generateReportPdfService.generateSchoolArchivesPdfFile(fileSavePath, exportCondition.getPlanId(), exportCondition.getSchoolId());
     }
 
     /**
