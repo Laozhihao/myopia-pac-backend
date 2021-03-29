@@ -186,8 +186,7 @@ public class StatReportService {
         }
         District district = districtService.getById(districtId);
         String districtName = district.getName();
-        int planScreeningNum =
-                screeningPlanService.getScreeningPlanStudentNumByNoticeId(srcScreeningNoticeId);
+        int planScreeningNum = this.getPlanScreeningStudentNum(srcScreeningNoticeId, districtId);
         ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
         Date startDate = notice.getStartTime();
         Date endDate = notice.getEndTime();
@@ -546,7 +545,6 @@ public class StatReportService {
         int size = schoolAgeWarningLevelTable.size();
         Map<String, Object> totalStat = schoolAgeWarningLevelTable.get(size - 1);
         Long totalNum = (Long) totalStat.get("rowTotal");
-        List<BasicStatParams> totalRowList = (List<BasicStatParams>) totalStat.get("list");
         List<BasicStatParams> warningLevelZeroSchoolAgeList = new ArrayList<>();
         List<BasicStatParams> warningLevelOneSchoolAgeList = new ArrayList<>();
         List<BasicStatParams> warningLevelTwoSchoolAgeList = new ArrayList<>();
@@ -584,14 +582,27 @@ public class StatReportService {
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         Collections.sort(warningLevelThreeSchoolAgeList,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        List<List<BasicStatParams>> sortedList = new ArrayList() {
+            {
+                add(warningLevelZeroSchoolAgeList);
+                add(warningLevelOneSchoolAgeList);
+                add(warningLevelTwoSchoolAgeList);
+                add(warningLevelThreeSchoolAgeList);
+            }
+        };
+
         Map<String, Object> conclusionDesc = new HashMap<>();
         conclusionDesc.put("totalNum", totalNum);
+
+        List<BasicStatParams> totalRowList = (List<BasicStatParams>) totalStat.get("list");
         Long totalWarningNum = totalRowList.stream().mapToLong(x -> x.getNum()).sum();
         conclusionDesc.put("totalRatio", convertToPercentage(totalWarningNum * 1f / totalNum));
+
         List<ClassStat> levelList = new ArrayList<>();
-        for (BasicStatParams params : totalRowList) {
-            levelList.add(new ClassStat(params.getTitle(), params.getRatio(), params.getNum(),
-                    warningLevelZeroSchoolAgeList));
+        for (int i = 0; i < 4; i++) {
+            BasicStatParams params = totalRowList.get(i);
+            levelList.add(new ClassStat(
+                    params.getTitle(), params.getRatio(), params.getNum(), sortedList.get(i)));
         }
         conclusionDesc.put("levelList", levelList);
         conclusionDesc.put(title, schoolAgeWarningLevelTable);
@@ -1533,5 +1544,28 @@ public class StatReportService {
     private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
         return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData,
                 Objects.isNull(leftEyeData) ? "--" : leftEyeData);
+    }
+
+    /**
+     * 获取区域学生计划筛查数量
+     * @param notificationId 通知ID
+     * @param validDistrictIds 筛选区域ID
+     * @return
+     * @throws IOException
+     */
+    private Integer getPlanScreeningStudentNum(int notificationId, Integer specificDistrictId)
+            throws IOException {
+        Map<Integer, Long> planDistrictStudentMap =
+                screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
+                        notificationId);
+        List<Integer> validDistrictIds = districtService.getAllDistrictIds(specificDistrictId);
+        int planStudentNum = 0;
+        for (Integer districtId : planDistrictStudentMap.keySet()) {
+            if (!validDistrictIds.contains(districtId)) {
+                continue;
+            }
+            planStudentNum += planDistrictStudentMap.get(districtId);
+        }
+        return planStudentNum;
     }
 }
