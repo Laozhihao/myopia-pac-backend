@@ -1035,18 +1035,12 @@ public class StatReportService {
         int totalSize = totalStat.size();
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
         BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
-        BasicStatParams topLowVisionRatioStat =
-                totalLevelStat.subList(0, totalSize - 1)
-                        .stream()
-                        .max(Comparator.comparing(BasicStatParams::getRatio))
-                        .get();
-        // totalLevelStat.subList(0, totalLevelStat.size()-1).stream().max()
         return new HashMap<String, Object>() {
             {
                 put("list", list);
                 put("averageVision", totalStat.get("averageVision"));
                 put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", topLowVisionRatioStat);
+                put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
             }
         };
     }
@@ -1078,19 +1072,24 @@ public class StatReportService {
         int totalSize = totalStat.size();
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
         BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
-        BasicStatParams topMyopiaRatioStat =
-                totalLevelStat.subList(0, totalSize - 1)
-                        .stream()
-                        .max(Comparator.comparing(BasicStatParams::getRatio))
-                        .get();
-        // totalLevelStat.subList(0, totalLevelStat.size()-1).stream().max()
         return new HashMap<String, Object>() {
             {
                 put("list", list);
                 put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", topMyopiaRatioStat);
+                put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
             }
         };
+    }
+
+    private List<BasicStatParams> getTopStatList(List<BasicStatParams> list) {
+        Map<Float, List<BasicStatParams>> map =
+                list.stream().collect(Collectors.groupingBy(BasicStatParams::getRatio));
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .findFirst()
+                .get()
+                .getValue();
     }
 
     /**
