@@ -240,7 +240,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId 根节点行政区域
      * @return java.util.List<Integer>
      **/
-    public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) throws IOException {
+    public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) {
         List<Integer> childDistrictIds = new ArrayList<>();
         // 获取以指定行政区域为根节点的行政区域树
         try {
@@ -291,7 +291,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return JSONObject.parseObject(JSON.toJSONString(cache), District.class);
         }
         // 查库，获取对应省的行政区域树，110000000、410000000
-        District provinceDistrictTree = getDistrictTree(Long.valueOf(provincePrefix) * 10000000);
+        District provinceDistrictTree = getDistrictTree(Long.parseLong(provincePrefix) * 10000000);
         Assert.notNull(provinceDistrictTree, "无该省份数据：" + provincePrefix);
         redisUtil.hset(CacheKey.DISTRICT_ALL_PROVINCE_TREE, provincePrefix, provinceDistrictTree);
         return provinceDistrictTree;
@@ -826,8 +826,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        return districtIds;
+        return districts.stream().map(District::getId).collect(Collectors.toSet());
     }
 
     /**
@@ -848,7 +847,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
-        Map<District, Set<Integer>> districtSetMap = cityDistrictList.stream().collect(Collectors.toMap(Function.identity(), cityDistrict -> new HashSet<>(getAllDistrictIds(cityDistrict.getId()))));
-        return districtSetMap;
+        return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
+                cityDistrict -> new HashSet<>(getAllDistrictIds(cityDistrict.getId()))));
     }
 }

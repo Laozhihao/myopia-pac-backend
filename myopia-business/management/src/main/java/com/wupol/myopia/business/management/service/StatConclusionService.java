@@ -216,20 +216,20 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param noticeId 筛查通知ID
      * @return java.util.List<java.lang.Integer>
      **/
-    public List<Integer> getSchoolIdByNoticeId(Integer noticeId) {
+    public List<Integer> getSchoolIdsByScreeningNoticeIdAndDistrictIds(Integer noticeId, List<Integer> districtIds) {
         Assert.notNull(noticeId, "筛查通知ID不能为空");
-        return baseMapper.selectSchoolIdByNoticeId(noticeId);
+        return baseMapper.selectSchoolIdsByScreeningNoticeIdAndDistrictIds(noticeId, districtIds);
     }
 
     /**
-     * 根据筛查机构ID获取学校ID
+     * 根据筛查计划ID获取学校ID
      *
-     * @param screeningOrgId 筛查机构ID
+     * @param planId 筛查计划ID
      * @return java.util.List<java.lang.Integer>
      **/
-    public List<Integer> getSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
-        return baseMapper.selectSchoolIdByScreeningOrgId(screeningOrgId);
+    public List<Integer> getSchoolIdByPlanId(Integer planId) {
+        Assert.notNull(planId, "筛查计划ID不能为空");
+        return baseMapper.selectSchoolIdByPlanId(planId);
     }
 }
 

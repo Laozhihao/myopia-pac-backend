@@ -92,4 +92,24 @@
           <include refid="Base_Where_Clause"/>
     </select>
 
+    <select id="findByIdAndNeStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_government_department
+        where id = #{id}
+          and status != #{status}
+        limit 1
+    </select>
+
+    <select id="findByPidAndNeStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_government_department where status != #{status}
+        <if test="pids != null and pids.size() != 0">
+            and pid in
+            <foreach collection="pids" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 </mapper>

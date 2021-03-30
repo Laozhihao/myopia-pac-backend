@@ -48,18 +48,6 @@ public class ScreeningOrganizationStaffController {
     }
 
     /**
-     * 删除筛查人员
-     *
-     * @param id 人员ID
-     * @return 删除
-     */
-    @DeleteMapping("{id}")
-    public Object deletedOrganizationStaff(@PathVariable("id") Integer id) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationStaffService.deletedOrganizationStaff(id, user.getId());
-    }
-
-    /**
      * 新增筛查人员
      *
      * @param screeningOrganizationStaff 筛查人员实体

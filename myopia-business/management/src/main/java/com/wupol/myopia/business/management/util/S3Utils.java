@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Author: jacob
@@ -63,7 +64,7 @@ public final class S3Utils {
     /**
      * 文件路径key
      */
-    private static final String S3_KEY_FORMAT = "%s/%s/%s";
+    private static final String S3_KEY_FORMAT = "%s/%s/%s/%s";
 
     /**
      * 上传文件到S3静态bucket
@@ -82,37 +83,57 @@ public final class S3Utils {
         return String.format("%s/%s", host, key);
     }
 
+
     /**
      * 上传文件到S3并保存到resourceFile表
      *
-     * @param fileTempPath
-     * @param fileName
-     * @return
+     * @param file 文件
+     * @return com.wupol.myopia.business.management.domain.model.ResourceFile
+     **/
+    public ResourceFile uploadS3AndGetResourceFile(File file) throws UtilException {
+        return uploadS3AndGetResourceFile(file, file.getName());
+    }
+
+    /**
+     * 上传文件到S3并保存到resourceFile表
+     *
+     * @param fileTempPath 文件路径
+     * @param fileName 文件名
+     * @return com.wupol.myopia.business.management.domain.model.ResourceFile
      * @throws UtilException
      */
     public ResourceFile uploadS3AndGetResourceFile(String fileTempPath, String fileName) throws UtilException {
-        String bucket = uploadConfig.getBucketName();
-        String prefix = uploadConfig.getPrefix();
-        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
-        s3Client.uploadFile(bucket, key, new File(fileTempPath));
-        ResourceFile file = new ResourceFile().setBucket(bucket).setS3Key(key).setFileName(fileName);
-        resourceFileService.save(file);
-        return file;
+        return uploadS3AndGetResourceFile(new File(fileTempPath), fileName);
+    }
+
+    /**
+     * 上传文件到S3并保存到resourceFile表
+     *
+     * @param file 文件
+     * @param fileName 文件名
+     * @return com.wupol.myopia.business.management.domain.model.ResourceFile
+     **/
+    public ResourceFile uploadS3AndGetResourceFile(File file, String fileName) throws UtilException {
+        String key = uploadFileToS3(file, fileName);
+        ResourceFile resourceFile = new ResourceFile().setBucket(uploadConfig.getBucketName()).setS3Key(key).setFileName(fileName);
+        resourceFileService.save(resourceFile);
+        return resourceFile;
     }
 
     /**
      * 上传文件到S3
      *
-     * @param fileTempPath
-     * @param fileName
-     * @return
+     * @param file 文件
+     * @param fileName 文件名
+     * @return java.lang.String
      * @throws UtilException
      */
-    public void uploadS3(String fileTempPath, String fileName) throws UtilException {
+    public String uploadFileToS3(File file, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
         String prefix = uploadConfig.getPrefix();
-        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), fileName);
-        s3Client.uploadFile(bucket, key,new File(fileTempPath));
+        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), UUID.randomUUID().toString(), fileName);
+        s3Client.uploadFile(bucket, key, file);
+        return key;
     }
 
     /**
@@ -220,9 +241,8 @@ public final class S3Utils {
      * @return 资源文件ID
      * @throws UtilException 异常
      */
-    public Integer uploadFile(File file) throws UtilException {
-        // 上传
-        ResourceFile resourceFile = uploadS3AndGetResourceFile(file.getAbsolutePath(), file.getName());
+    public Integer uploadFileToS3(File file) throws UtilException {
+        ResourceFile resourceFile = uploadS3AndGetResourceFile(file);
         return resourceFile.getId();
     }
 }

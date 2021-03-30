@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -25,48 +26,63 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
     @Autowired
     private DistrictService districtService;
 
-    public List<DistrictMonitorStatistic> getStatisticDtoByTaskIds(Set<Integer> screeningTaskIds) {
-        LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(DistrictMonitorStatistic::getScreeningTaskId, screeningTaskIds);
-        List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
-        return districtMonitorStatistics;
-    }
-
     /**
      * 获取数据
      *
      * @param noticeId
-     * @param districtId
+     * @param currentDistrictId
      * @param user
+     * @param istotal
      * @return
      * @throws IOException
      */
-    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndUser(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal, boolean isCurrent) throws IOException {
+    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) throws IOException {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DistrictMonitorStatistic::getScreeningNoticeId, noticeId);
         queryWrapper.eq(DistrictMonitorStatistic::getIsTotal, istotal);
-        if (isCurrent) {
-            queryWrapper.eq(DistrictMonitorStatistic::getDistrictId,currentDistrictId);
-        } else {
-            Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
-            districtIds.add(currentDistrictId);
-            queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIds);
+        queryWrapper.eq(DistrictMonitorStatistic::getDistrictId, currentDistrictId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 获取数据
+     *
+     * @param noticeId
+     * @param currentDistrictId
+     * @param user
+     * @param istotal
+     * @return
+     * @throws IOException
+     */
+    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) throws IOException {
+        if (noticeId == null || user == null) {
+            return new ArrayList<>();
         }
-        List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
+        List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
+        Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
+        districtIds.add(currentDistrictId);
+        Lists.partition(new ArrayList<>(districtIds), 100).forEach(districtIdList -> {
+            LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(DistrictMonitorStatistic::getScreeningNoticeId, noticeId);
+            queryWrapper.eq(DistrictMonitorStatistic::getIsTotal, istotal);
+            queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIdList);
+            districtMonitorStatistics.addAll(baseMapper.selectList(queryWrapper));
+        });
         return districtMonitorStatistics;
     }
 
     /**
      * 根据唯一索引批量新增或更新
+     *
      * @param districtMonitorStatistics
      */
     public void batchSaveOrUpdate(List<DistrictMonitorStatistic> districtMonitorStatistics) {
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return;
         }
-        baseMapper.batchSaveOrUpdate(districtMonitorStatistics);
+        Lists.partition(districtMonitorStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
     }
 }

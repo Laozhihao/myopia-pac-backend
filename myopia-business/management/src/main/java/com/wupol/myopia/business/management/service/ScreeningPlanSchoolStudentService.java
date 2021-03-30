@@ -337,7 +337,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
             }
-            existPlanStudent.setStudentName(student.getName())
+            existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName())
                     .setGradeId(student.getGradeId())
                     .setGradeName(student.getGradeName())
                     .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType())

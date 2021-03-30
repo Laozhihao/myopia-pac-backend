@@ -186,11 +186,13 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
     
-    <select id="selectSchoolIdByNoticeId" resultType="int" parameterType="integer">
-        select distinct school_id from m_stat_conclusion where src_screening_notice_id = #{noticeId}
+    <select id="selectSchoolIdsByScreeningNoticeIdAndDistrictIds" resultType="int" parameterType="java.util.Map">
+        select distinct school_id from m_stat_conclusion
+        WHERE src_screening_notice_id = #{screeningNoticeId}
+        AND district_id IN <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
     </select>
 
-    <select id="selectSchoolIdByScreeningOrgId" resultType="int" parameterType="integer">
-        select distinct school_id from m_stat_conclusion where screening_org_id = #{screeningOrgId}
+    <select id="selectSchoolIdByPlanId" resultType="int" parameterType="integer">
+        select distinct school_id from m_stat_conclusion where plan_id = #{planId}
     </select>
 </mapper>

@@ -56,15 +56,16 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * 根据筛查通知ID获取学校ID
      *
      * @param noticeId 筛查通知ID
+     * @param districtIds 行政区域ID集
      * @return java.util.List<java.lang.Integer>
      **/
-    List<Integer> selectSchoolIdByNoticeId(Integer noticeId);
+    List<Integer> selectSchoolIdsByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer noticeId, @Param("districtIds") List<Integer> districtIds);
 
     /**
-     * 根据筛查机构ID获取学校ID
+     * 根据筛查计划ID获取学校ID
      *
-     * @param screeningOrgId 筛查机构ID
+     * @param planId 筛查计划ID
      * @return java.util.List<java.lang.Integer>
      **/
-    List<Integer> selectSchoolIdByScreeningOrgId(Integer screeningOrgId);
+    List<Integer> selectSchoolIdByPlanId(Integer planId);
 }

@@ -50,10 +50,6 @@ public class StatManagementController {
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
     @Autowired
     private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private DistrictMonitorStatisticService districtMonitorStatisticService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度

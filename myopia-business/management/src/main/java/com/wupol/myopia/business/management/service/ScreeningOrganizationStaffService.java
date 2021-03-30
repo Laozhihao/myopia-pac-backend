@@ -57,7 +57,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 获取机构人员列表
      *
-     * @param request     请求入参
+     * @param request 请求入参
      * @return Page<UserExtDTO> {@link Page}
      */
     public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
@@ -87,19 +87,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             return page;
         }
         return page;
-    }
-
-    /**
-     * 删除用户
-     *
-     * @param id           id
-     * @param createUserId 创建人
-     * @return 删除个数
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public Integer deletedOrganizationStaff(Integer id, Integer createUserId) {
-        // TODO: 删除用户
-        return 1;
     }
 
     /**
@@ -343,8 +330,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 更新机构人员的id
      *
-     * @param currentUser
-     * @param resourceFile
+     * @param currentUser  当前用户
+     * @param resourceFile 资源文件
      */
     public void updateOrganizationStaffSignId(CurrentUser currentUser, ResourceFile resourceFile) {
         ScreeningOrganizationStaff screeningOrganizationStaff = new ScreeningOrganizationStaff();
