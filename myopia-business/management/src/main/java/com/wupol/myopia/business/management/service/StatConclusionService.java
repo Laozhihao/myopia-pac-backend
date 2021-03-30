@@ -172,7 +172,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param noticeId
      * @return
      */
-    public List<BigScreenStatDataDTO> getByNoticeidAndDistrictIds(Set<Integer> cityDistrictIdList, Integer noticeId) {
+    public List<BigScreenStatDataDTO> getByNoticeidAndDistrictIds(Integer noticeId) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen,false);
