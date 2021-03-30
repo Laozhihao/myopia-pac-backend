@@ -1220,6 +1220,7 @@ public class StatReportService {
         }
         return classList;
     }
+
     /**
      * 构建 性别 视力低下 统计
      * @param name 标题
