@@ -72,12 +72,7 @@ public class StatReportService {
      */
     private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
         StatConclusionQuery query = new StatConclusionQuery();
-        List<District> districts =
-                districtService.getChildDistrictByParentIdPriorityCache(districtId);
-        List<Integer> selectDistrictIds =
-                districts.stream().map(District::getId).collect(Collectors.toList());
-        selectDistrictIds.add(districtId);
-        query.setDistrictIds(selectDistrictIds);
+        query.setDistrictIds(districtService.getAllDistrictIds(districtId));
         return query;
     }
 
