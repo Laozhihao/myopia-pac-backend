@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -112,7 +113,7 @@ public class StatReportService {
      * @param num
      * @return
      */
-    private Float round2Digits(Double num) {
+    private Float round2Digits(double num) {
         return Math.round(num * 100) / 100f;
     }
 
@@ -604,7 +605,6 @@ public class StatReportService {
         return conclusionDesc;
     }
 
-
     /**
      * 构造 学龄/视力情况 描述
      *
@@ -713,15 +713,15 @@ public class StatReportService {
             query.setSrcScreeningNoticeId(srcScreeningNoticeId);
             startDate = notice.getStartTime();
             endDate = notice.getEndTime();
-            planStudentNum =screeningPlanSchoolStudentService.countPlanSchoolStudent(
-                srcScreeningNoticeId, schoolId);
-        }  else if (planId != null) {
+            planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(
+                    srcScreeningNoticeId, schoolId);
+        } else if (planId != null) {
             query.setPlanId(planId);
             ScreeningPlan sp = screeningPlanService.getById(planId);
             startDate = sp.getStartTime();
             endDate = sp.getEndTime();
             planStudentNum = sp.getStudentNumbers();
-        }else{
+        } else {
             throw new ParameterNotFoundException("Parameters not illegal");
         }
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
@@ -758,13 +758,12 @@ public class StatReportService {
         long warning2Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
         long warning3Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
-        float averageVisionValue =
-                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2;
+        float averageVisionValue = round2Digits(
+                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
         List<SchoolGradeItems> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
         List<StatConclusionReportVo> statConclusionReportVos =
-                statConclusionService.getReportVo(
-                        srcScreeningNoticeId, planId, schoolId);
+                statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<String, Object>() {
             {
                 put("schoolName", schoolName);
@@ -772,9 +771,7 @@ public class StatReportService {
                 put("validFirstScreeningNum", validFirstScreeningNum);
                 put("maleNum", maleList.size());
                 put("femaleNum", femaleList.size());
-                put("myopiaRatio",
-
-                        convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
+                put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
                 put("lowVisionRatio",
                         convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
                 put("averageVision", averageVisionValue);
@@ -822,7 +819,7 @@ public class StatReportService {
 
                 put("schoolClassStudentStatList",
                         composeSchoolClassStudentStatList(
-                                 schoolId, schoolGradeItems, statConclusionReportVos));
+                                schoolId, schoolGradeItems, statConclusionReportVos));
             }
         };
         if (startDate != null) {
@@ -842,8 +839,9 @@ public class StatReportService {
      * @param schoolGradeItemList 学校班级列表
      * @return
      */
-    private List<Map<String, List>> composeSchoolClassStudentStatList(
-            int schoolId, List<SchoolGradeItems> schoolGradeItemList, List<StatConclusionReportVo> statConclusionReportVos) {
+    private List<Map<String, List>> composeSchoolClassStudentStatList(int schoolId,
+            List<SchoolGradeItems> schoolGradeItemList,
+            List<StatConclusionReportVo> statConclusionReportVos) {
         List<Map<String, List>> schoolStudentStatList = new ArrayList<>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
@@ -1330,8 +1328,8 @@ public class StatReportService {
         Map<String, Object> levelMap = composeLevelStat(
                 name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         AverageVision averageVision = this.calculateAverageVision(statConclusions);
-        float averageVisionValue =
-                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2;
+        float averageVisionValue = round2Digits(
+                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
         levelMap.put("averageVision", averageVisionValue);
         return levelMap;
     }
@@ -1503,26 +1501,28 @@ public class StatReportService {
     private void genScreeningData(
             StatConclusionReportVo vo, VisionScreeningResultReportVo reportVo) {
         reportVo.setNakedVisions(
-                        eyeDateFormat((BigDecimal) JSONPath.eval(
+                        eyeDataFormat((BigDecimal) JSONPath.eval(
                                               vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
                                 (BigDecimal) JSONPath.eval(
-                                        vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                                        vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION),
+                                1))
                 .setCorrectedVisions(
-                        eyeDateFormat((BigDecimal) JSONPath.eval(vo,
+                        eyeDataFormat((BigDecimal) JSONPath.eval(vo,
                                               ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION),
                                 (BigDecimal) JSONPath.eval(
-                                        vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                .setSphs(eyeDateFormat(
+                                        vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION),
+                                1))
+                .setSphs(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setCyls(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
+                .setCyls(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setAxials(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
+                .setAxials(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
                 .setSphericalEquivalents(
-                        eyeDateFormat(StatUtil.getSphericalEquivalent(
+                        eyeDataFormat(StatUtil.getSphericalEquivalent(
                                               (BigDecimal) JSONPath.eval(
                                                       vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
                                               (BigDecimal) JSONPath.eval(
@@ -1531,7 +1531,8 @@ public class StatReportService {
                                         (BigDecimal) JSONPath.eval(
                                                 vo, ScreeningResultPahtConst.LEFTEYE_SPH),
                                         (BigDecimal) JSONPath.eval(
-                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL)),
+                                2))
                 .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
                 .setCorrectionType(vo.getCorrectionType());
     }
@@ -1542,9 +1543,18 @@ public class StatReportService {
      * @param leftEyeData
      * @return
      */
-    private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
-        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData,
-                Objects.isNull(leftEyeData) ? "--" : leftEyeData);
+    private String eyeDataFormat(BigDecimal rightEyeData, BigDecimal leftEyeData, int scale) {
+        // 不足两位小数补0
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        if (scale == 0) {
+            decimalFormat = new DecimalFormat("#");
+        }
+        if (scale == 1) {
+            decimalFormat = new DecimalFormat("0.0");
+        }
+        return String.format("%s/%s",
+                Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData),
+                Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
     }
 
     /**
