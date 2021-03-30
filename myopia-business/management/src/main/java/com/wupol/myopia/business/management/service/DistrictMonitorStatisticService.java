@@ -44,8 +44,7 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
         queryWrapper.eq(DistrictMonitorStatistic::getScreeningNoticeId, noticeId);
         queryWrapper.eq(DistrictMonitorStatistic::getIsTotal, istotal);
         queryWrapper.eq(DistrictMonitorStatistic::getDistrictId, currentDistrictId);
-        List<DistrictMonitorStatistic> districtMonitorStatistics = baseMapper.selectList(queryWrapper);
-        return districtMonitorStatistics;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**

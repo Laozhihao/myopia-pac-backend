@@ -44,8 +44,7 @@ public class DistrictAttentiveObjectsStatisticService extends BaseService<Distri
         }
         queryWrapper.eq(DistrictAttentiveObjectsStatistic::getDistrictId, currentDistrictId);
         queryWrapper.orderByDesc(DistrictAttentiveObjectsStatistic::getUpdateTime);
-        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = baseMapper.selectList(queryWrapper);
-        return districtAttentiveObjectsStatistics;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
