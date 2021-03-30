@@ -47,4 +47,8 @@ public interface GovDeptMapper extends BaseMapper<GovDept> {
      **/
     List<GovDept> selectGovDeptList(GovDept govDept);
 
+    GovDept findByIdAndNeStatus(@Param("id") Integer id, @Param("status") Integer status);
+
+    List<GovDept> findByPidAndNeStatus(@Param("pids") List<Integer> pids, @Param("status") Integer status);
+
 }

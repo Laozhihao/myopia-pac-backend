@@ -44,8 +44,7 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
         queryWrapper.eq(DistrictVisionStatistic::getScreeningNoticeId, noticeId);
         queryWrapper.eq(DistrictVisionStatistic::getIsTotal, istotal);
         queryWrapper.eq(DistrictVisionStatistic::getDistrictId, currentDistrictId);
-        List<DistrictVisionStatistic> districtVisionStatistics = baseMapper.selectList(queryWrapper);
-        return districtVisionStatistics;
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**

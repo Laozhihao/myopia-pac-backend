@@ -7,13 +7,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,20 +45,6 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      **/
     public List<T> findByList(T entity) throws IOException {
         return list(getQueryWrapper(entity));
-    }
-
-    /**
-     * 查询List集合
-     *
-     * @param entity 查询实体参数
-     * @return java.util.List<T>
-     **/
-    public List<T> findByList(T entity, String column, Boolean isDesc) throws IOException {
-        if (StringUtils.isEmpty(column)){
-            return list(getQueryWrapper(entity));
-        }
-        if (isDesc) return list(getQueryWrapper(entity).orderByDesc(column));
-        return list(getQueryWrapper(entity).orderByAsc(column));
     }
 
     /**
@@ -130,73 +114,22 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     }
 
     /**
-     * in拼接
+     * 更新或新增
      *
-     * @param queryWrapper wrapper
-     * @param column       字段名
-     * @param coll         集合
+     * @param entity 实体
+     * @return boolean
      */
-    public void InQueryAppend(QueryWrapper<T> queryWrapper, String column, Collection<?> coll) {
-        queryWrapper.in(column, coll);
+    public boolean updateOrSave(T entity) {
+        return saveOrUpdate(entity);
     }
 
     /**
-     * 等于拼接
+     * 批量新增或更新
      *
-     * @param queryWrapper wrapper
-     * @param column       字段名字
-     * @param val          值
+     * @param entityList 实体类列表
+     * @return boolean
      */
-    public void equalsQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
-        queryWrapper.eq(column, val);
-    }
-
-    /**
-     * 不等于拼接
-     *
-     * @param queryWrapper wrapper
-     * @param column       字段名字
-     * @param val          值
-     */
-    public void notEqualsQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
-        queryWrapper.ne(column, val);
-    }
-
-    /**
-     * like拼接
-     *
-     * @param queryWrapper wrapper
-     * @param column       字段名字
-     * @param val          值
-     */
-    public void likeQueryAppend(QueryWrapper<T> queryWrapper, String column, Object val) {
-        queryWrapper.like(column, val);
-    }
-
-    /**
-     * or-like拼接
-     *
-     * @param queryWrapper wrapper
-     * @param columns      字段名字
-     * @param val          值
-     */
-    public void orLikeQueryAppend(QueryWrapper<T> queryWrapper, List<String> columns, Object val) {
-        queryWrapper.and(Wrapper -> {
-            for (String column : columns) {
-                Wrapper.like(column, val).or();
-            }
-        });
-    }
-
-    /**
-     * between拼接
-     *
-     * @param queryWrapper wrapper
-     * @param columns      字段名字
-     * @param val1         值1
-     * @param val2         值2
-     */
-    public void betweenQueryAppend(QueryWrapper<T> queryWrapper, String columns, Object val1, Object val2) {
-        queryWrapper.between(columns, val1, val2);
+    public boolean batchUpdateOrSave(List<T> entityList) {
+        return saveOrUpdateBatch(entityList);
     }
 }
