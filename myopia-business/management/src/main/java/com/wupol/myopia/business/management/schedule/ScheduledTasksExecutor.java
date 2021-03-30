@@ -301,13 +301,10 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 筛查数据统计
+     * 筛查数据统计 测试环境暂时关闭
      */
     //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-    //@Scheduled(cron = "*/20 * * * * ?", zone = "GMT+8:00")
     public void statisticBigScreen() throws IOException {
-        //todo 方便测试
-        districtBigScreenStatisticService.getBaseMapper().delete(new QueryWrapper<DistrictBigScreenStatistic>());
         //找到所有省级部门
         List<GovDept> proviceGovDepts = govDeptService.getProviceGovDept();
         Set<Integer> govDeptIds = proviceGovDepts.stream().map(GovDept::getId).collect(Collectors.toSet());
@@ -326,7 +323,7 @@ public class ScheduledTasksExecutor {
         for (Integer provinceDistrictId : provinceDistrictIds) {
             DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, districtIdNoticeMap.get(provinceDistrictId));
             if (districtBigScreenStatistic != null) {
-                districtBigScreenStatisticService.getBaseMapper().insert(districtBigScreenStatistic);
+                districtBigScreenStatisticService.saveOrUpdateByDistrictId(districtBigScreenStatistic);
             }
         }
     }

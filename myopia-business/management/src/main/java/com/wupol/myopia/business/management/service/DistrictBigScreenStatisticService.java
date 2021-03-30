@@ -11,6 +11,9 @@ import com.wupol.myopia.business.management.domain.vo.bigscreening.BigScreeningV
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.Objects;
+
 /**
  * @Author HaoHao
  * @Date 2021-03-07
@@ -64,5 +67,21 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
         LambdaQueryWrapper<DistrictBigScreenStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DistrictBigScreenStatistic::getScreeningNoticeId, noticeId).eq(DistrictBigScreenStatistic::getDistrictId, districtId);
         return baseMapper.selectOne(queryWrapper);
+    }
+
+    /**
+     * 保存 或 通过id更新
+     * @param districtBigScreenStatistic
+     * @return
+     */
+    public boolean saveOrUpdateByDistrictId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
+        if (null == districtBigScreenStatistic) {
+            return false;
+        } else {
+            Integer districtId = districtBigScreenStatistic.getDistrictId();
+            LambdaQueryWrapper<DistrictBigScreenStatistic> districtBigScreenStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getDistrictId,districtId);
+            return  Objects.nonNull(districtId) && !Objects.isNull(this.findOne(new DistrictBigScreenStatistic().setDistrictId(districtId))) ? this.update(districtBigScreenStatistic,districtBigScreenStatisticLambdaQueryWrapper) : this.save(districtBigScreenStatistic);
+        }
     }
 }
