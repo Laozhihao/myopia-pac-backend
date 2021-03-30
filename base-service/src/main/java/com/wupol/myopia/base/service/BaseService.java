@@ -122,4 +122,14 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
     public boolean updateOrSave(T entity) {
         return saveOrUpdate(entity);
     }
+
+    /**
+     * 批量新增或更新
+     *
+     * @param entityList 实体类列表
+     * @return boolean
+     */
+    public boolean batchUpdateOrSave(List<T> entityList) {
+        return saveOrUpdateBatch(entityList);
+    }
 }
