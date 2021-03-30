@@ -138,16 +138,6 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
-     * 通过学校ID统计计划
-     *
-     * @param schoolId 学校ID
-     * @return List<ScreeningPlanSchool>
-     */
-    public List<ScreeningPlanSchool> countBySchoolId(Integer schoolId) {
-        return baseMapper.countBySchoolId(schoolId);
-    }
-
-    /**
      * 获取该筛查机构目前的筛查学校
      *
      * @param schoolName 学校名称
