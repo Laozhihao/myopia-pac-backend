@@ -1062,18 +1062,23 @@ public class StatReportService {
                 add(totalStat);
             }
         };
-        int totalSize = totalStat.size();
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
-        BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
+        int totalLevelStatSize = totalLevelStat.size();
+        BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalLevelStatSize - 1);
         return new HashMap<String, Object>() {
             {
                 put("list", list);
                 put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
+                put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
             }
         };
     }
 
+    /**
+     * 从list中获取占比最高的头部list
+     * @param list
+     * @return
+     */
     private List<BasicStatParams> getTopStatList(List<BasicStatParams> list) {
         Map<Float, List<BasicStatParams>> map =
                 list.stream().collect(Collectors.groupingBy(BasicStatParams::getRatio));
