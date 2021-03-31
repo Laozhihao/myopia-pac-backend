@@ -284,13 +284,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        return screeningResults.stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE)).map(s -> {
-            CountReportItems items = new CountReportItems();
-            items.setId(s.getId());
-            items.setCreateTime(s.getCreateTime());
-            items.setUpdateTime(s.getUpdateTime());
-            return items;
-        }).collect(Collectors.toList());
+        return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
+                .map(result -> {
+                    CountReportItems items = new CountReportItems();
+                    items.setId(result.getId());
+                    items.setCreateTime(result.getCreateTime());
+                    items.setUpdateTime(result.getUpdateTime());
+                    return items;
+                }).collect(Collectors.toList());
     }
 
     /**
@@ -366,7 +367,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId)
-                .stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE))
+                .stream()
+                .filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
                 .collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));

@@ -264,13 +264,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                         StudentScreeningCountVO::getCount));
 
         // 封装DTO
-        for (StudentDTO s : students) {
+        for (StudentDTO student : students) {
             // 筛查次数
-            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+            student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // TODO: 就诊次数
-            s.setNumOfVisits(0);
+            student.setNumOfVisits(0);
             // TODO: 设置问卷数
-            s.setQuestionnaireCount(0);
+            student.setQuestionnaireCount(0);
         }
         return pageStudents;
     }
@@ -323,17 +323,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
-        for (VisionScreeningResult r : resultList) {
+        for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItems item = new StudentScreeningResultItems();
-            List<StudentResultDetails> result = packageDTO(r);
-            item.setDetails(result);
-            item.setScreeningDate(r.getUpdateTime());
+            List<StudentResultDetails> resultDetail = packageDTO(result);
+            item.setDetails(resultDetail);
+            item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-            if (null != r.getVisionData() && null != r.getVisionData().getLeftEyeData() && null != r.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
+            if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
+                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
             }
-            item.setResultId(r.getId());
-            item.setIsDoubleScreen(r.getIsDoubleScreen());
+            item.setResultId(result.getId());
+            item.setIsDoubleScreen(result.getIsDoubleScreen());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
@@ -449,54 +449,101 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         rightDetails.setLateriality(CommonConst.RIGHT_EYE);
 
         if (null != result.getVisionData()) {
-            // 左眼-视力检查结果
-            leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
-            leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
-            leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
-
-            // 右眼-视力检查结果
-            rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
-            rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
-            rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+            // 视力检查结果
+            packageVisionResult(result, leftDetails, rightDetails);
         }
         if (null != result.getComputerOptometry()) {
-            // 左眼--电脑验光
-            leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
-            leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
-                    result.getComputerOptometry().getLeftEyeData().getCyl()));
-            leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
-            leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
-
-            // 左眼--电脑验光
-            rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
-            rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
-                    result.getComputerOptometry().getRightEyeData().getCyl()));
-            rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
-            rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+            // 电脑验光
+            packageComputerOptometryResult(result, leftDetails, rightDetails);
         }
         if (null != result.getBiometricData()) {
-            // 左眼--生物测量
-            leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
-            leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
-            leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
-            leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
-            leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
-
-            // 右眼--生物测量
-            rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
-            rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
-            rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
-            rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
-            rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
+            // 生物测量
+            packageBiometricDataResult(result, leftDetails, rightDetails);
         }
         if (null != result.getOtherEyeDiseases()) {
-            // 左眼--眼部疾病
-            leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
-
-            // 右眼--眼部疾病
-            rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
+            // 眼部疾病
+            packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
         }
         return Lists.newArrayList(rightDetails, leftDetails);
+    }
+
+    /**
+     * 封装视力检查结果
+     *
+     * @param result       原始视力筛查结果
+     * @param leftDetails  左眼数据
+     * @param rightDetails 右眼数据
+     */
+    private void packageVisionResult(VisionScreeningResult result, StudentResultDetails leftDetails, StudentResultDetails rightDetails) {
+        // 左眼-视力检查结果
+        leftDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
+        leftDetails.setCorrectedVision(result.getVisionData().getLeftEyeData().getCorrectedVision());
+        leftDetails.setNakedVision(result.getVisionData().getLeftEyeData().getNakedVision());
+
+        // 右眼-视力检查结果
+        rightDetails.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getRightEyeData().getGlassesType()));
+        rightDetails.setCorrectedVision(result.getVisionData().getRightEyeData().getCorrectedVision());
+        rightDetails.setNakedVision(result.getVisionData().getRightEyeData().getNakedVision());
+    }
+
+    /**
+     * 封装电脑验光
+     *
+     * @param result       原始视力筛查结果
+     * @param leftDetails  左眼数据
+     * @param rightDetails 右眼数据
+     */
+    private void packageComputerOptometryResult(VisionScreeningResult result, StudentResultDetails leftDetails, StudentResultDetails rightDetails) {
+        // 左眼--电脑验光
+        leftDetails.setAxial(result.getComputerOptometry().getLeftEyeData().getAxial());
+        leftDetails.setSe(calculationSE(result.getComputerOptometry().getLeftEyeData().getSph(),
+                result.getComputerOptometry().getLeftEyeData().getCyl()));
+        leftDetails.setCyl(result.getComputerOptometry().getLeftEyeData().getCyl());
+        leftDetails.setSph(result.getComputerOptometry().getLeftEyeData().getSph());
+
+        // 左眼--电脑验光
+        rightDetails.setAxial(result.getComputerOptometry().getRightEyeData().getAxial());
+        rightDetails.setSe(calculationSE(result.getComputerOptometry().getRightEyeData().getSph(),
+                result.getComputerOptometry().getRightEyeData().getCyl()));
+        rightDetails.setCyl(result.getComputerOptometry().getRightEyeData().getCyl());
+        rightDetails.setSph(result.getComputerOptometry().getRightEyeData().getSph());
+    }
+
+    /**
+     * 封装生物测量结果
+     *
+     * @param result       原始视力筛查结果
+     * @param leftDetails  左眼数据
+     * @param rightDetails 右眼数据
+     */
+    private void packageBiometricDataResult(VisionScreeningResult result, StudentResultDetails leftDetails, StudentResultDetails rightDetails) {
+        // 左眼--生物测量
+        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
+        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
+        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
+        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
+        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
+
+        // 右眼--生物测量
+        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
+        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
+        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
+        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
+        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
+    }
+
+    /**
+     * 封装眼部疾病结果
+     *
+     * @param result       原始视力筛查结果
+     * @param leftDetails  左眼数据
+     * @param rightDetails 右眼数据
+     */
+    private void packageOtherEyeDiseasesResult(VisionScreeningResult result, StudentResultDetails leftDetails, StudentResultDetails rightDetails) {
+        // 左眼--眼部疾病
+        leftDetails.setEyeDiseases(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases());
+        // 右眼--眼部疾病
+        rightDetails.setEyeDiseases(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases());
     }
 
     /**
@@ -804,18 +851,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
                 .stream().map(Student::getGradeId).collect(Collectors.toList()));
 
-        students.forEach(s -> {
+        students.forEach(student -> {
             HospitalStudentDTO dto = new HospitalStudentDTO();
-            BeanUtils.copyProperties(s, dto);
+            BeanUtils.copyProperties(student, dto);
 
-            if (StringUtils.isNotBlank(s.getSchoolNo())) {
-                dto.setSchool(schoolMaps.get(s.getSchoolNo()));
+            if (StringUtils.isNotBlank(student.getSchoolNo())) {
+                dto.setSchool(schoolMaps.get(student.getSchoolNo()));
             }
-            if (null != s.getClassId()) {
-                dto.setSchoolClass(classMaps.get(s.getClassId()));
+            if (null != student.getClassId()) {
+                dto.setSchoolClass(classMaps.get(student.getClassId()));
             }
-            if (null != s.getGradeId()) {
-                dto.setSchoolGrade(gradeMaps.get(s.getGradeId()));
+            if (null != student.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(student.getGradeId()));
             }
             dtoList.add(dto);
         });
@@ -830,18 +877,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private Map<Long, District> getDistrictMap(List<Student> students) {
         List<Long> districtCode = new ArrayList<>();
-        students.forEach(d -> {
-            if (null != d.getProvinceCode()) {
-                districtCode.add(d.getProvinceCode());
+        students.forEach(student -> {
+            if (null != student.getProvinceCode()) {
+                districtCode.add(student.getProvinceCode());
             }
-            if (null != d.getCityCode()) {
-                districtCode.add(d.getCityCode());
+            if (null != student.getCityCode()) {
+                districtCode.add(student.getCityCode());
             }
-            if (null != d.getAreaCode()) {
-                districtCode.add(d.getAreaCode());
+            if (null != student.getAreaCode()) {
+                districtCode.add(student.getAreaCode());
             }
-            if (null != d.getTownCode()) {
-                districtCode.add(d.getTownCode());
+            if (null != student.getTownCode()) {
+                districtCode.add(student.getTownCode());
             }
         });
 
