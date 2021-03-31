@@ -95,7 +95,7 @@
     <select id="findByIdAndNeStatus" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from m_government_department
+        from m_government_department gd
         where id = #{id}
           and status != #{status}
         limit 1
@@ -104,7 +104,7 @@
     <select id="findByPidAndNeStatus" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from m_government_department where status != #{status}
+        from m_government_department gd where status != #{status}
         <if test="pids != null and pids.size() != 0">
             and pid in
             <foreach collection="pids" open="(" close=")" separator="," item="item">
