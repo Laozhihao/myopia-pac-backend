@@ -337,25 +337,25 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap,
                                                              Map<String, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
-        return s -> {
+        return school -> {
             // 创建人
-            s.setCreateUser(userDTOMap.get(s.getCreateUserId()).getRealName());
+            school.setCreateUser(userDTOMap.get(school.getCreateUserId()).getRealName());
 
             // 判断是否能更新
-            s.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+            school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
 
             // 行政区名字
-            s.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+            school.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
 
             // 筛查次数
-            s.setScreeningCount(planSchoolMaps.getOrDefault(s.getId(), 0L));
+            school.setScreeningCount(planSchoolMaps.getOrDefault(school.getId(), 0L));
 
             // 学生统计
-            s.setStudentCount(studentCountMaps.getOrDefault(s.getSchoolNo(), 0));
+            school.setStudentCount(studentCountMaps.getOrDefault(school.getSchoolNo(), 0));
 
             // 详细地址
-            s.setAddressDetail(districtService.getAddressDetails(
-                    s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+            school.setAddressDetail(districtService.getAddressDetails(
+                    school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
         };
     }
 
@@ -465,13 +465,13 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                     .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
 
             // 封装DTO
-            plans.forEach(p -> {
-                p.setOrgName(orgMaps.get(p.getScreeningOrgId()));
-                SchoolVisionStatistic schoolVisionStatistic = statisticMaps.get(p.getId());
+            plans.forEach(plan -> {
+                plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
+                SchoolVisionStatistic schoolVisionStatistic = statisticMaps.get(plan.getId());
                 if (null == schoolVisionStatistic) {
-                    p.setItems(new ArrayList<>());
+                    plan.setItems(new ArrayList<>());
                 } else {
-                    p.setItems(Lists.newArrayList(schoolVisionStatistic));
+                    plan.setItems(Lists.newArrayList(schoolVisionStatistic));
                 }
             });
         }
@@ -593,10 +593,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public SchoolResponseDTO getBySchoolId(Integer id) {
         SchoolResponseDTO responseDTO = new SchoolResponseDTO();
-        School s = baseMapper.selectById(id);
-        BeanUtils.copyProperties(s, responseDTO);
+        School school = baseMapper.selectById(id);
+        BeanUtils.copyProperties(school, responseDTO);
         responseDTO.setAddressDetail(districtService.getAddressDetails(
-                s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
+                school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
         return responseDTO;
     }
 

@@ -264,13 +264,13 @@ public class StudentService extends BaseService<StudentMapper, Student> {
                         StudentScreeningCountVO::getCount));
 
         // 封装DTO
-        for (StudentDTO s : students) {
+        for (StudentDTO student : students) {
             // 筛查次数
-            s.setScreeningCount(countMaps.getOrDefault(s.getId(), 0));
+            student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // TODO: 就诊次数
-            s.setNumOfVisits(0);
+            student.setNumOfVisits(0);
             // TODO: 设置问卷数
-            s.setQuestionnaireCount(0);
+            student.setQuestionnaireCount(0);
         }
         return pageStudents;
     }
@@ -323,17 +323,17 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         // 通过学生id查询结果
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId);
 
-        for (VisionScreeningResult r : resultList) {
+        for (VisionScreeningResult result : resultList) {
             StudentScreeningResultItems item = new StudentScreeningResultItems();
-            List<StudentResultDetails> result = packageDTO(r);
-            item.setDetails(result);
-            item.setScreeningDate(r.getUpdateTime());
+            List<StudentResultDetails> resultDetail = packageDTO(result);
+            item.setDetails(resultDetail);
+            item.setScreeningDate(result.getUpdateTime());
             // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
-            if (null != r.getVisionData() && null != r.getVisionData().getLeftEyeData() && null != r.getVisionData().getLeftEyeData().getGlassesType()) {
-                item.setGlassesType(WearingGlassesSituation.getType(r.getVisionData().getLeftEyeData().getGlassesType()));
+            if (null != result.getVisionData() && null != result.getVisionData().getLeftEyeData() && null != result.getVisionData().getLeftEyeData().getGlassesType()) {
+                item.setGlassesType(WearingGlassesSituation.getType(result.getVisionData().getLeftEyeData().getGlassesType()));
             }
-            item.setResultId(r.getId());
-            item.setIsDoubleScreen(r.getIsDoubleScreen());
+            item.setResultId(result.getId());
+            item.setIsDoubleScreen(result.getIsDoubleScreen());
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
@@ -851,18 +851,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
                 .stream().map(Student::getGradeId).collect(Collectors.toList()));
 
-        students.forEach(s -> {
+        students.forEach(student -> {
             HospitalStudentDTO dto = new HospitalStudentDTO();
-            BeanUtils.copyProperties(s, dto);
+            BeanUtils.copyProperties(student, dto);
 
-            if (StringUtils.isNotBlank(s.getSchoolNo())) {
-                dto.setSchool(schoolMaps.get(s.getSchoolNo()));
+            if (StringUtils.isNotBlank(student.getSchoolNo())) {
+                dto.setSchool(schoolMaps.get(student.getSchoolNo()));
             }
-            if (null != s.getClassId()) {
-                dto.setSchoolClass(classMaps.get(s.getClassId()));
+            if (null != student.getClassId()) {
+                dto.setSchoolClass(classMaps.get(student.getClassId()));
             }
-            if (null != s.getGradeId()) {
-                dto.setSchoolGrade(gradeMaps.get(s.getGradeId()));
+            if (null != student.getGradeId()) {
+                dto.setSchoolGrade(gradeMaps.get(student.getGradeId()));
             }
             dtoList.add(dto);
         });
@@ -877,18 +877,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     private Map<Long, District> getDistrictMap(List<Student> students) {
         List<Long> districtCode = new ArrayList<>();
-        students.forEach(d -> {
-            if (null != d.getProvinceCode()) {
-                districtCode.add(d.getProvinceCode());
+        students.forEach(student -> {
+            if (null != student.getProvinceCode()) {
+                districtCode.add(student.getProvinceCode());
             }
-            if (null != d.getCityCode()) {
-                districtCode.add(d.getCityCode());
+            if (null != student.getCityCode()) {
+                districtCode.add(student.getCityCode());
             }
-            if (null != d.getAreaCode()) {
-                districtCode.add(d.getAreaCode());
+            if (null != student.getAreaCode()) {
+                districtCode.add(student.getAreaCode());
             }
-            if (null != d.getTownCode()) {
-                districtCode.add(d.getTownCode());
+            if (null != student.getTownCode()) {
+                districtCode.add(student.getTownCode());
             }
         });
 
