@@ -5,6 +5,7 @@ import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
+import com.wupol.myopia.business.management.constant.VisionCorrection;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
@@ -121,19 +122,44 @@ public class StatConclusionBuilder {
         statConclusion.setSchoolGradeCode(gradeCode);
     }
 
+    /**
+     * 设置视力相关的数据
+     */
     private void setVisionRelatedData() {
         this.setHyperopia();
         this.setAstigmatism();
         this.setVisionOtherData();
         this.setNakedVisionWarningLevel();
         this.setMyopiaWarningLevel();
-
+        this.setVisionCorrection();
     }
 
+    /**
+     * 设置视力矫正的情况
+     */
+    private void setVisionCorrection() {
+        double keyParam = 4.9D;
+        if (ObjectsUtil.allNotNull(basicData.rightNakedVision, basicData.leftNakedVision) && basicData.rightNakedVision >= keyParam && basicData.leftNakedVision >= keyParam) {
+            statConclusion.setVisionCorrection(VisionCorrection.NORMAL.code);
+        } else if (!basicData.isWearingGlasses) {
+            statConclusion.setVisionCorrection(VisionCorrection.UNCORRECTED.code);
+        } else if (ObjectsUtil.allNotNull(basicData.leftCorrectVision, basicData.rightCorrectVision) && basicData.leftCorrectVision > keyParam && basicData.leftCorrectVision > keyParam) {
+            statConclusion.setVisionCorrection(VisionCorrection.ENOUGH_CORRECTED.code);
+        } else {
+            statConclusion.setVisionCorrection(VisionCorrection.UNDER_CORRECTED.code);
+        }
+    }
+
+    /**
+     * 设置近视预警级别
+     */
     private void setMyopiaWarningLevel() {
         statConclusion.setMyopiaWarningLevel(basicData.myopiaWarningLevel);
     }
 
+    /**
+     * 设置裸眼视力预警级别
+     */
     private void setNakedVisionWarningLevel() {
         statConclusion.setNakedVisionWarningLevel(basicData.nakedVisionWarningLevel);
     }
@@ -150,15 +176,21 @@ public class StatConclusionBuilder {
         return this;
     }
 
+    /**
+     * 设置视力的其他数据
+     */
     private void setVisionOtherData() {
         statConclusion.setGlassesType(basicData.glassesType);
         statConclusion.setVisionR(basicData.rightNakedVision == null ? 0.0f : basicData.rightNakedVision);
         statConclusion.setVisionL(basicData.leftNakedVision == null ? 0.0f : basicData.leftNakedVision);
     }
 
+    /**
+     * 设置预警级别
+     */
     private void setWarningLevel() {
         // 特殊处理
-        if(basicData.glassesType != null && basicData.glassesType == 3) {
+        if (basicData.glassesType != null && basicData.glassesType == 3) {
             statConclusion.setWarningLevel(2);
             return;
         }
@@ -197,7 +229,9 @@ public class StatConclusionBuilder {
         }
     }
 
-
+    /**
+     * 设置视力低下的数据
+     */
     private void setLowVision() {
         boolean isLeftResult = false;
         boolean isrightResult = false;
@@ -329,6 +363,7 @@ public class StatConclusionBuilder {
 
     /**
      * 判断是否在范围内
+     *
      * @param beforeValue
      * @param afterValue
      * @param rangeValue

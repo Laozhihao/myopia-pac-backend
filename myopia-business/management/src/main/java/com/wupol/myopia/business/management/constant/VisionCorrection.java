@@ -7,8 +7,7 @@ public enum VisionCorrection {
     UNCORRECTED(1, "未矫"),
     UNDER_CORRECTED(2, "欠矫"),
     ENOUGH_CORRECTED(3, "足矫"),
-    OVER_CORRECTED(4, "过矫"),
-    CORRECTED(5, "矫正");
+    OVER_CORRECTED(4, "过矫");
 
     /** 学龄段ID */
     public final Integer code;
