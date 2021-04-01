@@ -18,19 +18,19 @@ public interface CacheKey {
     String DISTRICT_ALL_PROVINCE_TREE = "district:all:province_tree";
 
     /**
-     * 指定的行政区域
+     * 指定的行政区域的路径明细（从省开始）
      */
-    String DISTRICT_LIST = "district:list:code_%s";
+    String DISTRICT_POSITION_DETAIL = "district:position_detail:code_%s";
+
     /**
-     * 指定的行政区域和它的子节点区域树
+     * 指定的行政区域为根节点的区域树
      */
     String DISTRICT_TREE = "district:tree:code_%s";
-    String DISTRICT_CHILD_TREE = "district:child:parent_code_%s";
+
     /**
-     * 指定的省的行政区域
+     * 指定的行政区域的下级行政区域
      */
-    String DISTRICT_PROVINCE_LIST = "district:province_list:code_%s";
-    String DISTRICT_PROVINCE_TREE = "district:province_tree:code_%s";
+    String DISTRICT_CHILD = "district:child:parent_code_%s";
 
     /**
      * 新增员工

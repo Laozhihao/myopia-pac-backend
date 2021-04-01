@@ -431,11 +431,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) throws IOException {
         Assert.notNull(parentCode, "行政区域代码编号不能为空");
-        String key = String.format(CacheKey.DISTRICT_CHILD_TREE, parentCode);
+        String key = String.format(CacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
-            });
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
@@ -491,9 +490,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     public List<District> getDistrictPositionDetail(long districtCode) {
         Assert.isTrue(districtCode >= SMALLEST_PROVINCE_CODE, "无效行政区域代码：" + districtCode);
+        String key = String.format(CacheKey.DISTRICT_POSITION_DETAIL, districtCode);
+        Object cacheList = redisUtil.get(key);
+        if (!Objects.isNull(cacheList)) {
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+        }
         List<District> districtList = new ArrayList<>();
         searchParentDistrictDetail(districtList, getDistrictByCode(districtCode));
-        return districtList.stream().sorted(Comparator.comparing(District::getCode)).collect(Collectors.toList());
+        districtList = districtList.stream().sorted(Comparator.comparing(District::getCode)).collect(Collectors.toList());
+        redisUtil.set(key, districtList);
+        return districtList;
     }
 
     /**
