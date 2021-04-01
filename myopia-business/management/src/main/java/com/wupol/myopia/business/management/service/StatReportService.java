@@ -916,19 +916,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUncorrectedStat("total", statConclusions);
+                composeGenderVisionUncorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -946,19 +948,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUnderCorrectedStat("total", statConclusions);
+                composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
