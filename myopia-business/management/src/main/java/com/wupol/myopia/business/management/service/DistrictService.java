@@ -431,11 +431,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) throws IOException {
         Assert.notNull(parentCode, "行政区域代码编号不能为空");
-        String key = String.format(CacheKey.DISTRICT_CHILD_TREE, parentCode);
+        String key = String.format(CacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
-            });
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
@@ -491,13 +490,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      **/
     public List<District> getDistrictPositionDetail(long districtCode) {
         Assert.isTrue(districtCode >= SMALLEST_PROVINCE_CODE, "无效行政区域代码：" + districtCode);
-        List<District> districtList = new ArrayList<>();
-        Object cache = redisUtil.hget(CacheKey.DISTRICT_ALL_LIST, String.valueOf(districtCode));
-        if (Objects.isNull(cache)) {
-            return districtList;
+        String key = String.format(CacheKey.DISTRICT_POSITION_DETAIL, districtCode);
+        Object cacheList = redisUtil.get(key);
+        if (!Objects.isNull(cacheList)) {
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
-        searchParentDistrictDetail(districtList, JSONObject.parseObject(JSON.toJSONString(cache), District.class));
-        return districtList.stream().sorted(Comparator.comparing(District::getCode)).collect(Collectors.toList());
+        List<District> districtList = new ArrayList<>();
+        searchParentDistrictDetail(districtList, getDistrictByCode(districtCode));
+        districtList = districtList.stream().sorted(Comparator.comparing(District::getCode)).collect(Collectors.toList());
+        redisUtil.set(key, districtList);
+        return districtList;
     }
 
     /**
@@ -514,8 +516,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         districtList.add(currentDistrict);
         // 为省级时，停止寻找
         if (currentDistrict.getParentCode() != PROVINCE_PARENT_CODE) {
-            Object cache = redisUtil.hget(CacheKey.DISTRICT_ALL_LIST, String.valueOf(currentDistrict.getParentCode()));
-            searchParentDistrictDetail(districtList, JSONObject.parseObject(JSON.toJSONString(cache), District.class));
+            searchParentDistrictDetail(districtList, getDistrictByCode(currentDistrict.getCode()));
         }
     }
 
@@ -553,6 +554,30 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         districtIds.add(districtTree.getId());
         getAllIds(districtIds, districtTree.getChild());
         return districtIds;
+    }
+
+    /**
+     * 根据code获取行政区域
+     *
+     * @param districtCode 行政区域code
+     * @return com.wupol.myopia.business.management.domain.model.District
+     **/
+    public District getDistrictByCode(Long districtCode) {
+        Assert.notNull(districtCode, "行政区域code为空");
+        String codeStr = String.valueOf(districtCode);
+        Object districtCache = redisUtil.hget(CacheKey.DISTRICT_ALL_LIST, codeStr);
+        if (Objects.nonNull(districtCache)) {
+            return JSONObject.parseObject(JSON.toJSONString(districtCache), District.class);
+        }
+        District district;
+        try {
+            district = findOne(new District().setCode(districtCode));
+        } catch (IOException e) {
+            logger.error("存在多个行政区域的code={}", districtCode, e);
+            throw new BusinessException("存在多个行政区域的code=" + districtCode, e);
+        }
+        redisUtil.hset(CacheKey.DISTRICT_ALL_LIST, codeStr, district);
+        return district;
     }
 
     /**

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.Range;
 import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.constraints.NotBlank;
@@ -78,7 +79,7 @@ public class Student implements Serializable {
      * 性别 0-男 1-女
      */
     @NotNull(message = "性别不能为空")
-    @Pattern(regexp = "^[0|1]$", message = "性别只能为0或者1")
+    @Range(min=0, max=1)
     private Integer gender;
 
     /**

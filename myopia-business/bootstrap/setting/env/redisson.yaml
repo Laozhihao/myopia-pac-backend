@@ -5,13 +5,13 @@ singleServerConfig:
   retryAttempts: 3
   retryInterval: 1500
   password: WuPoL123
-  subscriptionsPerConnection: 5
+  subscriptionsPerConnection: 50
   clientName: null
   address: "redis://172.17.0.1:9673"
-  subscriptionConnectionMinimumIdleSize: 1
-  subscriptionConnectionPoolSize: 50
-  connectionMinimumIdleSize: 32
-  connectionPoolSize: 64
+  subscriptionConnectionMinimumIdleSize: 50
+  subscriptionConnectionPoolSize: 100
+  connectionMinimumIdleSize: 64
+  connectionPoolSize: 128
   # 需要跟其他服务保持一致
   database: 1
   dnsMonitoringInterval: 5000
