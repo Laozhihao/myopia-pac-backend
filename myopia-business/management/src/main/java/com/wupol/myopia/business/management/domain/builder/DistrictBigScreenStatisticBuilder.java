@@ -66,10 +66,12 @@ public class DistrictBigScreenStatisticBuilder {
         if (realScreeningNum > 0 && realValidScreeningNum > 0 && CollectionUtils.size(bigScreenStatDataDTOList) > 0) {
             //获取真实的数据
             BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
-            realScreeningData.setRealScreeningNum(realScreeningNum);
             //特殊处理
             realScreeningData.setNum(realValidScreeningNum);
-            realScreeningData.setRatio(MathUtil.getFormatNumWith2Scale(realValidScreeningNum / (double) realScreeningNum * 100));
+            DistributionDTO.NumDTO num = realScreeningData.getDistribution().getNum();
+            num.setRealScreeningNum(realScreeningNum);
+            num.setStudentNum(realValidScreeningNum);
+            num.setStudentDistribution(MathUtil.getFormatNumWith2Scale(realValidScreeningNum / (double) realScreeningNum * 100));
             districtBigScreenStatistic.setRealScreening(realScreeningData);
             //获取视力低下的地区
             List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
