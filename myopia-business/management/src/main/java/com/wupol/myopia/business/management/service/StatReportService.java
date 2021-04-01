@@ -1330,11 +1330,11 @@ public class StatReportService {
     private Map<String, Object> composeLowVisionLevelStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelOnePredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.ONE.code;
+                x -> WarningLevel.ONE.code.equals(x.getNakedVisionWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.TWO.code;
+                x -> WarningLevel.TWO.code.equals(x.getNakedVisionWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.THREE.code;
+                x -> WarningLevel.THREE.code.equals(x.getNakedVisionWarningLevel());
         Map<String, Object> levelMap = composeLevelStat(
                 name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         AverageVision averageVision = this.calculateAverageVision(statConclusions);
@@ -1353,11 +1353,11 @@ public class StatReportService {
     private Map<String, Object> composeMyopiaLevelStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelOnePredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.ONE.code;
+                x -> WarningLevel.ONE.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.TWO.code;
+                x -> WarningLevel.TWO.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.THREE.code;
+                x -> WarningLevel.THREE.code.equals(x.getMyopiaWarningLevel());
         Map<String, Object> levelMap = composeLevelStat(
                 name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         return levelMap;
@@ -1373,17 +1373,18 @@ public class StatReportService {
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
         Long levelZeroNum = statConclusions.stream()
-                                    .filter(x -> x.getWarningLevel() == WarningLevel.ZERO.code)
+                                    .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
                                     .count();
         Long levelOneNum = statConclusions.stream()
-                                   .filter(x -> x.getWarningLevel() == WarningLevel.ONE.code)
+                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
                                    .count();
         Long levelTwoNum = statConclusions.stream()
-                                   .filter(x -> x.getWarningLevel() == WarningLevel.TWO.code)
+                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
                                    .count();
-        Long levelThreeNum = statConclusions.stream()
-                                     .filter(x -> x.getWarningLevel() == WarningLevel.THREE.code)
-                                     .count();
+        Long levelThreeNum =
+                statConclusions.stream()
+                        .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
+                        .count();
         List<BasicStatParams> list = new ArrayList<BasicStatParams>() {
             {
                 add(composeBasicParams(WarningLevel.ZERO.name(), levelZeroNum, rowTotal));
