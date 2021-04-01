@@ -706,7 +706,7 @@ public class StatReportService {
             Integer srcScreeningNoticeId, Integer planId, int schoolId) throws IOException {
         Date startDate = null;
         Date endDate = null;
-        Integer planStudentNum = 0;
+        long planStudentNum = 0;
         StatConclusionQuery query = new StatConclusionQuery();
         query.setSchoolId(schoolId);
         if (srcScreeningNoticeId != null) {
@@ -721,7 +721,11 @@ public class StatReportService {
             ScreeningPlan sp = screeningPlanService.getById(planId);
             startDate = sp.getStartTime();
             endDate = sp.getEndTime();
-            planStudentNum = sp.getStudentNumbers();
+            planStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(planId)
+                                     .stream()
+                                     .filter(x -> x.getSchoolId() == schoolId)
+                                     .count();
+
         } else {
             throw new ParameterNotFoundException("Parameters not illegal");
         }
