@@ -201,7 +201,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     }
 
     /**
-     * 获取 或者 创建 学生今天最后一条问诊
+     * 获取 或者 创建 学生今天最后一条检查单
      * @param hospitalId 医院id
      * @param doctorId 医生id
      * @param studentId 学生id
