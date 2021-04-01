@@ -73,7 +73,7 @@ public class StatReportService {
      */
     private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
         StatConclusionQuery query = new StatConclusionQuery();
-        query.setDistrictIds(districtService.getAllDistrictIds(districtId));
+        query.setDistrictIds(districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return query;
     }
 
@@ -1250,7 +1250,8 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate = x -> x.getIsMyopia();
+        Predicate<StatConclusion> predicate =
+                x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1580,7 +1581,8 @@ public class StatReportService {
         Map<Integer, Long> planDistrictStudentMap =
                 screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
                         notificationId);
-        List<Integer> validDistrictIds = districtService.getAllDistrictIds(specificDistrictId);
+        List<Integer> validDistrictIds =
+                districtService.getSpecificDistrictTreeAllDistrictIds(specificDistrictId);
         int planStudentNum = 0;
         for (Integer districtId : planDistrictStudentMap.keySet()) {
             if (!validDistrictIds.contains(districtId)) {
