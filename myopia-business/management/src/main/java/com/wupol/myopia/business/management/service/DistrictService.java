@@ -262,8 +262,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         // 从缓存获取
         String key = String.format(CacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
-        if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+        if (Objects.nonNull(cacheList)) {
+            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         // 缓存没有，则从rootCode所属的省份中遍历查找
         District district = getProvinceDistrictTreePriorityCache(rootCode);
@@ -298,6 +299,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取指定行政区域所属省份的所有行政区域树
+     *
      * @param districtId 行政区域Id
      * @return
      */
@@ -309,6 +311,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取指定行政区域所在省份的层级ID
+     *
      * @param districtId 行政区域Id
      * @return
      */

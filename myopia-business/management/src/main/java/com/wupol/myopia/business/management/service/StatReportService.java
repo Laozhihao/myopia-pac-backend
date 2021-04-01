@@ -588,10 +588,10 @@ public class StatReportService {
         };
 
         Map<String, Object> conclusionDesc = new HashMap<>();
-        conclusionDesc.put("totalNum", totalNum);
 
         List<BasicStatParams> totalRowList = (List<BasicStatParams>) totalStat.get("list");
         Long totalWarningNum = totalRowList.stream().mapToLong(x -> x.getNum()).sum();
+        conclusionDesc.put("totalNum", totalWarningNum);
         conclusionDesc.put("totalRatio", convertToPercentage(totalWarningNum * 1f / totalNum));
 
         List<ClassStat> levelList = new ArrayList<>();

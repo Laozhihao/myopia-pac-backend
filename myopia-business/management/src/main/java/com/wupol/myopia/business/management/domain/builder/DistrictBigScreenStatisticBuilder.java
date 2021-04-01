@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.management.domain.builder;
 
+import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.management.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
@@ -7,16 +9,14 @@ import com.wupol.myopia.business.management.domain.dto.DistributionDTO;
 import com.wupol.myopia.business.management.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.management.util.MathUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalDouble;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * DistrictBigScreenStatistic 构造器
+ *
  * @Author jacob
  * @Date 2021-03-07
  */
@@ -24,13 +24,13 @@ public class DistrictBigScreenStatisticBuilder {
 
 
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
-    private Long realValidScreeningNum;
-    private Long planScreeningNum;
+    private long realValidScreeningNum;
+    private long planScreeningNum;
     private Object mapJsonObject;
     private Map<Integer, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
-    private Long realScreeningNum;
+    private long realScreeningNum;
 
     public static DistrictBigScreenStatisticBuilder getBuilder() {
         return new DistrictBigScreenStatisticBuilder();
@@ -58,40 +58,46 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     public DistrictBigScreenStatistic build() {
-        if (CollectionUtils.isEmpty(bigScreenStatDataDTOList)) {
-
+        // 最基本的参数校验
+        if (ObjectsUtil.hasNull(realScreeningNum, realScreeningNum, planScreeningNum, mapJsonObject, districtId, noticeId)) {
+            throw new ManagementUncheckedException("构建DistrictBigScreenStatistic失败，基本参数不足");
         }
-
         DistrictBigScreenStatistic districtBigScreenStatistic = new DistrictBigScreenStatistic();
-        //获取真实的数据
-        BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
-        realScreeningData.setPlanScreeningStudentNum(planScreeningNum);
-        districtBigScreenStatistic.setRealScreening(realScreeningData);
-        //获取视力低下的地区
-        List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
-        BigScreenScreeningDO lowVisionScreeningData = this.getScreeningData(lowVisionBigScreenStatDataDTOs);
-        districtBigScreenStatistic.setLowVision(lowVisionScreeningData);
-        //获取屈光不正
-        List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsRefractiveError).collect(Collectors.toList());
-        BigScreenScreeningDO refractiveErrorScreeningData = this.getScreeningData(refractiveErrorBigScreenStatDataDTOs);
-        districtBigScreenStatistic.setAmetropia(refractiveErrorScreeningData);
-        //近视
-        List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsMyopia).collect(Collectors.toList());
-        BigScreenScreeningDO myopiaScreeningData = this.getScreeningData(myopiaBigScreenStatDataDTOs);
-        districtBigScreenStatistic.setMyopia(myopiaScreeningData);
-        //重点视力对象
-        List<BigScreenStatDataDTO> focusObjectBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bigScreenStatDataDTO -> bigScreenStatDataDTO.getWarningLevel() > 0).collect(Collectors.toList());
-        BigScreenScreeningDO focusScreeningData = this.getScreeningData(focusObjectBigScreenStatDataDTOs);
-        districtBigScreenStatistic.setFocusObjects(focusScreeningData);
-        //平均视力
-        TwoTuple<Double, Double> leftRightNakedVision = this.getAvgNakedVision();
+        if (realScreeningNum > 0 && realValidScreeningNum > 0 && CollectionUtils.size(bigScreenStatDataDTOList) > 0) {
+            //获取真实的数据
+            BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
+            realScreeningData.setPlanScreeningStudentNum(planScreeningNum);
+            districtBigScreenStatistic.setRealScreening(realScreeningData);
+            //获取视力低下的地区
+            List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
+            BigScreenScreeningDO lowVisionScreeningData = this.getScreeningData(lowVisionBigScreenStatDataDTOs);
+            districtBigScreenStatistic.setLowVision(lowVisionScreeningData);
+            //获取屈光不正
+            List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsRefractiveError).collect(Collectors.toList());
+            BigScreenScreeningDO refractiveErrorScreeningData = this.getScreeningData(refractiveErrorBigScreenStatDataDTOs);
+            districtBigScreenStatistic.setAmetropia(refractiveErrorScreeningData);
+            //近视
+            List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsMyopia).collect(Collectors.toList());
+            BigScreenScreeningDO myopiaScreeningData = this.getScreeningData(myopiaBigScreenStatDataDTOs);
+            districtBigScreenStatistic.setMyopia(myopiaScreeningData);
+            //重点视力对象
+            List<BigScreenStatDataDTO> focusObjectBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bigScreenStatDataDTO -> bigScreenStatDataDTO.getWarningLevel() > 0).collect(Collectors.toList());
+            BigScreenScreeningDO focusScreeningData = this.getScreeningData(focusObjectBigScreenStatDataDTOs);
+            districtBigScreenStatistic.setFocusObjects(focusScreeningData);
+            //平均视力
+            TwoTuple<Double, Double> leftRightNakedVision = this.getAvgNakedVision();
+            districtBigScreenStatistic.setAvgVision(new AvgVisionDO(leftRightNakedVision.getFirst(), leftRightNakedVision.getSecond()));
+        }
         //其他数据
         districtBigScreenStatistic.setValidDataNum(realValidScreeningNum);
         districtBigScreenStatistic.setRealScreeningNum(realScreeningNum);
         districtBigScreenStatistic.setPlanScreeningNum(planScreeningNum);
-        districtBigScreenStatistic.setProgressRate(MathUtil.getFormatNumWith2Scale( (double) realScreeningNum / planScreeningNum * 100));
+        Double progressRate = 0.0D;
+        if (planScreeningNum > 0) {
+            progressRate = MathUtil.getFormatNumWith2Scale((double) realScreeningNum / planScreeningNum * 100);
+        }
+        districtBigScreenStatistic.setProgressRate(progressRate);
         districtBigScreenStatistic.setMapdata(mapJsonObject);
-        districtBigScreenStatistic.setAvgVision(new AvgVisionDO(leftRightNakedVision.getFirst(), leftRightNakedVision.getSecond()));
         districtBigScreenStatistic.setDistrictId(districtId);
         districtBigScreenStatistic.setScreeningNoticeId(noticeId);
         return districtBigScreenStatistic;
@@ -120,6 +126,7 @@ public class DistrictBigScreenStatisticBuilder {
         this.noticeId = noticeId;
         return this;
     }
+
     /**
      * @param realValidScreeningNum
      * @return
@@ -128,6 +135,7 @@ public class DistrictBigScreenStatisticBuilder {
         this.realValidScreeningNum = realValidScreeningNum;
         return this;
     }
+
     /**
      * @param realScreeningNum
      * @return
@@ -148,6 +156,7 @@ public class DistrictBigScreenStatisticBuilder {
 
     /**
      * 设置地区id
+     *
      * @param districtId
      * @return
      */
@@ -158,6 +167,7 @@ public class DistrictBigScreenStatisticBuilder {
 
     /**
      * 设置jsonMap
+     *
      * @param mapJsonObject
      * @return
      */
@@ -182,12 +192,13 @@ public class DistrictBigScreenStatisticBuilder {
                 .setRealScreeningNum(realValidScreeningNum)
                 .build();
         //设置地图数据
-        List<BigScreenScreeningDO.MapLocationDataDTO> mapLocationData =  this.getMapLocationData(distributionDTO.getStatisticDistrict());
+        List<BigScreenScreeningDO.MapLocationDataDTO> mapLocationData = this.getMapLocationData(distributionDTO.getStatisticDistrict());
         return new BigScreenScreeningDO(distributionDTO, realValidScreeningNum, mapLocationData);
     }
 
     /**
      * 获取地图数据
+     *
      * @param statisticDistrictList
      * @return
      */
@@ -196,7 +207,7 @@ public class DistrictBigScreenStatisticBuilder {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());
             mapLocationDataDTO.setValue(statisticDistrictDTO.getNum());
-            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId()+"");
+            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId() + "");
             ArrayList<List<Double>> locationList = new ArrayList<>();
             locationList.add(cityCenter);
             locationList.add(cityCenter);

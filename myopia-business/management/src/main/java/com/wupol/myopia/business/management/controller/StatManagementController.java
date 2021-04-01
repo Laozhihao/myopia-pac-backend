@@ -240,7 +240,7 @@ public class StatManagementController {
     }
 
     /**
-     * 获取大屏展示
+     * 获取大屏展示的数据
      *
      * @return
      */
@@ -255,16 +255,6 @@ public class StatManagementController {
      */
     @GetMapping("/trigger")
     public void statTaskTrigger() {
-//        LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtAttentiveObjectsStatisticService.getBaseMapper().delete(districtAttentiveObjectsStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<DistrictMonitorStatistic> districtMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtMonitorStatisticService.getBaseMapper().delete(districtMonitorStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<DistrictVisionStatistic> districtVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtVisionStatisticService.getBaseMapper().delete(districtVisionStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<SchoolVisionStatistic> schoolVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        schoolVisionStatisticService.getBaseMapper().delete(schoolVisionStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<SchoolMonitorStatistic> schoolMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        schoolMonitorStatisticService.getBaseMapper().delete(schoolMonitorStatisticLambdaQueryWrapper);
         scheduledTasksExecutor.statistic();
         return;
     }
@@ -280,17 +270,6 @@ public class StatManagementController {
 
     @GetMapping("/triggerAll")
     public void statTaskTriggerAll() {
-//        LambdaQueryWrapper<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtAttentiveObjectsStatisticService.getBaseMapper().delete(districtAttentiveObjectsStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<DistrictMonitorStatistic> districtMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtMonitorStatisticService.getBaseMapper().delete(districtMonitorStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<DistrictVisionStatistic> districtVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        districtVisionStatisticService.getBaseMapper().delete(districtVisionStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<SchoolVisionStatistic> schoolVisionStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        schoolVisionStatisticService.getBaseMapper().delete(schoolVisionStatisticLambdaQueryWrapper);
-//        LambdaQueryWrapper<SchoolMonitorStatistic> schoolMonitorStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        schoolMonitorStatisticService.getBaseMapper().delete(schoolMonitorStatisticLambdaQueryWrapper);
-//        scheduledTasksExecutor.statistic();
         List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         if (com.wupol.framework.core.util.CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：历史无筛查数据，无需统计");
