@@ -45,7 +45,7 @@
 运行base-service其util目录下的MybatisPlusGenerator的main方法，按照提示输入服务名、表名、实体名，可自动生成代码。注意事项：
 
 - 修改数据库地址和账号密码为自己的
-```bash
+```
 dsc.setDbType(DbType.MYSQL)
     .setUrl("jdbc:mysql://localhost:3306/myopia_oauth?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
     .setDriverName("com.mysql.cj.jdbc.Driver")
@@ -53,7 +53,7 @@ dsc.setDbType(DbType.MYSQL)
     .setPassword("laozh0111");
 ```
 - 修改表前缀，如授权中心的表前缀为“o_”，管理端的表前缀为“m_”
-```bash
+```
 private static StrategyConfig getStrategyConfig() {
     strategy.setTablePrefix("o_")
 }
@@ -81,7 +81,7 @@ private static StrategyConfig getStrategyConfig() {
 
 #### 修改配置文件
 1. copy对应微服务sample/setting目录下的配置文件到resource目录下
-2. 修改配置文件中数据库、Redis、Nacos等参数值为自己的
+2. 修改配置文件中数据库、Redis、Nacos等参数值
 
 #### 初始化数据库
 1. 执行对应服务resource/db/migration目录下的SQL
@@ -101,29 +101,42 @@ private static StrategyConfig getStrategyConfig() {
 - 请求业务接口时，Header都要带上Authorization字段，其值 = Bearer字符串 + 1个空格 + 登录时返回的access_token值，如：“Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVC...”
 
 ## 生产环境部署项目
-### 部署前准备
-- 修改配置参数为对应环境的
-- 安装并启动依赖的治理服务【如：Nacos、Zipkin等】
+### 安装Nacos集群
+1. 初始化数据库
+- MySQL中创建数据库 nacos_config
+- 在数据库 nacos_config 中，执行 Nacos 自带的创建表脚本
+- 脚本下载地址：https://github.com/alibaba/nacos/blob/master/distribution/conf/nacos-mysql.sql
+2. 创建部署脚本和配置文件
+- docker-compose 部署脚本，内容示例查看：doc/nacos/docker-compose-nacos-cluster.yml
+- nacos 配置参数文件，内容示例查看：doc/nacos/nacos-ip.env
+3. 编排部署
+```bash
+docker-compose -f docker-compose-nacos-cluster.yml up -d
+```
+4. 通过 nginx 对 nacos 集群进行负载均衡
+- 安装 nginx 服务
+- nginx 配置文件，示例请查看：doc/nacos/nginx-nacos.conf
 
-### 同步maven依赖 
- ```bash
- mvn clean install -DskipTests
- ```
- ### 打包
- ```bash
- mvn package -DskipTests
- ```
- or
- ```bash
- mvn clean validate install -DskipTests
- ```
- ### 运行
- ```bash
- java  -jar myopia.jar
- ```
+### 安装其他依赖服务
+- 包括：Sentinel、Zipkin、MySQL、Redis
+- docker-compose 编排部署，示例请查看：doc/docker-compose-depend.yml
+```bash
+docker-compose -f docker-compose-depend.yml up -d
+```
+
+### 修改项目配置参数
+1. 修改每个微服务 setting/env 目录下的配置文件的参数值为对应环境的参数值
+
+### 通过Jenkins部署各微服务
+1. 安装 Jenkins
+2. Jenkins部署shell脚本
+- 业务微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-business.sh
+- 网关微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-gateway.sh
+- 授权中心微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-oauth.sh
+
  
 ## 开发规范约定
-### 遵守公司java统一开发规范
+### 团队Java代码规范
 https://git.vistel.cn/web/web-toolkits/java-coding-guide
 ### 命名
 - 政府部门：gov_dept、筛查机构：screening_org、两者统称：org

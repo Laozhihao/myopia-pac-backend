@@ -1,0 +1,41 @@
+# 安装 sentinel、zipkin、mysql、redis
+version: "3"
+services:
+  sentinel:
+    image: bladex/sentinel-dashboard
+    container_name: sentinel
+    ports:
+    - 8858:8858
+    restart: always
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+    - 9411:9411
+    restart: always
+  mysql:
+    image: mysql:5.7.33
+    container_name: mysql
+    ports:
+    - 3306:3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: "Asia/Shanghai"
+    volumes:
+    - "/docker/mysql/conf:/etc/mysql/conf.d"
+    - "/docker/mysql/logs:/logs"
+    - "/docker/mysql/data:/var/lib/mysql"
+
+  # 1. 是以配置文件方式启动Redis，需要在安装环境本地/docker/redis/conf/目录下创建 redis.conf
+  # 2. redis.conf 内容示例查看 myopia-pac-backend/doc/redis.conf
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+    - 9673:6379
+    restart: always
+    volumes:
+    - "/docker/redis/conf/redis.conf:/etc/redis/redis.conf"
+    - "/docker/redis/data:/data"
+    command: redis-server /etc/redis/redis.conf
