@@ -10,7 +10,7 @@ public enum WarningLevel {
     TWO(2, "2级预警"),
     THREE(3, "3级预警");
 
-    public final int code;
+    public final Integer code;
     public final String desc;
 
     WarningLevel(int code, String desc) {
