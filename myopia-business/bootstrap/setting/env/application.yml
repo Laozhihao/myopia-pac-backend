@@ -16,7 +16,9 @@ spring:
     nacos:
       discovery:
         server-addr: 8.135.35.154:8848
-
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
     ### sentinel dashboard
     sentinel:
       transport:
