@@ -86,12 +86,20 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         List<TemplateBindItem> originLists = templateDistrictService.getByTemplateId(templateId);
 
         // 看看和原来的比，多了什么，就是新增
-        List<TemplateBindItem> addLists = newDistrictLists.stream().filter(item -> !originLists.stream().map(TemplateBindItem::getDistrictId).collect(
-                Collectors.toList()).contains(item.getDistrictId())).collect(Collectors.toList());
+        List<TemplateBindItem> addLists = newDistrictLists.stream()
+                .filter(item -> !originLists.stream()
+                        .map(TemplateBindItem::getDistrictId)
+                        .collect(Collectors.toList())
+                        .contains(item.getDistrictId()))
+                .collect(Collectors.toList());
 
         // 同理，取删除的
-        List<TemplateBindItem> deletedLists = originLists.stream().filter(item -> !newDistrictLists.stream().map(TemplateBindItem::getDistrictId).collect(
-                Collectors.toList()).contains(item.getDistrictId())).collect(Collectors.toList());
+        List<TemplateBindItem> deletedLists = originLists.stream()
+                .filter(item -> !newDistrictLists.stream()
+                        .map(TemplateBindItem::getDistrictId)
+                        .collect(Collectors.toList())
+                        .contains(item.getDistrictId()))
+                .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(addLists)) {
             if (check(type, addLists)) {
@@ -104,9 +112,8 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         if (!CollectionUtils.isEmpty(deletedLists)) {
 
             // 批量删除
-            templateDistrictService
-                    .deletedByTemplateIdAndDistrictIds(templateId,
-                            deletedLists.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()));
+            templateDistrictService.deletedByTemplateIdAndDistrictIds(templateId,
+                    deletedLists.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()));
         }
         return Boolean.TRUE;
     }
