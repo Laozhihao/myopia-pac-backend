@@ -68,6 +68,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param ids 通知ID
      * @return 是否删除成功
      */
+    @Transactional(rollbackFor = Exception.class)
     public Boolean deletedNotice(List<Integer> ids) {
         return baseMapper.batchUpdateStatus(ids, CommonConst.STATUS_NOTICE_DELETED) > 0;
     }

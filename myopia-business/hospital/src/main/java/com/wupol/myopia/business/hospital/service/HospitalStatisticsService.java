@@ -41,7 +41,6 @@ public class HospitalStatisticsService {
     public Map<String, Object> getStatistics(Integer hospitalId) throws IOException {
         Map<String, Object> map = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
-//        calendar.add(Calendar.DATE, -1);
         Date endDate = calendar.getTime();
         calendar.add(Calendar.MONTH, -11);
         calendar.set(Calendar.DATE, 1);
@@ -165,7 +164,6 @@ public class HospitalStatisticsService {
     private LinkedHashMap<String, Long> formatStatisticsMap(LinkedHashMap<String, Long> map) {
         LinkedHashMap<String, Long> resultMap = new LinkedHashMap<>();
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1); // 从昨天开始统计
         calendar.add(Calendar.MONTH, -11); // 从去年同比再下一个月开始
         resultMap.put(groupingByMonthFormat(calendar), 0L);
         for (int i = 0; i < 11; i++) {
@@ -192,7 +190,6 @@ public class HospitalStatisticsService {
             calendar = Calendar.getInstance();
             calendar.setTime(date);
         }
-//        return String.format("%s月", String.format("%02d", calendar.get(Calendar.MONTH)+1));
         return String.format("%s月", calendar.get(Calendar.MONTH)+1);
     }
 }

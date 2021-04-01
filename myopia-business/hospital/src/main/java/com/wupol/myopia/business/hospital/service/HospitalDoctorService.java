@@ -28,8 +28,6 @@ import java.util.Objects;
 public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private ResourceFileService resourceFileService;
 
     /**
@@ -46,19 +44,6 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
         });
         return list;
-    }
-
-    /**
-     * 获取医生列表
-     * @param hospitalId 医院id
-     * @param like  名称 / 科室 / 职称
-     * @return
-     */
-    public List<Doctor> getDoctorList(Integer hospitalId,
-                                      String like) throws IOException {
-        DoctorQuery query = new DoctorQuery();
-        query.setLike(like).setHospitalId(hospitalId);
-        return baseMapper.getBy(query);
     }
 
     /**
@@ -95,7 +80,7 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @param doctorId 医生id
      * @return
      */
-    public void deleteDoctor(Integer hospitalId, Integer doctorId) throws IOException {
+    public void deleteDoctor(Integer hospitalId, Integer doctorId) {
         Doctor doctor = getDoctor(hospitalId, doctorId);
         if (!removeById(doctor.getId())) {
             throw new BusinessException("删除失败");
