@@ -24,17 +24,4 @@ public class DoctorVo extends Doctor {
     /** 报告数 */
     private Integer reportCount;
 
-    /** 转成UserDTO */
-    public UserDTO toUserDTO() {
-        return new UserDTO().setId(getUserId())
-                .setOrgId(getHospitalId())
-                .setRealName(getName())
-                .setGender(getGender())
-                .setRemark(getRemark())
-                .setIsLeader(0)
-                .setPhone(PasswordGenerator.getHospitalAdminPwd())
-                .setPassword(PasswordGenerator.getHospitalAdminPwd());
-
-    }
-
 }

@@ -91,7 +91,7 @@ public class StatConclusionTest {
             // TODO: 需要获取戴镜类型
             int glassesType = GlassesType.CONTACT_LENS.code;
             // TODO: 需要获取视力矫正状态
-            int visionCorrection = VisionCorrection.CORRECTED.code;
+            int visionCorrection = VisionCorrection.ENOUGH_CORRECTED.code;
 
             boolean isWearingGlasses = GlassesType.NOT_WEARING.code == 0 ? false : true;
 

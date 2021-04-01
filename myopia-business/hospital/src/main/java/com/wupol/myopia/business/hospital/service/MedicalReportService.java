@@ -235,16 +235,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
-     * 统计就诊档案
-     *
-     * @param studentId 学生ID
-     * @return 个数
-     */
-    public Integer countReport(Integer studentId) {
-        return baseMapper.countReportBySchoolId(studentId);
-    }
-
-    /**
      * 获取学生的最新一份报告
      *
      * @param studentId 学生ID
@@ -319,6 +309,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /** 更新报告的固化数据 */
+    //TODO 当学生信息修改时,也要更新固化结论的学生数据
     public void updateReportConclusionWithSave(MedicalRecord record) {
         MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
         medicalReportQuery.setMedicalRecordId(record.getId());
