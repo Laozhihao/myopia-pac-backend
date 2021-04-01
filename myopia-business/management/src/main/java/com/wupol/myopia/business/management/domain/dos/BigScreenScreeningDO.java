@@ -23,7 +23,7 @@ public class BigScreenScreeningDO implements Serializable {
     }
 
     /**
-     *
+     * 计划筛查数
      */
     private Long  planScreeningNum;
     /**

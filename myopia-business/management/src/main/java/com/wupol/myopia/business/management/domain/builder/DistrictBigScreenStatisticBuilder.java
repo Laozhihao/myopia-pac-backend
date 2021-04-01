@@ -66,7 +66,10 @@ public class DistrictBigScreenStatisticBuilder {
         if (realScreeningNum > 0 && realValidScreeningNum > 0 && CollectionUtils.size(bigScreenStatDataDTOList) > 0) {
             //获取真实的数据
             BigScreenScreeningDO realScreeningData = this.getScreeningData(bigScreenStatDataDTOList);
-            realScreeningData.setPlanScreeningStudentNum(planScreeningNum);
+            realScreeningData.setRealScreeningNum(realScreeningNum);
+            //特殊处理
+            realScreeningData.setNum(realValidScreeningNum);
+            realScreeningData.setRatio(MathUtil.getFormatNumWith2Scale(realValidScreeningNum / (double) realScreeningNum * 100));
             districtBigScreenStatistic.setRealScreening(realScreeningData);
             //获取视力低下的地区
             List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
@@ -113,8 +116,8 @@ public class DistrictBigScreenStatisticBuilder {
         OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().mapToDouble(BigScreenStatDataDTO::getVisionR).average();
         OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().mapToDouble(BigScreenStatDataDTO::getVisionL).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
-        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith1Scale(avgVisionL.getAsDouble()));
-        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith1Scale(avgVisionR.getAsDouble()));
+        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
+        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
         return leftAndRightAvgVisionData;
     }
 
