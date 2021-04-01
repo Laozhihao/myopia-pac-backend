@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.dos.AvgVisionDO;
@@ -68,38 +65,38 @@ public class DistrictBigScreenStatistic implements Serializable {
     /**
      * realScreening
      */
-    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private BigScreenScreeningDO realScreening;
     /**
      * lowVision
      */
-    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private BigScreenScreeningDO lowVision;
     /**
      * myopia
      */
-    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private BigScreenScreeningDO myopia;
     /**
      * ametropia
      */
-    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private BigScreenScreeningDO ametropia;
     /**
      * focusOjects
      */
-    @TableField(typeHandler = BigScreenScreeningDOHandler.class)
+    @TableField(typeHandler = BigScreenScreeningDOHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private BigScreenScreeningDO focusObjects;
     /**
      * avgVision
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private AvgVisionDO avgVision;
 
     /**
      * 大屏展示--地图json
      */
-    @TableField(value = "mapData",typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "mapData",typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private Object mapdata;
 
     /**

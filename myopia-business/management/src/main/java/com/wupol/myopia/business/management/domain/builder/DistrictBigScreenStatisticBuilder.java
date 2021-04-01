@@ -24,13 +24,13 @@ public class DistrictBigScreenStatisticBuilder {
 
 
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
-    private Long realValidScreeningNum;
-    private Long planScreeningNum;
+    private long realValidScreeningNum;
+    private long planScreeningNum;
     private Object mapJsonObject;
     private Map<Integer, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
-    private Long realScreeningNum;
+    private long realScreeningNum;
 
     public static DistrictBigScreenStatisticBuilder getBuilder() {
         return new DistrictBigScreenStatisticBuilder();
@@ -92,7 +92,11 @@ public class DistrictBigScreenStatisticBuilder {
         districtBigScreenStatistic.setValidDataNum(realValidScreeningNum);
         districtBigScreenStatistic.setRealScreeningNum(realScreeningNum);
         districtBigScreenStatistic.setPlanScreeningNum(planScreeningNum);
-        districtBigScreenStatistic.setProgressRate(MathUtil.getFormatNumWith2Scale((double) realScreeningNum / planScreeningNum * 100));
+        Double progressRate = 0.0D;
+        if (planScreeningNum > 0) {
+            progressRate = MathUtil.getFormatNumWith2Scale((double) realScreeningNum / planScreeningNum * 100);
+        }
+        districtBigScreenStatistic.setProgressRate(progressRate);
         districtBigScreenStatistic.setMapdata(mapJsonObject);
         districtBigScreenStatistic.setDistrictId(districtId);
         districtBigScreenStatistic.setScreeningNoticeId(noticeId);
