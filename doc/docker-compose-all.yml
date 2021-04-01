@@ -1,4 +1,4 @@
-# 安装 sentinel、zipkin、mysql、redis
+# 整个应用服务的编排部署
 version: "3"
 services:
   sentinel:
@@ -26,9 +26,6 @@ services:
     - "/docker/mysql/conf:/etc/mysql/conf.d"
     - "/docker/mysql/logs:/logs"
     - "/docker/mysql/data:/var/lib/mysql"
-
-  # 1. 是以配置文件方式启动Redis，需要在安装环境本地/docker/redis/conf/目录下创建 redis.conf
-  # 2. redis.conf 内容示例查看 myopia-pac-backend/doc/redis.conf
   redis:
     image: redis
     container_name: redis
@@ -39,3 +36,57 @@ services:
     - "/docker/redis/conf/redis.conf:/etc/redis/redis.conf"
     - "/docker/redis/data:/data"
     command: redis-server /etc/redis/redis.conf
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+    - 7000:7000
+    - 7001:7001
+    - 7002:7002
+    restart: always
+    volumes:
+    - "/var/nginx_home/nginx.conf:/etc/nginx/nginx.conf"
+    - "/home/nginx_home/log:/var/log/nginx"
+    - "/var/jenkins_home/web/myopia-management-frontend:/var/web/myopia-management-frontend"
+    - "/var/jenkins_home/web/myopia-parent-frontend:/var/web/myopia-parent-frontend"
+    - "/var/jenkins_home/web/myopia-pdf-report-frontend:/var/web/myopia-pdf-report-frontend"
+  jenkins:
+    image: jenkinsci/blueocean
+    container_name: jenkins
+    ports:
+    - 10000:8080
+    - 50000:50000
+    restart: always
+    volumes:
+    - "/var/jenkins_home:/var/jenkins_home"
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "/etc/localtime:/etc/localtime"
+    - "/usr/bin/docker:/usr/bin/docker"
+    user: root
+    privileged: true
+
+  myopia-gateway:
+    image: wupol/myopia-gateway:1.0
+    container_name: myopia-gateway
+    ports:
+    - 8000:8000
+    restart: always
+
+  myopia-oauth:
+    image: wupol/myopia-oauth:1.0
+    container_name: myopia-oauth
+    ports:
+    - 8010:8010
+    restart: always
+
+  myopia-business:
+    image: wupol/myopia-business:1.0
+    container_name: myopia-business
+    ports:
+    - 8020:8020
+    restart: always
+    environment:
+      AWS_REGION: cn-northwest-1
+      AWS_ACCESS_KEY_ID: AKIAOPRJI73UAEYOGHIQ
+      AWS_SECRET_ACCESS_KEY: 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
+    
