@@ -649,15 +649,16 @@ public class StatReportService {
         Long wearingNum = 0L;
         float wearingRatio = 0;
         for (BasicStatParams params : list) {
-            if (!params.getTitle().equals(GlassesType.NOT_WEARING.name())) {
-                wearingNum += params.getNum();
-                wearingRatio += params.getRatio();
+            if (GlassesType.NOT_WEARING.name().equals(params.getTitle())) {
+                continue;
             }
+            wearingNum += params.getNum();
+            wearingRatio += params.getRatio();
         }
         Collections.sort(schoolAgeMyopiaRatio,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("wearingNum", wearingNum);
-        conclusionDesc.put("wearingRatio", wearingRatio);
+        conclusionDesc.put("wearingRatio", round2Digits(wearingRatio));
         conclusionDesc.put("list", list);
         conclusionDesc.put(title, schoolAgeGlassesTypeTable);
         return conclusionDesc;
