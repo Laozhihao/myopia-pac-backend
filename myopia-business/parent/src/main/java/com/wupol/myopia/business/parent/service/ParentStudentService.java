@@ -527,45 +527,67 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             VisionItems.Item leftNakedVision = new VisionItems.Item();
             BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
             if (Objects.nonNull(leftNakedVisionValue)) {
-                leftNakedVision.setVision(leftNakedVisionValue);
-                leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
-                nakedVision.setOs(leftNakedVision);
+                nakedVision.setOs(packageNakedVision(leftNakedVision, leftNakedVisionValue, age));
             }
 
             // 右裸眼视力
             VisionItems.Item rightNakedVision = new VisionItems.Item();
             BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
             if (Objects.nonNull(rightNakedVisionValue)) {
-                rightNakedVision.setVision(rightNakedVisionValue);
-                rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
-                nakedVision.setOd(rightNakedVision);
+                nakedVision.setOd(packageNakedVision(rightNakedVision, rightNakedVisionValue, age));
             }
 
             // 左矫正视力
             VisionItems.Item leftCorrectedVision = new VisionItems.Item();
             BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
             if (Objects.nonNull(leftCorrectedVisionValue)) {
-                leftCorrectedVision.setVision(leftCorrectedVisionValue);
-                if (Objects.nonNull(leftNakedVisionValue)) {
-                    leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
-                }
-                correctedVision.setOs(leftCorrectedVision);
+                correctedVision.setOs(packageCorrectedVision(leftCorrectedVision, leftCorrectedVisionValue,
+                        leftNakedVisionValue, glassesType));
             }
 
             // 右矫正视力
             VisionItems.Item rightCorrectedVision = new VisionItems.Item();
             BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
             if (Objects.nonNull(rightCorrectedVisionValue)) {
-                rightCorrectedVision.setVision(rightCorrectedVisionValue);
-                if (Objects.nonNull(rightNakedVisionValue)) {
-                    rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
-                }
-                correctedVision.setOd(rightCorrectedVision);
+                correctedVision.setOd(packageCorrectedVision(rightCorrectedVision, rightCorrectedVisionValue,
+                        rightNakedVisionValue, glassesType));
             }
         }
         itemsList.add(correctedVision);
         itemsList.add(nakedVision);
         return itemsList;
+    }
+
+    /**
+     * 封装裸眼视力
+     *
+     * @param nakedVision      返回的实体
+     * @param nakedVisionValue 裸眼视力值
+     * @param age              年龄
+     * @return VisionItems.Item
+     */
+    private VisionItems.Item packageNakedVision(VisionItems.Item nakedVision, BigDecimal nakedVisionValue, Integer age) {
+        nakedVision.setVision(nakedVisionValue);
+        nakedVision.setType(lowVisionType(nakedVisionValue, age));
+        return nakedVision;
+    }
+
+    /**
+     * 封装矫正视力
+     *
+     * @param correctedVision      返回的实体
+     * @param correctedVisionValue 矫正视力值
+     * @param nakedVisionValue     裸眼视力值
+     * @param glassesType          戴镜类型
+     * @return VisionItems.Item
+     */
+    private VisionItems.Item packageCorrectedVision(VisionItems.Item correctedVision, BigDecimal correctedVisionValue,
+                                                    BigDecimal nakedVisionValue, Integer glassesType) {
+        correctedVision.setVision(correctedVisionValue);
+        if (Objects.nonNull(nakedVisionValue)) {
+            correctedVision.setType(getCorrected2Type(nakedVisionValue, correctedVisionValue, glassesType));
+        }
+        return correctedVision;
     }
 
     /**
