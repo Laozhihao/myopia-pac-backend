@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMonitorStatisticMapper;
@@ -13,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,8 +28,8 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
     private ScreeningPlanService screeningPlanService;
 
     public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) throws IOException {
-        if (noticeId == null || user == null) {
-            return new ArrayList<>();
+        if (ObjectsUtil.hasNull(noticeId, user)) {
+            return Collections.emptyList();
         }
         if (user.isScreeningUser()) {
             LambdaQueryWrapper<SchoolMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
@@ -42,7 +40,7 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
         List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-        List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo
+        List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo @jacob?
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
             return new ArrayList<>();
         }

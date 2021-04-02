@@ -2,22 +2,23 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sun.org.apache.bcel.internal.generic.INEG;
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.*;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.*;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.management.constant.GenderEnum;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.constant.ImportExcelEnum;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -68,14 +69,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.findByStudentId(studentId);
     }
 
-/*    public ScreeningPlanSchoolStudent getByScreeningPlanSchoolStudentId(Integer studentId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.set(studentId);
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.setEntity(screeningPlanSchoolStudent);
-        return baseMapper.selectOne(queryWrapper);
-    }*/
-
     /**
      * 批量查找数据
      *
@@ -87,19 +80,21 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     *
      * @param schoolName
      * @param deptId
      * @return
      */
+    //TODO @jacob 补充方法说明
     public List<ScreeningPlanSchoolStudent> getSchoolByOrgIdAndSchoolName(String schoolName, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
         return baseMapper.selectList(queryWrapper);
     }
@@ -188,10 +183,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<SchoolGradeVo> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        //1. 获取该计划学校的筛查学生所有年级、班级
         List<GradeClassesDTO> gradeClasses = baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
-        List<SchoolGradeVo> schoolGradeVos = new ArrayList<>();
+        //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
-        graderIdClasses.keySet().forEach(gradeId -> {
+        //3. 组装SchoolGradeVo数据
+        return graderIdClasses.keySet().stream().map(gradeId -> {
             SchoolGradeVo vo = new SchoolGradeVo();
             List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
             vo.setId(gradeId).setName(gradeClassesDTOS.get(0).getGradeName());
@@ -200,9 +197,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 schoolClass.setId(dto.getClassId()).setName(dto.getClassName());
                 return schoolClass;
             }).collect(Collectors.toList()));
-            schoolGradeVos.add(vo);
-        });
-        return schoolGradeVos;
+            return vo;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -243,13 +239,40 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public void insertByUpload(Integer userId, List<Map<Integer, String>> listMap, ScreeningPlan screeningPlan, Integer schoolId) {
         School school = schoolService.getById(schoolId);
-        // 校验学校是否存在，表格中必填项是否都有
+        //1. 校验学校是否存在，表格中必填项是否都有
         List<String> snoList = checkSchoolAndNeededExistWithReturnSnoList(school, listMap);
-        // 获取所有身份证号
+        //2. 获取所有身份证号、年级名称、年级班级名称、区域层级Map
         Set<String> idCardSet = new HashSet<>();
         Set<String> gradeNameSet = new HashSet<>();
         Set<String> gradeClassNameSet = new HashSet<>();
         Map<String, List<Long>> districtNameCodeMap = new HashMap<>(16);
+        //3. 根据上传的筛查学生数据组装基础信息
+        genBaseInfoFromUploadData(listMap, idCardSet, gradeNameSet, gradeClassNameSet, districtNameCodeMap);
+        Map<Boolean, List<ScreeningPlanSchoolStudent>> alreadyExistOrNotStudents = getByScreeningPlanIdAndSchoolId(screeningPlan.getId(), schoolId).stream().collect(Collectors.groupingBy(planStudent -> idCardSet.contains(planStudent.getIdCard())));
+        Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
+        Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format("%s-%s", schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
+        //4. 校验上传筛查学生数据是否合法
+        checkExcelDataLegal(idCardSet, snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false));
+        //5. 根据身份证号分批获取已有的学生
+        Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        //6. 获取已有的筛查学生数据
+        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ? Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        List<StudentVo> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
+        Map<String, StudentVo> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        //7. 新增或更新学生和筛查学生数据
+        addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents, excelIdCardStudentMap);
+    }
+
+    /**
+     * 根据上传的筛查学生数据组装基础信息
+     *
+     * @param listMap
+     * @param idCardSet
+     * @param gradeNameSet
+     * @param gradeClassNameSet
+     * @param districtNameCodeMap
+     */
+    private void genBaseInfoFromUploadData(List<Map<Integer, String>> listMap, Set<String> idCardSet, Set<String> gradeNameSet, Set<String> gradeClassNameSet, Map<String, List<Long>> districtNameCodeMap) {
         listMap.forEach(item -> {
             String gradeName = item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null);
             String className = item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null);
@@ -265,22 +288,25 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 districtNameCodeMap.put(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
             }
         });
-        Map<Boolean, List<ScreeningPlanSchoolStudent>> alreadyExistOrNotStudents = getByScreeningPlanIdAndSchoolId(screeningPlan.getId(), schoolId).stream().collect(Collectors.groupingBy(planStudent -> idCardSet.contains(planStudent.getIdCard())));
-        Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
-        Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format("%s-%s", schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
-        // 校验数据是否合法
-        checkExcelDataLegal(idCardSet, snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false));
-        // 根据身份证号分批获取已有的学生
-        Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        // 获取已有的筛查学生数据
-        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ? Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
-        List<StudentVo> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
-        Map<String, StudentVo> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        // 1. 筛选出需新增的学生并新增
+    }
+
+    /**
+     * 新增或更新学生和筛查学生数据
+     * @param userId
+     * @param screeningPlan
+     * @param schoolId
+     * @param school
+     * @param idCardExistStudents
+     * @param idCardExistScreeningStudents
+     * @param excelStudents
+     * @param excelIdCardStudentMap
+     */
+    private void addOrUpdateStudentAndScreeningStudent(Integer userId, ScreeningPlan screeningPlan, Integer schoolId, School school, Map<String, Student> idCardExistStudents, Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents, List<StudentVo> excelStudents, Map<String, StudentVo> excelIdCardStudentMap) {
+        //1. 筛选出需新增的学生并新增
         addStudents(userId, idCardExistStudents, excelIdCardStudentMap);
-        // 2. 已有的要判断是否需更新
+        //2. 已有的要判断是否需更新
         updateStudents(idCardExistStudents, excelIdCardStudentMap, screeningPlan.getId(), schoolId);
-        // 3. 处理筛查学生
+        //3. 处理筛查学生
         addOrUpdateScreeningPlanStudents(screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents);
     }
 
@@ -337,24 +363,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId());
             }
-            existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName())
-                    .setGradeId(student.getGradeId())
-                    .setGradeName(student.getGradeName())
-                    .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType())
-                    .setClassId(student.getClassId())
-                    .setClassName(student.getClassName())
-                    .setBirthday(student.getBirthday())
-                    .setGender(student.getGender())
-                    .setStudentAge(AgeUtil.countAge(student.getBirthday()))
-                    .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent))
-                    .setStudentNo(dbStudent.getSno())
-                    .setNation(student.getNation())
-                    .setProvinceCode(student.getProvinceCode())
-                    .setCityCode(student.getCityCode())
-                    .setAreaCode(student.getAreaCode())
-                    .setTownCode(student.getTownCode())
-                    .setAddress(student.getAddress())
-                    .setParentPhone(student.getParentPhone());
+            existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName()).setGradeId(student.getGradeId()).setGradeName(student.getGradeName())
+                    .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType()).setClassId(student.getClassId()).setClassName(student.getClassName())
+                    .setBirthday(student.getBirthday()).setGender(student.getGender()).setStudentAge(AgeUtil.countAge(student.getBirthday()))
+                    .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent)).setStudentNo(student.getSno()).setNation(student.getNation())
+                    .setProvinceCode(student.getProvinceCode()).setCityCode(student.getCityCode()).setAreaCode(student.getAreaCode())
+                    .setTownCode(student.getTownCode()).setAddress(student.getAddress()).setParentPhone(student.getParentPhone());
             return existPlanStudent;
         }).collect(Collectors.toList());
         saveOrUpdateBatch(addOrUpdatePlanStudents);
@@ -368,9 +382,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanId
      * @param schoolId
      */
-    private void updateStudents(Map<String, Student> idCardExistStudents,
-                                Map<String, StudentVo> excelIdCardStudentMap,
-                                Integer screeningPlanId, Integer schoolId) {
+    private void updateStudents(Map<String, Student> idCardExistStudents, Map<String, StudentVo> excelIdCardStudentMap, Integer screeningPlanId, Integer schoolId) {
         List<String> needCheckUpdateStudentIdCards = CompareUtil.getRetain(idCardExistStudents.keySet(), excelIdCardStudentMap.keySet());
         List<Student> updateStudents = new ArrayList<>();
         // 查找通过身份证查找计划中的学生
@@ -384,15 +396,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 Student updateStudent = new Student();
                 ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
                 BeanUtils.copyProperties(student, updateStudent);
-                updateStudent.setName(excelStudent.getName())
-                        .setSchoolNo(excelStudent.getSchoolNo())
-                        .setGender(excelStudent.getGender())
-                        .setBirthday(excelStudent.getBirthday())
-                        .setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
-                        .setGradeId(excelStudent.getGradeId())
-                        .setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
-                        .setClassId(excelStudent.getClassId())
-                        .setSno(excelStudent.getSno())
+                updateStudent.setName(excelStudent.getName()).setSchoolNo(excelStudent.getSchoolNo()).setGender(excelStudent.getGender())
+                        .setBirthday(excelStudent.getBirthday()).setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
+                        .setGradeId(excelStudent.getGradeId()).setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
+                        .setClassId(excelStudent.getClassId()).setSno(excelStudent.getSno())
                         .setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()))
                         .setCityCode(ObjectsUtil.getDefaultIfNull(excelStudent.getCityCode(), student.getCityCode()))
                         .setAreaCode(ObjectsUtil.getDefaultIfNull(excelStudent.getAreaCode(), student.getAreaCode()))
@@ -551,15 +558,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanSchoolStudent
      */
     public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer page, Integer size) {
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         //获取当前计划
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         String studentName = screeningPlanSchoolStudent.getStudentName();
         screeningPlanSchoolStudent.setStudentName(null);
         Integer startItem = (page - 1) * size;
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).last("limit " + startItem + "," + size);
         ;
         if (StringUtils.isNotBlank(studentName)) {
@@ -627,20 +634,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
-     * 通过实体获取一条数据
-     * @param screeningPlanSchoolStudent
-     * @return
-     */
-    public ScreeningPlanSchoolStudent getOneByEntity(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = this.getByEntity(screeningPlanSchoolStudent);
-        int size = CollectionUtils.size(screeningPlanSchoolStudents);
-        if (size != 1) {
-            throw new ManagementUncheckedException("查找一条数据，实际出现"+ size + "条，参数 = " + JSON.toJSONString(screeningPlanSchoolStudents));
-        }
-       return screeningPlanSchoolStudents.get(0);
-    }
-
-    /**
      * 根据实体查找数据
      * @param screeningPlanSchoolStudent
      * @return
@@ -648,7 +641,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByEntity(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = baseMapper.selectList(queryWrapper);
-        return screeningPlanSchoolStudents;
+        return baseMapper.selectList(queryWrapper);
     }
 }

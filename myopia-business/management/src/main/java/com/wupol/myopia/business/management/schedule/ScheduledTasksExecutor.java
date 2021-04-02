@@ -80,8 +80,6 @@ public class ScheduledTasksExecutor {
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
-//        统计所有历史all
-//        List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
@@ -89,6 +87,11 @@ public class ScheduledTasksExecutor {
         statisticByPlanIds(yesterdayScreeningPlanIds);
     }
 
+    /**
+     * 根据筛查计划ID进行筛查统计
+     *
+     * @param yesterdayScreeningPlanIds
+     */
     public void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
         List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();

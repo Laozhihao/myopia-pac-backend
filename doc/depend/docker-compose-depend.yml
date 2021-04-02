@@ -1,4 +1,4 @@
-# 安装 sentinel、zipkin、mysql、redis
+# 安装 sentinel、zipkin、mysql、redis、nginx
 version: "3"
 services:
   sentinel:
@@ -39,3 +39,17 @@ services:
     - "/docker/redis/conf/redis.conf:/etc/redis/redis.conf"
     - "/docker/redis/data:/data"
     command: redis-server /etc/redis/redis.conf
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+    - 7000:7000
+    - 7001:7001
+    - 7002:7002
+    restart: always
+    volumes:
+    - "/var/nginx_home/nginx.conf:/etc/nginx/nginx.conf"
+    - "/home/nginx_home/log:/var/log/nginx"
+    - "/var/jenkins_home/web/myopia-management-frontend:/var/web/myopia-management-frontend"
+    - "/var/jenkins_home/web/myopia-parent-frontend:/var/web/myopia-parent-frontend"
+    - "/var/jenkins_home/web/myopia-pdf-report-frontend:/var/web/myopia-pdf-report-frontend"

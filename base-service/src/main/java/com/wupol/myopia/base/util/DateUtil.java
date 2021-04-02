@@ -2,6 +2,7 @@ package com.wupol.myopia.base.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
@@ -171,8 +172,7 @@ public class DateUtil {
      **/
     public static Date getYesterdayEndTime() {
         Calendar cal=Calendar.getInstance();
-        //TODO 方便测试，暂时查询到今天
-        //cal.add(Calendar.DATE,-1);
+        cal.add(Calendar.DATE,-1);
         cal.set(Calendar.HOUR, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);
@@ -223,5 +223,41 @@ public class DateUtil {
      */
     public static boolean isDateBeforeToday(Date date) {
         return date.getTime() < DateUtil.getTodayStartTime("GMT+8");
+    }
+
+    /**
+     * 格式判断
+     * @param sDate
+     * @return
+     */
+    public static String isValidDate(String sDate){
+        if (!ReUtil.isDate(sDate)){
+            return null;
+        }
+        String s = ReUtil.convertDate(sDate);
+        SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd");
+        try{
+            format.setLenient(false); // 严格检查
+            Date parse = format.parse(s);
+            Date date = new Date();
+            if (parse.getTime()-date.getTime()>0){
+                return null;
+            }
+        }catch(Exception e){
+            return null;
+        }
+        return s;
+    }
+
+    /**
+     * 根据时间获取年份
+     *
+     * @param date
+     * @return
+     */
+    public Integer getYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
     }
 }
