@@ -29,7 +29,6 @@ public class ScreeningOrganizationStaffVo extends ScreeningOrganizationStaff {
     /**
      * 性别
      */
-    @NotNull(message = "性别不能为空")
     private Integer gender;
 
     /**
