@@ -284,13 +284,14 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
-        return screeningResults.stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE)).map(s -> {
-            CountReportItems items = new CountReportItems();
-            items.setId(s.getId());
-            items.setCreateTime(s.getCreateTime());
-            items.setUpdateTime(s.getUpdateTime());
-            return items;
-        }).collect(Collectors.toList());
+        return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
+                .map(result -> {
+                    CountReportItems items = new CountReportItems();
+                    items.setId(result.getId());
+                    items.setCreateTime(result.getCreateTime());
+                    items.setUpdateTime(result.getUpdateTime());
+                    return items;
+                }).collect(Collectors.toList());
     }
 
     /**
@@ -366,7 +367,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId)
-                .stream().filter(s -> s.getIsDoubleScreen().equals(Boolean.FALSE))
+                .stream()
+                .filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
                 .collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(packageVisionTrendsByCorrected(resultList));
@@ -525,45 +527,67 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             VisionItems.Item leftNakedVision = new VisionItems.Item();
             BigDecimal leftNakedVisionValue = date.getLeftEyeData().getNakedVision();
             if (Objects.nonNull(leftNakedVisionValue)) {
-                leftNakedVision.setVision(leftNakedVisionValue);
-                leftNakedVision.setType(lowVisionType(leftNakedVisionValue, age));
-                nakedVision.setOs(leftNakedVision);
+                nakedVision.setOs(packageNakedVision(leftNakedVision, leftNakedVisionValue, age));
             }
 
             // 右裸眼视力
             VisionItems.Item rightNakedVision = new VisionItems.Item();
             BigDecimal rightNakedVisionValue = date.getRightEyeData().getNakedVision();
             if (Objects.nonNull(rightNakedVisionValue)) {
-                rightNakedVision.setVision(rightNakedVisionValue);
-                rightNakedVision.setType(lowVisionType(rightNakedVisionValue, age));
-                nakedVision.setOd(rightNakedVision);
+                nakedVision.setOd(packageNakedVision(rightNakedVision, rightNakedVisionValue, age));
             }
 
             // 左矫正视力
             VisionItems.Item leftCorrectedVision = new VisionItems.Item();
             BigDecimal leftCorrectedVisionValue = date.getLeftEyeData().getCorrectedVision();
             if (Objects.nonNull(leftCorrectedVisionValue)) {
-                leftCorrectedVision.setVision(leftCorrectedVisionValue);
-                if (Objects.nonNull(leftNakedVisionValue)) {
-                    leftCorrectedVision.setType(getCorrected2Type(leftNakedVisionValue, leftCorrectedVisionValue, glassesType));
-                }
-                correctedVision.setOs(leftCorrectedVision);
+                correctedVision.setOs(packageCorrectedVision(leftCorrectedVision, leftCorrectedVisionValue,
+                        leftNakedVisionValue, glassesType));
             }
 
             // 右矫正视力
             VisionItems.Item rightCorrectedVision = new VisionItems.Item();
             BigDecimal rightCorrectedVisionValue = date.getRightEyeData().getCorrectedVision();
             if (Objects.nonNull(rightCorrectedVisionValue)) {
-                rightCorrectedVision.setVision(rightCorrectedVisionValue);
-                if (Objects.nonNull(rightNakedVisionValue)) {
-                    rightCorrectedVision.setType(getCorrected2Type(rightNakedVisionValue, rightCorrectedVisionValue, glassesType));
-                }
-                correctedVision.setOd(rightCorrectedVision);
+                correctedVision.setOd(packageCorrectedVision(rightCorrectedVision, rightCorrectedVisionValue,
+                        rightNakedVisionValue, glassesType));
             }
         }
         itemsList.add(correctedVision);
         itemsList.add(nakedVision);
         return itemsList;
+    }
+
+    /**
+     * 封装裸眼视力
+     *
+     * @param nakedVision      返回的实体
+     * @param nakedVisionValue 裸眼视力值
+     * @param age              年龄
+     * @return VisionItems.Item
+     */
+    private VisionItems.Item packageNakedVision(VisionItems.Item nakedVision, BigDecimal nakedVisionValue, Integer age) {
+        nakedVision.setVision(nakedVisionValue);
+        nakedVision.setType(lowVisionType(nakedVisionValue, age));
+        return nakedVision;
+    }
+
+    /**
+     * 封装矫正视力
+     *
+     * @param correctedVision      返回的实体
+     * @param correctedVisionValue 矫正视力值
+     * @param nakedVisionValue     裸眼视力值
+     * @param glassesType          戴镜类型
+     * @return VisionItems.Item
+     */
+    private VisionItems.Item packageCorrectedVision(VisionItems.Item correctedVision, BigDecimal correctedVisionValue,
+                                                    BigDecimal nakedVisionValue, Integer glassesType) {
+        correctedVision.setVision(correctedVisionValue);
+        if (Objects.nonNull(nakedVisionValue)) {
+            correctedVision.setType(getCorrected2Type(nakedVisionValue, correctedVisionValue, glassesType));
+        }
+        return correctedVision;
     }
 
     /**
@@ -588,10 +612,8 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         axialItems.setTitle("轴位A");
 
         if (Objects.nonNull(date)) {
-
             // 左眼数据
             ComputerOptometryDO.ComputerOptometry leftEyeData = date.getLeftEyeData();
-
             BigDecimal leftSph = leftEyeData.getSph();
             BigDecimal leftCyl = leftEyeData.getCyl();
 
@@ -603,80 +625,101 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
 
             // 左眼等效球镜SE
             if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-                RefractoryResultItems.Item leftSphItems = new RefractoryResultItems.Item();
-                // 等效球镜SE
-                leftSphItems.setVision(calculationSE(leftSph, leftCyl));
-                TwoTuple<String, Integer> leftSphType = getSphTypeName(leftSph, leftCyl, age);
-                leftSphItems.setTypeName(leftSphType.getFirst());
-                Integer type = leftSphType.getSecond();
-                // 取最大的type
-                maxType = maxType > type ? maxType : type;
-                leftSphItems.setType(type);
-                sphItems.setOs(leftSphItems);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(leftSph, leftCyl, age, maxType);
+                maxType = result.getFirst();
+                sphItems.setOs(result.getSecond());
             }
             // 右眼等效球镜SE
             if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-                RefractoryResultItems.Item rightSphItems = new RefractoryResultItems.Item();
-                // 等效球镜SE
-                rightSphItems.setVision(calculationSE(rightSph, rightCyl));
-                TwoTuple<String, Integer> rightSphType = getSphTypeName(rightSph, rightCyl, age);
-                rightSphItems.setTypeName(rightSphType.getFirst());
-                Integer type = rightSphType.getSecond();
-                // 取最大的type
-                maxType = maxType > type ? maxType : type;
-                rightSphItems.setType(type);
-                sphItems.setOd(rightSphItems);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSpnItem(rightSph, rightCyl, age, maxType);
+                maxType = result.getFirst();
+                sphItems.setOd(result.getSecond());
             }
             items.add(sphItems);
 
             // 左眼柱镜DC
             if (Objects.nonNull(leftCyl)) {
-                RefractoryResultItems.Item leftCylItems = new RefractoryResultItems.Item();
-                leftCylItems.setVision(leftCyl);
-                TwoTuple<String, Integer> leftCylType = getCylTypeName(leftCyl);
-                Integer type = leftCylType.getSecond();
-                leftCylItems.setType(type);
-                // 取最大的type
-                maxType = maxType > type ? maxType : type;
-                leftCylItems.setTypeName(leftCylType.getFirst());
-                cylItems.setOs(leftCylItems);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageCylItem(leftCyl, maxType);
+                maxType = result.getFirst();
+                cylItems.setOs(result.getSecond());
             }
             // 右眼柱镜DC
             if (Objects.nonNull(rightCyl)) {
-                RefractoryResultItems.Item rightCylItems = new RefractoryResultItems.Item();
-                rightCylItems.setVision(rightCyl);
-                TwoTuple<String, Integer> rightCylType = getCylTypeName(rightCyl);
-                Integer type = rightCylType.getSecond();
-                rightCylItems.setType(type);
-                // 取最大的type
-                maxType = maxType > type ? maxType : type;
-                rightCylItems.setTypeName(rightCylType.getFirst());
-                cylItems.setOd(rightCylItems);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageCylItem(rightCyl, maxType);
+                maxType = result.getFirst();
+                cylItems.setOd(result.getSecond());
             }
             items.add(cylItems);
 
             // 左眼轴位A
             if (Objects.nonNull(leftAxial)) {
-                RefractoryResultItems.Item leftAxialItems = new RefractoryResultItems.Item();
-                leftAxialItems.setVision(leftAxial);
-                leftAxialItems.setTypeName(getAxialTypeName(leftAxial));
-                axialItems.setOs(leftAxialItems);
+                axialItems.setOs(packageAxialItem(leftAxial));
             }
             // 右眼轴位A
             if (Objects.nonNull(rightAxial)) {
-                RefractoryResultItems.Item rightAxialItems = new RefractoryResultItems.Item();
-                rightAxialItems.setVision(rightAxial);
-                rightAxialItems.setTypeName(getAxialTypeName(rightAxial));
-                axialItems.setOd(rightAxialItems);
+                axialItems.setOs(packageAxialItem(rightAxial));
             }
             items.add(axialItems);
-
             return new TwoTuple<>(items, maxType);
         }
         items.add(sphItems);
         items.add(cylItems);
         items.add(axialItems);
         return new TwoTuple<>(items, maxType);
+    }
+
+    /**
+     * 封装等效球镜SE
+     *
+     * @param spn     球镜
+     * @param cyl     柱镜
+     * @param age     年龄
+     * @param maxType 最大类型
+     * @return TwoTuple<Integer, RefractoryResultItems.Item>
+     */
+    private TwoTuple<Integer, RefractoryResultItems.Item> packageSpnItem(BigDecimal spn, BigDecimal cyl, Integer age, Integer maxType) {
+        RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
+        // 等效球镜SE
+        sphItems.setVision(calculationSE(spn, cyl));
+        TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age);
+        sphItems.setTypeName(leftSphType.getFirst());
+        Integer type = leftSphType.getSecond();
+        // 取最大的type
+        maxType = maxType > type ? maxType : type;
+        sphItems.setType(type);
+        return new TwoTuple<>(maxType, sphItems);
+    }
+
+    /**
+     * 封装柱镜DC
+     *
+     * @param cyl     柱镜
+     * @param maxType 最大类型
+     * @return TwoTuple<Integer, RefractoryResultItems.Item>
+     */
+    private TwoTuple<Integer, RefractoryResultItems.Item> packageCylItem(BigDecimal cyl, Integer maxType) {
+        RefractoryResultItems.Item cylItems = new RefractoryResultItems.Item();
+        cylItems.setVision(cyl);
+        TwoTuple<String, Integer> leftCylType = getCylTypeName(cyl);
+        Integer type = leftCylType.getSecond();
+        cylItems.setType(type);
+        // 取最大的type
+        maxType = maxType > type ? maxType : type;
+        cylItems.setTypeName(leftCylType.getFirst());
+        return new TwoTuple<>(maxType, cylItems);
+    }
+
+    /**
+     * 封装轴位
+     *
+     * @param axial 轴位
+     * @return RefractoryResultItems.Item {@link RefractoryResultItems.Item}
+     */
+    private RefractoryResultItems.Item packageAxialItem(BigDecimal axial) {
+        RefractoryResultItems.Item axialItems = new RefractoryResultItems.Item();
+        axialItems.setVision(axial);
+        axialItems.setTypeName(getAxialTypeName(axial));
+        return axialItems;
     }
 
     /**

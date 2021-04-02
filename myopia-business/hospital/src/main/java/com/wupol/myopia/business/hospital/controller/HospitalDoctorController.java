@@ -30,20 +30,20 @@ public class HospitalDoctorController {
 
 
     @GetMapping("/list")
-    public List<DoctorVo> getDoctorList(DoctorQuery query) throws IOException {
+    public List<DoctorVo> getDoctorList(DoctorQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setHospitalId(user.getOrgId());
         return hospitalDoctorService.getDoctorVoList(query);
     }
 
     @GetMapping("/{id}")
-    public DoctorVo getDoctor(@PathVariable("id") Integer id) throws IOException {
+    public DoctorVo getDoctor(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalDoctorService.getDoctorVo(user.getOrgId(), id);
     }
 
     @PostMapping()
-    public Boolean saveDoctor(@RequestBody @Valid Doctor doctor) throws IOException {
+    public Boolean saveDoctor(@RequestBody @Valid Doctor doctor) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospitalDoctorService.saveDoctor(user, doctor);
         return true;

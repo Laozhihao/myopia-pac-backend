@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -72,12 +73,7 @@ public class StatReportService {
      */
     private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
         StatConclusionQuery query = new StatConclusionQuery();
-        List<District> districts =
-                districtService.getChildDistrictByParentIdPriorityCache(districtId);
-        List<Integer> selectDistrictIds =
-                districts.stream().map(District::getId).collect(Collectors.toList());
-        selectDistrictIds.add(districtId);
-        query.setDistrictIds(selectDistrictIds);
+        query.setDistrictIds(districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return query;
     }
 
@@ -117,7 +113,7 @@ public class StatReportService {
      * @param num
      * @return
      */
-    private Float round2Digits(Double num) {
+    private Float round2Digits(double num) {
         return Math.round(num * 100) / 100f;
     }
 
@@ -592,10 +588,10 @@ public class StatReportService {
         };
 
         Map<String, Object> conclusionDesc = new HashMap<>();
-        conclusionDesc.put("totalNum", totalNum);
 
         List<BasicStatParams> totalRowList = (List<BasicStatParams>) totalStat.get("list");
         Long totalWarningNum = totalRowList.stream().mapToLong(x -> x.getNum()).sum();
+        conclusionDesc.put("totalNum", totalWarningNum);
         conclusionDesc.put("totalRatio", convertToPercentage(totalWarningNum * 1f / totalNum));
 
         List<ClassStat> levelList = new ArrayList<>();
@@ -608,7 +604,6 @@ public class StatReportService {
         conclusionDesc.put(title, schoolAgeWarningLevelTable);
         return conclusionDesc;
     }
-
 
     /**
      * 构造 学龄/视力情况 描述
@@ -654,15 +649,16 @@ public class StatReportService {
         Long wearingNum = 0L;
         float wearingRatio = 0;
         for (BasicStatParams params : list) {
-            if (!params.getTitle().equals(GlassesType.NOT_WEARING.name())) {
-                wearingNum += params.getNum();
-                wearingRatio += params.getRatio();
+            if (GlassesType.NOT_WEARING.name().equals(params.getTitle())) {
+                continue;
             }
+            wearingNum += params.getNum();
+            wearingRatio += params.getRatio();
         }
         Collections.sort(schoolAgeMyopiaRatio,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("wearingNum", wearingNum);
-        conclusionDesc.put("wearingRatio", wearingRatio);
+        conclusionDesc.put("wearingRatio", round2Digits(wearingRatio));
         conclusionDesc.put("list", list);
         conclusionDesc.put(title, schoolAgeGlassesTypeTable);
         return conclusionDesc;
@@ -710,7 +706,7 @@ public class StatReportService {
             Integer srcScreeningNoticeId, Integer planId, int schoolId) throws IOException {
         Date startDate = null;
         Date endDate = null;
-        Integer planStudentNum = 0;
+        long planStudentNum = 0;
         StatConclusionQuery query = new StatConclusionQuery();
         query.setSchoolId(schoolId);
         if (srcScreeningNoticeId != null) {
@@ -718,15 +714,19 @@ public class StatReportService {
             query.setSrcScreeningNoticeId(srcScreeningNoticeId);
             startDate = notice.getStartTime();
             endDate = notice.getEndTime();
-            planStudentNum =screeningPlanSchoolStudentService.countPlanSchoolStudent(
-                srcScreeningNoticeId, schoolId);
-        }  else if (planId != null) {
+            planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(
+                    srcScreeningNoticeId, schoolId);
+        } else if (planId != null) {
             query.setPlanId(planId);
             ScreeningPlan sp = screeningPlanService.getById(planId);
             startDate = sp.getStartTime();
             endDate = sp.getEndTime();
-            planStudentNum = sp.getStudentNumbers();
-        }else{
+            planStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(planId)
+                                     .stream()
+                                     .filter(x -> x.getSchoolId() == schoolId)
+                                     .count();
+
+        } else {
             throw new ParameterNotFoundException("Parameters not illegal");
         }
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
@@ -763,13 +763,12 @@ public class StatReportService {
         long warning2Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
         long warning3Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
-        float averageVisionValue =
-                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2;
+        float averageVisionValue = round2Digits(
+                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
         List<SchoolGradeItems> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
         List<StatConclusionReportVo> statConclusionReportVos =
-                statConclusionService.getReportVo(
-                        srcScreeningNoticeId, planId, schoolId);
+                statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<String, Object>() {
             {
                 put("schoolName", schoolName);
@@ -777,9 +776,7 @@ public class StatReportService {
                 put("validFirstScreeningNum", validFirstScreeningNum);
                 put("maleNum", maleList.size());
                 put("femaleNum", femaleList.size());
-                put("myopiaRatio",
-
-                        convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
+                put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
                 put("lowVisionRatio",
                         convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
                 put("averageVision", averageVisionValue);
@@ -827,7 +824,7 @@ public class StatReportService {
 
                 put("schoolClassStudentStatList",
                         composeSchoolClassStudentStatList(
-                                 schoolId, schoolGradeItems, statConclusionReportVos));
+                                schoolId, schoolGradeItems, statConclusionReportVos));
             }
         };
         if (startDate != null) {
@@ -847,8 +844,9 @@ public class StatReportService {
      * @param schoolGradeItemList 学校班级列表
      * @return
      */
-    private List<Map<String, List>> composeSchoolClassStudentStatList(
-            int schoolId, List<SchoolGradeItems> schoolGradeItemList, List<StatConclusionReportVo> statConclusionReportVos) {
+    private List<Map<String, List>> composeSchoolClassStudentStatList(int schoolId,
+            List<SchoolGradeItems> schoolGradeItemList,
+            List<StatConclusionReportVo> statConclusionReportVos) {
         List<Map<String, List>> schoolStudentStatList = new ArrayList<>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
@@ -918,19 +916,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUncorrectedStat("total", statConclusions);
+                composeGenderVisionUncorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -948,19 +948,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUnderCorrectedStat("total", statConclusions);
+                composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -1069,18 +1071,23 @@ public class StatReportService {
                 add(totalStat);
             }
         };
-        int totalSize = totalStat.size();
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
-        BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
+        int totalLevelStatSize = totalLevelStat.size();
+        BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalLevelStatSize - 1);
         return new HashMap<String, Object>() {
             {
                 put("list", list);
                 put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
+                put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
             }
         };
     }
 
+    /**
+     * 从list中获取占比最高的头部list
+     * @param list
+     * @return
+     */
     private List<BasicStatParams> getTopStatList(List<BasicStatParams> list) {
         Map<Float, List<BasicStatParams>> map =
                 list.stream().collect(Collectors.groupingBy(BasicStatParams::getRatio));
@@ -1178,7 +1185,10 @@ public class StatReportService {
                 Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(
                         schoolClass.getName(),
                         statConclusions.stream()
-                                .filter(x -> schoolClass.getName().equals(x.getSchoolClassName()))
+                                .filter(x
+                                        -> schoolClass.getName().equals(x.getSchoolClassName())
+                                                && gradeCode.getCode().equals(
+                                                        x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());
@@ -1211,7 +1221,10 @@ public class StatReportService {
             for (SchoolClass schoolClass : schoolClasses) {
                 Map<String, Object> myopiaLevelStat = composeMyopiaLevelStat(schoolClass.getName(),
                         statConclusions.stream()
-                                .filter(x -> schoolClass.getName().equals(x.getSchoolClassName()))
+                                .filter(x
+                                        -> schoolClass.getName().equals(x.getSchoolClassName())
+                                                && gradeCode.getCode().equals(
+                                                        x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
@@ -1241,7 +1254,8 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate = x -> x.getIsMyopia();
+        Predicate<StatConclusion> predicate =
+                x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1321,16 +1335,16 @@ public class StatReportService {
     private Map<String, Object> composeLowVisionLevelStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelOnePredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.ONE.code;
+                x -> WarningLevel.ONE.code.equals(x.getNakedVisionWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.TWO.code;
+                x -> WarningLevel.TWO.code.equals(x.getNakedVisionWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> x.getNakedVisionWarningLevel() == WarningLevel.THREE.code;
+                x -> WarningLevel.THREE.code.equals(x.getNakedVisionWarningLevel());
         Map<String, Object> levelMap = composeLevelStat(
                 name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         AverageVision averageVision = this.calculateAverageVision(statConclusions);
-        float averageVisionValue =
-                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2;
+        float averageVisionValue = round2Digits(
+                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
         levelMap.put("averageVision", averageVisionValue);
         return levelMap;
     }
@@ -1344,11 +1358,11 @@ public class StatReportService {
     private Map<String, Object> composeMyopiaLevelStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> levelOnePredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.ONE.code;
+                x -> WarningLevel.ONE.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelTwoPredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.TWO.code;
+                x -> WarningLevel.TWO.code.equals(x.getMyopiaWarningLevel());
         Predicate<StatConclusion> levelThreePredicate =
-                x -> x.getMyopiaWarningLevel() == WarningLevel.THREE.code;
+                x -> WarningLevel.THREE.code.equals(x.getMyopiaWarningLevel());
         Map<String, Object> levelMap = composeLevelStat(
                 name, statConclusions, levelOnePredicate, levelTwoPredicate, levelThreePredicate);
         return levelMap;
@@ -1364,17 +1378,18 @@ public class StatReportService {
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
         Long levelZeroNum = statConclusions.stream()
-                                    .filter(x -> x.getWarningLevel() == WarningLevel.ZERO.code)
+                                    .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
                                     .count();
         Long levelOneNum = statConclusions.stream()
-                                   .filter(x -> x.getWarningLevel() == WarningLevel.ONE.code)
+                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
                                    .count();
         Long levelTwoNum = statConclusions.stream()
-                                   .filter(x -> x.getWarningLevel() == WarningLevel.TWO.code)
+                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
                                    .count();
-        Long levelThreeNum = statConclusions.stream()
-                                     .filter(x -> x.getWarningLevel() == WarningLevel.THREE.code)
-                                     .count();
+        Long levelThreeNum =
+                statConclusions.stream()
+                        .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
+                        .count();
         List<BasicStatParams> list = new ArrayList<BasicStatParams>() {
             {
                 add(composeBasicParams(WarningLevel.ZERO.name(), levelZeroNum, rowTotal));
@@ -1502,26 +1517,28 @@ public class StatReportService {
     private void genScreeningData(
             StatConclusionReportVo vo, VisionScreeningResultReportVo reportVo) {
         reportVo.setNakedVisions(
-                        eyeDateFormat((BigDecimal) JSONPath.eval(
+                        eyeDataFormat((BigDecimal) JSONPath.eval(
                                               vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
                                 (BigDecimal) JSONPath.eval(
-                                        vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                                        vo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION),
+                                1))
                 .setCorrectedVisions(
-                        eyeDateFormat((BigDecimal) JSONPath.eval(vo,
+                        eyeDataFormat((BigDecimal) JSONPath.eval(vo,
                                               ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION),
                                 (BigDecimal) JSONPath.eval(
-                                        vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
-                .setSphs(eyeDateFormat(
+                                        vo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION),
+                                1))
+                .setSphs(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setCyls(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
+                .setCyls(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_CYL),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setAxials(eyeDateFormat(
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
+                .setAxials(eyeDataFormat(
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL),
-                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
+                        (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
                 .setSphericalEquivalents(
-                        eyeDateFormat(StatUtil.getSphericalEquivalent(
+                        eyeDataFormat(StatUtil.getSphericalEquivalent(
                                               (BigDecimal) JSONPath.eval(
                                                       vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
                                               (BigDecimal) JSONPath.eval(
@@ -1530,7 +1547,8 @@ public class StatReportService {
                                         (BigDecimal) JSONPath.eval(
                                                 vo, ScreeningResultPahtConst.LEFTEYE_SPH),
                                         (BigDecimal) JSONPath.eval(
-                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL))))
+                                                vo, ScreeningResultPahtConst.LEFTEYE_CYL)),
+                                2))
                 .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
                 .setCorrectionType(vo.getCorrectionType());
     }
@@ -1541,9 +1559,18 @@ public class StatReportService {
      * @param leftEyeData
      * @return
      */
-    private String eyeDateFormat(Number rightEyeData, Number leftEyeData) {
-        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : rightEyeData,
-                Objects.isNull(leftEyeData) ? "--" : leftEyeData);
+    private String eyeDataFormat(BigDecimal rightEyeData, BigDecimal leftEyeData, int scale) {
+        // 不足两位小数补0
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        if (scale == 0) {
+            decimalFormat = new DecimalFormat("#");
+        }
+        if (scale == 1) {
+            decimalFormat = new DecimalFormat("0.0");
+        }
+        return String.format("%s/%s",
+                Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData),
+                Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
     }
 
     /**
@@ -1558,7 +1585,8 @@ public class StatReportService {
         Map<Integer, Long> planDistrictStudentMap =
                 screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
                         notificationId);
-        List<Integer> validDistrictIds = districtService.getAllDistrictIds(specificDistrictId);
+        List<Integer> validDistrictIds =
+                districtService.getSpecificDistrictTreeAllDistrictIds(specificDistrictId);
         int planStudentNum = 0;
         for (Integer districtId : planDistrictStudentMap.keySet()) {
             if (!validDistrictIds.contains(districtId)) {

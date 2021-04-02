@@ -221,7 +221,10 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     }
 
 
-    /** 从一个学生信息, 更新到另一个学生信息 */
+    /**
+     * 从一个学生信息, 更新到另一个学生信息
+     *  只更新来源的数据不为空的数据
+     */
     private void updateStudentInfoByAnotherStudent(Student target, Student source) {
         if (Objects.nonNull(source.getId())) target.setId(source.getId());
         if (Objects.nonNull(source.getGradeId())) target.setGradeId(source.getGradeId());

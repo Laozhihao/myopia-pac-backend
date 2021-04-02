@@ -172,12 +172,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         baseMapper.updateById(screeningOrganization);
-        ScreeningOrganization o = baseMapper.selectById(screeningOrganization.getId());
-        BeanUtils.copyProperties(o, response);
-        response.setDistrictName(districtService.getDistrictName(o.getDistrictDetail()));
+        ScreeningOrganization organization = baseMapper.selectById(screeningOrganization.getId());
+        BeanUtils.copyProperties(organization, response);
+        response.setDistrictName(districtService.getDistrictName(organization.getDistrictDetail()));
         // 详细地址
         response.setAddressDetail(districtService.getAddressDetails(
-                o.getProvinceCode(), o.getCityCode(), o.getAreaCode(), o.getTownCode(), o.getAddress()));
+                organization.getProvinceCode(), organization.getCityCode(), organization.getAreaCode(), organization.getTownCode(), organization.getAddress()));
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
         // 是否能更新
@@ -241,31 +241,31 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
                 .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
         // 封装DTO
-        orgListsRecords.forEach(r -> {
+        orgListsRecords.forEach(orgResponseDTO -> {
             // 同一部门才能更新
             if (currentUser.isPlatformAdminUser()) {
-                r.setCanUpdate(true);
-            } else if (r.getCreateUserId().equals(currentUser.getId())) {
-                r.setCanUpdate(true);
+                orgResponseDTO.setCanUpdate(true);
+            } else if (orgResponseDTO.getCreateUserId().equals(currentUser.getId())) {
+                orgResponseDTO.setCanUpdate(true);
             }
 
             // 筛查人员
-            List<ScreeningOrganizationStaff> staffLists = staffMaps.get(r.getId());
+            List<ScreeningOrganizationStaff> staffLists = staffMaps.get(orgResponseDTO.getId());
             if (!CollectionUtils.isEmpty(staffLists)) {
-                r.setStaffCount(staffLists.size());
+                orgResponseDTO.setStaffCount(staffLists.size());
             } else {
-                r.setStaffCount(0);
+                orgResponseDTO.setStaffCount(0);
             }
             // 区域名字
-            r.setDistrictName(districtService.getDistrictName(r.getDistrictDetail()));
+            orgResponseDTO.setDistrictName(districtService.getDistrictName(orgResponseDTO.getDistrictDetail()));
 
             // 筛查次数
-            r.setScreeningTime(orgPlanMaps.getOrDefault(r.getId(),0L));
-            r.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
+            orgResponseDTO.setScreeningTime(orgPlanMaps.getOrDefault(orgResponseDTO.getId(),0L));
+            orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(orgResponseDTO.getId()));
 
             // 详细地址
-            r.setAddressDetail(districtService.getAddressDetails(
-                    r.getProvinceCode(), r.getCityCode(), r.getAreaCode(), r.getTownCode(), r.getAddress()));
+            orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
+                    orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
         });
         return orgLists;
     }
@@ -288,10 +288,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
         // 封装DTO
-        return screeningOrganizationList.stream().map(r -> {
+        return screeningOrganizationList.stream().map(organization -> {
             ScreeningOrgResponseDTO orgResponseDTO = new ScreeningOrgResponseDTO();
-            BeanUtils.copyProperties(r, orgResponseDTO);
-            orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(r.getId()));
+            BeanUtils.copyProperties(organization, orgResponseDTO);
+            orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(organization.getId()));
             return orgResponseDTO;
         }).collect(Collectors.toList());
     }
@@ -454,14 +454,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         // 封装DTO
-        schoolIds.forEach(s -> {
+        schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
-            detail.setSchoolId(s);
-            if (null != schoolMaps.get(s)) {
-                detail.setSchoolName(schoolMaps.get(s).getName());
+            detail.setSchoolId(schoolId);
+            if (null != schoolMaps.get(schoolId)) {
+                detail.setSchoolName(schoolMaps.get(schoolId).getName());
             }
-            detail.setRealScreeningNumbers(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(s, orgId, planId).size());
-            detail.setPlanScreeningNumbers(planStudentMaps.get(s));
+            detail.setRealScreeningNumbers(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId).size());
+            detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
             detail.setScreeningPlanId(planId);
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());

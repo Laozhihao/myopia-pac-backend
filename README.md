@@ -45,7 +45,7 @@
 运行base-service其util目录下的MybatisPlusGenerator的main方法，按照提示输入服务名、表名、实体名，可自动生成代码。注意事项：
 
 - 修改数据库地址和账号密码为自己的
-```bash
+```
 dsc.setDbType(DbType.MYSQL)
     .setUrl("jdbc:mysql://localhost:3306/myopia_oauth?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
     .setDriverName("com.mysql.cj.jdbc.Driver")
@@ -53,7 +53,7 @@ dsc.setDbType(DbType.MYSQL)
     .setPassword("laozh0111");
 ```
 - 修改表前缀，如授权中心的表前缀为“o_”，管理端的表前缀为“m_”
-```bash
+```
 private static StrategyConfig getStrategyConfig() {
     strategy.setTablePrefix("o_")
 }
@@ -81,7 +81,7 @@ private static StrategyConfig getStrategyConfig() {
 
 #### 修改配置文件
 1. copy对应微服务sample/setting目录下的配置文件到resource目录下
-2. 修改配置文件中数据库、Redis、Nacos等参数值为自己的
+2. 修改配置文件中数据库、Redis、Nacos等参数值
 
 #### 初始化数据库
 1. 执行对应服务resource/db/migration目录下的SQL
@@ -101,29 +101,64 @@ private static StrategyConfig getStrategyConfig() {
 - 请求业务接口时，Header都要带上Authorization字段，其值 = Bearer字符串 + 1个空格 + 登录时返回的access_token值，如：“Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVC...”
 
 ## 生产环境部署项目
-### 部署前准备
-- 修改配置参数为对应环境的
-- 安装并启动依赖的治理服务【如：Nacos、Zipkin等】
 
-### 同步maven依赖 
- ```bash
- mvn clean install -DskipTests
- ```
- ### 打包
- ```bash
- mvn package -DskipTests
- ```
- or
- ```bash
- mvn clean validate install -DskipTests
- ```
- ### 运行
- ```bash
- java  -jar myopia.jar
- ```
+### 安装相关依赖服务
+1. 包括：Sentinel、Zipkin、MySQL、Redis、Nginx
+2. 安装前准备
+- 是以配置文件方式启动 Redis，需要先在安装环境的/docker/redis/conf/目录下创建 redis.conf，redis.conf 内容示例详情查看：doc/depend/redis.conf
+- 创建 Nginx 挂载目录，并创建 Nginx 配置文件
+```bash
+mkdir -p /var/nginx_home
+chmod 777 /var/nginx_home
+vim /var/nginx_home/nginx.conf
+```
+3. docker-compose 编排部署
+- yaml文件示例详情查看：doc/depend/docker-compose-depend.yml
+```bash
+docker-compose -f docker-compose-depend.yml up -d
+```
+
+### 安装 Nacos 集群
+1. 初始化数据库
+- 在MySQL中创建数据库 nacos_config
+- 在数据库 nacos_config 中，执行 Nacos 建表脚本
+- 脚本下载地址：https://github.com/alibaba/nacos/blob/master/distribution/conf/nacos-mysql.sql
+2. 安装前准备
+- 创建 docker-compose 部署脚本，内容示例查看：doc/nacos/docker-compose-nacos-cluster.yml
+- 创建 nacos 环境变量文件，内容示例查看：doc/nacos/nacos-ip.env
+3. 编排部署
+```bash
+docker-compose -f docker-compose-nacos-cluster.yml up -d
+```
+4. 通过 nginx 对 nacos 集群进行负载均衡
+- 修改 nginx 的 nginx.conf 配置文件，增加 nacos 负载均衡配置信息，示例详情查看：doc/nacos/nginx-nacos.conf
+
+### 修改项目配置参数
+1. 修改每个微服务 setting/env 目录下的配置文件的参数值为对应环境的参数值
+
+### 通过 Jenkins 部署各微服务
+1. 安装 Jenkins
+2. 配置 Jenkins
+3. Jenkins 部署脚本
+- 业务微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-business.sh
+- 网关微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-gateway.sh
+- 授权中心微服务 shell 部署脚本，示例请查看：doc/jenkins-shell/myopia-oauth.sh
+4. Jenkins 需要创建6个部署任务
+- 后端
+    - 网关服务，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pac-backend
+    - 授权服务，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pac-backend
+    - 业务服务，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pac-backend
+- 前端
+    - 家长端，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pac-parent-frontend
+    - 管理端，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pac-management-frontend
+    - 筛查报告，工程地址：https://git.vistel.cn/web/myopia-pac/myopia-pdf-report
+
+### 修改 Nginx 配置
+ 1. 由于管理端、家长端、筛查PDF报告的属于不同的前端工程，若都在同台主机上，则需要不同端口来监听进而区别开
+ 2. nginx.conf 中增加应用服务配置内容，示例详情查看：doc/nginx.conf
  
 ## 开发规范约定
-### 遵守公司java统一开发规范
+### 团队Java代码规范
 https://git.vistel.cn/web/web-toolkits/java-coding-guide
 ### 命名
 - 政府部门：gov_dept、筛查机构：screening_org、两者统称：org

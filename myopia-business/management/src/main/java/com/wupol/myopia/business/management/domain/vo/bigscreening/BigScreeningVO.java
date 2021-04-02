@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.management.domain.vo.bigscreening;
 
+import com.wupol.myopia.business.management.domain.dos.AvgVisionDO;
+import com.wupol.myopia.business.management.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.management.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -44,34 +45,34 @@ public class BigScreeningVO {
     /**
      * realScreeningNum
      */
-    private Long  realScreeningNum;
+    private Long realScreeningNum;
 
     /**
      * realScreening
      */
-    private Object realScreening;
+    private BigScreenScreeningDO realScreening;
     /**
      * lowVision
      */
-    private Object lowVision;
+    private BigScreenScreeningDO lowVision;
     /**
      * myopia
      */
-    private Object myopia;
+    private BigScreenScreeningDO myopia;
     /**
      * ametropia
      */
-    private Object ametropia;
+    private BigScreenScreeningDO ametropia;
     /**
      * focusOjects
      */
-    private Object focusObjects;
+    private BigScreenScreeningDO focusObjects;
     /**
-     * avgVision
+     * 平均视力
      */
-    private Object avgVision;
+    private AvgVisionDO avgVision;
     /**
-     * mapData
+     * 地图数据
      */
     private Object mapData;
 
@@ -80,8 +81,17 @@ public class BigScreeningVO {
 
     }
 
+
     /**
-     *  创建对象
+     * 空对象
+     */
+    public static BigScreeningVO getImmutableEmptyInstance() {
+        return new BigScreeningVO();
+    }
+
+    /**
+     * 创建对象
+     *
      * @param screeningNotice
      * @param districtBigScreenStatistic
      * @param districtName
@@ -96,7 +106,7 @@ public class BigScreeningVO {
         bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
-        bigScreeningVO.setTitle(districtName+"近视防控中心");
+        bigScreeningVO.setTitle(districtName + "近视防控中心");
         bigScreeningVO.setValidDataNum(districtBigScreenStatistic.getValidDataNum());
         bigScreeningVO.setPlanScreeningNum(districtBigScreenStatistic.getPlanScreeningNum());
         bigScreeningVO.setRealScreeningNum(districtBigScreenStatistic.getRealScreeningNum());
