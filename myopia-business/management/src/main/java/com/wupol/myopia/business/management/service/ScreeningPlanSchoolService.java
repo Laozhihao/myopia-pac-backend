@@ -3,6 +3,7 @@ package com.wupol.myopia.business.management.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.management.domain.model.School;
@@ -49,7 +50,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @param schoolId 学校ID
      * @return ScreeningPlanSchool
      */
-    public ScreeningPlanSchool getOne(Integer screeningPlanId, Integer schoolId) {
+    public ScreeningPlanSchool getOneByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId,schoolId);
     }
 
@@ -151,9 +152,9 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
         List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
         if (CollectionUtils.isEmpty(schoolIds)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        return  schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
+        return schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
     }
 
     /**
@@ -174,5 +175,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public List<ScreeningPlanSchool> getBySchoolIds(List<Integer> schoolIds) {
         return baseMapper.getBySchoolIds(schoolIds);
+    }
+
+    /**
+     * 获取筛查机构正在筛查的学校ID
+     *
+     * @param screeningOrgId
+     * @return
+     */
+    public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
+        return baseMapper.getScreeningSchoolsByOrgId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 }

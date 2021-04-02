@@ -55,9 +55,6 @@ public class StatConclusionReportVo extends StatConclusion {
     /** 裸眼视力级别 */
     private Integer nakedVisionWarningLevel;
 
-    /** 视力矫正情况 */
-    private Integer correctionType;
-
     /**
      * 筛查结果--视力检查结果
      */

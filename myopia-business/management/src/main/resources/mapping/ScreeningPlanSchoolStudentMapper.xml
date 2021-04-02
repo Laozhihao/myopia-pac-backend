@@ -81,9 +81,11 @@
 
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
-        select msg.id as grade_id, msg.name as grade_name, msc.id as class_id, msc.name as class_name from (select grade_id, class_id from m_screening_plan_school_student
-        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
-        group by grade_id, class_id) grader_class
+        select msg.id as grade_id, msg.name as grade_name, msc.id as class_id, msc.name as class_name
+        from (
+            select grade_id, class_id from m_screening_plan_school_student
+            where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+            group by grade_id, class_id) grader_class
             left join m_school_grade msg on grader_class.grade_id = msg.id
             left join m_school_class msc on grader_class.class_id = msc.id
     </select>

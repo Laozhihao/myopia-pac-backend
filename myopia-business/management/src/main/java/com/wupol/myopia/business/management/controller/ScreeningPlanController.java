@@ -360,7 +360,7 @@ public class ScreeningPlanController {
         //1. 发布成功后才能导入
         validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
         //2. 校验计划学校是否已存在
-        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOne(screeningPlanId, schoolId);
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
         if (Objects.isNull(planSchool)) {
             throw new ValidationException("该筛查学校不存在");
         }

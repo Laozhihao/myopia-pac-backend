@@ -2,8 +2,10 @@ package com.wupol.myopia.business.management.domain.query;
 
 
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.interfaces.HasCreatorNameLikeAndCreateUserIds;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -14,12 +16,13 @@ import java.util.Objects;
 /**
  * 筛查通知查询
  *
- * @Author Alix
+ * @author Alix
  * @Date 2021-1-22
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ScreeningNoticeQuery extends ScreeningNotice {
+@Accessors(chain = true)
+public class ScreeningNoticeQuery extends ScreeningNotice implements HasCreatorNameLikeAndCreateUserIds<ScreeningNoticeQuery> {
     /**
      * 筛查通知--开始时间（时间戳）
      */

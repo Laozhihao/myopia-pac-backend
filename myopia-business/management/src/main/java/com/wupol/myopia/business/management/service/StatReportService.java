@@ -1188,7 +1188,7 @@ public class StatReportService {
                                 .filter(x
                                         -> schoolClass.getName().equals(x.getSchoolClassName())
                                                 && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                                                           x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());
@@ -1224,7 +1224,7 @@ public class StatReportService {
                                 .filter(x
                                         -> schoolClass.getName().equals(x.getSchoolClassName())
                                                 && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                                                           x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
@@ -1550,7 +1550,7 @@ public class StatReportService {
                                                 vo, ScreeningResultPahtConst.LEFTEYE_CYL)),
                                 2))
                 .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
-                .setCorrectionType(vo.getCorrectionType());
+                .setCorrectionType(vo.getVisionCorrection());
     }
 
     /**
