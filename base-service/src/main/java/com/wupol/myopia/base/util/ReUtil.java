@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.screening.utils;
+package com.wupol.myopia.base.util;
 
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;

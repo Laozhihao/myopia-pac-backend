@@ -1,10 +1,8 @@
 package com.wupol.myopia.business.management.service;
 
-import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -14,12 +12,13 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
+import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +46,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private ScreeningRelatedFacade screeningRelatedFacade;
 
 
     /**
@@ -70,15 +71,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public IPage<ScreeningTaskVo> getPage(ScreeningTaskQuery query, PageRequest pageRequest) {
         Page<ScreeningTask> page = (Page<ScreeningTask>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
-            UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setRealName(query.getCreatorNameLike()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-            List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queryCreatorIds)) {
-                // 可以直接返回空
-                return new Page<ScreeningTaskVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
-            }
-            query.setCreateUserIds(queryCreatorIds);
+        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
+            return new Page<>();
         }
         IPage<ScreeningTaskVo> screeningTaskIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningTaskIPage.getRecords().stream().map(ScreeningTask::getCreateUserId).distinct().collect(Collectors.toList());

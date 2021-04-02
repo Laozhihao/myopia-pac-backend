@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -18,9 +19,9 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
+import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningRelatedFacade screeningRelatedFacade;
 
     /**
      * 通过ids获取
@@ -83,21 +86,14 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public IPage<ScreeningPlanVo> getPage(ScreeningPlanQuery query, PageRequest pageRequest) {
         Page<ScreeningPlan> page = (Page<ScreeningPlan>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
-            UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setRealName(query.getCreatorNameLike());
-            List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queryCreatorIds)) {
-                // 可以直接返回空
-                return new Page<ScreeningPlanVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
-            }
-            query.setCreateUserIds(queryCreatorIds);
+        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
+            return new Page<>();
         }
         if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
             List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
                 // 可以直接返回空
-                return new Page<ScreeningPlanVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
+                return new Page<>();
             }
             query.setScreeningOrgIds(orgIds);
         }
@@ -204,19 +200,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 通过通知id，获取计划
-     *
-     * @param screeningNoticeIds
-     * @return
-     */
-    public List<ScreeningPlan> getPlanByNoticeIds(Set<Integer> screeningNoticeIds) {
-        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, screeningNoticeIds);
-        queryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return baseMapper.selectList(queryWrapper);
-    }
-
-    /**
      * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
      *
      * @param noticeIds
@@ -259,7 +242,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public Set<ScreeningPlanNameVO> getScreeningPlanNameVOs(List<ScreeningPlan> screeningPlans, Integer year) {
         return screeningPlans.stream().filter(screeningPlan ->
-                year.equals(screeningNoticeService.getYear(screeningPlan.getStartTime())) || year.equals(screeningNoticeService.getYear(screeningPlan.getEndTime()))
+                year.equals(DateUtil.getYear(screeningPlan.getStartTime())) || year.equals(DateUtil.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {
             ScreeningPlanNameVO screeningTaskNameVO = new ScreeningPlanNameVO();
             screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
@@ -300,45 +283,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 通过筛查通知id获取实际筛查学生数
-     *
-     * @param noticeId
-     * @param user
-     * @return
-     */
-    public Integer getScreeningPlanStudentNum(Integer noticeId, CurrentUser user) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser()) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
-        } else if (user.isGovDeptUser()) {
-            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
-            allGovDeptIds.add(user.getOrgId());
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
-        }
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
-        return screeningPlans.stream().filter(Objects::nonNull).mapToInt(ScreeningPlan::getStudentNumbers).sum();
-    }
-
-    /**
-     * 通过筛查通知id获取实际筛查学生数
-     *
-     * @param noticeId
-     * @return
-     */
-    public Integer getScreeningPlanStudentNumByNoticeId(Integer noticeId) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper =
-                new LambdaQueryWrapper<>();
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId)
-                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
-        return screeningPlans.stream()
-                .filter(Objects::nonNull)
-                .mapToInt(ScreeningPlan::getStudentNumbers)
-                .sum();
-    }
-
-    /**
      * 根据筛查计划ID获取原始的筛查通知ID列表
      *
      * @param screeningPlanIds
@@ -352,18 +296,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
-    }
-
-    /**
-     * 根据原始筛查通知获取所有的筛查计划
-     *
-     * @param srcScreeningNoticeId
-     * @return
-     */
-    public List<ScreeningPlan> getBySrcScreeningNoticeId(Integer srcScreeningNoticeId) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, srcScreeningNoticeId);
-        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
     /**
@@ -429,6 +361,4 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         queryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId);
         return baseMapper.selectList(queryWrapper);
     }
-
-
 }

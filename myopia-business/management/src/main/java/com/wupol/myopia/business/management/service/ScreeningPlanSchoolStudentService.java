@@ -2,22 +2,23 @@ package com.wupol.myopia.business.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.sun.org.apache.bcel.internal.generic.INEG;
-import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.*;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.*;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.management.constant.GenderEnum;
+import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.constant.ImportExcelEnum;
+import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
+import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -67,14 +68,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
         return baseMapper.findByStudentId(studentId);
     }
-
-/*    public ScreeningPlanSchoolStudent getByScreeningPlanSchoolStudentId(Integer studentId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.set(studentId);
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.setEntity(screeningPlanSchoolStudent);
-        return baseMapper.selectOne(queryWrapper);
-    }*/
 
     /**
      * 批量查找数据

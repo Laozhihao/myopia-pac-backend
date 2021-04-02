@@ -2,6 +2,7 @@ package com.wupol.myopia.business.management.domain.query;
 
 
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.interfaces.HasCreatorNameLikeAndCreateUserIds;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,7 +21,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class ScreeningTaskQuery extends ScreeningTask {
+public class ScreeningTaskQuery extends ScreeningTask implements HasCreatorNameLikeAndCreateUserIds<ScreeningTaskQuery> {
     /**
      * 筛查通知--开始时间（时间戳）
      */
