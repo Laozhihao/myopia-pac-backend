@@ -366,7 +366,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName()).setGradeId(student.getGradeId()).setGradeName(student.getGradeName())
                     .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType()).setClassId(student.getClassId()).setClassName(student.getClassName())
                     .setBirthday(student.getBirthday()).setGender(student.getGender()).setStudentAge(AgeUtil.countAge(student.getBirthday()))
-                    .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent)).setStudentNo(dbStudent.getSno()).setNation(student.getNation())
+                    .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent)).setStudentNo(student.getSno()).setNation(student.getNation())
                     .setProvinceCode(student.getProvinceCode()).setCityCode(student.getCityCode()).setAreaCode(student.getAreaCode())
                     .setTownCode(student.getTownCode()).setAddress(student.getAddress()).setParentPhone(student.getParentPhone());
             return existPlanStudent;
