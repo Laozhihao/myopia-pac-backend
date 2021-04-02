@@ -30,7 +30,6 @@ public class ScreeningOrganizationStaffVo extends ScreeningOrganizationStaff {
      * 性别
      */
     @NotNull(message = "性别不能为空")
-    @Pattern(regexp = "^[0|1]$", message = "性别只能为0或者1")
     private Integer gender;
 
     /**

@@ -37,7 +37,6 @@ public class Doctor implements Serializable {
 
     /** 性别：0-男、1-女 */
     @NotBlank(message = "性别不能为空")
-    @Pattern(regexp = "^[0|1]$", message = "性别只能为0或者1")
     private Integer gender;
     @NotBlank(message = "姓名不能为空")
     private String name;
