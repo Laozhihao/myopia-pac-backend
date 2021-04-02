@@ -4,6 +4,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 
+import java.util.Date;
 import java.util.List;
 
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
@@ -39,4 +40,6 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
     Integer deleteByPlanIdAndExcludeSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
 
     List<ScreeningPlanSchool> getBySchoolIds(@Param("schoolIds") List<Integer> schoolIds);
+
+    List<ScreeningPlanSchool> getScreeningSchoolsByOrgId(@Param("screeningOrgId") Integer screeningOrgId, @Param("releaseStatus") Integer releaseStatus, @Param("currentDate") Date currentDate);
 }

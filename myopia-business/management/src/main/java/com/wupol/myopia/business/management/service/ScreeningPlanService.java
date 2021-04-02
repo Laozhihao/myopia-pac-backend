@@ -4,6 +4,7 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -183,7 +184,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public Set<ScreeningPlanSchoolInfoDTO> getByDistrictIdAndTaskId(Integer districtId, Integer taskId) {
-        return baseMapper.selectSchoolInfo(districtId, taskId, 1);
+        return baseMapper.selectSchoolInfo(districtId, taskId, CommonConst.STATUS_RELEASE);
     }
 
     /**
@@ -227,7 +228,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<ScreeningPlan> getScreeningPlanByNoticeIdAndUser(Integer noticeId, CurrentUser user) {
-        if (noticeId == null || user == null) {
+        if (ObjectsUtil.hasNull(noticeId, user)) {
             return new ArrayList<>();
         }
         Set<Integer> noticeSet = new HashSet<>();
@@ -236,6 +237,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 筛选年度的计划并组装VO
+     *
      * @param screeningPlans
      * @param year
      * @return
@@ -299,21 +302,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     *
      * @param screeningOrgId
      * @return
      */
     public List<Long> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        List<ScreeningPlanSchool> screeningPlanSchools = this.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
         return screeningPlanSchools.stream().map(screeningPlanSchool -> screeningPlanSchool.getSchoolId().longValue()).collect(Collectors.toList());
-    }
-
-
-    /**
-     * @param screeningOrgId
-     * @return
-     */
-    public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
-        return baseMapper.selectScreeningSchools(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 
     /**
@@ -322,7 +317,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param deptId
      */
     public Set<Integer> getCurrentPlanIds(Integer deptId) {
-        List<ScreeningPlanSchool> screeningPlanSchools = getScreeningSchoolsByScreeningOrgId(deptId);
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
         return screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
 
@@ -355,6 +350,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public List<ScreeningPlan> getAllPlanByNoticeId(Integer noticeId) {
+        //TODO @jacob是要查询发布状态么？
         ScreeningPlan screeningPlan = new ScreeningPlan();
         screeningPlan.setSrcScreeningNoticeId(noticeId).setReleaseStatus(CommonConst.STATUS_RELEASE);
         LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();

@@ -119,4 +119,14 @@
             #{schoolId}
         </foreach>
     </select>
+
+    <select id="getScreeningSchoolsByOrgId" resultMap="BaseResultMap">
+        select sps.*
+        from m_screening_plan_school sps
+        left join m_screening_plan p on p.id = sps.screening_plan_id
+        where p.screening_org_id = #{screeningOrgId}
+        and p.release_status = #{releaseStatus}
+        and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
+        <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
+    </select>
 </mapper>
