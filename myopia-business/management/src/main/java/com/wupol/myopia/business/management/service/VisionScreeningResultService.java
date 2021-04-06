@@ -79,7 +79,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<VisionScreeningResult> getByScreeningPlanSchoolStudentIds(Set<Integer> screeningPlanSchoolStudentIds) {
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        visionScreeningResultLambdaQueryWrapper.in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,false).in(VisionScreeningResult::getScreeningPlanSchoolStudentId, screeningPlanSchoolStudentIds);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
