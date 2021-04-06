@@ -7,10 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.screening.domain.vo.EyeDiseaseVO;
@@ -38,9 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +62,10 @@ public class ScreeningAppController {
     private StudentService studentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
 
 
     /**
@@ -92,12 +91,20 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public ResultVO getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-            return ResultVOUtil.success();
+    public ResultVO getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId, boolean all) {
+        Set<String> gradeNameSet = new HashSet<>();
+        if (all) {
+            //查找全部的年级
+            List<SchoolGrade> schoolGrades = schoolGradeService.getBySchoolName(schoolName);
+            gradeNameSet = schoolGrades.stream().map(SchoolGrade::getName).collect(Collectors.toSet());
+        } else {
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+            if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+                return ResultVOUtil.success();
+            }
+            gradeNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
         }
-        return ResultVOUtil.success(screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet()));
+        return ResultVOUtil.success(gradeNameSet);
     }
 
     /**
@@ -109,9 +116,16 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public ResultVO getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
-        return ResultVOUtil.success(screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet()));
+    public ResultVO getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId, boolean all) {
+        Set<String> classNameSet = new HashSet<>();
+        if (all) {
+            List<SchoolClass> schoolClassList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName);
+            classNameSet = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toSet());
+        } else {
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+            classNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
+        }
+        return ResultVOUtil.success(classNameSet);
     }
 
     /**

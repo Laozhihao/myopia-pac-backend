@@ -184,9 +184,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 根据学校铝箔获取年级
      */
-    public List<SchoolGrade> getBySchoolName(String schoolName, Integer deptId) {
+    public List<SchoolGrade> getBySchoolName(String schoolName) {
         SchoolQuery schoolQuery = new SchoolQuery();
-        schoolQuery.setName(schoolName).setGovDeptId(deptId);
+        schoolQuery.setName(schoolName);
         Integer schoolId = schoolService.getBy(schoolQuery).stream()
                 .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
         SchoolGradeQuery schoolGradeQuery = new SchoolGradeQuery();

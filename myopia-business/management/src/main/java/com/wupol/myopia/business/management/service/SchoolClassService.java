@@ -122,11 +122,10 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      *
      * @param schoolName 学校名称
      * @param gradeName  年级名称
-     * @param deptId     部门id
      * @return List<SchoolClass>
      */
-    public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
-        return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName, deptId);
+    public List<SchoolClass> getBySchoolNameAndGradeName(String schoolName, String gradeName) {
+        return baseMapper.getBySchoolNameAndGradeName(schoolName, gradeName);
     }
 
     /**
