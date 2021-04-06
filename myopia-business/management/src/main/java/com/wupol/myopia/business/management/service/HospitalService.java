@@ -7,7 +7,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
@@ -20,8 +19,6 @@ import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +26,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 医院Service
@@ -39,9 +35,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Log4j2
 public class HospitalService extends BaseService<HospitalMapper, Hospital> {
-
-    @Resource
-    public RedissonClient redissonClient;
 
     @Resource
     private HospitalAdminService hospitalAdminService;
@@ -66,29 +59,11 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized UsernameAndPasswordDTO saveHospital(Hospital hospital) {
-        Integer createUserId = hospital.getCreateUserId();
-
         if (checkHospitalName(hospital.getName(), null)) {
             throw new BusinessException("医院名字重复，请确认");
         }
-
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_HOSPITAL_REDIS, hospital.getName()));
-        try {
-            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
-            if (tryLock) {
-                baseMapper.insert(hospital);
-                return generateAccountAndPassword(hospital);
-            }
-        } catch (InterruptedException e) {
-            log.error("用户id:{}获取锁异常:{}", createUserId, e);
-            throw new BusinessException("系统繁忙，请稍后再试");
-        } finally {
-            if (rLock.isLocked()) {
-                rLock.unlock();
-            }
-        }
-        log.warn("用户id:{}新增医院获取不到锁，区域代码:{}", createUserId, hospital.getName());
-        throw new BusinessException("请重试");
+        baseMapper.insert(hospital);
+        return generateAccountAndPassword(hospital);
     }
 
     /**

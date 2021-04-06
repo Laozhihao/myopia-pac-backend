@@ -33,31 +33,6 @@ public interface CacheKey {
     String DISTRICT_CHILD = "district:child:parent_code_%s";
 
     /**
-     * 新增员工
-     */
-    String LOCK_ORG_STAFF_REDIS = "lock:org_staff:phone_%s";
-
-    /**
-     * 新增学校
-     */
-    String LOCK_SCHOOL_REDIS = "lock:school:school_no_%s";
-
-    /**
-     * 新增学生
-     */
-    String LOCK_STUDENT_REDIS = "lock:student:id_card_%s";
-
-    /**
-     * 新增医院
-     */
-    String LOCK_HOSPITAL_REDIS = "lock:hospital:hospital_name_%s";
-
-    /**
-     * 新增机构
-     */
-    String LOCK_ORG_REDIS = "lock:org:name_%s";
-
-    /**
      * 全部行政区域的ID、Name的Map
      */
     String DISTRICT_ID_NAME_MAP = "district:all:id_name_map";
