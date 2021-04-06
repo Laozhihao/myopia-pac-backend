@@ -1,6 +1,6 @@
 # 服务端口号
 server:
-  port: 8010
+  port: 8080
 
 ### log4j2配置 ###
 logging:
