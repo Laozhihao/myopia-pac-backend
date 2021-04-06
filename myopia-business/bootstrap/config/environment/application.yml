@@ -15,14 +15,14 @@ spring:
     ### 注册中心地址
     nacos:
       discovery:
-        server-addr: 8.135.35.154:8848
+        server-addr: ${NACOS_DISCOVERY_SERVER_ADDR}
   jackson:
     serialization:
       write-dates-as-timestamps: true
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: 8.135.35.154:8858
+        dashboard: ${SENTINEL_DASHBOARD_URI}
       # 取消Sentinel控制台懒加载
       eager: true
 
@@ -37,15 +37,15 @@ spring:
 
   ### 指定了 Zipkin 服务器的地址
   zipkin:
-    base-url: http://8.135.35.154:9411
+    base-url: ${ZIPKIN_BASE_URI}
 
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://8.135.35.154:3306/myopia_business?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?useUnicode=true&characterEncoding=${DATABASE_CHARSET}&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
-      username: root
-      password: 123456
+      username: ${DATABASE_USER}
+      password: ${DATABASE_PASSWORD}
       ### 连接池配置
       initial-size: 2
       min-idle: 1
@@ -67,12 +67,12 @@ spring:
         url-pattern: "/druid/*"
         reset-enable: false
         login-username: admin
-        login-password: 123456
+        login-password: EnM4deHc9N8sgrEU
         allow:
 
   flyway:
     # flyway是否启用, 生产/stg为true, 测试环境为false, 因为测试环境经常多个分支的切换
-    enabled: false
+    enabled: ${SPRING_FLYWAY_ENABLED}
     # sql文件位置（db/migration是默认路径，放在resource下，需要手动创建）
     locations: classpath:db/migration
     # flyway版本表
@@ -86,10 +86,10 @@ spring:
     redisson:
       file: classpath:redisson.yaml
     # 数据库索引（默认为0）
-    database: 1
-    host: 8.135.35.154
-    port: 9673
-    password: WuPoL123
+    database: ${REDIS_DB_INDEX}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
     jedis:
       pool:
         # 连接池最大连接数（使用负值表示没有限制）
@@ -132,13 +132,13 @@ upload:
   # 可上传的文件类型后缀
   suffixs: pdf,jpg,jpeg,png,xlsx
   # 上传S3的bucket
-  bucketName: vistel-development
+  bucketName: ${AWS_S3_BUCKET}
   # 文件上传S3的prefix
-  prefix: vistel-appdata-myopia/upload
+  prefix: ${AWS_S3_PREFIX}/upload
   # 静态文件上传S3的prefix
-  staticPrefix: vistel-appdata-myopia/public
+  staticPrefix: ${AWS_S3_PREFIX}/public
   # 静态文件访问的host
-  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
+  staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
 
