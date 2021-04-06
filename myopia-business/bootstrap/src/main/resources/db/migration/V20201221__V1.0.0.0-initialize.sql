@@ -3,27 +3,35 @@ create table m_screening_organization
 (
     id                  int auto_increment comment 'id'
         primary key,
-    create_user_id      int                                 null comment '创建人ID',
-    gov_dept_id         int                                 not null comment '部门ID',
-    district_id         int                                 not null comment '行政区域ID',
-    district_detail     varchar(512)                        not null comment '行政区域json',
-    name                varchar(32)                         not null comment '筛查机构名称',
-    type                tinyint                             not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
-    type_desc           varchar(128)                        null default '' comment '机构类型描述',
-    config_type         tinyint                             not null comment '配置 0-省级配置 1-单点配置',
-    phone               varchar(32)                         null comment '联系方式',
-    province_code       bigint                              null comment '省代码',
-    city_code           bigint                              null comment '市代码',
-    area_code           bigint                              null comment '区代码',
-    town_code           bigint                              null comment '镇/乡代码',
-    address             varchar(128)                        null comment '详细地址',
-    remark              varchar(128)                        null comment '说明',
-    notification_config json                                null comment '告知书配置',
-    status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    create_user_id      int                                    null comment '创建人ID',
+    gov_dept_id         int                                    not null comment '部门ID',
+    district_id         int                                    not null comment '行政区域ID',
+    district_detail     varchar(512) default ''                not null comment '行政区域json',
+    name                varchar(32)                            not null comment '筛查机构名称',
+    type                tinyint                                not null comment '筛查机构类型 0-医院,1-妇幼保健院,2-疾病预防控制中心,3-社区卫生服务中心,4-乡镇卫生院,5-中小学生保健机构,6-其他',
+    type_desc           varchar(128) default ''                null comment '机构类型描述',
+    config_type         tinyint                                not null comment '配置 0-省级配置 1-单点配置',
+    phone               varchar(32)                            null comment '联系方式',
+    province_code       bigint                                 null comment '省代码',
+    city_code           bigint                                 null comment '市代码',
+    area_code           bigint                                 null comment '区代码',
+    town_code           bigint                                 null comment '镇/乡代码',
+    address             varchar(128)                           null comment '详细地址',
+    remark              varchar(128)                           null comment '说明',
+    status              tinyint      default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
+    create_time         timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time         timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    notification_config json                                   null comment '筛查机构告知书配置',
+    constraint m_screening_organization_name_uindex
+        unique (name)
 )
-    comment '筛查机构表';
+    comment '筛查机构表' charset = utf8mb4;
+
+create index m_screening_organization_id_create_time_index
+    on m_screening_organization (id, create_time);
+
+create index m_screening_organization_status_create_time_index
+    on m_screening_organization (status, create_time);
 
 DROP TABLE IF EXISTS m_screening_organization_admin;
 create table m_screening_organization_admin
@@ -60,26 +68,31 @@ create table m_hospital
 (
     id              int auto_increment comment 'id'
         primary key,
-    create_user_id  int                                 null comment '创建人ID',
-    gov_dept_id     int                                 not null comment '部门ID',
-    district_id     int                                 not null comment '行政区域ID',
-    district_detail varchar(512)                        not null comment '行政区域json',
-    name            varchar(32)                         not null comment '医院名称',
-    level           tinyint                             not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
-    level_desc      varchar(32)                         null comment '等级描述',
-    type            tinyint                             not null comment '医院类型 0-定点医院 1-非定点医院',
-    kind            tinyint                             not null comment '医院性质 0-公立 1-私立',
-    province_code   bigint                              null comment '省代码',
-    city_code       bigint                              null comment '市代码',
-    area_code       bigint                              null comment '区代码',
-    town_code       bigint                              null comment '镇/乡代码',
-    address         varchar(128)                        null comment '详细地址',
-    remark          varchar(128)                        null comment '说明',
-    status          tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
-    create_time     timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time     timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    create_user_id  int                                    null comment '创建人ID',
+    gov_dept_id     int                                    not null comment '部门ID',
+    district_id     int                                    not null comment '行政区域ID',
+    district_detail varchar(512) default ''                not null comment '行政区域json',
+    name            varchar(32)                            not null comment '医院名称',
+    level           tinyint                                not null comment '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
+    level_desc      varchar(32)                            null comment '等级描述',
+    type            tinyint                                not null comment '医院类型 0-定点医院 1-非定点医院',
+    kind            tinyint                                not null comment '医院性质 0-公立 1-私立',
+    province_code   bigint                                 null comment '省代码',
+    city_code       bigint                                 null comment '市代码',
+    area_code       bigint                                 null comment '区代码',
+    town_code       bigint                                 null comment '镇/乡代码',
+    address         varchar(128)                           null comment '详细地址',
+    remark          varchar(128)                           null comment '说明',
+    status          tinyint      default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
+    create_time     timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time     timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint m_hospital_name_uindex
+        unique (name)
 )
-    comment '医院表';
+    comment '医院表' charset = utf8mb4;
+
+create index m_hospital_gov_dept_id_create_time_index
+    on m_hospital (gov_dept_id, create_time);
 
 DROP TABLE IF EXISTS m_hospital_admin;
 create table m_hospital_admin
@@ -197,7 +210,7 @@ create table m_student
     address             varchar(128)                        null comment '详细地址',
     avatar_file_id      int                                 null comment '头像资源ID',
     current_situation   varchar(128)                        null comment '当前情况',
-    vision_label        tinyint unsigned                    null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
+    vision_label        tinyint                             null comment '视力标签 0-零级、1-一级、2-二级、3-三级',
     last_screening_time timestamp                           null comment '最近筛选时间',
     remark              varchar(256)                        null comment '备注',
     status              tinyint   default 0                 not null comment '状态 0-启用 1-禁止 2-删除',
@@ -206,9 +219,17 @@ create table m_student
     is_hyperopia        tinyint(1)                          null comment '是否远视',
     is_astigmatism      tinyint(1)                          null comment '是否散光',
     create_time         timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    update_time         timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint m_student_id_card_uindex
+        unique (id_card)
 )
     comment '学校-学生表' charset = utf8mb4;
+
+create index m_student_school_no_status_class_id_grade_id_index
+    on m_student (school_no, status, class_id, grade_id);
+
+create index m_student_status_create_time_index
+    on m_student (status, create_time);
 
 DROP TABLE IF EXISTS `m_district`;
 CREATE TABLE `m_district`  (
