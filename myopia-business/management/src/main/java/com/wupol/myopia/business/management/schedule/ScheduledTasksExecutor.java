@@ -136,7 +136,7 @@ public class ScheduledTasksExecutor {
         // 4. 循环districtIds，拿出所在省份的数据，然后分别统计自己/合计数据
         districtIds.forEach(districtId -> {
             Map<Integer, List<StudentVo>> districtStudentVos = provinceDistrictStudents.getOrDefault(districtIdProvinceIdMap.get(districtId), Collections.emptyMap());
-            List<Integer> districtTreeAllIds = districtService.getDistrictTreeAllIds(districtId);
+            List<Integer> districtTreeAllIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
             List<StudentVo> totalStudents = districtStudentVos.keySet().stream().filter(districtTreeAllIds::contains).map(id -> districtStudentVos.getOrDefault(id, Collections.emptyList())).flatMap(Collection::stream).collect(Collectors.toList());
             if (districtStudentVos.keySet().contains(districtId)) {
                 districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(districtId, CommonConst.NOT_TOTAL, districtStudentVos.get(districtId)));
