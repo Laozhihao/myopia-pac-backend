@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -43,7 +44,7 @@ public class ScreeningOrganizationStaffController {
      * @return 机构人员列表
      */
     @GetMapping("list")
-    public Object getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
+    public Page<UserExtDTO> getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
@@ -54,7 +55,7 @@ public class ScreeningOrganizationStaffController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public Object insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public UsernameAndPasswordDTO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
@@ -68,7 +69,7 @@ public class ScreeningOrganizationStaffController {
      * @return 筛查人员实体
      */
     @PutMapping()
-    public Object updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public ScreeningOrganizationStaffQuery updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);
@@ -81,9 +82,9 @@ public class ScreeningOrganizationStaffController {
      * @return 用户信息 {@link UserDTO}
      */
     @PutMapping("status")
-    public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
+    public UserDTO updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getCurrentUser();
-        return ApiResult.success(screeningOrganizationStaffService.updateStatus(statusRequest));
+        return screeningOrganizationStaffService.updateStatus(statusRequest);
     }
 
     /**
@@ -93,7 +94,7 @@ public class ScreeningOrganizationStaffController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping("reset")
-    public Object resetPassword(@RequestBody @Valid StaffResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid StaffResetPasswordRequest request) {
         CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.resetPassword(request);
     }
@@ -107,7 +108,7 @@ public class ScreeningOrganizationStaffController {
      * @throws UtilException 文件异常
      */
     @GetMapping("/export")
-    public Object getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
+    public ApiResult getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateScreeningOrganizationStaff(currentUser.getId(), screeningOrgId);
         return ApiResult.success();
