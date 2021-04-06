@@ -1,13 +1,12 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 筛查机构controller
@@ -48,7 +48,7 @@ public class ScreeningOrganizationController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public Object saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
@@ -65,7 +65,7 @@ public class ScreeningOrganizationController {
      * @return 筛查机构实体
      */
     @PutMapping()
-    public Object updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationService.updateScreeningOrganization(user, screeningOrganization);
     }
@@ -77,7 +77,7 @@ public class ScreeningOrganizationController {
      * @return 筛查机构实体
      */
     @GetMapping("{id}")
-    public Object getScreeningOrganization(@PathVariable("id") Integer id) {
+    public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("id") Integer id) {
         CurrentUserUtil.getCurrentUser();
         return screeningOrganizationService.getScreeningOrgDetails(id);
     }
@@ -89,7 +89,7 @@ public class ScreeningOrganizationController {
      * @return 机构ID
      */
     @DeleteMapping("{id}")
-    public Object deletedScreeningOrganization(@PathVariable("id") Integer id) {
+    public Integer deletedScreeningOrganization(@PathVariable("id") Integer id) {
         return screeningOrganizationService.deletedById(id);
     }
 
@@ -101,7 +101,7 @@ public class ScreeningOrganizationController {
      * @return 机构列表
      */
     @GetMapping("list")
-    public Object getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationService.getScreeningOrganizationList(pageRequest, query, user);
     }
@@ -113,7 +113,7 @@ public class ScreeningOrganizationController {
      * @return 更新个数
      */
     @PutMapping("status")
-    public Object updateStatus(@RequestBody @Valid StatusRequest request) {
+    public Integer updateStatus(@RequestBody @Valid StatusRequest request) {
         return screeningOrganizationService.updateStatus(request);
     }
 
@@ -126,7 +126,7 @@ public class ScreeningOrganizationController {
      * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public Object getOrganizationExportData(Integer districtId) throws IOException, UtilException {
+    public ApiResult getOrganizationExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         excelFacade.generateScreeningOrganization(user.getId(), districtId);
         return ApiResult.success();
@@ -139,7 +139,7 @@ public class ScreeningOrganizationController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping("/reset")
-    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         return screeningOrganizationService.resetPassword(request.getId());
     }
 
@@ -151,7 +151,7 @@ public class ScreeningOrganizationController {
      * @return 筛查记录列表
      */
     @GetMapping("/record/lists/{orgId}")
-    public Object getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
+    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
         return screeningOrganizationService.getRecordLists(request, orgId);
     }
 
@@ -162,7 +162,7 @@ public class ScreeningOrganizationController {
      * @return 筛查机构列表
      */
     @GetMapping("/listByGovDept")
-    public Object getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
         return screeningOrganizationService.getScreeningOrganizationListByGovDeptId(query);
     }
 
