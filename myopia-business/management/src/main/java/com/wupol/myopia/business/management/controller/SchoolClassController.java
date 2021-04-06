@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 班级控制层
@@ -32,7 +33,7 @@ public class SchoolClassController {
      * @return 新增数量
      */
     @PostMapping()
-    public Object saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
+    public Integer saveGrade(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.saveClass(schoolClass);
@@ -45,7 +46,7 @@ public class SchoolClassController {
      * @return 删除数量
      */
     @DeleteMapping("{id}")
-    public Object deletedGrade(@PathVariable("id") Integer id) {
+    public Integer deletedGrade(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolClassService.deletedClass(id, user.getId());
     }
@@ -57,7 +58,7 @@ public class SchoolClassController {
      * @return 班级实体
      */
     @PutMapping()
-    public Object updateClass(@RequestBody @Valid SchoolClass schoolClass) {
+    public SchoolClass updateClass(@RequestBody @Valid SchoolClass schoolClass) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolClass.setCreateUserId(user.getId());
         return schoolClassService.updateClass(schoolClass);
@@ -70,7 +71,7 @@ public class SchoolClassController {
      * @return 班级列表
      */
     @GetMapping("all")
-    public Object getAllClassList(Integer gradeId) {
+    public List<SchoolClass> getAllClassList(Integer gradeId) {
         if (null == gradeId) {
             throw new BusinessException("年级ID不能为空");
         }

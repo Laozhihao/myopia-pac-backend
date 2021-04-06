@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.UnreadNoticeResponse;
+import com.wupol.myopia.business.management.domain.model.Notice;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +34,7 @@ public class NoticeController {
      * @return 通知列表
      */
     @GetMapping("list")
-    public Object getLists(PageRequest pageRequest) {
+    public IPage<Notice> getLists(PageRequest pageRequest) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.getLists(pageRequest, currentUser);
     }
@@ -43,7 +46,7 @@ public class NoticeController {
      * @return 是否更新成功
      */
     @PostMapping("read")
-    public Object readNotice(@RequestBody List<Integer> ids) {
+    public Boolean readNotice(@RequestBody List<Integer> ids) {
         return noticeService.readNotice(ids);
     }
 
@@ -54,7 +57,7 @@ public class NoticeController {
      * @return 是否删除成功
      */
     @PostMapping("deleted")
-    public Object deletedNotice(@RequestBody List<Integer> ids) {
+    public Boolean deletedNotice(@RequestBody List<Integer> ids) {
         return noticeService.deletedNotice(ids);
     }
 
@@ -64,7 +67,7 @@ public class NoticeController {
      * @return 未读列表
      */
     @GetMapping("unreadCount")
-    public Object unreadCount() {
+    public UnreadNoticeResponse unreadCount() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.unreadCount(currentUser);
     }
@@ -76,7 +79,7 @@ public class NoticeController {
      * @return 是否成功
      */
     @PostMapping("screeningNotice/{screeningNoticeId}")
-    public Object readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
+    public Boolean readScreeningNotice(@PathVariable("screeningNoticeId") Integer screeningNoticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return noticeService.readScreeningNotice(currentUser, screeningNoticeId);
     }

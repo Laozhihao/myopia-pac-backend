@@ -1,17 +1,17 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
-import com.wupol.myopia.business.management.domain.dto.StatusRequest;
-import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolAgeVO;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 学校Controller
@@ -45,7 +46,7 @@ public class SchoolController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public Object getSchoolDetail(@RequestBody @Valid School school) {
+    public UsernameAndPasswordDTO getSchoolDetail(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
@@ -59,7 +60,7 @@ public class SchoolController {
      * @return 学校实体
      */
     @PutMapping()
-    public Object updateSchool(@RequestBody @Valid School school) {
+    public SchoolResponseDTO updateSchool(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
@@ -73,7 +74,7 @@ public class SchoolController {
      * @return 学校实体
      */
     @GetMapping("{id}")
-    public Object getSchoolDetail(@PathVariable("id") Integer id) {
+    public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
         return schoolService.getBySchoolId(id);
     }
 
@@ -84,7 +85,7 @@ public class SchoolController {
      * @return 删除数量
      */
     @DeleteMapping("{id}")
-    public Object deletedSchool(@PathVariable("id") Integer id) {
+    public Integer deletedSchool(@PathVariable("id") Integer id) {
         return schoolService.deletedSchool(id);
     }
 
@@ -96,7 +97,7 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("list")
-    public Object getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
+    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolService.getSchoolList(pageRequest, schoolQuery, user);
     }
@@ -108,7 +109,7 @@ public class SchoolController {
      * @return 更新个数
      */
     @PutMapping("status")
-    public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
+    public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getCurrentUser();
         return schoolService.updateStatus(statusRequest);
     }
@@ -120,7 +121,7 @@ public class SchoolController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping("reset")
-    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         CurrentUserUtil.getCurrentUser();
         return schoolService.resetPassword(request.getId());
     }
@@ -134,7 +135,7 @@ public class SchoolController {
      * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public Object getSchoolExportData(Integer districtId) throws IOException, UtilException {
+    public ApiResult getSchoolExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateSchool(currentUser.getId(), districtId);
         return ApiResult.success();
@@ -148,7 +149,7 @@ public class SchoolController {
      * @return 筛查记录列表
      */
     @GetMapping("screening/record/lists/{schoolId}")
-    public Object getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
+    public IPage<ScreeningPlanResponse> getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
         return schoolService.getScreeningRecordLists(pageRequest, schoolId);
     }
 
@@ -160,7 +161,7 @@ public class SchoolController {
      * @return 是否被使用
      */
     @GetMapping("/checkSchoolNo/{schoolId}/{schoolNo}")
-    public Object checkSchoolNo(@PathVariable("schoolId") Integer schoolId, @PathVariable("schoolNo") String schoolNo) {
+    public Boolean checkSchoolNo(@PathVariable("schoolId") Integer schoolId, @PathVariable("schoolNo") String schoolNo) {
         return schoolService.checkSchoolNo(schoolId, schoolNo);
     }
 
@@ -171,7 +172,7 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("/getSchools/{schoolName}")
-    public Object getSchoolByName(@PathVariable("schoolName") String schoolName) {
+    public List<School> getSchoolByName(@PathVariable("schoolName") String schoolName) {
         return schoolService.getBySchoolName(schoolName);
     }
 
@@ -182,7 +183,7 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("/getSchoolsByDistrictId/{districtId}")
-    public Object getSchoolsByDistrictId(@PathVariable("districtId") Integer districtId) {
+    public List<School> getSchoolsByDistrictId(@PathVariable("districtId") Integer districtId) {
         return schoolService.getByDistrictId(districtId);
     }
 
@@ -193,7 +194,7 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("/listByDistrict")
-    public Object getSchoolListByDistctId(SchoolQuery schoolQuery) {
+    public List<SchoolResponseDTO> getSchoolListByDistctId(SchoolQuery schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             // 政府部门，无法新增计划
@@ -208,7 +209,7 @@ public class SchoolController {
      * @return 学龄段列表
      */
     @GetMapping("/schoolAge/list")
-    public Object getSchoolAge() {
+    public List<SchoolAgeVO> getSchoolAge() {
         return SchoolAge.getSchoolAgeList();
     }
 }
