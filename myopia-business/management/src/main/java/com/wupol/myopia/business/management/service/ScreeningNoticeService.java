@@ -1,25 +1,28 @@
 package com.wupol.myopia.business.management.service;
 
-import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.GovDept;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
+import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     private NoticeService noticeService;
     @Autowired
     private ScreeningTaskService screeningTaskService;
+    @Autowired
+    private ScreeningRelatedFacade screeningRelatedFacade;
 
     /**
      * 设置操作人再更新
@@ -70,15 +75,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
         Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
-            UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setRealName(query.getCreatorNameLike());
-            List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queryCreatorIds)) {
-                // 可以直接返回空
-                return new Page<ScreeningNoticeVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
-            }
-            query.setCreateUserIds(queryCreatorIds);
+        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
+            return new Page<>();
         }
         IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
@@ -93,27 +91,27 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @param id
      * @return
      */
-    public Boolean release(Integer id, CurrentUser user) {
+    public void release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
         ScreeningNotice notice = getById(id);
         notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        if (updateById(notice, user.getId())) {
-            List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
-            List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
-            //2. 为下属部门创建通知
-            boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-            // 3. 为消息中心创建通知
-            List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(govOrgIds)) {
-                ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
-                List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(toUserIds)) {
-                    noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
-                }
-            }
-            return result;
+        if (!updateById(notice, user.getId())) {
+            throw new BusinessException("发布失败");
         }
-        throw new BusinessException("发布失败");
+        List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
+        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
+        //2. 为下属部门创建通知
+        screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+        // 3. 为消息中心创建通知
+        List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(govOrgIds)) {
+            return;
+        }
+        ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
+        List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(toUserIds)) {
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+        }
     }
 
     /**
@@ -160,37 +158,28 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 根据任务ID获取通知（type为1）
-     *
-     * @param screeningTaskId
-     * @return
-     */
-    public Set<Integer> listByScreeningTaskId(Integer screeningTaskId, Set<Integer> govDeptIds) {
-        return baseMapper.selectDistrictIds(screeningTaskId, ScreeningNotice.TYPE_GOV_DEPT, govDeptIds);
-    }
-
-    /**
      * 获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
      *
      * @param user
      * @return
      */
     public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
-        List<ScreeningNotice> screeningNotices = new ArrayList<>();
         if (user.isGovDeptUser()) {
             //查找所有的上级部门
             Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
             superiorGovIds.add(user.getOrgId());
             //查找政府发布的通知
-            screeningNotices = this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
-        } else if (user.isPlatformAdminUser()) {
-            //这里只是查找政府的通知
-            screeningNotices = this.getAllReleaseNotice();
-        } else if (user.isScreeningUser()) {
-            //该部门发布的通知
-            screeningNotices = this.getNoticeBySreeningUser(user.getOrgId());
+            return this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
         }
-        return screeningNotices;
+        if (user.isPlatformAdminUser()) {
+            //这里只是查找政府的通知
+            return this.getAllReleaseNotice();
+        }
+        if (user.isScreeningUser()) {
+            //该部门发布的通知
+            return this.getNoticeBySreeningUser(user.getOrgId());
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -200,18 +189,18 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     private List<ScreeningNotice> getNoticeBySreeningUser(Integer screeningOrgId) {
         if (screeningOrgId == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         // 1.筛查机构自己创建的筛查计划(无论发布与否）
         List<ScreeningNotice> screeningNotices = screeningNoticeDeptOrgService.selectByAcceptIdAndType(screeningOrgId, ScreeningNotice.TYPE_ORG);
         Set<Integer> taskIds = screeningNotices.stream().map(ScreeningNotice::getScreeningTaskId).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(taskIds)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         List<ScreeningTask> screeningTasks = screeningTaskService.listByIds(taskIds);
         Set<Integer> noticeIds = screeningTasks.stream().map(ScreeningTask::getScreeningNoticeId).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(noticeIds)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         // 从 第一点注释 中发现，政府的筛查通知一定已经发布
         return listByIds(noticeIds);
@@ -239,13 +228,17 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public List<ScreeningNotice> getNoticeByReleaseOrgId(Set<Integer> orgIds, Integer orgType) {
         if (CollectionUtils.isEmpty(orgIds) || orgType == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getType, orgType);
-        screeningNoticeLambdaQueryWrapper.in(ScreeningNotice::getGovDeptId, orgIds);
-        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+        List<ScreeningNotice> screeningNotices = new ArrayList<>();
+        Lists.partition(new ArrayList<>(orgIds), 100).forEach(orgIdList -> {
+            LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getType, orgType);
+            screeningNoticeLambdaQueryWrapper.in(ScreeningNotice::getGovDeptId, orgIdList);
+            screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+            screeningNotices.addAll(baseMapper.selectList(screeningNoticeLambdaQueryWrapper));
+        });
+        return screeningNotices;
     }
 
     /**
@@ -255,29 +248,13 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public List<Integer> getYears(List<ScreeningNotice> screeningNotices) {
         Set<Integer> yearSet = new HashSet<>();
-        screeningNotices.forEach(screeningTask -> {
-            Integer startYear = this.getYear(screeningTask.getStartTime());
-            Integer endYear = this.getYear(screeningTask.getEndTime());
+        screeningNotices.forEach(screeningNotice -> {
+            Integer startYear = DateUtil.getYear(screeningNotice.getStartTime());
+            Integer endYear = DateUtil.getYear(screeningNotice.getEndTime());
             yearSet.add(startYear);
             yearSet.add(endYear);
         });
-        List<Integer> yearList = new ArrayList<>(yearSet);
-        yearList.stream().sorted();
-        Collections.reverse(yearList);
-        return yearList;
-    }
-
-
-    /**
-     * 根据时间获取年份 todo 待抽取
-     *
-     * @param date
-     * @return
-     */
-    public Integer getYear(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
+        return new ArrayList<>(yearSet).stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
     }
 
     /**
@@ -308,7 +285,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
         screeningNotices = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
         return screeningNotices.stream().filter(screeningNotice ->
-                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
+                year.equals(DateUtil.getYear(screeningNotice.getStartTime())) || year.equals(DateUtil.getYear(screeningNotice.getEndTime()))
         ).map(screeningNotice -> {
             ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
             screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());

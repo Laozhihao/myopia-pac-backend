@@ -67,18 +67,6 @@
                 order by msp.create_time desc
     </select>
 
-    <select id="selectScreeningSchools" resultType="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool">
-        select sps.* from m_screening_plan p , m_screening_plan_school sps
-        where
-        p.id = sps.screening_plan_id
-        and p.screening_org_id = #{screeningOrgId}
-        and p.release_status = #{releaseStatus}
-        and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
-                    <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
-    </select>
-
-
-
     <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
         SELECT
         mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,

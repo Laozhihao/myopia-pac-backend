@@ -1,32 +1,31 @@
 package com.wupol.myopia.business.management.service;
 
-import com.alibaba.excel.util.CollectionUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
+import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +46,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     private DistrictService districtService;
     @Autowired
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private ScreeningRelatedFacade screeningRelatedFacade;
 
 
     /**
@@ -70,15 +71,8 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public IPage<ScreeningTaskVo> getPage(ScreeningTaskQuery query, PageRequest pageRequest) {
         Page<ScreeningTask> page = (Page<ScreeningTask>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike())) {
-            UserDTOQuery userDTOQuery = new UserDTOQuery();
-            userDTOQuery.setRealName(query.getCreatorNameLike()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-            List<Integer> queryCreatorIds = oauthServiceClient.getUserList(userDTOQuery).getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queryCreatorIds)) {
-                // 可以直接返回空
-                return new Page<ScreeningTaskVo>().setRecords(Collections.EMPTY_LIST).setCurrent(pageRequest.getCurrent()).setSize(pageRequest.getSize()).setPages(0).setTotal(0);
-            }
-            query.setCreateUserIds(queryCreatorIds);
+        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
+            return new Page<>();
         }
         IPage<ScreeningTaskVo> screeningTaskIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningTaskIPage.getRecords().stream().map(ScreeningTask::getCreateUserId).distinct().collect(Collectors.toList());
@@ -99,18 +93,17 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         ScreeningNotice screeningNotice = new ScreeningNotice();
         BeanUtils.copyProperties(screeningTask, screeningNotice);
         screeningTask.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        if (updateById(screeningTask, user.getId())) {
-            //2. 发布通知
-            screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId()).setOperateTime(new Date())
-                    .setScreeningTaskId(id).setGovDeptId(CommonConst.DEFAULT_ID).setType(ScreeningNotice.TYPE_ORG)
-                    .setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-            screeningNoticeService.save(screeningNotice);
-            //3. 为筛查机构创建通知
-            return screeningTaskOrgService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
+        if (!updateById(screeningTask, user.getId())) {
+            throw new BusinessException("发布失败");
         }
-        throw new BusinessException("发布失败");
+        //2. 发布通知
+        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId()).setOperateTime(new Date())
+                .setScreeningTaskId(id).setGovDeptId(CommonConst.DEFAULT_ID).setType(ScreeningNotice.TYPE_ORG)
+                .setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
+        screeningNoticeService.save(screeningNotice);
+        //3. 为筛查机构创建通知
+        return screeningTaskOrgService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
     }
-
 
     /**
      * 新增或更新
@@ -168,61 +161,5 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         ScreeningTaskDTO screeningTaskDTO = ScreeningTaskDTO.build(getById(screeningTaskId));
         screeningTaskDTO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningTaskDTO.getDistrictId()));
         return screeningTaskDTO;
-    }
-
-    /**
-     * 根据时间获取年份
-     *
-     * @param date
-     * @return
-     */
-    public Integer getYear(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
-    }
-
-    /**
-     * 获取多个部门id创建的任务
-     *
-     * @param allSubordinateOrgIds
-     * @return
-     */
-    public List<ScreeningTask> getTaskByAllSubordinateGovDeptIds(List<Integer> allSubordinateOrgIds) {
-        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
-        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()) {
-            queryWrapper.in(ScreeningTask::getGovDeptId, allSubordinateOrgIds);
-        }
-        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return baseMapper.selectList(queryWrapper);
-    }
-
-    /**
-     * 根据通知id获取筛查任务
-     *
-     * @param screeningNoticeIds
-     * @return
-     */
-    public List<ScreeningTask> getTaskByNoticeIds(Set<Integer> screeningNoticeIds) {
-        LambdaQueryWrapper<ScreeningTask> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ScreeningTask::getScreeningNoticeId,screeningNoticeIds);
-        queryWrapper.eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return baseMapper.selectList(queryWrapper);
-    }
-
-    /**
-     * 获取筛查任务名字
-     * @param screeningNoticeIds
-     * @param year
-     */
-    public  Set<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
-        List<ScreeningNotice> screeningNotices = screeningNoticeService.listByIds(screeningNoticeIds);
-        return screeningNotices.stream().filter(screeningNotice ->
-                year.equals(getYear(screeningNotice.getStartTime())) || year.equals(getYear(screeningNotice.getEndTime()))
-        ).map(screeningNotice -> {
-            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
-            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
-            return screeningNoticeNameVO;
-        }).collect(Collectors.toSet());
     }
 }

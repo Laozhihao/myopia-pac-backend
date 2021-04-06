@@ -73,7 +73,7 @@ public class StatReportService {
      */
     private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
         StatConclusionQuery query = new StatConclusionQuery();
-        query.setDistrictIds(districtService.getAllDistrictIds(districtId));
+        query.setDistrictIds(districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return query;
     }
 
@@ -916,19 +916,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUncorrectedStat("total", statConclusions);
+                composeGenderVisionUncorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -946,19 +948,21 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+        List<StatConclusion> myopiaConclusions =
+                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
+                    myopiaConclusions.stream()
                             .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList());
             schoolGradeGenderVisionTable.add(
                     composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat =
-                composeGenderVisionUnderCorrectedStat("total", statConclusions);
+                composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -1184,7 +1188,7 @@ public class StatReportService {
                                 .filter(x
                                         -> schoolClass.getName().equals(x.getSchoolClassName())
                                                 && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                                                           x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());
@@ -1220,7 +1224,7 @@ public class StatReportService {
                                 .filter(x
                                         -> schoolClass.getName().equals(x.getSchoolClassName())
                                                 && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                                                           x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 myopiaLevelStat.put("rowKey", ++rowKey);
                 myopiaLevelStat.put("grade", gradeCode.name());
@@ -1250,7 +1254,8 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderMyopiaStat(
             String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate = x -> x.getIsMyopia();
+        Predicate<StatConclusion> predicate =
+                x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1545,7 +1550,7 @@ public class StatReportService {
                                                 vo, ScreeningResultPahtConst.LEFTEYE_CYL)),
                                 2))
                 .setLowVisionWarningLevel(vo.getNakedVisionWarningLevel())
-                .setCorrectionType(vo.getCorrectionType());
+                .setCorrectionType(vo.getVisionCorrection());
     }
 
     /**
@@ -1580,7 +1585,8 @@ public class StatReportService {
         Map<Integer, Long> planDistrictStudentMap =
                 screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
                         notificationId);
-        List<Integer> validDistrictIds = districtService.getAllDistrictIds(specificDistrictId);
+        List<Integer> validDistrictIds =
+                districtService.getSpecificDistrictTreeAllDistrictIds(specificDistrictId);
         int planStudentNum = 0;
         for (Integer districtId : planDistrictStudentMap.keySet()) {
             if (!validDistrictIds.contains(districtId)) {

@@ -1,14 +1,16 @@
 package com.wupol.myopia.business.screening.controller;
 
 import cn.hutool.core.util.IdcardUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.wupol.myopia.base.util.BeanCopyUtil;
-import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.management.domain.dto.*;
-import com.wupol.myopia.business.management.domain.model.*;
+import com.wupol.myopia.business.management.domain.model.School;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.screening.domain.vo.EyeDiseaseVO;
@@ -22,7 +24,6 @@ import com.wupol.myopia.business.screening.result.ResultVO;
 import com.wupol.myopia.business.screening.result.ResultVOUtil;
 import com.wupol.myopia.business.screening.service.ScreeningAppService;
 import com.wupol.myopia.business.screening.utils.CommUtil;
-import com.wupol.myopia.business.screening.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

@@ -36,8 +36,6 @@ public class Doctor implements Serializable {
     private Integer id;
 
     /** 性别：0-男、1-女 */
-    @NotBlank(message = "性别不能为空")
-    @Pattern(regexp = "^[0|1]$", message = "性别只能为0或者1")
     private Integer gender;
     @NotBlank(message = "姓名不能为空")
     private String name;
@@ -47,7 +45,6 @@ public class Doctor implements Serializable {
     /** 职称 */
     private String titleName;
     /** 医院id */
-    @NotBlank(message = "医院id不能为空")
     private Integer hospitalId;
     /** 科室id */
     private Integer departmentId;
@@ -56,7 +53,6 @@ public class Doctor implements Serializable {
     /** 头像 */
     private Integer avatarFileId;
     /** 电子签名 */
-    @NotBlank(message = "签名不能为空")
     private Integer signFileId;
     /** 状态 0-启用 1-禁止 */
     private Integer status;

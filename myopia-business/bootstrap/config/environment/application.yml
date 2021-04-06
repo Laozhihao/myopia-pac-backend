@@ -1,6 +1,6 @@
-# 服务端口号
+### 服务端口号
 server:
-  port: 8010
+  port: 8080
 
 ### log4j2配置 ###
 logging:
@@ -16,12 +16,16 @@ spring:
     nacos:
       discovery:
         server-addr: 8.135.35.154:8848
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
     ### sentinel dashboard
     sentinel:
       transport:
         dashboard: 8.135.35.154:8858
       # 取消Sentinel控制台懒加载
       eager: true
+
   ### 为true设置的是web开启sleuth功能
   sleuth:
     web:
@@ -30,6 +34,7 @@ spring:
     # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
     sampler:
       probability: 1.0
+
   ### 指定了 Zipkin 服务器的地址
   zipkin:
     base-url: http://8.135.35.154:9411
@@ -37,7 +42,7 @@ spring:
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://8.135.35.154:3306/myopia_oauth?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://8.135.35.154:3306/myopia_business?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
       password: 123456
@@ -63,6 +68,7 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: 123456
+        allow:
 
   flyway:
     # flyway是否启用, 生产/stg为true, 测试环境为false, 因为测试环境经常多个分支的切换
@@ -77,6 +83,8 @@ spring:
 
   ### Redis配置
   redis:
+    redisson:
+      file: classpath:redisson.yaml
     # 数据库索引（默认为0）
     database: 1
     host: 8.135.35.154
@@ -85,12 +93,76 @@ spring:
     jedis:
       pool:
         # 连接池最大连接数（使用负值表示没有限制）
-        max-active: 8
+        max-active: 500
         # 连接池最大阻塞等待时间（使用负值表示没有限制）
         max-wait: -1ms
         # 连接池中的最大空闲连接
-        max-idle: 8
+        max-idle: 50
         # 连接池中的最小空闲连接
         min-idle: 0
     # 连接超时时间（毫秒）
     timeout: 5000ms
+  servlet:
+    multipart:
+      # 上传限制：10M
+      max-file-size: 10485760
+      max-request-size: 10485760
+
+### 远程调用oauth服务的负载均衡策略
+myopia-oauth:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+### feign 配置
+feign:
+  # 打开 Sentinel 对 Feign 的支持
+  sentinel:
+    enabled: true
+  # 超时时间（毫秒）
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
+
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath: /myopia/uploadPic
+  # 可上传的文件类型后缀
+  suffixs: pdf,jpg,jpeg,png,xlsx
+  # 上传S3的bucket
+  bucketName: vistel-development
+  # 文件上传S3的prefix
+  prefix: vistel-appdata-myopia/upload
+  # 静态文件上传S3的prefix
+  staticPrefix: vistel-appdata-myopia/public
+  # 静态文件访问的host
+  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
+  # S3链接失效时间（小时）
+  expiredHours: 2
+
+### 微信相关
+wechat:
+  app:
+    id: wxb1812cb2767ace39
+    secret: c26c5d9601c0c4c2cf83519f9e8fba39
+  authorize:
+    url: https://open.weixin.qq.com/connect/oauth2/authorize
+  api:
+    url-host: https://api.weixin.qq.com
+  callback:
+    url-host: http://wupol.com
+  h5-client:
+    url-host: http://8.135.35.154:7001
+
+vistel:
+  tools:
+    remoteAddress: http://myopia.nat100.top
+
+### 报告相关
+report:
+  pdf:
+    save-path: /app/pdf/
+  html:
+    url-host: http://172.17.0.1:7002

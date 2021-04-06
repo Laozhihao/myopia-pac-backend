@@ -514,9 +514,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return;
         }
         districtList.add(currentDistrict);
-        // 为省级时，停止寻找
+        // 为省级时，停止寻找上级
         if (currentDistrict.getParentCode() != PROVINCE_PARENT_CODE) {
-            searchParentDistrictDetail(districtList, getDistrictByCode(currentDistrict.getCode()));
+            searchParentDistrictDetail(districtList, getDistrictByCode(currentDistrict.getParentCode()));
         }
     }
 
