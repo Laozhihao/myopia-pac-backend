@@ -391,7 +391,7 @@ public class StatService {
         StatConclusionQuery query = new StatConclusionQuery();
         List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
         if (districtId != null && districtId >= 0) {
-            List<Integer> selectDistrictIds = districtService.getDistrictTreeAllIds(districtId);
+            List<Integer> selectDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
             if (userDistrictIds != null) {
                 selectDistrictIds.retainAll(userDistrictIds);
             }

@@ -335,22 +335,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取指定行政区域所属省份的所有行政区域的id列表
-     *
-     * @param districtId 行政区域ID
-     * @return List
-     **/
-    public List<Integer> getAllDistrictIds(Integer districtId) {
-        District districtTree = getDistrictTree(districtId);
-        Assert.notNull(districtTree, "无效行政区域ID：" + districtId);
-        List<Integer> districtIds = new ArrayList<>();
-        getAllIds(districtIds, districtTree.getChild());
-        districtIds.add(districtTree.getId());
-        return districtIds;
-    }
-
-
-    /**
      * 获取层级所有子孙层级的ID
      *
      * @param districtIds
@@ -873,6 +857,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
-                cityDistrict -> new HashSet<>(getAllDistrictIds(cityDistrict.getId()))));
+                cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));
     }
 }
