@@ -138,7 +138,7 @@ upload:
   # 静态文件上传S3的prefix
   staticPrefix: ${AWS_S3_PREFIX}/public
   # 静态文件访问的host
-  staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com.cn
+  staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_S3_REGION}.amazonaws.com.cn
   # S3链接失效时间（小时）
   expiredHours: 2
 

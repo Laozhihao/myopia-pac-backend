@@ -6,7 +6,7 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: https://t-myopia-pac-nacos.tulab.cn
+        server-addr: ${NACOS_DISCOVERY_SERVER_ADDR}
         # 只能读取该命名空间下的配置，public的也读不了（没有指定命名空间的，才读取public的）
         namespace: myopia-gateway
         #group: prod
