@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="PATTERN">{"serviceName": "myopia-business", "thread": "%thread", "host": "%host", "logger": "%logger", "level": "%level", "message": "[%c{2}:%L] - %message"}%n</Property>
+        <Property name="PATTERN">{ "serviceName": "myopia-business", "thread": "%thread", "trace": "%X{traceId}", "span": "%X{spanId}", "logger": "%logger", "level": "%level", "method": "%c{2}:%L", "message": "%msg" }%n</Property>
     </Properties>
     <Appenders>
         <Console name="Console-Appender" target="SYSTEM_OUT">
@@ -11,20 +11,23 @@
                 </pattern>>
             </PatternLayout>
         </Console>
-        <!-- 公网且没有认证，测试环境关闭 -->
-        <!-- <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
-            <PatternLayout pattern="${PATTERN}" />
-        </Socket> -->
+        <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
+            <PatternLayout>
+                <pattern>
+                    [myopia-business] [%X{traceId}] [%X{spanId}] [%thread] [%-5level] [%X{traceId}] %c{2}:%L - %msg%n
+                </pattern>>
+            </PatternLayout>
+        </Socket>
     </Appenders>
     <Loggers>
         <Logger name="com.wupol" level="debug" additivity="false">
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
+            <AppenderRef ref="logstash"/>
         </Logger>
         <!-- 默认level为error级别 -->
         <Root>
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
+            <AppenderRef ref="logstash"/>
         </Root>
     </Loggers>
 </Configuration>

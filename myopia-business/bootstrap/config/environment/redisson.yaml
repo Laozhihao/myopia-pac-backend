@@ -7,15 +7,15 @@ singleServerConfig:
   password: ${REDIS_PASSWORD}
   subscriptionsPerConnection: 5
   clientName: null
-  address: "redis://${REDIS_HOST}:${REDIS_PORT}"
-  subscriptionConnectionMinimumIdleSize: 8
-  subscriptionConnectionPoolSize: 64
-  connectionMinimumIdleSize: 16
+  address: "redis://172.17.0.1:9673"
+  subscriptionConnectionMinimumIdleSize: 1
+  subscriptionConnectionPoolSize: 50
+  connectionMinimumIdleSize: 32
   connectionPoolSize: 64
   # 需要跟其他服务保持一致
   database: ${REDIS_DB_INDEX}
   dnsMonitoringInterval: 5000
-threads: 32
-nettyThreads: 32
+threads: 8
+nettyThreads: 8
 codec: !<org.redisson.codec.JsonJacksonCodec> { }
 "transportMode": "NIO"

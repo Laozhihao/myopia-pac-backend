@@ -11,20 +11,19 @@
                 </pattern>>
             </PatternLayout>
         </Console>
-        <!-- 公网且没有认证，测试环境关闭 -->
-        <!-- <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
+        <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
             <PatternLayout pattern="${PATTERN}" />
-        </Socket> -->
+        </Socket>
     </Appenders>
     <Loggers>
         <Logger name="com.wupol" level="debug" additivity="false">
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
+            <AppenderRef ref="logstash"/>
         </Logger>
         <!-- 默认level为error级别 -->
         <Root>
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
+            <AppenderRef ref="logstash"/>
         </Root>
     </Loggers>
 </Configuration>
