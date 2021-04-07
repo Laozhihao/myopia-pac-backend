@@ -95,6 +95,6 @@
         from m_vision_screening_result
         where student_id = #{studentId}
 <!--          and create_time &lt;= CURDATE()-->
-        group by create_time desc
+        group by update_time desc
     </select>
 </mapper>
