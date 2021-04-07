@@ -182,7 +182,10 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     }
 
     /**
-     * 根据学校铝箔获取年级
+     * 根据学校名称获取年级
+     *
+     * @param schoolName 学校名称
+     * @return 年级列表
      */
     public List<SchoolGrade> getBySchoolName(String schoolName) {
         SchoolQuery schoolQuery = new SchoolQuery();
