@@ -42,6 +42,7 @@ public class Student implements Serializable {
     /**
      * 学校编码
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String schoolNo;
 
     /**
@@ -57,6 +58,7 @@ public class Student implements Serializable {
     /**
      * 年级ID
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer gradeId;
 
     /**
@@ -67,6 +69,7 @@ public class Student implements Serializable {
     /**
      * 班级id
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer classId;
 
     /**
