@@ -7,7 +7,7 @@ singleServerConfig:
   password: ${REDIS_PASSWORD}
   subscriptionsPerConnection: 5
   clientName: null
-  address: "redis://172.17.0.1:9673"
+  address: "redis://${REDIS_HOST}:${REDIS_PORT}"
   subscriptionConnectionMinimumIdleSize: 8
   subscriptionConnectionPoolSize: 64
   connectionMinimumIdleSize: 16

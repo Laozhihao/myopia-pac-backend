@@ -55,7 +55,7 @@ spring:
       resourceserver:
         jwt:
           # 获取JWT验签公钥请求路径
-          jwk-set-uri: ${SECURITY_JWT_URI}
+          jwk-set-uri: ${SECURITY_JWT_SET_URI}
 
   ### Redis配置
   redis:
