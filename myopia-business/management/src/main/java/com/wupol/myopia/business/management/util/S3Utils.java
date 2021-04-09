@@ -11,6 +11,7 @@ import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
 import com.wupol.myopia.business.management.service.ResourceFileService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -74,12 +75,18 @@ public final class S3Utils {
      * @return
      * @throws UtilException
      */
-    public String uploadStaticS3(String fileTempPath, String fileName) throws UtilException {
+    public String uploadStaticS3AndDeleteTempFile(String fileTempPath, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
         String prefix = uploadConfig.getStaticPrefix();
         String key = String.format(S3_STATIC_KEY_FORMAT, prefix, fileName);
-        s3Client.uploadFile(bucket, key, new File(fileTempPath));
+        File file = new File(fileTempPath);
+        s3Client.uploadFile(bucket, key, file);
         String host = uploadConfig.getStaticHost();
+        try {
+            FileUtils.forceDelete(file);
+        } catch (Exception e) {
+            log.error("UploadS3上传完成，删除缓存文件失败", e);
+        }
         return String.format("%s/%s", host, key);
     }
 
@@ -91,7 +98,7 @@ public final class S3Utils {
      * @return com.wupol.myopia.business.management.domain.model.ResourceFile
      **/
     public ResourceFile uploadS3AndGetResourceFile(File file) throws UtilException {
-        return uploadS3AndGetResourceFile(file, file.getName());
+        return uploadS3AndGetResourceFileAndDeleteTempFile(file, file.getName());
     }
 
     /**
@@ -103,20 +110,25 @@ public final class S3Utils {
      * @throws UtilException
      */
     public ResourceFile uploadS3AndGetResourceFile(String fileTempPath, String fileName) throws UtilException {
-        return uploadS3AndGetResourceFile(new File(fileTempPath), fileName);
+        return uploadS3AndGetResourceFileAndDeleteTempFile(new File(fileTempPath), fileName);
     }
 
     /**
-     * 上传文件到S3并保存到resourceFile表
+     * 上传文件到S3并保存到resourceFile表，且删除原有缓存文件
      *
      * @param file 文件
      * @param fileName 文件名
      * @return com.wupol.myopia.business.management.domain.model.ResourceFile
      **/
-    public ResourceFile uploadS3AndGetResourceFile(File file, String fileName) throws UtilException {
+    public ResourceFile uploadS3AndGetResourceFileAndDeleteTempFile(File file, String fileName) throws UtilException {
         String key = uploadFileToS3(file, fileName);
         ResourceFile resourceFile = new ResourceFile().setBucket(uploadConfig.getBucketName()).setS3Key(key).setFileName(fileName);
         resourceFileService.save(resourceFile);
+        try {
+            FileUtils.forceDelete(file);
+        } catch (Exception e) {
+            log.error("UploadS3上传完成，删除缓存文件失败", e);
+        }
         return resourceFile;
     }
 

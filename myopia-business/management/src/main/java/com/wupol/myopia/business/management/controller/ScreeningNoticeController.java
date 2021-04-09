@@ -104,7 +104,8 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("{id}")
-    public Object getInfo(@PathVariable Integer id) { return screeningNoticeService.getById(id);
+    public ScreeningNotice getInfo(@PathVariable Integer id) {
+        return screeningNoticeService.getById(id);
     }
 
     /**
