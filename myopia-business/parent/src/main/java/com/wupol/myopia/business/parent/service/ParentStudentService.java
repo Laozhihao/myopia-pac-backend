@@ -1247,7 +1247,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 }
             }
         } else {
-            // 正常裸眼视力获取结论
+            // 裸眼视力大于4.9
             return nakedVisionNormal(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         }
     }
