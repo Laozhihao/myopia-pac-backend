@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.management.schedule;
 
+import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
@@ -17,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -65,6 +68,8 @@ public class ScheduledTasksExecutor {
     private BigScreenMapService bigScreenMapService;
     @Autowired
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
+    @Resource
+    private VistelToolsService vistelToolsService;
 
     /**
      * 筛查数据统计
@@ -669,15 +674,14 @@ public class ScheduledTasksExecutor {
      * @param noticeInfo    短信内容
      */
     private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo) {
-
         log.info("noticeInfo:{}", noticeInfo);
-
         // 优先家长端绑定的手机号码
-        if (CollectionUtils.isNotEmpty(mpParentPhone)) {
-            return;
-        }
-        if (StringUtils.isNotBlank(parentPhone)) {
-            return;
-        }
+//        if (CollectionUtils.isNotEmpty(mpParentPhone)) {
+//            mpParentPhone.forEach(phone -> vistelToolsService.sendMsg(new MsgData(phone, "+86", noticeInfo)));
+//            return;
+//        }
+//        if (StringUtils.isNotBlank(parentPhone)) {
+//            vistelToolsService.sendMsg(new MsgData(parentPhone, "+86", noticeInfo));
+//        }
     }
 }
