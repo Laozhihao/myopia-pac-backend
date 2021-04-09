@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
- * TODO:
+ * 定时任务单元测试
  *
  * @author Simple4H
  */
