@@ -191,4 +191,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return visionScreeningResultVisionScreeningResultTwoTuple;
 
     }
+
+    /**
+     * 获取学生的筛查记录
+     *
+     * @return 学生筛查记录
+     */
+    public List<VisionScreeningResult> getStudentResults() {
+        return baseMapper.getStudentResults();
+    }
 }

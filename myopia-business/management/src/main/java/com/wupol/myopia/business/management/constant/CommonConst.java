@@ -116,4 +116,9 @@ public interface CommonConst {
      * 否
      */
     Integer NOT_TOTAL = 0;
+
+    /**
+     * 导出消息通知内容-失败
+     */
+    String SEND_SMS_TO_PARENT_MESSAGE = "【近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
 }
