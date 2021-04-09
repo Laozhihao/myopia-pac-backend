@@ -99,8 +99,7 @@
     </select>
 
     <select id="getStudentResults" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+        select mvsr.*
         from m_vision_screening_result mvsr
                      left join m_stat_conclusion msc on mvsr.id = msc.result_id
         where msc.is_valid = 1

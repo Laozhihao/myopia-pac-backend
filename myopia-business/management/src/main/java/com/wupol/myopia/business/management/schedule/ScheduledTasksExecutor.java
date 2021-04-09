@@ -15,7 +15,6 @@ import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -384,8 +383,9 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-    @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
+//    @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
     public void sendSMSNotice() {
+        // TODO: 需要添加一个已经发送过的条件
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
         if (CollectionUtils.isEmpty(studentResult)) {
             return;
@@ -398,10 +398,13 @@ public class ScheduledTasksExecutor {
                 .collect(Collectors.toMap(Student::getId, Function.identity()));
 
         studentResult.forEach(getVisionScreeningResultConsumer(studentMaps));
+        // TODO: 更新筛查记录
+        log.info("更新筛查数据");
     }
 
     /**
      * 消费
+     *
      * @param studentMaps 学生Maps
      * @return Consumer<VisionScreeningResult>
      */
@@ -418,21 +421,15 @@ public class ScheduledTasksExecutor {
 
             BigDecimal leftNakedVision = leftEyeData.getNakedVision();
             BigDecimal leftCorrectedVision = leftEyeData.getCorrectedVision();
-
-            BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
-            BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
-
-            BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
-            BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-
-
             BigDecimal rightNakedVision = rightEyeData.getNakedVision();
             BigDecimal rightCorrectedVision = rightEyeData.getCorrectedVision();
 
-            TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
-            BigDecimal leftSe = calculationSE(leftSph, leftCyl);
-            BigDecimal rightSe = calculationSE(rightSph, rightCyl);
+            // 左右眼的裸眼视力都是为空直接返回
+            if (Objects.isNull(leftNakedVision) && Objects.isNull(rightNakedVision)) {
+                return;
+            }
 
+            TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
             Integer glassesType = leftEyeData.getGlassesType();
 
             // 裸眼视力是否小于4.9
@@ -454,6 +451,15 @@ public class ScheduledTasksExecutor {
                     sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo);
                 }
             } else {
+                if (Objects.isNull(computerOptometry)) {
+                    return;
+                }
+                BigDecimal leftSph = computerOptometry.getLeftEyeData().getSph();
+                BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
+                BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
+                BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
+                BigDecimal leftSe = calculationSE(leftSph, leftCyl);
+                BigDecimal rightSe = calculationSE(rightSph, rightCyl);
                 // 裸眼视力大于4.9
                 String noticeInfo = getSMSNoticeInfo(student.getName(),
                         leftNakedVision, rightNakedVision,
@@ -621,11 +627,24 @@ public class ScheduledTasksExecutor {
      * @return 短信通知详情
      */
     private String getSMSNoticeInfo(String studentName, BigDecimal leftNakedVision, BigDecimal rightNakedVision, String advice) {
-        return String.format(CommonConst.SEND_SMS_TO_PARENT_MESSAGE,
-                StringUtils.overlay(studentName, "**", studentName.length(), 3),
-                leftNakedVision.toString(),
-                rightNakedVision.toString(),
-                advice);
+        return String.format(CommonConst.SEND_SMS_TO_PARENT_MESSAGE, packageStudentName(studentName),
+                leftNakedVision.toString(), rightNakedVision.toString(), advice);
+    }
+
+    /**
+     * 封装短信内容需要的学生姓名
+     * <p>超过4个字符以上：显示前5个字符，其中前3个字符正常回显，后2个字符用*代替。
+     * 如陈旭格->陈旭格、陈旭格力->陈旭格力、陈旭格力哈->陈旭格**、陈旭格力哈特->陈旭格**
+     * </p>
+     *
+     * @param studentName 学生姓名
+     * @return 学生姓名
+     */
+    private String packageStudentName(String studentName) {
+        if (studentName.length() < 5) {
+            return studentName;
+        }
+        return StringUtils.overlay(studentName, "**", 3, studentName.length());
     }
 
     /**
@@ -650,6 +669,8 @@ public class ScheduledTasksExecutor {
      * @param noticeInfo    短信内容
      */
     private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo) {
+
+        log.info("noticeInfo:{}", noticeInfo);
 
         // 优先家长端绑定的手机号码
         if (CollectionUtils.isNotEmpty(mpParentPhone)) {
