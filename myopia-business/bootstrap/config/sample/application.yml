@@ -149,3 +149,13 @@ report:
     save-path: /app/pdf/
   html:
     url-host: http://8.135.35.154:7002
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -54,7 +54,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # 获取JWT验签公钥请求路径
+          # 获取JWT验签公钥请求路径【如果直接访问oauth服务，则去掉“/auth”前缀】
           jwk-set-uri: 'http://localhost:8000/auth/rsa/publicKey'
 
   ### Redis配置
@@ -86,6 +86,12 @@ myopia-oauth:
 myopia-business:
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+### 健康监控 - actuator 配置
+management:
+  endpoint:
+    health:
+      show-details: always
 
 # 配置白名单路径
 white-list:

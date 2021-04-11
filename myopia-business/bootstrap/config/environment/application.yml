@@ -153,3 +153,13 @@ report:
   # 筛查报告前端工程访问域名
   html:
     url-host: http://172.17.0.1:7002
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
