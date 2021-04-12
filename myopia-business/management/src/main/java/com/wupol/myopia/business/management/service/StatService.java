@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.StatClassLabel;
+import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dto.stat.*;
 import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
@@ -22,7 +23,6 @@ import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningDataContrastVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -102,22 +103,26 @@ public class StatService {
         LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
         StatConclusionQuery warningListQuery = new StatConclusionQuery();
-        warningListQuery.setDistrictIds(districtIds);
-        warningListQuery.setIsValid(true);
-        warningListQuery.setIsRescreen(false);
-        warningListQuery.setStartTime(startDate);
-        warningListQuery.setEndTime(endDate);
+        warningListQuery.setStartTime(startDate)
+                .setEndTime(endDate)
+                .setDistrictIds(districtIds)
+                .setIsValid(true)
+                .setIsRescreen(false);
         List<StatConclusion> warningConclusions =
                 statConclusionService.listByQuery(warningListQuery);
         long total = warningConclusions.size();
-        long warning0Num =
-                warningConclusions.stream().filter(x -> x.getWarningLevel() == 0).count();
-        long warning1Num =
-                warningConclusions.stream().filter(x -> x.getWarningLevel() == 1).count();
-        long warning2Num =
-                warningConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
-        long warning3Num =
-                warningConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
+        long warning0Num = warningConclusions.stream()
+                                   .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning1Num = warningConclusions.stream()
+                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning2Num = warningConclusions.stream()
+                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning3Num = warningConclusions.stream()
+                                   .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
+                                   .count();
         long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
         return WarningInfo.builder()
                 .statTime(startDate.atStartOfDay(zoneId).toInstant().toEpochMilli())
@@ -255,20 +260,22 @@ public class StatService {
 
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
-                        .filter(x -> x.getIsRescreen() == false)
+                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
                         .collect(Collectors.toList());
 
-        List<StatConclusion> validConclusions = firstScreenConclusions.stream()
-                                                        .filter(x -> x.getIsValid() == true)
-                                                        .collect(Collectors.toList());
+        List<StatConclusion> validConclusions =
+                firstScreenConclusions.stream()
+                        .filter(x -> Boolean.TRUE.equals(x.getIsValid()))
+                        .collect(Collectors.toList());
 
-        List<StatConclusion> lowVisionConclusions = validConclusions.stream()
-                                                            .filter(x -> x.getIsLowVision() == true)
-                                                            .collect(Collectors.toList());
+        List<StatConclusion> lowVisionConclusions =
+                validConclusions.stream()
+                        .filter(x -> Boolean.TRUE.equals(x.getIsLowVision()))
+                        .collect(Collectors.toList());
 
         List<StatConclusion> refractiveErrorConclusions =
                 validConclusions.stream()
-                        .filter(x -> x.getIsRefractiveError() == true)
+                        .filter(x -> Boolean.TRUE.equals(x.getIsRefractiveError()))
                         .collect(Collectors.toList());
 
         List<StatConclusion> wearingGlassesConclusions =
@@ -310,7 +317,9 @@ public class StatService {
 
         List<StatConclusion> rescreenConclusions =
                 statConclusions.stream()
-                        .filter(x -> x.getIsRescreen() == true && x.getIsValid() == true)
+                        .filter(x
+                                -> Boolean.TRUE.equals(x.getIsRescreen())
+                                        && Boolean.TRUE.equals(x.getIsValid()))
                         .collect(Collectors.toList());
 
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
@@ -470,8 +479,9 @@ public class StatService {
     private ClassStat composeGenderClassStat(
             StatClassLabel label, long validScreeningNum, List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
-        long maleNum =
-                statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
+        long maleNum = statConclusions.stream()
+                               .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                               .count();
         long femaleNum = statConclusions.size() - maleNum;
         return ClassStat.builder()
                 .title(label.name())
@@ -496,21 +506,22 @@ public class StatService {
     private ClassStat composeSchoolAgeClassStat(
             StatClassLabel label, long validScreeningNum, List<StatConclusion> statConclusions) {
         long statNum = statConclusions.size();
-        long kindergartenNum = statConclusions.stream()
-                                       .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
-                                       .count();
+        long kindergartenNum =
+                statConclusions.stream()
+                        .filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge()))
+                        .count();
         long primaryNum = statConclusions.stream()
-                                  .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
+                                  .filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge()))
                                   .count();
         long juniorNum = statConclusions.stream()
-                                 .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
+                                 .filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge()))
                                  .count();
         long highNum = statConclusions.stream()
-                               .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
+                               .filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge()))
                                .count();
         long vocationalHighNum =
                 statConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
+                        .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
                         .count();
 
         return ClassStat.builder()
@@ -568,7 +579,7 @@ public class StatService {
             List<StatConclusion> resultConclusion, int planScreeningNum) {
         List<StatConclusion> firstScreeningConclusions =
                 resultConclusion.stream()
-                        .filter(x -> x.getIsRescreen() == false)
+                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
                         .collect(Collectors.toList());
         List<StatConclusion> validConclusions = firstScreeningConclusions.stream()
                                                         .filter(x -> x.getIsValid())
@@ -583,10 +594,18 @@ public class StatService {
         long validFirstScreeningNum = validConclusions.size();
         long recommendVisitNum =
                 validConclusions.stream().filter(x -> x.getIsRecommendVisit()).count();
-        long warning0Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 0).count();
-        long warning1Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 1).count();
-        long warning2Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
-        long warning3Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
+        long warning0Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning1Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning2Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning3Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
+                                   .count();
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream()

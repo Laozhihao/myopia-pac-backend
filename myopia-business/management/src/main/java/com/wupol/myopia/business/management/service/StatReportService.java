@@ -86,8 +86,9 @@ public class StatReportService {
     private Map<String, Object> composeGenderStat(
             String name, List<StatConclusion> statConclusions) {
         long total = statConclusions.size();
-        Long maleNum =
-                statConclusions.stream().filter(x -> x.getGender() == GenderEnum.MALE.type).count();
+        Long maleNum = statConclusions.stream()
+                               .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                               .count();
         Long femaleNum = total - maleNum;
         return new HashMap<String, Object>() {
             {
@@ -188,7 +189,7 @@ public class StatReportService {
         Date endDate = notice.getEndTime();
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
-                        .filter(x -> x.getIsRescreen() == false)
+                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
                         .collect(Collectors.toList());
         long totalFirstScreeningNum = firstScreenConclusions.size();
         List<Integer> schoolIds = statConclusions.stream()
@@ -198,42 +199,47 @@ public class StatReportService {
         List<School> schools = schoolService.getByIds(schoolIds);
         List<String> schoolExamples =
                 schools.stream().map(School::getName).limit(3).collect(Collectors.toList());
-        List<StatConclusion> validConclusions = firstScreenConclusions.stream()
-                                                        .filter(x -> x.getIsValid() == true)
-                                                        .collect(Collectors.toList());
+        List<StatConclusion> validConclusions =
+                firstScreenConclusions.stream()
+                        .filter(x -> Boolean.TRUE.equals(x.getIsValid()))
+                        .collect(Collectors.toList());
         List<StatConclusion> visionCorrectionConclusions =
                 firstScreenConclusions.stream()
-                        .filter(x -> x.getVisionCorrection() != VisionCorrection.NORMAL.code)
+                        .filter(x
+                                -> x.getVisionCorrection() != null
+                                        && !VisionCorrection.NORMAL.code.equals(
+                                                x.getVisionCorrection()))
                         .collect(Collectors.toList());
 
         long validFirstScreeningNum = validConclusions.size();
 
-        List<StatConclusion> maleList = validConclusions.stream()
-                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
-                                                .collect(Collectors.toList());
+        List<StatConclusion> maleList =
+                validConclusions.stream()
+                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                        .collect(Collectors.toList());
         List<StatConclusion> femaleList =
                 validConclusions.stream()
-                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
                         .collect(Collectors.toList());
         List<StatConclusion> kindergartenList =
                 validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.KINDERGARTEN.code)
+                        .filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
         List<StatConclusion> primaryList =
                 validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.PRIMARY.code)
+                        .filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
         List<StatConclusion> juniorList =
                 validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.JUNIOR.code)
+                        .filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
         List<StatConclusion> highList =
                 validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.HIGH.code)
+                        .filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
         List<StatConclusion> vocationalHighList =
                 validConclusions.stream()
-                        .filter(x -> x.getSchoolAge() == SchoolAge.VOCATIONAL_HIGH.code)
+                        .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
 
         Map<String, List<StatConclusion>> schoolAgeMap =
@@ -738,30 +744,39 @@ public class StatReportService {
 
         List<StatConclusion> firstScreenConclusions =
                 statConclusions.stream()
-                        .filter(x -> x.getIsRescreen() == false)
+                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
                         .collect(Collectors.toList());
-        List<StatConclusion> validConclusions = firstScreenConclusions.stream()
-                                                        .filter(x -> x.getIsValid() == true)
-                                                        .collect(Collectors.toList());
-        List<StatConclusion> maleList = validConclusions.stream()
-                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
-                                                .collect(Collectors.toList());
+        List<StatConclusion> validConclusions =
+                firstScreenConclusions.stream()
+                        .filter(x -> Boolean.TRUE.equals(x.getIsValid()))
+                        .collect(Collectors.toList());
+        List<StatConclusion> maleList =
+                validConclusions.stream()
+                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                        .collect(Collectors.toList());
         List<StatConclusion> femaleList =
                 validConclusions.stream()
-                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
                         .collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
         long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia()).count();
         long lowVisionNum = validConclusions.stream().filter(x -> x.getIsLowVision()).count();
-        long warningNum = validConclusions.stream()
-                                  .filter(x -> x.getWarningLevel() != WarningLevel.NORMAL.code)
-                                  .count();
-        long warning0Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 0).count();
-        long warning1Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 1).count();
-        long warning2Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 2).count();
-        long warning3Num = validConclusions.stream().filter(x -> x.getWarningLevel() == 3).count();
+        long warning0Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning1Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning2Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warning3Num = validConclusions.stream()
+                                   .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
+                                   .count();
+        long warningNum = warning0Num + warning1Num + warning2Num + warning3Num;
+
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         float averageVisionValue = round2Digits(
                 (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
@@ -1453,19 +1468,19 @@ public class StatReportService {
         long rowTotal = statConclusions.size();
         Long typeFrameNum =
                 statConclusions.stream()
-                        .filter(x -> x.getGlassesType() == GlassesType.FRAME_GLASSES.code)
+                        .filter(x -> GlassesType.FRAME_GLASSES.code.equals(x.getGlassesType()))
                         .count();
         Long typeContactLensNum =
                 statConclusions.stream()
-                        .filter(x -> x.getGlassesType() == GlassesType.CONTACT_LENS.code)
+                        .filter(x -> GlassesType.CONTACT_LENS.code.equals(x.getGlassesType()))
                         .count();
         Long typeOrthokeratologyNum =
                 statConclusions.stream()
-                        .filter(x -> x.getGlassesType() == GlassesType.ORTHOKERATOLOGY.code)
+                        .filter(x -> GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType()))
                         .count();
         Long typeNotWearingNum =
                 statConclusions.stream()
-                        .filter(x -> x.getGlassesType() == GlassesType.NOT_WEARING.code)
+                        .filter(x -> GlassesType.NOT_WEARING.code.equals(x.getGlassesType()))
                         .count();
         List<BasicStatParams> list = new ArrayList<BasicStatParams>() {
             {
@@ -1562,11 +1577,12 @@ public class StatReportService {
     private String eyeDataFormat(BigDecimal rightEyeData, BigDecimal leftEyeData, int scale) {
         // 不足两位小数补0
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        if (scale == 0) {
-            decimalFormat = new DecimalFormat("#");
-        }
-        if (scale == 1) {
-            decimalFormat = new DecimalFormat("0.0");
+        switch (scale) {
+            case 0:
+                decimalFormat = new DecimalFormat("#");
+                break;
+            case 1:
+                decimalFormat = new DecimalFormat("0.0");
         }
         return String.format("%s/%s",
                 Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData),
