@@ -12,7 +12,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
@@ -24,15 +23,12 @@ import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaff
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,9 +43,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-
-    @Resource
-    private RedissonClient redissonClient;
 
     @Resource
     private OauthService oauthService;
@@ -98,9 +91,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
 
-        Integer createUserId = staffQuery.getCreateUserId();
-        String phone = staffQuery.getPhone();
-
         // 检查身份证号码是否重复
         List<UserDTO> checkIdCards = oauthService
                 .getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
@@ -117,27 +107,11 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
             throw new BusinessException("手机号码已经被使用");
         }
 
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_STAFF_REDIS, phone));
-        try {
-            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
-            if (tryLock) {
-
-                // 生成账号密码
-                TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
-                staffQuery.setUserId(tuple.getSecond());
-                save(staffQuery);
-                return tuple.getFirst();
-            }
-        } catch (InterruptedException e) {
-            log.error("用户:{}创建机构人员获取锁异常,e:{}", createUserId, e);
-            throw new BusinessException("系统繁忙，请稍后再试");
-        } finally {
-            if (rLock.isLocked()) {
-                rLock.unlock();
-            }
-        }
-        log.warn("用户id:{}新增机构获取不到锁，新增人员手机号码:{}", createUserId, phone);
-        throw new BusinessException("请重试");
+        // 生成账号密码
+        TwoTuple<UsernameAndPasswordDTO, Integer> tuple = generateAccountAndPassword(staffQuery);
+        staffQuery.setUserId(tuple.getSecond());
+        save(staffQuery);
+        return tuple.getFirst();
     }
 
     /**

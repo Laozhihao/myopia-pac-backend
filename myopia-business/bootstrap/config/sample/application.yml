@@ -15,14 +15,14 @@ spring:
     ### 注册中心地址
     nacos:
       discovery:
-        server-addr: 8.135.35.154:8848
+        server-addr: 127.0.0.1:8848
   jackson:
     serialization:
       write-dates-as-timestamps: true
     ### sentinel dashboard
     sentinel:
       transport:
-        dashboard: 8.135.35.154:8858
+        dashboard: localhost:8858
       # 取消Sentinel控制台懒加载
       eager: true
 
@@ -37,12 +37,12 @@ spring:
 
   ### 指定了 Zipkin 服务器的地址
   zipkin:
-    base-url: http://8.135.35.154:9411
+    base-url: http://127.0.0.1:9411
 
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://8.135.35.154:3306/myopia_business?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://localhost:3306/myopia?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
       password: 123456
@@ -85,23 +85,6 @@ spring:
   redis:
     redisson:
       file: classpath:redisson.yaml
-    # 数据库索引（默认为0）
-    database: 1
-    host: 8.135.35.154
-    port: 9673
-    password: WuPoL123
-    jedis:
-      pool:
-        # 连接池最大连接数（使用负值表示没有限制）
-        max-active: 500
-        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-        max-wait: -1ms
-        # 连接池中的最大空闲连接
-        max-idle: 50
-        # 连接池中的最小空闲连接
-        min-idle: 0
-    # 连接超时时间（毫秒）
-    timeout: 5000ms
   servlet:
     multipart:
       # 上传限制：10M
@@ -130,9 +113,9 @@ upload:
   # 保存到服务器地址
   savePath: /myopia/uploadPic
   # 可上传的文件类型后缀
-  suffixs: pdf,jpg,jpeg,png,xlsx
+  suffixs: pdf,jpg,jpeg,png
   # 上传S3的bucket
-  bucketName: vistel-development
+  bucketName: test.vistel.cn
   # 文件上传S3的prefix
   prefix: vistel-appdata-myopia/upload
   # 静态文件上传S3的prefix
@@ -152,17 +135,27 @@ wechat:
   api:
     url-host: https://api.weixin.qq.com
   callback:
-    url-host: http://wupol.com
+    url-host: http://myopia.parent.vistel.cn
   h5-client:
-    url-host: http://8.135.35.154:7001
+    url-host: http://myopia.parent.vistel.cn
 
 vistel:
   tools:
-    remoteAddress: http://myopia.nat100.top
+    remoteAddress: http://tools.internal
 
 ### 报告相关
 report:
   pdf:
     save-path: /app/pdf/
   html:
-    url-host: http://172.17.0.1:7002
+    url-host: http://8.135.35.154:7002
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

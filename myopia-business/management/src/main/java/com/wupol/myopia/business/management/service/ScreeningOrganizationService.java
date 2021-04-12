@@ -9,7 +9,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.*;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
@@ -19,8 +18,6 @@ import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQu
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,9 +36,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class ScreeningOrganizationService extends BaseService<ScreeningOrganizationMapper, ScreeningOrganization> {
-
-    @Resource
-    private RedissonClient redissonClient;
 
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
@@ -81,7 +74,6 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
 
-        Integer createUserId = screeningOrganization.getCreateUserId();
         String name = screeningOrganization.getName();
         if (StringUtils.isBlank(name)) {
             throw new BusinessException("名字不能为空");
@@ -90,23 +82,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (checkScreeningOrgName(name, null)) {
             throw new BusinessException("筛查机构名称不能重复");
         }
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_ORG_REDIS, name));
-        try {
-            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
-            if (tryLock) {
-                baseMapper.insert(screeningOrganization);
-                return generateAccountAndPassword(screeningOrganization);
-            }
-        } catch (InterruptedException e) {
-            log.error("用户id:{}获取锁异常:{}", createUserId, e);
-            throw new BusinessException("系统繁忙，请稍后再试");
-        } finally {
-            if (rLock.isLocked()) {
-                rLock.unlock();
-            }
-        }
-        log.warn("用户id:{}新增机构获取不到锁，机构名称:{}", createUserId, name);
-        throw new BusinessException("请重试");
+
+        baseMapper.insert(screeningOrganization);
+        return generateAccountAndPassword(screeningOrganization);
     }
 
     /**

@@ -81,59 +81,6 @@ public class ScreeningAppService {
     private RedisUtil redisUtil;
 
     /**
-     * 查询学校的年级名称
-     *
-     * @param schoolName     学校名
-     * @param screeningOrgId 机构id
-     * @return
-     */
-    public List<String> getGradeNameBySchoolName(String schoolName, Integer screeningOrgId) {
-        return schoolGradeService.getBySchoolName(schoolName, screeningOrgId).stream().map(SchoolGrade::getName).collect(Collectors.toList());
-    }
-
-
-    /**
-     * 获取学校年级的班级名称
-     *
-     * @param schoolName     学校名称
-     * @param gradeName      年级名称
-     * @param screeningOrgId 机构id
-     * @return
-     */
-    public List<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer screeningOrgId) {
-        return schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName, screeningOrgId).stream()
-                .map(SchoolClass::getName).collect(Collectors.toList());
-    }
-
-    /**
-     * 获取学校年级班级对应的学生名称
-     *
-     * @param schoolId       学校id, 仅复测时有
-     * @param schoolName     学校名称
-     * @param gradeName      年级名称
-     * @param clazzName      班级名称
-     * @param studentName    学生名称
-     * @param screeningOrgId 机构id
-     * @param isReview       是否复测
-     * @return
-     */
-    public IPage<Student> getStudentBySchoolNameAndGradeNameAndClassName(PageRequest pageRequest, Integer schoolId, String schoolName, String gradeName, String clazzName, String studentName, Integer screeningOrgId, Boolean isReview) {
-        //TODO 管理端，待修改
-        //TODO 待增加复测的逻辑
-        List<SchoolClass> classList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName, screeningOrgId);
-        for (SchoolClass item : classList) {
-            if (item.getName().equals(clazzName)) { // 匹配对应的班级
-                //TODO 增加学生名过滤
-                StudentQuery query = new StudentQuery();
-                query.setClassId(item.getId()).setGradeId(item.getGradeId());
-                return studentService.getByPage(pageRequest.toPage(), query);
-            }
-        }
-        return (IPage<Student>) Collections.emptyList();
-
-    }
-
-    /**
      * 获取学生复测数据
      * @param schoolId
      * @param gradeName
@@ -258,7 +205,7 @@ public class ScreeningAppService {
      * @return
      * @throws JsonProcessingException
      */
-    private List<ScreeningPlanSchoolStudent> getCacheList(String key) throws JsonProcessingException {
+    private List<ScreeningPlanSchoolStudent> getCacheList(String key) {
        return  (List<ScreeningPlanSchoolStudent>) redisUtil.get(key);
     }
 

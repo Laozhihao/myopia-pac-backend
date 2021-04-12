@@ -3,10 +3,12 @@ package com.wupol.myopia.business.management.controller;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
+import com.wupol.myopia.business.management.domain.dto.TemplateResponse;
 import com.wupol.myopia.business.management.service.TemplateService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 筛查报告模板设置
@@ -28,7 +30,7 @@ public class ScreeningReportController {
      * @return 模板列表
      */
     @GetMapping("lists")
-    public Object getLists() {
+    public List<TemplateResponse> getLists() {
         return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_SCREENING_REPORT);
     }
 
@@ -39,7 +41,7 @@ public class ScreeningReportController {
      * @return 是否成功
      */
     @PutMapping("save")
-    public Object save(@RequestBody TemplateBindRequest request) {
+    public Boolean save(@RequestBody TemplateBindRequest request) {
         return templateService.districtBind(request, CommonConst.TYPE_TEMPLATE_SCREENING_REPORT);
     }
 }

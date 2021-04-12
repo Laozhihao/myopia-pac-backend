@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.management.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.management.domain.dto.StatusRequest;
 import com.wupol.myopia.business.management.domain.dto.UsernameAndPasswordDTO;
@@ -42,7 +44,7 @@ public class HospitalController {
      * @return 医院实体
      */
     @PostMapping
-    public Object saveHospital(@RequestBody @Valid Hospital hospital) {
+    public UsernameAndPasswordDTO saveHospital(@RequestBody @Valid Hospital hospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
@@ -56,7 +58,7 @@ public class HospitalController {
      * @return 医院实体
      */
     @PutMapping
-    public Object updateHospital(@RequestBody @Valid Hospital hospital) {
+    public HospitalResponseDTO updateHospital(@RequestBody @Valid Hospital hospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
@@ -70,7 +72,7 @@ public class HospitalController {
      * @return 删除医院
      */
     @DeleteMapping("{id}")
-    public Object deletedHospital(@PathVariable("id") Integer id) {
+    public Integer deletedHospital(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalService.deletedHospital(id, user.getId(), user.getOrgId());
     }
@@ -82,7 +84,7 @@ public class HospitalController {
      * @return 医院实体
      */
     @GetMapping("{id}")
-    public Object getHospital(@PathVariable("id") Integer id) {
+    public Hospital getHospital(@PathVariable("id") Integer id) {
         return hospitalService.getById(id);
     }
 
@@ -94,7 +96,7 @@ public class HospitalController {
      * @return 医院列表
      */
     @GetMapping("list")
-    public Object getHospitalList(PageRequest pageRequest, HospitalQuery query) {
+    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalService.getHospitalList(pageRequest, query, user.getOrgId());
     }
@@ -106,7 +108,7 @@ public class HospitalController {
      * @return 更新医院
      */
     @PutMapping("status")
-    public Object updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
+    public Integer updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         return hospitalService.updateStatus(statusRequest);
     }
 
@@ -117,7 +119,7 @@ public class HospitalController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping("reset")
-    public Object resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         return hospitalService.resetPassword(request.getId());
     }
 
@@ -131,7 +133,7 @@ public class HospitalController {
      * @see ExcelFacade
      */
     @GetMapping("/export")
-    public Object getHospitalExportData(Integer districtId) throws IOException, UtilException {
+    public ApiResult getHospitalExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateHospital(currentUser.getId(), districtId);
         return ApiResult.success();

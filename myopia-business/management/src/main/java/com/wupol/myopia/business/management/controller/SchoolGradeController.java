@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
+import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
+import com.wupol.myopia.business.management.domain.model.GradeCode;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.SchoolGradeService;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 年级控制层
@@ -34,7 +38,7 @@ public class SchoolGradeController {
      * @return 新增个数
      */
     @PostMapping()
-    public Object saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
+    public Integer saveGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.saveGrade(schoolGrade);
@@ -47,7 +51,7 @@ public class SchoolGradeController {
      * @return 删除个数
      */
     @DeleteMapping("{id}")
-    public Object deletedGrade(@PathVariable("id") Integer id) {
+    public Integer deletedGrade(@PathVariable("id") Integer id) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return schoolGradeService.deletedGrade(id, currentUser);
     }
@@ -60,7 +64,7 @@ public class SchoolGradeController {
      * @return 年级列表
      */
     @GetMapping("list")
-    public Object getGradeList(PageRequest pageRequest, Integer schoolId) {
+    public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
@@ -74,7 +78,7 @@ public class SchoolGradeController {
      * @return 年级列表
      */
     @GetMapping("all")
-    public Object getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItems> getAllGradeList(Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
@@ -87,7 +91,7 @@ public class SchoolGradeController {
      * @return 年级编码
      */
     @GetMapping("getGradeCode")
-    public Object getGradeCode() {
+    public List<GradeCode> getGradeCode() {
         return GradeCodeEnum.getGradeCodeList();
     }
 
@@ -98,7 +102,7 @@ public class SchoolGradeController {
      * @return 年级实体
      */
     @PutMapping("")
-    public Object updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
+    public SchoolGrade updateGrade(@RequestBody @Valid SchoolGrade schoolGrade) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         schoolGrade.setCreateUserId(user.getId());
         return schoolGradeService.updateGrade(schoolGrade);

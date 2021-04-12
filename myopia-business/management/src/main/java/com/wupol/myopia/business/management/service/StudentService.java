@@ -27,8 +27,6 @@ import com.wupol.myopia.business.management.util.StatUtil;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,9 +49,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolGradeService schoolGradeService;
-
-    @Resource
-    private RedissonClient redissonClient;
 
     @Resource
     private SchoolClassService schoolClassService;
@@ -116,9 +110,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
 
-        Integer createUserId = student.getCreateUserId();
-        String idCard = student.getIdCard();
-
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -128,24 +119,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (checkIdCard(student.getIdCard(), null)) {
             throw new BusinessException("学生身份证重复");
         }
-
-        RLock rLock = redissonClient.getLock(String.format(CacheKey.LOCK_STUDENT_REDIS, idCard));
-        try {
-            boolean tryLock = rLock.tryLock(2, 4, TimeUnit.SECONDS);
-            if (tryLock) {
-                baseMapper.insert(student);
-                return student.getId();
-            }
-        } catch (InterruptedException e) {
-            log.error("用户:{}创建学生获取锁异常,e:{}", createUserId, e);
-            throw new BusinessException("系统繁忙，请稍后再试");
-        } finally {
-            if (rLock.isLocked()) {
-                rLock.unlock();
-            }
-        }
-        log.warn("用户id:{}新增学生获取不到锁，新增学生身份证:{}", createUserId, idCard);
-        throw new BusinessException("请重试");
+        baseMapper.insert(student);
+        return student.getId();
     }
 
     /**

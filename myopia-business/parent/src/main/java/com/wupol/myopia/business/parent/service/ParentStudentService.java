@@ -1153,22 +1153,22 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
             return ParentReportConst.LABEL_NORMAL;
         }
         // 预警-1或0则是正常
-        if (warningLevel.code == WarningLevel.NORMAL.code || warningLevel.code == WarningLevel.ZERO.code) {
+        if (warningLevel.code.equals(WarningLevel.NORMAL.code) || warningLevel.code.equals(WarningLevel.ZERO.code)) {
             return ParentReportConst.LABEL_NORMAL;
         }
 
         // 预警1是轻度
-        if (warningLevel.code == WarningLevel.ONE.code) {
+        if (warningLevel.code.equals(WarningLevel.ONE.code)) {
             return ParentReportConst.LABEL_MILD;
         }
 
         // 预警2是中度
-        if (warningLevel.code == WarningLevel.TWO.code) {
+        if (warningLevel.code.equals(WarningLevel.TWO.code)) {
             return ParentReportConst.LABEL_MODERATE;
         }
 
         // 预警3是重度
-        if (warningLevel.code == WarningLevel.THREE.code) {
+        if (warningLevel.code.equals(WarningLevel.THREE.code)) {
             return ParentReportConst.LABEL_SEVERE;
         }
         // 未知返回正常
@@ -1247,7 +1247,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
                 }
             }
         } else {
-            // 正常裸眼视力获取结论
+            // 裸眼视力大于4.9
             return nakedVisionNormal(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         }
     }

@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Author HaoHao
  * @Date 2020-12-23
@@ -33,7 +35,7 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public Object getPermissionList(PermissionDTO param) {
+    public List<PermissionDTO> getPermissionList(PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
         return oauthService.getPermissionList(param);
     }
@@ -45,7 +47,7 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @PostMapping()
-    public Object addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionDTO param) {
+    public PermissionDTO addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
         Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
@@ -60,7 +62,7 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
+    public PermissionDTO updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
         Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单

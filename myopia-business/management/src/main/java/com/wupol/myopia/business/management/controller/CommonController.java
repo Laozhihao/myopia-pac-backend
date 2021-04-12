@@ -13,7 +13,6 @@ import com.wupol.myopia.business.management.service.ResourceFileService;
 import com.wupol.myopia.business.management.util.S3Utils;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.util.UploadUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +21,6 @@ import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * 公共的API接口
@@ -43,13 +41,11 @@ public class CommonController extends BaseController<DataCommitService, DataComm
     @Autowired
     private ResourceFileService resourceFileService;
 
-    private final static String FILE_URI = "/management/common/file/%s";
-
     /**
      * 上传图片
      */
     @PostMapping("/fileUpload")
-    public Object fileUpload(MultipartFile file) throws AccessDeniedException {
+    public Map<String, Object> fileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
             throw new AccessDeniedException("请先登录");
@@ -76,7 +72,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
      * 获取图片
      */
     @GetMapping("/file/{fileId}")
-    public Object file(@PathVariable Integer fileId) throws AccessDeniedException {
+    public Map<String, String> file(@PathVariable Integer fileId) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
             throw new AccessDeniedException("请先登录");
@@ -91,7 +87,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
      * 直接返回访问地址
      */
     @PostMapping("/richTextFileUpload")
-    public Object richTextFileUpload(MultipartFile file) throws AccessDeniedException {
+    public Map<String, String> richTextFileUpload(MultipartFile file) throws AccessDeniedException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (Objects.isNull(user)) {
             throw new AccessDeniedException("请先登录");
@@ -105,7 +101,7 @@ public class CommonController extends BaseController<DataCommitService, DataComm
             UploadUtil.validateFileIsAllowed(file, allowExtension.split(","));
             // 上传
             Map<String, String> resultMap = new HashMap<>(16);
-            resultMap.put("url", s3Utils.uploadStaticS3(tempPath, UploadUtil.genNewFileName(file)));
+            resultMap.put("url", s3Utils.uploadStaticS3AndDeleteTempFile(tempPath, UploadUtil.genNewFileName(file)));
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);

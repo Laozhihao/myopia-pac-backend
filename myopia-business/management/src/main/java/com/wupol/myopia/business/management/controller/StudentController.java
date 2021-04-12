@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -7,8 +8,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
+import com.wupol.myopia.business.management.domain.dto.StudentCardResponseDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentDTO;
+import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.management.domain.model.Nation;
 import com.wupol.myopia.business.management.domain.model.Student;
+import com.wupol.myopia.business.management.domain.model.VisionLabels;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
@@ -24,6 +29,7 @@ import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * 学生Controller
@@ -49,7 +55,7 @@ public class StudentController {
      * @return 新增数量
      */
     @PostMapping()
-    public Object saveStudent(@RequestBody @Valid Student student) {
+    public Integer saveStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.saveStudent(student);
@@ -62,7 +68,7 @@ public class StudentController {
      * @return 学生实体
      */
     @PutMapping()
-    public Object updateStudent(@RequestBody @Valid Student student) {
+    public StudentDTO updateStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
         return studentService.updateStudent(student);
@@ -75,7 +81,7 @@ public class StudentController {
      * @return 删除数量
      */
     @DeleteMapping("{id}")
-    public Object deletedStudent(@PathVariable("id") Integer id) {
+    public Integer deletedStudent(@PathVariable("id") Integer id) {
         return studentService.deletedStudent(id);
     }
 
@@ -86,7 +92,7 @@ public class StudentController {
      * @return 学生实体 {@link StudentDTO}
      */
     @GetMapping("{id}")
-    public Object getStudent(@PathVariable("id") Integer id) {
+    public StudentDTO getStudent(@PathVariable("id") Integer id) {
         return studentService.getStudentById(id);
     }
 
@@ -98,7 +104,7 @@ public class StudentController {
      * @return 学生列表
      */
     @GetMapping("list")
-    public Object getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) {
+    public IPage<StudentDTO> getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) {
         return studentService.getStudentLists(pageRequest, studentQuery);
     }
 
@@ -113,7 +119,7 @@ public class StudentController {
      * @throws UtilException       工具异常
      */
     @GetMapping("/export")
-    public Object getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+    public ApiResult getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         excelFacade.generateStudent(user.getId(), schoolId, gradeId);
         return ApiResult.success();
@@ -150,7 +156,7 @@ public class StudentController {
      * @return 视力标签
      */
     @GetMapping("labels")
-    public Object getVisionLabels() {
+    public List<VisionLabels> getVisionLabels() {
         return VisionLabelsEnum.getVisionLabels();
     }
 
@@ -160,7 +166,7 @@ public class StudentController {
      * @return 民族列表
      */
     @GetMapping("nation")
-    public Object getNationLists() {
+    public List<Nation> getNationLists() {
         return NationEnum.getNationList();
     }
 
@@ -171,7 +177,7 @@ public class StudentController {
      * @return 学生筛查档案
      */
     @GetMapping("/screening/{id}")
-    public Object getScreeningList(@PathVariable("id") Integer id) {
+    public StudentScreeningResultResponseDTO getScreeningList(@PathVariable("id") Integer id) {
         return studentService.getScreeningList(id);
     }
 
@@ -182,7 +188,7 @@ public class StudentController {
      * @return 学生档案卡
      */
     @GetMapping("/screening/card/{resultId}")
-    public Object getCardDetails(@PathVariable("resultId") Integer resultId) {
+    public StudentCardResponseDTO getCardDetails(@PathVariable("resultId") Integer resultId) {
         return studentService.packageCardDetails(resultId);
     }
 }
