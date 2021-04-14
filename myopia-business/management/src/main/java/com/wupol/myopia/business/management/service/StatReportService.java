@@ -347,7 +347,9 @@ public class StatReportService {
                             List<StatConclusion> schoolAgeMyopiaConclusions =
                                     schoolAgeMap.get(schoolAgeName)
                                             .stream()
-                                            .filter(x -> x.getIsMyopia())
+                                            .filter(x
+                                                    -> x.getIsMyopia() == null ? false
+                                                                               : x.getIsMyopia())
                                             .collect(Collectors.toList());
                             add(composeGenderVisionUncorrectedStat(
                                     schoolAgeName, schoolAgeMyopiaConclusions));
@@ -762,8 +764,13 @@ public class StatReportService {
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
-        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia()).count();
-        long lowVisionNum = validConclusions.stream().filter(x -> x.getIsLowVision()).count();
+        long myopiaNum = validConclusions.stream()
+                                 .filter(x -> x.getIsMyopia() == null ? false : x.getIsMyopia())
+                                 .count();
+        long lowVisionNum =
+                validConclusions.stream()
+                        .filter(x -> x.getIsLowVision() == null ? false : x.getIsLowVision())
+                        .count();
         long warning0Num = validConclusions.stream()
                                    .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
                                    .count();
@@ -933,7 +940,9 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
             List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions =
-                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
+                statConclusions.stream()
+                        .filter(x -> x.getIsMyopia() == null ? false : x.getIsMyopia())
+                        .collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
         for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
