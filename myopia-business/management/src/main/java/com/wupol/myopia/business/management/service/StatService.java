@@ -189,8 +189,8 @@ public class StatService {
 
     /**
      * 获取用户有效的区域Id列表
-     * @param notificationId
-     * @param currentUser
+     * @param notificationId 筛查通知ID
+     * @param currentUser 当前用户
      * @return
      * @throws IOException
      */
@@ -212,8 +212,8 @@ public class StatService {
 
     /**
      * 获取用户对应权限的可对比区域ID
-     * @param notificationId1
-     * @param notificationId2
+     * @param notificationId1 筛查通知ID_1
+     * @param notificationId2 筛查通知ID_2
      * @return
      * @throws IOException
      */
@@ -413,8 +413,8 @@ public class StatService {
 
     /**
      * 构造用于文件导出的对比筛查数据
-     * @param title
-     * @param contrast
+     * @param title 标题
+     * @param contrast 对比筛查数据
      * @return
      */
     private ScreeningDataContrastVo composeScreeningDataContrastVo(
@@ -455,6 +455,7 @@ public class StatService {
 
     /**
      * 获取当前用户所有权限的区域ID
+     * @param currentUser 当前用户
      * @return
      * @throws IOException
      */
@@ -571,8 +572,8 @@ public class StatService {
 
     /**
      * 构造对比数据
-     * @param resultConclusion
-     * @param planScreeningNum
+     * @param resultConclusion 结论数据列表
+     * @param planScreeningNum 计划筛查学生数
      * @return
      */
     private ScreeningDataContrast composeScreeningDataContrast(

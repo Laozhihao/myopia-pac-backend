@@ -363,8 +363,9 @@ public class StatReportService {
                                     schoolAgeMap.get(schoolAgeName)
                                             .stream()
                                             .filter(x
-                                                    -> x.getVisionCorrection()
-                                                            != VisionCorrection.NORMAL.code)
+                                                    -> x.getVisionCorrection() != null
+                                                            && !VisionCorrection.NORMAL.code.equals(
+                                                                    x.getVisionCorrection()))
                                             .collect(Collectors.toList());
                             add(composeGenderVisionUnderCorrectedStat(
                                     schoolAgeName, schoolAgeVisionCorrectionConclusions));
@@ -1011,7 +1012,9 @@ public class StatReportService {
         long totalSize = statConclusions.size();
         Long totalWearingNum =
                 statConclusions.stream()
-                        .filter(x -> x.getGlassesType() != GlassesType.NOT_WEARING.code)
+                        .filter(x
+                                -> x.getGlassesType() != null
+                                        && !GlassesType.NOT_WEARING.code.equals(x.getGlassesType()))
                         .count();
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         return new HashMap<String, Object>() {
@@ -1031,12 +1034,13 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderLowVisionLevelDesc(
             List<StatConclusion> statConclusions) {
-        List<StatConclusion> maleList = statConclusions.stream()
-                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
-                                                .collect(Collectors.toList());
+        List<StatConclusion> maleList =
+                statConclusions.stream()
+                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                        .collect(Collectors.toList());
         List<StatConclusion> femaleList =
                 statConclusions.stream()
-                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
                         .collect(Collectors.toList());
         Map<String, Object> maleStat = composeLowVisionLevelStat(GenderEnum.MALE.name(), maleList);
         Map<String, Object> femaleStat =
@@ -1068,12 +1072,13 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeGenderMyopiaLevelDesc(List<StatConclusion> statConclusions) {
-        List<StatConclusion> maleList = statConclusions.stream()
-                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
-                                                .collect(Collectors.toList());
+        List<StatConclusion> maleList =
+                statConclusions.stream()
+                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                        .collect(Collectors.toList());
         List<StatConclusion> femaleList =
                 statConclusions.stream()
-                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
                         .collect(Collectors.toList());
         Map<String, Object> maleStat = composeMyopiaLevelStat(GenderEnum.MALE.name(), maleList);
         Map<String, Object> femaleStat =
@@ -1283,7 +1288,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderVisionUncorrectedStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
-                x -> x.getVisionCorrection() == VisionCorrection.UNCORRECTED.code;
+                x -> VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1296,7 +1301,7 @@ public class StatReportService {
     private Map<String, Object> composeGenderVisionUnderCorrectedStat(
             String name, List<StatConclusion> statConclusions) {
         Predicate<StatConclusion> predicate =
-                x -> x.getVisionCorrection() == VisionCorrection.UNDER_CORRECTED.code;
+                x -> VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection());
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1311,13 +1316,14 @@ public class StatReportService {
             List<StatConclusion> statConclusions, Predicate<StatConclusion> predicate) {
         long rowTotal = statConclusions.size();
 
-        List<StatConclusion> maleList = statConclusions.stream()
-                                                .filter(x -> x.getGender() == GenderEnum.MALE.type)
-                                                .collect(Collectors.toList());
+        List<StatConclusion> maleList =
+                statConclusions.stream()
+                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
+                        .collect(Collectors.toList());
 
         List<StatConclusion> femaleList =
                 statConclusions.stream()
-                        .filter(x -> x.getGender() == GenderEnum.FEMALE.type)
+                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
                         .collect(Collectors.toList());
 
         Long maleLowVisionNum = maleList.stream().filter(predicate).count();
