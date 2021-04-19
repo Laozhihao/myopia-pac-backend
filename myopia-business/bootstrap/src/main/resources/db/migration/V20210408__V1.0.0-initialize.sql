@@ -129,20 +129,6 @@ CREATE TABLE `m_big_screen_map`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '行政区域表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for m_data_commit
--- ----------------------------
-DROP TABLE IF EXISTS `m_data_commit`;
-CREATE TABLE `m_data_commit`  (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `screening_plan_id` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '筛查计划id',
-  `commit_district_id` int(10) UNSIGNED NOT NULL COMMENT '数据提交地区',
-  `src_district_id` int(10) UNSIGNED NOT NULL COMMENT '数据所在地区',
-  `committer_id` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '提交人id',
-  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查统计--创建时间（时间戳  not null）',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '数据上交情况表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
 -- Table structure for m_district
 -- ----------------------------
 DROP TABLE IF EXISTS `m_district`;
@@ -450,24 +436,6 @@ CREATE TABLE `m_school_admin`  (
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '学校-员工表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Table structure for m_school_attentive_objects_statistic
--- ----------------------------
-DROP TABLE IF EXISTS `m_school_attentive_objects_statistic`;
-CREATE TABLE `m_school_attentive_objects_statistic`  (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `screening_task_id` int(10) UNSIGNED NOT NULL COMMENT '重点视力对象--所属的任务id',
-  `screening_plan_id` int(10) UNSIGNED NOT NULL COMMENT '重点视力对象--关联的计划id',
-  `district_id` int(10) UNSIGNED NOT NULL COMMENT '重点视力对象--所属的地区id',
-  `vision_label_0_numbers` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '重点视力对象--零级预警人数（默认0）',
-  `vision_label_1_numbers` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '重点视力对象--一级预警人数（默认0）',
-  `vision_label_2_numbers` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '重点视力对象--二级预警人数（默认0）',
-  `vision_label_3_numbers` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '重点视力对象--三级预警人数（默认0）',
-  `key_warning_numbers` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '重点视力对象--重点视力对象数量（默认0）',
-  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '重点视力对象--统计时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '某个学校最新统计的重点视力对象情况表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for m_school_class
@@ -897,18 +865,6 @@ CREATE TABLE `m_student`  (
   INDEX `m_student_status_create_time_index`(`status`, `create_time`) USING BTREE,
   INDEX `m_student_school_no_status_class_id_grade_id_index`(`school_no`, `status`, `class_id`, `grade_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '学校-学生表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Table structure for m_student_screening_raw_data
--- ----------------------------
-DROP TABLE IF EXISTS `m_student_screening_raw_data`;
-CREATE TABLE `m_student_screening_raw_data`  (
-  `id` int(11) NOT NULL COMMENT '主键id',
-  `screening_plan_school_student_id` int(10) UNSIGNED NOT NULL COMMENT '筛查原始数据--所属的学生id',
-  `screening_raw_data` json NOT NULL COMMENT '筛查原始数据',
-  `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '筛查原始数据--创建时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '筛查原始数据表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for m_template
