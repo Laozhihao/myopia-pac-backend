@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.hospital.app.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

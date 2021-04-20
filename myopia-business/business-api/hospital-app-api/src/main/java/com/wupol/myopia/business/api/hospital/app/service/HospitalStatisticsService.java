@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.hospital.app.service;
 
-import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
-import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
-import com.wupol.myopia.business.hospital.domain.query.MedicalReportQuery;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
+import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
+import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;

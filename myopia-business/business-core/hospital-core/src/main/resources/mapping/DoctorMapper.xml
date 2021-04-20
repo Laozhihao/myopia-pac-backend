@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.core.hospital.domian.mapper.DoctorMapper">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domian.model.Hospital">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.Hospital">
     </resultMap>
 
-    <resultMap id="DoctorVo" type="com.wupol.myopia.business.hospital.domain.vo.DoctorVo">
+    <resultMap id="DoctorDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -43,7 +43,7 @@
         <include refid="Base_Where_Clause"/>
     </select>
 
-    <select id="getDoctorVoList" resultMap="DoctorVo">
+    <select id="getDoctorVoList" resultMap="DoctorDTO">
         SELECT d.*, count(mr.id) as reportCount
         FROM h_doctor d
         LEFT JOIN h_medical_report mr ON d.id = mr.doctor_id

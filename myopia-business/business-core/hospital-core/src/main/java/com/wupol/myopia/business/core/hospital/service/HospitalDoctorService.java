@@ -3,18 +3,14 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.hospital.domian.mapper.DoctorMapper;
-import com.wupol.myopia.business.core.hospital.domian.model.Doctor;
-import com.wupol.myopia.business.core.hospital.domian.query.DoctorQuery;
-import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
-import com.wupol.myopia.business.management.service.ResourceFileService;
+import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
+import com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 医院-医生
@@ -25,25 +21,6 @@ import java.util.Objects;
 @Log4j2
 public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
-    @Autowired
-    private ResourceFileService resourceFileService;
-
-    /**
-     * 获取医生列表
-     * @param query 查询条件
-     * @return
-     */
-    public List<DoctorVo> getDoctorVoList(DoctorQuery query)  {
-        List<DoctorVo> list = baseMapper.getDoctorVoList(query);
-        list.forEach(item-> {
-            if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
-                item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
-            }
-
-        });
-        return list;
-    }
-
     /**
      * 获取医生详情
      * @param hospitalId 医院id
@@ -53,9 +30,8 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     public Doctor getDoctor(Integer hospitalId, Integer doctorId) {
         DoctorQuery query = new DoctorQuery();
         query.setHospitalId(hospitalId).setId(doctorId);
-        Doctor doctor = baseMapper.getBy(query)
+        return baseMapper.getBy(query)
                 .stream().findFirst().orElseThrow(()-> new BusinessException("未找到该医生"));
-        return doctor;
     }
 
     /**
@@ -86,18 +62,11 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
     }
 
     /**
-     * 获取医生，带Vo
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
+     * 获取医生列表
+     * @param query 查询条件
      * @return
      */
-    public DoctorVo getDoctorVo(Integer hospitalId, Integer doctorId) {
-        Doctor doctor = getDoctor(hospitalId, doctorId);
-        DoctorVo doctorVo = new DoctorVo();
-        BeanUtils.copyProperties(doctor, doctorVo);
-        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
-                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
+    public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
+        return baseMapper.getDoctorVoList(query);
     }
-
-
 }

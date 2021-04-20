@@ -8,16 +8,16 @@
         <version>2.0.0-split</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
     <artifactId>business-api</artifactId>
     <packaging>pom</packaging>
     <description>业务前台 - api层</description>
 
     <modules>
-        <module>management-api</module>
+        <module>common-api</module>
         <module>hospital-app-api</module>
         <module>management-api</module>
         <module>parent-api</module>
-        <module>common-api</module>
         <module>screening-app-api</module>
     </modules>
 

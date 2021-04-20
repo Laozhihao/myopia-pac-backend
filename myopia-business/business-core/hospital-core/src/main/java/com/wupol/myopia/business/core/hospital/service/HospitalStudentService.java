@@ -3,11 +3,11 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
-import com.wupol.myopia.business.core.hospital.domian.dto.HospitalStudentDTO;
-import com.wupol.myopia.business.core.hospital.domian.mapper.HospitalStudentMapper;
-import com.wupol.myopia.business.core.hospital.domian.model.HospitalStudent;
-import com.wupol.myopia.business.core.hospital.domian.query.HospitalStudentQuery;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentDTO;
+import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalStudentMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.Student;
@@ -90,8 +90,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         query.setNameLike(nameLike).setHospitalId(hospitalId);
 
         // 获取学生的详细信息
-       List<HospitalStudentDTO> studentList = getHospitalStudentDTOList(query);
-        return studentList;
+        return getHospitalStudentDTOList(query);
     }
 
     /** 获取HospitalStudentDTO的数据 */

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.core.government.domian.mapper.GovDeptMapper">
+<mapper namespace="com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.government.domian.model.GovDept">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.government.domain.model.GovDept">
     </resultMap>
     <!-- 不能分页查询 -->
-    <resultMap id="GovDeptDTO" type="com.wupol.myopia.business.core.government.domian.dto.GovDeptDTO">
+    <resultMap id="GovDeptDTO" type="com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="pid" property="pid"/>
@@ -16,7 +16,7 @@
         <result column="remark" property="remark"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
-        <collection property="district" ofType="com.wupol.myopia.business.core.government.domian.model.District">
+        <collection property="district" ofType="com.wupol.myopia.business.core.government.domain.model.District">
             <id column="dist_id" property="id"/>
             <result column="district_name" property="name"/>
             <result column="code" property="code"/>
@@ -49,11 +49,11 @@
         gd.id, gd.name, gd.pid, gd.district_id, gd.create_user_id, gd.status, gd.remark, gd.create_time, gd.update_time
     </sql>
 
-    <resultMap id="treeVoMap" type="com.wupol.myopia.business.core.government.domian.model.GovDept">
+    <resultMap id="treeVoMap" type="com.wupol.myopia.business.core.government.domain.model.GovDept">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="pid" property="pid" jdbcType="INTEGER" />
-        <collection property="child" ofType="com.wupol.myopia.business.core.government.domian.model.GovDept" column="{pid=id}" select="selectGovDeptTreeByPid"/>
+        <collection property="child" ofType="com.wupol.myopia.business.core.government.domain.model.GovDept" column="{pid=id}" select="selectGovDeptTreeByPid"/>
     </resultMap>
 
     <!--级联查询部门树-->
@@ -64,10 +64,10 @@
         where pid = #{pid}
     </select>
 
-    <resultMap id="idTreeMap" type="com.wupol.myopia.business.core.government.domian.model.GovDept">
+    <resultMap id="idTreeMap" type="com.wupol.myopia.business.core.government.domain.model.GovDept">
         <id column="id" property="id" jdbcType="INTEGER" />
         <id column="district_id" property="districtId" jdbcType="INTEGER" />
-        <collection property="child" ofType="com.wupol.myopia.business.core.government.domian.model.GovDept" column="{pid=id}" select="selectIdTreeByPid"/>
+        <collection property="child" ofType="com.wupol.myopia.business.core.government.domain.model.GovDept" column="{pid=id}" select="selectIdTreeByPid"/>
     </resultMap>
 
     <!-- 级联查询部门ID树 -->

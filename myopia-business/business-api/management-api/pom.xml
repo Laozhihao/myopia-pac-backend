@@ -14,10 +14,10 @@
     <dependencies>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>government-core</artifactId>
+            <artifactId>export-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>hospital-core</artifactId>
             <version>${project.version}</version>
@@ -36,17 +36,17 @@
             <groupId>com.wupol.myopia</groupId>
             <artifactId>screening-organization-core</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>stat-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>system-core</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
 </project>

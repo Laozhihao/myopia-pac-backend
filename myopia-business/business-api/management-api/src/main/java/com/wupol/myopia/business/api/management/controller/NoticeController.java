@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.dto.UnreadNoticeResponse;
-import com.wupol.myopia.business.management.domain.model.Notice;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.service.NoticeService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
+import com.wupol.myopia.business.core.system.domain.model.Notice;
+import com.wupol.myopia.business.core.system.service.NoticeService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;

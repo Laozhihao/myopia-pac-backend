@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.core.hospital.domian.mapper.MedicalReportMapper">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domian.model.MedicalReport">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.MedicalReport">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
     </resultMap>

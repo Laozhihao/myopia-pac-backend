@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.hospital.app.domain.vo;
 
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

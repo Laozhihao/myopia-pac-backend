@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf.interfaces;
 
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.business.management.export.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
 import java.io.File;
 

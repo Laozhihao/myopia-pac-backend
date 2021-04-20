@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.core.hospital.domian.mapper.MedicalRecordMapper">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.MedicalRecordMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domian.model.MedicalRecord">
-        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.ConsultationTypeHandler" column="consultation" property="consultation"/>
-        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.BiometricsMedicalRecordTypeHandler" column="biometrics" property="biometrics"/>
-        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
-        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
-        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord">
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.ConsultationTypeHandler" column="consultation" property="consultation"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.BiometricsMedicalRecordTypeHandler" column="biometrics" property="biometrics"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
 
     </resultMap>
 

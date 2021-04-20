@@ -3,8 +3,12 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.service.HospitalStatisticsService;
+import com.wupol.myopia.business.api.hospital.app.service.HospitalStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,6 +32,5 @@ public class HospitalStatisticsController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStatisticsService.getStatistics(user.getOrgId());
     }
-
 
 }

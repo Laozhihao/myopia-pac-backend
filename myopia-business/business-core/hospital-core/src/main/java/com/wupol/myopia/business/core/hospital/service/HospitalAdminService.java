@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.hospital.domian.mapper.HospitalAdminMapper;
-import com.wupol.myopia.business.core.hospital.domian.model.HospitalAdmin;
+import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalAdminMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

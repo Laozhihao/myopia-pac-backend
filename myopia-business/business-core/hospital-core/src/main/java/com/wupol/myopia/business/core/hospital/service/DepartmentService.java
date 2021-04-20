@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.hospital.domian.mapper.DepartmentMapper;
-import com.wupol.myopia.business.core.hospital.domian.model.Department;
+import com.wupol.myopia.business.core.hospital.domain.mapper.DepartmentMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.Department;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 

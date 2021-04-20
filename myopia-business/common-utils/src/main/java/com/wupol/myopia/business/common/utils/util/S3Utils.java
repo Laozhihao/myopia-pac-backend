@@ -6,6 +6,7 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.framework.core.util.DateUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.CacheKey;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;

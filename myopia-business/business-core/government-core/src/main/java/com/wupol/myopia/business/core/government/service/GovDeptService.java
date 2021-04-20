@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.core.government.domian.dto.GovDeptDTO;
-import com.wupol.myopia.business.core.government.domian.mapper.GovDeptMapper;
-import com.wupol.myopia.business.core.government.domian.model.GovDept;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 

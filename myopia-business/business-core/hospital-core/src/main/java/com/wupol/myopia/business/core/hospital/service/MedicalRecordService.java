@@ -2,9 +2,9 @@ package com.wupol.myopia.business.core.hospital.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.hospital.domian.mapper.MedicalRecordMapper;
-import com.wupol.myopia.business.core.hospital.domian.model.*;
-import com.wupol.myopia.business.core.hospital.domian.query.MedicalRecordQuery;
+import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalRecordMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.management.service.ResourceFileService;

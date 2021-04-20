@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.hospital.app.domain.vo;
 
-import com.wupol.myopia.business.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,12 +13,9 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DoctorVo extends Doctor {
+public class DoctorVo extends DoctorDTO {
     /** 头像url */
     private String avatarUrl;
     /** 签名url */
     private String signUrl;
-    /** 报告数 */
-    private Integer reportCount;
-
 }

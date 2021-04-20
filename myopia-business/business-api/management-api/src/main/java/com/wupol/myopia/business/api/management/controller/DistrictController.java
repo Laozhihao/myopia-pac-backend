@@ -3,8 +3,9 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.government.service.DistrictService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;

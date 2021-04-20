@@ -1,10 +1,11 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.management.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.service.TemplateService;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
 import com.wupol.myopia.business.management.domain.dto.TemplateResponse;
-import com.wupol.myopia.business.management.service.TemplateService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;

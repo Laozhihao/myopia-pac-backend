@@ -4,12 +4,14 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.service.HospitalStudentService;
-import com.wupol.myopia.business.management.domain.dto.HospitalStudentDTO;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.service.StudentService;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentDTO;
+import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.domian.model.Student;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;

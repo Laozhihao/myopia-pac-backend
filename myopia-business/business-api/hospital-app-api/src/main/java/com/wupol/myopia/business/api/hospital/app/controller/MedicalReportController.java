@@ -3,11 +3,12 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.domain.dto.StudentReportResponseDTO;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
-import com.wupol.myopia.business.hospital.service.MedicalReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

@@ -137,3 +137,6 @@ VALUES
        ( '4', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 7200, 14400, '医院端', NULL ),
        ( '5', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 7200, 14400, '家长端', NULL ),
        ( '6', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 7200, 14400, '筛查管理端', NULL );
+
+-- 创建筛查端管理员角色，需要到管理平台的“权限集合包设置”菜单完成其权限初始化
+INSERT INTO `o_role`(`org_id`, `en_name`, `ch_name`, `role_type`, `system_code`, `status`) VALUES (-1, 'screening_admin', '筛查端管理员', 2, 6, 0);

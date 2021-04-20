@@ -6,18 +6,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
-import com.wupol.myopia.business.management.service.GovDeptService;
-import com.wupol.myopia.business.management.service.ScreeningNoticeDeptOrgService;
-import com.wupol.myopia.business.management.service.ScreeningNoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -160,7 +161,7 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("dept/page")
-    public IPage queryDeptPage(ScreeningNoticeQuery query, PageRequest pageRequest) throws IOException {
+    public IPage queryDeptPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setType(0);
         if (user.isPlatformAdminUser()) {

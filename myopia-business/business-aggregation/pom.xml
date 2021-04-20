@@ -18,6 +18,7 @@
         <module>stat-biz</module>
         <module>export-biz</module>
         <module>message-biz</module>
+        <module>student-biz</module>
     </modules>
 
 </project>

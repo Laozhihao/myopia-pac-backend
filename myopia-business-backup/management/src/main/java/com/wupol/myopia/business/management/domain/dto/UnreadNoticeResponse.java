@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.wupol.myopia.business.management.domain.model.Notice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import lombok.Getter;
 import lombok.Setter;
 

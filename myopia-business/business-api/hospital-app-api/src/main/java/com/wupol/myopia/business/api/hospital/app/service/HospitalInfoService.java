@@ -1,7 +1,8 @@
 package com.wupol.myopia.business.api.hospital.app.service;
 
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.management.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,10 @@ public class HospitalInfoService {
      * @return
      */
     public Map<String, Object> getHospitalInfo(Integer hospitalId) throws IOException {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(3);
         // 累计就诊的人数
         map.put("totalMedicalPersonCount", medicalRecordService.count(new MedicalRecord().setHospitalId(hospitalId)));
         map.put("name", hospitalService.getById(hospitalId).getName());
-
         return map;
     }
 

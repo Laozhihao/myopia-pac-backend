@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.core.government.constant.DistrictCacheKey;
-import com.wupol.myopia.business.core.government.domian.model.District;
+import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

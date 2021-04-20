@@ -2,8 +2,8 @@ package com.wupol.myopia.business.api.parent.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.parent.domain.model.Parent;
-import com.wupol.myopia.business.parent.service.ParentService;
+import com.wupol.myopia.business.core.parent.domian.model.Parent;
+import com.wupol.myopia.business.core.parent.service.ParentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

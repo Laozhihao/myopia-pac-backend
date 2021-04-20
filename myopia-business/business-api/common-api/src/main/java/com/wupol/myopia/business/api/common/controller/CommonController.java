@@ -1,19 +1,19 @@
 package com.wupol.myopia.business.api.common.controller;
 
-import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.config.UploadConfig;
-import com.wupol.myopia.business.management.domain.model.DataCommit;
+import com.wupol.myopia.business.common.utils.config.UploadConfig;
+import com.wupol.myopia.business.common.utils.util.S3Utils;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.common.utils.util.UploadUtil;
+import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
-import com.wupol.myopia.business.management.service.DataCommitService;
 import com.wupol.myopia.business.management.service.ResourceFileService;
-import com.wupol.myopia.business.management.util.S3Utils;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import com.wupol.myopia.business.management.util.UploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
@@ -31,7 +31,7 @@ import java.util.Objects;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/common")
-public class CommonController extends BaseController<DataCommitService, DataCommit> {
+public class CommonController {
 
     @Autowired
     private UploadConfig uploadConfig;

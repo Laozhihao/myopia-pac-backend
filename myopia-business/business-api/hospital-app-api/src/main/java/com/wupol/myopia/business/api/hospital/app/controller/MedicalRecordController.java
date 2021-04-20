@@ -3,10 +3,10 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.hospital.service.HospitalDoctorService;
-import com.wupol.myopia.business.hospital.service.HospitalStudentService;
-import com.wupol.myopia.business.hospital.service.MedicalRecordService;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -24,12 +24,7 @@ import java.util.Objects;
 public class MedicalRecordController {
 
     @Autowired
-    private HospitalStudentService hospitalStudentService;
-    @Autowired
     private MedicalRecordService medicalRecordService;
-    @Autowired
-    private HospitalDoctorService doctorService;
-
 
     @GetMapping("/consultation/{studentId}")
     public Consultation getConsultation(@PathVariable("studentId") Integer studentId) {
@@ -53,7 +48,7 @@ public class MedicalRecordController {
     }
 
     @PostMapping("/vision")
-    public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) throws IOException {
+    public Boolean createVisionMedicalRecord(@RequestBody VisionMedicalRecord vision) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordService.addVisionToMedicalRecord(vision, user.getOrgId(), -1, vision.getStudentId());
         return true;
@@ -81,7 +76,7 @@ public class MedicalRecordController {
     }
 
     @PostMapping("/diopter")
-    public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) throws IOException {
+    public Boolean createDiopterMedicalRecord(@RequestBody DiopterMedicalRecord diopter) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordService.addDiopterToMedicalRecord(diopter, user.getOrgId(), -1, diopter.getStudentId());
         return true;
@@ -94,7 +89,7 @@ public class MedicalRecordController {
     }
 
     @PostMapping("/tosca")
-    public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) throws IOException {
+    public Boolean createToscaMedicalRecord(@RequestBody ToscaMedicalRecord tosca) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalRecordService.addToscaToMedicalRecord(tosca, user.getOrgId(), -1, tosca.getStudentId());
         return true;

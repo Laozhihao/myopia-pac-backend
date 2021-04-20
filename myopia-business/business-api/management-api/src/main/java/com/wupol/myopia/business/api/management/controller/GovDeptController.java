@@ -5,20 +5,21 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.validator.GovDeptAddValidatorGroup;
+import com.wupol.myopia.business.api.management.validator.GovDeptUpdateValidatorGroup;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
-import com.wupol.myopia.business.management.service.DistrictService;
-import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.UserService;
-import com.wupol.myopia.business.management.validator.GovDeptAddValidatorGroup;
-import com.wupol.myopia.business.management.validator.GovDeptUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
@@ -121,7 +122,7 @@ public class GovDeptController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     @GetMapping("/structure")
-    public List<GovDeptVo> getGovDeptTree() {
+    public List<GovDeptDTO> getGovDeptTree() {
         // TODO: 拼接一级节点“平台系统中心”
         return govDeptService.selectGovDeptTreeByPid(CurrentUserUtil.getCurrentUser().getOrgId());
     }
