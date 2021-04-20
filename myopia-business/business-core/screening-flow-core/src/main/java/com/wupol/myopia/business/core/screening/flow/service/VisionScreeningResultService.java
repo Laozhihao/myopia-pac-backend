@@ -5,6 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper;
@@ -56,7 +62,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      *
      * @return List<StudentScreeningCountVO>
      */
-    public List<StudentScreeningCountVO> countScreeningTime() {
+    public List<StudentScreeningCountDTO> countScreeningTime() {
         return baseMapper.countScreeningTime();
     }
 

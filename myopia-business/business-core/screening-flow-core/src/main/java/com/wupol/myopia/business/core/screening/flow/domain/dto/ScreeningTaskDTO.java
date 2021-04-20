@@ -1,22 +1,36 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.District;
+import com.wupol.myopia.business.management.domain.model.ScreeningTask;
+import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
- * 筛查任务Vo
+ * 筛查任务新增/更新的数据结构
+ *
  * @author Alix
- * @Date 2021/01/25
- **/
-
+ */
 @Data
-@Accessors(chain = true)
 public class ScreeningTaskDTO extends ScreeningTask {
-    /** 行政区域名 */
-    private String creatorName;
-    /** 行政区域名称 */
-    private String districtName;
-    /** 部门名称 */
-    private String govDeptName;
+    /**
+     * 筛查任务中的筛查机构
+     */
+    List<ScreeningTaskOrg> screeningOrgs;
+
+    /**
+     * 行政区明细
+     */
+    private List<District> districtDetail;
+
+    public static ScreeningTaskDTO build(ScreeningTask screeningTask) {
+        ScreeningTaskDTO screeningTaskDTO = new ScreeningTaskDTO();
+        if (Objects.nonNull(screeningTask)) {
+            BeanUtils.copyProperties(screeningTask, screeningTaskDTO);
+        }
+        return screeningTaskDTO;
+    }
 }
