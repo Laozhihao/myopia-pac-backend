@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.DistrictVisionStatisticMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(avgLeftVision)">and `avg_left_vision` = #{avgLeftVision}</if>
+                <if test="@Ognl@isNotEmpty(avgRightVision)">and `avg_right_vision` = #{avgRightVision}</if>
+                <if test="@Ognl@isNotEmpty(lowVisionNumbers)">and `low_vision_numbers` = #{lowVisionNumbers}</if>
+                <if test="@Ognl@isNotEmpty(lowVisionRatio)">and `low_vision_ratio` = #{lowVisionRatio}</if>
+                <if test="@Ognl@isNotEmpty(wearingGlassesNumbers)">and `wearing_glasses_numbers` = #{wearingGlassesNumbers}</if>
+                <if test="@Ognl@isNotEmpty(wearingGlassesRatio)">and `wearing_glasses_ratio` = #{wearingGlassesRatio}</if>
+                <if test="@Ognl@isNotEmpty(myopiaNumbers)">and `myopia_numbers` = #{myopiaNumbers}</if>
+                <if test="@Ognl@isNotEmpty(myopiaRatios)">and `myopia_ratios` = #{myopiaRatios}</if>
+                <if test="@Ognl@isNotEmpty(ametropiaNumbers)">and `ametropia_numbers` = #{ametropiaNumbers}</if>
+                <if test="@Ognl@isNotEmpty(ametropiaRatio)">and `ametropia_ratio` = #{ametropiaRatio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel0Numbers)">and `vision_label0_numbers` = #{visionLabel0Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel0Ratio)">and `vision_label0_ratio` = #{visionLabel0Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel1Numbers)">and `vision_label1_numbers` = #{visionLabel1Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel1Ratio)">and `vision_label1_ratio` = #{visionLabel1Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel2Numbers)">and `vision_label2_numbers` = #{visionLabel2Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel2Ratio)">and `vision_label2_ratio` = #{visionLabel2Ratio}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel3Numbers)">and `vision_label3_numbers` = #{visionLabel3Numbers}</if>
+                <if test="@Ognl@isNotEmpty(visionLabel3Ratio)">and `vision_label3_ratio` = #{visionLabel3Ratio}</if>
+                <if test="@Ognl@isNotEmpty(keyWarningNumbers)">and `key_warning_numbers` = #{keyWarningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(treatmentAdviceNumbers)">and `treatment_advice_numbers` = #{treatmentAdviceNumbers}</if>
+                <if test="@Ognl@isNotEmpty(treatmentAdviceRatio)">and `treatment_advice_ratio` = #{treatmentAdviceRatio}</if>
+                <if test="@Ognl@isNotEmpty(planScreeningNumbers)">and `plan_screening_numbers` = #{planScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(realScreeningNumbers)">and `real_screening_numbers` = #{realScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(validScreeningNumbers)">and `valid_screening_numbers` = #{validScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(isTotal)">and `is_total` = #{isTotal}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, is_total, screening_notice_id, screening_task_id, district_id, avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio, myopia_numbers, myopia_ratios, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio, vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio, key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers, update_time, create_time
+    </sql>
+
+    <insert id="batchSaveOrUpdate">
+        INSERT INTO m_district_vision_statistic
+        (screening_notice_id, screening_task_id, district_id,
+        avg_left_vision, avg_right_vision, low_vision_numbers, low_vision_ratio, wearing_glasses_numbers, wearing_glasses_ratio,
+        myopia_numbers, myopia_ratio, ametropia_numbers, ametropia_ratio, vision_label0_numbers, vision_label0_ratio,
+        vision_label1_numbers, vision_label1_ratio, vision_label2_numbers, vision_label2_ratio, vision_label3_numbers, vision_label3_ratio,
+        key_warning_numbers, treatment_advice_numbers, treatment_advice_ratio, plan_screening_numbers, real_screening_numbers, valid_screening_numbers, is_total)
+        VALUES
+        <foreach collection="list" item="entity" separator=",">
+            (#{entity.screeningNoticeId}, #{entity.screeningTaskId}, #{entity.districtId},
+            #{entity.avgLeftVision}, #{entity.avgRightVision}, #{entity.lowVisionNumbers}, #{entity.lowVisionRatio}, #{entity.wearingGlassesNumbers}, #{entity.wearingGlassesRatio},
+            #{entity.myopiaNumbers}, #{entity.myopiaRatio}, #{entity.ametropiaNumbers}, #{entity.ametropiaRatio}, #{entity.visionLabel0Numbers}, #{entity.visionLabel0Ratio},
+            #{entity.visionLabel1Numbers}, #{entity.visionLabel1Ratio}, #{entity.visionLabel2Numbers}, #{entity.visionLabel2Ratio}, #{entity.visionLabel3Numbers}, #{entity.visionLabel3Ratio},
+            #{entity.keyWarningNumbers}, #{entity.treatmentAdviceNumbers}, #{entity.treatmentAdviceRatio}, #{entity.planScreeningNumbers}, #{entity.realScreeningNumbers}, #{entity.validScreeningNumbers}, #{entity.isTotal})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        avg_left_vision=values(avg_left_vision), avg_right_vision=values(avg_right_vision), low_vision_numbers=values(low_vision_numbers), low_vision_ratio=values(low_vision_ratio), wearing_glasses_numbers=values(wearing_glasses_numbers),wearing_glasses_ratio=values(wearing_glasses_ratio),
+        myopia_numbers=values(myopia_numbers), myopia_ratio=values(myopia_ratio), ametropia_numbers=values(ametropia_numbers), ametropia_ratio=values(ametropia_ratio), vision_label0_numbers=values(vision_label0_numbers),vision_label0_ratio=values(vision_label0_ratio),
+        vision_label1_numbers=values(vision_label1_numbers),vision_label1_ratio=values(vision_label1_ratio), vision_label2_numbers=values(vision_label2_numbers), vision_label2_ratio=values(vision_label2_ratio), vision_label3_numbers=values(vision_label3_numbers), vision_label3_ratio=values(vision_label3_ratio),
+        key_warning_numbers=values(key_warning_numbers),treatment_advice_numbers=values(treatment_advice_numbers), treatment_advice_ratio=values(treatment_advice_ratio), plan_screening_numbers=values(plan_screening_numbers), real_screening_numbers=values(real_screening_numbers), valid_screening_numbers=values(valid_screening_numbers),
+        update_time = now()
+    </insert>
+</mapper>

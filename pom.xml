@@ -10,15 +10,15 @@
     <groupId>com.wupol.myopia</groupId>
     <artifactId>myopia-pac-backend</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0.0</version>
+    <version>2.0.0-split</version>
     <description>近视防控系统</description>
 
     <modules>
-        <module>myopia-business</module>
+        <module>myopia-business-backup</module>
         <module>myopia-oauth</module>
         <module>myopia-gateway</module>
-        <module>myopia-device</module>
-        <module>base-service</module>
+        <module>service-common</module>
+        <module>myopia-business</module>
     </modules>
 
     <properties>

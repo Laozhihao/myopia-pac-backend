@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
-@MapperScan("com.wupol.myopia.business.**.domain.mapper")
+@MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients(basePackages = "com.wupol.myopia.business.**.client")

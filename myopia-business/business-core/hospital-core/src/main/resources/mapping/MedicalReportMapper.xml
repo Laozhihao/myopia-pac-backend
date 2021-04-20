@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domian.mapper.MedicalReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domian.model.MedicalReport">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
+    </resultMap>
+    <resultMap id="MedicalReportVo" type="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and report.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and report.`student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and report.`hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(departmentId)">and report.`department_id` = #{departmentId}</if>
+                <if test="@Ognl@isNotEmpty(medicalRecordId)">and report.`medical_record_id` = #{medicalRecordId}</if>
+                <if test="@Ognl@isNotEmpty(glassesSituation)">and report.`glasses_situation` = #{glassesSituation}</if>
+                <if test="@Ognl@isNotEmpty(doctorId)">and report.`doctor_id` = #{doctorId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and report.`create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and report.`update_time` = #{updateTime}</if>
+                <if test="startDate != null and @Ognl@isNotEmpty(startDate)">
+                    and DATE(report.`create_time`) &gt;= Date(#{startDate})
+                </if>
+                <if test="endDate != null and @Ognl@isNotEmpty(endDate)">
+                    and DATE(report.`create_time`) &lt;= Date(#{endDate})
+                </if>
+            </trim>
+        </where>
+    </sql>
+
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from h_medical_report report
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select *
+        from h_medical_report report
+        <include refid="Base_Where_Clause"/>
+    </select>
+    <select id="getVoBy" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+        select report.*, h.name as hospitalName, hmr.create_time as visitDate
+        from h_medical_report report
+        left join m_hospital h on report.hospital_id = h.id
+        left join h_medical_record hmr on hmr.id = report.medical_record_id
+        <include refid="Base_Where_Clause"/>
+        order by report.id desc
+    </select>
+
+    <select id="countReportBySchoolId" resultType="java.lang.Integer">
+        select count(1)
+        from h_medical_report
+        where student_id = #{studentId};
+    </select>
+
+    <select id="getLastOneByStudentId" resultMap="BaseResultMap">
+        select *
+        from h_medical_report mr
+        where mr.student_id = #{studentId}
+        order by mr.id desc
+            limit 1
+    </select>
+
+    <select id="getTodayLastMedicalReportVo" resultMap="MedicalReportVo">
+        select r.*, d.name as doctorName
+        from h_medical_report r
+        left join h_doctor d on d.id = r.doctor_id
+        where r.student_id = #{studentId} and r.hospital_id = #{hospitalId} and date(r.create_time) = CURDATE()
+        order by r.id desc
+        limit 1
+    </select>
+
+    <select id="getTodayLastMedicalReport" resultMap="BaseResultMap">
+        select r.*
+        from h_medical_report r
+        where r.student_id = #{studentId} and r.hospital_id = #{hospitalId} and date(r.create_time) = CURDATE()
+        order by r.id desc
+        limit 1
+    </select>
+
+    <select id="getStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
+        select report.id as reportId, report.hospital_id as hospitalId, report.create_time, report.update_time as updateTime, mh.name as hospitalName
+        from h_medical_report report
+                     left join h_medical_record record on report.medical_record_id = record.id
+                     left join m_hospital mh on report.hospital_id = mh.id
+        where report.student_id = #{studentId}
+        <!--          and report.create_time &lt; CURDATE()-->
+        order by report.create_time desc
+    </select>
+</mapper>

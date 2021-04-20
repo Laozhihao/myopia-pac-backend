@@ -2,22 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.wupol.myopia</groupId>
         <artifactId>myopia-pac-backend</artifactId>
-        <version>1.0.0.0</version>
+        <groupId>com.wupol.myopia</groupId>
+        <version>2.0.0-split</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-business</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>management</module>
-        <module>school</module>
-        <module>hospital</module>
-        <module>screening</module>
-        <module>parent</module>
-        <module>common</module>
+        <module>business-api</module>
+        <module>business-core</module>
+        <module>business-aggregation</module>
+        <module>common-utils</module>
         <module>bootstrap</module>
     </modules>
 
@@ -29,7 +27,7 @@
         <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>base-service</artifactId>
+            <artifactId>service-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- base framework -->
@@ -48,18 +46,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--二维码-->
+        <!-- business common utils -->
         <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-            <version>3.1.0</version>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
-
 
 </project>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.VisionScreeningResult">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="biometric_data" property="biometricData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="other_eye_diseases" property="otherEyeDiseases"/>
+    </resultMap>
+
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(taskId)">and `task_id` = #{taskId}</if>
+                <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(visionData)">and `vision_data` = #{visionData}</if>
+                <if test="@Ognl@isNotEmpty(computerOptometry)">and `computer_optometry` = #{computerOptometry}</if>
+                <if test="@Ognl@isNotEmpty(biometricData)">and `biometric_data` = #{biometricData}</if>
+                <if test="@Ognl@isNotEmpty(otherEyeDiseasesDTO)">and `other_eye_diseases` = #{otherEyeDiseasesDTO}</if>
+                <if test="@Ognl@isNotEmpty(isDoubleScreen)">and `is_double_screen` = #{isDoubleScreen}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, update_time, create_time
+    </sql>
+
+    <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
+        SELECT school_id
+        FROM m_vision_screening_result
+        WHERE task_id = #{taskId}
+          and screening_org_id = #{orgId}
+        GROUP BY school_id
+    </select>
+
+    <select id="getCreateUserIdByPlanIdAndOrgId" resultType="java.lang.Integer">
+        SELECT create_user_id
+        FROM m_vision_screening_result
+        WHERE plan_id = #{planId}
+          and screening_org_id = #{orgId}
+        GROUP BY create_user_id
+    </select>
+
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
+        select count(1) as count, student_id
+        from m_vision_screening_result
+        where is_double_screen = 0
+<!--          and create_time &lt;= CURDATE()-->
+        group by student_id
+    </select>
+
+    <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+          and is_double_screen = 0
+        order by create_time desc
+        limit 1
+    </select>
+
+    <select id="getHaveSrcScreeningNoticePlanIdsByTime" resultType="java.lang.Integer">
+        SELECT DISTINCT plan_id
+        FROM m_vision_screening_result
+        WHERE task_id != 0 AND DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
+    </select>
+
+    <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where school_id = #{schoolId}
+          and screening_org_id = #{orgId}
+          and plan_id = #{planId}
+          and is_double_screen = 0
+    </select>
+
+    <select id="getByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+<!--          and create_time &lt;= CURDATE()-->
+        group by update_time desc
+    </select>
+
+    <select id="getStudentResults" resultMap="BaseResultMap">
+        select mvsr.*
+        from m_vision_screening_result mvsr
+                     left join m_stat_conclusion msc on mvsr.id = msc.result_id
+        where msc.is_valid = 1
+          and mvsr.is_double_screen = 0
+          and mvsr.update_time &lt;= CURDATE()
+    </select>
+</mapper>

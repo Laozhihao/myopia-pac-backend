@@ -3,7 +3,7 @@
     <parent>
         <artifactId>myopia-pac-backend</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>1.0.0.0</version>
+        <version>2.0.0-split</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-gateway</artifactId>
@@ -14,7 +14,7 @@
         <!-- 基础服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>base-service</artifactId>
+            <artifactId>service-common</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeDeptOrgMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg">
+    </resultMap>
+    <resultMap id="ScreeningNoticeVoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(acceptOrgId)">and `accept_org_id` = #{acceptOrgId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskPlanId)">and `screening_task_plan_id` = #{screeningTaskPlanId}</if>
+                <if test="@Ognl@isNotEmpty(operationStatus)">and `operation_status` = #{operationStatus}</if>
+                <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, screening_notice_id, district_id, accept_org_id, screening_task_plan_id, operation_status, operator_id, create_time
+    </sql>
+
+    <update id="updateStatusAndTaskPlanIdByNoticeIdAndAcceptOrgId">
+        UPDATE m_screening_notice_dept_org
+        SET screening_task_plan_id = #{screeningTaskPlanId}, operator_id = #{operatorId}, operation_status = #{operationStatus}
+        WHERE screening_notice_id = #{screeningNoticeId} AND accept_org_id = #{acceptOrgId}
+    </update>
+
+    <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
+        SELECT
+          msn.id, msndo.id as screening_notice_dept_org_id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
+          msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.screening_task_plan_id,
+          msndo.operation_status
+        FROM
+        m_screening_notice_dept_org msndo
+        LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
+        LEFT JOIN m_district md ON msndo.district_id = md.id
+        LEFT JOIN m_government_department mgd ON (msndo.accept_org_id = mgd.id AND msn.type = 0)
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.releaseStatus)">and msn.`release_status` = #{param.releaseStatus}</if>
+                <if test="@Ognl@isNotEmpty(param.type)">and msn.`type` = #{param.type}</if>
+                <if test="@Ognl@isNotEmpty(param.operationStatus)">and msndo.operation_status = #{param.operationStatus}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and msndo.`district_id` = #{param.districtId}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and msndo.`accept_org_id` = #{param.govDeptId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and msn.`title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(msn.`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(msn.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+        order by msndo.create_time desc
+    </select>
+
+    <select id="selectByAcceptIdAndType"
+            resultType="com.wupol.myopia.business.management.domain.model.ScreeningNotice">
+        select msn.* from m_screening_notice  msn inner join m_screening_notice_dept_org msndo on msndo.screening_notice_id = msn.id where type = #{type} and
+        accept_org_id = #{acceptOrgId}
+    </select>
+
+    <select id="getByNoticeIdAndOrgId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice_dept_org
+        where screening_notice_id = #{noticeId}
+          and accept_org_id = #{orgId}
+        limit 1
+    </select>
+
+    <select id="getByNoticeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice_dept_org
+        where screening_notice_id = #{noticeId}
+    </select>
+</mapper>

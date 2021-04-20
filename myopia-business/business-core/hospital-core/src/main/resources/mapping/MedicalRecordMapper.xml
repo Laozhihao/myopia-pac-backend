@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domian.mapper.MedicalRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domian.model.MedicalRecord">
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.ConsultationTypeHandler" column="consultation" property="consultation"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.BiometricsMedicalRecordTypeHandler" column="biometrics" property="biometrics"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
+        <result typeHandler="com.wupol.myopia.business.core.hospital.domian.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
+
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and `hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(departmentId)">and `department_id` = #{departmentId}</if>
+                <if test="@Ognl@isNotEmpty(doctorId)">and `doctor_id` = #{doctorId}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(startDate)">
+                    and DATE(`create_time`) &gt;= Date(#{startDate})
+                </if>
+                <if test="@Ognl@isNotEmpty(endDate)">
+                    and DATE(`create_time`) &lt;= Date(#{endDate})
+                </if>
+            </trim>
+        </where>
+    </sql>
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from h_medical_record
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select *
+        from h_medical_record
+        <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getLastOneByStudentId" resultMap="BaseResultMap">
+        select *
+        from h_medical_record mr
+        where mr.student_id = #{studentId}
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="getTodayLastMedicalRecord" resultMap="BaseResultMap">
+        select mr.*
+        from h_medical_record mr
+        where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="getByStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
+        select record.id as recordId, report.id as reportId, record.create_time
+        from h_medical_record record
+                     left join h_medical_report report on record.id = report.medical_record_id
+                where record.student_id = #{studentId}
+    </select>
+</mapper>

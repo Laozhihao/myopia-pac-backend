@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>myopia-business-backup</artifactId>
+        <groupId>com.wupol.myopia</groupId>
+        <version>2.0.0-split</version>
+    </parent>
+    <artifactId>bootstrap-backup</artifactId>
+    <name>bootstrap-backup</name>
+    <description>启动模块</description>
+
+    <dependencies>
+        <!-- 管理端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>management</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 学校端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>school</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 家长端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>parent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 筛查端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 医院端 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>hospital</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>myopia-business</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

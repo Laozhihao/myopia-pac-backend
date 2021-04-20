@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolClass">
+    </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.SchoolClassVo">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(seatCount)">and `seat_count` = #{seatCount}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, grade_id, create_user_id, school_id, name, seat_count, status, create_time, update_time
+    </sql>
+
+    <select id="getBySchoolNameAndGradeName" resultMap="BaseResultMap">
+        select sc.*
+        from m_school s
+        left join m_school_grade sg on s.id = sg.school_id
+        left join m_school_class sc on sg.id = sc.grade_id
+        where s.name = #{schoolName} and sg.name = #{gradeName} and s.status = 0
+    </select>
+
+    <select id="getByGradeIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO">
+        select *
+        from m_school_class msc
+                where msc.grade_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectVoList" resultMap="VoResultMap">
+        select msc.*, msg.name as grade_name
+        from m_school_class msc
+        left join m_school_grade msg on msc.grade_id = msg.id
+        where msc.school_id = #{param.schoolId}
+    </select>
+
+    <select id="getByGradeIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+        where grade_id = #{gradeId}
+          and status = #{status}
+    </select>
+
+    <select id="getByGradeIdsAndSchoolIdAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_class
+                where grade_id in
+        <foreach collection="gradeIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and school_id = #{schoolId}
+        and status = #{status}
+    </select>
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.management.domain.mapper.DistrictMonitorStatisticMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.DistrictMonitorStatistic">
+    </resultMap>
+
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningNoticeId)">and `screening_notice_id` = #{screeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(rescreeningItemNumbers)">and `rescreening_item_numbers` = #{rescreeningItemNumbers} </if>
+                <if test="@Ognl@isNotEmpty(investigationNumbers)">and `investigation_numbers` =#{investigationNumbers}</if>
+                <if test="@Ognl@isNotEmpty(withoutGlassDsn)">and `without_glass_dsn` = #{withoutGlassDsn}</if>
+                <if test="@Ognl@isNotEmpty(withoutGlassDsin)">and `without_glass_dsin` = #{withoutGlassDsin}</if>
+                <if test="@Ognl@isNotEmpty(wearingGlassDsn)">and `wearing_glass_dsn` = #{wearingGlassDsn}</if>
+                <if test="@Ognl@isNotEmpty(wearingGlassDsin)">and `wearing_glass_dsin` = #{wearingGlassDsin}</if>
+                <if test="@Ognl@isNotEmpty(dsn)">and `dsn` = #{dsn}</if>
+                <if test="@Ognl@isNotEmpty(errorNumbers)">and `error_numbers` = #{errorNumbers}</if>
+                <if test="@Ognl@isNotEmpty(errorRatio)">and `error_ratio` = #{errorRatio}</if>
+                <if test="@Ognl@isNotEmpty(finishRatio)">and `finish_ratio` = #{finishRatio}</if>
+                <if test="@Ognl@isNotEmpty(planScreeningNumbers)">and `plan_real_screening_numbers` = #{planScreeningNumbers}</if>
+                <if test="@Ognl@isNotEmpty(realScreeningNumbers)">and `real_screening_numbers` =  #{realScreeningNumbers} </if>
+                <if test="@Ognl@isNotEmpty(isTotal)">and `is_total` = #{isTotal}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, is_total, screening_notice_id, rescreening_item_numbers,screening_task_id, district_id, investigation_numbers, without_glass_dsn, without_glass_dsin, wearing_glass_dsn, wearing_glass_dsin, dsn, error_numbers, error_ratio, finish_ratio, plan_real_screening_numbers, real_screening_numbers, update_time, create_time
+    </sql>
+
+    <insert id="batchSaveOrUpdate">
+        INSERT INTO m_district_monitor_statistic
+        (screening_notice_id, screening_task_id, district_id,
+        investigation_numbers, rescreening_item_numbers, finish_ratio,
+        without_glass_dsn, without_glass_dsin, wearing_glass_dsn, wearing_glass_dsin, dsn,
+        error_numbers, error_ratio, plan_screening_numbers, real_screening_numbers, is_total)
+        VALUES
+        <foreach collection="list" item="entity" separator=",">
+            (#{entity.screeningNoticeId}, #{entity.screeningTaskId}, #{entity.districtId},
+            #{entity.investigationNumbers}, #{entity.rescreeningItemNumbers}, #{entity.finishRatio},
+            #{entity.withoutGlassDsn}, #{entity.withoutGlassDsin}, #{entity.wearingGlassDsn}, #{entity.wearingGlassDsin}, #{entity.dsn},
+            #{entity.errorNumbers}, #{entity.errorRatio}, #{entity.planScreeningNumbers}, #{entity.realScreeningNumbers}, #{entity.isTotal})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        investigation_numbers=values(investigation_numbers),rescreening_item_numbers=values(rescreening_item_numbers), finish_ratio=values(finish_ratio),
+        without_glass_dsn=values(without_glass_dsn),without_glass_dsin=values(without_glass_dsin),
+        wearing_glass_dsn=values(wearing_glass_dsn),wearing_glass_dsin=values(wearing_glass_dsin),
+        dsn=values(dsn),error_numbers=values(error_numbers),error_ratio=values(error_ratio),
+        plan_screening_numbers=values(plan_screening_numbers),real_screening_numbers=values(real_screening_numbers),
+        update_time = now()
+    </insert>
+</mapper>

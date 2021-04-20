@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.wupol.myopia</groupId>
+        <artifactId>myopia-pac-backend</artifactId>
+        <version>2.0.0-split</version>
+    </parent>
+    <artifactId>myopia-business-backup</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>management</module>
+        <module>school</module>
+        <module>hospital</module>
+        <module>screening</module>
+        <module>parent</module>
+        <module>common</module>
+        <module>bootstrap-backup</module>
+    </modules>
+
+    <properties>
+        <base-framework.version>1.00.004-RELEASE</base-framework.version>
+    </properties>
+
+    <dependencies>
+        <!-- 基础服务 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>service-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- base framework -->
+        <dependency>
+            <groupId>com.wupol</groupId>
+            <artifactId>whole-framework</artifactId>
+            <version>${base-framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>database</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.wupol</groupId>
+                    <artifactId>cache</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--二维码-->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+    </dependencies>
+
+
+</project>
