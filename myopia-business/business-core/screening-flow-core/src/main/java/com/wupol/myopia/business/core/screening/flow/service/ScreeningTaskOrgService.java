@@ -5,6 +5,13 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskOrgMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
@@ -62,7 +69,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime。如果有要排除的任务可传id
      * @return
      */
-    public List<ScreeningTaskOrgDTO> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {
+    public List<ScreeningTaskOrgDTO> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQueryDTO screeningTaskQuery) {
         return baseMapper.selectHasTaskInPeriod(orgId, screeningTaskQuery);
     }
 
@@ -131,7 +138,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @return
      */
     public List<Integer> getHaveTaskOrgIds(Integer govDeptId, LocalDate startTime, LocalDate endTime) {
-        ScreeningTaskQuery taskQuery = new ScreeningTaskQuery();
+        ScreeningTaskQueryDTO taskQuery = new ScreeningTaskQueryDTO();
         taskQuery.setGovDeptId(govDeptId);
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
         return baseMapper.selectHasTaskInPeriod(null, taskQuery).stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());

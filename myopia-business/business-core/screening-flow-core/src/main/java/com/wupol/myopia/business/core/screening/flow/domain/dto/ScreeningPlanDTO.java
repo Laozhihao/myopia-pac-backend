@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

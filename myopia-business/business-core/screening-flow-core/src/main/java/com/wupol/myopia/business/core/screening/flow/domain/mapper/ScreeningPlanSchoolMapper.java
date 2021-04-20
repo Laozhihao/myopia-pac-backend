@@ -2,9 +2,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -22,7 +22,7 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     List<ScreeningPlanSchoolDTO> selectVoListByPlanId(@Param("screeningPlanId") Integer screeningPlanId);
 
-    List<ScreeningPlanSchool> selectHasPlanInPeriod(@Param("param") ScreeningPlanQuery screeningPlanQuery);
+    List<ScreeningPlanSchool> selectHasPlanInPeriod(@Param("param") ScreeningPlanQueryDTO screeningPlanQuery);
 
     List<ScreeningPlanSchool> countBySchoolId(@Param("schoolId") Integer schoolId);
 

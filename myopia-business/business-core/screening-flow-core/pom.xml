@@ -11,5 +11,7 @@
 
     <artifactId>screening-flow-core</artifactId>
     <description>筛查流相关 - 通知、任务、计划</description>
+    <dependencies>
+    </dependencies>
 
 </project>

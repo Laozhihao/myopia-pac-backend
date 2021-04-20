@@ -10,6 +10,14 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
@@ -20,7 +28,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -281,15 +289,15 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @param screeningNoticeIds
      * @param year
      */
-    public List<ScreeningNoticeNameVO> getScreeningNoticeNameVO(Set<Integer> screeningNoticeIds, Integer year) {
+    public List<ScreeningNoticeNameDTO> getScreeningNoticeNameDTO(Set<Integer> screeningNoticeIds, Integer year) {
         List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
         screeningNotices = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
         return screeningNotices.stream().filter(screeningNotice ->
                 year.equals(DateUtil.getYear(screeningNotice.getStartTime())) || year.equals(DateUtil.getYear(screeningNotice.getEndTime()))
         ).map(screeningNotice -> {
-            ScreeningNoticeNameVO screeningNoticeNameVO = new ScreeningNoticeNameVO();
-            screeningNoticeNameVO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
-            return screeningNoticeNameVO;
+            ScreeningNoticeNameDTO ScreeningNoticeNameDTO = new ScreeningNoticeNameDTO();
+            ScreeningNoticeNameDTO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return ScreeningNoticeNameDTO;
         }).collect(Collectors.toList());
     }
 

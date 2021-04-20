@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -20,7 +20,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<Integer> getCreateUserIdByPlanIdAndOrgId(@Param("planId") Integer planId, @Param("orgId") Integer orgId);
 
-    List<StudentScreeningCountVO> countScreeningTime();
+    List<StudentScreeningCountDTO> countScreeningTime();
 
     VisionScreeningResult getLatestResultByStudentId(@Param("studentId") Integer studentId);
 

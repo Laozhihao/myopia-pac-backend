@@ -107,7 +107,7 @@
     </select>
 
     <select id="selectSchoolInfo"
-            resultType="com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO">
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO">
         select student.name, student.id
         from m_screening_plan msp
                  inner join m_screening_plan_school_student student on msp.id = student.screening_plan_id
@@ -125,7 +125,7 @@
         </foreach>
     </select>
 
-    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponseDTO">
+    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan msp

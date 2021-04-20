@@ -3,12 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponseDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponseDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -25,7 +21,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
 
-    IPage<ScreeningPlanDTO> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQuery query);
+    IPage<ScreeningPlanDTO> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQueryDTO query);
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
 

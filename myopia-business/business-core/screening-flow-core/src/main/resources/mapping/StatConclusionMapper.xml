@@ -7,12 +7,12 @@
     <!-- Vo查询映射结果 -->
     <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO"></resultMap>
     <!-- ExportVo查询映射结果 -->
-    <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.vo.StatConclusionExportVo">
+    <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
-    <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.vo.StatConclusionReportVo">
+    <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>

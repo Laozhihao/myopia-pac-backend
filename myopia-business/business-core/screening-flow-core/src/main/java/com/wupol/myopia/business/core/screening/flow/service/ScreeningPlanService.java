@@ -10,6 +10,12 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.constant.ScreeningConstant;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper;
@@ -19,9 +25,10 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameDTO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
+import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,7 +91,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningPlanDTO> getPage(ScreeningPlanQuery query, PageRequest pageRequest) {
+    public IPage<ScreeningPlanDTO> getPage(ScreeningPlanQueryDTO query, PageRequest pageRequest) {
         Page<ScreeningPlan> page = (Page<ScreeningPlan>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
@@ -242,11 +249,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param year
      * @return
      */
-    public Set<ScreeningPlanNameVO> getScreeningPlanNameVOs(List<ScreeningPlan> screeningPlans, Integer year) {
+    public Set<ScreeningPlanNameDTO> getScreeningPlanNameDTOs(List<ScreeningPlan> screeningPlans, Integer year) {
         return screeningPlans.stream().filter(screeningPlan ->
                 year.equals(DateUtil.getYear(screeningPlan.getStartTime())) || year.equals(DateUtil.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {
-            ScreeningPlanNameVO screeningTaskNameVO = new ScreeningPlanNameVO();
+            ScreeningPlanNameDTO screeningTaskNameVO = new ScreeningPlanNameDTO();
             screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
             return screeningTaskNameVO;
         }).collect(Collectors.toSet());

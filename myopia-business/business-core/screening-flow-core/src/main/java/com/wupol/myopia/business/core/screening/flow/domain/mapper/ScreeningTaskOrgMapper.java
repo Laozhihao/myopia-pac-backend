@@ -1,10 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.OrgScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
 
     List<OrgScreeningCountDTO> countScreeningTimeByOrgId();
 
-    List<ScreeningTaskOrgDTO> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQuery screeningTaskQuery);
+    List<ScreeningTaskOrgDTO> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQueryDTO screeningTaskQuery);
 
     List<ScreeningTaskOrgDTO> selectVoListByScreeningTaskId(@Param("screeningTaskId") Integer screeningTaskId);
 

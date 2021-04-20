@@ -2,9 +2,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

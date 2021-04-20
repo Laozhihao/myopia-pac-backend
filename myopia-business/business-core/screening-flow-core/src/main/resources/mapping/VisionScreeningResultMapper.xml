@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.VisionScreeningResultMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.VisionScreeningResult">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="biometric_data" property="biometricData"/>
@@ -55,7 +55,7 @@
         GROUP BY create_user_id
     </select>
 
-    <select id="countScreeningTime" resultType="com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO">
+    <select id="countScreeningTime" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO">
         select count(1) as count, student_id
         from m_vision_screening_result
         where is_double_screen = 0

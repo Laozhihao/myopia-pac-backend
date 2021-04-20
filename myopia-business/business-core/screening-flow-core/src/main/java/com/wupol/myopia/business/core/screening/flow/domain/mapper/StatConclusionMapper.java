@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.StatConclusion;
-import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     /**
      * 获取行政区域内最后一条数据
      */
-    StatConclusion selectLastOne(StatConclusionQuery query);
+    StatConclusion selectLastOne(StatConclusionQueryDTO query);
 
     /**
      * 获取统计结论数据
@@ -28,7 +28,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @param districtIds 行政区域ID列表
      * @return
      */
-    List<StatConclusion> listByQuery(StatConclusionQuery query);
+    List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
 
     /**
      * 根据筛查计划ID获取Vo列表
@@ -37,20 +37,20 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      */
     List<StatConclusionDTO> selectVoByScreeningPlanId(@Param("screeningPlanId") Integer screeningPlanId);
 
-    List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
+    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
-    List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("schoolId") Integer schoolId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("schoolId") Integer schoolId);
 
-    List<StatConclusionExportVo> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
-    List<StatConclusionReportVo> selectReportVoByQuery(
+    List<StatConclusionReportDTO> selectReportVoByQuery(
             @Param("screeningNoticeId") Integer screeningNoticeId,
             @Param("planId") Integer planId,
             @Param("schoolId") Integer schoolId);
 
-    List<StatConclusionExportVo> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("screeningOrgId") Integer screeningOrgId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("screeningOrgId") Integer screeningOrgId);
 
-    List<StatConclusionExportVo> selectExportVoByScreeningPlanIdAndScreeningOrgId(@Param("screeningPlanId") Integer screeningPlanId, @Param("screeningOrgId") Integer screeningOrgId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndScreeningOrgId(@Param("screeningPlanId") Integer screeningPlanId, @Param("screeningOrgId") Integer screeningOrgId);
 
     /**
      * 根据筛查通知ID获取学校ID

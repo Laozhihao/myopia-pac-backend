@@ -10,9 +10,9 @@ import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
+import com.wupol.myopia.business.management.domain.query.StatConclusionQueryDTO;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionExportDTO;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionReportDTO;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionDTO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +40,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     /**
      * 获取筛查结论列表
      *
-     * @param statConclusionQuery
+     * @param StatConclusionQueryDTO
      * @return
      */
-    public List<StatConclusion> listByQuery(StatConclusionQuery statConclusionQuery) {
-        return statConclusionMapper.listByQuery(statConclusionQuery);
+    public List<StatConclusion> listByQuery(StatConclusionQueryDTO StatConclusionQueryDTO) {
+        return statConclusionMapper.listByQuery(StatConclusionQueryDTO);
     }
 
-    public StatConclusion getLastOne(StatConclusionQuery statConclusionQuery) {
-        return statConclusionMapper.selectLastOne(statConclusionQuery);
+    public StatConclusion getLastOne(StatConclusionQueryDTO StatConclusionQueryDTO) {
+        return statConclusionMapper.selectLastOne(StatConclusionQueryDTO);
     }
 
     /**
@@ -126,7 +126,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
@@ -139,7 +139,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
     }
 
@@ -149,7 +149,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionExportVo> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
@@ -159,7 +159,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionReportVo> getReportVo(
+    public List<StatConclusionReportDTO> getReportVo(
             Integer screeningNoticeId, Integer planId, Integer schoolId) {
         return baseMapper.selectReportVoByQuery(screeningNoticeId, planId, schoolId);
     }
@@ -194,7 +194,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningOrgId
      * @return
      */
-    public List<StatConclusionExportVo> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
         return baseMapper.selectExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
     }
 
@@ -204,7 +204,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningOrgId
      * @return
      */
-    public List<StatConclusionExportVo> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
     }
 
