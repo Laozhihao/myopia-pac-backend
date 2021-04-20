@@ -9,28 +9,12 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.common.constant.GlassesType;
-import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
-import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
-import com.wupol.myopia.business.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.service.ResourceFileService;
-import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.service.StudentService;
-import com.wupol.myopia.business.management.service.VisionScreeningResultService;
-import com.wupol.myopia.business.management.util.StatUtil;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import com.wupol.myopia.business.parent.domain.mapper.ParentStudentMapper;
-import com.wupol.myopia.business.parent.domain.model.Parent;
-import com.wupol.myopia.business.parent.domain.model.ParentStudent;
-import com.wupol.myopia.business.parent.domain.vo.ParentStudentVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.parent.domain.dto.ParentStudentDTO;
+import com.wupol.myopia.business.core.parent.domain.mapper.ParentStudentMapper;
+import com.wupol.myopia.business.core.parent.domain.model.Parent;
+import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -86,9 +70,9 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      */
     public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
-        List<ParentStudentVO> parentStudentVOS = baseMapper.countParentStudent(parentId);
-        responseDTO.setTotal(parentStudentVOS.size());
-        responseDTO.setItem(parentStudentVOS);
+        List<ParentStudentDTO> parentStudentDTOS = baseMapper.countParentStudent(parentId);
+        responseDTO.setTotal(parentStudentDTOS.size());
+        responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
     }
 

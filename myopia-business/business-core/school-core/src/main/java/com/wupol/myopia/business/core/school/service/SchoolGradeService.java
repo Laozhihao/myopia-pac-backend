@@ -6,16 +6,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
-import com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.SchoolGradeQuery;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeQueryDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
+import com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,12 +91,12 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param pageRequest 分页请求
      * @param schoolId    学校id
-     * @return IPage<SchoolGradeItems> 返回体
+     * @return IPage<SchoolGradeItemsDTO> 返回体
      */
-    public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
+    public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest, Integer schoolId) {
 
         // 获取年级
-        IPage<SchoolGradeItems> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
+        IPage<SchoolGradeItemsDTO> schoolGrades = baseMapper.getGradeBySchool(pageRequest.toPage(), schoolId);
         if (schoolGrades.getRecords().isEmpty()) {
             return schoolGrades;
         }
@@ -105,7 +105,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .getByGradeIds(schoolGrades
                         .getRecords()
                         .stream()
-                        .map(SchoolGradeItems::getId)
+                        .map(SchoolGradeItemsDTO::getId)
                         .collect(Collectors.toList()), schoolId).stream()
                 .collect(Collectors.groupingBy(SchoolClass::getGradeId));
 
@@ -117,18 +117,18 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 年级列表(没有分页)
      *
      * @param schoolId 学校id
-     * @return List<SchoolGradeItems> 返回体
+     * @return List<SchoolGradeItemsDTO> 返回体
      */
-    public List<SchoolGradeItems> getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
 
         // 获取年级
-        List<SchoolGradeItems> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
 
         // 获取班级，并且封装成Map
         Map<Integer, List<SchoolClass>> classMaps = schoolClassService
                 .getByGradeIds(schoolGrades
                         .stream()
-                        .map(SchoolGradeItems::getId)
+                        .map(SchoolGradeItemsDTO::getId)
                         .collect(Collectors.toList()), schoolId).stream()
                 .collect(Collectors.groupingBy(SchoolClass::getGradeId));
 
@@ -188,13 +188,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 年级列表
      */
     public List<SchoolGrade> getBySchoolName(String schoolName) {
-        SchoolQuery schoolQuery = new SchoolQuery();
-        schoolQuery.setName(schoolName);
-        Integer schoolId = schoolService.getBy(schoolQuery).stream()
+        SchoolQueryDTO SchoolQueryDTO = new SchoolQueryDTO();
+        SchoolQueryDTO.setName(schoolName);
+        Integer schoolId = schoolService.getBy(SchoolQueryDTO).stream()
                 .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
-        SchoolGradeQuery schoolGradeQuery = new SchoolGradeQuery();
-        schoolGradeQuery.setSchoolId(schoolId);
-        return getBy(schoolGradeQuery);
+        SchoolGradeQueryDTO SchoolGradeQueryDTO = new SchoolGradeQueryDTO();
+        SchoolGradeQueryDTO.setSchoolId(schoolId);
+        return getBy(SchoolGradeQueryDTO);
     }
 
     /**
@@ -203,7 +203,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param query 查询条件
      * @return List<SchoolGrade>
      */
-    public List<SchoolGrade> getBy(SchoolGradeQuery query) {
+    public List<SchoolGrade> getBy(SchoolGradeQueryDTO query) {
         return baseMapper.getBy(query);
     }
 
@@ -215,7 +215,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQuery query) {
+    public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQueryDTO query) {
         return baseMapper.getByPage(page, query);
     }
 
@@ -225,7 +225,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @param schoolIds 学校ID
      * @return List<SchoolGrade>
      */
-    public List<SchoolGradeExportVO> getBySchoolIds(List<Integer> schoolIds) {
+    public List<SchoolGradeExportDTO> getBySchoolIds(List<Integer> schoolIds) {
         return baseMapper.getBySchoolIds(schoolIds);
     }
 
@@ -247,10 +247,10 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return SchoolGrade
      */
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
-        LambdaQueryWrapper<SchoolGrade> schoolGradeExportVOLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<SchoolGrade> SchoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setSchoolId(schoolId).setName(gradeName);
-        schoolGradeExportVOLambdaQueryWrapper.setEntity(schoolGrade);
-        return baseMapper.selectOne(schoolGradeExportVOLambdaQueryWrapper);
+        SchoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
+        return baseMapper.selectOne(SchoolGradeExportDTOLambdaQueryWrapper);
     }
 }

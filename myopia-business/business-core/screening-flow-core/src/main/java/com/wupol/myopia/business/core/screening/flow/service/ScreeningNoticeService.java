@@ -19,9 +19,9 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQueryDTO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameVO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,12 +73,12 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningNoticeVo> getPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
+    public IPage<ScreeningNoticeDTO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
         Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
         }
-        IPage<ScreeningNoticeVo> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
+        IPage<ScreeningNoticeDTO> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
         screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")).setDistrictDetail(districtService.getDistrictPositionDetailById(vo.getDistrictId())));

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningPlanMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlan">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan">
     </resultMap>
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo">
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO">
     </resultMap>
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultDTOMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse">
+    <resultMap id="BaseResultDTOMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO">
     </resultMap>
 
 
@@ -125,7 +125,7 @@
         </foreach>
     </select>
 
-    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse">
+    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponseDTO">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan msp

@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.SchoolAdminMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.mapper.SchoolAdminMapper;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

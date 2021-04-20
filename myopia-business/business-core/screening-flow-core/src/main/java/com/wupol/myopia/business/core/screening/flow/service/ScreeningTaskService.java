@@ -14,7 +14,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningTaskDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -69,12 +69,12 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningTaskVo> getPage(ScreeningTaskQuery query, PageRequest pageRequest) {
+    public IPage<ScreeningTaskDTO> getPage(ScreeningTaskQuery query, PageRequest pageRequest) {
         Page<ScreeningTask> page = (Page<ScreeningTask>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
         }
-        IPage<ScreeningTaskVo> screeningTaskIPage = baseMapper.selectPageByQuery(page, query);
+        IPage<ScreeningTaskDTO> screeningTaskIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningTaskIPage.getRecords().stream().map(ScreeningTask::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
         screeningTaskIPage.getRecords().forEach(vo -> vo.setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId())).setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));

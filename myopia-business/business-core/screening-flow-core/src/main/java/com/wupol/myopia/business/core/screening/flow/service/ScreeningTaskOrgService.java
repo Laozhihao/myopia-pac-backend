@@ -8,7 +8,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param screeningTaskId
      * @return
      */
-    public List<ScreeningTaskOrgVo> getOrgVoListsByTaskId(Integer screeningTaskId) {
+    public List<ScreeningTaskOrgDTO> getOrgVoListsByTaskId(Integer screeningTaskId) {
         return baseMapper.selectVoListByScreeningTaskId(screeningTaskId);
     }
 
@@ -62,7 +62,7 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime。如果有要排除的任务可传id
      * @return
      */
-    public List<ScreeningTaskOrgVo> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {
+    public List<ScreeningTaskOrgDTO> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQuery screeningTaskQuery) {
         return baseMapper.selectHasTaskInPeriod(orgId, screeningTaskQuery);
     }
 

@@ -1,10 +1,8 @@
 package com.wupol.myopia.business.core.parent.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.parent.domain.mapper.ParentMapper;
-import com.wupol.myopia.business.parent.domain.model.Parent;
+import com.wupol.myopia.business.core.parent.domain.mapper.ParentMapper;
+import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;

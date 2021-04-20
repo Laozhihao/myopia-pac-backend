@@ -9,7 +9,7 @@ import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMap
 import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,10 +98,10 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 通过筛查计划ID获取所有关联的学校vo信息
      *
      * @param screeningPlanId 筛查计划ID
-     * @return List<ScreeningPlanSchoolVo>
+     * @return List<ScreeningPlanSchoolDTO>
      */
-    public List<ScreeningPlanSchoolVo> getSchoolVoListsByPlanId(Integer screeningPlanId) {
-        List<ScreeningPlanSchoolVo> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId);
+    public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId) {
+        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         screeningPlanSchools.forEach(vo -> vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue()));
         return screeningPlanSchools;

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolMapper">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.School">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.School">
     </resultMap>
 
-    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.management.domain.dto.SchoolResponseDTO">
+    <resultMap id="BaseResultMapDto" type="com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->

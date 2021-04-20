@@ -20,7 +20,7 @@ import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanNameVO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +59,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param pageRequest 分页入参
      * @param ids         ids
-     * @return IPage<ScreeningPlanResponse>
+     * @return IPage<ScreeningPlanResponseDTO>
      */
-    public IPage<ScreeningPlanResponse> getListByIds(PageRequest pageRequest, List<Integer> ids) {
+    public IPage<ScreeningPlanResponseDTO> getListByIds(PageRequest pageRequest, List<Integer> ids) {
         return baseMapper.getPlanLists(pageRequest.toPage(), ids);
     }
 
@@ -84,7 +84,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param pageRequest
      * @return
      */
-    public IPage<ScreeningPlanVo> getPage(ScreeningPlanQuery query, PageRequest pageRequest) {
+    public IPage<ScreeningPlanDTO> getPage(ScreeningPlanQuery query, PageRequest pageRequest) {
         Page<ScreeningPlan> page = (Page<ScreeningPlan>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
@@ -97,7 +97,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             }
             query.setScreeningOrgIds(orgIds);
         }
-        IPage<ScreeningPlanVo> screeningPlanIPage = baseMapper.selectPageByQuery(page, query);
+        IPage<ScreeningPlanDTO> screeningPlanIPage = baseMapper.selectPageByQuery(page, query);
         List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
         screeningPlanIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
@@ -260,7 +260,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param orgId       机构ID
      * @return IPage<ScreeningTaskResponse>
      */
-    public IPage<ScreeningOrgPlanResponse> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
+    public IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
         return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId);
     }
 

@@ -13,7 +13,7 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
+import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolDTO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -373,11 +373,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param orgId   机构ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, Integer orgId) {
+    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId) {
 
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponse> planPages = screeningPlanService.getPageByOrgId(request, orgId);
-        List<ScreeningOrgPlanResponse> tasks = planPages.getRecords();
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;
         }
@@ -391,12 +391,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param planResponse 筛查端-记录详情
      * @param orgId        机构ID
      */
-    private void extractedDTO(ScreeningOrgPlanResponse planResponse, Integer orgId) {
+    private void extractedDTO(ScreeningOrgPlanResponseDTO planResponse, Integer orgId) {
         ScreeningRecordItems response = new ScreeningRecordItems();
         List<RecordDetails> details = new ArrayList<>();
 
         Integer planId = planResponse.getId();
-        List<ScreeningPlanSchoolVo> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
+        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
 
         // 设置筛查状态
         planResponse.setScreeningStatus(getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
@@ -408,7 +408,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
         // 学生统计
         Map<Integer, Integer> planStudentMaps = schoolVos.stream()
-                .collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolVo::getStudentCount));
+                .collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
 
         // 设置学校总数
         response.setSchoolCount(schoolIds.size());

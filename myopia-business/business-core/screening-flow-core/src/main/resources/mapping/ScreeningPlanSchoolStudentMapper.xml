@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent">
     </resultMap>
-    <resultMap id="SchoolGradeVo" type="com.wupol.myopia.business.management.domain.vo.SchoolGradeVo">
+    <resultMap id="SchoolGradeVo" type="com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolGradeVo">
     </resultMap>
-    <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.management.domain.dto.GradeClassesDTO">
+    <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO">
     </resultMap>
-    <resultMap id="StudentDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
+    <resultMap id="StudentDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentDTO">
     </resultMap>
 
 
@@ -59,7 +59,7 @@
     </sql>
 
     <select id="selectStudentInfoWithResult"
-            resultType="com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO">
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO">
         SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
         , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.gender
         , s.screening_task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data

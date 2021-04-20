@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeDeptOrgMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeDeptOrgMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg">
     </resultMap>
-    <resultMap id="ScreeningNoticeVoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo">
+    <resultMap id="ScreeningNoticeDTOResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -35,7 +35,7 @@
         WHERE screening_notice_id = #{screeningNoticeId} AND accept_org_id = #{acceptOrgId}
     </update>
 
-    <select id="selectPageByQuery" resultMap="ScreeningNoticeVoResultMap" parameterType="java.util.Map">
+    <select id="selectPageByQuery" resultMap="ScreeningNoticeDTOResultMap" parameterType="java.util.Map">
         SELECT
           msn.id, msndo.id as screening_notice_dept_org_id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
           msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.screening_task_plan_id,

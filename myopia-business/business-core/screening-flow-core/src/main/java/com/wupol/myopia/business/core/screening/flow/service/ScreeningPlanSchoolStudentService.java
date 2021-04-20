@@ -4,24 +4,26 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.*;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.management.domain.query.StudentQueryDTO;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
-import com.wupol.myopia.business.management.domain.vo.StudentVo;
+import com.wupol.myopia.business.management.domain.vo.StudentDTO;
 import com.wupol.myopia.business.management.util.AgeUtil;
 import com.wupol.myopia.business.management.util.SerializationUtil;
 import org.springframework.beans.BeanUtils;
@@ -205,7 +207,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param pageRequest
      * @return
      */
-    public IPage<StudentDTO> getPage(StudentQuery query, PageRequest pageRequest) {
+    public IPage<StudentDTO> getPage(StudentQueryDTO query, PageRequest pageRequest) {
         Assert.notNull(query.getScreeningPlanId(), "筛查计划ID不能为空");
         Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
         Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
@@ -254,8 +256,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
         Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ? Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
-        List<StudentVo> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
-        Map<String, StudentVo> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+        List<StudentDTO> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
+        Map<String, StudentDTO> excelIdCardStudentMap = excelStudents.stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //7. 新增或更新学生和筛查学生数据
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents, excelIdCardStudentMap);
     }
@@ -298,7 +300,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param excelStudents
      * @param excelIdCardStudentMap
      */
-    private void addOrUpdateStudentAndScreeningStudent(Integer userId, ScreeningPlan screeningPlan, Integer schoolId, School school, Map<String, Student> idCardExistStudents, Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents, List<StudentVo> excelStudents, Map<String, StudentVo> excelIdCardStudentMap) {
+    private void addOrUpdateStudentAndScreeningStudent(Integer userId, ScreeningPlan screeningPlan, Integer schoolId, School school, Map<String, Student> idCardExistStudents, Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents, List<StudentDTO> excelStudents, Map<String, StudentDTO> excelIdCardStudentMap) {
         //1. 筛选出需新增的学生并新增
         addStudents(userId, idCardExistStudents, excelIdCardStudentMap);
         //2. 已有的要判断是否需更新
@@ -351,7 +353,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param idCardExistScreeningStudents
      * @param excelStudents
      */
-    private void addOrUpdateScreeningPlanStudents(ScreeningPlan screeningPlan, Integer schoolId, School school, Map<String, Student> idCardExistStudents, Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents, List<StudentVo> excelStudents) {
+    private void addOrUpdateScreeningPlanStudents(ScreeningPlan screeningPlan, Integer schoolId, School school, Map<String, Student> idCardExistStudents, Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents, List<StudentDTO> excelStudents) {
         List<ScreeningPlanSchoolStudent> addOrUpdatePlanStudents = excelStudents.stream().map(student -> {
             ScreeningPlanSchoolStudent existPlanStudent = idCardExistScreeningStudents.getOrDefault(student.getIdCard(), null);
             Student dbStudent = idCardExistStudents.get(student.getIdCard());
@@ -379,7 +381,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanId
      * @param schoolId
      */
-    private void updateStudents(Map<String, Student> idCardExistStudents, Map<String, StudentVo> excelIdCardStudentMap, Integer screeningPlanId, Integer schoolId) {
+    private void updateStudents(Map<String, Student> idCardExistStudents, Map<String, StudentDTO> excelIdCardStudentMap, Integer screeningPlanId, Integer schoolId) {
         List<String> needCheckUpdateStudentIdCards = CompareUtil.getRetain(idCardExistStudents.keySet(), excelIdCardStudentMap.keySet());
         List<Student> updateStudents = new ArrayList<>();
         // 查找通过身份证查找计划中的学生
@@ -388,7 +390,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         List<ScreeningPlanSchoolStudent> updatePlanStudent = new ArrayList<>();
         needCheckUpdateStudentIdCards.forEach(idCard -> {
             Student student = idCardExistStudents.get(idCard);
-            StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
+            StudentDTO excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
                 ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
@@ -422,12 +424,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param idCardExistStudents
      * @param excelIdCardStudentMap
      */
-    private void addStudents(Integer userId, Map<String, Student> idCardExistStudents, Map<String, StudentVo> excelIdCardStudentMap) {
+    private void addStudents(Integer userId, Map<String, Student> idCardExistStudents, Map<String, StudentDTO> excelIdCardStudentMap) {
         List<String> needAddedIdCards = CompareUtil.getAdded(new ArrayList<>(idCardExistStudents.keySet()), new ArrayList<>(excelIdCardStudentMap.keySet()));
         if (CollectionUtils.hasLength(needAddedIdCards)) {
             List<Student> addedStudent = needAddedIdCards.stream().map(idCard -> {
                 Student s = new Student();
-                StudentVo excelStudent = excelIdCardStudentMap.get(idCard);
+                StudentDTO excelStudent = excelIdCardStudentMap.get(idCard);
                 BeanUtils.copyProperties(excelStudent, s);
                 s.setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType());
                 return s;
@@ -483,9 +485,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param schoolNo                 学校编号
      * @return List<Student>
      */
-    private List<StudentVo> getStudentListFromExcelItem(List<Map<Integer, String>> listMap, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
+    private List<StudentDTO> getStudentListFromExcelItem(List<Map<Integer, String>> listMap, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
         // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
-        List<StudentVo> excelStudents = listMap.stream().map(item -> {
+        List<StudentDTO> excelStudents = listMap.stream().map(item -> {
             try {
                 return generateStudentByExcelItem(item, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, schoolNo);
             } catch (Exception e) {
@@ -508,10 +510,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param schoolNo                 学校编号
      * @return 学生实体
      */
-    private StudentVo generateStudentByExcelItem(Map<Integer, String> item, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
+    private StudentDTO generateStudentByExcelItem(Map<Integer, String> item, Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap, Map<String, List<Long>> districtNameCodeMap, String schoolNo) {
         try {
             // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
-            StudentVo student = new StudentVo();
+            StudentDTO student = new StudentDTO();
             student.setGradeName(item.get(ImportExcelEnum.GRADE.getIndex())).setClassName(item.get(ImportExcelEnum.CLASS.getIndex()));
             student.setName(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.NAME.getIndex()), null))
                     .setGender(StringUtils.isBlank(item.get(ImportExcelEnum.GENDER.getIndex())) ? null : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex())))

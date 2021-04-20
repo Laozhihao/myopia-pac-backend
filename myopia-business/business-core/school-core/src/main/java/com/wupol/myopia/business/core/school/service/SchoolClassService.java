@@ -3,12 +3,12 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO;
-import com.wupol.myopia.business.management.domain.vo.SchoolClassVo;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
+import com.wupol.myopia.business.core.school.domain.mapper.SchoolClassMapper;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,7 +102,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param gradeIds 年级ids
      * @return List<SchoolClass>
      */
-    public List<SchoolClassExportVO> getByGradeIds(List<Integer> gradeIds) {
+    public List<SchoolClassExportDTO> getByGradeIds(List<Integer> gradeIds) {
         return baseMapper.getByGradeIds(gradeIds);
     }
 
@@ -132,9 +132,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * 根据学校Id获取所有班级
      *
      * @param schoolId 学校ID
-     * @return List<SchoolClassVo>
+     * @return List<SchoolClassDTO>
      */
-    public List<SchoolClassVo> getVoBySchoolId(Integer schoolId) {
+    public List<SchoolClassDTO> getVoBySchoolId(Integer schoolId) {
         return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
     }
 

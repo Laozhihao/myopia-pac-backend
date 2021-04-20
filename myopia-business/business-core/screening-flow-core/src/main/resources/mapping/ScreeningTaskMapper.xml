@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.ScreeningTaskMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.ScreeningTask">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask">
     </resultMap>
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo">
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO">
     </resultMap>
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse">
+    <resultMap id="BaseResultDtoMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->

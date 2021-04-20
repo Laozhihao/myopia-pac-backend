@@ -13,7 +13,7 @@ import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import com.wupol.myopia.business.management.domain.vo.StatConclusionDTO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,7 +68,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningPlanId
      * @return
      */
-    public List<StatConclusionVo> getVoByScreeningPlanId(Integer screeningPlanId) {
+    public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
         return statConclusionMapper.selectVoByScreeningPlanId(screeningPlanId);
     }
     /**

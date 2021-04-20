@@ -11,14 +11,19 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
+import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
-import com.wupol.myopia.business.management.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -207,14 +212,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 获取学校列表
      *
      * @param pageRequest 分页
-     * @param schoolQuery 请求体
+     * @param SchoolQueryDTO 请求体
      * @param currentUser 当前用户
      * @return IPage<SchoolDto> {@link IPage}
      */
-    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery,
+    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQueryDTO SchoolQueryDTO,
                                                   CurrentUser currentUser) {
 
-        String createUser = schoolQuery.getCreateUser();
+        String createUser = SchoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
         // 创建人ID处理
@@ -226,12 +231,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
             }
         }
-        TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQuery.getDistrictId());
+        TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, SchoolQueryDTO.getDistrictId());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = baseMapper.getSchoolListByCondition(pageRequest.toPage(),
-                schoolQuery.getName(), schoolQuery.getSchoolNo(),
-                schoolQuery.getType(), resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
+                SchoolQueryDTO.getName(), SchoolQueryDTO.getSchoolNo(),
+                SchoolQueryDTO.getType(), resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -245,9 +250,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         Map<Integer, UserDTO> userDTOMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
-        Map<String, Integer> studentCountMaps = studentCountVOS.stream()
-                .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
+        List<StudentCountDTO> StudentCountDTOS = studentService.countStudentBySchoolNo();
+        Map<String, Integer> studentCountMaps = StudentCountDTOS.stream()
+                .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
 
         // 学校筛查次数
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService
@@ -344,7 +349,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param query 条件
      * @return List<Integer>
      */
-    private List<Integer> getHavePlanSchoolIds(SchoolQuery query) {
+    private List<Integer> getHavePlanSchoolIds(SchoolQueryDTO query) {
         if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
             return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime());
         }
@@ -411,7 +416,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningPlanResponse> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
@@ -419,15 +424,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
 
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponse> planPages = screeningPlanService
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
                 .getListByIds(pageRequest, planSchoolList.stream()
                         .map(ScreeningPlanSchool::getScreeningPlanId)
                         .collect(Collectors.toList()));
 
-        List<ScreeningPlanResponse> plans = planPages.getRecords();
+        List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
         if (!CollectionUtils.isEmpty(plans)) {
-            List<Integer> planIds = plans.stream().map(ScreeningPlanResponse::getId).collect(Collectors.toList());
+            List<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toList());
             // 学校统计信息
             List<SchoolVisionStatistic> schoolStatistics = schoolVisionStatisticService
                     .getByPlanIdsAndSchoolId(planIds, schoolId);
@@ -477,7 +482,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param query 查询条件
      * @return List<School>
      */
-    public List<School> getBy(SchoolQuery query) {
+    public List<School> getBy(SchoolQueryDTO query) {
         return baseMapper.getBy(query);
     }
 
@@ -539,7 +544,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public IPage<School> getByPage(Page<?> page, SchoolQuery query) {
+    public IPage<School> getByPage(Page<?> page, SchoolQueryDTO query) {
         return baseMapper.getByPage(page, query);
     }
 
@@ -733,21 +738,21 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
      *
-     * @param schoolQuery 条件
+     * @param SchoolQueryDTO 条件
      * @return List<SchoolResponseDTO>
      */
-    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQuery schoolQuery) {
-        Assert.notNull(schoolQuery.getDistrictId(), "层级id不能为空");
-        schoolQuery.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQuery.getDistrictId())).setDistrictId(null);
-        schoolQuery.setStatus(CommonConst.STATUS_NOT_DELETED);
+    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO SchoolQueryDTO) {
+        Assert.notNull(SchoolQueryDTO.getDistrictId(), "层级id不能为空");
+        SchoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(SchoolQueryDTO.getDistrictId())).setDistrictId(null);
+        SchoolQueryDTO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
-        List<School> schoolList = getBy(schoolQuery);
+        List<School> schoolList = getBy(SchoolQueryDTO);
         // 为空直接返回
         if (CollectionUtils.isEmpty(schoolList)) {
             return Collections.emptyList();
         }
         // 获取已有计划的学校ID列表
-        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQuery);
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(SchoolQueryDTO);
         // 封装DTO
         return schoolList.stream().map(school -> {
             SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();

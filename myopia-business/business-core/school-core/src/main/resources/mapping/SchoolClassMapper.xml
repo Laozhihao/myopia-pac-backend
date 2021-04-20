@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolClassMapper">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.SchoolClassMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolClass">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.SchoolClass">
     </resultMap>
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.SchoolClassVo">
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -38,7 +38,7 @@
         where s.name = #{schoolName} and sg.name = #{gradeName} and s.status = 0
     </select>
 
-    <select id="getByGradeIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolClassExportVO">
+    <select id="getByGradeIds" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO">
         select *
         from m_school_class msc
                 where msc.grade_id in

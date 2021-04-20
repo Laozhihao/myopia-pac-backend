@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolGradeMapper">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolGrade">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.SchoolGrade">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -27,7 +27,7 @@
         id, create_user_id, school_id, grade_code, name, status, create_time, update_time
     </sql>
 
-    <select id="getGradeBySchool" resultType="com.wupol.myopia.business.management.domain.dto.SchoolGradeItems">
+    <select id="getGradeBySchool" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO">
         select
         <include refid="Base_Column_List"/>
         from m_school_grade msg
@@ -46,7 +46,7 @@
         <include refid="Base_Where_Clause" />
     </select>
 
-    <select id="selectListBySchoolIdAndGradeId" resultType="com.wupol.myopia.business.management.domain.dto.StudentClazzDTO">
+    <select id="selectListBySchoolIdAndGradeId" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentClazzDTO">
         SELECT a.id AS classId,a.school_id, b.id AS gradeId FROM m_school_class a, m_school_grade b
         WHERE a.grade_id = b.id and a.name = #{gradeName} AND a.school_id = #{schoolId} and a.name = #{clazzName}
     </select>
@@ -58,7 +58,7 @@
         <include refid="Base_Where_Clause"/>
     </select>
 
-    <select id="getBySchoolIds" resultType="com.wupol.myopia.business.management.domain.vo.SchoolGradeExportVO">
+    <select id="getBySchoolIds" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO">
         select *, ms.school_no as schoolNo
         from m_school_grade msg
                      left join m_school ms on msg.school_id = ms.id
@@ -68,7 +68,7 @@
         </foreach>
     </select>
 
-    <select id="getAllBySchoolId" resultType="com.wupol.myopia.business.management.domain.dto.SchoolGradeItems">
+    <select id="getAllBySchoolId" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO">
         select
         <include refid="Base_Column_List"/>
         from m_school_grade msg

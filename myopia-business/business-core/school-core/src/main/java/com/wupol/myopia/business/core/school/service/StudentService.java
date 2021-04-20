@@ -8,21 +8,25 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
+import com.wupol.myopia.business.core.school.domain.mapper.StudentMapper;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.management.constant.CacheKey;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.management.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
-import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import com.wupol.myopia.business.management.domain.vo.StudentScreeningCountVO;
-import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import com.wupol.myopia.business.management.util.StatUtil;
-import com.wupol.myopia.business.management.util.TwoTuple;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -210,19 +214,19 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 获取学生列表
      *
      * @param pageRequest  分页
-     * @param studentQuery 请求体
+     * @param StudentQueryDTO 请求体
      * @return IPage<Student> {@link IPage}
      */
-    public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQuery studentQuery) {
+    public IPage<StudentDTO> getStudentLists(PageRequest pageRequest, StudentQueryDTO StudentQueryDTO) {
 
         TwoTuple<List<Integer>, List<Integer>> conditionalFilter = conditionalFilter(
-                studentQuery.getGradeIds(), studentQuery.getVisionLabels());
+                StudentQueryDTO.getGradeIds(), StudentQueryDTO.getVisionLabels());
 
         IPage<StudentDTO> pageStudents = baseMapper.getStudentListByCondition(pageRequest.toPage(),
-                studentQuery.getSno(), studentQuery.getIdCard(), studentQuery.getName(),
-                studentQuery.getParentPhone(), studentQuery.getGender(), conditionalFilter.getFirst(),
-                conditionalFilter.getSecond(), studentQuery.getStartScreeningTime(), studentQuery.getEndScreeningTime(),
-                studentQuery.getSchoolName());
+                StudentQueryDTO.getSno(), StudentQueryDTO.getIdCard(), StudentQueryDTO.getName(),
+                StudentQueryDTO.getParentPhone(), StudentQueryDTO.getGender(), conditionalFilter.getFirst(),
+                conditionalFilter.getSecond(), StudentQueryDTO.getStartScreeningTime(), StudentQueryDTO.getEndScreeningTime(),
+                StudentQueryDTO.getSchoolName());
         List<StudentDTO> students = pageStudents.getRecords();
 
         // 为空直接放回
@@ -251,10 +255,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 通过条件查询
      *
-     * @param query StudentQuery
+     * @param query StudentQueryDTO
      * @return List<Student>
      */
-    public List<Student> getBy(StudentQuery query) {
+    public List<Student> getBy(StudentQueryDTO query) {
         return baseMapper.getBy(query);
     }
 
@@ -321,7 +325,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public IPage<Student> getByPage(Page<?> page, StudentQuery query) {
+    public IPage<Student> getByPage(Page<?> page, StudentQueryDTO query) {
         return baseMapper.getByPage(page, query);
     }
 
@@ -364,9 +368,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 统计学生人数
      *
-     * @return List<StudentCountVO>
+     * @return List<StudentCountDTO>
      */
-    public List<StudentCountVO> countStudentBySchoolNo() {
+    public List<StudentCountDTO> countStudentBySchoolNo() {
         return baseMapper.countStudentBySchoolNo();
     }
 
@@ -389,10 +393,10 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return List<Student>
      */
     public List<Student> getByIdCards(List<String> idCardList) {
-        StudentQuery studentQuery = new StudentQuery();
+        StudentQueryDTO StudentQueryDTO = new StudentQueryDTO();
         return Lists.partition(idCardList, 50).stream().map(list -> {
-            studentQuery.setIdCardList(list);
-            return baseMapper.getBy(studentQuery);
+            StudentQueryDTO.setIdCardList(list);
+            return baseMapper.getBy(StudentQueryDTO);
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
@@ -912,9 +916,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 根据区域层级Id获取其学校的所有学生数据
      *
      * @param districtIds 行政区域id
-     * @return List<StudentVo>
+     * @return List<StudentDTO>
      */
-    public List<StudentVo> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
+    public List<StudentDTO> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }

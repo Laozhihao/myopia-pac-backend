@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.StudentMapper">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.StudentMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Student">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.Student">
     </resultMap>
 
-    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.management.domain.dto.StudentDTO">
+    <resultMap id="BaseResultMapDTO" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
     </resultMap>
 
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.management.domain.vo.StudentVo">
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.school.domain.dto.StudentDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -157,7 +157,7 @@
         </if>
     </select>
 
-    <select id="countStudentBySchoolNo" resultType="com.wupol.myopia.business.management.domain.vo.StudentCountVO">
+    <select id="countStudentBySchoolNo" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO">
         select count(1) as count, school_no
         from m_student
         group by school_no
