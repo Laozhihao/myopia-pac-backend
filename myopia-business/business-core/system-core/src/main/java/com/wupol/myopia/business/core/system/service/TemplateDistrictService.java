@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.core.system.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.TemplateBindItem;
-import com.wupol.myopia.business.management.domain.mapper.TemplateDistrictMapper;
-import com.wupol.myopia.business.management.domain.model.TemplateDistrict;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
+import com.wupol.myopia.business.core.system.domain.mapper.TemplateDistrictMapper;
+import com.wupol.myopia.business.core.system.domain.model.TemplateDistrict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
      * @param templateId 模板ID
      * @return List<TemplateDistrict>
      */
-    public List<TemplateBindItem> getByTemplateId(Integer templateId) {
+    public List<TemplateBindItemDTO> getByTemplateId(Integer templateId) {
         return baseMapper.getByTemplateId(templateId);
     }
 
@@ -52,7 +52,7 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
      * @param templateId 模板ID
      * @param items      详情
      */
-    public void batchInsert(Integer templateId, List<TemplateBindItem> items) {
+    public void batchInsert(Integer templateId, List<TemplateBindItemDTO> items) {
         baseMapper.batchInsert(templateId, items);
     }
 }

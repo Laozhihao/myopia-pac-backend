@@ -35,7 +35,7 @@ import com.wupol.myopia.business.management.domain.dto.StudentDTO;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import com.wupol.myopia.business.management.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.util.StatUtil;
 import lombok.extern.log4j.Log4j2;
@@ -121,7 +121,7 @@ public class ExcelFacade {
         String fileName = builder.toString();
 
         // 查询数据
-        ScreeningOrganizationQuery query = new ScreeningOrganizationQuery();
+        ScreeningOrganizationQueryDTO query = new ScreeningOrganizationQueryDTO();
         query.setDistrictId(districtId);
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "筛查机构数据表", new Date());

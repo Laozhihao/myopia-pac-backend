@@ -3,8 +3,8 @@ package com.wupol.myopia.business.core.screening.organization.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface ScreeningOrganizationStaffMapper extends BaseMapper<ScreeningOrganizationStaff> {
 
-    IPage<ScreeningOrganizationStaff> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationStaffQuery") ScreeningOrganizationStaffQuery screeningOrganizationStaffQuery);
+    IPage<ScreeningOrganizationStaff> getByPage(@Param("page") Page<?> page, @Param("ScreeningOrganizationStaffQueryDTO") ScreeningOrganizationStaffQueryDTO ScreeningOrganizationStaffQueryDTO);
 
     List<ScreeningOrganizationStaff> getByOrgId(@Param("orgId") Integer orgId);
 

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

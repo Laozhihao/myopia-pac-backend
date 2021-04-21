@@ -3,12 +3,12 @@ package com.wupol.myopia.business.core.system.service;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.dto.TemplateBindItem;
-import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
-import com.wupol.myopia.business.management.domain.dto.TemplateResponse;
-import com.wupol.myopia.business.management.domain.mapper.TemplateMapper;
-import com.wupol.myopia.business.management.domain.model.Template;
-import com.wupol.myopia.business.management.domain.model.TemplateDistrict;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
+import com.wupol.myopia.business.core.system.domain.mapper.TemplateMapper;
+import com.wupol.myopia.business.core.system.domain.model.Template;
+import com.wupol.myopia.business.core.system.domain.model.TemplateDistrict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,9 +37,9 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @param type 类型
      * @return List<TemplateResponse>
      */
-    public List<TemplateResponse> getTemplateLists(Integer type) {
+    public List<TemplateResponseDTO> getTemplateLists(Integer type) {
 
-        List<TemplateResponse> responses = new ArrayList<>();
+        List<TemplateResponseDTO> responses = new ArrayList<>();
 
         // 根据类型查模板
         List<Template> templateList = baseMapper.getByType(type);
@@ -58,7 +58,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
         // 封装DTO
         for (Template t : templateList) {
-            TemplateResponse response = new TemplateResponse();
+            TemplateResponseDTO response = new TemplateResponseDTO();
             response.setId(t.getId());
             response.setName(t.getName());
             if (null != districtMaps.get(t.getId())) {
@@ -77,26 +77,26 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBind(TemplateBindRequest request, Integer type) {
+    public Boolean districtBind(TemplateBindRequestDTO request, Integer type) {
 
         Integer templateId = request.getTemplateId();
-        List<TemplateBindItem> newDistrictLists = request.getDistrictInfo();
+        List<TemplateBindItemDTO> newDistrictLists = request.getDistrictInfo();
 
         // 先获取原有的
-        List<TemplateBindItem> originLists = templateDistrictService.getByTemplateId(templateId);
+        List<TemplateBindItemDTO> originLists = templateDistrictService.getByTemplateId(templateId);
 
         // 看看和原来的比，多了什么，就是新增
-        List<TemplateBindItem> addLists = newDistrictLists.stream()
+        List<TemplateBindItemDTO> addLists = newDistrictLists.stream()
                 .filter(item -> !originLists.stream()
-                        .map(TemplateBindItem::getDistrictId)
+                        .map(TemplateBindItemDTO::getDistrictId)
                         .collect(Collectors.toList())
                         .contains(item.getDistrictId()))
                 .collect(Collectors.toList());
 
         // 同理，取删除的
-        List<TemplateBindItem> deletedLists = originLists.stream()
+        List<TemplateBindItemDTO> deletedLists = originLists.stream()
                 .filter(item -> !newDistrictLists.stream()
-                        .map(TemplateBindItem::getDistrictId)
+                        .map(TemplateBindItemDTO::getDistrictId)
                         .collect(Collectors.toList())
                         .contains(item.getDistrictId()))
                 .collect(Collectors.toList());
@@ -113,7 +113,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
 
             // 批量删除
             templateDistrictService.deletedByTemplateIdAndDistrictIds(templateId,
-                    deletedLists.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()));
+                    deletedLists.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()));
         }
         return Boolean.TRUE;
     }
@@ -126,7 +126,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @param list 新增列表
      * @return 是否重复绑定
      */
-    public Boolean check(Integer type, List<TemplateBindItem> list) {
+    public Boolean check(Integer type, List<TemplateBindItemDTO> list) {
         // 根据类型查模板
         List<Template> templateList = baseMapper.getByType(type);
 
@@ -135,7 +135,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
                 templateList.stream().map(Template::getId).collect(Collectors.toList()));
 
         // 判断两个list是否有相同元素
-        return !Collections.disjoint(list.stream().map(TemplateBindItem::getDistrictId).collect(Collectors.toList()),
+        return !Collections.disjoint(list.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()),
                 allDistrict.stream().map(TemplateDistrict::getDistrictId).collect(Collectors.toList()));
     }
 }

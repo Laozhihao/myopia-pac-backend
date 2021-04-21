@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.SchoolVisionStatisticMapper">
+<mapper namespace="com.wupol.myopia.business.core.stat.domain.mapper.SchoolVisionStatisticMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic">
     </resultMap>
 
     <!-- 通用查询条件 -->

@@ -15,7 +15,7 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,7 +103,7 @@ public class ScreeningOrganizationController {
      * @return 机构列表
      */
     @GetMapping("list")
-    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQuery query) {
+    public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return screeningOrganizationService.getScreeningOrganizationList(pageRequest, query, user);
     }
@@ -164,7 +164,7 @@ public class ScreeningOrganizationController {
      * @return 筛查机构列表
      */
     @GetMapping("/listByGovDept")
-    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQueryDTO query) {
         return screeningOrganizationService.getScreeningOrganizationListByGovDeptId(query);
     }
 

@@ -3,7 +3,7 @@ package com.wupol.myopia.business.core.system.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.management.domain.model.Notice;
+import com.wupol.myopia.business.core.system.domain.model.Notice;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;

@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.core.system.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.ResourceFileMapper;
-import com.wupol.myopia.business.management.domain.model.ResourceFile;
-import com.wupol.myopia.business.management.util.S3Utils;
+import com.wupol.myopia.business.common.utils.util.S3Utils;
+import com.wupol.myopia.business.core.system.domain.mapper.ResourceFileMapper;
+import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

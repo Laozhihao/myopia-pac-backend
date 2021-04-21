@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.TemplateDistrictMapper">
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.TemplateDistrict">
+<mapper namespace="com.wupol.myopia.business.core.system.domain.mapper.TemplateDistrictMapper">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.system.domain.model.TemplateDistrict">
         <!--@mbg.generated-->
         <!--@Table m_template_district-->
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -31,7 +31,7 @@
         id, template_id, district_id, district_name, create_time, update_time
     </sql>
 
-    <select id="getByTemplateId" resultType="com.wupol.myopia.business.management.domain.dto.TemplateBindItem">
+    <select id="getByTemplateId" resultType="com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO">
         select mtd.district_id, mtd.district_name
         from m_template_district mtd
         where mtd.template_id = #{templateId}

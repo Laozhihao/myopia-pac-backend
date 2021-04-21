@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.business.management.domain.mapper.TemplateMapper">
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.management.domain.model.Template">
+<mapper namespace="com.wupol.myopia.business.core.system.domain.mapper.TemplateMapper">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.system.domain.model.Template">
         <!--@mbg.generated-->
         <!--@Table m_template-->
         <id column="id" jdbcType="INTEGER" property="id"/>

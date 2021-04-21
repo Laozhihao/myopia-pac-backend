@@ -11,7 +11,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +56,7 @@ public class ScreeningOrganizationStaffController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public UsernameAndPasswordDTO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
@@ -70,7 +70,7 @@ public class ScreeningOrganizationStaffController {
      * @return 筛查人员实体
      */
     @PutMapping()
-    public ScreeningOrganizationStaffQuery updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQuery screeningOrganizationStaff) {
+    public ScreeningOrganizationStaffQueryDTO updateOrganizationStaffList(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganizationStaff.setCreateUserId(user.getId());
         return screeningOrganizationStaffService.updateOrganizationStaff(screeningOrganizationStaff);

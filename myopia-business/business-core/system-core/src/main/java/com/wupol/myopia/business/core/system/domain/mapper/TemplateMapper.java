@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.system.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.Template;
+import com.wupol.myopia.business.core.system.domain.model.Template;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

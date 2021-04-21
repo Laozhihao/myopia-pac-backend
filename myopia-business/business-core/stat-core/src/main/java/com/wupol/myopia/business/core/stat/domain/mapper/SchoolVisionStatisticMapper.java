@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.stat.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

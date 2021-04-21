@@ -8,11 +8,21 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
+import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolDTO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -188,7 +198,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
-                                                                       ScreeningOrganizationQuery query,
+                                                                       ScreeningOrganizationQueryDTO query,
                                                                        CurrentUser currentUser) {
         Integer districtId = districtService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
@@ -252,7 +262,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param query 筛查机构列表请求体
      * @return List<ScreeningOrgResponse>
      */
-    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQuery query) {
+    public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQueryDTO query) {
         Assert.notNull(query.getGovDeptId(), "部门id不能为空");
         query.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
@@ -278,7 +288,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param query 条件
      * @return List<Integer>
      */
-    private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQuery query) {
+    private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQueryDTO query) {
         if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
@@ -290,7 +300,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query) {
+    public List<ScreeningOrganization> getBy(ScreeningOrganizationQueryDTO query) {
         return baseMapper.getBy(query);
     }
 
@@ -455,7 +465,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQuery query) {
+    public IPage<ScreeningOrganization> getByPage(Page<?> page, ScreeningOrganizationQueryDTO query) {
         return baseMapper.getByPage(page, query);
     }
 

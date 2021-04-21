@@ -2,8 +2,8 @@ package com.wupol.myopia.business.core.system.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.BigScreenMapMapper;
-import com.wupol.myopia.business.management.domain.model.BigScreenMap;
+import com.wupol.myopia.business.core.system.domain.mapper.BigScreenMapMapper;
+import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
 import org.springframework.stereotype.Service;
 
 /**

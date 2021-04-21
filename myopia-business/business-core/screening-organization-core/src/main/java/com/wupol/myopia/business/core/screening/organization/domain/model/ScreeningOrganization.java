@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.core.screening.organization.domain.model;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
 import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;

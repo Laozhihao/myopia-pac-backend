@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.DistrictVisionStatisticMapper;
-import com.wupol.myopia.business.management.domain.model.DistrictVisionStatistic;
+import com.wupol.myopia.business.core.stat.domain.mapper.DistrictVisionStatisticMapper;
+import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

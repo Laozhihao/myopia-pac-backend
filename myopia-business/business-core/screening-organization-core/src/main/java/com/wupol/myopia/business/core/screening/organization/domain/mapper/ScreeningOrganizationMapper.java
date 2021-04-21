@@ -3,9 +3,9 @@ package com.wupol.myopia.business.core.screening.organization.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponseDTO;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQuery;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,11 +23,11 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
                                                                            @Param("districtId") Integer districtId, @Param("govDeptId") Integer govDeptId,
                                                                            @Param("phone") String phone, @Param("status") Integer status);
 
-    List<ScreeningOrganization> getBy(ScreeningOrganizationQuery query);
+    List<ScreeningOrganization> getBy(ScreeningOrganizationQueryDTO query);
 
     ScreeningOrgResponseDTO getOrgById(@Param("id") Integer id);
 
-    IPage<ScreeningOrganization> getByPage(@Param("page") Page<?> page, @Param("screeningOrganizationQuery") ScreeningOrganizationQuery screeningOrganizationQuery);
+    IPage<ScreeningOrganization> getByPage(@Param("page") Page<?> page, @Param("ScreeningOrganizationQueryDTO") ScreeningOrganizationQueryDTO ScreeningOrganizationQueryDTO);
 
     List<ScreeningOrganization> getByNameAndNeId(@Param("name") String name, @Param("id") Integer id);
 

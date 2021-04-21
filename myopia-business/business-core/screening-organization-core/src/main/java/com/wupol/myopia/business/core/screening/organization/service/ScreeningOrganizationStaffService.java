@@ -11,12 +11,22 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
+import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationStaffMapper;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.management.domain.model.ResourceFile;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQuery;
+import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
 import com.wupol.myopia.business.management.util.TwoTuple;
@@ -52,7 +62,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param request 请求入参
      * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequest request) {
+    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequestDTO request) {
         UserDTOQuery userQuery = new UserDTOQuery();
 
         // 搜索条件
@@ -88,7 +98,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UsernameAndPasswordDto 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQuery staffQuery) {
+    public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery) {
 
         // 检查身份证号码是否重复
         List<UserDTO> checkIdCards = oauthService
@@ -120,7 +130,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 员工实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrganizationStaffQuery updateOrganizationStaff(ScreeningOrganizationStaffQuery staff) {
+    public ScreeningOrganizationStaffQueryDTO updateOrganizationStaff(ScreeningOrganizationStaffQueryDTO staff) {
         Integer id = staff.getId();
         ScreeningOrganizationStaff checkStaff = baseMapper.selectById(id);
         if (null == checkStaff || null == checkStaff.getUserId()) {
@@ -190,7 +200,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(StaffResetPasswordRequestDTO request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
         String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
         String username = request.getPhone();
@@ -210,7 +220,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      *
      * @return TwoTuple<UsernameAndPasswordDto, Integer> 账号密码,Id
      */
-    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQuery staff) {
+    private TwoTuple<UsernameAndPasswordDTO, Integer> generateAccountAndPassword(ScreeningOrganizationStaffQueryDTO staff) {
         TwoTuple<UsernameAndPasswordDTO, Integer> tuple = new TwoTuple<>();
 
         String password = PasswordGenerator.getScreeningUserPwd(staff.getPhone(), staff.getIdCard());
@@ -237,7 +247,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 批量新增, 自动生成编号
      */
-    public void saveBatch(List<ScreeningOrganizationStaffVo> list) {
+    public void saveBatch(List<ScreeningOrganizationStaffRequestDTO> list) {
         if (CollectionUtils.isEmpty(list)) return;
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());
@@ -296,7 +306,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param query 条件
      * @return {@link IPage} 分页结果
      */
-    public IPage<ScreeningOrganizationStaff> getByPage(Page<?> page, ScreeningOrganizationStaffQuery query) {
+    public IPage<ScreeningOrganizationStaff> getByPage(Page<?> page, ScreeningOrganizationStaffQueryDTO query) {
         return baseMapper.getByPage(page, query);
     }
 

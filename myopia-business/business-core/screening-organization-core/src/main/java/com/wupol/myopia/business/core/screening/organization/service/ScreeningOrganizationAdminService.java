@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationAdminMapper;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationAdmin;
+import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationAdminMapper;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

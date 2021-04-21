@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.management.domain.vo.StudentDTO;
-import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -118,15 +118,15 @@ public class DistrictAttentiveObjectsStatistic implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    public static DistrictAttentiveObjectsStatistic build(Integer districtId, Integer isTotal, List<StudentDTO> StudentDTOList) {
-        Map<Integer, Long> visionLabelNumberMap = StudentDTOList.stream().filter(vo -> Objects.nonNull(vo.getVisionLabel())).collect(Collectors.groupingBy(StudentDTO::getVisionLabel, Collectors.counting()));
+    public static DistrictAttentiveObjectsStatistic build(Integer districtId, Integer isTotal, List<StudentDTO> studentDTOList) {
+        Map<Integer, Long> visionLabelNumberMap = studentDTOList.stream().filter(vo -> Objects.nonNull(vo.getVisionLabel())).collect(Collectors.groupingBy(StudentDTO::getVisionLabel, Collectors.counting()));
         DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();
         Integer visionLabel1Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ONE.code, 0L).intValue();
         Integer visionLabel2Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.TWO.code, 0L).intValue();
         Integer visionLabel3Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer keyWarningNumbers = visionLabel0Numbers + visionLabel1Numbers + visionLabel2Numbers + visionLabel3Numbers;
-        Integer totalStudentNumbers = StudentDTOList.size();
+        Integer totalStudentNumbers = studentDTOList.size();
         statistic.setDistrictId(districtId).setIsTotal(isTotal)
                 .setVisionLabel0Numbers(visionLabel0Numbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers, totalStudentNumbers))
                 .setVisionLabel1Numbers(visionLabel1Numbers).setVisionLabel1Ratio(MathUtil.divide(visionLabel1Numbers, totalStudentNumbers))
