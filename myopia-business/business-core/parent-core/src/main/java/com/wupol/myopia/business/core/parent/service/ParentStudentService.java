@@ -10,8 +10,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GlassesType;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.parent.domain.dto.ParentStudentDTO;
+import com.wupol.myopia.business.core.parent.domain.dto.*;
 import com.wupol.myopia.business.core.parent.domain.mapper.ParentStudentMapper;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
@@ -82,7 +84,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * @param request 请求入参
      * @return Student 学生
      */
-    public StudentDTO checkIdCard(CheckIdCardRequest request) {
+    public StudentDTO checkIdCard(CheckIdCardRequestDTO request) {
         String idCard = request.getIdCard();
         StudentDTO studentDTO = new StudentDTO();
         Student student = studentService.getByIdCard(idCard);
@@ -242,7 +244,7 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
         responseDTO.setName(student.getName());
 
         // 学生筛查报告
-        List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
+        List<CountReportItemsDTO> screeningLists = getStudentCountReportItems(studentId);
         ScreeningDetail screeningDetail = new ScreeningDetail();
         screeningDetail.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
         screeningDetail.setItems(screeningLists);
@@ -262,13 +264,13 @@ public class ParentStudentService extends BaseService<ParentStudentMapper, Paren
      * 学生筛查报告列表
      *
      * @param studentId 学生ID
-     * @return List<CountReportItems>
+     * @return List<CountReportItemsDTO>
      */
-    public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
+    public List<CountReportItemsDTO> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
         return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
                 .map(result -> {
-                    CountReportItems items = new CountReportItems();
+                    CountReportItemsDTO items = new CountReportItemsDTO();
                     items.setId(result.getId());
                     items.setCreateTime(result.getCreateTime());
                     items.setUpdateTime(result.getUpdateTime());

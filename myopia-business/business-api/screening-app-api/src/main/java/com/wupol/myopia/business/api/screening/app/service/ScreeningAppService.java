@@ -9,7 +9,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
-import com.wupol.myopia.business.common.exceptions.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.JsonUtil;
 import com.wupol.myopia.business.management.config.UploadConfig;
 import com.wupol.myopia.business.management.constant.GenderEnum;

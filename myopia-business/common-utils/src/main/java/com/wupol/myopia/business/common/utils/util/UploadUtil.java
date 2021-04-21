@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
-import com.wupol.myopia.business.management.exception.FileTypeException;
-import com.wupol.myopia.business.management.exception.UploadException;
+import com.wupol.myopia.business.common.utils.exception.FileTypeException;
+import com.wupol.myopia.business.common.utils.exception.UploadException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
