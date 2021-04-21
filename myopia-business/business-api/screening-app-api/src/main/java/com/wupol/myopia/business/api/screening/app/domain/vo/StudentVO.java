@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 
 /**

@@ -6,19 +6,20 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.service.UserService;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.service.GovDeptService;
-import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.service.UserService;
 import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author HaoHao

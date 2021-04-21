@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent">
     </resultMap>
 
-    <resultMap id="HospitalStudentVo" type="com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo">
+    <resultMap id="HospitalStudentDO" type="com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -43,7 +43,7 @@
         <include refid="Base_Where_Clause"/>
     </select>
 
-    <select id="getHospitalStudentVoList" resultMap="HospitalStudentVo">
+    <select id="getHospitalStudentDoList" resultMap="HospitalStudentDO">
         SELECT hs.hospital_id, hs.student_id, count(mr.student_id) as numOfVisits, max(mr.create_time) as lastVisitDate
         FROM h_hospital_student hs
         LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id and hs.hospital_id = mr.hospital_id

@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.common.constant.GlassesType;
+import com.wupol.myopia.business.core.school.constant.GlassesType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

@@ -8,21 +8,45 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
+import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.JsonUtil;
-import com.wupol.myopia.business.management.config.UploadConfig;
+import com.wupol.myopia.business.common.utils.util.S3Utils;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.common.utils.util.UploadUtil;
+import com.wupol.myopia.business.core.school.domain.dto.StudentClazzDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
 import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.management.domain.vo.StudentInfoVO;
-import com.wupol.myopia.business.management.util.S3Utils;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import com.wupol.myopia.business.management.util.UploadUtil;
 import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
-import com.wupol.myopia.business.screening.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.screening.others.SysStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +75,6 @@ public class ScreeningAppService {
     private SchoolClassService schoolClassService;
     @Autowired
     private StudentService studentService;
-    @Autowired
-    private StudentScreeningRawDataService studentScreeningRawDataService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
@@ -293,21 +315,6 @@ public class ScreeningAppService {
         student.setUpdateTime(new Date());
         studentService.updateStudent(student);
     }
-
-
-    /**
-     * 保存原始数据
-     *
-     * @param visionDataDTO
-     */
-    private void saveRawScreeningData(VisionDataDTO visionDataDTO) {
-        StudentScreeningRawData studentScreeningRawData = new StudentScreeningRawData();
-        studentScreeningRawData.setScreeningRawData(JsonUtil.objectToJsonString(visionDataDTO));
-        //studentScreeningRawData.setScreeningPlanSchoolStudentId(visionDataDTO);
-        studentScreeningRawData.setCreateTime(new Date());
-        studentScreeningRawDataService.save(studentScreeningRawData);
-    }
-
 
     /**
      * 获取筛查就机构对应的学校

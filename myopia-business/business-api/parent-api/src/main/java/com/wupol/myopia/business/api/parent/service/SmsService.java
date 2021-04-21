@@ -7,8 +7,8 @@ import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.management.constant.CacheKey;
-import com.wupol.myopia.business.parent.constant.SmsConstant;
+import com.wupol.myopia.business.api.parent.constant.SmsCacheKey;
+import com.wupol.myopia.business.api.parent.constant.SmsConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +96,7 @@ public class SmsService {
      * @return void
      **/
     private void preventVulnerability(String phone) {
-        String failCountKey = String.format(CacheKey.SMS_TOKEN_FAIL_COUNT, phone);
+        String failCountKey = String.format(SmsCacheKey.SMS_TOKEN_FAIL_COUNT, phone);
         long count = redisUtil.incr(failCountKey, 1);
         if (count >= SmsConstant.FAIL_MAX_TIME) {
             logger.error("验证码输错过多, 手机号{}的验证码废除", phone);
@@ -128,7 +128,7 @@ public class SmsService {
      * @return void
      **/
     private void saveToken(String phone, String token) {
-        redisUtil.set(String.format(CacheKey.SMS_CODE_TOKEN, phone), token, SmsConstant.EXPIRED_SECONDS);
+        redisUtil.set(String.format(SmsCacheKey.SMS_CODE_TOKEN, phone), token, SmsConstant.EXPIRED_SECONDS);
     }
 
     /**
@@ -138,7 +138,7 @@ public class SmsService {
      * @return java.lang.String
      **/
     private String getToken(String phone) {
-        Object cache = redisUtil.get(String.format(CacheKey.SMS_CODE_TOKEN, phone));
+        Object cache = redisUtil.get(String.format(SmsCacheKey.SMS_CODE_TOKEN, phone));
         return cache == null ? null : cache.toString();
     }
 
@@ -149,6 +149,6 @@ public class SmsService {
      * @return void
      **/
     private void removeToken(String phone) {
-        redisUtil.del(String.format(CacheKey.SMS_CODE_TOKEN, phone));
+        redisUtil.del(String.format(SmsCacheKey.SMS_CODE_TOKEN, phone));
     }
 }

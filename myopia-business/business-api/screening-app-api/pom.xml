@@ -11,4 +11,26 @@
     <artifactId>screening-app-api</artifactId>
     <description>筛查端APP接口</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-flow-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-organization-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>school-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>system-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

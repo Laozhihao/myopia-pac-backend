@@ -27,5 +27,10 @@
             <artifactId>school-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>government-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

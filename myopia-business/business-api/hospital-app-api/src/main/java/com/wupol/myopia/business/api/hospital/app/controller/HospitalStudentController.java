@@ -4,10 +4,10 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentDTO;
+import com.wupol.myopia.business.api.hospital.app.domain.dto.HospitalStudentDTO;
+import com.wupol.myopia.business.api.hospital.app.service.HospitalStudentFacade;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.domian.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -33,32 +33,33 @@ public class HospitalStudentController {
     private HospitalStudentService hospitalStudentService;
     @Autowired
     private StudentService studentService;
-
+    @Autowired
+    private HospitalStudentFacade hospitalStudentFacade;
 
     @GetMapping()
     public HospitalStudentDTO getStudent(String token, String idCard, String name) {
         if (StringUtils.isEmpty(token)) {
-            return hospitalStudentService.getStudent(idCard, name);
+            return hospitalStudentFacade.getStudent(idCard, name);
         } else {
-            return hospitalStudentService.getStudentByToken(token);
+            return hospitalStudentFacade.getStudentByToken(token);
         }
     }
 
     @GetMapping("/{id}")
     public HospitalStudentDTO getStudent(@PathVariable("id") Integer id) {
-        return hospitalStudentService.getStudentById(id);
+        return hospitalStudentFacade.getStudentById(id);
     }
 
     @GetMapping("/recentList")
     public List<HospitalStudentDTO> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentService.getRecentList(user.getOrgId());
+        return hospitalStudentFacade.getRecentList(user.getOrgId());
     }
 
     @GetMapping("/list")
-    public List<HospitalStudentDTO> getStudentList(String nameLike) throws IOException {
+    public List<HospitalStudentDTO> getStudentList(String nameLike) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentService.getStudentList(user.getOrgId(), nameLike);
+        return hospitalStudentFacade.getStudentList(user.getOrgId(), nameLike);
     }
 
     @PostMapping()
@@ -70,7 +71,7 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
-        Integer studentId = hospitalStudentService.saveStudent(studentVo, true);
+        Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
         hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
         return ApiResult.success("建档成功");
     }
@@ -83,7 +84,7 @@ public class HospitalStudentController {
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
             return ApiResult.failure("该学生未建档");
         }
-        hospitalStudentService.saveStudent(studentVo, false);
+        hospitalStudentFacade.saveStudent(studentVo, false);
         return ApiResult.success("更新成功");
     }
 

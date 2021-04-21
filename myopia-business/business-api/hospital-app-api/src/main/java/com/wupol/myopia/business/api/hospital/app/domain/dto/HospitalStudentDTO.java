@@ -1,8 +1,12 @@
-package com.wupol.myopia.business.core.hospital.domain.dto;
+package com.wupol.myopia.business.api.hospital.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.Setter;
+import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import lombok.Data;
 
 import java.util.Date;
 
@@ -11,8 +15,7 @@ import java.util.Date;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class HospitalStudentDTO extends Student {
 
     /**
@@ -54,7 +57,10 @@ public class HospitalStudentDTO extends Student {
      * 民族中文
      */
     private String nationName;
-    /** 最后一次就诊时间 */
+
+    /**
+     * 最后一次就诊时间
+     */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastVisitDate;
 }

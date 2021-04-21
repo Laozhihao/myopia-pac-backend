@@ -51,25 +51,18 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private SchoolGradeService schoolGradeService;
-
     @Resource
     private SchoolClassService schoolClassService;
-
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private DistrictService districtService;
-
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Resource
     private ResourceFileService resourceFileService;
-
     @Resource
     private RedisUtil redisUtil;
 
@@ -101,6 +94,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public List<Student> getStudentsByClassId(Integer classId) {
         return baseMapper.getByClassIdAndStatus(classId, CommonConst.STATUS_NOT_DELETED);
+    }
+
+    public Student getByIdCardAndName(String idCard, String name) {
+        return baseMapper.getByIdCardAndName(idCard, name);
+    }
+
+    public List<Student> getByIdsAndName(List<Integer> ids, String name) {
+        return baseMapper.getByIdsAndName(ids, name);
     }
 
     /**
@@ -749,152 +750,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      */
     public Student getByIdCard(String idCard) {
         return baseMapper.getByIdCard(idCard);
-    }
-
-    /**
-     * 医院端获取学生详情
-     *
-     * @param studentId 学生ID
-     * @param idCard    身份证
-     * @param name      姓名
-     * @return HospitalStudentDTO
-     */
-    public HospitalStudentDTO getHospitalStudentDetail(Integer studentId, String idCard, String name) {
-
-        HospitalStudentDTO studentDTO = new HospitalStudentDTO();
-        Student student;
-        if (null != studentId) {
-            student = baseMapper.selectById(studentId);
-        } else {
-            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
-                throw new BusinessException("数据异常，请确认");
-            }
-            student = baseMapper.getByIdCardAndName(idCard, name);
-        }
-        if (null == student) {
-            return studentDTO;
-        }
-        BeanUtils.copyProperties(student, studentDTO);
-
-        // 地区Maps
-        Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
-        packageStudentDistrict(districtMaps, studentDTO, student);
-
-        if (StringUtils.isNotBlank(student.getSchoolNo())) {
-            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
-        }
-        if (null != student.getGradeId()) {
-            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
-        }
-        if (null != student.getClassId()) {
-            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
-        }
-        if (null != student.getNation()) {
-            studentDTO.setNationName(NationEnum.getName(studentDTO.getNation()));
-        }
-        return studentDTO;
-    }
-
-    /**
-     * 医院端学生信息
-     *
-     * @param studentIds 学生ids
-     * @param name       学生姓名
-     * @return List<HospitalStudentDTO>
-     */
-    public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
-        List<HospitalStudentDTO> dtoList = new ArrayList<>();
-
-        if (CollectionUtils.isEmpty(studentIds)) {
-            return dtoList;
-        }
-
-        List<Student> students = baseMapper.getByIdsAndName(studentIds, name);
-        if (CollectionUtils.isEmpty(students)) {
-            return new ArrayList<>();
-        }
-
-        // 学校Maps
-        List<School> schoolList = schoolService.getBySchoolNos(students
-                .stream().distinct().map(Student::getSchoolNo).collect(Collectors.toList()));
-        Map<String, School> schoolMaps = schoolList.stream()
-                .collect(Collectors.toMap(School::getSchoolNo, Function.identity()));
-
-        // 班级Maps
-        Map<Integer, SchoolClass> classMaps = schoolClassService.getClassMapByIds(students
-                .stream().map(Student::getClassId).collect(Collectors.toList()));
-
-        // 年级Maps
-        Map<Integer, SchoolGrade> gradeMaps = schoolGradeService.getGradeMapByIds(students
-                .stream().map(Student::getGradeId).collect(Collectors.toList()));
-
-        students.forEach(student -> {
-            HospitalStudentDTO dto = new HospitalStudentDTO();
-            BeanUtils.copyProperties(student, dto);
-
-            if (StringUtils.isNotBlank(student.getSchoolNo())) {
-                dto.setSchool(schoolMaps.get(student.getSchoolNo()));
-            }
-            if (null != student.getClassId()) {
-                dto.setSchoolClass(classMaps.get(student.getClassId()));
-            }
-            if (null != student.getGradeId()) {
-                dto.setSchoolGrade(gradeMaps.get(student.getGradeId()));
-            }
-            dtoList.add(dto);
-        });
-        return dtoList;
-    }
-
-    /**
-     * 获取学生地区Maps
-     *
-     * @param students 学生列表
-     * @return Map<Long, District>
-     */
-    private Map<Long, District> getDistrictMap(List<Student> students) {
-        List<Long> districtCode = new ArrayList<>();
-        students.forEach(student -> {
-            if (null != student.getProvinceCode()) {
-                districtCode.add(student.getProvinceCode());
-            }
-            if (null != student.getCityCode()) {
-                districtCode.add(student.getCityCode());
-            }
-            if (null != student.getAreaCode()) {
-                districtCode.add(student.getAreaCode());
-            }
-            if (null != student.getTownCode()) {
-                districtCode.add(student.getTownCode());
-            }
-        });
-
-        // 地区Maps
-        return districtService.getByCodes(districtCode)
-                .stream().distinct().collect(Collectors
-                        .toMap(District::getCode, Function.identity()));
-    }
-
-    /**
-     * 封装学生区域
-     *
-     * @param districtMaps 区域Maps
-     * @param dto          dto
-     * @param student      学生
-     */
-    private void packageStudentDistrict(Map<Long, District> districtMaps, HospitalStudentDTO dto, Student student) {
-        if (null != student.getProvinceCode()) {
-            dto.setProvince(districtMaps.get(student.getProvinceCode()));
-        }
-        if (null != student.getCityCode()) {
-            dto.setCity(districtMaps.get(student.getCityCode()));
-        }
-        if (null != student.getAreaCode()) {
-            dto.setArea(districtMaps.get(student.getAreaCode()));
-        }
-        if (null != student.getTownCode()) {
-            dto.setTown(districtMaps.get(student.getTownCode()));
-        }
     }
 
     /**

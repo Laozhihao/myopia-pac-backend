@@ -3,7 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.wupol.myopia.business.management.annotation.CheckTimeInterval;
+import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
