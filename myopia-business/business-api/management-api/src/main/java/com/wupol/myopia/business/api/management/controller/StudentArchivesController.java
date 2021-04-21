@@ -2,9 +2,9 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
+import com.wupol.myopia.business.core.system.domain.dto.TemplateResponseDTO;
 import com.wupol.myopia.business.core.system.service.TemplateService;
-import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
-import com.wupol.myopia.business.management.domain.dto.TemplateResponse;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,7 +30,7 @@ public class StudentArchivesController {
      * @return 模板列表
      */
     @GetMapping("lists")
-    public List<TemplateResponse> getLists() {
+    public List<TemplateResponseDTO> getLists() {
         return templateService.getTemplateLists(CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
     }
 
@@ -41,7 +41,7 @@ public class StudentArchivesController {
      * @return 是否成功
      */
     @PutMapping("save")
-    public Boolean save(@RequestBody TemplateBindRequest request) {
+    public Boolean save(@RequestBody TemplateBindRequestDTO request) {
         return templateService.districtBind(request, CommonConst.TYPE_TEMPLATE_STUDENT_ARCHIVES);
     }
 }

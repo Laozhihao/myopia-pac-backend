@@ -15,35 +15,29 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.business.core.system.service.ResourceFileService;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
-import com.wupol.myopia.business.management.domain.dto.ScreeningOrgResponseDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.query.StudentQuery;
 import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
-import com.wupol.myopia.business.management.facade.ExcelFacade;
-import com.wupol.myopia.business.management.util.S3Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -237,7 +231,7 @@ public class ScreeningPlanController {
      * @return IPage<ScreeningPlanVo>
      */
     @GetMapping("page")
-    public IPage<ScreeningPlanVo> queryInfo(PageRequest page, ScreeningPlanQuery query) {
+    public IPage<ScreeningPlanDTO> queryInfo(PageRequest page, ScreeningPlanQueryDTO query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -255,7 +249,7 @@ public class ScreeningPlanController {
      * @return List<ScreeningPlanSchoolVo>
      */
     @GetMapping("schools/{screeningPlanId}")
-    public List<ScreeningPlanSchoolVo> querySchoolsInfo(@PathVariable Integer screeningPlanId) {
+    public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId) {
         // 任务状态判断
         validateExist(screeningPlanId);
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
