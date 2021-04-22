@@ -16,7 +16,6 @@ import java.util.Objects;
 @Getter
 public enum GradeCodeEnum {
 
-
     /**
      * 小学
      */

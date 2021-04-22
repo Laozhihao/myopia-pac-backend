@@ -12,32 +12,43 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
-import com.wupol.myopia.business.common.constant.GlassesType;
+import com.wupol.myopia.business.aggregation.export.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.export.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.S3Utils;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.HospitalEnum;
+import com.wupol.myopia.business.core.hospital.HospitalLevelEnum;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.school.domain.dto.*;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.organization.ScreeningOrgConfigTypeEnum;
+import com.wupol.myopia.business.core.screening.organization.ScreeningOrganizationEnum;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.query.HospitalQuery;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.util.StatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -86,10 +97,6 @@ public class ExcelFacade {
     @Autowired
     private DistrictService districtService;
     @Autowired
-    private OauthService oauthService;
-    @Autowired
-    private UserService userService;
-    @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
@@ -126,7 +133,7 @@ public class ExcelFacade {
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "筛查机构数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
-            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationExportVO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
@@ -142,9 +149,9 @@ public class ExcelFacade {
                 .collect(Collectors.toSet());
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
 
-        List<ScreeningOrganizationExportVo> exportList = new ArrayList<>();
+        List<ScreeningOrganizationExportVO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
-            ScreeningOrganizationExportVo exportVo = new ScreeningOrganizationExportVo();
+            ScreeningOrganizationExportVO exportVo = new ScreeningOrganizationExportVO();
             exportVo.setName(item.getName())
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
                     .setConfigType(ScreeningOrgConfigTypeEnum.getTypeName(item.getConfigType()))
@@ -180,7 +187,7 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportVO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -210,25 +217,22 @@ public class ExcelFacade {
 
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, orgName + "筛查机构人员数据表", new Date());
         if (CollectionUtils.isEmpty(userList)) {
-            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), ScreeningOrganizationStaffExportVO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
 
         // 获取完整的用户信息
-//        List<Integer> ids = userList.stream().map(UserDTO::getId).collect(Collectors.toList());
-//        Map<Integer, ScreeningOrganizationStaff> staffMap = screeningOrganizationStaffService.getByIds(ids).stream()
-//                .collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
         // 构建数据
-        List<ScreeningOrganizationStaffExportVo> exportList = userList.stream()
-                .map(item -> new ScreeningOrganizationStaffExportVo()
+        List<ScreeningOrganizationStaffExportVO> exportList = userList.stream()
+                .map(item -> new ScreeningOrganizationStaffExportVO()
                         .setName(item.getRealName())
                         .setGender(GenderEnum.getName(item.getGender()))
                         .setPhone(item.getPhone())
                         .setIdCard(item.getIdCard())
                         .setOrganization(orgName)).collect(Collectors.toList());
         log.info("导出文件: {}", fileName);
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportVO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -251,7 +255,7 @@ public class ExcelFacade {
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
 
-        List<HospitalExportVo> exportList = new ArrayList<>();
+        List<HospitalExportVO> exportList = new ArrayList<>();
 
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
@@ -259,7 +263,7 @@ public class ExcelFacade {
 
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "医院数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
-            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), HospitalExportVO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
@@ -269,7 +273,7 @@ public class ExcelFacade {
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
 
         for (Hospital item : list) {
-            HospitalExportVo exportVo = new HospitalExportVo()
+            HospitalExportVO exportVo = new HospitalExportVO()
                     .setName(item.getName())
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setLevel(HospitalLevelEnum.getLevel(item.getLevel()))
@@ -294,7 +298,7 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportVO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -318,13 +322,13 @@ public class ExcelFacade {
         builder.append("-").append(district.getName());
         String fileName = builder.toString();
 
-        SchoolQuery query = new SchoolQuery();
+        SchoolQueryDTO query = new SchoolQueryDTO();
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
 
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtService.getTopDistrictName(district.getCode()) + "学校数据", new Date());
         if (CollectionUtils.isEmpty(list)) {
-            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), SchoolExportVO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
@@ -336,27 +340,27 @@ public class ExcelFacade {
         Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
 
         // 学生统计
-        List<StudentCountVO> studentCountVOS = studentService.countStudentBySchoolNo();
+        List<StudentCountDTO> studentCountVOS = studentService.countStudentBySchoolNo();
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
-                .collect(Collectors.toMap(StudentCountVO::getSchoolNo, StudentCountVO::getCount));
+                .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
 
         // 年级统计
-        List<SchoolGradeExportVO> grades = schoolGradeService.getBySchoolIds(schoolIds);
-        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportVO::getId).collect(Collectors.toList());
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId).collect(Collectors.toList());
 
         // 班级统计
-        List<SchoolClassExportVO> classes = schoolClassService.getByGradeIds(gradeIds);
+        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
         // 通过班级id分组
-        Map<Integer, List<SchoolClassExportVO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportVO::getGradeId));
+        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
         // 年级设置班级
         grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
 
         // 年级通过学校ID分组
-        Map<Integer, List<SchoolGradeExportVO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportVO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
-        List<SchoolExportVo> exportList = new ArrayList<>();
+        List<SchoolExportVO> exportList = new ArrayList<>();
         for (School item : list) {
-            SchoolExportVo exportVo = new SchoolExportVo()
+            SchoolExportVO exportVo = new SchoolExportVO()
                     .setNo(item.getSchoolNo())
                     .setName(item.getName())
                     .setKind(SchoolEnum.getKindName(item.getKind()))
@@ -370,9 +374,9 @@ public class ExcelFacade {
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
 
             StringBuilder result = new StringBuilder();
-            List<SchoolGradeExportVO> exportGrade = gradeMaps.get(item.getId());
+            List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
-                for (SchoolGradeExportVO g : exportGrade) {
+                for (SchoolGradeExportDTO g : exportGrade) {
                     result.append(g.getName()).append(": ");
                     if (!CollectionUtils.isEmpty(g.getChild())) {
                         for (int i = 0; i < g.getChild().size(); i++) {
@@ -405,7 +409,7 @@ public class ExcelFacade {
             exportList.add(exportVo);
         }
         log.info("导出文件: {}", fileName);
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportVO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -425,7 +429,7 @@ public class ExcelFacade {
         }
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
-        School school = schoolService.getBySchoolId(schoolId);
+        School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
         String gradeName = schoolGradeService.getById(gradeId).getName();
         builder.append("-").append(schoolName);
@@ -442,7 +446,7 @@ public class ExcelFacade {
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
                 districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName + "学生数据表", new Date());
         if (CollectionUtils.isEmpty(list)) {
-            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVo.class);
+            File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportVO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
@@ -454,14 +458,14 @@ public class ExcelFacade {
         }
 
         // 筛查次数
-        List<StudentScreeningCountVO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
+        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
         Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountVO::getStudentId,
-                        StudentScreeningCountVO::getCount));
+                .toMap(StudentScreeningCountDTO::getStudentId,
+                        StudentScreeningCountDTO::getCount));
 
-        List<StudentExportVo> exportList = new ArrayList<>();
+        List<StudentExportVO> exportList = new ArrayList<>();
         for (StudentDTO item : list) {
-            StudentExportVo exportVo = new StudentExportVo()
+            StudentExportVO exportVo = new StudentExportVO()
                     .setNo(item.getSno())
                     .setName(item.getName())
                     .setSchoolNo(school.getSchoolNo())
@@ -500,7 +504,7 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        File file = ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVo.class);
+        File file = ExcelUtil.exportListToExcel(fileName, exportList, StudentExportVO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 
@@ -555,20 +559,20 @@ public class ExcelFacade {
         }
 
         // 收集年级信息
-        List<SchoolGradeExportVO> grades = schoolGradeService.getBySchoolIds(schools.stream()
+        List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schools.stream()
                 .map(School::getId).collect(Collectors.toList()));
-        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportVO::getId)
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId)
                 .collect(Collectors.toList());
         // 班级统计
-        List<SchoolClassExportVO> classes = schoolClassService.getByGradeIds(gradeIds);
+        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
         // 通过班级id分组
-        Map<Integer, List<SchoolClassExportVO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportVO::getGradeId));
+        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
         // 年级设置班级
         grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
 
         // 通过学校编号分组
-        Map<String, List<SchoolGradeExportVO>> schoolGradeMaps = grades.stream()
-                .collect(Collectors.groupingBy(SchoolGradeExportVO::getSchoolNo));
+        Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
+                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolNo));
 
         List<Student> importList = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
@@ -629,26 +633,26 @@ public class ExcelFacade {
                     .setCreateUserId(createUserId);
 
             // 通过学校编号获取改学校的年级信息
-            List<SchoolGradeExportVO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
+            List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
 
             // 转换成年级Maps，年级名称作为Key
-            Map<String, SchoolGradeExportVO> gradeMaps = schoolGradeExportVOS.stream()
-                    .collect(Collectors.toMap(SchoolGradeExportVO::getName, Function.identity()));
+            Map<String, SchoolGradeExportDTO> gradeMaps = schoolGradeExportVOS.stream()
+                    .collect(Collectors.toMap(SchoolGradeExportDTO::getName, Function.identity()));
 
             // 年级信息
-            SchoolGradeExportVO schoolGradeExportVO = gradeMaps.get(item.get(5));
-            if (null == schoolGradeExportVO) {
+            SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(item.get(5));
+            if (null == schoolGradeExportDTO) {
                 throw new BusinessException("年级数据异常");
             } else {
                 // 设置年级ID
-                student.setGradeId(schoolGradeExportVO.getId());
+                student.setGradeId(schoolGradeExportDTO.getId());
 
                 // 获取年级内的班级信息
-                List<SchoolClassExportVO> classExportVOS = schoolGradeExportVO.getChild();
+                List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
 
                 // 转换成班级Maps 把班级名称作为key
                 Map<String, Integer> classExportMaps = classExportVOS.stream()
-                        .collect(Collectors.toMap(SchoolClassExportVO::getName, SchoolClassExportVO::getId));
+                        .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
                 Integer classId = classExportMaps.get(item.get(6));
                 if (null == classId) {
                     throw new BusinessException("班级数据异常");
@@ -755,8 +759,8 @@ public class ExcelFacade {
             }
             userList.add(userDTO);
         }
-        List<ScreeningOrganizationStaffVo> importList = userList.stream().map(item -> {
-            ScreeningOrganizationStaffVo staff = new ScreeningOrganizationStaffVo();
+        List<ScreeningOrganizationStaffDTO> importList = userList.stream().map(item -> {
+            ScreeningOrganizationStaffDTO staff = new ScreeningOrganizationStaffDTO();
             staff.setIdCard(item.getIdCard())
                     .setScreeningOrgId(item.getOrgId())
                     .setCreateUserId(item.getCreateUserId())
@@ -861,10 +865,9 @@ public class ExcelFacade {
     }
 
     /**
-     *
      * @param userId
      * @param statConclusionExportVos
-     * @param isSchoolExport 是否学校维度导出
+     * @param isSchoolExport          是否学校维度导出
      * @param districtOrSchoolName
      * @throws IOException
      * @throws UtilException
@@ -899,6 +902,7 @@ public class ExcelFacade {
 
     /**
      * 生成筛查数据
+     *
      * @param statConclusionExportVos
      * @return
      */
@@ -907,12 +911,12 @@ public class ExcelFacade {
         Map<Integer, StatConclusionExportVo> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportVo::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
         List<VisionScreeningResultExportVo> exportVos = new ArrayList<>();
         List<StatConclusionExportVo> vos = isRescreenMap.getOrDefault(false, Collections.emptyList());
-        for(int i = 0; i < vos.size(); i++) {
+        for (int i = 0; i < vos.size(); i++) {
             StatConclusionExportVo vo = vos.get(i);
             VisionScreeningResultExportVo exportVo = new VisionScreeningResultExportVo();
             BeanUtils.copyProperties(vo, exportVo);
             GlassesType glassesType = GlassesType.get(vo.getGlassesType());
-            exportVo.setId(i+1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
+            exportVo.setId(i + 1).setGenderDesc(GenderEnum.getName(vo.getGender())).setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
                     .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
                     .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"));
             genScreeningData(vo, exportVo);
@@ -924,6 +928,7 @@ public class ExcelFacade {
 
     /**
      * 组装复筛数据
+     *
      * @param rescreenPlanStudentIdVoMap
      * @param vo
      * @param exportVo
@@ -943,6 +948,7 @@ public class ExcelFacade {
 
     /**
      * 组装初筛数据
+     *
      * @param vo
      * @param exportVo
      */
@@ -957,6 +963,7 @@ public class ExcelFacade {
 
     /**
      * 眼别数据格式化
+     *
      * @param rightEyeData
      * @param leftEyeData
      * @return

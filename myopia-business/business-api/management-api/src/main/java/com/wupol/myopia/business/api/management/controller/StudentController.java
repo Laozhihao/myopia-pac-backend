@@ -7,18 +7,19 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.facade.StudentFacade;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.school.constant.VisionLabels;
+import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.management.constant.NationEnum;
-import com.wupol.myopia.business.management.constant.VisionLabelsEnum;
-import com.wupol.myopia.business.management.domain.dto.StudentCardResponseDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningResultResponseDTO;
-import com.wupol.myopia.business.management.domain.model.Nation;
-import com.wupol.myopia.business.management.domain.model.VisionLabels;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,9 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private StudentFacade studentFacade;
+
     /**
      * 新增学生
      *
@@ -71,18 +75,18 @@ public class StudentController {
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        return studentService.updateStudent(student);
+        return studentFacade.updateStudent(student);
     }
 
     /**
      * 删除学生
      *
      * @param id 学生ID
-     * @return 删除数量
+     * @return 是否删除成功
      */
     @DeleteMapping("{id}")
-    public Integer deletedStudent(@PathVariable("id") Integer id) {
-        return studentService.deletedStudent(id);
+    public Boolean deletedStudent(@PathVariable("id") Integer id) {
+        return studentFacade.deletedStudent(id);
     }
 
     /**
@@ -104,8 +108,8 @@ public class StudentController {
      * @return 学生列表
      */
     @GetMapping("list")
-    public IPage<StudentDTO> getStudentsList(PageRequest pageRequest, StudentQuery studentQuery) {
-        return studentService.getStudentLists(pageRequest, studentQuery);
+    public IPage<StudentDTO> getStudentsList(PageRequest pageRequest, StudentQueryDTO studentQuery) {
+        return studentFacade.getStudentLists(pageRequest, studentQuery);
     }
 
     /**
@@ -178,7 +182,7 @@ public class StudentController {
      */
     @GetMapping("/screening/{id}")
     public StudentScreeningResultResponseDTO getScreeningList(@PathVariable("id") Integer id) {
-        return studentService.getScreeningList(id);
+        return studentFacade.getScreeningList(id);
     }
 
     /**
@@ -188,7 +192,7 @@ public class StudentController {
      * @return 学生档案卡
      */
     @GetMapping("/screening/card/{resultId}")
-    public StudentCardResponseDTO getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentService.packageCardDetails(resultId);
+    public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
+        return studentFacade.packageCardDetails(resultId);
     }
 }

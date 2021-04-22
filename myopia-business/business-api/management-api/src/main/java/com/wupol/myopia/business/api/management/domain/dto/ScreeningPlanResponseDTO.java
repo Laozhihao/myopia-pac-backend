@@ -1,6 +1,7 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;
+package com.wupol.myopia.business.api.management.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +24,5 @@ public class ScreeningPlanResponseDTO extends ScreeningPlan {
     /**
      * 详情
      */
-    private List<SchoolVisionStatisticItem> items;
+    private List<SchoolVisionStatistic> items;
 }

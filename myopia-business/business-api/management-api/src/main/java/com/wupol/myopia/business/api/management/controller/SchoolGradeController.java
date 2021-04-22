@@ -8,9 +8,9 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -64,7 +64,7 @@ public class SchoolGradeController {
      * @return 年级列表
      */
     @GetMapping("list")
-    public IPage<SchoolGradeItems> getGradeList(PageRequest pageRequest, Integer schoolId) {
+    public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest, Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
@@ -78,7 +78,7 @@ public class SchoolGradeController {
      * @return 年级列表
      */
     @GetMapping("all")
-    public List<SchoolGradeItems> getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
