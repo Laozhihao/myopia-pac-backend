@@ -1,28 +1,19 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeDeptOrgMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Alix
@@ -30,11 +21,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDeptOrgMapper, ScreeningNoticeDeptOrg> {
-
-    @Autowired
-    private DistrictService districtService;
-    @Autowired
-    private GovDeptService govDeptService;
 
     /**
      * 设置操作人再更新
@@ -80,26 +66,8 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         return baseMapper.getByNoticeId(screeningNoticeId);
     }
 
-    /**
-     * 分页查询
-     *
-     * @param query
-     * @param pageRequest
-     * @return
-     */
-    public IPage<ScreeningNoticeDTO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
-        Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
-        IPage<ScreeningNoticeDTO> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
-        List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeDTO::getAcceptOrgId).distinct().collect(Collectors.toList());
-        Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
-        screeningNoticeIPage.getRecords().forEach(vo -> {
-            List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(vo.getDistrictId());
-            vo.setDistrictDetail(districtPositionDetailById).setDistrictName(districtService.getDistrictNameByDistrictPositionDetail(districtPositionDetailById));
-            if (ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())) {
-                vo.setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getAcceptOrgId(), ""));
-            }
-        });
-        return screeningNoticeIPage;
+    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<ScreeningNotice> page, ScreeningNoticeQueryDTO query) {
+        return baseMapper.selectPageByQuery(page, query);
     }
 
     /**
