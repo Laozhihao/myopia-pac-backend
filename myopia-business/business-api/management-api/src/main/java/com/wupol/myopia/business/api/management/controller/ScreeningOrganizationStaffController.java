@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -10,8 +9,10 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class ScreeningOrganizationStaffController {
      * @return 机构人员列表
      */
     @GetMapping("list")
-    public Page<UserExtDTO> getOrganizationStaffList(@Valid OrganizationStaffRequest request) {
+    public Page<UserExtDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
@@ -95,7 +96,7 @@ public class ScreeningOrganizationStaffController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping("reset")
-    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid StaffResetPasswordRequest request) {
+    public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid StaffResetPasswordRequestDTO request) {
         CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.resetPassword(request);
     }

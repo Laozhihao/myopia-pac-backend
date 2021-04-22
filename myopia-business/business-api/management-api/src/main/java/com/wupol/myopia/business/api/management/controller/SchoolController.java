@@ -7,19 +7,21 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.facade.SchoolFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.constant.SchoolAge;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolAgeDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.domain.query.SchoolQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolAgeVO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
@@ -36,11 +38,14 @@ import java.util.List;
 @RequestMapping("/management/school")
 public class SchoolController {
 
-    @Autowired
+    @Resource
     private SchoolService schoolService;
 
-    @Autowired
+    @Resource
     private ExcelFacade excelFacade;
+
+    @Resource
+    private SchoolFacade schoolFacade;
 
     /**
      * 新增学校
@@ -67,7 +72,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolService.updateSchool(school, user);
+        return schoolFacade.updateSchool(school, user);
     }
 
     /**
@@ -78,7 +83,7 @@ public class SchoolController {
      */
     @GetMapping("{id}")
     public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
-        return schoolService.getBySchoolId(id);
+        return schoolFacade.getBySchoolId(id);
     }
 
     /**
@@ -100,9 +105,9 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("list")
-    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQuery schoolQuery) {
+    public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQueryDTO schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return schoolService.getSchoolList(pageRequest, schoolQuery, user);
+        return schoolFacade.getSchoolList(pageRequest, schoolQuery, user);
     }
 
     /**
@@ -152,8 +157,8 @@ public class SchoolController {
      * @return 筛查记录列表
      */
     @GetMapping("screening/record/lists/{schoolId}")
-    public IPage<ScreeningPlanResponse> getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
-        return schoolService.getScreeningRecordLists(pageRequest, schoolId);
+    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
+        return schoolFacade.getScreeningRecordLists(pageRequest, schoolId);
     }
 
     /**
@@ -197,13 +202,13 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("/listByDistrict")
-    public List<SchoolResponseDTO> getSchoolListByDistctId(SchoolQuery schoolQuery) {
+    public List<SchoolResponseDTO> getSchoolListByDistctId(SchoolQueryDTO schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             // 政府部门，无法新增计划
             throw new ValidationException("无权限");
         }
-        return schoolService.getSchoolListByDistrictId(schoolQuery);
+        return schoolFacade.getSchoolListByDistrictId(schoolQuery);
     }
 
     /**
@@ -212,7 +217,7 @@ public class SchoolController {
      * @return 学龄段列表
      */
     @GetMapping("/schoolAge/list")
-    public List<SchoolAgeVO> getSchoolAge() {
+    public List<SchoolAgeDTO> getSchoolAge() {
         return SchoolAge.getSchoolAgeList();
     }
 }

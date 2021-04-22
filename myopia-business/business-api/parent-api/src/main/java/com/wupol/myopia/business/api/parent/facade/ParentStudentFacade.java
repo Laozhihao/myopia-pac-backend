@@ -8,7 +8,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.api.parent.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -433,7 +433,7 @@ public class ParentStudentFacade {
             return new StudentVisitReportResponseDTO();
         }
         ReportAndRecordDO reportAndRecordVo = visitLists.get(0);
-        return medicalReportService.getStudentVisitReport(reportAndRecordVo.getReportId());
+        return getStudentVisitReport(reportAndRecordVo.getReportId());
     }
 
     /**
@@ -443,7 +443,7 @@ public class ParentStudentFacade {
      * @return StudentVisitReportResponseDTO 学生就诊记录档案卡
      */
     public StudentVisitReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
-        return medicalReportService.getStudentVisitReport(request.getReportId());
+        return getStudentVisitReport(request.getReportId());
     }
 
     /**

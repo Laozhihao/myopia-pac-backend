@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
