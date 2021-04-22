@@ -7,15 +7,18 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.service.ScreeningOrganizationFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +45,9 @@ public class ScreeningOrganizationController {
 
     @Autowired
     private GovDeptService govDeptService;
+
+    @Autowired
+    private ScreeningOrganizationFacade screeningOrganizationFacade;
 
     /**
      * 新增筛查机构
@@ -153,8 +159,8 @@ public class ScreeningOrganizationController {
      * @return 筛查记录列表
      */
     @GetMapping("/record/lists/{orgId}")
-    public IPage<ScreeningOrgPlanResponse> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
-        return screeningOrganizationService.getRecordLists(request, orgId);
+    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
+        return screeningOrganizationFacade.getRecordLists(request, orgId);
     }
 
     /**

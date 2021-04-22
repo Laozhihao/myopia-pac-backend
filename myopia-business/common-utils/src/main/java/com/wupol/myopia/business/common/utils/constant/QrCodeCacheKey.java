@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.parent.constant;
+package com.wupol.myopia.business.common.utils.constant;
 
 /**
  * 缓存相关常量

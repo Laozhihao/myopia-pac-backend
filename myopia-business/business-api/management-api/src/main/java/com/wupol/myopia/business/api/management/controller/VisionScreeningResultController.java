@@ -7,19 +7,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.domain.dto.StudentCardResponseDTO;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +58,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StatConclusionService statConclusionService;
     @Autowired
     private ExcelFacade excelFacade;
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 获取档案卡列表
@@ -67,7 +69,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return
      */
     @GetMapping("/list-result")
-    public List<StudentCardResponseDTO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId) {
+    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         if (screeningPlan == null) {
             throw new BusinessException("无法找到该筛查计划");
@@ -81,7 +83,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
         return visionScreeningResults.stream().map(visionScreeningResult ->
-                studentService.getStudentCardResponseDTO(visionScreeningResult)
+                studentFacade.getStudentCardResponseDTO(visionScreeningResult)
         ).collect(Collectors.toList());
     }
 

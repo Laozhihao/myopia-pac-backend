@@ -7,6 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.service.HospitalFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -34,8 +35,12 @@ public class HospitalController {
 
     @Autowired
     private HospitalService hospitalService;
+
     @Autowired
     private ExcelFacade excelFacade;
+
+    @Autowired
+    private HospitalFacade hospitalFacade;
 
     /**
      * 保存医院
@@ -62,7 +67,7 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        return hospitalService.updateHospital(hospital);
+        return hospitalFacade.updateHospital(hospital);
     }
 
     /**
@@ -98,7 +103,7 @@ public class HospitalController {
     @GetMapping("list")
     public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalService.getHospitalList(pageRequest, query, user.getOrgId());
+        return hospitalFacade.getHospitalList(pageRequest, query, user.getOrgId());
     }
 
     /**

@@ -173,7 +173,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
         oauthService.modifyUser(userDTO);
-        resetPassword(new StaffResetPasswordRequest(staff.getId(), staff.getPhone(), staff.getIdCard()));
+        resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
     }
 
@@ -310,24 +310,6 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return baseMapper.getByPage(page, query);
     }
 
-    /**
-     * 更新机构人员的id
-     *
-     * @param currentUser  当前用户
-     * @param resourceFile 资源文件
-     */
-    public void updateOrganizationStaffSignId(CurrentUser currentUser, ResourceFile resourceFile) {
-        ScreeningOrganizationStaff screeningOrganizationStaff = new ScreeningOrganizationStaff();
-        screeningOrganizationStaff.setScreeningOrgId(currentUser.getOrgId()).setUserId(currentUser.getId());
-        List<ScreeningOrganizationStaff> screeningOrganizationStaffs = this.getByEntity(screeningOrganizationStaff);
-        if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
-            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().get();
-        }
-        if (screeningOrganizationStaff.getId() != null) {
-            screeningOrganizationStaff.setSignFileId(resourceFile.getId());
-            updateById(screeningOrganizationStaff);
-        }
-    }
 
     public List<ScreeningOrganizationStaff> getByEntity(ScreeningOrganizationStaff screeningOrganizationStaff) {
         LambdaQueryWrapper<ScreeningOrganizationStaff> screeningOrganizationStaffLambdaQueryWrapper = new LambdaQueryWrapper<>();

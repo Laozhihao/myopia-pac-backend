@@ -200,7 +200,7 @@ public class StatService {
         Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (currentUser.isPlatformAdminUser()) {
-            return districtIds.stream().collect(Collectors.toList());
+            return new ArrayList<>(districtIds);
         }
         List<Integer> validDistrictIds = new ArrayList<>();
         List<District> validDistricts =
