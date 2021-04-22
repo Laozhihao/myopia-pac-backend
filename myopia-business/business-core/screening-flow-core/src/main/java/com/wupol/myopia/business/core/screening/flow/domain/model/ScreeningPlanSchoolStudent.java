@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;

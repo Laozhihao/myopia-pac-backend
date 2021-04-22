@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
-import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,7 +18,7 @@ import java.util.List;
 public class ReportConclusion {
     
     /** 学生信息 */
-    private Student student;
+    private MedicalReportStudent student;
     /** 医院名称 */
     private String hospitalName;
     /** 医生签名id */
@@ -41,7 +40,6 @@ public class ReportConclusion {
         private String medicalContent;
         private Date createTime;
         private List<Integer> imageIdList;
-
     }
 
 }

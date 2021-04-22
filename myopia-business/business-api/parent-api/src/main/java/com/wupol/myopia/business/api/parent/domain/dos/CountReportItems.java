@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.parent.domain.dto;
+package com.wupol.myopia.business.api.parent.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class CountReportItemsDTO {
+public class CountReportItems {
 
     /**
      * id

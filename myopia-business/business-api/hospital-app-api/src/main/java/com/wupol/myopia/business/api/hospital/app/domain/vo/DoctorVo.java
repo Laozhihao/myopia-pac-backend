@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.hospital.app.domain.vo;
 
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -10,10 +10,10 @@ import lombok.experimental.Accessors;
  * @author Chikong
  * @date 2021-02-10
  */
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Accessors(chain = true)
-public class DoctorVo extends DoctorDTO {
+public class DoctorVO extends DoctorDTO {
     /** 头像url */
     private String avatarUrl;
     /** 签名url */

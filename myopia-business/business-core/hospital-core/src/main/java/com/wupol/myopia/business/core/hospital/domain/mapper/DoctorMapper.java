@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
-import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

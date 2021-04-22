@@ -11,7 +11,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;

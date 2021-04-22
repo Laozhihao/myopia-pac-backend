@@ -41,9 +41,8 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
 
     }
 
-    /** 保存医院与学生的 */
+    /** 保存医院与学生的关系 */
     public void saveHospitalStudentArchive(Integer hospitalId, Integer studentId) {
-        // 保存医院与学生的关系
         saveOrUpdate(new HospitalStudent(hospitalId, studentId));
     }
 

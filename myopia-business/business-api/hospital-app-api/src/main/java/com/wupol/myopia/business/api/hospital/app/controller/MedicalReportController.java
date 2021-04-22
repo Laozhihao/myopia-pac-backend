@@ -3,10 +3,11 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.hospital.app.facade.MedicalReportFacade;
+import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,14 @@ public class MedicalReportController {
 
     @Autowired
     private MedicalReportService medicalReportService;
+    @Autowired
+    private MedicalReportFacade medicalReportFacade;
 
     @PostMapping()
     public Boolean saveReport(@RequestBody MedicalReport medicalReport) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         medicalReport.setHospitalId(user.getOrgId());
-        medicalReportService.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
+        medicalReportFacade.saveReport(medicalReport, user.getOrgId(), medicalReport.getDoctorId(), medicalReport.getStudentId());
         return true;
     }
 
@@ -41,7 +44,7 @@ public class MedicalReportController {
      * @return
      */
     @GetMapping("/list")
-    public List<MedicalReportVo> getStudentReportList(Integer studentId, Boolean filterHospital) {
+    public List<MedicalReportDO> getStudentReportList(Integer studentId, Boolean filterHospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = filterHospital ? user.getOrgId() : null;
         return medicalReportService.getReportListByStudentId(hospitalId, studentId);
@@ -56,7 +59,7 @@ public class MedicalReportController {
     @GetMapping("/todayLast")
     public MedicalReport getTodayLastMedicalReport(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return medicalReportService.getOrCreateTodayLastMedicalReportVo(user.getOrgId(), studentId);
+        return medicalReportFacade.getOrCreateTodayLastMedicalReportVo(user.getOrgId(), studentId);
     }
 
 }

@@ -26,7 +26,6 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;

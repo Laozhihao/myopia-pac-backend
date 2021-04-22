@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.parent.domain.dto;
+package com.wupol.myopia.business.api.parent.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ReportCountResponseDTO {
+public class ReportCountResponse {
 
     /**
      * 学生名称

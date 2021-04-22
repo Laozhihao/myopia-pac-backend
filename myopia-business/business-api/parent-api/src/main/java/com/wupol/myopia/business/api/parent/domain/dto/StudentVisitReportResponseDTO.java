@@ -1,5 +1,7 @@
-package com.wupol.myopia.business.core.hospital.domain.dto;
+package com.wupol.myopia.business.api.parent.domain.dto;
 
+import com.wupol.myopia.business.core.hospital.domain.model.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +13,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class StudentVisitReportResponseDTO {
 
     /**

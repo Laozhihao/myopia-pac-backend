@@ -1,11 +1,11 @@
-package com.wupol.myopia.business.management.util;
+package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
-import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.constant.WarningLevel;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 
 import java.math.BigDecimal;
 import java.util.Objects;

@@ -4,18 +4,25 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.parent.domain.dos.CountReportItems;
+import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponse;
+import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
+import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
+import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
+import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
+import com.wupol.myopia.business.api.parent.facade.ParentStudentFacade;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
-import com.wupol.myopia.business.core.parent.domian.dto.CheckIdCardRequest;
-import com.wupol.myopia.business.core.parent.domian.dto.CountParentStudentResponseDTO;
+import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
+import com.wupol.myopia.business.core.parent.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.parent.service.ParentStudentService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.hospital.domain.dto.StudentVisitReportResponseDTO;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -35,15 +42,14 @@ public class ParentStudentController {
 
     @Resource
     private SchoolGradeService schoolGradeService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private ParentStudentService parentStudentService;
-
     @Resource
     private DistrictService districtService;
+    @Autowired
+    private ParentStudentFacade parentStudentFacade;
 
     /**
      * 获取孩子统计、孩子列表
@@ -63,8 +69,8 @@ public class ParentStudentController {
      * @return 学生实体
      */
     @PostMapping("checkIdCard")
-    public StudentDTO checkIdCard(@RequestBody CheckIdCardRequest request) {
-        return parentStudentService.checkIdCard(request);
+    public StudentDTO checkIdCard(@RequestBody CheckIdCardRequestDTO request) {
+        return parentStudentFacade.checkIdCard(request);
     }
 
     /**
@@ -75,7 +81,7 @@ public class ParentStudentController {
      */
     @GetMapping("{id}")
     public StudentDTO getStudent(@PathVariable("id") Integer id) {
-        return parentStudentService.getStudentById(id);
+        return parentStudentFacade.getStudentById(id);
     }
 
     /**
@@ -85,7 +91,7 @@ public class ParentStudentController {
      * @return 年级列表
      */
     @GetMapping("school/grade/list/{schoolId}")
-    public List<SchoolGradeItems> schoolGradeList(@PathVariable("schoolId") Integer schoolId) {
+    public List<SchoolGradeItemsDTO> schoolGradeList(@PathVariable("schoolId") Integer schoolId) {
         return schoolGradeService.getAllGradeList(schoolId);
     }
 
@@ -99,7 +105,7 @@ public class ParentStudentController {
     @PutMapping("")
     public StudentDTO updateParentStudent(@RequestBody Student student) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return parentStudentService.updateStudent(currentUser, student);
+        return parentStudentFacade.updateStudent(currentUser, student);
     }
 
     /**
@@ -112,7 +118,7 @@ public class ParentStudentController {
     @PostMapping
     public Integer saveParentStudent(@RequestBody Student student) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return parentStudentService.saveStudent(student, currentUser);
+        return parentStudentFacade.saveStudent(student, currentUser);
     }
 
     /**
@@ -133,8 +139,8 @@ public class ParentStudentController {
      * @return 学生报告统计
      */
     @GetMapping("report/count/{id}")
-    public ReportCountResponseDTO studentReportCount(@PathVariable("id") Integer id) {
-        return parentStudentService.studentReportCount(id);
+    public ReportCountResponse studentReportCount(@PathVariable("id") Integer id) {
+        return parentStudentFacade.studentReportCount(id);
     }
 
     /**
@@ -145,7 +151,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/screening/list/{id}")
     public List<CountReportItems> getStudentCountReportItems(@PathVariable("id") Integer id) {
-        return parentStudentService.getStudentCountReportItems(id);
+        return parentStudentFacade.getStudentCountReportItems(id);
     }
 
     /**
@@ -156,7 +162,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/screening/latest/{id}")
     public ScreeningReportResponseDTO latestScreeningReport(@PathVariable("id") Integer id) {
-        return parentStudentService.latestScreeningReport(id);
+        return parentStudentFacade.latestScreeningReport(id);
     }
 
     /**
@@ -167,7 +173,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/screening/detail/{id}")
     public ScreeningReportResponseDTO reportScreeningDetail(@PathVariable("id") Integer id) {
-        return parentStudentService.getScreeningReportDetail(id);
+        return parentStudentFacade.getScreeningReportDetail(id);
     }
 
     /**
@@ -178,7 +184,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/visits/latest/{id}")
     public StudentVisitReportResponseDTO visitsLatestReport(@PathVariable("id") Integer id) {
-        return parentStudentService.latestVisitsReport(id);
+        return parentStudentFacade.latestVisitsReport(id);
     }
 
     /**
@@ -189,7 +195,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/visits/detail")
     public StudentVisitReportResponseDTO getVisitsReportDetail(VisitsReportDetailRequest request) {
-        return parentStudentService.getVisitsReportDetails(request);
+        return parentStudentFacade.getVisitsReportDetails(request);
     }
 
     /**
@@ -200,7 +206,7 @@ public class ParentStudentController {
      */
     @GetMapping("report/screening/visionTrends/{studentId}")
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(@PathVariable("studentId") Integer studentId) {
-        return parentStudentService.screeningVisionTrends(studentId);
+        return parentStudentFacade.screeningVisionTrends(studentId);
     }
 
     /**
@@ -211,7 +217,7 @@ public class ParentStudentController {
      */
     @GetMapping("/getQrCode/{studentId}")
     public ApiResult<String> getQrCode(@PathVariable("studentId") Integer studentId) {
-        return ApiResult.success(parentStudentService.getQrCode(studentId));
+        return ApiResult.success(parentStudentFacade.getQrCode(studentId));
     }
 
     /**

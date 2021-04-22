@@ -7,7 +7,7 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
     </resultMap>
-    <resultMap id="MedicalReportVo" type="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+    <resultMap id="MedicalReportDO" type="com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="image_id_list" property="imageIdList"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="report_conclusion_data" property="reportConclusionData"/>
     </resultMap>
@@ -35,8 +35,7 @@
         </where>
     </sql>
 
-
-    <select id="getBy" resultMap="BaseResultMap">
+    <select id="getMedicalReportList" resultMap="BaseResultMap">
         select *
         from h_medical_report report
         <include refid="Base_Where_Clause" />
@@ -47,7 +46,8 @@
         from h_medical_report report
         <include refid="Base_Where_Clause"/>
     </select>
-    <select id="getVoBy" resultType="com.wupol.myopia.business.hospital.domain.vo.MedicalReportVo">
+
+    <select id="getMedicalReportDoList" resultMap="MedicalReportDO">
         select report.*, h.name as hospitalName, hmr.create_time as visitDate
         from h_medical_report report
         left join m_hospital h on report.hospital_id = h.id
@@ -70,7 +70,7 @@
             limit 1
     </select>
 
-    <select id="getTodayLastMedicalReportVo" resultMap="MedicalReportVo">
+    <select id="getTodayLastMedicalReportDO" resultMap="MedicalReportDO">
         select r.*, d.name as doctorName
         from h_medical_report r
         left join h_doctor d on d.id = r.doctor_id
@@ -87,13 +87,12 @@
         limit 1
     </select>
 
-    <select id="getStudentId" resultType="com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo">
+    <select id="getStudentId" resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">
         select report.id as reportId, report.hospital_id as hospitalId, report.create_time, report.update_time as updateTime, mh.name as hospitalName
         from h_medical_report report
                      left join h_medical_record record on report.medical_record_id = record.id
                      left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
-        <!--          and report.create_time &lt; CURDATE()-->
         order by report.create_time desc
     </select>
 </mapper>

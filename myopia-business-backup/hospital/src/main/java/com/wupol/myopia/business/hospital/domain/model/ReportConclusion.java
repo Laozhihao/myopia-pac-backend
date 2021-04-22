@@ -1,13 +1,10 @@
 package com.wupol.myopia.business.hospital.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.List;
 

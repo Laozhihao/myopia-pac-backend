@@ -1,11 +1,10 @@
-package com.wupol.myopia.business.management.constant;
+package com.wupol.myopia.business.common.utils.constant;
 
-import com.wupol.myopia.business.management.domain.vo.SchoolAgeVO;
+import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
+@Getter
 public enum SchoolAge {
     /** 学龄段 */
     KINDERGARTEN(5, "幼儿园"),
@@ -47,7 +46,7 @@ public enum SchoolAge {
      *
      * @return 学龄段列表
      */
-    public static List<SchoolAgeVO> getSchoolAgeList() {
+    /*public static List<SchoolAgeVO> getSchoolAgeList() {
         List<SchoolAgeVO> schoolAgeList = new ArrayList<>();
         for (SchoolAge value : values()) {
             SchoolAgeVO schoolAgeVO = new SchoolAgeVO();
@@ -56,7 +55,7 @@ public enum SchoolAge {
             schoolAgeList.add(schoolAgeVO);
         }
         return schoolAgeList;
-    }
+    }*/
 
     /**
      * 是否初中生（包括初中、高中、职业高中）

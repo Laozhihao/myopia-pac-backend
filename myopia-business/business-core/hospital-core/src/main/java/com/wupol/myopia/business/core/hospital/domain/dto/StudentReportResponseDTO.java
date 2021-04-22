@@ -2,8 +2,6 @@ package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
-import com.wupol.myopia.business.management.domain.model.Student;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -25,14 +23,4 @@ public class StudentReportResponseDTO {
      * 检查单
      */
     private MedicalRecord record;
-
-    /**
-     * 学生
-     */
-    private Student student;
-
-    /**
-     * 医生
-     */
-    private DoctorVo doctor;
 }

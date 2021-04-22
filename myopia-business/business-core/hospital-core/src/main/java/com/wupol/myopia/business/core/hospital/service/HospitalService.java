@@ -9,7 +9,6 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -18,11 +17,8 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -38,18 +34,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     private HospitalAdminService hospitalAdminService;
-
-    @Resource
-    private GovDeptService govDeptService;
-
-    @Resource
-    private DistrictService districtService;
-
     @Resource
     private OauthService oauthService;
-
-    @Resource
-    private SchoolService schoolService;
 
     /**
      * 保存医院
@@ -64,48 +50,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         }
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital);
-    }
-
-    /**
-     * 更新医院信息
-     *
-     * @param hospital 医院实体类
-     * @return 医院实体类
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public HospitalResponseDTO updateHospital(Hospital hospital) {
-
-        if (checkHospitalName(hospital.getName(), hospital.getId())) {
-            throw new BusinessException("医院名字重复，请确认");
-        }
-
-        HospitalResponseDTO response = new HospitalResponseDTO();
-        Hospital checkHospital = baseMapper.selectById(hospital.getId());
-
-        // 医院管理员
-        HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
-
-        // 更新OAuth账号
-        schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
-
-        // 名字更新重置密码
-        if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
-            response.setUpdatePassword(Boolean.TRUE);
-            response.setUsername(hospital.getName());
-            // 重置密码
-            String password = PasswordGenerator.getHospitalAdminPwd();
-            oauthService.resetPwd(admin.getUserId(), password);
-            response.setPassword(password);
-        }
-
-        baseMapper.updateById(hospital);
-        Hospital h = baseMapper.selectById(hospital.getId());
-        BeanUtils.copyProperties(h, response);
-        response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
-        // 行政区域名称
-        response.setAddressDetail(districtService.getAddressDetails(
-                h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
-        return response;
     }
 
     /**
@@ -124,34 +68,6 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         hospital.setGovDeptId(govDeptId);
         hospital.setStatus(CommonConst.STATUS_IS_DELETED);
         return baseMapper.updateById(hospital);
-    }
-
-    /**
-     * 获取医院列表
-     *
-     * @param pageRequest 分页
-     * @param query       请求入参
-     * @param govDeptId   部门id
-     * @return IPage<Hospital> {@link IPage}
-     */
-    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        IPage<HospitalResponseDTO> hospitalListsPage = baseMapper.getHospitalListByCondition(pageRequest.toPage(),
-                govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
-
-        List<HospitalResponseDTO> records = hospitalListsPage.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
-            return hospitalListsPage;
-        }
-        records.forEach(h -> {
-            // 详细地址
-            h.setAddressDetail(districtService.getAddressDetails(
-                    h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
-
-            // 行政区域名称
-            h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
-        });
-        return hospitalListsPage;
     }
 
     /**
@@ -256,5 +172,22 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      */
     public Boolean checkHospitalName(String hospitalName, Integer id) {
         return baseMapper.getByNameNeId(hospitalName, id).size() > 0;
+    }
+
+    /**
+     * 根据条件获取医院列表
+     *
+     * @param page
+     * @param govDeptId
+     * @param name
+     * @param type
+     * @param kind
+     * @param level
+     * @param districtId
+     * @param status
+     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO>
+     **/
+    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId, String name, Integer type, Integer kind, Integer level, Integer districtId, Integer status) {
+        return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
     }
 }

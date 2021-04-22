@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.hospital.app.service;
 
-import com.wupol.myopia.business.api.hospital.app.domain.vo.DoctorVo;
+import com.wupol.myopia.business.api.hospital.app.domain.vo.DoctorVO;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
@@ -31,11 +31,11 @@ public class DoctorService {
      * @param query 查询条件
      * @return
      */
-    public List<DoctorVo> getDoctorVoList(DoctorQuery query)  {
+    public List<DoctorVO> getDoctorVoList(DoctorQuery query)  {
         List<DoctorDTO> list = hospitalDoctorService.getDoctorVoList(query);
-        List<DoctorVo> voList = new ArrayList<>();
+        List<DoctorVO> voList = new ArrayList<>();
         list.forEach(item-> {
-            DoctorVo doctorVo = new DoctorVo();
+            DoctorVO doctorVo = new DoctorVO();
             BeanUtils.copyProperties(item, doctorVo);
             if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
                 doctorVo.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
@@ -51,9 +51,9 @@ public class DoctorService {
      * @param doctorId 医生id
      * @return
      */
-    public DoctorVo getDoctorVo(Integer hospitalId, Integer doctorId) {
+    public DoctorVO getDoctorVo(Integer hospitalId, Integer doctorId) {
         Doctor doctor = hospitalDoctorService.getDoctor(hospitalId, doctorId);
-        DoctorVo doctorVo = new DoctorVo();
+        DoctorVO doctorVo = new DoctorVO();
         BeanUtils.copyProperties(doctor, doctorVo);
         return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
                 .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));

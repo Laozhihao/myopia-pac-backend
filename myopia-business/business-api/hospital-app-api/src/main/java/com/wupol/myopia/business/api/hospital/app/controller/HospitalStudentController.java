@@ -5,7 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.HospitalStudentDTO;
-import com.wupol.myopia.business.api.hospital.app.service.HospitalStudentFacade;
+import com.wupol.myopia.business.api.hospital.app.facade.HospitalStudentFacade;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;

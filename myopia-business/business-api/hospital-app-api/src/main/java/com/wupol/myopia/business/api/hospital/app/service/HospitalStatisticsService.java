@@ -86,7 +86,7 @@ public class HospitalStatisticsService {
         MedicalReportQuery query = new MedicalReportQuery();
         query.setHospitalId(hospitalId);
         query.setStartDate(startDate).setEndDate(endDate);
-        return medicalReportService.getBy(query);
+        return medicalReportService.getMedicalReportList(query);
     }
 
     /** 获取今天的统计信息 */

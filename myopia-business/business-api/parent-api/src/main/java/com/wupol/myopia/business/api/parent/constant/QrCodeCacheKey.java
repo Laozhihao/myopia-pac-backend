@@ -8,13 +8,9 @@ package com.wupol.myopia.business.api.parent.constant;
  * @Author Chikong
  * @Date 2020-12-22
  */
-public interface SmsCacheKey {
+public interface QrCodeCacheKey {
     /**
-     * 短信验证码token
+     * 获取学生二维码
      */
-    String SMS_CODE_TOKEN = "sms:code:token:phone_%s";
-    /**
-     * 短信校验失败数量
-     */
-    String SMS_TOKEN_FAIL_COUNT = "sms:code:fail_count:phone_%s";
+    String PARENT_STUDENT_QR_CODE = "QRCODE:TOKEN_%s";
 }
