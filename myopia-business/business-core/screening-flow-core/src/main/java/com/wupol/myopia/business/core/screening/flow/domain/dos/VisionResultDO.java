@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.flow.domain.bo;
+package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-public class VisionResultBO {
+public class VisionResultDO {
 
     /**
      * 0 为左眼 1 为右眼

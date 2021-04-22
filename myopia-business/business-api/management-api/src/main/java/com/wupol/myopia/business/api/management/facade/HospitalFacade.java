@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.api.management.facade;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.api.management.facade;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
@@ -20,9 +20,6 @@ public class ScreeningOrganizationStaffFacade {
 
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-
-    @Autowired
-    private ResourceFile resourceFile;
 
     /**
      * 更新机构人员的id

@@ -7,7 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.service.StudentFacade;
+import com.wupol.myopia.business.api.management.facade.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;

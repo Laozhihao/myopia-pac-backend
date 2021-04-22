@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.flow.domain.bo;
+package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CrossMirrorResultBO {
+public class CrossMirrorResultDO {
 
     /**
      * 0 为左眼 1 为右眼

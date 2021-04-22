@@ -7,7 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.service.StudentFacade;
+import com.wupol.myopia.business.api.management.facade.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.government.service.DistrictService;

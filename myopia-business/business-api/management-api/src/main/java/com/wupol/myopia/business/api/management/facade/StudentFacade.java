@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.api.management.facade;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -20,10 +20,10 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.CrossMirrorResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.EyeDiseasesResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.RefractoryResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.VisionResultBO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.CrossMirrorResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.EyeDiseasesResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionResultDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
@@ -405,10 +405,10 @@ public class StudentFacade {
             details.setGlassesTypeObj(glassesTypeObj);
         }
 
-        details.setVisionResultBOS(setVisionResult(visionData));
-        details.setRefractoryResultBOS(setRefractoryResults(result.getComputerOptometry()));
-        details.setCrossMirrorResultBOS(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
-        details.setEyeDiseasesResultBO(setEyeDiseasesResult(result.getOtherEyeDiseases()));
+        details.setVisionResultDOS(setVisionResult(visionData));
+        details.setRefractoryResultDOS(setRefractoryResults(result.getComputerOptometry()));
+        details.setCrossMirrorResultDOS(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
+        details.setEyeDiseasesResultDO(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
 
@@ -418,9 +418,9 @@ public class StudentFacade {
      * @param result 筛查结果
      * @return List<VisionResult>
      */
-    private List<VisionResultBO> setVisionResult(VisionDataDO result) {
-        VisionResultBO left = new VisionResultBO();
-        VisionResultBO right = new VisionResultBO();
+    private List<VisionResultDO> setVisionResult(VisionDataDO result) {
+        VisionResultDO left = new VisionResultDO();
+        VisionResultDO right = new VisionResultDO();
 
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
@@ -442,9 +442,9 @@ public class StudentFacade {
      * @param result 筛查结果
      * @return List<RefractoryResult>
      */
-    private List<RefractoryResultBO> setRefractoryResults(ComputerOptometryDO result) {
-        RefractoryResultBO left = new RefractoryResultBO();
-        RefractoryResultBO right = new RefractoryResultBO();
+    private List<RefractoryResultDO> setRefractoryResults(ComputerOptometryDO result) {
+        RefractoryResultDO left = new RefractoryResultDO();
+        RefractoryResultDO right = new RefractoryResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -470,9 +470,9 @@ public class StudentFacade {
      * @param age    年龄
      * @return List<CrossMirrorResult>
      */
-    private List<CrossMirrorResultBO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
-        CrossMirrorResultBO left = new CrossMirrorResultBO();
-        CrossMirrorResultBO right = new CrossMirrorResultBO();
+    private List<CrossMirrorResultDO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
+        CrossMirrorResultDO left = new CrossMirrorResultDO();
+        CrossMirrorResultDO right = new CrossMirrorResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -503,9 +503,9 @@ public class StudentFacade {
      * @param result 其他眼部疾病
      * @return List<EyeDiseasesResult>
      */
-    private List<EyeDiseasesResultBO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
-        EyeDiseasesResultBO left = new EyeDiseasesResultBO();
-        EyeDiseasesResultBO right = new EyeDiseasesResultBO();
+    private List<EyeDiseasesResultDO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
+        EyeDiseasesResultDO left = new EyeDiseasesResultDO();
+        EyeDiseasesResultDO right = new EyeDiseasesResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {

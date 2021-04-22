@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.bo.CrossMirrorResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.EyeDiseasesResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.RefractoryResultBO;
-import com.wupol.myopia.business.core.screening.flow.domain.bo.VisionResultBO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.CrossMirrorResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.EyeDiseasesResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionResultDO;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,22 +28,22 @@ public class CardDetailsVO {
     /**
      * 视力检查结果
      */
-    private List<VisionResultBO> visionResultBOS;
+    private List<VisionResultDO> visionResultDOS;
 
     /**
      * 验光仪检查结果
      */
-    private List<RefractoryResultBO> refractoryResultBOS;
+    private List<RefractoryResultDO> refractoryResultDOS;
 
     /**
      * 串镜检查结果
      */
-    private List<CrossMirrorResultBO> crossMirrorResultBOS;
+    private List<CrossMirrorResultDO> crossMirrorResultDOS;
 
     /**
      * 其他眼病
      */
-    private List<EyeDiseasesResultBO> eyeDiseasesResultBO;
+    private List<EyeDiseasesResultDO> eyeDiseasesResultDO;
 
     /**
      * 戴镜类型Obj

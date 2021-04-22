@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.api.management.facade;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;

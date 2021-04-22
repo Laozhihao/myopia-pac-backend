@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.api.management.facade;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -12,7 +12,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,9 +27,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ScreeningOrganizationFacade {
-
-    @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
