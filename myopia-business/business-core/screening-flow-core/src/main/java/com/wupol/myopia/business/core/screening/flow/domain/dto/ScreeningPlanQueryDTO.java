@@ -1,9 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
+import com.wupol.myopia.business.common.utils.interfaces.HasCreatorNameLikeAndCreateUserIds;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.interfaces.HasCreatorNameLikeAndCreateUserIds;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

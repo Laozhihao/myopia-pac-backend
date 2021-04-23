@@ -9,9 +9,9 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -19,12 +19,6 @@ import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.GradeCodeEnum;
 import com.wupol.myopia.business.management.constant.ImportExcelEnum;
 import com.wupol.myopia.business.management.constant.NationEnum;
-import com.wupol.myopia.business.management.domain.dto.GradeClassesDTO;
-import com.wupol.myopia.business.management.domain.dto.ScreeningResultSearchDTO;
-import com.wupol.myopia.business.management.domain.dto.StudentScreeningInfoWithResultDTO;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.StudentQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import com.wupol.myopia.business.management.domain.vo.StudentDTO;
 import com.wupol.myopia.business.management.util.AgeUtil;
 import com.wupol.myopia.business.management.util.SerializationUtil;
@@ -176,30 +170,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.countBySchoolIdAndNoticeId(schoolId, srcScreeningNoticeId);
     }
 
-    /**
-     * 获取计划中的学校年级情况
-     *
-     * @param screeningPlanId
-     * @param schoolId
-     * @return
-     */
-    public List<SchoolGradeVo> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        //1. 获取该计划学校的筛查学生所有年级、班级
-        List<GradeClassesDTO> gradeClasses = baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
-        //2. 根据年级分组
-        Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
-        //3. 组装SchoolGradeVo数据
-        return graderIdClasses.keySet().stream().map(gradeId -> {
-            SchoolGradeVo vo = new SchoolGradeVo();
-            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
-            vo.setId(gradeId).setName(gradeClassesDTOS.get(0).getGradeName());
-            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
-                SchoolClass schoolClass = new SchoolClass();
-                schoolClass.setId(dto.getClassId()).setName(dto.getClassName());
-                return schoolClass;
-            }).collect(Collectors.toList()));
-            return vo;
-        }).collect(Collectors.toList());
+    public List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+        return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -209,14 +181,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param pageRequest
      * @return
      */
-    public IPage<StudentDTO> getPage(StudentQueryDTO query, PageRequest pageRequest) {
+    public IPage<ScreeningStudentDTO> getPage(StudentQueryDTO query, PageRequest pageRequest) {
         Assert.notNull(query.getScreeningPlanId(), "筛查计划ID不能为空");
         Assert.notNull(query.getSchoolId(), "筛查学校ID不能为空");
-        Page<StudentDTO> page = (Page<StudentDTO>) pageRequest.toPage();
+        Page<ScreeningStudentDTO> page = (Page<ScreeningStudentDTO>) pageRequest.toPage();
         if (StringUtils.hasLength(query.getGradeIds())) {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
-        IPage<StudentDTO> studentDTOIPage = baseMapper.selectPageByQuery(page, query);
+        IPage<ScreeningStudentDTO> studentDTOIPage = baseMapper.selectPageByQuery(page, query);
         studentDTOIPage.getRecords().forEach(studentDTO -> studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation())).setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress())));
         return studentDTOIPage;
     }
