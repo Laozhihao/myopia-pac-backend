@@ -7,7 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.facade.SchoolFacade;
+import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -45,7 +45,7 @@ public class SchoolController {
     private ExcelFacade excelFacade;
 
     @Resource
-    private SchoolFacade schoolFacade;
+    private SchoolBizService schoolBizService;
 
     /**
      * 新增学校
@@ -72,7 +72,7 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolFacade.updateSchool(school, user);
+        return schoolBizService.updateSchool(school, user);
     }
 
     /**
@@ -83,7 +83,7 @@ public class SchoolController {
      */
     @GetMapping("{id}")
     public SchoolResponseDTO getSchoolDetail(@PathVariable("id") Integer id) {
-        return schoolFacade.getBySchoolId(id);
+        return schoolBizService.getBySchoolId(id);
     }
 
     /**
@@ -107,7 +107,7 @@ public class SchoolController {
     @GetMapping("list")
     public IPage<SchoolResponseDTO> getSchoolList(PageRequest pageRequest, SchoolQueryDTO schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return schoolFacade.getSchoolList(pageRequest, schoolQuery, user);
+        return schoolBizService.getSchoolList(pageRequest, schoolQuery, user);
     }
 
     /**
@@ -158,7 +158,7 @@ public class SchoolController {
      */
     @GetMapping("screening/record/lists/{schoolId}")
     public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
-        return schoolFacade.getScreeningRecordLists(pageRequest, schoolId);
+        return schoolBizService.getScreeningRecordLists(pageRequest, schoolId);
     }
 
     /**
@@ -208,7 +208,7 @@ public class SchoolController {
             // 政府部门，无法新增计划
             throw new ValidationException("无权限");
         }
-        return schoolFacade.getSchoolListByDistrictId(schoolQuery);
+        return schoolBizService.getSchoolListByDistrictId(schoolQuery);
     }
 
     /**

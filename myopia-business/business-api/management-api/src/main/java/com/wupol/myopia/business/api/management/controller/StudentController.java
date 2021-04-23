@@ -7,7 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.facade.StudentFacade;
+import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -50,7 +50,7 @@ public class StudentController {
     private StudentService studentService;
 
     @Autowired
-    private StudentFacade studentFacade;
+    private StudentBizService studentBizService;
 
     /**
      * 新增学生
@@ -75,7 +75,7 @@ public class StudentController {
     public StudentDTO updateStudent(@RequestBody @Valid Student student) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         student.setCreateUserId(user.getId());
-        return studentFacade.updateStudent(student);
+        return studentBizService.updateStudent(student);
     }
 
     /**
@@ -86,7 +86,7 @@ public class StudentController {
      */
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
-        return studentFacade.deletedStudent(id);
+        return studentBizService.deletedStudent(id);
     }
 
     /**
@@ -109,7 +109,7 @@ public class StudentController {
      */
     @GetMapping("list")
     public IPage<StudentDTO> getStudentsList(PageRequest pageRequest, StudentQueryDTO studentQuery) {
-        return studentFacade.getStudentLists(pageRequest, studentQuery);
+        return studentBizService.getStudentLists(pageRequest, studentQuery);
     }
 
     /**
@@ -182,7 +182,7 @@ public class StudentController {
      */
     @GetMapping("/screening/{id}")
     public StudentScreeningResultResponseDTO getScreeningList(@PathVariable("id") Integer id) {
-        return studentFacade.getScreeningList(id);
+        return studentBizService.getScreeningList(id);
     }
 
     /**
@@ -193,6 +193,6 @@ public class StudentController {
      */
     @GetMapping("/screening/card/{resultId}")
     public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentFacade.packageCardDetails(resultId);
+        return studentBizService.packageCardDetails(resultId);
     }
 }

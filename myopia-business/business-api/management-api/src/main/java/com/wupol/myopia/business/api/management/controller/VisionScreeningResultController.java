@@ -7,7 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.facade.StudentFacade;
+import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.government.service.DistrictService;
@@ -59,7 +59,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
-    private StudentFacade studentFacade;
+    private StudentBizService studentBizService;
 
     /**
      * 获取档案卡列表
@@ -83,7 +83,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
         return visionScreeningResults.stream().map(visionScreeningResult ->
-                studentFacade.getStudentCardResponseDTO(visionScreeningResult)
+                studentBizService.getStudentCardResponseDTO(visionScreeningResult)
         ).collect(Collectors.toList());
     }
 

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.facade;
+package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
@@ -16,7 +16,7 @@ import java.util.List;
  * @author Simple4H
  */
 @Service
-public class ScreeningOrganizationStaffFacade {
+public class ScreeningOrganizationStaffBizService {
 
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
