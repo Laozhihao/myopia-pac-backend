@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.domain.vo;
+package com.wupol.myopia.business.core.hospital.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import java.io.Serializable;
 
 /**
- * 筛查机构导出数据
+ * 医院导出数据
  *
  * @Author Chikong
  * @Date 2020/12/22
@@ -24,35 +24,31 @@ import java.io.Serializable;
 @ColumnWidth(20)
 @Data
 @Accessors(chain = true)
-public class ScreeningOrganizationExportVO implements Serializable {
+public class HospitalExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "筛查机构表";
-    public static final String TOP_HEADER2 = "最新筛查任务";
+    public static final String TOP_HEADER = "医院表";
 
-    @ExcelProperty({TOP_HEADER, "筛查机构名称"})
+    @ExcelProperty({TOP_HEADER, "医院名称"})
     private String name;
+
+    @ExcelProperty({TOP_HEADER, "所处层级"})
+    private String districtName;
+
+    @ExcelProperty({TOP_HEADER, "等级"})
+    private String level;
 
     @ExcelProperty({TOP_HEADER, "类型"})
     private String type;
 
-    @ExcelProperty({TOP_HEADER, "配置"})
-    private String configType;
-
-    @ExcelProperty({TOP_HEADER, "联系方式"})
-    private String phone;
-
-    @ExcelProperty({TOP_HEADER, "筛查人员数(名)"})
-    private Integer personSituation;
+    @ExcelProperty({TOP_HEADER, "性质"})
+    private String kind;
 
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
 
-    @ExcelProperty({TOP_HEADER, "筛查次数"})
-    private Integer screeningCount;
-
-    @ExcelProperty({TOP_HEADER, "所处层级"})
-    private String districtName;
+    @ExcelProperty({TOP_HEADER, "账号"})
+    private String accountNo;
 
     @ExcelProperty({TOP_HEADER, "省"})
     private String province;
@@ -74,5 +70,4 @@ public class ScreeningOrganizationExportVO implements Serializable {
 
     @ExcelProperty({TOP_HEADER, "创建时间"})
     private String createTime;
-
 }

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.domain.vo;
+package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.io.Serializable;
  **/
 @Data
 @Accessors(chain = true)
-public class ScreeningOrganizationStaffImportVO implements Serializable {
+public class ScreeningOrganizationStaffImportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     @ExcelProperty("序号")

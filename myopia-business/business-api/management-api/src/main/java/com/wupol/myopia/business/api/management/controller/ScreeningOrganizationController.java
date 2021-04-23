@@ -7,7 +7,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.facade.ScreeningOrganizationFacade;
+import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -47,7 +47,7 @@ public class ScreeningOrganizationController {
     private GovDeptService govDeptService;
 
     @Autowired
-    private ScreeningOrganizationFacade screeningOrganizationFacade;
+    private ScreeningOrganizationBizService screeningOrganizationBizService;
 
     /**
      * 新增筛查机构
@@ -160,7 +160,7 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/record/lists/{orgId}")
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, @PathVariable("orgId") Integer orgId) {
-        return screeningOrganizationFacade.getRecordLists(request, orgId);
+        return screeningOrganizationBizService.getRecordLists(request, orgId);
     }
 
     /**

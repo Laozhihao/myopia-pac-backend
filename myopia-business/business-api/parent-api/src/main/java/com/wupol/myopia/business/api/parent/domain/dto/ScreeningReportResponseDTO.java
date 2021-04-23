@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.parent.domain.dto;
 
-import com.wupol.myopia.business.api.parent.domain.dos.ScreeningReportDetail;
+import com.wupol.myopia.business.api.parent.domain.dos.ScreeningReportDetailDO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,5 +16,5 @@ public class ScreeningReportResponseDTO {
     /**
      * 详情
      */
-    private ScreeningReportDetail detail;
+    private ScreeningReportDetailDO detail;
 }

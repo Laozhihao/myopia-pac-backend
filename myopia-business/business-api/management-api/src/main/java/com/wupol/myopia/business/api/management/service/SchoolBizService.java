@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.facade;
+package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
-public class SchoolFacade {
+public class SchoolBizService {
 
     @Autowired
     private SchoolService schoolService;

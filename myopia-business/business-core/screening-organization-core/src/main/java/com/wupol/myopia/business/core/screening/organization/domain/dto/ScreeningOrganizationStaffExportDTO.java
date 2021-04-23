@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.domain.vo;
+package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
@@ -24,7 +24,7 @@ import java.io.Serializable;
 @ColumnWidth(20)
 @Data
 @Accessors(chain = true)
-public class ScreeningOrganizationStaffExportVO implements Serializable {
+public class ScreeningOrganizationStaffExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     public static final String TOP_HEADER = "筛查人员表";

@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ReportCountResponse {
+public class ReportCountResponseDO {
 
     /**
      * 学生名称
@@ -21,11 +21,11 @@ public class ReportCountResponse {
     /**
      * 筛查详情
      */
-    private ScreeningDetail screeningDetail;
+    private ScreeningDetailDO screeningDetailDO;
 
 
     /**
      * 就诊详情
      */
-    private VisitsDetail visitsDetail;
+    private VisitsDetailDO visitsDetailDO;
 }

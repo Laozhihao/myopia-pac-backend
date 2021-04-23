@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.facade;
+package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
-public class ScreeningOrganizationFacade {
+public class ScreeningOrganizationBizService {
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
