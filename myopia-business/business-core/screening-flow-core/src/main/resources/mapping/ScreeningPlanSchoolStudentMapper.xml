@@ -9,7 +9,7 @@
     </resultMap>
     <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO">
     </resultMap>
-    <resultMap id="StudentDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentDTO">
+    <resultMap id="ScreeningStudentDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO">
     </resultMap>
 
 
@@ -81,16 +81,12 @@
 
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
-        select msg.id as grade_id, msg.name as grade_name, msc.id as class_id, msc.name as class_name
-        from (
-            select grade_id, class_id from m_screening_plan_school_student
-            where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
-            group by grade_id, class_id) grader_class
-            left join m_school_grade msg on grader_class.grade_id = msg.id
-            left join m_school_class msc on grader_class.class_id = msc.id
+        select grade_id, class_id from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        group by grade_id, class_id
     </select>
 
-    <select id="selectPageByQuery" resultMap="StudentDTO" parameterType="java.util.Map">
+    <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         SELECT
         mspss.student_id as id, mspss.student_no as sno, mspss.student_name as name, mspss.gender, mspss.birthday, mspss.province_code, mspss.city_code, mspss.area_code, mspss.town_code, mspss.address, mspss.id_card, mspss.nation, mspss.parent_phone, msg.name as grade_name, msc.name as class_name
         FROM
@@ -131,7 +127,7 @@
         and id_card in <foreach collection="idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
-    <select id="selectByGradeAndClass" resultMap="StudentDTO" parameterType="java.util.Map">
+    <select id="selectByGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         select mspss.student_name as name, mspss.student_no as sno, ms.gender, ms.id
         from m_screening_plan_school_student mspss
         left join m_student ms on mspss.student_id = ms.id

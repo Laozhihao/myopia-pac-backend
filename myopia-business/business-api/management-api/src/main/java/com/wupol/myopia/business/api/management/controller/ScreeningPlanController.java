@@ -12,9 +12,13 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVo;
+import com.wupol.myopia.business.api.management.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -24,6 +28,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
@@ -35,8 +40,6 @@ import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.PDFTemplateConst;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
-import com.wupol.myopia.business.management.domain.vo.SchoolGradeVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -96,6 +99,8 @@ public class ScreeningPlanController {
     private NoticeService noticeService;
     @Autowired
     private SchoolAdminService schoolAdminService;
+    @Autowired
+    private ScreeningPlanBizService screeningPlanBizService;
 
     /**
      * 新增
@@ -230,7 +235,7 @@ public class ScreeningPlanController {
      * @return IPage<ScreeningPlanVo>
      */
     @GetMapping("page")
-    public IPage<ScreeningPlanDTO> queryInfo(PageRequest page, ScreeningPlanQueryDTO query) {
+    public IPage<ScreeningPlanPageDTO> queryInfo(PageRequest page, ScreeningPlanQueryDTO query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -238,7 +243,7 @@ public class ScreeningPlanController {
         if (user.isScreeningUser()) {
             query.setScreeningOrgId(user.getOrgId());
         }
-        return screeningPlanService.getPage(query, page);
+        return screeningPlanBizService.getPage(query, page);
     }
 
     /**
@@ -265,7 +270,7 @@ public class ScreeningPlanController {
     public List<SchoolGradeVo> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         // 任务状态判断
         validateExist(screeningPlanId);
-        return screeningPlanSchoolStudentService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return screeningPlanBizService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -351,7 +356,7 @@ public class ScreeningPlanController {
      * @return IPage<StudentDTO>
      */
     @GetMapping("students/page")
-    public IPage<StudentDTO> queryStudentInfos(PageRequest page, StudentQuery query) {
+    public IPage<StudentDTO> queryStudentInfos(PageRequest page, StudentQueryDTO query) {
         validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
         return screeningPlanSchoolStudentService.getPage(query, page);
     }

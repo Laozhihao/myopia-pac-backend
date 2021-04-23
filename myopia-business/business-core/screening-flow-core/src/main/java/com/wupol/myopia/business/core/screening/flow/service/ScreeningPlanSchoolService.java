@@ -5,6 +5,7 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -136,7 +137,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         if (CollectionUtils.isEmpty(districtIds) && Objects.isNull(screeningOrgId)) {
             return Collections.emptyList();
         }
-        ScreeningPlanQuery planQuery = new ScreeningPlanQuery();
+        ScreeningPlanQueryDTO planQuery = new ScreeningPlanQueryDTO();
         planQuery.setDistrictIds(districtIds).setExcludedScreeningPlanId(excludedScreeningPlanId).setStartCreateTime(startTime).setEndCreateTime(endTime).setScreeningOrgId(screeningOrgId);
         return baseMapper.selectHasPlanInPeriod(planQuery).stream().map(ScreeningPlanSchool::getSchoolId).distinct().collect(Collectors.toList());
     }

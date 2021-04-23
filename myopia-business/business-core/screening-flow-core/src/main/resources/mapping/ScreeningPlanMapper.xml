@@ -5,7 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan">
     </resultMap>
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO">
+    <resultMap id="ScreeningPlanPageDTOMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO">
     </resultMap>
 
     <!-- 通用查询映射结果 -->
@@ -67,16 +67,14 @@
                 order by msp.create_time desc
     </select>
 
-    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+    <select id="selectPageByQuery" resultMap="ScreeningPlanPageDTOMap" parameterType="java.util.Map">
         SELECT
         mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,
         mst.end_time, mst.content, mst.release_time, mst.release_status,
-        mst.district_id, md.name as district_name, mst.gov_dept_id, mgd.name as gov_dept_name, mst.create_user_id,
+        mst.district_id, mst.gov_dept_id, mst.create_user_id,
         mst.create_time
         FROM
         m_screening_plan mst
-        LEFT JOIN m_district md ON mst.district_id = md.id
-        LEFT JOIN m_government_department mgd ON mst.gov_dept_id = mgd.id
         LEFT JOIN m_screening_organization mso ON mst.screening_org_id = mso.id
         <where>
             <trim prefixOverrides="and">

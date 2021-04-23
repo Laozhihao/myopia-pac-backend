@@ -1,11 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 筛查计划Vo
@@ -15,9 +12,13 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class ScreeningPlanDTO extends ScreeningPlan {
-    /**
-     * 筛查计划中的学校列表
-     */
-    List<ScreeningPlanSchool> schools;
+public class ScreeningPlanPageDTO extends ScreeningPlan {
+    /** 行政区域名 */
+    private String creatorName;
+    /** 行政区域名称 */
+    private String districtName;
+    /** 部门名称 */
+    private String govDeptName;
+    /** 筛查机构名称 */
+    private String screeningOrgName;
 }

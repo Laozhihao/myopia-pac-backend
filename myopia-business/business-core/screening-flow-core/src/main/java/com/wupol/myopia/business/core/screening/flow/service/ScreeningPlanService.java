@@ -45,13 +45,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-    @Autowired
     private GovDeptService govDeptService;
-    @Autowired
-    private ScreeningRelatedFacade screeningRelatedFacade;
 
     /**
      * 通过ids获取
@@ -76,31 +70,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return updateById(entity);
     }
 
-    /**
-     * 分页查询
-     *
-     * @param query
-     * @param pageRequest
-     * @return
-     */
-    public IPage<ScreeningPlanDTO> getPage(ScreeningPlanQueryDTO query, PageRequest pageRequest) {
-        Page<ScreeningPlan> page = (Page<ScreeningPlan>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
-            return new Page<>();
-        }
-        if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
-            List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(orgIds)) {
-                // 可以直接返回空
-                return new Page<>();
-            }
-            query.setScreeningOrgIds(orgIds);
-        }
-        IPage<ScreeningPlanDTO> screeningPlanIPage = baseMapper.selectPageByQuery(page, query);
-        List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningPlanIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
-        return screeningPlanIPage;
+    public IPage<ScreeningPlanPageDTO> selectPageByQuery(Page<ScreeningPlan> page, ScreeningPlanQueryDTO query) {
+        return baseMapper.selectPageByQuery(page, query);
     }
 
     /**
