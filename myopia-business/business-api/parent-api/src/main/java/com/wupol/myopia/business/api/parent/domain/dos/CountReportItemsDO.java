@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class CountReportItems {
+public class CountReportItemsDO {
 
     /**
      * id

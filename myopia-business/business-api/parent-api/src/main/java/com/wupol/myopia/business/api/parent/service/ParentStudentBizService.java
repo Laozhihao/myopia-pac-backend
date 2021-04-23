@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.parent.facade;
+package com.wupol.myopia.business.api.parent.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
@@ -8,13 +8,14 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
  * @Date 2021/4/21
  **/
 @Service
-public class ParentStudentFacade {
+public class ParentStudentBizService {
 
     @Autowired
     private ResourceFileService resourceFileService;
@@ -75,6 +76,8 @@ public class ParentStudentFacade {
     private RedisUtil redisUtil;
     @Autowired
     private ParentStudentService parentStudentService;
+    @Autowired
+    private StudentFacade studentFacade;
 
 
     /**
@@ -276,7 +279,7 @@ public class ParentStudentFacade {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-        StudentDTO studentDTO = studentService.updateStudent(student);
+        StudentDTO studentDTO = studentFacade.updateStudent(student);
         // 绑定孩子
         bindStudent(parent, student.getId());
         return studentDTO;
@@ -338,8 +341,8 @@ public class ParentStudentFacade {
      * @param studentId 学生ID
      * @return ReportCountResponseDTO 家长端-孩子报告统计
      */
-    public ReportCountResponse studentReportCount(Integer studentId) {
-        ReportCountResponse response = new ReportCountResponse();
+    public ReportCountResponseDO studentReportCount(Integer studentId) {
+        ReportCountResponseDO response = new ReportCountResponseDO();
 
         Student student = studentService.getById(studentId);
         if (null == student) {
@@ -348,19 +351,19 @@ public class ParentStudentFacade {
         response.setName(student.getName());
 
         // 学生筛查报告
-        List<CountReportItems> screeningLists = getStudentCountReportItems(studentId);
-        ScreeningDetail screeningDetail = new ScreeningDetail();
-        screeningDetail.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
-        screeningDetail.setItems(screeningLists);
-        response.setScreeningDetail(screeningDetail);
+        List<CountReportItemsDO> screeningLists = getStudentCountReportItems(studentId);
+        ScreeningDetailDO screeningDetailDO = new ScreeningDetailDO();
+        screeningDetailDO.setTotal(visionScreeningResultService.getByStudentId(studentId).stream().filter(r -> r.getIsDoubleScreen().equals(Boolean.FALSE)).count());
+        screeningDetailDO.setItems(screeningLists);
+        response.setScreeningDetailDO(screeningDetailDO);
 
         // 学生就诊档案统计
-        VisitsDetail visitsDetail = new VisitsDetail();
+        VisitsDetailDO visitsDetailDO = new VisitsDetailDO();
         // 获取就诊记录
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentId(studentId);
-        visitsDetail.setTotal(visitLists.size());
-        visitsDetail.setItems(visitLists);
-        response.setVisitsDetail(visitsDetail);
+        visitsDetailDO.setTotal(visitLists.size());
+        visitsDetailDO.setItems(visitLists);
+        response.setVisitsDetailDO(visitsDetailDO);
         return response;
     }
 
@@ -370,11 +373,11 @@ public class ParentStudentFacade {
      * @param studentId 学生ID
      * @return List<CountReportItemsDTO>
      */
-    public List<CountReportItems> getStudentCountReportItems(Integer studentId) {
+    public List<CountReportItemsDO> getStudentCountReportItems(Integer studentId) {
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
         return screeningResults.stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
                 .map(result -> {
-                    CountReportItems items = new CountReportItems();
+                    CountReportItemsDO items = new CountReportItemsDO();
                     items.setId(result.getId());
                     items.setCreateTime(result.getCreateTime());
                     items.setUpdateTime(result.getUpdateTime());
@@ -392,7 +395,7 @@ public class ParentStudentFacade {
         VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
         if (null == result) {
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
-            ScreeningReportDetail detail = new ScreeningReportDetail();
+            ScreeningReportDetailDO detail = new ScreeningReportDetailDO();
             // 视力检查结果
             detail.setVisionResultItems(Lists.newArrayList(new VisionItems("矫正视力"),
                     new VisionItems("裸眼视力")));
@@ -501,7 +504,7 @@ public class ParentStudentFacade {
         Student student = studentService.getById(result.getStudentId());
         int age = DateUtil.ageOfNow(student.getBirthday());
 
-        ScreeningReportDetail responseDTO = new ScreeningReportDetail();
+        ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
         responseDTO.setScreeningDate(result.getUpdateTime());
         VisionDataDO visionData = result.getVisionData();
         // 视力检查结果

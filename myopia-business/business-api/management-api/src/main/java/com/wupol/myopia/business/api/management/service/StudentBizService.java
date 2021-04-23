@@ -83,51 +83,6 @@ public class StudentBizService {
     private DistrictService districtService;
 
     /**
-     * 更新学生
-     *
-     * @param student 学生实体类
-     * @return 学生实体类
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public StudentDTO updateStudent(Student student) {
-
-        // 设置学龄
-        if (null != student.getGradeId()) {
-            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
-            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
-        }
-
-        // 检查学生身份证是否重复
-        if (studentService.checkIdCard(student.getIdCard(), student.getId())) {
-            throw new BusinessException("学生身份证重复");
-        }
-
-        // 更新学生
-        studentService.updateById(student);
-        Student resultStudent = studentService.getById(student.getId());
-        StudentDTO studentDTO = new StudentDTO();
-        BeanUtils.copyProperties(resultStudent, studentDTO);
-        if (StringUtils.isNotBlank(studentDTO.getSchoolNo())) {
-            School school = schoolService.getBySchoolNo(studentDTO.getSchoolNo());
-            studentDTO.setSchoolName(school.getName());
-            studentDTO.setSchoolId(school.getId());
-
-            // 查询年级和班级
-            SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
-            SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
-            studentDTO.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
-        }
-        if (null != resultStudent.getAvatarFileId()) {
-            studentDTO.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
-        }
-        studentDTO.setScreeningCount(student.getScreeningCount())
-                .setQuestionnaireCount(student.getQuestionnaireCount())
-                // TODO: 就诊次数
-                .setNumOfVisits(0);
-        return studentDTO;
-    }
-
-    /**
      * 获取学生列表
      *
      * @param pageRequest     分页
