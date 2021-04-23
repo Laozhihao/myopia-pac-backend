@@ -1,9 +1,10 @@
-package com.wupol.myopia.business.core.parent.domain.dto;
+package com.wupol.myopia.business.core.school.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+
 
 /**
  * 家长端-统计家长绑定学生

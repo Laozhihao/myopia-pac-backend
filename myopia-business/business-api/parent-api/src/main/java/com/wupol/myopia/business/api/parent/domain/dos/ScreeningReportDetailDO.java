@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ScreeningReportDetail {
+public class ScreeningReportDetailDO {
 
     /**
      * 检查日期

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.facade;
+package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -28,7 +28,7 @@ import java.util.List;
  * @author Simple4H
  */
 @Service
-public class HospitalFacade {
+public class HospitalBizService {
 
     @Resource
     private HospitalService hospitalService;

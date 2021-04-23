@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.parent.domain.dto;
+package com.wupol.myopia.business.core.school.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
