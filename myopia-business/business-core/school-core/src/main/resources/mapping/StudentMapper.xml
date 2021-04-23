@@ -236,4 +236,12 @@
           #{districtId}
         </foreach>
     </select>
+
+    <select id="countParentStudent" resultType="com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO">
+        select id, name, gender from m_student
+        where id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+    </select>
 </mapper>

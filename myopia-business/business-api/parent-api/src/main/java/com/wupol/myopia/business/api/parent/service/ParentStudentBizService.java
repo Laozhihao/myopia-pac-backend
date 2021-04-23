@@ -22,9 +22,11 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.business.core.parent.service.ParentStudentService;
+import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -79,6 +81,20 @@ public class ParentStudentBizService {
     @Autowired
     private StudentFacade studentFacade;
 
+    /**
+     * 孩子统计、孩子列表
+     *
+     * @param parentId 家长ID
+     * @return CountParentStudentResponseDTO 家长端-统计家长绑定学生
+     */
+    public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
+        CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
+        List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parentId);
+        List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
+        responseDTO.setTotal(parentStudentDTOS.size());
+        responseDTO.setItem(parentStudentDTOS);
+        return responseDTO;
+    }
 
     /**
      * 获取学生的就诊档案详情（报告）

@@ -14,15 +14,13 @@ import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
-import com.wupol.myopia.business.core.parent.domain.dto.CountParentStudentResponseDTO;
-import com.wupol.myopia.business.core.parent.service.ParentStudentService;
+import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -45,10 +43,8 @@ public class ParentStudentController {
     @Resource
     private SchoolService schoolService;
     @Resource
-    private ParentStudentService parentStudentService;
-    @Resource
     private DistrictService districtService;
-    @Autowired
+    @Resource
     private ParentStudentBizService parentStudentBizService;
 
     /**
@@ -59,7 +55,7 @@ public class ParentStudentController {
      */
     @GetMapping("count/{parentId}")
     public CountParentStudentResponseDTO countParentStudent(@PathVariable("parentId") Integer parentId) {
-        return parentStudentService.countParentStudent(parentId);
+        return parentStudentBizService.countParentStudent(parentId);
     }
 
     /**

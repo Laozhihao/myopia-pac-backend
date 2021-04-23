@@ -11,6 +11,7 @@ import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -312,5 +313,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             throw new BusinessException("学生二维码已经失效！");
         }
         return studentId;
+    }
+
+    /**
+     * 统计学生信息
+     *
+     * @param studentIds 学生ids
+     * @return List<ParentStudentDTO>
+     */
+    public List<ParentStudentDTO> countParentStudent(List<Integer> studentIds) {
+        return baseMapper.countParentStudent(studentIds);
     }
 }

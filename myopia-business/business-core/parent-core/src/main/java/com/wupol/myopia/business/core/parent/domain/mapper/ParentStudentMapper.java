@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.parent.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.core.parent.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.parent.domain.model.ParentStudent;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,8 +14,8 @@ import java.util.List;
  */
 public interface ParentStudentMapper extends BaseMapper<ParentStudent> {
 
-    List<ParentStudentDTO> countParentStudent(@Param("parentId") Integer parentId);
-
     ParentStudent getByParentIdAndStudentId(@Param("parentId") Integer parentId, @Param("studentId") Integer studentId);
+
+    List<Integer> getByParentId(@Param("parentId") Integer parentId);
 
 }
