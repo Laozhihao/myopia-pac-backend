@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class ScreeningNoticeApiService {
+public class ScreeningNoticeBizService {
 
     @Autowired
     private DistrictService districtService;

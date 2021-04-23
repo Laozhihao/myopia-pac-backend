@@ -6,8 +6,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.api.management.service.ScreeningNoticeApiService;
-import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgApiService;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -45,9 +45,9 @@ public class ScreeningNoticeController {
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
-    private ScreeningNoticeApiService screeningNoticeApiService;
+    private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
-    private ScreeningNoticeDeptOrgApiService screeningNoticeDeptOrgApiService;
+    private ScreeningNoticeDeptOrgBizService screeningNoticeDeptOrgBizService;
 
     /**
      * 新增
@@ -175,7 +175,7 @@ public class ScreeningNoticeController {
         } else if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeApiService.getPage(query, pageRequest);
+        return screeningNoticeBizService.getPage(query, pageRequest);
     }
 
     /**
@@ -198,7 +198,7 @@ public class ScreeningNoticeController {
             query.setType(1);
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeDeptOrgApiService.getPage(query, pageRequest);
+        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest);
     }
 
     /**
@@ -230,7 +230,7 @@ public class ScreeningNoticeController {
         ScreeningNotice notice = screeningNoticeService.getById(id);
         createOrReleaseValidate(notice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
-            screeningNoticeService.release(id, user);
+            screeningNoticeBizService.release(id, user);
         } else {
             throw new ValidationException("无权限");
         }

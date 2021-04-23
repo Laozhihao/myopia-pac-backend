@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class ScreeningNoticeDeptOrgApiService {
+public class ScreeningNoticeDeptOrgBizService {
 
     @Autowired
     private GovDeptService govDeptService;
