@@ -6,15 +6,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -42,6 +44,10 @@ public class ScreeningNoticeController {
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningNoticeDeptOrgBizService screeningNoticeDeptOrgBizService;
 
     /**
      * 新增
@@ -161,7 +167,7 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("dept/page")
-    public IPage queryDeptPage(ScreeningNoticeQuery query, PageRequest pageRequest) {
+    public IPage queryDeptPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setType(0);
         if (user.isPlatformAdminUser()) {
@@ -169,7 +175,7 @@ public class ScreeningNoticeController {
         } else if (user.isGovDeptUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeService.getPage(query, pageRequest);
+        return screeningNoticeBizService.getPage(query, pageRequest);
     }
 
     /**
@@ -182,7 +188,7 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("page")
-    public IPage queryInfo(ScreeningNoticeQuery query, PageRequest pageRequest) throws IOException {
+    public IPage queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setReleaseStatus(CommonConst.STATUS_RELEASE);
         if (user.isGovDeptUser()) {
@@ -192,7 +198,7 @@ public class ScreeningNoticeController {
             query.setType(1);
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningNoticeDeptOrgService.getPage(query, pageRequest);
+        return screeningNoticeDeptOrgBizService.getPage(query, pageRequest);
     }
 
     /**
@@ -224,7 +230,7 @@ public class ScreeningNoticeController {
         ScreeningNotice notice = screeningNoticeService.getById(id);
         createOrReleaseValidate(notice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
-            screeningNoticeService.release(id, user);
+            screeningNoticeBizService.release(id, user);
         } else {
             throw new ValidationException("无权限");
         }

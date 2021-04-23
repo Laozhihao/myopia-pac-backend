@@ -1,11 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.District;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 筛查通知
@@ -28,8 +25,6 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
     private String districtName;
     /** 部门名称 */
     private String govDeptName;
-    /** 行政区明细 */
-    private List<District> districtDetail;
     /** 筛查通知--该通知对应的筛查任务或筛查计划ID */
     private Integer screeningTaskPlanId;
 }

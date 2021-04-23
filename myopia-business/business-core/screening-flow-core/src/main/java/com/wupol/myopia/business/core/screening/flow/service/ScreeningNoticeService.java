@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
@@ -19,17 +20,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningNoticeMapper;
 import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeNameDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeDTO;
 import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,20 +39,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, ScreeningNotice> {
+
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
-    private GovDeptService govDeptService;
-    @Autowired
-    private DistrictService districtService;
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
-    @Autowired
-    private NoticeService noticeService;
-    @Autowired
     private ScreeningTaskService screeningTaskService;
-    @Autowired
-    private ScreeningRelatedFacade screeningRelatedFacade;
 
     /**
      * 设置操作人再更新
@@ -74,52 +57,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         return updateById(entity);
     }
 
-    /**
-     * 分页查询
-     *
-     * @param query
-     * @param pageRequest
-     * @return
-     */
-    public IPage<ScreeningNoticeDTO> getPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
-        Page<ScreeningNotice> page = (Page<ScreeningNotice>) pageRequest.toPage();
-        if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
-            return new Page<>();
-        }
-        IPage<ScreeningNoticeDTO> screeningNoticeIPage = baseMapper.selectPageByQuery(page, query);
-        List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
-        screeningNoticeIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")).setDistrictDetail(districtService.getDistrictPositionDetailById(vo.getDistrictId())));
-        return screeningNoticeIPage;
-    }
-
-    /**
-     * 发布通知
-     *
-     * @param id
-     * @return
-     */
-    public void release(Integer id, CurrentUser user) {
-        //1. 更新状态&发布时间
-        ScreeningNotice notice = getById(id);
-        notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        if (!updateById(notice, user.getId())) {
-            throw new BusinessException("发布失败");
-        }
-        List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
-        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        //2. 为下属部门创建通知
-        screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-        // 3. 为消息中心创建通知
-        List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(govOrgIds)) {
-            return;
-        }
-        ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
-        List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(toUserIds)) {
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
-        }
+    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<?> page, ScreeningNoticeQueryDTO query) {
+        return baseMapper.selectPageByQuery(page, query);
     }
 
     /**

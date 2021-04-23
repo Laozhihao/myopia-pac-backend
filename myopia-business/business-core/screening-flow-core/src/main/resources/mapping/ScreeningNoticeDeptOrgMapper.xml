@@ -38,13 +38,11 @@
     <select id="selectPageByQuery" resultMap="ScreeningNoticeDTOResultMap" parameterType="java.util.Map">
         SELECT
           msn.id, msndo.id as screening_notice_dept_org_id, msn.type, msn.title, msn.content, msn.start_time, msn.end_time, msn.release_time, msn.screening_task_id,
-          msndo.district_id, md.name as district_name, msndo.accept_org_id, mgd.name as gov_dept_name, msndo.screening_task_plan_id,
+          msndo.district_id, msndo.accept_org_id, msndo.screening_task_plan_id,
           msndo.operation_status
         FROM
         m_screening_notice_dept_org msndo
         LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
-        LEFT JOIN m_district md ON msndo.district_id = md.id
-        LEFT JOIN m_government_department mgd ON (msndo.accept_org_id = mgd.id AND msn.type = 0)
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(param.releaseStatus)">and msn.`release_status` = #{param.releaseStatus}</if>
