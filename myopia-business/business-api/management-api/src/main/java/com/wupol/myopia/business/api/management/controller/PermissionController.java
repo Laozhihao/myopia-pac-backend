@@ -3,16 +3,17 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
-import com.wupol.myopia.business.management.validator.PermissionAddValidatorGroup;
-import com.wupol.myopia.business.management.validator.PermissionUpdateValidatorGroup;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wupol.myopia.business.api.management.domain.dto.PermissionQueryDTO;
+import com.wupol.myopia.business.api.management.validator.PermissionAddValidatorGroup;
+import com.wupol.myopia.business.api.management.validator.PermissionUpdateValidatorGroup;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.Permission;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -25,8 +26,8 @@ import java.util.List;
 @RequestMapping("/management/permission")
 public class PermissionController {
 
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取权限资料列表
@@ -35,9 +36,9 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public List<PermissionDTO> getPermissionList(PermissionDTO param) {
+    public List<Permission> getPermissionList(PermissionQueryDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        return oauthService.getPermissionList(param);
+        return oauthServiceClient.getPermissionList(param.convertToPermissionDTO());
     }
 
     /**
@@ -47,12 +48,13 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @PostMapping()
-    public PermissionDTO addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionDTO param) {
+    public Permission addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionQueryDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
         Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
-        return oauthService.addPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+        return oauthServiceClient.addPermission(param.convertToPermissionDTO());
     }
 
     /**
@@ -62,12 +64,13 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public PermissionDTO updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionDTO param) {
+    public Permission updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionQueryDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
         Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
-        return oauthService.modifyPermission(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+        return oauthServiceClient.modifyPermission(param.convertToPermissionDTO());
     }
 
     /**
@@ -77,9 +80,9 @@ public class PermissionController {
      * @return java.lang.Object
      **/
     @DeleteMapping("/{permissionId}")
-    public Object deletePermission(@PathVariable("permissionId") Integer permissionId) {
+    public boolean deletePermission(@PathVariable("permissionId") Integer permissionId) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        return oauthService.deletePermission(permissionId);
+        return oauthServiceClient.deletePermission(permissionId);
     }
 
 }

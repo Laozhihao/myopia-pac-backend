@@ -1,35 +1,23 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffRequestDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.*;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationStaffMapper;
-import com.wupol.myopia.business.management.domain.model.ResourceFile;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationStaffQueryDTO;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningOrganizationStaffVo;
-import com.wupol.myopia.business.management.util.TwoTuple;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -52,9 +40,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-
     @Resource
-    private OauthService oauthService;
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取机构人员列表
@@ -62,8 +49,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @param request 请求入参
      * @return Page<UserExtDTO> {@link Page}
      */
-    public Page<UserExtDTO> getOrganizationStaffList(OrganizationStaffRequestDTO request) {
-        UserDTOQuery userQuery = new UserDTOQuery();
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(OrganizationStaffRequestDTO request) {
+        UserDTO userQuery = new UserDTO();
 
         // 搜索条件
         userQuery.setCurrent(request.getCurrent())
@@ -74,21 +61,20 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setPhone(request.getPhone())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
-        Page<UserExtDTO> page = JSONObject
-                .parseObject(JSONObject.toJSONString(oauthService.getUserListPage(userQuery)),
-                        new TypeReference<Page<UserExtDTO>>() {
-                        });
-        List<UserExtDTO> resultLists = page.getRecords();
-        // 封装DTO，回填多端管理的ID
-        if (!CollectionUtils.isEmpty(resultLists)) {
-            List<Integer> userIds = resultLists.stream().map(UserExtDTO::getId).collect(Collectors.toList());
-            Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
-                    .stream().collect(Collectors
-                            .toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-            resultLists.forEach(s -> s.setStaffId(staffSnMaps.get(s.getId()).getId()));
-            return page;
+        Page<User> page = oauthServiceClient.getUserListPage(userQuery);
+        List<User> resultLists = page.getRecords();
+        if (CollectionUtils.isEmpty(resultLists)) {
+            return new Page<>(request.getCurrent(), request.getSize());
         }
-        return page;
+        // 封装DTO，回填多端管理的ID
+        List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
+        Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
+                .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
+        return page.convert(user -> {
+            ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
+            screeningOrgStaffUserDTO.setStaffId(staffSnMaps.get(user.getId()).getId());
+            return screeningOrgStaffUserDTO;
+        });
     }
 
     /**
@@ -101,16 +87,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     public UsernameAndPasswordDTO saveOrganizationStaff(ScreeningOrganizationStaffQueryDTO staffQuery) {
 
         // 检查身份证号码是否重复
-        List<UserDTO> checkIdCards = oauthService
-                .getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
+        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
                         SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证已经被使用！");
         }
 
         // 检查手机号码是否重复
-        List<UserDTO> checkPhones = oauthService
-                .getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
+        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
                         SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
             throw new BusinessException("手机号码已经被使用");
@@ -140,8 +124,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         ScreeningOrganizationStaff admin = baseMapper.selectById(staff.getId());
 
         // 检查身份证号码是否重复
-        List<UserDTO> checkIdCards = oauthService
-                .getUserBatchByIdCards(Lists.newArrayList(staff.getIdCard()),
+        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staff.getIdCard()),
                         SystemCode.SCREENING_CLIENT.getCode(), checkStaff.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             if (checkIdCards.size() > 1) {
@@ -153,8 +136,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         }
 
         // 检查手机号码是否重复
-        List<UserDTO> checkPhones = oauthService
-                .getUserBatchByPhones(Lists.newArrayList(staff.getPhone()),
+        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staff.getPhone()),
                         SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
             if (checkPhones.size() > 1) {
@@ -164,15 +146,15 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 throw new BusinessException("手机号码重复");
             }
         }
-        UserDTO userDTO = new UserDTO()
-                .setId(checkStaff.getUserId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(checkStaff.getUserId())
                 .setRealName(staff.getRealName())
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
-        oauthService.modifyUser(userDTO);
+        oauthServiceClient.modifyUser(userDTO);
         resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
     }
@@ -184,13 +166,13 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * @return UserDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserDTO updateStatus(StatusRequest request) {
+    public User updateStatus(StatusRequest request) {
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getId());
         // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(staff.getUserId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        return oauthService.modifyUser(userDTO);
+        return oauthServiceClient.modifyUser(userDTO);
     }
 
     /**
@@ -204,7 +186,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         ScreeningOrganizationStaff staff = baseMapper.selectById(request.getStaffId());
         String password = PasswordGenerator.getScreeningUserPwd(request.getPhone(), request.getIdCard());
         String username = request.getPhone();
-        oauthService.resetPwd(staff.getUserId(), password);
+        oauthServiceClient.resetPwd(staff.getUserId(), password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -227,8 +209,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         String username = staff.getPhone();
         tuple.setFirst(new UsernameAndPasswordDTO(username, password));
 
-        UserDTO userDTO = new UserDTO()
-                .setOrgId(staff.getScreeningOrgId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setOrgId(staff.getScreeningOrgId())
                 .setUsername(username)
                 .setPassword(password)
                 .setCreateUserId(staff.getCreateUserId())
@@ -239,7 +221,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setRemark(staff.getRemark());
 
-        UserDTO user = oauthService.addMultiSystemUser(userDTO);
+        User user = oauthServiceClient.addMultiSystemUser(userDTO);
         tuple.setSecond(user.getId());
         return tuple;
     }
@@ -247,7 +229,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
     /**
      * 批量新增, 自动生成编号
      */
-    public void saveBatch(List<ScreeningOrganizationStaffRequestDTO> list) {
+    public void saveBatch(List<ScreeningOrganizationStaffDTO> list) {
         if (CollectionUtils.isEmpty(list)) return;
         // 通过screeningOrgId获取机构
         ScreeningOrganization organization = screeningOrganizationService.getById(list.get(0).getScreeningOrgId());

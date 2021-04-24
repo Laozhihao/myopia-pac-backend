@@ -8,13 +8,11 @@ import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.hospital.domain.vo.DoctorVo;
 import com.wupol.myopia.business.management.service.ResourceFileService;
-import com.wupol.myopia.business.management.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 

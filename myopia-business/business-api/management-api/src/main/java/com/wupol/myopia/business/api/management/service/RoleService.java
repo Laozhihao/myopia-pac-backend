@@ -8,19 +8,24 @@ import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.RoleQueryDTO;
+import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.RoleDTO;
-import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.Permission;
+import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +39,8 @@ import java.util.stream.Collectors;
 @Service
 public class RoleService {
 
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
     @Autowired
     private DistrictService districtService;
     @Autowired
@@ -50,7 +55,7 @@ public class RoleService {
      * @param currentUser 当前用户
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
-    public IPage<RoleDTO> getRoleListByPage(RoleDTO param, Integer current, Integer size, CurrentUser currentUser) {
+    public IPage<RoleVO> getRoleListByPage(RoleQueryDTO param, Integer current, Integer size, CurrentUser currentUser) {
         if (!currentUser.isPlatformAdminUser()) {
             // 非平台管理员只能查看自己部门下的角色
             param.setOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
@@ -62,25 +67,27 @@ public class RoleService {
             }
             param.setOrgIds(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
         }
+        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
-        Page<RoleDTO> rolePage = oauthService.getRoleListByPage(param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size));
-        List<RoleDTO> roleList = JSONObject.parseArray(JSONObject.toJSONString(rolePage.getRecords()), RoleDTO.class);
+        Page<Role> rolePage = oauthServiceClient.getRoleListByPage(param.convertToOauthRoleDTO());
+        List<Role> roleList = JSONObject.parseArray(JSONObject.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {
-            return rolePage;
+            return new Page<>(current, size);
         }
         // 获取部门信息和行政区信息
-        List<Integer> govDeptIds = roleList.stream().map(RoleDTO::getOrgId).distinct().collect(Collectors.toList());
-        Map<Integer, GovDeptVo> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
-        roleList.forEach(role -> {
-            GovDeptVo govDeptVo = govDeptMap.get(role.getOrgId());
-            if (Objects.isNull(govDeptVo)) {
-                return;
+        List<Integer> govDeptIds = roleList.stream().map(Role::getOrgId).distinct().collect(Collectors.toList());
+        Map<Integer, GovDeptDTO> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
+        return rolePage.convert(role -> {
+            RoleVO roleVO = new RoleVO(role);
+            GovDeptDTO govDept = govDeptMap.get(role.getOrgId());
+            if (Objects.isNull(govDept)) {
+                return roleVO;
             }
-            role.setOrgName(govDeptVo.getName());
-            role.setDistrictDetail(districtService.getDistrictPositionDetail(govDeptVo.getDistrict()));
-            role.setDistrictId(govDeptVo.getDistrictId());
+            roleVO.setOrgName(govDept.getName());
+            roleVO.setDistrictDetail(districtService.getDistrictPositionDetail(govDept.getDistrict()));
+            roleVO.setDistrictId(govDept.getDistrictId());
+            return roleVO;
         });
-        return rolePage.setRecords(roleList);
     }
 
     /**
@@ -90,9 +97,11 @@ public class RoleService {
      * @param currentUser 当前登录用户
      * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
-    public List<RoleDTO> getGovDeptRole(Integer govDeptId, CurrentUser currentUser) {
+    public List<Role> getGovDeptRole(Integer govDeptId, CurrentUser currentUser) {
         Assert.isTrue(currentUser.isPlatformAdminUser() || govDeptId.equals(currentUser.getOrgId()), "没有权限访问该部门角色");
-        return oauthService.getRoleList(new RoleDTO().setOrgId(govDeptId));
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setOrgId(govDeptId);
+        return oauthServiceClient.getRoleList(roleDTO);
     }
 
     /**
@@ -102,7 +111,7 @@ public class RoleService {
      * @param currentUser 当前用户
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
-    public RoleDTO addRole(RoleDTO param, CurrentUser currentUser) {
+    public Role addRole(RoleQueryDTO param, CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(param.getRoleType(), "角色类型为空");
             if (!RoleType.SUPER_ADMIN.getType().equals(param.getRoleType())) {
@@ -119,7 +128,7 @@ public class RoleService {
             param.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
         }
         param.setSystemCode(currentUser.getSystemCode()).setCreateUserId(currentUser.getId());
-        return oauthService.addRole(param);
+        return oauthServiceClient.addRole(param.convertToOauthRoleDTO());
     }
     
     /**
@@ -129,8 +138,8 @@ public class RoleService {
      * @param currentUser 当前用户
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
-    public RoleDTO updateRole(RoleDTO param, CurrentUser currentUser) {
-        RoleDTO role = oauthService.getRoleById(param.getId());
+    public RoleVO updateRole(RoleQueryDTO param, CurrentUser currentUser) {
+        Role role = oauthServiceClient.getRoleById(param.getId());
         Assert.notNull(role, "该角色不存在");
         // 平台管理员用户，创建非平台角色
         if (currentUser.isPlatformAdminUser() && !RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
@@ -142,10 +151,11 @@ public class RoleService {
         // 非平台管理员用户，只能修改自己部门的角色
         Assert.isTrue(currentUser.isPlatformAdminUser() || role.getOrgId().equals(currentUser.getOrgId()), "非法操作，只能修改自己部门的角色");
         role.setStatus(param.getStatus()).setRemark(param.getRemark()).setChName(param.getChName());
-        RoleDTO roleDTO = oauthService.updateRole(role);
-        GovDept govDept = govDeptService.getById(roleDTO.getOrgId());
+        Role newRole = oauthServiceClient.updateRole(role.convertToRoleDTO());
+        GovDept govDept = govDeptService.getById(newRole.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
-        return roleDTO.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
+        RoleVO roleVO = new RoleVO(newRole);
+        return roleVO.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
     }
 
     /**
@@ -155,9 +165,11 @@ public class RoleService {
      * @param status 角色状态
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
-    public RoleDTO updateRoleStatus(Integer roleId, Integer status) {
+    public Role updateRoleStatus(Integer roleId, Integer status) {
         validatePermission(roleId);
-        return oauthService.updateRole(new RoleDTO().setId(roleId).setStatus(status));
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setId(roleId).setStatus(status);
+        return oauthServiceClient.updateRole(roleDTO);
     }
 
     /**
@@ -167,13 +179,13 @@ public class RoleService {
      * @param permissionIds 权限ID集
      * @return java.lang.Object
      **/
-    public Object assignRolePermission(Integer roleId, List<Integer> permissionIds) {
+    public Role assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         validatePermission(roleId);
         // 判断权限全来自模板
-        List<Integer> permissionTemplateIdList = oauthService.getPermissionTemplateIdList(getPermissionTemplateTypeByRoleId(roleId));
+        List<Integer> permissionTemplateIdList = oauthServiceClient.getPermissionTemplateIdList(getPermissionTemplateTypeByRoleId(roleId));
         Collection<Integer> intersection = CollectionUtils.intersection(permissionTemplateIdList, permissionIds);
         Assert.isTrue(Objects.nonNull(intersection) && intersection.size() == permissionIds.size(), "存在无效权限");
-        return oauthService.assignRolePermission(roleId, permissionIds);
+        return oauthServiceClient.assignRolePermission(roleId, permissionIds);
     }
 
     /**
@@ -182,16 +194,16 @@ public class RoleService {
      * @param roleId 角色ID
      * @return java.lang.Object
      **/
-    public Object getRolePermissionTree(Integer roleId) {
+    public List<Permission> getRolePermissionTree(Integer roleId) {
         validatePermission(roleId);
         // 根据角色所属部门所在行政区拿获取权限模板类型
-        RoleDTO roleDTO = oauthService.getRoleById(roleId);
+        Role role = oauthServiceClient.getRoleById(roleId);
         // 平台角色
-        if (RoleType.SUPER_ADMIN.getType().equals(roleDTO.getRoleType())) {
-            return oauthService.getRolePermissionTree(roleId, PermissionTemplateType.ALL.getType());
+        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+            return oauthServiceClient.getRolePermissionTree(roleId, PermissionTemplateType.ALL.getType());
         }
         // 非平台角色
-        return oauthService.getRolePermissionTree(roleId, getPermissionTemplateTypeByGovDeptId(roleDTO.getOrgId()));
+        return oauthServiceClient.getRolePermissionTree(roleId, getPermissionTemplateTypeByGovDeptId(role.getOrgId()));
     }
 
     /**
@@ -203,8 +215,8 @@ public class RoleService {
     private void validatePermission(Integer roleId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         if (!currentUser.isPlatformAdminUser()) {
-            RoleDTO roleDTO = oauthService.getRoleById(roleId);
-            Assert.isTrue(Objects.isNull(roleDTO) || roleDTO.getOrgId().equals(currentUser.getOrgId()), "非法操作，只能修改自己部门的角色");
+            Role role = oauthServiceClient.getRoleById(roleId);
+            Assert.isTrue(Objects.isNull(role) || role.getOrgId().equals(currentUser.getOrgId()), "非法操作，只能修改自己部门的角色");
         }
     }
 
@@ -216,7 +228,7 @@ public class RoleService {
      **/
     private Integer getPermissionTemplateTypeByRoleId(Integer roleId) {
         Assert.notNull(roleId, "角色ID不能为空");
-        RoleDTO role = oauthService.getRoleById(roleId);
+        Role role = oauthServiceClient.getRoleById(roleId);
         Assert.notNull(role, "角色不存在");
         if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
             return PermissionTemplateType.ALL.getType();

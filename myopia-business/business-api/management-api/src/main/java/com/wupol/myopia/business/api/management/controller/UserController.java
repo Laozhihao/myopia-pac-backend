@@ -6,20 +6,23 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.UserQueryDTO;
+import com.wupol.myopia.business.api.management.domain.vo.UserVO;
 import com.wupol.myopia.business.api.management.service.UserService;
+import com.wupol.myopia.business.api.management.validator.UserAddValidatorGroup;
+import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGroup;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.validator.UserAddValidatorGroup;
-import com.wupol.myopia.business.management.validator.UserUpdateValidatorGroup;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @Author HaoHao
@@ -31,8 +34,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/management/user")
 public class UserController {
 
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
     @Autowired
     private UserService userService;
     @Autowired
@@ -49,9 +52,9 @@ public class UserController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public IPage<UserDTO> getUserListPage(UserDTOQuery queryParam,
-                                          @RequestParam(defaultValue = "1") Integer current,
-                                          @RequestParam(defaultValue = "10") Integer size) {
+    public IPage<UserVO> getUserListPage(UserQueryDTO queryParam,
+                                         @RequestParam(defaultValue = "1") Integer current,
+                                         @RequestParam(defaultValue = "10") Integer size) {
         return userService.getUserListPage(queryParam, current, size, CurrentUserUtil.getCurrentUser());
     }
 
@@ -62,7 +65,7 @@ public class UserController {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PostMapping()
-    public UserDTO addUser(@RequestBody @Validated(value = UserAddValidatorGroup.class) UserDTO user) {
+    public User addUser(@RequestBody @Validated(value = UserAddValidatorGroup.class) UserQueryDTO user) {
         return userService.addUser(user, CurrentUserUtil.getCurrentUser());
     }
 
@@ -73,7 +76,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public Object updateUser(@RequestBody @Validated(value = UserUpdateValidatorGroup.class) UserDTO user) {
+    public UserVO updateUser(@RequestBody @Validated(value = UserUpdateValidatorGroup.class) UserQueryDTO user) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         userService.validatePermission(currentUser, user.getId());
         return userService.updateUser(user, currentUser);
@@ -86,7 +89,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping("/password/{userId}")
-    public UserDTO resetPwd(@PathVariable("userId") Integer userId) {
+    public UserVO resetPwd(@PathVariable("userId") Integer userId) {
         userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
         return userService.resetPwd(userId);
     }
@@ -98,22 +101,23 @@ public class UserController {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @GetMapping("/{userId}")
-    public UserDTO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
-        UserDTO userDTO = oauthService.getUserDetailByUserId(userId);
-        Assert.notNull(userDTO, "不存在该用户");
+    public UserVO getUserDetailByUserId(@PathVariable("userId") Integer userId) {
+        User user = oauthServiceClient.getUserDetailByUserId(userId);
+        Assert.notNull(user, "不存在该用户");
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(userDTO.getOrgId()), "没有访问该用户信息权限");
+        Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(user.getOrgId()), "没有访问该用户信息权限");
+        UserVO userVO = new UserVO(user);
         // 屏蔽密码
-        userDTO.setPassword(null);
+        userVO.setPassword(null);
         // 管理端 - 平台管理员或政府部门人员用户
-        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
-            GovDept govDept = govDeptService.getById(userDTO.getOrgId());
-            return userDTO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
+        if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            return userVO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
         }
         // 管理端 - 筛查机构管理员用户
-        if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(userDTO.getSystemCode())) {
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(userDTO.getOrgId());
-            return userDTO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
+        if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getOrgId());
+            return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
         }
         throw new BusinessException("不支持查询该用户");
     }
@@ -126,7 +130,7 @@ public class UserController {
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
     @PutMapping("/{userId}/{status}")
-    public UserDTO updateUserStatus(@PathVariable("userId") Integer userId, @PathVariable("status") Integer status) {
+    public User updateUserStatus(@PathVariable("userId") Integer userId, @PathVariable("status") Integer status) {
         userService.validatePermission(CurrentUserUtil.getCurrentUser(), userId);
         return userService.updateUserStatus(userId, status);
     }

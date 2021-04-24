@@ -29,7 +29,7 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      **/
     public List<GovDeptDTO> selectGovDeptTreeByPid(Integer pid) {
         if (Objects.isNull(pid)) {
-            return new ArrayList<GovDeptDTO>();
+            return new ArrayList<>();
         }
         return baseMapper.selectGovDeptTreeByPid(pid);
     }

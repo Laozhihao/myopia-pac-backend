@@ -52,6 +52,12 @@
             <artifactId>common-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Oauth 服务 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>oauth-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

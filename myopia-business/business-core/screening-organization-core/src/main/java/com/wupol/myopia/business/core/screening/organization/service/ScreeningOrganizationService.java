@@ -18,12 +18,9 @@ import com.wupol.myopia.business.core.screening.organization.domain.mapper.Scree
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningOrganizationMapper;
-import com.wupol.myopia.business.management.domain.query.PageRequest;
-import com.wupol.myopia.business.management.domain.query.ScreeningOrganizationQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolDTO;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -33,7 +30,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +51,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private DistrictService districtService;
 
     @Resource
-    private OauthService oauthService;
+    private OauthServiceClient oauthServiceClient;
 
     @Resource
     private ScreeningTaskOrgService screeningTaskOrgService;
@@ -105,8 +101,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = org.getName();
 
-        UserDTO userDTO = new UserDTO()
-                .setOrgId(org.getId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setPhone(org.getPhone())
@@ -114,7 +110,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
 
-        UserDTO user = oauthService.addMultiSystemUser(userDTO);
+        User user = oauthServiceClient.addMultiSystemUser(userDTO);
         screeningOrganizationAdminService
                 .insertAdmin(org.getCreateUserId(), org.getId(),
                         user.getId(), org.getGovDeptId());
@@ -140,12 +136,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         // 机构管理员
         ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(screeningOrganization.getId());
         // 更新OAuth账号
-        UserDTO userDTO = new UserDTO()
-                .setId(admin.getUserId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(admin.getUserId())
                 .setPhone(screeningOrganization.getPhone())
                 .setRealName(screeningOrganization.getName())
                 .setUsername(screeningOrganization.getName());
-        oauthService.modifyUser(userDTO);
+        oauthServiceClient.modifyUser(userDTO);
 
         // 名字更新重置密码
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
@@ -153,7 +149,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
             response.setUsername(screeningOrganization.getName());
             // 重置密码
             String password = PasswordGenerator.getScreeningAdminPwd();
-            oauthService.resetPwd(admin.getUserId(), password);
+            oauthServiceClient.resetPwd(admin.getUserId(), password);
             response.setPassword(password);
         }
 
@@ -324,10 +320,10 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         }
 
         // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(admin.getUserId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(admin.getUserId())
                 .setStatus(request.getStatus());
-        oauthService.modifyUser(userDTO);
+        oauthServiceClient.modifyUser(userDTO);
         return 1;
     }
 
@@ -357,7 +353,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private UsernameAndPasswordDTO resetOAuthPassword(ScreeningOrganization screeningOrg, Integer userId) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = screeningOrg.getName();
-        oauthService.resetPwd(userId, password);
+        oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 

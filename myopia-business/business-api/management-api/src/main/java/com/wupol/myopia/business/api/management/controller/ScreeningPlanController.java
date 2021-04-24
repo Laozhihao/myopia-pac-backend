@@ -12,7 +12,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVo;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -267,7 +267,7 @@ public class ScreeningPlanController {
      * @return List<SchoolGradeVo>
      */
     @GetMapping("grades/{screeningPlanId}/{schoolId}")
-    public List<SchoolGradeVo> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         // 任务状态判断
         validateExist(screeningPlanId);
         return screeningPlanBizService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);

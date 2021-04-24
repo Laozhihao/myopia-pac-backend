@@ -6,21 +6,27 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.PasswordGenerator;
+import com.wupol.myopia.business.api.management.domain.dto.UserQueryDTO;
+import com.wupol.myopia.business.api.management.domain.vo.UserVO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
-import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,8 +37,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
@@ -47,7 +53,7 @@ public class UserService {
      * @param currentUser  当前用户
      * @return java.util.ArrayList<com.wupol.myopia.business.management.domain.dto.User>
      **/
-    public IPage<UserDTO> getUserListPage(UserDTOQuery param, Integer current, Integer size, CurrentUser currentUser) {
+    public IPage<UserVO> getUserListPage(UserQueryDTO param, Integer current, Integer size, CurrentUser currentUser) {
         // 非平台管理员，只能看到自己部门下的用户
         if (!currentUser.isPlatformAdminUser()) {
             param.setOrgId(currentUser.getOrgId());
@@ -63,23 +69,26 @@ public class UserService {
             param.setOrgIds(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
         }
         // 调用远程服务获取用户数据
-        Page<UserDTO> userPage = oauthService.getUserListPage(param);
-        List<UserDTO> users = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(param, userDTO);
+        Page<User> userPage = oauthServiceClient.getUserListPage(userDTO);
+        List<User> users = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), User.class);
         if (CollectionUtils.isEmpty(users)) {
-            return userPage;
+            return new Page<>(current, size);
         }
         // 获取部门信息和行政区信息
-        List<Integer> govDeptIds = users.stream().map(UserDTO::getOrgId).distinct().collect(Collectors.toList());
-        Map<Integer, GovDeptVo> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
-        users.forEach(x -> {
-            GovDeptVo govDeptVo = govDeptMap.get(x.getOrgId());
+        List<Integer> govDeptIds = users.stream().map(User::getOrgId).distinct().collect(Collectors.toList());
+        Map<Integer, GovDeptDTO> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
+        return userPage.convert(user -> {
+            UserVO userVO = new UserVO(user);
+            GovDeptDTO govDeptVo = govDeptMap.get(user.getOrgId());
             if (Objects.isNull(govDeptVo)) {
-                return;
+                return userVO;
             }
-            x.setOrgName(govDeptVo.getName());
-            x.setDistrictDetail(districtService.getDistrictPositionDetail(govDeptVo.getDistrict()));
+            userVO.setOrgName(govDeptVo.getName());
+            userVO.setDistrictDetail(districtService.getDistrictPositionDetail(govDeptVo.getDistrict()));
+            return userVO;
         });
-        return userPage.setRecords(users);
     }
 
     /**
@@ -89,7 +98,7 @@ public class UserService {
      * @param currentUser  当前登录用户
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
-    public UserDTO addUser(UserDTO user, CurrentUser currentUser) {
+    public User addUser(UserQueryDTO user, CurrentUser currentUser) {
         // 参数校验
         validateAndInitUserData(user, currentUser);
         // 新增用户并绑定角色
@@ -97,7 +106,7 @@ public class UserService {
                 .setUsername(user.getPhone())
                 .setCreateUserId(currentUser.getId())
                 .setSystemCode(currentUser.getSystemCode());
-        return oauthService.addUser(user);
+        return oauthServiceClient.addUser(user.convertToOauthUserDTO());
     }
 
     /**
@@ -107,7 +116,7 @@ public class UserService {
      * @param currentUser  当前登录用户
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
-    public UserDTO updateUser(UserDTO user, CurrentUser currentUser) {
+    public UserVO updateUser(UserQueryDTO user, CurrentUser currentUser) {
         // 参数校验
         validateAndInitUserData(user, currentUser);
         // 管理端用户默认手机号码作为用户账号
@@ -115,10 +124,12 @@ public class UserService {
             user.setUsername(user.getPhone());
         }
         // 该接口不允许更新密码
-        UserDTO newUser = oauthService.modifyUser(user.setSystemCode(currentUser.getSystemCode()).setPassword(null));
+        user.setSystemCode(currentUser.getSystemCode()).setPassword(null);
+        User newUser = oauthServiceClient.modifyUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
-        return newUser.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
+        UserVO userVO = new UserVO(newUser);
+        return userVO.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
     }
 
     /**
@@ -128,7 +139,7 @@ public class UserService {
      * @param currentUser 当前登录用户
      * @return void
      **/
-    public void validateAndInitUserData(UserDTO user, CurrentUser currentUser) {
+    private void validateAndInitUserData(UserQueryDTO user, CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(user.getUserType(), "用户类型不能为空");
             if (UserType.NOT_PLATFORM_ADMIN.getType().equals(user.getUserType())) {
@@ -153,17 +164,8 @@ public class UserService {
      * @param userIds 用户id列
      * @return  Map<用户id，用户>
      */
-    public Map<Integer, UserDTO> getUserMapByIds(Set<Integer> userIds) {
-        return getUserMapByIds(new ArrayList<>(userIds));
-    }
-
-    /**
-     * 根据id批量获取用户
-     * @param userIds 用户id列
-     * @return  Map<用户id，用户>
-     */
-    public Map<Integer, UserDTO> getUserMapByIds(List<Integer> userIds) {
-        return oauthService.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
+    public Map<Integer, User> getUserMapByIds(List<Integer> userIds) {
+        return oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, Function.identity()));
     }
 
     /**
@@ -174,7 +176,7 @@ public class UserService {
      * @return void
      **/
     public void validatePermission(CurrentUser currentUser, Integer operatedUserId) {
-        UserDTO user = oauthService.getUserDetailByUserId(operatedUserId);
+        User user = oauthServiceClient.getUserDetailByUserId(operatedUserId);
         Assert.notNull(user, "不存在该用户");
         if (!currentUser.isPlatformAdminUser()) {
             Assert.isTrue(user.getOrgId().equals(currentUser.getOrgId()), "没有操作权限，只能修改自己部门的用户");
@@ -188,10 +190,10 @@ public class UserService {
      * @param userId 用户ID
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
-    public UserDTO resetPwd(Integer userId) {
+    public UserVO resetPwd(Integer userId) {
         String pwd = PasswordGenerator.getManagementUserPwd();
-        oauthService.resetPwd(userId, pwd);
-        return new UserDTO().setId(userId).setPassword(pwd);
+        oauthServiceClient.resetPwd(userId, pwd);
+        return new UserVO().setId(userId).setPassword(pwd);
     }
 
     /**
@@ -201,10 +203,12 @@ public class UserService {
      * @param status 状态
      * @return com.wupol.myopia.business.management.domain.dto.UserDTO
      **/
-    public UserDTO updateUserStatus(Integer userId, Integer status) {
+    public User updateUserStatus(Integer userId, Integer status) {
         Assert.notNull(userId, "userId不能为空");
         Assert.notNull(status, "status不能为空");
-        return oauthService.modifyUser(new UserDTO().setId(userId).setStatus(status));
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(userId).setStatus(status);
+        return oauthServiceClient.modifyUser(userDTO);
     }
 
 }
