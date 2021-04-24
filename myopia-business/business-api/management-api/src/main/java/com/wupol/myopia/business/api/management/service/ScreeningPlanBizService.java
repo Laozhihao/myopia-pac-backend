@@ -3,7 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVo;
+import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.DistrictService;
@@ -99,14 +99,14 @@ public class ScreeningPlanBizService {
      * @param schoolId
      * @return
      */
-    public List<SchoolGradeVo> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+    public List<SchoolGradeVO> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         //1. 获取该计划学校的筛查学生所有年级、班级
         List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
         //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
         //3. 组装SchoolGradeVo数据
         return graderIdClasses.keySet().stream().map(gradeId -> {
-            SchoolGradeVo vo = new SchoolGradeVo();
+            SchoolGradeVO vo = new SchoolGradeVO();
             List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
             // 查询并设置年级名称
             SchoolGrade grade = schoolGradeService.getById(gradeId);

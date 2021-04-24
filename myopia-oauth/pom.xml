@@ -7,7 +7,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-oauth</artifactId>
+    <packaging>pom</packaging>
     <description>授权中心服务</description>
+
+    <modules>
+        <module>oauth-core</module>
+        <module>oauth-sdk</module>
+    </modules>
 
     <dependencies>
         <!-- 基础服务 -->
@@ -16,41 +22,5 @@
             <artifactId>service-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- oauth2 -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-oauth2</artifactId>
-        </dependency>
-        <!-- oauth2-jose RSA秘钥相关处理 -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
-    <build>
-        <finalName>myopia-oauth</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

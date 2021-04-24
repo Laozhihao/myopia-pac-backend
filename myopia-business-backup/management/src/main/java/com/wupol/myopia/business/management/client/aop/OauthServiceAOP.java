@@ -35,11 +35,15 @@ public class OauthServiceAOP {
     @Around("request()")
     public Object doAroundAdvice(ProceedingJoinPoint point) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) point.getSignature();
-        String methodName = methodSignature.getName(); // 方法名
-        Class[] parameterTypes =  methodSignature.getParameterTypes(); //参数类型
-        Object[] args = point.getArgs(); //参数值
+        // 方法名
+        String methodName = methodSignature.getName();
+        // 参数类型
+        Class[] parameterTypes =  methodSignature.getParameterTypes();
+        // 参数值
+        Object[] args = point.getArgs();
         Method method = client.getClass().getMethod(methodName, parameterTypes);
-        ApiResult result = (ApiResult) method.invoke(client, args); // 调用
+        // 调用
+        ApiResult result = (ApiResult) method.invoke(client, args);
         return getData(result);
     }
 

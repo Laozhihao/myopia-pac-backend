@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.service.UserService;
 import com.wupol.myopia.business.api.management.validator.GovDeptAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.GovDeptUpdateValidatorGroup;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
@@ -12,15 +13,16 @@ import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.service.UserService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -45,8 +47,8 @@ public class GovDeptController {
     private DistrictService districtService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取部门列表
@@ -61,13 +63,15 @@ public class GovDeptController {
         List<GovDept> govDeptList = govDeptService.findByListOrderByIdDesc(queryParam);
         // 填充创建人姓名、部门人数
         List<Integer> userIds = govDeptList.stream().map(GovDept::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(userIds);
+        Map<Integer, User> userMap = userService.getUserMapByIds(userIds);
         govDeptList.forEach(govDept -> {
-            UserDTO createUser = userMap.get(govDept.getCreateUserId());
+            User createUser = userMap.get(govDept.getCreateUserId());
             if (Objects.nonNull(createUser)) {
                 govDept.setCreateUserName(createUser.getRealName());
             }
-            govDept.setUserCount(oauthService.count(new UserDTO().setOrgId(govDept.getId()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode())));
+            UserDTO userDTO = new UserDTO();
+            userDTO.setOrgId(govDept.getId()).setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+            govDept.setUserCount(oauthServiceClient.count(userDTO));
         });
         return govDeptList;
     }

@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.management.domain.query;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.UserExtDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;

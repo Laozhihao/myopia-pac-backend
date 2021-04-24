@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -10,9 +11,11 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffResetPasswordRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +49,7 @@ public class ScreeningOrganizationStaffController {
      * @return 机构人员列表
      */
     @GetMapping("list")
-    public Page<UserExtDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
+    public IPage<ScreeningOrgStaffUserDTO> getOrganizationStaffList(@Valid OrganizationStaffRequestDTO request) {
         return screeningOrganizationStaffService.getOrganizationStaffList(request);
     }
 
@@ -81,10 +84,10 @@ public class ScreeningOrganizationStaffController {
      * 更新筛查人员状态
      *
      * @param statusRequest 请求入参
-     * @return 用户信息 {@link UserDTO}
+     * @return 用户信息 {@link User}
      */
     @PutMapping("status")
-    public UserDTO updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
+    public User updateStatus(@RequestBody @Valid StatusRequest statusRequest) {
         CurrentUserUtil.getCurrentUser();
         return screeningOrganizationStaffService.updateStatus(statusRequest);
     }

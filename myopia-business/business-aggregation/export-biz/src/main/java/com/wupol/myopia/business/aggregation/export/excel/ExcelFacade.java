@@ -51,6 +51,9 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +65,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,6 +86,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @Service
 public class ExcelFacade {
+    
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
@@ -108,6 +113,8 @@ public class ExcelFacade {
     private S3Utils s3Utils;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 生成筛查机构Excel
@@ -149,7 +156,7 @@ public class ExcelFacade {
         Set<Integer> createUserIds = list.stream()
                 .map(ScreeningOrganization::getCreateUserId)
                 .collect(Collectors.toSet());
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
 
         List<ScreeningOrganizationExportDTO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
@@ -204,13 +211,13 @@ public class ExcelFacade {
             throw new BusinessException("筛查机构id不能为空");
         }
         List<ScreeningOrganizationStaff> staffLists = screeningOrganizationStaffService.getByOrgId(screeningOrgId);
-        UserDTOQuery userQuery = new UserDTOQuery();
+        UserDTO userQuery = new UserDTO();
         userQuery.setSize(staffLists.size())
                 .setCurrent(1)
                 .setOrgId(screeningOrgId)
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
-        Page<UserDTO> userPage = oauthService.getUserListPage(userQuery);
-        List<UserDTO> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), UserDTO.class);
+        Page<User> userPage = oauthServiceClient.getUserListPage(userQuery);
+        List<User> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), User.class);
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("筛查机构人员");
         String orgName = screeningOrganizationService.getById(screeningOrgId).getName();
@@ -272,7 +279,7 @@ public class ExcelFacade {
 
         // 创建人姓名
         Set<Integer> createUserIds = list.stream().map(Hospital::getCreateUserId).collect(Collectors.toSet());
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
 
         for (Hospital item : list) {
             HospitalExportDTO exportVo = new HospitalExportDTO()
@@ -339,7 +346,7 @@ public class ExcelFacade {
         Set<Integer> createUserIds = list.stream().map(School::getCreateUserId).collect(Collectors.toSet());
 
         // 创建人姓名
-        Map<Integer, UserDTO> userMap = userService.getUserMapByIds(createUserIds);
+        Map<Integer, User> userMap = getUserMapByIds(createUserIds);
 
         // 学生统计
         List<StudentCountDTO> studentCountVOS = studentService.countStudentBySchoolNo();
@@ -711,7 +718,7 @@ public class ExcelFacade {
         if (idCards.stream().distinct().count() < idCards.size()) {
             throw new BusinessException("身份证号码重复");
         }
-        List<UserDTO> checkIdCards = oauthService.getUserBatchByIdCards(idCards,
+        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
                 SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证号码已经被使用，请确认！");
@@ -723,7 +730,7 @@ public class ExcelFacade {
             throw new BusinessException("手机号码重复");
         }
 
-        List<UserDTO> checkPhones = oauthService.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
             throw new BusinessException("手机号码已经被使用，请确认！");
         }
@@ -745,8 +752,8 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
                 throw new BusinessException("手机号码异常");
             }
-            UserDTO userDTO = new UserDTO()
-                    .setRealName(item.get(0))
+            UserDTO userDTO = new UserDTO();
+            userDTO.setRealName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
                     .setIdCard(item.get(2))
                     .setPhone(item.get(3))
@@ -772,9 +779,9 @@ public class ExcelFacade {
         }).collect(Collectors.toList());
 
         // 批量新增OAuth2
-        List<UserDTO> userDTOS = oauthService.addScreeningUserBatch(userList);
-        Map<String, Integer> userMaps = userDTOS.stream()
-                .collect(Collectors.toMap(UserDTO::getIdCard, UserDTO::getId));
+        List<User> users = oauthServiceClient.addScreeningUserBatch(userList);
+        Map<String, Integer> userMaps = users.stream()
+                .collect(Collectors.toMap(User::getIdCard, User::getId));
         // 设置userId
         importList.forEach(i -> i.setUserId(userMaps.get(i.getIdCard())));
         screeningOrganizationStaffService.saveBatch(importList);
@@ -980,5 +987,15 @@ public class ExcelFacade {
             decimalFormat = new DecimalFormat("0.0");
         }
         return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData), Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
+    }
+
+    /**
+     * 根据id批量获取用户
+     *
+     * @param userIds 用户id列
+     * @return  Map<用户id，用户>
+     */
+    private Map<Integer, User> getUserMapByIds(Set<Integer> userIds) {
+        return oauthServiceClient.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(User::getId, Function.identity()));
     }
 }

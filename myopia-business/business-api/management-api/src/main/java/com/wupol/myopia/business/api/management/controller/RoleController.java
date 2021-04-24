@@ -3,10 +3,13 @@ package com.wupol.myopia.business.api.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.RoleQueryDTO;
+import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
 import com.wupol.myopia.business.api.management.service.RoleService;
-import com.wupol.myopia.business.management.domain.dto.RoleDTO;
-import com.wupol.myopia.business.management.validator.RoleAddValidatorGroup;
-import com.wupol.myopia.business.management.validator.RoleUpdateValidatorGroup;
+import com.wupol.myopia.business.api.management.validator.RoleAddValidatorGroup;
+import com.wupol.myopia.business.api.management.validator.RoleUpdateValidatorGroup;
+import com.wupol.myopia.oauth.sdk.domain.response.Permission;
+import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -37,9 +40,9 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @GetMapping("/list")
-    public IPage<RoleDTO> getRoleListByPage(RoleDTO param,
-                                            @RequestParam(defaultValue = "1") Integer current,
-                                            @RequestParam(defaultValue = "10") Integer size) {
+    public IPage<RoleVO> getRoleListByPage(RoleQueryDTO param,
+                                           @RequestParam(defaultValue = "1") Integer current,
+                                           @RequestParam(defaultValue = "10") Integer size) {
         return roleService.getRoleListByPage(param, current, size, CurrentUserUtil.getCurrentUser());
     }
 
@@ -50,7 +53,7 @@ public class RoleController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
     @GetMapping("/{govDeptId}")
-    public List<RoleDTO> getGovDeptRole(@PathVariable("govDeptId") Integer govDeptId) {
+    public List<Role> getGovDeptRole(@PathVariable("govDeptId") Integer govDeptId) {
         Assert.notNull(govDeptId, "部门ID不能为空");
         return roleService.getGovDeptRole(govDeptId, CurrentUserUtil.getCurrentUser());
     }
@@ -62,7 +65,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PostMapping()
-    public RoleDTO addRole(@Validated(value = RoleAddValidatorGroup.class) @RequestBody RoleDTO param) {
+    public Role addRole(@Validated(value = RoleAddValidatorGroup.class) @RequestBody RoleQueryDTO param) {
         return roleService.addRole(param, CurrentUserUtil.getCurrentUser());
     }
 
@@ -73,7 +76,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public RoleDTO updateRole(@Validated(value = RoleUpdateValidatorGroup.class) @RequestBody RoleDTO param) {
+    public RoleVO updateRole(@Validated(value = RoleUpdateValidatorGroup.class) @RequestBody RoleQueryDTO param) {
         return roleService.updateRole(param, CurrentUserUtil.getCurrentUser());
     }
 
@@ -85,7 +88,7 @@ public class RoleController {
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
     @PutMapping("/{roleId}/{status}")
-    public RoleDTO updateRoleStatus(@PathVariable @NotNull(message = "角色ID不能为空") Integer roleId, @PathVariable @NotNull(message = "角色状态不能为空") Integer status) {
+    public Role updateRoleStatus(@PathVariable @NotNull(message = "角色ID不能为空") Integer roleId, @PathVariable @NotNull(message = "角色状态不能为空") Integer status) {
         return roleService.updateRoleStatus(roleId, status);
     }
 
@@ -97,7 +100,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PostMapping("/permission/{roleId}")
-    public Object assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
+    public Role assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
         return roleService.assignRolePermission(roleId, permissionIds);
     }
 
@@ -108,7 +111,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @GetMapping("/permission/structure/{roleId}")
-    public Object getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
+    public List<Permission> getRolePermissionTree(@PathVariable("roleId") Integer roleId) {
         return roleService.getRolePermissionTree(roleId);
     }
 }

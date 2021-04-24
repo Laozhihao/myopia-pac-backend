@@ -19,12 +19,15 @@ import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFaca
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,22 +38,16 @@ public class ScreeningNoticeBizService {
 
     @Autowired
     private DistrictService districtService;
-
     @Autowired
     private ScreeningRelatedFacade screeningRelatedFacade;
-
-    @Autowired
+    @Resource
     private OauthServiceClient oauthServiceClient;
-
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
-
     @Autowired
     private GovDeptService govDeptService;
-
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-
     @Autowired
     private NoticeService noticeService;
 
@@ -68,7 +65,7 @@ public class ScreeningNoticeBizService {
         }
         IPage<ScreeningNoticeDTO> screeningNoticeIPage = screeningNoticeService.selectPageByQuery(page, query);
         List<Integer> userIds = screeningNoticeIPage.getRecords().stream().map(ScreeningNotice::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
+        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
         // 设置位址和创造者信息
         return screeningNoticeIPage.convert(dto -> {
             ScreeningNoticeVO vo = new ScreeningNoticeVO(dto);
@@ -100,8 +97,8 @@ public class ScreeningNoticeBizService {
         if (CollectionUtils.isEmpty(govOrgIds)) {
             return;
         }
-        ApiResult<List<UserDTO>> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
-        List<Integer> toUserIds = userBatchByOrgIds.getData().stream().map(UserDTO::getId).collect(Collectors.toList());
+        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
+        List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(toUserIds)) {
             noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
         }
