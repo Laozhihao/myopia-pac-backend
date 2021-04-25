@@ -3,11 +3,13 @@ package com.wupol.myopia.business.core.parent.service;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.parent.domain.mapper.ParentMapper;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -18,8 +20,8 @@ import java.util.Objects;
 @Service
 public class ParentService extends BaseService<ParentMapper, Parent> {
 
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 根据openId获取家长
@@ -46,8 +48,8 @@ public class ParentService extends BaseService<ParentMapper, Parent> {
         if (Objects.isNull(parent)) {
             return null;
         }
-        UserDTO userDTO = oauthService.getUserDetailByUserId(userId);
-        return Objects.isNull(userDTO) ? parent : parent.setPhone(userDTO.getPhone());
+        User user = oauthServiceClient.getUserDetailByUserId(userId);
+        return Objects.isNull(user) ? parent : parent.setPhone(user.getPhone());
     }
 
 }
