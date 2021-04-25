@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -152,4 +153,10 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         queryWrapper.setEntity(schoolClass);
         return baseMapper.selectOne(queryWrapper);
     }
+
+    public String getClassNameById(Integer id) {
+        SchoolClass classById = this.getById(id);
+        return Objects.nonNull(classById) ? classById.getName() : "";
+    }
+
 }

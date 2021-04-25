@@ -3,26 +3,16 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskOrgMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.management.constant.CommonConst;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningTaskOrgMapper;
-import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,10 +28,6 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-    @Autowired
-    private NoticeService noticeService;
-    @Autowired
-    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     /**
      * 通过筛查任务ID获取所有关联的筛查机构信息
@@ -85,44 +71,13 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     }
 
     /**
-     * 批量更新或新增筛查任务的机构信息（删除非列表中的筛查机构）
-     * @param screeningTaskId
-     * @param screeningOrgs
-     */
-    public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
-        // 删除掉已有的不存在的机构信息
-        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.EMPTY_LIST : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
-        if (!CollectionUtils.isEmpty(screeningOrgs)) {
-            saveOrUpdateBatchByTaskId(user, screeningTaskId, screeningOrgs, false);
-        }
-    }
-
-    /**
-     * 批量更新或新增筛查任务的机构信息
-     * @param screeningTaskId
-     * @param screeningOrgs
-     */
-    public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, Boolean needNotice) {
-        // 1. 查出剩余的
-        Map<Integer, Integer> orgIdMap = getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
-        // 2. 更新id，并批量新增或修改
-        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));
-        saveOrUpdateBatch(screeningOrgs);
-        if (needNotice) {
-            ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
-            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningTaskId);
-            noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
-        }
-    }
-
-    /**
      * 删除筛查任务中，除了指定筛查机构ID的其它筛查机构信息
      * @param screeningTaskId
      * @param excludeOrgIds
      */
     public void deleteByTaskIdAndExcludeOrgIds(Integer screeningTaskId, List<Integer> excludeOrgIds) {
         Assert.notNull(screeningTaskId);
+        // TODO 待优化，需去除字符串数据库字段名
         QueryWrapper<ScreeningTaskOrg> query = new QueryWrapper<ScreeningTaskOrg>().eq("screening_task_id", screeningTaskId);
         if (!CollectionUtils.isEmpty(excludeOrgIds)) {
             query.notIn("screening_org_id", excludeOrgIds);
@@ -144,38 +99,4 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         return baseMapper.selectHasTaskInPeriod(null, taskQuery).stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
     }
 
-    /**
-     * 批量通知
-     * @param user
-     * @param screeningTask
-     * @param screeningNotice
-     * @return
-     */
-    public Boolean noticeBatchByScreeningTask(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice) {
-        List<ScreeningTaskOrg> orgLists = getOrgListsByTaskId(screeningTask.getId());
-        return noticeBatch(user, screeningTask, screeningNotice, orgLists);
-    }
-
-    /**
-     * 批量通知（已通知的不重复通知）
-     * @param user
-     * @param screeningTask
-     * @param screeningNotice
-     * @param orgLists
-     * @return
-     */
-    private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
-        List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
-        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-
-        // 查找org的userId
-        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList()));
-        if (!org.springframework.util.CollectionUtils.isEmpty(adminLists)) {
-            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
-            // 为消息中心创建通知
-            noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
-        }
-        return result;
-    }
 }

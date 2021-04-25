@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -253,4 +254,10 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         SchoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
         return baseMapper.selectOne(SchoolGradeExportDTOLambdaQueryWrapper);
     }
+
+    public String getGradeNameById(Integer id) {
+        SchoolGrade grade = this.getById(id);
+        return Objects.nonNull(grade) ? grade.getName() : "";
+    }
+
 }

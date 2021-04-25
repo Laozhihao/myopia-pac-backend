@@ -88,12 +88,13 @@
 
     <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         SELECT
-        mspss.student_id as id, mspss.student_no as sno, mspss.student_name as name, mspss.gender, mspss.birthday, mspss.province_code, mspss.city_code, mspss.area_code, mspss.town_code, mspss.address, mspss.id_card, mspss.nation, mspss.parent_phone, msg.name as grade_name, msc.name as class_name
+        mspss.student_id as id, mspss.student_no as sno, mspss.student_name as name, mspss.gender, mspss.birthday, mspss.province_code, mspss.city_code, mspss.area_code, mspss.town_code, mspss.address, mspss.id_card, mspss.nation, mspss.parent_phone,
+        mspss.grade_id, mspss.class_id
         FROM
         m_screening_plan_school_student mspss
-<!--        LEFT JOIN m_student ms ON mspss.student_id = ms.id-->
+<!--        LEFT JOIN m_student ms ON mspss.student_id = ms.id
         LEFT JOIN m_school_grade msg ON msg.id = mspss.grade_id
-        LEFT JOIN m_school_class msc ON msc.id = mspss.class_id
+        LEFT JOIN m_school_class msc ON msc.id = mspss.class_id -->
         <where>
             <trim prefixOverrides="and">
                 AND mspss.screening_plan_id = #{param.screeningPlanId}
@@ -128,9 +129,8 @@
     </select>
 
     <select id="selectByGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
-        select mspss.student_name as name, mspss.student_no as sno, ms.gender, ms.id
+        select mspss.student_name as name, mspss.student_no as sno, ms.gender, mspss.student_id as id
         from m_screening_plan_school_student mspss
-        left join m_student ms on mspss.student_id = ms.id
         where mspss.screening_plan_id = #{screeningPlanId} and mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}
     </select>
 
