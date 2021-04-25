@@ -22,6 +22,9 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 新增学校
@@ -106,10 +112,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             throw new BusinessException("数据异常!");
         }
         // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(staff.getUserId())
-                .setStatus(request.getStatus());
-        oauthService.modifyUser(userDTO);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(staff.getUserId());
+        userDTO.setStatus(request.getStatus());
+        oauthServiceClient.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         return baseMapper.updateById(school);
     }
@@ -159,15 +165,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
 
-        UserDTO userDTO = new UserDTO()
-                .setOrgId(school.getId())
-                .setUsername(username)
-                .setPassword(password)
-                .setRealName(username)
-                .setCreateUserId(school.getCreateUserId())
-                .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
+        UserDTO userDTO = new UserDTO();
+        userDTO.setOrgId(school.getId());
+        userDTO.setUsername(username);
+        userDTO.setPassword(password);
+        userDTO.setRealName(username);
+        userDTO.setCreateUserId(school.getCreateUserId());
+        userDTO.setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
 
-        UserDTO user = oauthService.addMultiSystemUser(userDTO);
+        User user = oauthServiceClient.addMultiSystemUser(userDTO);
         schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
         return new UsernameAndPasswordDTO(username, password);
     }
@@ -182,7 +188,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     private UsernameAndPasswordDTO resetOAuthPassword(School school, Integer userId) {
         String password = PasswordGenerator.getSchoolAdminPwd();
         String username = school.getName();
-        oauthService.resetPwd(userId, password);
+        oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
@@ -438,10 +444,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param username 用户名
      */
     public void updateOAuthName(Integer userId, String username) {
-        UserDTO userDTO = new UserDTO()
-                .setId(userId)
-                .setUsername(username);
-        oauthService.modifyUser(userDTO);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(userId);
+        userDTO.setUsername(username);
+        oauthServiceClient.modifyUser(userDTO);
     }
 
 

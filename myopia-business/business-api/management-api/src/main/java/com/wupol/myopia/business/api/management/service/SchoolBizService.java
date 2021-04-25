@@ -34,6 +34,9 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -84,6 +88,9 @@ public class SchoolBizService {
     @Autowired
     private StudentService studentService;
 
+    @Resource
+    private OauthServiceClient oauthServiceClient;
+
     /**
      * 更新学校
      *
@@ -112,7 +119,7 @@ public class SchoolBizService {
             dto.setUsername(school.getName());
             // 重置密码
             String password = PasswordGenerator.getSchoolAdminPwd();
-            oauthService.resetPwd(admin.getUserId(), password);
+            oauthServiceClient.resetPwd(admin.getUserId(), password);
             dto.setPassword(password);
         }
         schoolService.updateById(school);
@@ -257,11 +264,11 @@ public class SchoolBizService {
 
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
-            UserDTOQuery query = new UserDTOQuery();
+            UserDTO query = new UserDTO();
             query.setRealName(createUser);
-            List<UserDTO> userListPage = oauthService.getUserList(query);
+            List<User> userListPage = oauthServiceClient.getUserList(query);
             if (!CollectionUtils.isEmpty(userListPage)) {
-                userIds = userListPage.stream().map(UserDTO::getId).collect(Collectors.toList());
+                userIds = userListPage.stream().map(User::getId).collect(Collectors.toList());
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId());
@@ -278,8 +285,8 @@ public class SchoolBizService {
         }
         // 获取创建人的名字
         List<Integer> createUserIds = schools.stream().map(School::getCreateUserId).collect(Collectors.toList());
-        List<UserDTO> userDTOList = oauthService.getUserBatchByIds(createUserIds);
-        Map<Integer, UserDTO> userDTOMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId, Function.identity()));
+        List<User> userLists = oauthServiceClient.getUserBatchByIds(createUserIds);
+        Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
         List<StudentCountDTO> StudentCountDTOS = studentService.countStudentBySchoolNo();
@@ -293,8 +300,7 @@ public class SchoolBizService {
         Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap,
-                studentCountMaps, planSchoolMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps));
         return schoolDtoIPage;
     }
 
@@ -346,16 +352,16 @@ public class SchoolBizService {
      * 封装DTO
      *
      * @param currentUser      当前登录用户
-     * @param userDTOMap       用户信息
+     * @param userMap       用户信息
      * @param studentCountMaps 学生统计
      * @param planSchoolMaps   学校筛查统计
      * @return Consumer<SchoolDto>
      */
-    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, UserDTO> userDTOMap,
+    private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, User> userMap,
                                                              Map<String, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
         return school -> {
             // 创建人
-            school.setCreateUser(userDTOMap.get(school.getCreateUserId()).getRealName());
+            school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
 
             // 判断是否能更新
             school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));

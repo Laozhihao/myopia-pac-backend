@@ -12,10 +12,13 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +42,9 @@ public class ScreeningOrganizationBizService {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取筛查记录列表
@@ -95,10 +101,9 @@ public class ScreeningOrganizationBizService {
         List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(planId, orgId);
         // 员工信息
         if (!CollectionUtils.isEmpty(createUserIds)) {
-            List<UserDTO> userDTOS = oauthService.getUserBatchByIds(createUserIds);
+            List<User> userLists = oauthServiceClient.getUserBatchByIds(createUserIds);
             response.setStaffCount(createUserIds.size());
-            response.setStaffName(userDTOS
-                    .stream().map(UserDTO::getRealName).collect(Collectors.toList()));
+            response.setStaffName(userLists.stream().map(User::getRealName).collect(Collectors.toList()));
         } else {
             response.setStaffCount(0);
         }
