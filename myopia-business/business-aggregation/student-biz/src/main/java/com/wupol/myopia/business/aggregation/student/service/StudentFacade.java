@@ -27,6 +27,7 @@ public class StudentFacade {
 
     @Autowired
     private ResourceFileService resourceFileService;
+
     @Autowired
     private StudentService studentService;
 
@@ -46,21 +47,8 @@ public class StudentFacade {
      * @return 学生实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public StudentDTO updateStudent(Student student) {
-
-        // 设置学龄
-        if (null != student.getGradeId()) {
-            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
-            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
-        }
-
-        // 检查学生身份证是否重复
-        if (studentService.checkIdCard(student.getIdCard(), student.getId())) {
-            throw new BusinessException("学生身份证重复");
-        }
-
-        // 更新学生
-        studentService.updateById(student);
+    public StudentDTO updateStudentAndReturnDTO(Student student) {
+        studentService.updateStudent(student);
         Student resultStudent = studentService.getById(student.getId());
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(resultStudent, studentDTO);
