@@ -113,8 +113,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }
         // 更新OAuth2
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(staff.getUserId());
-        userDTO.setStatus(request.getStatus());
+        userDTO.setId(staff.getUserId())
+                .setStatus(request.getStatus());
         oauthServiceClient.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         return baseMapper.updateById(school);
@@ -166,13 +166,12 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String username = school.getName();
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setOrgId(school.getId());
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        userDTO.setRealName(username);
-        userDTO.setCreateUserId(school.getCreateUserId());
-        userDTO.setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
-
+        userDTO.setOrgId(school.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setRealName(username)
+                .setCreateUserId(school.getCreateUserId())
+                .setSystemCode(SystemCode.SCHOOL_CLIENT.getCode());
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         schoolAdminService.insertStaff(school.getId(), school.getCreateUserId(), school.getGovDeptId(), user.getId());
         return new UsernameAndPasswordDTO(username, password);
@@ -445,8 +444,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public void updateOAuthName(Integer userId, String username) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(userId);
-        userDTO.setUsername(username);
+        userDTO.setId(userId)
+                .setUsername(username);
         oauthServiceClient.modifyUser(userDTO);
     }
 
