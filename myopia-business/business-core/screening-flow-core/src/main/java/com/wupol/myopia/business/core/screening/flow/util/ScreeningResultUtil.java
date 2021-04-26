@@ -139,7 +139,7 @@ public class ScreeningResultUtil {
      * @return VisionItems.Item
      */
     public static VisionItems.Item packageCorrectedVision(VisionItems.Item correctedVision, BigDecimal correctedVisionValue,
-                                                    BigDecimal nakedVisionValue, Integer glassesType) {
+                                                          BigDecimal nakedVisionValue, Integer glassesType) {
         correctedVision.setVision(correctedVisionValue);
         if (Objects.nonNull(nakedVisionValue)) {
             correctedVision.setType(getCorrected2Type(nakedVisionValue, correctedVisionValue, glassesType));
@@ -775,10 +775,10 @@ public class ScreeningResultUtil {
      * @return 医生建议
      */
     public static String packageDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                       BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                       BigDecimal leftSph, BigDecimal rightSph,
-                                       BigDecimal leftCyl, BigDecimal rightCyl,
-                                       Integer glassesType, Integer schoolAge) {
+                                             BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                             BigDecimal leftSph, BigDecimal rightSph,
+                                             BigDecimal leftCyl, BigDecimal rightCyl,
+                                             Integer glassesType, Integer schoolAge) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
@@ -817,6 +817,9 @@ public class ScreeningResultUtil {
      * @return Boolean
      */
     public static Boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
+        if (Objects.isNull(leftNakedVision) || Objects.isNull(rightNakedVision)) {
+            return true;
+        }
         return ((leftNakedVision.compareTo(new BigDecimal("4.9")) < 0) &&
                 (rightNakedVision.compareTo(new BigDecimal("4.9")) < 0))
                 ||
@@ -835,8 +838,8 @@ public class ScreeningResultUtil {
      * @return 结论
      */
     public static String getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                       BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                       TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+                                             BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                             TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
             return "";
         }
@@ -873,7 +876,7 @@ public class ScreeningResultUtil {
      * @return TwoTuple<Integer, String>
      */
     public static TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
-                                                           Integer schoolAge, BigDecimal nakedVision) {
+                                                                 Integer schoolAge, BigDecimal nakedVision) {
         // 是否大于4.9，大于4.9直接返回
         if (nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
             return new TwoTuple<>(0, "");
@@ -905,8 +908,31 @@ public class ScreeningResultUtil {
      * @return 结论
      */
     public static String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                     BigDecimal leftSe, BigDecimal rightSe,
-                                     TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+                                           BigDecimal leftSe, BigDecimal rightSe,
+                                           TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+        BigDecimal se = getSE(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
+        // SE >= 0
+        if (se.compareTo(new BigDecimal("0.00")) >= 0) {
+            return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
+        } else {
+            // SE < 0
+            return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+        }
+    }
+
+    /**
+     * 获取等效球镜
+     *
+     * @param leftNakedVision   左眼裸眼视力
+     * @param rightNakedVision  右眼裸眼视力
+     * @param leftSe            左眼等效球镜
+     * @param rightSe           右眼等效球镜
+     * @param nakedVisionResult 裸眼视力结果
+     * @return 等效球镜
+     */
+    public static BigDecimal getSE(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                   BigDecimal leftSe, BigDecimal rightSe,
+                                   TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         BigDecimal se;
         // 判断两只眼睛的裸眼视力是否都在4.9的同侧
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
@@ -940,12 +966,6 @@ public class ScreeningResultUtil {
                 se = rightSe;
             }
         }
-        // SE >= 0
-        if (se.compareTo(new BigDecimal("0.00")) >= 0) {
-            return "裸眼远视力≥4.9，目前尚无近视高危因素。建议：1、6-12个月复查。2、6岁儿童SE≥+2.00D，请到医疗机构接受检查。";
-        } else {
-            // SE < 0
-            return "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
-        }
+        return se;
     }
 }

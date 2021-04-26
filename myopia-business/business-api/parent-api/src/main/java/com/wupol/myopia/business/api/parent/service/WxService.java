@@ -15,11 +15,11 @@ import com.wupol.myopia.business.api.parent.domain.dto.WxLoginInfo;
 import com.wupol.myopia.business.api.parent.domain.dto.WxUserInfo;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +44,10 @@ public class WxService {
     @Value("${wechat.app.secret}")
     private String appSecret;
 
-    @Autowired
+    @Resource
     private ParentService parentService;
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
     @Resource
     private WxClient wxClient;
 
@@ -125,10 +125,13 @@ public class WxService {
         parent = new Parent().setOpenId(wxUserInfo.getOpenId()).setHashKey(EncryptUtils.md5Base64(wxUserInfo.getOpenId())).setWxNickname(wxUserInfo.getNickname()).setWxHeaderImgUrl(wxUserInfo.getHeadImgUrl());
         parentService.save(parent);
         // 新增用户
-        UserDTO userDTO = new UserDTO().setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PATENT_CLIENT.getCode());
-        userDTO = oauthService.addUser(userDTO);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PATENT_CLIENT.getCode());
+        User user = oauthServiceClient.addUser(userDTO);
         // 更新家长
-        parentService.updateById(new Parent().setId(parent.getId()).setUserId(userDTO.getId()));
+        parentService.updateById(new Parent()
+                .setId(parent.getId())
+                .setUserId(user.getId()));
         return parent;
     }
 
@@ -136,12 +139,16 @@ public class WxService {
      * 绑定家长手机号码
      *
      * @param wxLoginInfo 手机信息
-     * @return void
      **/
     public void bindPhoneToParent(WxLoginInfo wxLoginInfo) throws IOException {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
         Assert.notNull(parent, "当前用户不存在");
-        oauthService.modifyUser(new UserDTO().setId(parent.getUserId()).setPhone(wxLoginInfo.getPhone()).setUsername(wxLoginInfo.getPhone()).setPassword(parent.getHashKey()));
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(parent.getUserId())
+                .setPhone(wxLoginInfo.getPhone())
+                .setUsername(wxLoginInfo.getPhone())
+                .setPassword(parent.getHashKey());
+        oauthServiceClient.modifyUser(userDTO);
     }
 }

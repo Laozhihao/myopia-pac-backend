@@ -12,9 +12,9 @@ import com.wupol.myopia.business.api.parent.service.SmsService;
 import com.wupol.myopia.business.api.parent.service.WxService;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
-import com.wupol.myopia.business.management.client.OauthService;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.LoginInfo;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -55,8 +56,8 @@ public class WxController {
     private WxService wxService;
     @Autowired
     private ParentService parentService;
-    @Autowired
-    private OauthService oauthService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
     @Autowired
     private SmsService smsService;
 
@@ -95,13 +96,13 @@ public class WxController {
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode());
             }
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
-            UserDTO user = oauthService.getUserDetailByUserId(parent.getUserId());
+            User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
                 logger.debug("重定向到绑定手机页面页面：" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey()));
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
             }
             // 自动登录
-            LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
+            LoginInfo loginInfo = oauthServiceClient.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_TOKEN, h5ClientUrlHost,
                     WxBusinessExceptionCodeEnum.OK.getCode(),
                     loginInfo.getTokenInfo().getAccessToken(),
@@ -168,7 +169,7 @@ public class WxController {
         // 家长绑定手机
         wxService.bindPhoneToParent(wxLoginInfo);
         // 自动登录
-        LoginInfoDTO loginInfo = oauthService.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
+        LoginInfo loginInfo = oauthServiceClient.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
         return ApiResult.success(loginInfo.getTokenInfo());
     }
 }
