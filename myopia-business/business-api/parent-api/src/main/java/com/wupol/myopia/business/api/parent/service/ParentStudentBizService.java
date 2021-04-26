@@ -8,7 +8,6 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -22,10 +21,10 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.business.core.parent.service.ParentStudentService;
+import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -78,8 +77,6 @@ public class ParentStudentBizService {
     private RedisUtil redisUtil;
     @Autowired
     private ParentStudentService parentStudentService;
-    @Autowired
-    private StudentFacade studentFacade;
 
     /**
      * 孩子统计、孩子列表
@@ -295,7 +292,7 @@ public class ParentStudentBizService {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-        StudentDTO studentDTO = studentFacade.updateStudentAndReturnDTO(student);
+        StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
         bindStudent(parent, student.getId());
         return studentDTO;

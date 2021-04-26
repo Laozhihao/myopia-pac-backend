@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -67,6 +68,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param gradeId 年级Id
      * @return 学生列表
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<Student> getStudentsByGradeId(Integer gradeId) {
         return baseMapper.getByGradeIdAndStatus(gradeId, CommonConst.STATUS_NOT_DELETED);
     }
@@ -331,7 +333,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param student 学生实体
      * @return 学生实体
      */
-    public Student updateStudent(Student student) {
+    public StudentDTO updateStudent(Student student) {
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -345,6 +347,21 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
         // 更新学生
         baseMapper.updateById(student);
-        return student;
+        // 查询信息
+        StudentDTO resultStudent = baseMapper.getStudentById(student.getId());
+        if (StringUtils.isNotBlank(resultStudent.getSchoolNo())) {
+            School school = schoolService.getBySchoolNo(resultStudent.getSchoolNo());
+            resultStudent.setSchoolName(school.getName());
+            resultStudent.setSchoolId(school.getId());
+
+            // 查询年级和班级
+            SchoolGrade schoolGrade = schoolGradeService.getById(resultStudent.getGradeId());
+            SchoolClass schoolClass = schoolClassService.getById(resultStudent.getClassId());
+            resultStudent.setGradeName(schoolGrade.getName()).setClassName(schoolClass.getName());
+        }
+        if (null != resultStudent.getAvatarFileId()) {
+            resultStudent.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
+        }
+        return resultStudent;
     }
 }

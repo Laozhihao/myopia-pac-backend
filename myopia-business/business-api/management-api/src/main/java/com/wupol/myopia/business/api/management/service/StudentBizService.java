@@ -490,4 +490,20 @@ public class StudentBizService {
     private boolean checkStudentHavePlan(Integer studentId) {
         return !CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByStudentId(studentId));
     }
+
+    /**
+     * 更新学生实体并返回统计信息
+     *
+     * @param student 学生实体
+     * @return 学生
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public StudentDTO updateStudentReturnCountInfo(Student student) {
+        StudentDTO studentDTO = studentService.updateStudent(student);
+        studentDTO.setScreeningCount(student.getScreeningCount())
+                .setQuestionnaireCount(student.getQuestionnaireCount())
+                // TODO: 就诊次数
+                .setNumOfVisits(0);
+        return studentDTO;
+    }
 }
