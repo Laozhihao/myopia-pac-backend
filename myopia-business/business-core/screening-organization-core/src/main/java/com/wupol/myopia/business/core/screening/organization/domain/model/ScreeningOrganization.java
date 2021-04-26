@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.core.screening.organization.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.amazonaws.services.simplesystemsmanagement.model.NotificationConfig;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
-import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;
-import com.wupol.myopia.business.management.interfaces.HasName;
+import com.wupol.myopia.business.common.utils.interfaces.HasName;
+import com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
