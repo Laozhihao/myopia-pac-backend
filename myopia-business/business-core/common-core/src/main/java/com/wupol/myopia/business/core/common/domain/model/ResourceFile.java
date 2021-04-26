@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.system.domain.model;
+package com.wupol.myopia.business.core.common.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,6 +51,4 @@ public class ResourceFile implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
-
 }

@@ -1,7 +1,7 @@
-package com.wupol.myopia.business.core.system.domain.mapper;
+package com.wupol.myopia.business.core.common.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 
 /**
  * 文件表Mapper接口

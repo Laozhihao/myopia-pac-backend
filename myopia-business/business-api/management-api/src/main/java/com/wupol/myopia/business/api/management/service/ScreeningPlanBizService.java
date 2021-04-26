@@ -98,7 +98,7 @@ public class ScreeningPlanBizService {
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return screeningPlanService.selectList(screeningPlanLambdaQueryWrapper);
+        return screeningPlanService.list(screeningPlanLambdaQueryWrapper);
     }
 
     /**

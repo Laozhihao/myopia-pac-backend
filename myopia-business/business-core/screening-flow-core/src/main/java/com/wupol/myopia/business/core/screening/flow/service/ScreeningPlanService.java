@@ -1,24 +1,21 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.alibaba.excel.util.CollectionUtils;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +38,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-    @Autowired
-    private GovDeptService govDeptService;
 
     /**
      * 通过ids获取
@@ -164,10 +159,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         ScreeningPlan screeningPlan = new ScreeningPlan();
         screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
         return updateById(screeningPlan, userId);
-    }
-
-    public List<ScreeningPlan> selectList(LambdaQueryWrapper<ScreeningPlan> queryWrapper) {
-        return baseMapper.selectList(queryWrapper);
     }
 
     /**
