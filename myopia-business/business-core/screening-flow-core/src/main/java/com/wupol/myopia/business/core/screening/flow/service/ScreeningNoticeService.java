@@ -2,28 +2,18 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeNameDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,31 +92,6 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      */
     public ScreeningNotice getByScreeningTaskId(Integer screeningTaskId) {
         return baseMapper.getByTaskId(screeningTaskId);
-    }
-
-    /**
-     * 获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
-     *
-     * @param user
-     * @return
-     */
-    public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
-        if (user.isGovDeptUser()) {
-            //查找所有的上级部门
-            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
-            superiorGovIds.add(user.getOrgId());
-            //查找政府发布的通知
-            return this.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
-        }
-        if (user.isPlatformAdminUser()) {
-            //这里只是查找政府的通知
-            return this.getAllReleaseNotice();
-        }
-        if (user.isScreeningUser()) {
-            //该部门发布的通知
-            return this.getNoticeBySreeningUser(user.getOrgId());
-        }
-        return Collections.emptyList();
     }
 
     /**

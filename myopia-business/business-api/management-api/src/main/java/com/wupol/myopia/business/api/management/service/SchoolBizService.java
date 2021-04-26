@@ -380,4 +380,13 @@ public class SchoolBizService {
                     school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
         };
     }
+
+    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptySet();
+        }
+        Set<Integer> schoolIds = screeningPlanSchoolService.getSchoolIdsByPlanIds(screeningPlanIds);
+        return schoolService.getAllSchoolDistrictIdsBySchoolIds(schoolIds);
+    }
+
 }
