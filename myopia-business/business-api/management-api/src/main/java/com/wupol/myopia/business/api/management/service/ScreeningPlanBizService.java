@@ -21,6 +21,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,7 +84,7 @@ public class ScreeningPlanBizService {
         List<Integer> allGovDeptIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlanPageDTO::getGovDeptId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
-        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).getData().stream().collect(Collectors.toMap(UserDTO::getId, UserDTO::getRealName));
+        Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
         screeningPlanIPage.getRecords().forEach(vo -> {
             vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
                     .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))

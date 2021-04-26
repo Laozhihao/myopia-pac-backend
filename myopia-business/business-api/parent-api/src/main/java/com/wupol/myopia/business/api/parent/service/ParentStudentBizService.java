@@ -295,7 +295,7 @@ public class ParentStudentBizService {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-        StudentDTO studentDTO = studentFacade.updateStudent(student);
+        StudentDTO studentDTO = studentFacade.updateStudentAndReturnDTO(student);
         // 绑定孩子
         bindStudent(parent, student.getId());
         return studentDTO;

@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -99,7 +100,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         // 参数校验
         validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId);
-        List<StatConclusionExportVo> statConclusionExportVos = new ArrayList<>();
+        List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
         Boolean isSchoolExport = false;
@@ -135,22 +136,22 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
         // 参数校验
         validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
-        List<StatConclusionExportVo> statConclusionExportVos = new ArrayList<>();
+        List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
         Boolean isSchoolExport = false;
         if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
+            statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
         }
         if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
             exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
             isSchoolExport = true;
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+            statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
         }
-        statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
+        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix);
         return ApiResult.success();
     }
 
