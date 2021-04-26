@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.core.system.domain.mapper.NoticeMapper;
 import com.wupol.myopia.business.core.system.domain.model.Notice;
@@ -152,8 +153,8 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      *
      * @param createUserId 创建用户ID
      * @param noticeUserId 通知用户ID
-     * @param keyContent 关键内容
-     * @param fileId 导出文件ID
+     * @param keyContent   关键内容
+     * @param fileId       导出文件ID
      * @return void
      **/
     public void sendExportSuccessNotice(Integer createUserId, Integer noticeUserId, String keyContent, Integer fileId) {
@@ -166,7 +167,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      *
      * @param createUserId 创建用户ID
      * @param noticeUserId 通知用户ID
-     * @param keyContent 关键内容
+     * @param keyContent   关键内容
      * @return void
      **/
     public void sendExportFailNotice(Integer createUserId, Integer noticeUserId, String keyContent) {

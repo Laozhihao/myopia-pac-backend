@@ -14,6 +14,9 @@ import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
+import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
+import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private HospitalAdminService hospitalAdminService;
     @Resource
-    private OauthService oauthService;
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 保存医院
@@ -80,10 +83,10 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         // 获取医院管理员信息
         HospitalAdmin staff = hospitalAdminService.getByHospitalId(request.getId());
         // 更新OAuth2
-        UserDTO userDTO = new UserDTO()
-                .setId(staff.getUserId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        oauthService.modifyUser(userDTO);
+        oauthServiceClient.modifyUser(userDTO);
         Hospital hospital = new Hospital()
                 .setId(request.getId())
                 .setStatus(request.getStatus());
@@ -115,15 +118,15 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
 
-        UserDTO userDTO = new UserDTO()
-                .setOrgId(hospital.getId())
+        UserDTO userDTO = new UserDTO();
+        userDTO.setOrgId(hospital.getId())
                 .setUsername(username)
                 .setPassword(password)
                 .setRealName(username)
                 .setCreateUserId(hospital.getCreateUserId())
                 .setSystemCode(SystemCode.HOSPITAL_CLIENT.getCode());
 
-        UserDTO user = oauthService.addMultiSystemUser(userDTO);
+        User user = oauthServiceClient.addMultiSystemUser(userDTO);
         hospitalAdminService.saveAdmin(hospital.getCreateUserId(), hospital.getId(), user.getId(), hospital.getGovDeptId());
         return new UsernameAndPasswordDTO(username, password);
     }
@@ -138,7 +141,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     private UsernameAndPasswordDTO resetAuthPassword(Hospital hospital, Integer userId) {
         String password = PasswordGenerator.getHospitalAdminPwd();
         String username = hospital.getName();
-        oauthService.resetPwd(userId, password);
+        oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
 
