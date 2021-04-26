@@ -161,6 +161,11 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
     }
 
+    public Set<Integer> getSchoolIdsByPlanIds(List<Integer> screeningPlanIds) {
+        List<ScreeningPlanSchool> screeningPlanSchools = baseMapper.getByPlanIds(screeningPlanIds);
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+    }
+
     /**
      * 更新学校名称
      *

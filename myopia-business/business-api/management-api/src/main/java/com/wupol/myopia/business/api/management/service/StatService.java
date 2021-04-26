@@ -4,8 +4,13 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
+import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.constant.SchoolAge;
@@ -17,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
@@ -68,6 +74,10 @@ public class StatService {
     private DistrictVisionStatisticService districtVisionStatisticService;
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
+    @Autowired
+    private DistrictVisionStatisticBizService districtVisionStatisticBizService;
+    @Autowired
+    private DistrictMonitorStatisticBizService districtMonitorStatisticBizService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -740,10 +750,10 @@ public class StatService {
      * @throws IOException
      */
     public ScreeningVisionStatisticVO getScreeningVisionStatisticVO(Integer districtId,
-            Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
+                                                                    Integer noticeId, ScreeningNotice screeningNotice) throws IOException {
         //查找合计数据（当前层级 + 下级）
         List<DistrictVisionStatistic> districtVisionStatistics =
-                districtVisionStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
+                districtVisionStatisticBizService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
                         noticeId, districtId, CurrentUserUtil.getCurrentUser(),true);
         if (CollectionUtils.isEmpty(districtVisionStatistics)) {
             return ScreeningVisionStatisticVO.getImmutableEmptyInstance();
@@ -785,7 +795,7 @@ public class StatService {
             throws IOException {
         //根据层级获取数据(当前层级，下级层级，汇总数据）
         List<DistrictMonitorStatistic> districtMonitorStatistics =
-                districtMonitorStatisticService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
+                districtMonitorStatisticBizService.getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(
                         noticeId, districtId, CurrentUserUtil.getCurrentUser(),true);
         if (CollectionUtils.isEmpty(districtMonitorStatistics)) {
             return DistrictScreeningMonitorStatisticVO.getImmutableEmptyInstance();
