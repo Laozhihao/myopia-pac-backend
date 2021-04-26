@@ -134,7 +134,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      *
      * @return
      */
-    private List<ScreeningNotice> getNoticeBySreeningUser(Integer screeningOrgId) {
+    public List<ScreeningNotice> getNoticeBySreeningUser(Integer screeningOrgId) {
         if (screeningOrgId == null) {
             return Collections.emptyList();
         }
@@ -158,7 +158,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      *
      * @return
      */
-    private List<ScreeningNotice> getAllReleaseNotice() {
+    public List<ScreeningNotice> getAllReleaseNotice() {
         LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningNoticeLambdaQueryWrapper
                 .eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE)

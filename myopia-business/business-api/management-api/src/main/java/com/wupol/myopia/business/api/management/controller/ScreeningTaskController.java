@@ -7,18 +7,20 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.service.ScreeningTaskBizService;
+import com.wupol.myopia.business.api.management.service.ScreeningTaskOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
-import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
-import com.wupol.myopia.business.management.domain.vo.ScreeningTaskVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -46,6 +48,10 @@ public class ScreeningTaskController {
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningTaskBizService screeningTaskBizService;
+    @Autowired
+    private ScreeningTaskOrgBizService screeningTaskOrgBizService;
 
     /**
      * 新增
@@ -80,7 +86,7 @@ public class ScreeningTaskController {
             throw new ValidationException("该部门任务已创建");
         }
         screeningTaskDTO.setCreateUserId(user.getId());
-        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
+        screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
     /**
@@ -91,7 +97,7 @@ public class ScreeningTaskController {
      */
     @GetMapping("{id}")
     public Object getInfo(@PathVariable Integer id) {
-        return screeningTaskService.getDTOById(id);
+        return screeningTaskBizService.getScreeningTaskAndDistrictById(id);
     }
 
     /**
@@ -110,7 +116,7 @@ public class ScreeningTaskController {
         if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
             throw new ValidationException("无筛查机构或筛查机构重复");
         }
-        screeningTaskService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, false);
+        screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, false);
     }
 
     /**
@@ -118,7 +124,8 @@ public class ScreeningTaskController {
      * 同时校验权限
      *
      * @param screeningTaskId 筛查通知ID
-     * @return ScreeningTask 筛查通知
+     * @return
+     * 筛查通知
      */
     private ScreeningTask validateExistAndAuthorize(Integer screeningTaskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -175,12 +182,12 @@ public class ScreeningTaskController {
      * @return Object
      */
     @GetMapping("page")
-    public IPage<ScreeningTaskVo> queryInfo(PageRequest page, ScreeningTaskQuery query) {
+    public IPage<ScreeningTaskPageDTO> queryInfo(PageRequest page, ScreeningTaskQueryDTO query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (!user.isPlatformAdminUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        return screeningTaskService.getPage(query, page);
+        return screeningTaskBizService.getPage(query, page);
     }
 
     /**
@@ -190,7 +197,7 @@ public class ScreeningTaskController {
      * @return Object
      */
     @GetMapping("orgs/{screeningTaskId}")
-    public List<ScreeningTaskOrgVo> queryOrgsInfo(@PathVariable Integer screeningTaskId) {
+    public List<ScreeningTaskOrgDTO> queryOrgsInfo(@PathVariable Integer screeningTaskId) {
         // 任务状态判断
         validateExist(screeningTaskId);
         return screeningTaskOrgService.getOrgVoListsByTaskId(screeningTaskId);
@@ -209,7 +216,7 @@ public class ScreeningTaskController {
         // 任务状态判断
         validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_NOT_RELEASE);
         // 新增
-        screeningTaskOrgService.saveOrUpdateBatchByTaskId(CurrentUserUtil.getCurrentUser(), screeningTaskId, screeningTaskOrgs, true);
+        screeningTaskOrgBizService.saveOrUpdateBatchByTaskId(CurrentUserUtil.getCurrentUser(), screeningTaskId, screeningTaskOrgs, true);
     }
 
     /**
@@ -220,10 +227,10 @@ public class ScreeningTaskController {
      * @return List
      */
     @PostMapping("orgs/period/{orgId}")
-    public List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQuery screeningTaskQuery) {
-        List<ScreeningTaskOrgVo> periodList = new ArrayList<>();
+    public List<ScreeningTaskOrgDTO> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQueryDTO screeningTaskQuery) {
+        List<ScreeningTaskOrgDTO> periodList = new ArrayList<>();
         List<String> existStartTimeEndTimeList = new ArrayList<>();
-        List<ScreeningTaskOrgVo> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        List<ScreeningTaskOrgDTO> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
         hasTaskOrgVoInPeriod.forEach(vo -> {
             String startTimeEndTime = String.format("%s--%s", DateFormatUtil.format(vo.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE), DateFormatUtil.format(vo.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             if (!existStartTimeEndTimeList.contains(startTimeEndTime)) {
@@ -263,7 +270,7 @@ public class ScreeningTaskController {
         if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(id))){
             throw new ValidationException("无筛查机构");
         }
-        screeningTaskService.release(id, CurrentUserUtil.getCurrentUser());
+        screeningTaskBizService.release(id, CurrentUserUtil.getCurrentUser());
     }
 
 }

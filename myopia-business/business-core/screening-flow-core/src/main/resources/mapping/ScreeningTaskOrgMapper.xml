@@ -6,8 +6,8 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg">
     </resultMap>
 
-    <!-- vo查询映射结果 -->
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO">
+    <!-- dto查询映射结果 -->
+    <resultMap id="ScreeningTaskOrgDTOMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -37,7 +37,7 @@
         where mst.release_status = 1
         group by msto.screening_org_id
     </select>
-    <select id="selectHasTaskInPeriod" resultMap="VoResultMap" parameterType="java.util.Map">
+    <select id="selectHasTaskInPeriod" resultMap="ScreeningTaskOrgDTOMap" parameterType="java.util.Map">
         SELECT
         msto.*, mst.start_time, mst.end_time
         FROM m_screening_task_org msto
@@ -55,7 +55,7 @@
         </where>
     </select>
 
-    <select id="selectVoListByScreeningTaskId" resultMap="VoResultMap" parameterType="java.util.Map">
+    <select id="selectVoListByScreeningTaskId" resultMap="ScreeningTaskOrgDTOMap" parameterType="java.util.Map">
         SELECT msto.*, mso.name FROM m_screening_task_org msto
             LEFT JOIN m_screening_organization mso ON msto.screening_org_id = mso.id
         WHERE msto.screening_task_id = #{screeningTaskId}

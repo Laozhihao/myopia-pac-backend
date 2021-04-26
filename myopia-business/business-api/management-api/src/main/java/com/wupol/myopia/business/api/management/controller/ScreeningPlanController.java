@@ -14,11 +14,11 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanBizService;
+import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -27,10 +27,8 @@ import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
+import com.wupol.myopia.business.core.screening.flow.constant.PDFTemplateConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
@@ -38,8 +36,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.business.core.system.service.ResourceFileService;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.PDFTemplateConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -71,6 +67,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/management/screeningPlan")
 @Slf4j
 public class ScreeningPlanController {
+
     @Autowired
     private ScreeningTaskService screeningTaskService;
     @Autowired
@@ -101,6 +98,8 @@ public class ScreeningPlanController {
     private SchoolAdminService schoolAdminService;
     @Autowired
     private ScreeningPlanBizService screeningPlanBizService;
+    @Autowired
+    private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
 
     /**
      * 新增
@@ -270,7 +269,7 @@ public class ScreeningPlanController {
     public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         // 任务状态判断
         validateExist(screeningPlanId);
-        return screeningPlanBizService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return screeningPlanSchoolStudentBizService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -356,9 +355,9 @@ public class ScreeningPlanController {
      * @return IPage<StudentDTO>
      */
     @GetMapping("students/page")
-    public IPage<StudentDTO> queryStudentInfos(PageRequest page, StudentQueryDTO query) {
+    public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
-        return screeningPlanSchoolStudentService.getPage(query, page);
+        return screeningPlanSchoolStudentBizService.getPage(query, page);
     }
 
     /**
@@ -399,7 +398,7 @@ public class ScreeningPlanController {
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
-            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
             // 3. 处理pdf报告参数
@@ -435,7 +434,7 @@ public class ScreeningPlanController {
             String fileName = String.format("%s-%s-告知书", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-            List<StudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
             students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
