@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
-import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
