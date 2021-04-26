@@ -28,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,6 +100,31 @@ public class ScreeningNoticeBizService {
         if (!CollectionUtils.isEmpty(toUserIds)) {
             noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
         }
+    }
+
+    /**
+     * 获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
+     *
+     * @param user
+     * @return
+     */
+    public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
+        if (user.isGovDeptUser()) {
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            return screeningNoticeService.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+        }
+        if (user.isPlatformAdminUser()) {
+            //这里只是查找政府的通知
+            return screeningNoticeService.getAllReleaseNotice();
+        }
+        if (user.isScreeningUser()) {
+            //该部门发布的通知
+            return screeningNoticeService.getNoticeBySreeningUser(user.getOrgId());
+        }
+        return Collections.emptyList();
     }
 
 
