@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.business.management.interfaces.ScreeningResultStructureInterface;
-import com.wupol.myopia.business.management.interfaces.ValidResultDataInterface;
+import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
+import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
