@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.hospital.app.facade;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
-import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

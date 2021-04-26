@@ -22,6 +22,7 @@
         <module>screening-organization-core</module>
         <module>government-core</module>
         <module>system-core</module>
+        <module>common-core</module>
     </modules>
 
 </project>

@@ -5,7 +5,6 @@ import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
-import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

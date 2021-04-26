@@ -1,9 +1,8 @@
-package com.wupol.myopia.business.core.system.service;
+package com.wupol.myopia.business.core.common.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.utils.util.S3Utils;
-import com.wupol.myopia.business.core.system.domain.mapper.ResourceFileMapper;
-import com.wupol.myopia.business.core.system.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.domain.mapper.ResourceFileMapper;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
 
     @Autowired
     private S3Utils s3Utils;
-
 
     /**
      * 根据文件Id获取路径

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.common.utils.util;
+package com.wupol.myopia.business.core.common.util;
 
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.vistel.Interface.aws.S3Client;
@@ -7,10 +7,9 @@ import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.framework.core.util.DateUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
-import com.wupol.myopia.business.management.config.UploadConfig;
-import com.wupol.myopia.business.management.constant.CacheKey;
-import com.wupol.myopia.business.management.domain.model.ResourceFile;
-import com.wupol.myopia.business.management.service.ResourceFileService;
+import com.wupol.myopia.business.core.common.constant.FileCacheKey;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,7 +168,7 @@ public final class S3Utils {
      * @return
      */
     public String getResourcePathWithExpiredHours(String bucketName, String s3Key, Integer expiredHours) {
-        String key = String.format(CacheKey.FILE_URL, s3Key);
+        String key = String.format(FileCacheKey.FILE_URL, s3Key);
         Object fileUrl = redisUtil.get(key);
         if (Objects.nonNull(fileUrl)) {
             return fileUrl.toString();
@@ -193,7 +192,7 @@ public final class S3Utils {
      * @return
      */
     public String getResourcePath(String bucketName, String s3Key, ResponseHeaderOverrides responseHeaderOverrides) {
-        String key = String.format(CacheKey.FILE_URL, s3Key);
+        String key = String.format(FileCacheKey.FILE_URL, s3Key);
         Object fileUrl = redisUtil.get(key);
         if (Objects.nonNull(fileUrl)) {
             return fileUrl.toString();
