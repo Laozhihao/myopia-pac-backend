@@ -3,7 +3,7 @@ package com.wupol.myopia.business.api.management.domain.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.api.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGroup;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

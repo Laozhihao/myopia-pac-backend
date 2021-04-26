@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.government.service;
+package com.wupol.myopia.business.core.common.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -9,9 +9,9 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.government.constant.DistrictCacheKey;
-import com.wupol.myopia.business.core.government.domain.mapper.DistrictMapper;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.constant.DistrictCacheKey;
+import com.wupol.myopia.business.core.common.domain.mapper.DistrictMapper;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

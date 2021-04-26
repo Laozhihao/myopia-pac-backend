@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.government.domain.model;
+package com.wupol.myopia.business.core.common.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

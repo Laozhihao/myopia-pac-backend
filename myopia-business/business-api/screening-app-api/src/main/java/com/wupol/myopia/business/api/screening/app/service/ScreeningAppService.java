@@ -8,15 +8,22 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.api.screening.app.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
+import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.dto.StudentClazzDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -26,6 +33,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -40,17 +48,12 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.NationEnum;
-import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
-import com.wupol.myopia.business.management.domain.vo.StudentInfoVO;
-import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
-import com.wupol.myopia.business.screening.domain.vo.RescreeningResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
@@ -79,12 +82,14 @@ public class ScreeningAppService {
     @Autowired
     private StatConclusionService statConclusionService;
     @Autowired
+    private StatConclusionBizService statConclusionBizService;
+    @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private UploadConfig uploadConfig;
-    @Autowired
+    @Resource
     private S3Utils s3Utils;
     @Autowired
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
@@ -287,7 +292,7 @@ public class ScreeningAppService {
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新vision_result表
-        StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
+        StatConclusion statConclusion = statConclusionBizService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
     }
@@ -408,10 +413,9 @@ public class ScreeningAppService {
         Map<String, List<StudentScreeningInfoWithResultDTO>> stringListMap = this.groupByKey(screeningResultDTO.getStatisticType(), studentInfoWithResult);
         //进行统计
         Set<String> schoolIdSet = stringListMap.keySet();
-        List<RescreeningResultVO> rescreeningResultVOS = schoolIdSet.stream().map(keyId ->
+        return schoolIdSet.stream().map(keyId ->
                 RescreeningResultVO.getRescreeningResult(stringListMap.get(keyId))
         ).collect(Collectors.toList());
-        return rescreeningResultVOS;
     }
 
     public Map<String, List<StudentScreeningInfoWithResultDTO>> groupByKey(RescreeningStatisticEnum statisticType, List<StudentScreeningInfoWithResultDTO> studentInfoWithResult) {
@@ -425,9 +429,7 @@ public class ScreeningAppService {
      * @param studentClazzDTO
      */
     private void setOtherInfo(List<StudentInfoVO> rescreeningResult, StudentClazzDTO studentClazzDTO) {
-        rescreeningResult.stream().forEach(studentInfoVO -> {
-            studentInfoVO.addOtherInfo(studentClazzDTO);
-        });
+        rescreeningResult.forEach(studentInfoVO -> studentInfoVO.addOtherInfo(studentClazzDTO));
     }
 
     /**
