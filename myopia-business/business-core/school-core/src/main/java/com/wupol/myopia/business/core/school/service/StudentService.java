@@ -324,4 +324,27 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public List<ParentStudentDTO> countParentStudent(List<Integer> studentIds) {
         return baseMapper.countParentStudent(studentIds);
     }
+
+    /**
+     * 更新学生
+     *
+     * @param student 学生实体
+     * @return 学生实体
+     */
+    public Student updateStudent(Student student) {
+        // 设置学龄
+        if (null != student.getGradeId()) {
+            SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        }
+
+        // 检查学生身份证是否重复
+        if (checkIdCard(student.getIdCard(), student.getId())) {
+            throw new BusinessException("学生身份证重复");
+        }
+
+        // 更新学生
+        baseMapper.updateById(student);
+        return student;
+    }
 }

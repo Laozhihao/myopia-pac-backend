@@ -75,7 +75,7 @@ public class ScreeningOrganizationController {
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationService.updateScreeningOrganization(user, screeningOrganization);
+        return screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ScreeningOrganizationController {
     @GetMapping("list")
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationService.getScreeningOrganizationList(pageRequest, query, user);
+        return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 
     /**
@@ -171,7 +171,7 @@ public class ScreeningOrganizationController {
      */
     @GetMapping("/listByGovDept")
     public List<ScreeningOrgResponseDTO> getScreeningOrganizationListByGovDeptId(ScreeningOrganizationQueryDTO query) {
-        return screeningOrganizationService.getScreeningOrganizationListByGovDeptId(query);
+        return screeningOrganizationBizService.getScreeningOrganizationListByGovDeptId(query);
     }
 
     /**

@@ -4,11 +4,13 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -21,13 +23,6 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.StatClassLabel;
-import com.wupol.myopia.business.management.constant.WarningLevel;
-import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
-import com.wupol.myopia.business.management.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningDataContrastVo;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +85,7 @@ public class StatService {
     public WarningInfo getWarningList() throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
-        StatConclusionQuery lastOneQuery = new StatConclusionQuery();
+        StatConclusionQueryDTO lastOneQuery = new StatConclusionQueryDTO();
         lastOneQuery.setDistrictIds(districtIds);
         lastOneQuery.setIsValid(true);
         lastOneQuery.setIsRescreen(false);
@@ -101,7 +96,7 @@ public class StatService {
         ZoneId zoneId = ZoneId.of("UTC+8");
         LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
-        StatConclusionQuery warningListQuery = new StatConclusionQuery();
+        StatConclusionQueryDTO warningListQuery = new StatConclusionQueryDTO();
         warningListQuery.setStartTime(startDate)
                 .setEndTime(endDate)
                 .setDistrictIds(districtIds)

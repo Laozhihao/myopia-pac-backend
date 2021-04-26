@@ -9,7 +9,6 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.government.service.DistrictService;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -20,14 +19,11 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.CrossMirrorResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.EyeDiseasesResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CardDetailsVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CardInfoVO;
@@ -35,9 +31,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardRespon
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
-import com.wupol.myopia.business.core.system.service.ResourceFileService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -69,9 +63,6 @@ public class StudentBizService {
 
     @Resource
     private SchoolClassService schoolClassService;
-
-    @Resource
-    private ResourceFileService resourceFileService;
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
