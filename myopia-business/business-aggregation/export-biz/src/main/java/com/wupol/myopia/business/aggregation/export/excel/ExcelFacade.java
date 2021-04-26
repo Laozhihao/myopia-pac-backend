@@ -14,6 +14,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.HospitalEnum;
@@ -111,7 +112,7 @@ public class ExcelFacade {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private NoticeService noticeService;
-    @Autowired
+    @Resource
     private S3Utils s3Utils;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;

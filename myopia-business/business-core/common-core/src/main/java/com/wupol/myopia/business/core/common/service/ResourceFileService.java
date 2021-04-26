@@ -3,10 +3,12 @@ package com.wupol.myopia.business.core.common.service;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.common.domain.mapper.ResourceFileMapper;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
+import com.wupol.myopia.business.core.common.util.S3Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ResourceFileService extends BaseService<ResourceFileMapper, ResourceFile> {
 
-    @Autowired
+    @Resource
     private S3Utils s3Utils;
 
     /**

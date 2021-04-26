@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.*;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationStaffMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -88,14 +90,14 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         // 检查身份证号码是否重复
         List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staffQuery.getIdCard()),
-                        SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
+                SystemCode.SCREENING_CLIENT.getCode(), staffQuery.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             throw new BusinessException("身份证已经被使用！");
         }
 
         // 检查手机号码是否重复
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staffQuery.getPhone()),
-                        SystemCode.SCREENING_CLIENT.getCode());
+                SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
             throw new BusinessException("手机号码已经被使用");
         }
@@ -125,7 +127,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         // 检查身份证号码是否重复
         List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(Lists.newArrayList(staff.getIdCard()),
-                        SystemCode.SCREENING_CLIENT.getCode(), checkStaff.getScreeningOrgId());
+                SystemCode.SCREENING_CLIENT.getCode(), checkStaff.getScreeningOrgId());
         if (!CollectionUtils.isEmpty(checkIdCards)) {
             if (checkIdCards.size() > 1) {
                 throw new BusinessException("身份证号码重复");
@@ -137,7 +139,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
 
         // 检查手机号码是否重复
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(staff.getPhone()),
-                        SystemCode.SCREENING_CLIENT.getCode());
+                SystemCode.SCREENING_CLIENT.getCode());
         if (!CollectionUtils.isEmpty(checkPhones)) {
             if (checkPhones.size() > 1) {
                 throw new BusinessException("手机号码重复");
@@ -292,7 +294,31 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         return baseMapper.getByPage(page, query);
     }
 
+    /**
+     * 更新机构人员的id
+     *
+     * @param currentUser  当前用户
+     * @param resourceFile 资源文件
+     */
+    public void updateOrganizationStaffSignId(CurrentUser currentUser, ResourceFile resourceFile) {
+        ScreeningOrganizationStaff screeningOrganizationStaff = new ScreeningOrganizationStaff();
+        screeningOrganizationStaff.setScreeningOrgId(currentUser.getOrgId()).setUserId(currentUser.getId());
+        List<ScreeningOrganizationStaff> screeningOrganizationStaffs = getByEntity(screeningOrganizationStaff);
+        if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
+            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().get();
+        }
+        if (screeningOrganizationStaff.getId() != null) {
+            screeningOrganizationStaff.setSignFileId(resourceFile.getId());
+            baseMapper.updateById(screeningOrganizationStaff);
+        }
+    }
 
+    /**
+     * 通过条件获取筛查人员列表
+     *
+     * @param screeningOrganizationStaff 筛查人员
+     * @return 筛查人员列表
+     */
     public List<ScreeningOrganizationStaff> getByEntity(ScreeningOrganizationStaff screeningOrganizationStaff) {
         LambdaQueryWrapper<ScreeningOrganizationStaff> screeningOrganizationStaffLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningOrganizationStaffLambdaQueryWrapper.setEntity(screeningOrganizationStaff);

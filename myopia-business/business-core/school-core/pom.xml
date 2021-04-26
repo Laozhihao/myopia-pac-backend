@@ -12,4 +12,12 @@
     <artifactId>school-core</artifactId>
     <description>学校、学生相关</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

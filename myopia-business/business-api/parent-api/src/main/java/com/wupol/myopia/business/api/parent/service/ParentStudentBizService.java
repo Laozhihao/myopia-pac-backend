@@ -16,6 +16,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -58,23 +60,23 @@ import java.util.stream.Collectors;
 @Service
 public class ParentStudentBizService {
 
-    @Autowired
+    @Resource
     private ResourceFileService resourceFileService;
-    @Autowired
+    @Resource
     private StudentService studentService;
-    @Autowired
+    @Resource
     private MedicalReportService medicalReportService;
-    @Autowired
+    @Resource
     private MedicalRecordService medicalRecordService;
-    @Autowired
+    @Resource
     private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
+    @Resource
     private ParentService parentService;
-    @Autowired
+    @Resource
     private SchoolService schoolService;
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
-    @Autowired
+    @Resource
     private ParentStudentService parentStudentService;
 
     /**

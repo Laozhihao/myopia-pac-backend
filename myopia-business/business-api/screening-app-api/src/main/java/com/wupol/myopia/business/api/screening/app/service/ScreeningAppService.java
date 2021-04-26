@@ -15,6 +15,7 @@ import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.school.domain.dto.StudentClazzDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;

@@ -914,6 +914,7 @@ CREATE TABLE `m_vision_screening_result`  (
   `biometric_data` json COMMENT '筛查结果--生物测量',
   `other_eye_diseases` json COMMENT '筛查结果--其他眼疾',
   `is_double_screen` tinyint(4) NOT NULL DEFAULT 0 COMMENT '筛查结果--是否复筛（0否，1是）',
+  `is_notice` tinyint default 0 null comment '是否发送短信通知 0-否 1-是',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '筛查结果--更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,

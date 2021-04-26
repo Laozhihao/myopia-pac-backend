@@ -27,7 +27,7 @@ public class SmsService {
 
     @Resource
     private VistelToolsService vistelToolsService;
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
 
     /**

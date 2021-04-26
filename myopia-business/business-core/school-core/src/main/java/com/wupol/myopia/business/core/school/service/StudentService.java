@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
@@ -51,6 +52,9 @@ public class StudentService extends BaseService<StudentMapper, Student> {
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 根据学生id列表获取学生信息

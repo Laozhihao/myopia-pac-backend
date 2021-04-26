@@ -104,6 +104,11 @@ public class VisionScreeningResult implements Serializable {
     private Boolean isDoubleScreen;
 
     /**
+     * 是否发送短信通知 0-否 1-是
+     */
+    private Boolean isNotice;
+
+    /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
