@@ -48,25 +48,20 @@ public class StatService {
 
     @Autowired
     private StatConclusionService statConclusionService;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Autowired
     private DistrictService districtService;
-
+    @Autowired
+    private DistrictBizService districtBizService;
     @Autowired
     private GovDeptService govDeptService;
-
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
     @Autowired
     private SchoolService schoolService;
-
     @Autowired
-    ExcelFacade excelFacade;
-
+    private ExcelFacade excelFacade;
     @Autowired
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
     @Autowired
@@ -199,7 +194,7 @@ public class StatService {
         }
         List<Integer> validDistrictIds = new ArrayList<>();
         List<District> validDistricts =
-                districtService.getValidDistrictTree(currentUser, districtIds);
+                districtBizService.getValidDistrictTree(currentUser, districtIds);
         districtService.getAllIds(validDistrictIds, validDistricts);
         return validDistrictIds;
     }
@@ -230,7 +225,7 @@ public class StatService {
                             .collect(Collectors.toList()));
             districtIds1.retainAll(districtIds2);
         }
-        return districtService.getValidDistrictTree(currentUser, districtIds1);
+        return districtBizService.getValidDistrictTree(currentUser, districtIds1);
     }
 
     /**

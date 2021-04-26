@@ -33,6 +33,7 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -52,33 +53,26 @@ public class ScreeningOrganizationBizService {
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-
     @Resource
     private ScreeningPlanService screeningPlanService;
-
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-
     @Resource
     private OauthServiceClient oauthServiceClient;
-
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
-
     @Resource
     private DistrictService districtService;
-
     @Resource
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
-
     @Resource
     private ScreeningTaskOrgService screeningTaskOrgService;
+    @Autowired
+    private DistrictBizService districtBizService;
 
     /**
      * 获取筛查记录列表
@@ -254,7 +248,7 @@ public class ScreeningOrganizationBizService {
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
                                                                        ScreeningOrganizationQueryDTO query,
                                                                        CurrentUser currentUser) {
-        Integer districtId = districtService.filterQueryDistrictId(currentUser, query.getDistrictId());
+        Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
 
         // 查询
         IPage<ScreeningOrgResponseDTO> orgLists = screeningOrganizationService.getByCondition(pageRequest, query, districtId);
