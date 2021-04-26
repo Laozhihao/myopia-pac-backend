@@ -2,29 +2,13 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
-import com.wupol.myopia.business.management.domain.mapper.StatConclusionMapper;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.management.domain.model.StatConclusion;
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.management.domain.query.StatConclusionQueryDTO;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionExportDTO;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionReportDTO;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionDTO;
-import com.wupol.myopia.business.management.util.TwoTuple;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -39,12 +23,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class StatConclusionService extends BaseService<StatConclusionMapper, StatConclusion> {
-    @Autowired
-    private StatConclusionMapper statConclusionMapper;
-    @Autowired
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private SchoolGradeService schoolGradeService;
 
     /**
      * 获取筛查结论列表
@@ -53,11 +31,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @return
      */
     public List<StatConclusion> listByQuery(StatConclusionQueryDTO StatConclusionQueryDTO) {
-        return statConclusionMapper.listByQuery(StatConclusionQueryDTO);
+        return baseMapper.listByQuery(StatConclusionQueryDTO);
     }
 
     public StatConclusion getLastOne(StatConclusionQueryDTO StatConclusionQueryDTO) {
-        return statConclusionMapper.selectLastOne(StatConclusionQueryDTO);
+        return baseMapper.selectLastOne(StatConclusionQueryDTO);
     }
 
     /**
@@ -69,7 +47,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusion> getBySrcScreeningNoticeId(Integer screeningNoticeId) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId);
-        return statConclusionMapper.selectList(queryWrapper);
+        return baseMapper.selectList(queryWrapper);
     }
 
     /**
@@ -78,50 +56,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @return
      */
     public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
-        return statConclusionMapper.selectVoByScreeningPlanId(screeningPlanId);
-    }
-    /**
-     * 保存并更新
-     *
-     * @param allFirstAndSecondResult
-     */
-    public StatConclusion saveOrUpdateStudentScreenData(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
-        StatConclusion statConclusion = getScreeningConclusionResult(allFirstAndSecondResult);
-        if (statConclusion.getId() != null) {
-            //更新
-            updateById(statConclusion);
-        } else {
-            //创建
-            save(statConclusion);
-        }
-        return statConclusion;
+        return baseMapper.selectVoByScreeningPlanId(screeningPlanId);
     }
 
-    /**
-     * 获取统计数据
-     *
-     * @param allFirstAndSecondResult
-     * @return
-     */
-    private StatConclusion getScreeningConclusionResult(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
-        VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
-        VisionScreeningResult secondVisionScreeningResult = allFirstAndSecondResult.getSecond();
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
-        if (screeningPlanSchoolStudent == null) {
-            throw new ManagementUncheckedException("数据异常，无法根据id找到对应的ScreeningPlanSchoolStudent对象，id = " + currentVisionScreeningResult.getScreeningPlanSchoolStudentId());
-        }
-        // 根据是否复查，查找结论表
-        StatConclusion statConclusion = this.getStatConclusion(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen());
-        //需要新增
-        SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
-        StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
-        statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult,secondVisionScreeningResult).setStatConclusion(statConclusion)
-                .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).setGradeCode(schoolGrade.getGradeCode())
-                .build();
-        return statConclusion;
-    }
 
-    private StatConclusion getStatConclusion(Integer resultId, Boolean isDoubleScreen) {
+    public StatConclusion getStatConclusion(Integer resultId, Boolean isDoubleScreen) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         StatConclusion statConclusion = new StatConclusion().setResultId(resultId);
         statConclusion.setIsRescreen(isDoubleScreen);

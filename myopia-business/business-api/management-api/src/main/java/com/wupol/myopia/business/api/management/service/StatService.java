@@ -9,9 +9,9 @@ import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticV
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.service.SchoolService;

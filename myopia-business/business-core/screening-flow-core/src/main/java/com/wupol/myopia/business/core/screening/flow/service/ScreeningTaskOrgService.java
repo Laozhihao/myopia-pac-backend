@@ -8,7 +8,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrg
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskOrgMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,13 +20,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper, ScreeningTaskOrg> {
-
-    @Autowired
-    private ScreeningTaskService screeningTaskService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-    @Autowired
-    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
 
     /**
      * 通过筛查任务ID获取所有关联的筛查机构信息

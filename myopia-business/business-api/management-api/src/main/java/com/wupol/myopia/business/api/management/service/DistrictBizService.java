@@ -2,9 +2,9 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;

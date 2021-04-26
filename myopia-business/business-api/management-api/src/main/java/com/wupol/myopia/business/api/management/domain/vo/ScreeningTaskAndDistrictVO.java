@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import lombok.Data;

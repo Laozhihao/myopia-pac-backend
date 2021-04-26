@@ -6,7 +6,7 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
@@ -14,6 +14,7 @@ import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
+import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -27,10 +28,8 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.screening.others.SysStudent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,8 +64,6 @@ public class ScreeningAppController {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
-    @Autowired
     private SchoolService schoolService;
     @Autowired
     private StudentService studentService;
@@ -76,7 +73,8 @@ public class ScreeningAppController {
     private SchoolClassService schoolClassService;
     @Autowired
     private SchoolGradeService schoolGradeService;
-
+    @Autowired
+    private ScreeningPlanBizService screeningPlanBizService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -89,7 +87,7 @@ public class ScreeningAppController {
     @GetMapping("/school/findAllLikeSchoolName")
     public ApiResult getSchoolNameByNameLike(@RequestParam String schoolName, String deptId, Boolean isReview) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<School> schools = screeningPlanSchoolService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
+        List<School> schools = screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
         return ApiResult.success(schools.stream().map(School::getName).collect(Collectors.toSet()));
     }
 
@@ -326,7 +324,7 @@ public class ScreeningAppController {
 
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
         Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
-        return ApiResult.success(sysStudents);//screeningAppService.getStudentBySchoolNameAndGradeNameAndClassName(pageRequest, schoolId, schoolName, gradeName, clazzName, studentName, deptId, isReview);
+        return ApiResult.success(sysStudents);
     }
 
     /**
@@ -352,33 +350,6 @@ public class ScreeningAppController {
         List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
         return ApiResult.success(sysStudentList);
     }
-
-    /**
-     * 随机获取学生复测质量控制
-     *
-     * @param
-     * @return
-     */
-/*    @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
-    public @ResponseBody
-    ResultVO findAllNameReview(
-            @RequestParam(value = "deptId") Integer deptId,
-            @RequestParam(value = "schoolId") Integer schoolId,
-            String studentName,
-            Integer current,
-            Integer size,
-            @RequestParam boolean isRandom,
-            @RequestParam(value = "gradeName", required = false) String gradeName,
-            @RequestParam(value = "clazzName", required = false) String clazzName) {
-
-        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
-        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size);
-        if (isRandom) {
-            sysStudentList = screeningAppService.getRandomData(sysStudentList);
-        }
-        return ApiResult.success(sysStudentList);
-    }*/
 
     /**
      * 更新复测质控结果 TODO
@@ -418,9 +389,9 @@ public class ScreeningAppController {
 
         if (currentPlan == null) {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
-            return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR);
+            return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
         }
-        screeningPlanSchoolStudentService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan);
+        screeningPlanBizService.insertWithStudent(CurrentUserUtil.getCurrentUser(), student, appStudentDTO.getGrade(), appStudentDTO.getClazz(), appStudentDTO.getSchoolName(), school.getSchoolNo(), school.getDistrictId(), appStudentDTO.getSchoolId().intValue(), currentPlan);
         return ApiResult.success();
     }
 

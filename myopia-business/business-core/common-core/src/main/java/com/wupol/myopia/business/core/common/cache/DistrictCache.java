@@ -1,11 +1,11 @@
-package com.wupol.myopia.business.core.government.cache;
+package com.wupol.myopia.business.core.common.cache;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.wupol.myopia.base.cache.RedisUtil;
-import com.wupol.myopia.business.core.government.constant.DistrictCacheKey;
-import com.wupol.myopia.business.core.government.domain.model.District;
-import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.common.constant.DistrictCacheKey;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.RedisTemplate;

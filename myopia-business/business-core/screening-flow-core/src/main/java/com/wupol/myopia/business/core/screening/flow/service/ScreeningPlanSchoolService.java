@@ -3,17 +3,11 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.constant.ScreeningConstant;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.mapper.ScreeningPlanSchoolMapper;
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
-import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +24,6 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolMapper, ScreeningPlanSchool> {
 
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
-    private SchoolService schoolService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
@@ -140,25 +130,6 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         ScreeningPlanQueryDTO planQuery = new ScreeningPlanQueryDTO();
         planQuery.setDistrictIds(districtIds).setExcludedScreeningPlanId(excludedScreeningPlanId).setStartCreateTime(startTime).setEndCreateTime(endTime).setScreeningOrgId(screeningOrgId);
         return baseMapper.selectHasPlanInPeriod(planQuery).stream().map(ScreeningPlanSchool::getSchoolId).distinct().collect(Collectors.toList());
-    }
-
-    /**
-     * 获取该筛查机构目前的筛查学校
-     *
-     * @param schoolName 学校名称
-     * @param deptId 机构ID
-     * @return 学校列表
-     */
-    public List<School> getSchoolByOrgId(String schoolName, Integer deptId) {
-        if (deptId == null) {
-            throw new ManagementUncheckedException("deptId 不能为空");
-        }
-
-        List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
-        if (CollectionUtils.isEmpty(schoolIds)) {
-            return Collections.emptyList();
-        }
-        return schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
     }
 
     public Set<Integer> getSchoolIdsByPlanIds(List<Integer> screeningPlanIds) {

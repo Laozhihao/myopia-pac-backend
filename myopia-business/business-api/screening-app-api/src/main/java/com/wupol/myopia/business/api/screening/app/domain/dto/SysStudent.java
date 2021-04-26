@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 import lombok.Setter;
 

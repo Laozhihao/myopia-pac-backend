@@ -9,7 +9,7 @@ import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;

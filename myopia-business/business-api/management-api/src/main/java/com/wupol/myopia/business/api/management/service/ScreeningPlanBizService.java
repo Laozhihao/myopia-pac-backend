@@ -8,8 +8,8 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 public class ScreeningPlanBizService {
 
-    @Autowired
+    @Resource
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningRelatedFacade screeningRelatedFacade;

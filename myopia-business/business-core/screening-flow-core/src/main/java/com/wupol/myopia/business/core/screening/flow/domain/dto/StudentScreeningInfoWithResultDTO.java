@@ -3,12 +3,11 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.management.constant.RescreeningStatisticEnum;
-import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import lombok.Data;
 
 import java.util.Date;
