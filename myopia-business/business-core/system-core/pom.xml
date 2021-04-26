@@ -12,4 +12,12 @@
     <artifactId>system-core</artifactId>
     <description>系统性、通用性基础功能相关 - 站内通知、模板、地图</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
