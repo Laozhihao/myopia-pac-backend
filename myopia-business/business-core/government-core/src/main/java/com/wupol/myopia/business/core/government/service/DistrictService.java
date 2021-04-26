@@ -6,15 +6,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.cache.RedisUtil;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.government.constant.DistrictCacheKey;
 import com.wupol.myopia.business.core.government.domain.mapper.DistrictMapper;
 import com.wupol.myopia.business.core.government.domain.model.District;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +41,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     private static final long SMALLEST_PROVINCE_CODE = 110000000L;
 
     @Autowired
-    private GovDeptService govDeptService;
-    @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 根据code查地址
@@ -98,24 +91,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             }
         }
         return new TwoTuple<>(null, Collections.emptyList());
-    }
-
-    /**
-     * 通过用户身份，过滤查询的行政区域ID
-     * - 如果是平台管理员，则将行政区域ID作为条件
-     * - 如果非平台管理员，则返回当前用户的行政区域ID
-     *
-     * @param currentUser 当前用户
-     * @param districtId  行政区域ID
-     * @return 行政区域ID
-     */
-    public Integer filterQueryDistrictId(CurrentUser currentUser, Integer districtId) {
-        // 平台管理员行政区域的筛选条件
-        if (currentUser.isPlatformAdminUser()) {
-            return districtId;
-        }
-        // 非平台管理员只能看到自己同级行政区域
-        return getNotPlatformAdminUserDistrict(currentUser).getId();
     }
 
     /**
@@ -173,53 +148,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             name.append(district.getName());
         }
         return name.toString();
-    }
-
-    /**
-     * 获取以当前登录用户所属行政区域为根节点的行政区域树
-     *
-     * @param currentUser 当前登录用户
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
-     **/
-    public List<District> getCurrentUserDistrictTree(CurrentUser currentUser) throws IOException {
-        // 平台管理员，可看到全国的
-        if (currentUser.isPlatformAdminUser()) {
-            return getWholeCountryDistrictTreePriorityCache();
-        }
-        // 非平台管理员，获取以其所属行政区域为根节点的行政区域树
-        District parentDistrict = getNotPlatformAdminUserDistrict(currentUser);
-        return getSpecificDistrictTreePriorityCache(parentDistrict.getCode());
-    }
-
-    /**
-     * 获取以当前登录用户所属行政区域为根节点的行政区域树所有ID
-     *
-     * @param currentUser 当前登录用户
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
-     **/
-    public List<Integer> getCurrentUserDistrictTreeAllIds(CurrentUser currentUser) throws IOException {
-        List<District> districtTrees = getCurrentUserDistrictTree(currentUser);
-        List<Integer> districtIds = new ArrayList<>();
-        getAllIds(districtIds, districtTrees);
-        return districtIds;
-    }
-
-    /**
-     * 获取非平台管理员用户的行政区域
-     *
-     * @param currentUser 当前登录用户
-     * @return com.wupol.myopia.business.management.domain.model.District
-     **/
-    public District getNotPlatformAdminUserDistrict(CurrentUser currentUser) {
-        if (currentUser.isGovDeptUser()) {
-            GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-            return getById(govDept.getDistrictId());
-        }
-        if (currentUser.isScreeningUser()) {
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
-            return getById(screeningOrganization.getDistrictId());
-        }
-        throw new BusinessException("无效用户类型");
     }
 
     /**
@@ -423,20 +351,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
         return districts;
-    }
-
-    /**
-     * 获取当前登录用户所属层级位置 - 层级链(从省开始到所属层级)
-     *
-     * @param currentUser 当前登录用户
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
-     **/
-    public List<District> getCurrentUserDistrictPositionDetail(CurrentUser currentUser) {
-        if (currentUser.isPlatformAdminUser()) {
-            return Collections.emptyList();
-        }
-        District district = getNotPlatformAdminUserDistrict(currentUser);
-        return getDistrictPositionDetail(district.getCode());
     }
 
     /**
@@ -711,20 +625,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取当前登录用户所属省级的行政区树
-     *
-     * @param currentUser 当前登录用户
-     * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
-     **/
-    public List<District> getCurrentUserProvinceTree(CurrentUser currentUser) {
-        if (currentUser.isPlatformAdminUser()) {
-            return getWholeCountryDistrictTreePriorityCache();
-        }
-        District district = getNotPlatformAdminUserDistrict(currentUser);
-        return Collections.singletonList(getProvinceDistrictTreePriorityCache(district.getCode()));
-    }
-
-    /**
      * 通过地区id找到所有下属district
      *
      * @param districtId
@@ -755,48 +655,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取当前用户地区树 与 districts 的交集
-     *
-     * @param user
-     * @param districtIds
-     * @return
-     */
-    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
-        List<District> districts = new ArrayList<>();
-        if (user == null) {
-            return districts;
-        }
-/*
-
-        if (CollectionUtils.isEmpty(districtIds) && !user.isPlatformAdminUser()) {
-            District currentDistrict = getNotPlatformAdminUserDistrict(user);
-            districts.add(currentDistrict);
-            return districts;
-        } else if (CollectionUtils.isEmpty(districtIds)) {
-            return new ArrayList<>();
-        }
-*/
-
-        List<District> districtTree = getCurrentUserDistrictTree(user);
-        districts = filterDistrictTree(districtTree, districtIds);
-        if (user.isPlatformAdminUser()) {
-            return districts;
-        }
-        if (CollectionUtils.isEmpty(districts)) {
-            District currentDistrict = getNotPlatformAdminUserDistrict(user);
-            districts.add(currentDistrict);
-        }
-        return districts;
-    }
-
-    /**
      * 过滤该地区树没在districts
      *
      * @param districtTree
      * @param districts
      * @return
      */
-    private List<District> filterDistrictTree(List<District> districtTree, Set<Integer> districts) {
+    public List<District> filterDistrictTree(List<District> districtTree, Set<Integer> districts) {
         if (CollectionUtils.isEmpty(districtTree) || CollectionUtils.isEmpty(districts)) {
             return new ArrayList<>();
         }
@@ -812,7 +677,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districts
      * @return
      */
-    private District filterDistrict(District district, Set<Integer> districts) {
+    public District filterDistrict(District district, Set<Integer> districts) {
         if (district == null || CollectionUtils.isEmpty(districts)) {
             return null;
         }

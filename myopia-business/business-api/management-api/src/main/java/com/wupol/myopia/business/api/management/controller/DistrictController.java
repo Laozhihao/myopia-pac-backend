@@ -3,8 +3,10 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.service.DistrictBizService;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +23,9 @@ import java.util.List;
 @RequestMapping("/management/district")
 public class DistrictController extends BaseController<DistrictService, District> {
 
+    @Autowired
+    private DistrictBizService districtBizService;
+
     /**
      * 获取以当前登录用户所在部门的行政区域作为根节点的行政区域树
      *
@@ -28,7 +33,7 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/structure")
     public List<District> getCurrentUserDistrictTree() throws IOException {
-        return baseService.getCurrentUserDistrictTree(CurrentUserUtil.getCurrentUser());
+        return districtBizService.getCurrentUserDistrictTree(CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -69,7 +74,7 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/current/position")
     public List<District> getCurrentUserPosition() {
-        return baseService.getCurrentUserDistrictPositionDetail(CurrentUserUtil.getCurrentUser());
+        return districtBizService.getCurrentUserDistrictPositionDetail(CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -79,6 +84,6 @@ public class DistrictController extends BaseController<DistrictService, District
      **/
     @GetMapping("/province")
     public List<District> getCurrentUserProvinceTree() {
-        return baseService.getCurrentUserProvinceTree(CurrentUserUtil.getCurrentUser());
+        return districtBizService.getCurrentUserProvinceTree(CurrentUserUtil.getCurrentUser());
     }
 }
