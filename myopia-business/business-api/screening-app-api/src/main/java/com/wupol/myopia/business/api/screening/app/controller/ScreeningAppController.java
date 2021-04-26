@@ -102,7 +102,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
     public ApiResult getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId, boolean all) {
-        Set<String> gradeNameSet = new HashSet<>();
+        Set<String> gradeNameSet;
         if (all) {
             //查找全部的年级
             List<SchoolGrade> schoolGrades = schoolGradeService.getBySchoolName(schoolName);

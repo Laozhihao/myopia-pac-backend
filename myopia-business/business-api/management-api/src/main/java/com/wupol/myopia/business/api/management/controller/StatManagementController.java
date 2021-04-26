@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
+import com.wupol.myopia.business.api.management.service.DistrictBizService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.government.domain.model.District;
 import com.wupol.myopia.business.core.government.service.DistrictService;
@@ -42,8 +43,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/management/screening-statistic")
 @Slf4j
 public class StatManagementController {
+
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private DistrictBizService districtBizService;
     @Autowired
     private SchoolService schoolService;
     @Autowired
@@ -125,7 +129,7 @@ public class StatManagementController {
         //查看该通知所有筛查学校的层级的 地区树
         List<ScreeningPlan> screeningPlans = screeningPlanService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
         Set<Integer> districts = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-        return districtService.getValidDistrictTree(currentUser, districts);
+        return districtBizService.getValidDistrictTree(currentUser, districts);
     }
 
 
@@ -166,7 +170,7 @@ public class StatManagementController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = districtAttentiveObjectsStatisticService.getDataByUser(currentUser);
         Set<Integer> districtIds = districtAttentiveObjectsStatistics.stream().map(DistrictAttentiveObjectsStatistic::getDistrictId).collect(Collectors.toSet());
-        return districtService.getValidDistrictTree(currentUser, districtIds);
+        return districtBizService.getValidDistrictTree(currentUser, districtIds);
     }
 
 
