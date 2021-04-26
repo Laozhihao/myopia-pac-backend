@@ -12,4 +12,12 @@
     <artifactId>screening-organization-core</artifactId>
     <description>筛查组织机构相关</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

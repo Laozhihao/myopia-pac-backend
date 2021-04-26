@@ -8,7 +8,6 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -17,15 +16,16 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.business.core.parent.service.ParentStudentService;
+import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -59,26 +60,24 @@ import java.util.stream.Collectors;
 @Service
 public class ParentStudentBizService {
 
-    @Autowired
+    @Resource
     private ResourceFileService resourceFileService;
-    @Autowired
+    @Resource
     private StudentService studentService;
-    @Autowired
+    @Resource
     private MedicalReportService medicalReportService;
-    @Autowired
+    @Resource
     private MedicalRecordService medicalRecordService;
-    @Autowired
+    @Resource
     private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
+    @Resource
     private ParentService parentService;
-    @Autowired
+    @Resource
     private SchoolService schoolService;
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
-    @Autowired
+    @Resource
     private ParentStudentService parentStudentService;
-    @Autowired
-    private StudentFacade studentFacade;
 
     /**
      * 孩子统计、孩子列表
@@ -294,7 +293,7 @@ public class ParentStudentBizService {
         if (null == parent) {
             throw new BusinessException("家长信息异常");
         }
-        StudentDTO studentDTO = studentFacade.updateStudentAndReturnDTO(student);
+        StudentDTO studentDTO = studentService.updateStudent(student);
         // 绑定孩子
         bindStudent(parent, student.getId());
         return studentDTO;

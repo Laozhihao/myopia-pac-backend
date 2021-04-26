@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.api.management.schedule;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.framework.sms.domain.dto.MsgData;
+import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.government.domain.model.District;
@@ -13,25 +16,27 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.*;
 import com.wupol.myopia.business.core.stat.service.*;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import com.wupol.myopia.business.management.domain.builder.DistrictBigScreenStatisticBuilder;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
 import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -403,9 +408,8 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-//    @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
     public void sendSMSNotice() {
-        // TODO: 需要添加一个已经发送过的条件
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
         if (CollectionUtils.isEmpty(studentResult)) {
             return;
@@ -418,8 +422,7 @@ public class ScheduledTasksExecutor {
                 .collect(Collectors.toMap(Student::getId, Function.identity()));
 
         studentResult.forEach(getVisionScreeningResultConsumer(studentMaps));
-        // TODO: 更新筛查记录
-        log.info("更新筛查数据");
+        visionScreeningResultService.updateBatchById(studentResult);
     }
 
     /**
@@ -449,27 +452,25 @@ public class ScheduledTasksExecutor {
                 return;
             }
 
-            TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
+            TwoTuple<BigDecimal, Integer> nakedVisionResult = ScreeningResultUtil.getResultVision(leftNakedVision, rightNakedVision);
             Integer glassesType = leftEyeData.getGlassesType();
 
             // 裸眼视力是否小于4.9
             if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
                 // 是否佩戴眼镜
+                String noticeInfo;
                 if (glassesType >= 1) {
-                    String noticeInfo = getSMSNoticeInfo(student.getName(),
-                            leftNakedVision, rightNakedVision,
+                    noticeInfo = getSMSNoticeInfo(student.getName(), leftNakedVision, rightNakedVision,
                             getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
                                     leftNakedVision, rightNakedVision, nakedVisionResult));
-                    // 发送短信
-                    sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo);
                 } else {
                     // 没有佩戴眼镜
-                    String noticeInfo = getSMSNoticeInfo(student.getName(),
+                    noticeInfo = getSMSNoticeInfo(student.getName(),
                             leftNakedVision, rightNakedVision,
                             "裸眼视力下降，建议：请到医疗机构接受检查，明确诊断并及时采取措施。");
-                    // 发送短信
-                    sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo);
                 }
+                // 发送短信
+                sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo, result);
             } else {
                 if (Objects.isNull(computerOptometry)) {
                     return;
@@ -478,42 +479,17 @@ public class ScheduledTasksExecutor {
                 BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
                 BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
                 BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-                BigDecimal leftSe = calculationSE(leftSph, leftCyl);
-                BigDecimal rightSe = calculationSE(rightSph, rightCyl);
+                BigDecimal leftSe = ScreeningResultUtil.calculationSE(leftSph, leftCyl);
+                BigDecimal rightSe = ScreeningResultUtil.calculationSE(rightSph, rightCyl);
                 // 裸眼视力大于4.9
                 String noticeInfo = getSMSNoticeInfo(student.getName(),
                         leftNakedVision, rightNakedVision,
                         nakedVisionNormal(leftNakedVision, rightNakedVision,
                                 leftSe, rightSe, nakedVisionResult));
                 // 发送短信
-                sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo);
+                sendSMS(str2List(student.getMpParentPhone()), student.getParentPhone(), noticeInfo, result);
             }
         };
-    }
-
-    /**
-     * 取视力值低的眼球
-     *
-     * @param left  左眼
-     * @param right 右眼
-     * @return TwoTuple<BigDecimal, Integer> left-视力 right-左右眼
-     */
-    private TwoTuple<BigDecimal, Integer> getResultVision(BigDecimal left, BigDecimal right) {
-        if (Objects.isNull(left) || Objects.isNull(right)) {
-            // 左眼为空取右眼
-            if (Objects.isNull(left)) {
-                return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
-            }
-            // 右眼为空取左眼
-            return new TwoTuple<>(left, CommonConst.LEFT_EYE);
-        }
-        if (left.compareTo(right) == 0) {
-            return new TwoTuple<>(left, CommonConst.SAME_EYE);
-        }
-        if (left.compareTo(right) < 0) {
-            return new TwoTuple<>(left, CommonConst.LEFT_EYE);
-        }
-        return new TwoTuple<>(right, CommonConst.RIGHT_EYE);
     }
 
     /**
@@ -529,14 +505,14 @@ public class ScheduledTasksExecutor {
     private String getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                        BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                        TwoTuple<BigDecimal, Integer> nakedVisionResult) {
-        if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
+        if (Objects.isNull(leftCorrectedVision) && Objects.isNull(rightCorrectedVision)) {
             return "";
         }
         BigDecimal visionVal;
         // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
-        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
+        if (ScreeningResultUtil.isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
             // 获取矫正视力低的眼球
-            visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
+            visionVal = ScreeningResultUtil.getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
         } else {
             if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
                 // 取左眼数据
@@ -556,33 +532,6 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 两眼的值是否都在4.9的同侧
-     *
-     * @param leftNakedVision  左裸眼视力
-     * @param rightNakedVision 右裸眼数据
-     * @return Boolean
-     */
-    private Boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
-        return ((leftNakedVision.compareTo(new BigDecimal("4.9")) < 0) &&
-                (rightNakedVision.compareTo(new BigDecimal("4.9")) < 0))
-                ||
-                ((leftNakedVision.compareTo(new BigDecimal("4.9")) >= 0) &&
-                        (rightNakedVision.compareTo(new BigDecimal("4.9")) >= 0));
-    }
-
-    /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
-     */
-    private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, BigDecimal.ROUND_HALF_UP);
-    }
-
-    /**
      * 正常裸眼视力获取结论
      *
      * @param leftNakedVision   左眼裸眼视力
@@ -595,45 +544,14 @@ public class ScheduledTasksExecutor {
     private String nakedVisionNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                      BigDecimal leftSe, BigDecimal rightSe,
                                      TwoTuple<BigDecimal, Integer> nakedVisionResult) {
-        BigDecimal se;
-        // 判断两只眼睛的裸眼视力是否都在4.9的同侧
-        if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-            // 取等效球镜严重的眼别
-            if (leftSe.compareTo(new BigDecimal("0.00")) <= 0
-                    || rightSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                if (leftSe.compareTo(new BigDecimal("0.00")) <= 0) {
-                    // 取左眼
-                    se = leftSe;
-                } else {
-                    // 取右眼
-                    se = rightSe;
-                }
-            } else {
-                // 取等效球镜值大的眼别
-                if (leftSe.compareTo(rightSe) >= 0) {
-                    // 取左眼
-                    se = leftSe;
-                } else {
-                    // 取右眼
-                    se = rightSe;
-                }
-            }
-        } else {
-            // 裸眼视力不同，取视力低的眼别
-            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                // 左眼的等效球镜
-                se = leftSe;
-            } else {
-                // 右眼的等效球镜
-                se = rightSe;
-            }
-        }
+        BigDecimal se = ScreeningResultUtil.getSE(leftNakedVision, rightNakedVision,
+                leftSe, rightSe, nakedVisionResult);
         // SE >= 0
         if (se.compareTo(new BigDecimal("0.00")) >= 0) {
-            return "目前尚无近视高危风险";
+            return "建议：目前尚无近视高危风险。";
         } else {
             // SE < 0
-            return "可能存在近视高危因素，建议严格注意用眼卫生，到医疗机构检查了解是否可能发展为近视。";
+            return "建议：可能存在近视高危因素，建议严格注意用眼卫生，到医疗机构检查了解是否可能发展为近视。";
         }
     }
 
@@ -647,8 +565,16 @@ public class ScheduledTasksExecutor {
      * @return 短信通知详情
      */
     private String getSMSNoticeInfo(String studentName, BigDecimal leftNakedVision, BigDecimal rightNakedVision, String advice) {
+        if (Objects.isNull(leftNakedVision)) {
+            return String.format(CommonConst.SEND_SMS_TO_PARENT_MESSAGE, packageStudentName(studentName),
+                    "--", rightNakedVision.toString(), advice);
+        }
+        if (Objects.isNull(rightNakedVision)) {
+            return String.format(CommonConst.SEND_SMS_TO_PARENT_MESSAGE, packageStudentName(studentName),
+                    leftNakedVision, "--", advice);
+        }
         return String.format(CommonConst.SEND_SMS_TO_PARENT_MESSAGE, packageStudentName(studentName),
-                leftNakedVision.toString(), rightNakedVision.toString(), advice);
+                leftNakedVision, rightNakedVision, advice);
     }
 
     /**
@@ -687,16 +613,37 @@ public class ScheduledTasksExecutor {
      * @param mpParentPhone 家长端绑定的手机号码
      * @param parentPhone   多端绑定的手机号码
      * @param noticeInfo    短信内容
+     * @param result        筛查数据
      */
-    private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo) {
-        log.info("noticeInfo:{}", noticeInfo);
+    private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo, VisionScreeningResult result) {
         // 优先家长端绑定的手机号码
-//        if (CollectionUtils.isNotEmpty(mpParentPhone)) {
-//            mpParentPhone.forEach(phone -> vistelToolsService.sendMsg(new MsgData(phone, "+86", noticeInfo)));
-//            return;
-//        }
-//        if (StringUtils.isNotBlank(parentPhone)) {
-//            vistelToolsService.sendMsg(new MsgData(parentPhone, "+86", noticeInfo));
-//        }
+        if (CollectionUtils.isNotEmpty(mpParentPhone)) {
+            mpParentPhone.forEach(phone -> {
+                MsgData msgData = new MsgData(phone, "+86", noticeInfo);
+                SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+                checkSendMsgStatus(smsResult, msgData, result);
+            });
+            return;
+        }
+        if (StringUtils.isNotBlank(parentPhone)) {
+            MsgData msgData = new MsgData(parentPhone, "+86", noticeInfo);
+            SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+            checkSendMsgStatus(smsResult, msgData, result);
+        }
+    }
+
+    /**
+     * 检查发送短信是否成功
+     *
+     * @param smsResult 发送结果
+     * @param msgData   请求参数
+     * @param result    筛查结果
+     */
+    private void checkSendMsgStatus(SmsResult smsResult, MsgData msgData, VisionScreeningResult result) {
+        if (smsResult.isSuccessful()) {
+            result.setIsNotice(true);
+        } else {
+            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSONObject.toJSONString(msgData), smsResult);
+        }
     }
 }
