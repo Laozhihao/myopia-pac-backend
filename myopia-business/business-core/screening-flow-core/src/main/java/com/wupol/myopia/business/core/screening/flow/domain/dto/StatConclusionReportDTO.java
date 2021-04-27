@@ -5,9 +5,6 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
