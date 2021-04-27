@@ -12,4 +12,12 @@
     <artifactId>stat-core</artifactId>
     <description>统计相关</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

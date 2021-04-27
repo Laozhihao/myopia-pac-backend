@@ -5,13 +5,16 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.stat.domain.mapper.DistrictMonitorStatisticMapper;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -19,6 +22,36 @@ import java.util.List;
  */
 @Service
 public class DistrictMonitorStatisticService extends BaseService<DistrictMonitorStatisticMapper, DistrictMonitorStatistic> {
+
+    @Autowired
+    private DistrictService districtService;
+
+    /**
+     * 获取数据
+     *
+     * @param noticeId
+     * @param currentDistrictId
+     * @param user
+     * @param istotal
+     * @return
+     * @throws IOException
+     */
+    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) throws IOException {
+        if (noticeId == null || user == null) {
+            return new ArrayList<>();
+        }
+        List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
+        Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
+        districtIds.add(currentDistrictId);
+        Lists.partition(new ArrayList<>(districtIds), 100).forEach(districtIdList -> {
+            LambdaQueryWrapper<DistrictMonitorStatistic> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(DistrictMonitorStatistic::getScreeningNoticeId, noticeId);
+            queryWrapper.eq(DistrictMonitorStatistic::getIsTotal, istotal);
+            queryWrapper.in(DistrictMonitorStatistic::getDistrictId, districtIdList);
+            districtMonitorStatistics.addAll(this.list(queryWrapper));
+        });
+        return districtMonitorStatistics;
+    }
 
     /**
      * 获取数据
