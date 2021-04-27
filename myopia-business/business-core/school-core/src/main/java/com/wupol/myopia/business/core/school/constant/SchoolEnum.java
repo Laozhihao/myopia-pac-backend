@@ -2,9 +2,9 @@ package com.wupol.myopia.business.core.school.constant;
 
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 学校相关常量
@@ -60,13 +60,10 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getLodgeName(Integer type) {
-        SchoolEnum schoolEnum = schoolLodge.stream()
+        return schoolLodge.stream()
                 .filter(item -> item.type.equals(type))
-                .findFirst().orElse(null);
-        if (Objects.nonNull(schoolEnum)) {
-            return schoolEnum.name;
-        }
-        return "";
+                .map(SchoolEnum::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
     }
 
     /**
@@ -76,13 +73,10 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getTypeName(Integer type) {
-        SchoolEnum schoolEnum = schoolType.stream()
+        return schoolType.stream()
                 .filter(item -> item.type.equals(type))
-                .findFirst().orElse(null);
-        if (Objects.nonNull(schoolEnum)) {
-            return schoolEnum.name;
-        }
-        return "";
+                .map(SchoolEnum::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
     }
 
     /**
@@ -92,13 +86,10 @@ public enum SchoolEnum {
      * @return 描述
      */
     public static String getKindName(Integer type) {
-        SchoolEnum schoolEnum = schoolKind.stream()
+        return schoolKind.stream()
                 .filter(item -> item.type.equals(type))
-                .findFirst().orElse(null);
-        if (Objects.nonNull(schoolEnum)) {
-            return schoolEnum.name;
-        }
-        return "";
+                .map(SchoolEnum::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
     }
 
     public Integer getType() {
