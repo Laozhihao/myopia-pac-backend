@@ -129,4 +129,15 @@
         and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
         <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
     </select>
+
+    <select id="getByPlanIds" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM m_screening_plan_school
+        WHERE screening_plan_id IN
+        <foreach collection="screeningPlanIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

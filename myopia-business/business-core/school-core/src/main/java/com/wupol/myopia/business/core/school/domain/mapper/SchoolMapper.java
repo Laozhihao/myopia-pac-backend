@@ -41,4 +41,7 @@ public interface SchoolMapper extends BaseMapper<School> {
     List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 
     Set<Integer> selectDistrictIdsByScreeningPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
+
+    Set<Integer> selectDistrictIdsBySchoolIds(@Param("schoolIds") Set<Integer> schoolIds);
+
 }

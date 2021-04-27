@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.government.domain.dto;
 
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import lombok.Data;
 import lombok.experimental.Accessors;

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.hospital.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;

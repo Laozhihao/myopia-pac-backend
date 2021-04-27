@@ -12,4 +12,11 @@
     <artifactId>government-core</artifactId>
     <description>行政区域、政府部门相关</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

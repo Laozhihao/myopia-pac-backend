@@ -10,9 +10,9 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.government.domain.model.District;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -380,4 +380,13 @@ public class SchoolBizService {
                     school.getProvinceCode(), school.getCityCode(), school.getAreaCode(), school.getTownCode(), school.getAddress()));
         };
     }
+
+    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptySet();
+        }
+        Set<Integer> schoolIds = screeningPlanSchoolService.getSchoolIdsByPlanIds(screeningPlanIds);
+        return schoolService.getAllSchoolDistrictIdsBySchoolIds(schoolIds);
+    }
+
 }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;

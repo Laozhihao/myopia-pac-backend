@@ -449,18 +449,11 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthServiceClient.modifyUser(userDTO);
     }
 
-
-    /**
-     * 获取筛查计划关联学校的层级ID
-     *
-     * @param screeningPlanIds 计划ID
-     * @return Set<Integer>
-     */
-    public Set<Integer> getAllSchoolDistrictIdsByScreeningPlanIds(List<Integer> screeningPlanIds) {
-        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+    public Set<Integer> getAllSchoolDistrictIdsBySchoolIds(Set<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
             return Collections.emptySet();
         }
-        return baseMapper.selectDistrictIdsByScreeningPlanIds(screeningPlanIds);
+        return baseMapper.selectDistrictIdsBySchoolIds(schoolIds);
     }
 
     /**

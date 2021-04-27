@@ -589,7 +589,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public void insertWithStudent(CurrentUser currentUser, Student student, String gradeName, String clazzName, String schoolName, String schoolNo, Integer schoolDistrictId, Integer schoolId, ScreeningPlan currentPlan) {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent.setIdCard(student.getIdCard())
                 .setSrcScreeningNoticeId(currentPlan.getSrcScreeningNoticeId())
                 .setScreeningTaskId(currentPlan.getScreeningTaskId())

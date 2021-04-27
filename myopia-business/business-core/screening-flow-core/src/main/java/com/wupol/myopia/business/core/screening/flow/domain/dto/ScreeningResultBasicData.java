@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wupol.myopia.business.management.service.ScreeningDataInterface;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 

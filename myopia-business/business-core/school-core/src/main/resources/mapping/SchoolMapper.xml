@@ -150,15 +150,14 @@
             and id != #{id}
         </if>
     </select>
-    <select id="selectDistrictIdsByScreeningPlanIds" resultType="java.lang.Integer">
+
+    <select id="selectDistrictIdsBySchoolIds" resultType="java.lang.Integer">
         SELECT DISTINCT district_id
         FROM m_school
-        WHERE id IN (
-            SELECT school_id FROM m_screening_plan_school
-            WHERE screening_plan_id IN
-            <foreach collection="screeningPlanIds" item="id" index="index" open="(" close=")" separator=",">
-              #{id}
-            </foreach>
-        )
+        WHERE id IN
+        <foreach collection="schoolIds" item="id" index="index" open="(" close=")" separator=",">
+          #{id}
+        </foreach>
     </select>
+
 </mapper>

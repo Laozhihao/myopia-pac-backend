@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.government.constant;
+package com.wupol.myopia.business.core.common.constant;
 
 /**
  * 缓存相关常量

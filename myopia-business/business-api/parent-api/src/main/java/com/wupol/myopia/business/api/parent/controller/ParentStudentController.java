@@ -11,8 +11,8 @@ import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResp
 import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
-import com.wupol.myopia.business.core.government.domain.model.District;
-import com.wupol.myopia.business.core.government.service.DistrictService;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;

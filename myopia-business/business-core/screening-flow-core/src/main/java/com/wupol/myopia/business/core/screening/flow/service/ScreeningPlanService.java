@@ -4,24 +4,18 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.common.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.client.OauthServiceClient;
-import com.wupol.myopia.business.management.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.management.facade.ScreeningRelatedFacade;
-import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +38,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-    @Autowired
-    private GovDeptService govDeptService;
 
     /**
      * 通过ids获取
@@ -167,42 +159,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         ScreeningPlan screeningPlan = new ScreeningPlan();
         screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
         return updateById(screeningPlan, userId);
-    }
-
-    /**
-     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
-     *
-     * @param noticeIds
-     * @param user
-     * @return
-     */
-    public List<ScreeningPlan> getScreeningPlanByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser()) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
-        } else if (user.isGovDeptUser()) {
-            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
-            allGovDeptIds.add(user.getOrgId());
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
-        }
-        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
-    }
-
-    /**
-     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划(已发布，无论开不开始）
-     *
-     * @param noticeId
-     * @param user
-     * @return
-     */
-    public List<ScreeningPlan> getScreeningPlanByNoticeIdAndUser(Integer noticeId, CurrentUser user) {
-        if (ObjectsUtil.hasNull(noticeId, user)) {
-            return new ArrayList<>();
-        }
-        Set<Integer> noticeSet = new HashSet<>();
-        noticeSet.add(noticeId);
-        return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
     }
 
     /**
