@@ -207,7 +207,7 @@ public class StatConclusionTest {
 
             // StatConclusion wrapper = new StatConclusion();
             // wrapper.setResultId(resultId);
-            UpdateWrapper<StatConclusion> updateWrapper = new UpdateWrapper();
+            UpdateWrapper<StatConclusion> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("result_id", resultId);
             Assert.assertTrue(statConclusionService.saveOrUpdate(statConclusion, updateWrapper));
         }

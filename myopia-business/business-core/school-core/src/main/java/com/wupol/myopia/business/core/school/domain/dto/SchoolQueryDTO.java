@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 学校查询
@@ -41,5 +42,9 @@ public class SchoolQueryDTO extends School {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endTime;
     /** 是否需要查询是否有计划（配合开始结束时间） **/
-    private Boolean needCheckHavePlan = false;
+    private Boolean needCheckHavePlan;
+
+    public Boolean getNeedCheckHavePlan() {
+        return !Objects.isNull(needCheckHavePlan) && needCheckHavePlan;
+    }
 }
