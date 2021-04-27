@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -32,18 +33,16 @@ public class HospitalBizService {
 
     @Resource
     private HospitalService hospitalService;
-
     @Resource
     private HospitalAdminService hospitalAdminService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private DistrictService districtService;
-
     @Resource
     private GovDeptService govDeptService;
+    @Resource
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 更新医院信息
@@ -73,7 +72,7 @@ public class HospitalBizService {
             response.setUsername(hospital.getName());
             // 重置密码
             String password = PasswordGenerator.getHospitalAdminPwd();
-            oauthService.resetPwd(admin.getUserId(), password);
+            oauthServiceClient.resetPwd(admin.getUserId(), password);
             response.setPassword(password);
         }
 

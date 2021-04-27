@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.validator;
+package com.wupol.myopia.business.core.government.validator;
 
 /**
  * 部门接口参数校验器分组

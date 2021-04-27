@@ -1,16 +1,13 @@
 package com.wupol.myopia.business.core.stat.domain.dto;
 
-import com.wupol.myopia.business.management.domain.model.StatConclusion;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * @Description
  * @Date 2021/3/18 15:06
  * @Author by Jacob
  */
-@Getter
-@Setter
+@Data
 public class BigScreenStatDataDTO {
 
     /**
@@ -64,30 +61,4 @@ public class BigScreenStatDataDTO {
 
     /** 是否有效数据 */
     private Boolean isValid;
-
-    private BigScreenStatDataDTO() {
-
-    }
-
-    /**
-     * 获取实例
-     *
-     * @param statConclusion
-     * @return
-     */
-    public static BigScreenStatDataDTO getInstance(StatConclusion statConclusion) {
-        BigScreenStatDataDTO bigScreenStatDataDTO = new BigScreenStatDataDTO();
-        bigScreenStatDataDTO.age = statConclusion.getAge();
-        bigScreenStatDataDTO.gender = statConclusion.getGender();
-        bigScreenStatDataDTO.isLowVision = statConclusion.getIsLowVision();
-        bigScreenStatDataDTO.isMyopia = statConclusion.getIsMyopia();
-        bigScreenStatDataDTO.isRefractiveError = statConclusion.getIsRefractiveError();
-        bigScreenStatDataDTO.schoolAge = statConclusion.getSchoolAge();
-        bigScreenStatDataDTO.warningLevel = statConclusion.getWarningLevel();
-        bigScreenStatDataDTO.visionL = statConclusion.getVisionL();
-        bigScreenStatDataDTO.visionR = statConclusion.getVisionR();
-        bigScreenStatDataDTO.isValid = statConclusion.getIsValid();
-        bigScreenStatDataDTO.setDistrictId(statConclusion.getDistrictId());
-        return bigScreenStatDataDTO;
-    }
 }
