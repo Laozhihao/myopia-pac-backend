@@ -6,36 +6,33 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
+import com.wupol.myopia.business.api.management.domain.builder.*;
+import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
+import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.model.*;
 import com.wupol.myopia.business.core.stat.service.*;
 import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
-import com.wupol.myopia.business.management.domain.builder.DistrictBigScreenStatisticBuilder;
-import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
-import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,12 +90,15 @@ public class ScheduledTasksExecutor {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Resource
     private VistelToolsService vistelToolsService;
+    @Autowired
+    private SchoolBizService schoolBizService;
+    @Autowired
+    private BigScreeningStatService bigScreeningStatService;
 
     /**
      * 筛查数据统计
      */
-    //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-//    @Scheduled(cron = "0 * * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
@@ -139,31 +139,31 @@ public class ScheduledTasksExecutor {
      */
     private void genAttentiveObjectsStatistics(List<Integer> yesterdayScreeningPlanIds, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics) {
         // 1. 获取计划影响的学校的区域
-        Set<Integer> schoolDistrictIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(yesterdayScreeningPlanIds);
+        Set<Integer> schoolDistrictIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(yesterdayScreeningPlanIds);
         // 2. 根据学校的区域ID列表，组装需要重新计算的区域ID（省级到学校所在的区域所有层级）
         Set<Integer> districtIds = schoolDistrictIds.stream().map(districtId -> districtService.getDistrictPositionDetailById(districtId).stream().map(District::getId).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toSet());
         // 3. 组装省份的所有数据
         Map<Integer, Integer> districtIdProvinceIdMap = new HashMap<>(16);
         Set<Integer> provinceIdSet = new HashSet<>();
-        Map<Integer, Map<Integer, List<StudentVo>>> provinceDistrictStudents = new HashMap<>(16);
+        Map<Integer, Map<Integer, List<StudentExtraDTO>>> provinceDistrictStudents = new HashMap<>(16);
         districtIds.forEach(districtId -> {
             Integer provinceId = districtService.getProvinceId(districtId);
             districtIdProvinceIdMap.put(districtId, provinceId);
             if (!provinceIdSet.contains(provinceId)) {
                 provinceIdSet.add(provinceId);
                 List<Integer> needGetStudentDistrictIds = CompareUtil.getRetain(districtService.getProvinceAllDistrictIds(provinceId), districtIds);
-                provinceDistrictStudents.put(provinceId, studentService.getStudentsBySchoolDistrictIds(needGetStudentDistrictIds).stream().collect(Collectors.groupingBy(StudentVo::getDistrictId)));
+                provinceDistrictStudents.put(provinceId, studentService.getStudentsBySchoolDistrictIds(needGetStudentDistrictIds).stream().collect(Collectors.groupingBy(StudentExtraDTO::getDistrictId)));
             }
         });
         // 4. 循环districtIds，拿出所在省份的数据，然后分别统计自己/合计数据
         districtIds.forEach(districtId -> {
-            Map<Integer, List<StudentVo>> districtStudentVos = provinceDistrictStudents.getOrDefault(districtIdProvinceIdMap.get(districtId), Collections.emptyMap());
+            Map<Integer, List<StudentExtraDTO>> districtStudents = provinceDistrictStudents.getOrDefault(districtIdProvinceIdMap.get(districtId), Collections.emptyMap());
             List<Integer> districtTreeAllIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            List<StudentVo> totalStudents = districtStudentVos.keySet().stream().filter(districtTreeAllIds::contains).map(id -> districtStudentVos.getOrDefault(id, Collections.emptyList())).flatMap(Collection::stream).collect(Collectors.toList());
-            if (districtStudentVos.containsKey(districtId)) {
-                districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(districtId, CommonConst.NOT_TOTAL, districtStudentVos.get(districtId)));
+            List<StudentExtraDTO> totalStudents = districtStudents.keySet().stream().filter(districtTreeAllIds::contains).map(id -> districtStudents.getOrDefault(id, Collections.emptyList())).flatMap(Collection::stream).collect(Collectors.toList());
+            if (districtStudents.containsKey(districtId)) {
+                districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatisticBuilder.build(districtId, CommonConst.NOT_TOTAL, districtStudents.get(districtId)));
             }
-            districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatistic.build(districtId, CommonConst.IS_TOTAL, totalStudents));
+            districtAttentiveObjectsStatistics.add(DistrictAttentiveObjectsStatisticBuilder.build(districtId, CommonConst.IS_TOTAL, totalStudents));
         });
     }
 
@@ -181,7 +181,7 @@ public class ScheduledTasksExecutor {
             if (CollectionUtils.isEmpty(statConclusions)) {
                 return;
             }
-            Map<Integer, List<StatConclusionDTO>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionVo::getSchoolId));
+            Map<Integer, List<StatConclusionDTO>> schoolIdStatConslusions = statConclusions.stream().collect(Collectors.groupingBy(StatConclusionDTO::getSchoolId));
             ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
             Map<Integer, School> schoolIdMap = schoolService.getByIds(new ArrayList<>(schoolIdStatConslusions.keySet())).stream().collect(Collectors.toMap(School::getId, Function.identity()));
             ScreeningOrganization screeningOrg = screeningOrganizationService.getById(screeningPlan.getScreeningOrgId());
@@ -195,8 +195,8 @@ public class ScheduledTasksExecutor {
                 Map<Boolean, List<StatConclusionDTO>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
-                schoolVisionStatistics.add(SchoolVisionStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
-                schoolMonitorStatistics.add(SchoolMonitorStatistic.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
+                schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
+                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
             });
         });
     }
@@ -293,8 +293,8 @@ public class ScheduledTasksExecutor {
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
         Integer screeningTaskId = selfStatConclusions.get(0).getTaskId();
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
-        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
+        districtMonitorStatistics.add(DistrictMonitorStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
+        districtVisionStatistics.add(DistrictVisionStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
     }
 
     /**
@@ -321,8 +321,8 @@ public class ScheduledTasksExecutor {
         Integer screeningTaskId = CommonConst.DEFAULT_ID;
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
 
-        districtMonitorStatistics.add(DistrictMonitorStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
-        districtVisionStatistics.add(DistrictVisionStatistic.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
+        districtMonitorStatistics.add(DistrictMonitorStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
+        districtVisionStatistics.add(DistrictVisionStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.IS_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
     }
 
     /**
@@ -363,7 +363,7 @@ public class ScheduledTasksExecutor {
      */
     private DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
-        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = statConclusionService.getByNoticeidAndDistrictIds(screeningNotice.getId());
+        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = bigScreeningStatService.getByNoticeIdAndDistrictIds(screeningNotice.getId());
         int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         //获取地图数据
         BigScreenMap bigScreenMap = bigScreenMapService.getByDistrictId(provinceDistrictId);

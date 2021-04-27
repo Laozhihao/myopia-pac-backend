@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -13,9 +11,6 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 学校某次筛查计划统计监控监测情况表
@@ -142,29 +137,5 @@ public class SchoolMonitorStatistic implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
-    public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
-                                               Integer screeningNoticeId, Integer screeningTaskId,
-                                               List<StatConclusionDTO> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
-        SchoolMonitorStatistic statistic = new SchoolMonitorStatistic();
-        Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
-        Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
-        Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
-        Integer rescreeningItemNumbers = withoutGlassDsn * 4 + wearingGlassDsn * 6;
-        Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
-        int dsn = statConclusions.size();
-        statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
-                .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
-                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(school.getDistrictId())
-                .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
-                .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
-                .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)
-                .setDsn(dsn).setRescreeningItemNumbers(rescreeningItemNumbers)
-                .setErrorNumbers(errorNumbers).setErrorRatio(MathUtil.divide(errorNumbers, rescreeningItemNumbers))
-                .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumbers);
-        //TODO investigationNumbers暂时处理为0
-        statistic.setInvestigationNumbers(0);
-        return statistic;
-    }
 
 }
