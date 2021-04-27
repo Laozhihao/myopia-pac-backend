@@ -1,5 +1,6 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dos;
+package com.wupol.myopia.business.core.school.domain.dto;
 
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -9,7 +10,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class StudentExtraDO extends StudentDO {
+public class StudentExtraDTO extends Student {
 
     /** 出生日期 */
     private String birthdayString;

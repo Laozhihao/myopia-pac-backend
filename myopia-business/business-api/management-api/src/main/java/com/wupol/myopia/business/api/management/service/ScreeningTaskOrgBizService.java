@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
@@ -13,7 +14,9 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgSer
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,8 @@ public class ScreeningTaskOrgBizService {
     private ScreeningTaskService screeningTaskService;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
 
     /**
@@ -110,5 +115,19 @@ public class ScreeningTaskOrgBizService {
         return result;
     }
 
+    /**
+     * 根据任务Id获取机构列表-带机构名称
+     * @param screeningTaskId
+     * @return
+     */
+    public List<ScreeningTaskOrgDTO> getOrgVoListsByTaskId(Integer screeningTaskId) {
+        List<ScreeningTaskOrg> orgVoLists = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
+        return orgVoLists.stream().map(orgVo -> {
+            ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
+            BeanUtils.copyProperties(orgVo, dto);
+            dto.setName(screeningOrganizationService.getNameById(orgVo.getScreeningOrgId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
 }

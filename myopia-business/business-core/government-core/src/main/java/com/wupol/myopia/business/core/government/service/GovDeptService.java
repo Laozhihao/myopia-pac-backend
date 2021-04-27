@@ -217,4 +217,10 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         queryWrapper.eq(GovDept::getStatus,0);//启用
         return baseMapper.selectList(queryWrapper);
     }
+
+    public String getNameById(Integer id) {
+        GovDept govDept = getById(id);
+        return Objects.nonNull(govDept) ? govDept.getName() : "";
+    }
+
 }

@@ -15,6 +15,7 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 public class ScreeningTaskOrgDTO extends ScreeningTaskOrg {
+
     /** 筛查机构名称 */
     private String name;
     /**

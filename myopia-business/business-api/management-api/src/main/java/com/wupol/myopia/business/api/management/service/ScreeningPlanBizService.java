@@ -69,7 +69,7 @@ public class ScreeningPlanBizService {
             query.setScreeningOrgIds(orgIds);
         }
         IPage<ScreeningPlanPageDTO> screeningPlanIPage = screeningPlanService.selectPageByQuery(page, query);
-        // 设置创建人、地址及部门名称
+        // 设置创建人、地址、部门名称及机构名称
         List<Integer> allGovDeptIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlanPageDTO::getGovDeptId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
@@ -77,7 +77,8 @@ public class ScreeningPlanBizService {
         screeningPlanIPage.getRecords().forEach(vo -> {
             vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
                     .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
-                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""));
+                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
+                    .setScreeningOrgName(screeningOrganizationService.getNameById(vo.getScreeningOrgId()));
         });
         return screeningPlanIPage;
     }
