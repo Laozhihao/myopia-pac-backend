@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.hospital;
+package com.wupol.myopia.business.core.hospital.constant;
 
 import lombok.Getter;
 

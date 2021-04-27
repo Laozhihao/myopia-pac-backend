@@ -155,7 +155,7 @@ public class HospitalStudentFacade {
 
         // 设置学校信息
         if (Objects.nonNull(studentVo.getSchool())) {
-            School school = schoolService.getBySchoolId(studentVo.getSchool().getId());
+            School school = schoolService.getById(studentVo.getSchool().getId());
             student.setSchoolNo(school.getSchoolNo());
         }
         if (Objects.nonNull(studentVo.getSchoolGrade())) {

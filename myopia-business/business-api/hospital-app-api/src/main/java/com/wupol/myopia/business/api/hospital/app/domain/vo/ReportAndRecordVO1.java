@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ReportAndRecordVo {
+public class ReportAndRecordVO1 {
 
     private Integer hospitalId;
 

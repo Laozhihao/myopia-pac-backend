@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -49,6 +50,8 @@ public class HospitalInfoService {
     private DistrictService districtService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取医院信息
@@ -92,7 +95,7 @@ public class HospitalInfoService {
             response.setUsername(hospital.getName());
             // 重置密码
             String password = PasswordGenerator.getHospitalAdminPwd();
-            oauthService.resetPwd(admin.getUserId(), password);
+            oauthServiceClient.resetPwd(admin.getUserId(), password);
             response.setPassword(password);
         }
 
