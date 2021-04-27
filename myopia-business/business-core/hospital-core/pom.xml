@@ -11,5 +11,12 @@
 
     <artifactId>hospital-core</artifactId>
     <description>医院相关</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -42,16 +42,6 @@ public class HospitalInfoService {
     private MedicalRecordService medicalRecordService;
     @Autowired
     private HospitalService hospitalService;
-    @Autowired
-    private HospitalAdminService hospitalAdminService;
-    @Autowired
-    private GovDeptService govDeptService;
-    @Autowired
-    private DistrictService districtService;
-    @Autowired
-    private SchoolService schoolService;
-    @Autowired
-    private OauthServiceClient oauthServiceClient;
 
     /**
      * 获取医院信息
@@ -66,76 +56,5 @@ public class HospitalInfoService {
         return map;
     }
 
-
-    /**
-     * 更新医院信息
-     *
-     * @param hospital 医院实体类
-     * @return 医院实体类
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public HospitalResponseDTO updateHospital(Hospital hospital) {
-
-        if (hospitalService.checkHospitalName(hospital.getName(), hospital.getId())) {
-            throw new BusinessException("医院名字重复，请确认");
-        }
-
-        HospitalResponseDTO response = new HospitalResponseDTO();
-        Hospital checkHospital = hospitalService.getById(hospital.getId());
-
-        // 医院管理员
-        HospitalAdmin admin = hospitalAdminService.getByHospitalId(hospital.getId());
-
-        // 更新OAuth账号
-        schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
-
-        // 名字更新重置密码
-        if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
-            response.setUpdatePassword(Boolean.TRUE);
-            response.setUsername(hospital.getName());
-            // 重置密码
-            String password = PasswordGenerator.getHospitalAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            response.setPassword(password);
-        }
-
-        hospitalService.updateById(hospital);
-        Hospital h = hospitalService.getById(hospital.getId());
-        BeanUtils.copyProperties(h, response);
-        response.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
-        // 行政区域名称
-        response.setAddressDetail(districtService.getAddressDetails(
-                h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
-        return response;
-    }
-
-
-    /**
-     * 获取医院列表
-     *
-     * @param pageRequest 分页
-     * @param query       请求入参
-     * @param govDeptId   部门id
-     * @return IPage<Hospital> {@link IPage}
-     */
-    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(),
-                govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
-
-        List<HospitalResponseDTO> records = hospitalListsPage.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
-            return hospitalListsPage;
-        }
-        records.forEach(h -> {
-            // 详细地址
-            h.setAddressDetail(districtService.getAddressDetails(
-                    h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
-
-            // 行政区域名称
-            h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
-        });
-        return hospitalListsPage;
-    }
 
 }

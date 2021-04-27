@@ -27,8 +27,6 @@ public class HospitalDoctorController {
 
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
-    @Autowired
-    private DoctorService doctorService;
 
     @GetMapping("/list")
     public List<DoctorDTO> getDoctorList(DoctorQuery query) {
@@ -40,7 +38,7 @@ public class HospitalDoctorController {
     @GetMapping("/{id}")
     public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return doctorService.getDoctorVo(user.getOrgId(), id);
+        return hospitalDoctorService.getDoctorVo(user.getOrgId(), id);
     }
 
     @PostMapping()
