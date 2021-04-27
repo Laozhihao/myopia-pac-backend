@@ -16,7 +16,7 @@
         <result column="remark" property="remark"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
-        <collection property="district" ofType="com.wupol.myopia.business.core.government.domain.model.District">
+        <collection property="district" ofType="com.wupol.myopia.business.core.common.domain.model.District">
             <id column="dist_id" property="id"/>
             <result column="district_name" property="name"/>
             <result column="code" property="code"/>

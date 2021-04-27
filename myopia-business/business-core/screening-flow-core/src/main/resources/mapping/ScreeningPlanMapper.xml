@@ -69,13 +69,12 @@
 
     <select id="selectPageByQuery" resultMap="ScreeningPlanPageDTOMap" parameterType="java.util.Map">
         SELECT
-        mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mso.name as screening_org_name, mst.title, mst.start_time,
+        mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mst.title, mst.start_time,
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, mst.gov_dept_id, mst.create_user_id,
         mst.create_time
         FROM
         m_screening_plan mst
-        LEFT JOIN m_screening_organization mso ON mst.screening_org_id = mso.id
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>

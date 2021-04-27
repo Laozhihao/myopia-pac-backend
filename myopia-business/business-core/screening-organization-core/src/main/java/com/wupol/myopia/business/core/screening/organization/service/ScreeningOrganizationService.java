@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 筛查机构
@@ -242,4 +243,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 pageRequest.toPage(), query.getName(), query.getType(), query.getConfigType(), districtId,
                 query.getGovDeptId(), query.getPhone(), query.getStatus());
     }
+
+    public String getNameById(Integer id) {
+        ScreeningOrganization org = getById(id);
+        return Objects.nonNull(org) ? org.getName() : "";
+    }
+
+
 }

@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.stat.handler;
 
 
-import com.wupol.myopia.business.management.domain.dos.BigScreenScreeningDO;
-import com.wupol.myopia.business.management.domain.handler.BaseJsonTypeHandler;
+import com.wupol.myopia.business.common.utils.handler.BaseJsonTypeHandler;
+import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
 
 /**
  * @author

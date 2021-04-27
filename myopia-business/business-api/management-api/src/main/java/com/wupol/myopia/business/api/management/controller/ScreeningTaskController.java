@@ -200,7 +200,7 @@ public class ScreeningTaskController {
     public List<ScreeningTaskOrgDTO> queryOrgsInfo(@PathVariable Integer screeningTaskId) {
         // 任务状态判断
         validateExist(screeningTaskId);
-        return screeningTaskOrgService.getOrgVoListsByTaskId(screeningTaskId);
+        return screeningTaskOrgBizService.getOrgVoListsByTaskId(screeningTaskId);
     }
 
     /**
