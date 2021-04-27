@@ -3,8 +3,8 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.hospital.app.domain.vo.DoctorVO;
 import com.wupol.myopia.business.api.hospital.app.service.DoctorService;
+import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
@@ -31,14 +31,14 @@ public class HospitalDoctorController {
     private DoctorService doctorService;
 
     @GetMapping("/list")
-    public List<DoctorVO> getDoctorList(DoctorQuery query) {
+    public List<DoctorDTO> getDoctorList(DoctorQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setHospitalId(user.getOrgId());
-        return doctorService.getDoctorVoList(query);
+        return hospitalDoctorService.getDoctorVoList(query);
     }
 
     @GetMapping("/{id}")
-    public DoctorVO getDoctor(@PathVariable("id") Integer id) {
+    public DoctorDTO getDoctor(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return doctorService.getDoctorVo(user.getOrgId(), id);
     }

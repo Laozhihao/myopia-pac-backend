@@ -14,15 +14,17 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
-import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.HospitalEnum;
-import com.wupol.myopia.business.core.hospital.HospitalLevelEnum;
+import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
+import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalExportDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.*;
@@ -120,6 +122,8 @@ public class ExcelFacade {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ExcelStudentService excelStudentService;
+    @Resource
+    private MedicalReportService medicalReportService;
 
     /**
      * 生成筛查机构Excel
@@ -454,18 +458,18 @@ public class ExcelFacade {
         District district = districtService.findOne(new District().setId(school.getDistrictId()));
 
         // 查询学生
-        List<StudentDTO> list = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
+        List<StudentDTO> studentLists = studentService.getBySchoolIdAndGradeIdAndClassId(schoolId, null, gradeId);
 
         // 为空直接导出
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
                 districtService.getTopDistrictName(district.getCode()) + schoolName + gradeName + "学生数据表", new Date());
-        if (CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(studentLists)) {
             File file = ExcelUtil.exportListToExcel(fileName, new ArrayList<>(), StudentExportDTO.class);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
             return;
         }
         // 获取年级班级信息
-        List<Integer> classIdList = list.stream().map(StudentDTO::getClassId).collect(Collectors.toList());
+        List<Integer> classIdList = studentLists.stream().map(StudentDTO::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = Maps.newHashMap();
         if (!CollectionUtils.isEmpty(classIdList)) {
             classMap = schoolClassService.getClassMapByIds(classIdList);
@@ -477,8 +481,14 @@ public class ExcelFacade {
                 .toMap(StudentScreeningCountDTO::getStudentId,
                         StudentScreeningCountDTO::getCount));
 
+        // 获取就诊记录
+        List<Integer> studentIds = studentLists.stream().map(Student::getId).collect(Collectors.toList());
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
+        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
+                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+
         List<StudentExportDTO> exportList = new ArrayList<>();
-        for (StudentDTO item : list) {
+        for (StudentDTO item : studentLists) {
             StudentExportDTO exportVo = new StudentExportDTO()
                     .setNo(item.getSno())
                     .setName(item.getName())
@@ -495,9 +505,8 @@ public class ExcelFacade {
                     .setLabel(item.visionLabel2Str())
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
-                    //TODO 就诊次数
-                    .setVisitsCount(886)
-                    .setQuestionCount(886)
+                    .setVisitsCount(visitMap.get(item.getId()).size())
+                    .setQuestionCount(0)
                     .setLastScreeningTime(null);
 
             if (null != item.getClassId() && null != classMap.get(item.getClassId())) {

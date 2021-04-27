@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.common.utils.annotation;
 
-import com.wupol.myopia.business.management.annotation.validation.CheckTimeIntervalValidation;
+import com.wupol.myopia.business.common.utils.annotation.validation.CheckTimeIntervalValidation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -8,6 +8,7 @@ import java.lang.annotation.*;
 
 /**
  * 校验结束时间大于等于开始时间
+ *
  * @author Alix
  * @date 2021-02-18
  */

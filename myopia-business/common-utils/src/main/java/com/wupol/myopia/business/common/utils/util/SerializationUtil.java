@@ -2,7 +2,7 @@ package com.wupol.myopia.business.common.utils.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wupol.myopia.business.management.exception.SerializeErrorException;
+import com.wupol.myopia.business.common.utils.exception.SerializeErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
