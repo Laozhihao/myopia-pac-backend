@@ -3,7 +3,7 @@ package com.wupol.myopia.business.api.hospital.app.facade;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.hospital.app.domain.vo.MedicalReportVO2;
+import com.wupol.myopia.business.api.hospital.app.domain.vo.MedicalReportVO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
@@ -52,9 +52,9 @@ public class MedicalReportFacade {
      * @param studentId 学生ID
      * @return MedicalReport
      */
-    public MedicalReportVO2 getOrCreateTodayLastMedicalReportVo(Integer hospitalId, Integer studentId) {
+    public MedicalReportVO getOrCreateTodayLastMedicalReportVo(Integer hospitalId, Integer studentId) {
         MedicalReportDO reportDO = medicalReportService.getTodayLastMedicalReport(hospitalId, studentId);
-        MedicalReportVO2 reportVO = new MedicalReportVO2();
+        MedicalReportVO reportVO = new MedicalReportVO();
         if (Objects.isNull(reportDO)) {
             return reportVO;
         }
