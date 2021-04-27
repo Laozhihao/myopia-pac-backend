@@ -3,11 +3,14 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +24,9 @@ import java.util.List;
 @Log4j2
 public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
 
+    @Autowired
+    private ResourceFileService resourceFileService;
+
     /**
      * 获取医生详情
      * @param hospitalId 医院id
@@ -32,6 +38,20 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
         query.setHospitalId(hospitalId).setId(doctorId);
         return baseMapper.getBy(query)
                 .stream().findFirst().orElseThrow(()-> new BusinessException("未找到该医生"));
+    }
+
+    /**
+     * 获取医生，带Vo
+     * @param hospitalId 医院id
+     * @param doctorId 医生id
+     * @return
+     */
+    public DoctorDTO getDoctorVo(Integer hospitalId, Integer doctorId) {
+        Doctor doctor = getDoctor(hospitalId, doctorId);
+        DoctorDTO doctorVo = new DoctorDTO();
+        BeanUtils.copyProperties(doctor, doctorVo);
+        return doctorVo.setAvatarUrl(resourceFileService.getResourcePath(doctor.getAvatarFileId()))
+                .setSignUrl(resourceFileService.getResourcePath(doctor.getSignFileId()));
     }
 
     /**
