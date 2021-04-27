@@ -2,30 +2,26 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
-import com.wupol.myopia.business.common.constant.GlassesType;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.VisionScreeningResultReportVo;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
-import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
-import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.TableBasicStatParams;
-import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
-import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
-import com.wupol.myopia.business.management.domain.vo.VisionScreeningResultReportVo;
-import com.wupol.myopia.business.management.util.StatUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -68,8 +64,8 @@ public class StatReportService {
      * @return
      * @throws IOException
      */
-    private StatConclusionQuery composeDistrictQuery(Integer districtId) throws IOException {
-        StatConclusionQuery query = new StatConclusionQuery();
+    private StatConclusionQueryDTO composeDistrictQuery(Integer districtId) throws IOException {
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return query;
     }
@@ -172,7 +168,7 @@ public class StatReportService {
      * @throws IOException
      */
     public Map getDistrictStatData(int srcScreeningNoticeId, int districtId) throws IOException {
-        StatConclusionQuery query = composeDistrictQuery(districtId);
+        StatConclusionQueryDTO query = composeDistrictQuery(districtId);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
         if (statConclusions == null || statConclusions.size() == 0) {
@@ -713,7 +709,7 @@ public class StatReportService {
         Date startDate = null;
         Date endDate = null;
         long planStudentNum = 0;
-        StatConclusionQuery query = new StatConclusionQuery();
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setSchoolId(schoolId);
         if (srcScreeningNoticeId != null) {
             ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
@@ -786,8 +782,8 @@ public class StatReportService {
         float averageVisionValue = round2Digits(
                 (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
-        List<SchoolGradeItems> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
-        List<StatConclusionReportVo> statConclusionReportVos =
+        List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
+        List<StatConclusionReportDTO> statConclusionReportDTOs =
                 statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<String, Object>() {
             {
@@ -844,7 +840,7 @@ public class StatReportService {
 
                 put("schoolClassStudentStatList",
                         composeSchoolClassStudentStatList(
-                                schoolId, schoolGradeItems, statConclusionReportVos));
+                                schoolGradeItems, statConclusionReportDTOs));
             }
         };
         if (startDate != null) {
@@ -859,22 +855,20 @@ public class StatReportService {
 
     /**
      * 构建 学校每个班级的学生详情
-     * @param screeningNoticeId 通知ID
-     * @param schoolId 学校ID
      * @param schoolGradeItemList 学校班级列表
      * @return
      */
-    private List<Map<String, List>> composeSchoolClassStudentStatList(int schoolId,
-            List<SchoolGradeItems> schoolGradeItemList,
-            List<StatConclusionReportVo> statConclusionReportVos) {
+    private List<Map<String, List>> composeSchoolClassStudentStatList(
+            List<SchoolGradeItemsDTO> schoolGradeItemList,
+            List<StatConclusionReportDTO> statConclusionReportDTOs) {
         List<Map<String, List>> schoolStudentStatList = new ArrayList<>();
-        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+        for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<SchoolClass> schoolClasses = schoolGradeItems.getChild();
             List<Map<String, List>> schoolClassStatList = new ArrayList<>();
             for (SchoolClass schoolClass : schoolClasses) {
-                List<StatConclusionReportVo> studentStatList =
-                        statConclusionReportVos.stream()
+                List<StatConclusionReportDTO> studentStatList =
+                        statConclusionReportDTOs.stream()
                                 .filter(x
                                         -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())
                                                 && schoolClass.getName().equals(x.getClassName()))
@@ -903,10 +897,10 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeWarningLevelDesc(
-            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
-        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+        for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
@@ -935,14 +929,14 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
-            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions =
                 statConclusions.stream()
                         .filter(x -> x.getIsMyopia() == null ? false : x.getIsMyopia())
                         .collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
-        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+        for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     myopiaConclusions.stream()
@@ -969,12 +963,12 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
-            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions =
                 statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         List<Map<String, Object>> schoolGradeGenderVisionTable =
                 new ArrayList<Map<String, Object>>();
-        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+        for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     myopiaConclusions.stream()
@@ -1001,10 +995,10 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeWearingTypeDesc(
-            List<SchoolGradeItems> schoolGradeItemList, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<Map<String, Object>> schoolGradeWearingTypeTable =
                 new ArrayList<Map<String, Object>>();
-        for (SchoolGradeItems schoolGradeItems : schoolGradeItemList) {
+        for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
                     statConclusions.stream()
@@ -1193,11 +1187,11 @@ public class StatReportService {
      * @return
      */
     private List<Map<String, Object>> composeSchoolGradeClassLowVisionLevelTable(
-            List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItems, List<StatConclusion> statConclusions) {
         List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
         int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            SchoolGradeItems schoolGradeItem =
+            SchoolGradeItemsDTO schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> gradeCode.getCode().equals(x.getGradeCode()))
                             .findFirst()
@@ -1230,11 +1224,11 @@ public class StatReportService {
      * @return
      */
     private List<Map<String, Object>> composeSchoolGradeClassMyopiaLevelTable(
-            List<SchoolGradeItems> schoolGradeItems, List<StatConclusion> statConclusions) {
+            List<SchoolGradeItemsDTO> schoolGradeItems, List<StatConclusion> statConclusions) {
         List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
         int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            SchoolGradeItems schoolGradeItem =
+            SchoolGradeItemsDTO schoolGradeItem =
                     schoolGradeItems.stream()
                             .filter(x -> gradeCode.getCode().equals(x.getGradeCode()))
                             .findFirst()
@@ -1520,10 +1514,10 @@ public class StatReportService {
      * @return
      */
     private List<VisionScreeningResultReportVo> genVisionScreeningResultReportVos(
-            List<StatConclusionReportVo> statConclusionExportVos) {
+            List<StatConclusionReportDTO> statConclusionExportVos) {
         List<VisionScreeningResultReportVo> reportVos = new ArrayList<>();
         for (int i = 0; i < statConclusionExportVos.size(); i++) {
-            StatConclusionReportVo vo = statConclusionExportVos.get(i);
+            StatConclusionReportDTO vo = statConclusionExportVos.get(i);
             VisionScreeningResultReportVo reportVo = new VisionScreeningResultReportVo();
             BeanUtils.copyProperties(vo, reportVo);
             GlassesType glassesType = GlassesType.get(vo.getGlassesType());
@@ -1542,7 +1536,7 @@ public class StatReportService {
      * @param reportVo
      */
     private void genScreeningData(
-            StatConclusionReportVo vo, VisionScreeningResultReportVo reportVo) {
+            StatConclusionReportDTO vo, VisionScreeningResultReportVo reportVo) {
         reportVo.setNakedVisions(
                         eyeDataFormat((BigDecimal) JSONPath.eval(
                                               vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
@@ -1604,7 +1598,7 @@ public class StatReportService {
     /**
      * 获取区域学生计划筛查数量
      * @param notificationId 通知ID
-     * @param validDistrictIds 筛选区域ID
+     * @param specificDistrictId 筛选区域ID
      * @return
      * @throws IOException
      */

@@ -17,16 +17,14 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
@@ -35,6 +33,8 @@ import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStati
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
+import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +69,9 @@ public class StatService {
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
+    private ScreeningPlanBizService screeningPlanBizService;
     @Autowired
-    private SchoolService schoolService;
+    private SchoolBizService schoolBizService;
     @Autowired
     private ExcelFacade excelFacade;
     @Autowired
@@ -159,12 +159,12 @@ public class StatService {
      * @throws IOException
      */
     public Map<String, ScreeningDataContrast> getScreeningDataContrast(Integer notificationId1,
-            Integer notificationId2, Integer districtId, Integer schoolAge) throws IOException {
+                                                                                                      Integer notificationId2, Integer districtId, Integer schoolAge) throws IOException {
         if (notificationId1 == null || notificationId1 < 0) {
             return null;
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        StatConclusionQuery query = composeDistrictQuery(districtId, currentUser);
+        StatConclusionQueryDTO query = composeDistrictQuery(districtId, currentUser);
         query.setSrcScreeningNoticeId(notificationId1);
         if (schoolAge != null && schoolAge > 0) {
             query.setSchoolAge(schoolAge);
@@ -202,8 +202,8 @@ public class StatService {
     public List<Integer> getValidDistrictIdsByNotificationId(
             int notificationId, CurrentUser currentUser) throws IOException {
         List<ScreeningPlan> screeningPlans =
-                screeningPlanService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
-        Set<Integer> districtIds = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+                screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
+        Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (currentUser.isPlatformAdminUser()) {
             return new ArrayList<>(districtIds);
@@ -226,16 +226,16 @@ public class StatService {
             Integer notificationId1, Integer notificationId2) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<ScreeningPlan> screeningPlans1 =
-                screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
                         notificationId1, currentUser);
-        Set<Integer> districtIds1 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+        Set<Integer> districtIds1 = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans1.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
 
         if (notificationId2 != null) {
             List<ScreeningPlan> screeningPlans2 =
-                    screeningPlanService.getScreeningPlanByNoticeIdAndUser(
+                    screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
                             notificationId1, currentUser);
-            Set<Integer> districtIds2 = schoolService.getAllSchoolDistrictIdsByScreeningPlanIds(
+            Set<Integer> districtIds2 = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                     screeningPlans2.stream()
                             .map(ScreeningPlan::getId)
                             .collect(Collectors.toList()));
@@ -255,7 +255,7 @@ public class StatService {
         List<Integer> validDistrictIds =
                 this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
 
-        StatConclusionQuery query = new StatConclusionQuery();
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
@@ -383,10 +383,10 @@ public class StatService {
                 getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
         ScreeningDataContrast result1 = contrastResultMap.get("result1");
         ScreeningDataContrast result2 = contrastResultMap.get("result2");
-        List<ScreeningDataContrastVo> exportList = new ArrayList<ScreeningDataContrastVo>() {
+        List<ScreeningDataContrastDTO> exportList = new ArrayList<ScreeningDataContrastDTO>() {
             {
-                if (result1 != null) add(composeScreeningDataContrastVo("对比项1", result1));
-                if (result2 != null) add(composeScreeningDataContrastVo("对比项2", result2));
+                if (result1 != null) add(composeScreeningDataContrastDTO("对比项1", result1));
+                if (result2 != null) add(composeScreeningDataContrastDTO("对比项2", result2));
             };
         };
         excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
@@ -400,9 +400,9 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    private StatConclusionQuery composeDistrictQuery(Integer districtId, CurrentUser currentUser)
+    private StatConclusionQueryDTO composeDistrictQuery(Integer districtId, CurrentUser currentUser)
             throws IOException {
-        StatConclusionQuery query = new StatConclusionQuery();
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
         if (districtId != null && districtId >= 0) {
             List<Integer> selectDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
@@ -422,13 +422,13 @@ public class StatService {
      * @param contrast 对比筛查数据
      * @return
      */
-    private ScreeningDataContrastVo composeScreeningDataContrastVo(
+    private ScreeningDataContrastDTO composeScreeningDataContrastDTO (
             String title, ScreeningDataContrast contrast) {
         if (contrast == null) {
             return null;
         }
         RescreenStat rs = contrast.getRescreenStat();
-        return ScreeningDataContrastVo.builder()
+        return ScreeningDataContrastDTO.builder()
                 .title(title)
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
