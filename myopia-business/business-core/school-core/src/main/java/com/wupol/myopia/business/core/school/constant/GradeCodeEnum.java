@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.school.constant;
 
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import lombok.Getter;
 

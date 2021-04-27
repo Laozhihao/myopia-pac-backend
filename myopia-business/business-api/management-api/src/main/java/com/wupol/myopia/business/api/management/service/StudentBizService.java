@@ -9,6 +9,8 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -73,6 +75,9 @@ public class StudentBizService {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private MedicalReportService medicalReportService;
+
     /**
      * 获取学生列表
      *
@@ -93,6 +98,8 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(students)) {
             return pageStudents;
         }
+        // 获取学生ID
+        List<Integer> studentIds = students.stream().map(Student::getId).collect(Collectors.toList());
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
@@ -100,14 +107,18 @@ public class StudentBizService {
                 .toMap(StudentScreeningCountDTO::getStudentId,
                         StudentScreeningCountDTO::getCount));
 
+        // 获取就诊记录
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
+        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
+                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+
         // 封装DTO
         for (StudentDTO student : students) {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // TODO: 就诊次数
             student.setNumOfVisits(0);
-            // TODO: 设置问卷数
-            student.setQuestionnaireCount(0);
+            student.setQuestionnaireCount(visitMap.get(student.getId()).size());
         }
         return pageStudents;
     }

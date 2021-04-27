@@ -16,4 +16,8 @@ import lombok.experimental.Accessors;
 public class DoctorDTO extends Doctor {
     /** 报告数 */
     private Integer reportCount;
+    /** 头像url */
+    private String avatarUrl;
+    /** 签名url */
+    private String signUrl;
 }

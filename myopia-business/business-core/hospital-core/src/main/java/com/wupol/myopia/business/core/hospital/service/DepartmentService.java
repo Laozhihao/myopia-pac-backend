@@ -15,4 +15,5 @@ import org.springframework.stereotype.Service;
 @Log4j2
 public class DepartmentService extends BaseService<DepartmentMapper, Department> {
 
+
 }

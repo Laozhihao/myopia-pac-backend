@@ -23,4 +23,6 @@ public class ReportAndRecordDO {
     private Date updateTime;
 
     private String hospitalName;
+
+    private Integer studentId;
 }

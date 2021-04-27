@@ -34,4 +34,6 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
     MedicalReport getTodayLastMedicalReport(Integer hospitalId, Integer studentId);
 
     List<ReportAndRecordDO> getStudentId(@Param("studentId") Integer studentId);
+
+    List<ReportAndRecordDO> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
 }

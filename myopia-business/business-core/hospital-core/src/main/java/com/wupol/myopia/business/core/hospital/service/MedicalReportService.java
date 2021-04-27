@@ -84,6 +84,16 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
     /**
+     * 批量获取列表通过学生Ids(只取当前时间的前一天)
+     *
+     * @param studentIds 学生Ids
+     * @return List<ReportAndRecordVo>
+     */
+    public List<ReportAndRecordDO> getByStudentIds(List<Integer> studentIds) {
+        return baseMapper.getByStudentIds(studentIds);
+    }
+
+    /**
      * 获取学生今天最后一条报告
      * @param hospitalId 医院id
      * @param studentId 学生id
