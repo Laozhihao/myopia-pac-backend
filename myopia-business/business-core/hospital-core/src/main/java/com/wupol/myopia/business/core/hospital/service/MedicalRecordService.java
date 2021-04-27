@@ -7,13 +7,11 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -24,9 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class MedicalRecordService extends BaseService<MedicalRecordMapper, MedicalRecord> {
-
-    @Autowired
-    private MedicalReportService medicalReportService;
 
     /**
      * 获取学生最后一条检查记录
