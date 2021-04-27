@@ -8,6 +8,7 @@ import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistri
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
@@ -50,6 +51,8 @@ public class ScreeningTaskBizService {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private GovDeptService govDeptService;
 
     /**
      * 新增或更新
@@ -97,7 +100,11 @@ public class ScreeningTaskBizService {
         IPage<ScreeningTaskPageDTO> screeningTaskIPage = screeningTaskService.selectPageByQuery(page, query);
         List<Integer> userIds = screeningTaskIPage.getRecords().stream().map(ScreeningTask::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
-        screeningTaskIPage.getRecords().forEach(vo -> vo.setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId())).setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), "")));
+        screeningTaskIPage.getRecords().forEach(vo ->
+                vo.setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
+                        .setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
+                        .setGovDeptName(govDeptService.getNameById(vo.getGovDeptId()))
+        );
         return screeningTaskIPage;
     }
 

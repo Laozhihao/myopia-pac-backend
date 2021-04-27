@@ -42,7 +42,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     }
 
     public IPage<ScreeningTaskPageDTO> selectPageByQuery(Page<ScreeningTask> page, ScreeningTaskQueryDTO query) {
-        return selectPageByQuery(page, query);
+        return baseMapper.selectPageByQuery(page, query);
     }
 
     /**

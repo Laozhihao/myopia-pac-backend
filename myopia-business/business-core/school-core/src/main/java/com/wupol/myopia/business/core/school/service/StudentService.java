@@ -12,10 +12,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.StudentMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -282,7 +279,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param districtIds 行政区域id
      * @return List<StudentDTO>
      */
-    public List<StudentDTO> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
+    public List<StudentExtraDTO> getStudentsBySchoolDistrictIds(List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }

@@ -55,12 +55,6 @@
         </where>
     </select>
 
-    <select id="selectVoListByScreeningTaskId" resultMap="ScreeningTaskOrgDTOMap" parameterType="java.util.Map">
-        SELECT msto.*, mso.name FROM m_screening_task_org msto
-            LEFT JOIN m_screening_organization mso ON msto.screening_org_id = mso.id
-        WHERE msto.screening_task_id = #{screeningTaskId}
-    </select>
-
     <select id="getByTaskId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
