@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.common.utils.annotation.validation;
 
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.business.management.annotation.CheckTimeInterval;
+import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -11,6 +11,7 @@ import java.util.Date;
 
 /**
  * 校验结束时间大于等于开始时间
+ *
  * @author Alix
  * @date 2021-02-18
  */
