@@ -17,7 +17,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class StudentQueryDTO extends StudentDTO {
+public class StudentQueryDTO extends StudentExtraDTO {
     /** 名称 */
     private String nameLike;
     /** 身份证 */

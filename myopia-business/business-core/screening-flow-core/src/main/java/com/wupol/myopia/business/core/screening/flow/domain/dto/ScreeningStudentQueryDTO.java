@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentExtraDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +17,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ScreeningStudentQueryDTO extends StudentExtraDO {
+public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     /** 名称 */
     private String nameLike;
     /** 身份证 */
