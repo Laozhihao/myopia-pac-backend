@@ -275,7 +275,7 @@ public class StatManagementController {
     @GetMapping("/big-screen")
     public BigScreeningVO getBigScreeningVO() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return districtBigScreenStatisticService.getLatestData(currentUser);
+        return statService.getLatestData(currentUser);
     }
 
     /**
