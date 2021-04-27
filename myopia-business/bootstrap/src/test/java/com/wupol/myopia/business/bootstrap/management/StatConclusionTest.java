@@ -2,16 +2,23 @@ package com.wupol.myopia.business.bootstrap.management;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
-import com.wupol.myopia.business.common.constant.GlassesType;
-import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.constant.VisionCorrection;
-import com.wupol.myopia.business.management.constant.WarningLevel;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO.ComputerOptometry;
-import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.management.domain.model.*;
-import com.wupol.myopia.business.management.service.*;
-import com.wupol.myopia.business.management.util.StatUtil;
+import com.wupol.myopia.business.common.utils.constant.GlassesType;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,8 +59,8 @@ public class StatConclusionTest {
 
             VisionDataDO visionData = result.getVisionData();
 
-            ComputerOptometry leftData = computerOptometryDo.getLeftEyeData();
-            ComputerOptometry rightData = computerOptometryDo.getRightEyeData();
+            ComputerOptometryDO.ComputerOptometry leftData = computerOptometryDo.getLeftEyeData();
+            ComputerOptometryDO.ComputerOptometry rightData = computerOptometryDo.getRightEyeData();
 
             int screeningPlanSchoolStudentId = result.getScreeningPlanSchoolStudentId();
             ScreeningPlanSchoolStudent planStudent =

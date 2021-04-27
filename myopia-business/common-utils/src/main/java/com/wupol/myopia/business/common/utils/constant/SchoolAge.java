@@ -1,12 +1,13 @@
 package com.wupol.myopia.business.common.utils.constant;
 
-import lombok.Getter;
 
+import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-@Getter
 public enum SchoolAge {
-    /** 学龄段 */
     KINDERGARTEN(5, "幼儿园"),
     PRIMARY(0, "小学"),
     JUNIOR(1, "初中"),
@@ -46,16 +47,16 @@ public enum SchoolAge {
      *
      * @return 学龄段列表
      */
-    /*public static List<SchoolAgeVO> getSchoolAgeList() {
-        List<SchoolAgeVO> schoolAgeList = new ArrayList<>();
+    public static List<SchoolAgeDTO> getSchoolAgeList() {
+        List<SchoolAgeDTO> schoolAgeList = new ArrayList<>();
         for (SchoolAge value : values()) {
-            SchoolAgeVO schoolAgeVO = new SchoolAgeVO();
-            schoolAgeVO.setCode(value.code);
-            schoolAgeVO.setDesc(value.desc);
-            schoolAgeList.add(schoolAgeVO);
+            SchoolAgeDTO schoolAgeDTO = new SchoolAgeDTO();
+            schoolAgeDTO.setCode(value.code);
+            schoolAgeDTO.setDesc(value.desc);
+            schoolAgeList.add(schoolAgeDTO);
         }
         return schoolAgeList;
-    }*/
+    }
 
     /**
      * 是否初中生（包括初中、高中、职业高中）
