@@ -2,13 +2,9 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.management.domain.dto.BigScreenStatDataDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -114,7 +110,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
 
     /**
      * 获取通知
-     * @param cityDistrictIdList
+     * @param noticeId
      * @param noticeId
      * @return
      */
@@ -123,8 +119,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
         queryWrapper.eq(StatConclusion::getIsRescreen,false);
         List<StatConclusion> statConclusionList = baseMapper.selectList(queryWrapper);
-        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = this.getBigScreenStatDataDTOList(statConclusionList);
-        return  bigScreenStatDataDTOs;
+        return this.getBigScreenStatDataDTOList(statConclusionList);
     }
 
     /**
@@ -133,7 +128,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @return
      */
     private List<BigScreenStatDataDTO> getBigScreenStatDataDTOList(List<StatConclusion> statConclusionList) {
-      return   statConclusionList.stream().map(statConclusion ->    BigScreenStatDataDTO.getInstance(statConclusion)).collect(Collectors.toList());
+        return   statConclusionList.stream().map(BigScreenStatDataDTO::getInstance).collect(Collectors.toList());
     }
 
     /**
