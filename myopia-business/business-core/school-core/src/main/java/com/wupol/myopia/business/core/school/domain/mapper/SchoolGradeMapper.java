@@ -24,7 +24,7 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
     IPage<SchoolGradeItemsDTO> getGradeBySchool(@Param("page") Page<?> page,
                                                 @Param("schoolId") Integer schoolId);
 
-    List<SchoolGrade> getBy(SchoolGradeQueryDTO query);
+    List<SchoolGrade> getByQuery(SchoolGradeQueryDTO query);
 
     IPage<SchoolGrade> getByPage(@Param("page") Page<?> page, @Param("query") SchoolGradeQueryDTO query);
 

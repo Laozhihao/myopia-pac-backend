@@ -40,7 +40,7 @@
         where id in <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
     </select>
 
-    <select id="getBy" resultMap="BaseResultMap">
+    <select id="getByQuery" resultMap="BaseResultMap">
         select *
         from m_school_grade
         <include refid="Base_Where_Clause" />
