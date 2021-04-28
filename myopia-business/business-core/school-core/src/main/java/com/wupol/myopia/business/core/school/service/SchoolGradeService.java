@@ -205,7 +205,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return List<SchoolGrade>
      */
     public List<SchoolGrade> getBy(SchoolGradeQueryDTO query) {
-        return baseMapper.getBy(query);
+        return baseMapper.getByQuery(query);
     }
 
 

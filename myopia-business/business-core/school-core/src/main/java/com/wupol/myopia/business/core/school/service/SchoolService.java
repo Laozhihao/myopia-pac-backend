@@ -212,7 +212,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return List<School>
      */
     public List<School> getBy(SchoolQueryDTO query) {
-        return baseMapper.getBy(query);
+        return baseMapper.getByQuery(query);
     }
 
     /**

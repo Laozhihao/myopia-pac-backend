@@ -144,7 +144,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return List<Student>
      */
     public List<Student> getBy(StudentQueryDTO query) {
-        return baseMapper.getBy(query);
+        return baseMapper.getByQuery(query);
     }
 
     /**
@@ -249,7 +249,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         StudentQueryDTO StudentQueryDTO = new StudentQueryDTO();
         return Lists.partition(idCardList, 50).stream().map(list -> {
             StudentQueryDTO.setIdCardList(list);
-            return baseMapper.getBy(StudentQueryDTO);
+            return baseMapper.getByQuery(StudentQueryDTO);
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 

@@ -25,7 +25,7 @@ public interface StudentMapper extends BaseMapper<Student> {
                                                 @Param("visionLabels") List<Integer> visionLabels, @Param("startScreeningTime") Date startScreeningTime,
                                                 @Param("endScreeningTime") Date endScreeningTime, @Param("schoolName") String schoolName);
 
-    List<Student> getBy(StudentQueryDTO query);
+    List<Student> getByQuery(StudentQueryDTO query);
 
     IPage<Student> getByPage(@Param("page") Page<?> page, @Param("StudentQueryDTO") StudentQueryDTO StudentQueryDTO);
 

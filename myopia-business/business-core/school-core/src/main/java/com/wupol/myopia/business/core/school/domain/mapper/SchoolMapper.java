@@ -24,7 +24,7 @@ public interface SchoolMapper extends BaseMapper<School> {
                                                       @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
                                                       @Param("districtIdPre") Integer districtIdPre);
 
-    List<School> getBy(SchoolQueryDTO query);
+    List<School> getByQuery(SchoolQueryDTO query);
 
     IPage<School> getByPage(@Param("page") Page<?> page, @Param("SchoolQueryDTO") SchoolQueryDTO SchoolQueryDTO);
 

@@ -88,7 +88,7 @@
         order by ms.create_time desc
     </select>
 
-    <select id="getBy" resultMap="BaseResultMap">
+    <select id="getByQuery" resultMap="BaseResultMap">
         select *
         from m_school
         <include refid="Base_Where_Clause" />
