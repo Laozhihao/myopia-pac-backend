@@ -502,7 +502,7 @@ public class ExcelFacade {
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
-                    .setLabel(item.visionLabel2Str())
+                    .setLabel(WarningLevel.get(item.getVisionLabel()).desc)
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     .setVisitsCount(visitMap.get(item.getId()).size())

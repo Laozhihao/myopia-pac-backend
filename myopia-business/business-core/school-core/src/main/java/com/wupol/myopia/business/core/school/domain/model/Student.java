@@ -80,7 +80,7 @@ public class Student implements Serializable {
     /**
      * 性别 0-男 1-女
      */
-    @Range(min=0, max=1)
+    @Range(min = 0, max = 1)
     private Integer gender;
 
     /**
@@ -227,13 +227,14 @@ public class Student implements Serializable {
     /**
      * 上传筛查学生时，判断学生需更新信息是否一致
      * 由于只有部分字段，所以不使用equals
-     * @param excelStudent
-     * @return
+     *
+     * @param excelStudent 导入学生
+     * @return 更新信息是否一致
      */
     public boolean checkNeedUpdate(Student excelStudent) {
         return !StringUtils.equalsIgnoreCase(this.name, excelStudent.name) ||
                 !this.gender.equals(excelStudent.gender) ||
-                !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE),DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
+                !StringUtils.equalsIgnoreCase(DateFormatUtil.format(this.birthday, DateFormatUtil.FORMAT_ONLY_DATE), DateFormatUtil.format(excelStudent.birthday, DateFormatUtil.FORMAT_ONLY_DATE)) ||
                 (Objects.nonNull(excelStudent.nation) && (Objects.nonNull(this.nation)) && !this.nation.equals(excelStudent.nation)) ||
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
@@ -243,25 +244,7 @@ public class Student implements Serializable {
                 (Objects.nonNull(excelStudent.areaCode)) ||
                 (Objects.nonNull(excelStudent.townCode)) ||
                 (StringUtils.isNotBlank(excelStudent.address)) ||
-                (StringUtils.isNotBlank(excelStudent.parentPhone) &&!StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
-    }
-
-    /**
-     * 视力标签预警
-     *
-     * @return String
-     */
-    public String visionLabel2Str() {
-        if (Objects.isNull(visionLabel)) {
-            return "";
-        }
-        switch (visionLabel){
-            case 0:return "0级预警";
-            case 1:return "1级预警";
-            case 2:return "2级预警";
-            case 3:return "3级预警";
-            default: return "";
-        }
+                (StringUtils.isNotBlank(excelStudent.parentPhone) && !StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
     }
 
     /**
@@ -274,20 +257,14 @@ public class Student implements Serializable {
         if (Objects.nonNull(glassesType)) {
             result.append(GlassesType.get(glassesType).desc).append("、");
         }
-        if (Objects.nonNull(isMyopia)) {
-            if (isMyopia) {
-                result.append("近视、");
-            }
+        if (Objects.nonNull(isMyopia) && isMyopia) {
+            result.append("近视、");
         }
-        if (Objects.nonNull(isHyperopia)) {
-            if (isHyperopia) {
-                result.append("远视、");
-            }
+        if (Objects.nonNull(isHyperopia) && isHyperopia) {
+            result.append("远视、");
         }
-        if (Objects.nonNull(isAstigmatism)) {
-            if (isAstigmatism) {
-                result.append("散光");
-            }
+        if (Objects.nonNull(isAstigmatism) && isAstigmatism) {
+            result.append("散光");
         }
         return result.toString();
     }

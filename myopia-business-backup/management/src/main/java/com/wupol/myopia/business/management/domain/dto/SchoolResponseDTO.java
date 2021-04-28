@@ -4,6 +4,8 @@ import com.wupol.myopia.business.management.domain.model.School;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Objects;
+
 /**
  * 学校返回类
  *
@@ -20,7 +22,7 @@ public class SchoolResponseDTO extends School {
     /**
      * 是否能更新
      */
-    private boolean canUpdate = false;
+    private Boolean canUpdate;
 
     /**
      * 行政区域名
@@ -51,4 +53,8 @@ public class SchoolResponseDTO extends School {
      * 是否已有计划
      */
     private Boolean alreadyHavePlan = false;
+
+    public Boolean getCanUpdate() {
+        return !Objects.isNull(canUpdate) && canUpdate;
+    }
 }
