@@ -159,7 +159,7 @@ public class StatService {
      * @throws IOException
      */
     public Map<String, ScreeningDataContrast> getScreeningDataContrast(Integer notificationId1,
-                                                                                                      Integer notificationId2, Integer districtId, Integer schoolAge) throws IOException {
+                                                                       Integer notificationId2, Integer districtId, Integer schoolAge) throws IOException {
         if (notificationId1 == null || notificationId1 < 0) {
             return null;
         }

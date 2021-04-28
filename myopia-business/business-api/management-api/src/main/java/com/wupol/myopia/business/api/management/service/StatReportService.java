@@ -16,7 +16,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.VisionScreeningResultReportVo;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -876,7 +875,7 @@ public class StatReportService {
                 schoolClassStatList.add(new HashMap() {
                     {
                         put("name", schoolClass.getName());
-                        put("list", genVisionScreeningResultReportVos(studentStatList));
+                        put("list", genVisionScreeningResultReportDTOs(studentStatList));
                     }
                 });
             }
@@ -1513,12 +1512,12 @@ public class StatReportService {
      * @param statConclusionExportVos
      * @return
      */
-    private List<VisionScreeningResultReportVo> genVisionScreeningResultReportVos(
+    private List<VisionScreeningResultReportDTO> genVisionScreeningResultReportDTOs(
             List<StatConclusionReportDTO> statConclusionExportVos) {
-        List<VisionScreeningResultReportVo> reportVos = new ArrayList<>();
+        List<VisionScreeningResultReportDTO> reportVos = new ArrayList<>();
         for (int i = 0; i < statConclusionExportVos.size(); i++) {
             StatConclusionReportDTO vo = statConclusionExportVos.get(i);
-            VisionScreeningResultReportVo reportVo = new VisionScreeningResultReportVo();
+            VisionScreeningResultReportDTO reportVo = new VisionScreeningResultReportDTO();
             BeanUtils.copyProperties(vo, reportVo);
             GlassesType glassesType = GlassesType.get(vo.getGlassesType());
             reportVo.setId(i + 1)
@@ -1536,7 +1535,7 @@ public class StatReportService {
      * @param reportVo
      */
     private void genScreeningData(
-            StatConclusionReportDTO vo, VisionScreeningResultReportVo reportVo) {
+            StatConclusionReportDTO vo, VisionScreeningResultReportDTO reportVo) {
         reportVo.setNakedVisions(
                         eyeDataFormat((BigDecimal) JSONPath.eval(
                                               vo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION),
