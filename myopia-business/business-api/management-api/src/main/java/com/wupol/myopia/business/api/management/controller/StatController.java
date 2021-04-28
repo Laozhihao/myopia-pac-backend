@@ -137,7 +137,8 @@ public class StatController {
     /**
      * 获取用户对应权限的可对比区域ID
      *
-     * @param notificationId 通知ID
+     * @param notificationId1
+     * @param notificationId2
      * @return
      */
     @GetMapping("/dataContrastDistrictTree")

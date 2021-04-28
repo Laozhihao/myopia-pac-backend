@@ -149,19 +149,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 更新筛查学生数量
-     *
-     * @param userId
-     * @param screeningPlanId
-     * @param studentNumbers
-     */
-    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
-        ScreeningPlan screeningPlan = new ScreeningPlan();
-        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
-        return updateById(screeningPlan, userId);
-    }
-
-    /**
      * 筛选年度的计划并组装VO
      *
      * @param screeningPlans
