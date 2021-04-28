@@ -37,7 +37,7 @@ public class SchoolResponseDTO extends School {
     /**
      * 是否重置密码
      */
-    private Boolean updatePassword = false;
+    private Boolean updatePassword;
 
     /**
      * 账号
@@ -52,9 +52,17 @@ public class SchoolResponseDTO extends School {
     /**
      * 是否已有计划
      */
-    private Boolean alreadyHavePlan = false;
+    private Boolean alreadyHavePlan;
 
     public Boolean getCanUpdate() {
         return !Objects.isNull(canUpdate) && canUpdate;
+    }
+
+    public Boolean getUpdatePassword() {
+        return !Objects.isNull(updatePassword) && updatePassword;
+    }
+
+    public Boolean getAlreadyHavePlan() {
+        return !Objects.isNull(alreadyHavePlan) && alreadyHavePlan;
     }
 }
