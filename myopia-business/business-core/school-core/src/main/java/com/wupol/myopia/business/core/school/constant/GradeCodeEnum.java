@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.core.school.constant;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.domain.dto.GradeCode;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 年级编码枚举类
@@ -66,6 +64,36 @@ public enum GradeCodeEnum {
         this.name = name;
         this.code = code;
         this.type = type;
+    }
+
+    public static final HashMap<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
+
+    static {
+        gradeByMap.put(SchoolAge.PRIMARY.code,privateSchool());
+        gradeByMap.put(SchoolAge.JUNIOR.code,juniorSchool());
+        gradeByMap.put(SchoolAge.HIGH.code,highSchool());
+        gradeByMap.put(SchoolAge.VOCATIONAL_HIGH.code,vocationalHighSchool());
+    }
+
+    public static List<GradeCodeEnum> privateSchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_PRIMARY_SCHOOL, GradeCodeEnum.TWO_PRIMARY_SCHOOL,
+                GradeCodeEnum.THREE_PRIMARY_SCHOOL, GradeCodeEnum.FOUR_PRIMARY_SCHOOL,
+                GradeCodeEnum.FIVE_PRIMARY_SCHOOL, GradeCodeEnum.SIX_PRIMARY_SCHOOL);
+    }
+
+    public static List<GradeCodeEnum> juniorSchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_JUNIOR_SCHOOL, GradeCodeEnum.TWO_JUNIOR_SCHOOL,
+                GradeCodeEnum.THREE_JUNIOR_SCHOOL, GradeCodeEnum.FOUR_JUNIOR_SCHOOL);
+    }
+
+    public static List<GradeCodeEnum> highSchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_HIGH_SCHOOL, GradeCodeEnum.TWO_HIGH_SCHOOL,
+                GradeCodeEnum.THREE_HIGH_SCHOOL);
+    }
+
+    public static List<GradeCodeEnum> vocationalHighSchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL, GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL,
+                GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL);
     }
 
     public static List<GradeCode> getGradeCodeList() {
