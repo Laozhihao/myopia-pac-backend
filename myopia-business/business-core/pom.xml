@@ -25,4 +25,13 @@
         <module>common-core</module>
     </modules>
 
+    <dependencies>
+        <!-- business common utils -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

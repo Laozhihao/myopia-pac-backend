@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
+import com.wupol.myopia.business.api.screening.app.interfaces.JudgePassInterfaces;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.screening.interfaces.JudgePassInterfaces;
 import lombok.Data;
 
 import java.math.BigDecimal;

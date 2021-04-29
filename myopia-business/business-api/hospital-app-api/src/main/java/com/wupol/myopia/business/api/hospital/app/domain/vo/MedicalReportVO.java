@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.hospital.app.domain.vo;
 
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -12,10 +12,14 @@ import java.util.List;
  * @author Chikong
  * @date 2021-02-10
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
-public class MedicalReportVO extends MedicalReportDO {
+public class MedicalReportVO extends MedicalReport {
+    /** 医院名称 */
+    private String hospitalName;
+    /** 医生名称 */
+    private String doctorName;
     /** 影像列表 */
     private List<String> imageUrlList;
 }

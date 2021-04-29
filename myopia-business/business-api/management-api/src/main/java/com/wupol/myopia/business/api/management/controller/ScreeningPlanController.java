@@ -13,7 +13,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
-import com.wupol.myopia.business.api.management.service.ScreeningPlanBizService;
+import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -97,7 +97,7 @@ public class ScreeningPlanController {
     @Autowired
     private SchoolAdminService schoolAdminService;
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
 
@@ -242,7 +242,7 @@ public class ScreeningPlanController {
         if (user.isScreeningUser()) {
             query.setScreeningOrgId(user.getOrgId());
         }
-        return screeningPlanBizService.getPage(query, page);
+        return managementScreeningPlanBizService.getPage(query, page);
     }
 
     /**

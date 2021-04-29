@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
-import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.export.BaseExportFileService;
-import com.wupol.myopia.business.management.export.GeneratePdfFileService;
-import com.wupol.myopia.business.management.export.constant.FileNameConstant;
-import com.wupol.myopia.business.management.export.domain.ExportCondition;
-import com.wupol.myopia.business.management.service.DistrictService;
+import com.wupol.myopia.business.aggregation.export.pdf.BaseExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

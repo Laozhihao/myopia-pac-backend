@@ -26,7 +26,7 @@ public class SchoolMonitorStatisticBizService {
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
 
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
     public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) throws IOException {
         if (ObjectsUtil.hasNull(noticeId, user)) {
@@ -40,7 +40,7 @@ public class SchoolMonitorStatisticBizService {
         }
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = screeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
         List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo @jacob?
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
             return new ArrayList<>();

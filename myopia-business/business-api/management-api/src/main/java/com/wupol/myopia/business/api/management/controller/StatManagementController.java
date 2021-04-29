@@ -21,10 +21,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
-import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
-import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,19 +53,11 @@ public class StatManagementController {
     @Autowired
     private StatService statService;
     @Autowired
-    private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
-    @Autowired
-    private SchoolVisionStatisticService schoolVisionStatisticService;
-    @Autowired
-    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
-    @Autowired
-    private SchoolMonitorStatisticService schoolMonitorStatisticService;
-    @Autowired
     private ScheduledTasksExecutor scheduledTasksExecutor;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private SchoolBizService schoolBizService;
     @Autowired
@@ -121,7 +109,7 @@ public class StatManagementController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
-        List<ScreeningPlan> screeningPlans = screeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
         return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
 
@@ -139,7 +127,7 @@ public class StatManagementController {
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         //查看该通知所有筛查学校的层级的 地区树
-        List<ScreeningPlan> screeningPlans = screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
         Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         return districtBizService.getValidDistrictTree(currentUser, districts);
     }
