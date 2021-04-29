@@ -327,7 +327,7 @@ public class ScreeningAppService {
      * @return
      */
     public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId) {
-        List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId);
+        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId);
         return schoolService.getSchoolByIds(schoolIds);
     }
 

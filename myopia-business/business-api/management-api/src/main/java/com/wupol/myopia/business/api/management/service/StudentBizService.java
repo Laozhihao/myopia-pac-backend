@@ -116,9 +116,15 @@ public class StudentBizService {
         for (StudentDTO student : students) {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
-            // TODO: 就诊次数
-            student.setNumOfVisits(0);
-            student.setQuestionnaireCount(visitMap.get(student.getId()).size());
+
+            if (Objects.nonNull(visitMap.get(student.getId()))){
+                // 就诊次数
+                student.setNumOfVisits(visitMap.get(student.getId()).size());
+            } else {
+                student.setNumOfVisits(0);
+            }
+            // 问卷次数
+            student.setQuestionnaireCount(0);
         }
         return pageStudents;
     }
