@@ -1,0 +1,21 @@
+singleServerConfig:
+  idleConnectionTimeout: 10000
+  connectTimeout: 10000
+  timeout: 20000
+  retryAttempts: 3
+  retryInterval: 1500
+  password: ${REDIS_PASSWORD}
+  subscriptionsPerConnection: 5
+  clientName: null
+  address: "redis://${REDIS_HOST}:${REDIS_PORT}"
+  subscriptionConnectionMinimumIdleSize: 8
+  subscriptionConnectionPoolSize: 64
+  connectionMinimumIdleSize: 16
+  connectionPoolSize: 64
+  # 需要跟其他服务保持一致
+  database: ${REDIS_DB_INDEX}
+  dnsMonitoringInterval: 5000
+threads: 32
+nettyThreads: 32
+codec: !<org.redisson.codec.JsonJacksonCodec> { }
+"transportMode": "NIO"

@@ -31,5 +31,4 @@ public class ParentStudent implements Serializable {
      */
     private Integer studentId;
 
-
 }
