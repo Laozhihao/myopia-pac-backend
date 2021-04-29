@@ -12,8 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
 @EnableDiscoveryClient
 @EnableScheduling
-@EnableFeignClients(basePackages = "com.wupol.myopia.business.**.client")
-@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api" })
+@EnableFeignClients(basePackages = {"com.wupol.myopia.business.**.client", "com.wupol.myopia.oauth.sdk.client"})
+@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api"})
 public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {

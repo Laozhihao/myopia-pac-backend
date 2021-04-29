@@ -4,11 +4,11 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization">
-        <result typeHandler="com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler" column="notification_config" property="notificationConfig"/>
+        <result typeHandler="com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler" column="notification_config" property="notificationConfig"/>
     </resultMap>
 
     <resultMap id="BaseResponseMap" type="com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO">
-        <result typeHandler="com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler" column="notification_config" property="notificationConfig"/>
+        <result typeHandler="com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler" column="notification_config" property="notificationConfig"/>
     </resultMap>
 
     <!-- 通用查询条件 -->

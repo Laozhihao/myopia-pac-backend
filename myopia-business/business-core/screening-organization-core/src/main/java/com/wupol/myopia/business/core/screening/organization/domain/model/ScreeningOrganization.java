@@ -3,7 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
-import com.wupol.myopia.business.core.screening.organization.handler.NotificationConfigTypeHandler;
+import com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

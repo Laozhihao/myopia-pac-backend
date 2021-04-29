@@ -2,10 +2,10 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 
 import cn.hutool.core.util.ZipUtil;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.business.management.export.domain.ExportCondition;
-import com.wupol.myopia.business.management.export.interfaces.ExportFileService;
-import com.wupol.myopia.business.management.service.NoticeService;
-import com.wupol.myopia.business.management.util.S3Utils;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.pdf.interfaces.ExportFileService;
+import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;

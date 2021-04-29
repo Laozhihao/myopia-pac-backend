@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.bootstrap.management;
 
+import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;

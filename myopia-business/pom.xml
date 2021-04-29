@@ -47,11 +47,11 @@
             </exclusions>
         </dependency>
         <!-- business common utils -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>common-utils</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <!-- Oauth 服务 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>

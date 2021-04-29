@@ -69,7 +69,7 @@ public class StatService {
     @Autowired
     private GovDeptService govDeptService;
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private SchoolBizService schoolBizService;
     @Autowired
@@ -202,7 +202,7 @@ public class StatService {
     public List<Integer> getValidDistrictIdsByNotificationId(
             int notificationId, CurrentUser currentUser) throws IOException {
         List<ScreeningPlan> screeningPlans =
-                screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
+                managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (currentUser.isPlatformAdminUser()) {
@@ -226,14 +226,14 @@ public class StatService {
             Integer notificationId1, Integer notificationId2) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<ScreeningPlan> screeningPlans1 =
-                screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
+                managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
                         notificationId1, currentUser);
         Set<Integer> districtIds1 = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans1.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
 
         if (notificationId2 != null) {
             List<ScreeningPlan> screeningPlans2 =
-                    screeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
+                    managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(
                             notificationId1, currentUser);
             Set<Integer> districtIds2 = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                     screeningPlans2.stream()

@@ -27,7 +27,7 @@ public class SchoolVisionStatisticBizService {
     private SchoolVisionStatisticService schoolVisionStatisticService;
 
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
     /**
      * 根据条件查找所有数据
@@ -48,7 +48,7 @@ public class SchoolVisionStatisticBizService {
         }
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = screeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
         List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
             return new ArrayList<>();

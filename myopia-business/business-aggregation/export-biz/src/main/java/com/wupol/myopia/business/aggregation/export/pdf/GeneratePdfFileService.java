@@ -1,14 +1,14 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
-import com.wupol.myopia.business.management.domain.model.School;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.management.export.constant.FileNameConstant;
-import com.wupol.myopia.business.management.export.constant.HtmlPageUrlConstant;
-import com.wupol.myopia.business.management.service.DistrictService;
-import com.wupol.myopia.business.management.service.SchoolService;
-import com.wupol.myopia.business.management.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.management.service.StatConclusionService;
-import com.wupol.myopia.business.management.util.HtmlToPdfUtil;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
+import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
+import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

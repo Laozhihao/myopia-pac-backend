@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * @Date 2021/4/23 10:31
  */
 @Service
-public class ScreeningPlanBizService {
+public class ManagementScreeningPlanBizService {
 
     @Resource
     private OauthServiceClient oauthServiceClient;

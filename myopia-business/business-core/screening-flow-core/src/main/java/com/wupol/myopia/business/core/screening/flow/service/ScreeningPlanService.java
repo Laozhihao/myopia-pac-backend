@@ -40,6 +40,19 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
 
     /**
+     * 更新筛查学生数量
+     *
+     * @param userId
+     * @param screeningPlanId
+     * @param studentNumbers
+     */
+    public boolean updateStudentNumbers(Integer userId, Integer screeningPlanId, Integer studentNumbers) {
+        ScreeningPlan screeningPlan = new ScreeningPlan();
+        screeningPlan.setId(screeningPlanId).setStudentNumbers(studentNumbers);
+        return updateById(screeningPlan, userId);
+    }
+
+    /**
      * 通过ids获取
      *
      * @param pageRequest 分页入参
