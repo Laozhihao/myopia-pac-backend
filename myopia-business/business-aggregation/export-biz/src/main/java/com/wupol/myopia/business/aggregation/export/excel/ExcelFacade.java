@@ -505,9 +505,11 @@ public class ExcelFacade {
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
-                    .setVisitsCount(visitMap.get(item.getId()).size())
                     .setQuestionCount(0)
                     .setLastScreeningTime(null);
+            if (Objects.nonNull(visitMap.get(item.getId()))) {
+                exportVo.setVisitsCount(visitMap.get(item.getId()).size());
+            }
 
             if (null != item.getClassId() && null != classMap.get(item.getClassId())) {
                 exportVo.setClassName(classMap.get(item.getClassId()).getName());
