@@ -260,6 +260,7 @@ public class SchoolBizService {
                                                   CurrentUser currentUser) {
 
         String createUser = schoolQueryDTO.getCreateUser();
+        Integer districtCode = null;
         List<Integer> userIds = new ArrayList<>();
 
         // 创建人ID处理
@@ -272,10 +273,14 @@ public class SchoolBizService {
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId());
+        if (Objects.nonNull(resultDistrictId.getSecond())) {
+            District district = districtService.getById(resultDistrictId.getSecond());
+            districtCode = Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2));
+        }
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
-                schoolQueryDTO, resultDistrictId, userIds);
+                schoolQueryDTO, resultDistrictId, userIds, districtCode);
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
