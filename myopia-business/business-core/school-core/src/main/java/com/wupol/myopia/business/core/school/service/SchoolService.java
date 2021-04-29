@@ -84,7 +84,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             throw new BusinessException("学校名称重复，请确认");
         }
         District district = districtService.getById(school.getDistrictId());
-        school.setDistrictCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
         initGradeAndClass(school.getId(), school.getType(), createUserId);
         return generateAccountAndPassword(school);
@@ -126,7 +126,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthServiceClient.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         District district = districtService.getById(school.getDistrictId());
-        school.setDistrictCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         return baseMapper.updateById(school);
     }
 

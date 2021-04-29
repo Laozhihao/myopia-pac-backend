@@ -18,7 +18,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
-                <if test="@Ognl@isNotEmpty(districtCode)">and `district_code` = #{districtCode}</if>
+                <if test="@Ognl@isNotEmpty(districtProvinceCode)">and `district_province_code` = #{districtProvinceCode}</if>
                 <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>

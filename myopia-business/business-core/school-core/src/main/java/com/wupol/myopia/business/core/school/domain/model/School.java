@@ -53,7 +53,7 @@ public class School implements Serializable, HasName {
     /**
      * 行政区域-省Code
      */
-    private Integer districtCode;
+    private Integer districtProvinceCode;
 
     /**
      * 行政区域JSON
