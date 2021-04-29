@@ -120,6 +120,8 @@ public class StudentBizService {
             if (Objects.nonNull(visitMap.get(student.getId()))){
                 // 就诊次数
                 student.setNumOfVisits(visitMap.get(student.getId()).size());
+            } else {
+                student.setNumOfVisits(0);
             }
             // 问卷次数
             student.setQuestionnaireCount(0);
