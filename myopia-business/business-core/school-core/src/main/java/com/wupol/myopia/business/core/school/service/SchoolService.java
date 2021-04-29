@@ -15,6 +15,8 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -60,6 +62,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private DistrictService districtService;
+
     /**
      * 新增学校
      *
@@ -78,6 +83,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (checkSchoolName(school.getName(), null)) {
             throw new BusinessException("学校名称重复，请确认");
         }
+        District district = districtService.getById(school.getDistrictId());
+        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(school);
         initGradeAndClass(school.getId(), school.getType(), createUserId);
         return generateAccountAndPassword(school);
@@ -118,6 +125,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setStatus(request.getStatus());
         oauthServiceClient.modifyUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
+        District district = districtService.getById(school.getDistrictId());
+        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         return baseMapper.updateById(school);
     }
 
@@ -420,13 +429,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolQueryDTO   条件
      * @param resultDistrictId 行政区域结果
      * @param userIds          用户ID
+     * @param districtCode     行政区域-省Code
      * @return IPage<SchoolResponseDTO>
      */
     public IPage<SchoolResponseDTO> getSchoolListByCondition(PageRequest pageRequest, SchoolQueryDTO schoolQueryDTO,
                                                              TwoTuple<Integer, Integer> resultDistrictId,
-                                                             List<Integer> userIds) {
+                                                             List<Integer> userIds, Integer districtCode) {
         return baseMapper.getSchoolListByCondition(pageRequest.toPage(), schoolQueryDTO.getName(),
                 schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),
-                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
+                resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
     }
 }

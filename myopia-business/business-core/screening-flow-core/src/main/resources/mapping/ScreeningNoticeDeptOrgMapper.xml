@@ -61,8 +61,7 @@
         order by msndo.create_time desc
     </select>
 
-    <select id="selectByAcceptIdAndType"
-            resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice">
+    <select id="selectByAcceptIdAndType" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice">
         select msn.* from m_screening_notice  msn inner join m_screening_notice_dept_org msndo on msndo.screening_notice_id = msn.id where type = #{type} and
         accept_org_id = #{acceptOrgId}
     </select>

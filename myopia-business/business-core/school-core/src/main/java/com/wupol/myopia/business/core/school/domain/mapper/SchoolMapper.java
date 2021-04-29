@@ -22,7 +22,7 @@ public interface SchoolMapper extends BaseMapper<School> {
     IPage<SchoolResponseDTO> getSchoolListByCondition(@Param("page") Page<?> page, @Param("name") String name,
                                                       @Param("schoolNo") String schoolNo, @Param("type") Integer type,
                                                       @Param("districtId") Integer districtId, @Param("userIds") List<Integer> userIds,
-                                                      @Param("districtIdPre") Integer districtIdPre);
+                                                      @Param("districtIdPre") Integer districtIdPre, @Param("districtCode") Integer districtCode);
 
     List<School> getByQuery(SchoolQueryDTO query);
 
@@ -39,8 +39,6 @@ public interface SchoolMapper extends BaseMapper<School> {
     List<School> getByDistrictId(@Param("districtId") Integer districtId);
 
     List<School> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
-
-    Set<Integer> selectDistrictIdsByScreeningPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
 
     Set<Integer> selectDistrictIdsBySchoolIds(@Param("schoolIds") Set<Integer> schoolIds);
 

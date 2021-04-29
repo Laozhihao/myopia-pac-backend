@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 医院的学生管理的App接口
+ * 医院-学生管理
  *
  * @Author Chikong
  * @date 2021-02-10

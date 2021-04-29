@@ -18,6 +18,7 @@
                 <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
                 <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtProvinceCode)">and `district_province_code` = #{districtProvinceCode}</if>
                 <if test="@Ognl@isNotEmpty(districtDetail)">and `district_detail` = #{districtDetail}</if>
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>
@@ -52,18 +53,19 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
+        id, school_no, create_user_id, gov_dept_id, district_id, district_code, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address, remark, status, create_time, update_time
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
         select ms.*
-                from m_school ms
+        from m_school ms
+                where ms.status != 2
         <if test="districtIdPre != null">
-            left join m_district d on ms.district_id = d.id
-            left join (select id, left(code, 2) as pre
-                       from m_district md) as re on re.id = d.id
+            <!--            left join m_district d on ms.district_id = d.id-->
+            <!--            left join (select id, left(code, 2) as pre-->
+            <!--                       from m_district md) as re on re.id = d.id-->
+            and ms.district_code = #{districtCode}
         </if>
-        where ms.status != 2
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
         </if>
@@ -76,9 +78,9 @@
         <if test="districtId != null">
             and ms.district_id = #{districtId}
         </if>
-        <if test="districtIdPre != null">
-            and re.pre = #{districtIdPre}
-        </if>
+        <!--        <if test="districtIdPre != null">-->
+        <!--            and re.pre = #{districtIdPre}-->
+        <!--        </if>-->
         <if test="userIds != null and userIds.size() != 0">
             and ms.create_user_id in
             <foreach collection="userIds" item="id" index="index" open="(" close=")" separator=",">

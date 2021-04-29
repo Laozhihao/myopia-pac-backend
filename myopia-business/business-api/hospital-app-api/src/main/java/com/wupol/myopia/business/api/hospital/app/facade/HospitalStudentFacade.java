@@ -60,7 +60,7 @@ public class HospitalStudentFacade {
     private SchoolClassService schoolClassService;
 
     /**
-     * 获取学生信息
+     * 根据学生二维码的token, 获取学生信息
      *
      * @param token
      * @return com.wupol.myopia.business.api.hospital.app.domain.dto.HospitalStudentDTO
@@ -223,7 +223,7 @@ public class HospitalStudentFacade {
         // 该医院已建档的学生
         Map<Integer, HospitalStudentDO> studentVoMap = hospitalStudentService.getHospitalStudentVoMap(query);
         // 获取学生的详细信息
-        List<HospitalStudentDTO> studentList = getHospitalStudentLists(new ArrayList<>(studentVoMap.keySet()), query.getNameLike());
+        List<HospitalStudentDTO> studentList = getHospitalStudentList(new ArrayList<>(studentVoMap.keySet()), query.getNameLike());
         // 设置就诊信息
         studentList.forEach(item-> {
             HospitalStudentDO hospitalStudentDO = studentVoMap.get(item.getId());
@@ -316,7 +316,7 @@ public class HospitalStudentFacade {
      * @param name       学生姓名
      * @return List<HospitalStudentDTO>
      */
-    public List<HospitalStudentDTO> getHospitalStudentLists(List<Integer> studentIds, String name) {
+    public List<HospitalStudentDTO> getHospitalStudentList(List<Integer> studentIds, String name) {
         List<HospitalStudentDTO> dtoList = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(studentIds)) {
