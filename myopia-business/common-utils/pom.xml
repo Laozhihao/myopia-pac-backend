@@ -12,4 +12,18 @@
     <artifactId>common-utils</artifactId>
     <description>business 服务功能工具、常量</description>
 
+    <dependencies>
+        <!--二维码-->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+    </dependencies>
+
 </project>
