@@ -86,7 +86,7 @@ public class ScreeningPlanBizService {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
 
-        List<Long> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
+        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId);
         if (CollectionUtils.isEmpty(schoolIds)) {
             return Collections.emptyList();
         }

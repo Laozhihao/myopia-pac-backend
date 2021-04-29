@@ -136,7 +136,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolIds 筛查记录详情ID
      * @return 详情
      */
-    public List<School> getSchoolByIdsAndName(List<Long> schoolIds, String schoolName) {
+    public List<School> getSchoolByIdsAndName(List<Integer> schoolIds, String schoolName) {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
@@ -208,7 +208,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param schoolIds 筛查记录详情ID
      * @return 详情
      */
-    public List<School> getSchoolByIds(List<Long> schoolIds) {
+    public List<School> getSchoolByIds(List<Integer> schoolIds) {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
