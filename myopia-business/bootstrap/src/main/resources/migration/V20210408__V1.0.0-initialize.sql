@@ -401,7 +401,7 @@ CREATE TABLE `m_school`  (
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建人ID',
   `gov_dept_id` int(11) NOT NULL COMMENT '部门ID',
   `district_id` int(11) NOT NULL COMMENT '行政区域ID',
-  `district_code` int null comment '行政区域-省Code（保留两位）',
+  `district_province_code` int null comment '行政区域-省Code（保留两位）',
   `district_detail` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '行政区域名',
   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '学校名称',
   `kind` tinyint(4) NOT NULL COMMENT '学校性质 0-公办 1-私办 2-其他',
