@@ -370,10 +370,10 @@ public class StudentBizService {
             details.setGlassesTypeObj(glassesTypeObj);
         }
 
-        details.setVisionResultDOS(setVisionResult(visionData));
-        details.setRefractoryResultDOS(setRefractoryResults(result.getComputerOptometry()));
-        details.setCrossMirrorResultDOS(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
-        details.setEyeDiseasesResultDO(setEyeDiseasesResult(result.getOtherEyeDiseases()));
+        details.setVisionResultVOS(setVisionResult(visionData));
+        details.setRefractoryResultVOS(setRefractoryResults(result.getComputerOptometry()));
+        details.setCrossMirrorResultVOS(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
+        details.setEyeDiseasesResultVO(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
 
@@ -383,9 +383,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<VisionResult>
      */
-    private List<CardDetailsVO.VisionResultDO> setVisionResult(VisionDataDO result) {
-        CardDetailsVO.VisionResultDO left = new CardDetailsVO.VisionResultDO();
-        CardDetailsVO.VisionResultDO right = new CardDetailsVO.VisionResultDO();
+    private List<CardDetailsVO.VisionResultVO> setVisionResult(VisionDataDO result) {
+        CardDetailsVO.VisionResultVO left = new CardDetailsVO.VisionResultVO();
+        CardDetailsVO.VisionResultVO right = new CardDetailsVO.VisionResultVO();
 
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
@@ -407,9 +407,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<RefractoryResult>
      */
-    private List<CardDetailsVO.RefractoryResultDO> setRefractoryResults(ComputerOptometryDO result) {
-        CardDetailsVO.RefractoryResultDO left = new CardDetailsVO.RefractoryResultDO();
-        CardDetailsVO.RefractoryResultDO right = new CardDetailsVO.RefractoryResultDO();
+    private List<CardDetailsVO.RefractoryResultVO> setRefractoryResults(ComputerOptometryDO result) {
+        CardDetailsVO.RefractoryResultVO left = new CardDetailsVO.RefractoryResultVO();
+        CardDetailsVO.RefractoryResultVO right = new CardDetailsVO.RefractoryResultVO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -435,9 +435,9 @@ public class StudentBizService {
      * @param age    年龄
      * @return List<CrossMirrorResult>
      */
-    private List<CardDetailsVO.CrossMirrorResultDO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
-        CardDetailsVO.CrossMirrorResultDO left = new CardDetailsVO.CrossMirrorResultDO();
-        CardDetailsVO.CrossMirrorResultDO right = new CardDetailsVO.CrossMirrorResultDO();
+    private List<CardDetailsVO.CrossMirrorResultVO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
+        CardDetailsVO.CrossMirrorResultVO left = new CardDetailsVO.CrossMirrorResultVO();
+        CardDetailsVO.CrossMirrorResultVO right = new CardDetailsVO.CrossMirrorResultVO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -468,9 +468,9 @@ public class StudentBizService {
      * @param result 其他眼部疾病
      * @return List<EyeDiseasesResult>
      */
-    private List<CardDetailsVO.EyeDiseasesResultDO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
-        CardDetailsVO.EyeDiseasesResultDO left = new CardDetailsVO.EyeDiseasesResultDO();
-        CardDetailsVO.EyeDiseasesResultDO right = new CardDetailsVO.EyeDiseasesResultDO();
+    private List<CardDetailsVO.EyeDiseasesResultVO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
+        CardDetailsVO.EyeDiseasesResultVO left = new CardDetailsVO.EyeDiseasesResultVO();
+        CardDetailsVO.EyeDiseasesResultVO right = new CardDetailsVO.EyeDiseasesResultVO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {

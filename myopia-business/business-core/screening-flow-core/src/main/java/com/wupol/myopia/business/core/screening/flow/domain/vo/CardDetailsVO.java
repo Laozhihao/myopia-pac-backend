@@ -22,24 +22,25 @@ public class CardDetailsVO {
      */
     private GlassesTypeObj glassesTypeObj;
     /**
+     *
      * 视力检查结果
      */
-    private List<VisionResultDO> visionResultDOS;
+    private List<VisionResultVO> visionResultVOS;
 
     /**
      * 验光仪检查结果
      */
-    private List<RefractoryResultDO> refractoryResultDOS;
+    private List<RefractoryResultVO> refractoryResultVOS;
 
     /**
      * 串镜检查结果
      */
-    private List<CrossMirrorResultDO> crossMirrorResultDOS;
+    private List<CrossMirrorResultVO> crossMirrorResultVOS;
 
     /**
      * 其他眼病
      */
-    private List<EyeDiseasesResultDO> eyeDiseasesResultDO;
+    private List<EyeDiseasesResultVO> eyeDiseasesResultVO;
 
     /**
      * 戴镜类型Obj
@@ -68,7 +69,7 @@ public class CardDetailsVO {
      */
     @Getter
     @Setter
-    public static class RefractoryResultDO {
+    public static class RefractoryResultVO {
 
         /**
          * 0 为左眼 1 为右眼
@@ -98,7 +99,7 @@ public class CardDetailsVO {
      */
     @Getter
     @Setter
-    public static class VisionResultDO {
+    public static class VisionResultVO {
 
         /**
          * 0 为左眼 1 为右眼
@@ -124,7 +125,7 @@ public class CardDetailsVO {
      */
     @Getter
     @Setter
-    public static class CrossMirrorResultDO {
+    public static class CrossMirrorResultVO {
 
         /**
          * 0 为左眼 1 为右眼
@@ -154,7 +155,7 @@ public class CardDetailsVO {
      */
     @Getter
     @Setter
-    public static class EyeDiseasesResultDO {
+    public static class EyeDiseasesResultVO {
 
         /**
          * 0 为左眼 1 为右眼
