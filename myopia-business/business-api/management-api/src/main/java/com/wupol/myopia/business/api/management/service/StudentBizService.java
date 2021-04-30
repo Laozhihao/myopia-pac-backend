@@ -117,7 +117,7 @@ public class StudentBizService {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
 
-            if (Objects.nonNull(visitMap.get(student.getId()))){
+            if (Objects.nonNull(visitMap.get(student.getId()))) {
                 // 就诊次数
                 student.setNumOfVisits(visitMap.get(student.getId()).size());
             } else {
@@ -518,9 +518,14 @@ public class StudentBizService {
     public StudentDTO updateStudentReturnCountInfo(Student student) {
         StudentDTO studentDTO = studentService.updateStudent(student);
         studentDTO.setScreeningCount(student.getScreeningCount())
-                .setQuestionnaireCount(student.getQuestionnaireCount())
-                // TODO: 就诊次数
-                .setNumOfVisits(0);
+                .setQuestionnaireCount(student.getQuestionnaireCount());
+        // 就诊次数
+        List<ReportAndRecordDO> reportList = medicalReportService.getByStudentId(student.getId());
+        if (CollectionUtils.isEmpty(reportList)) {
+            studentDTO.setNumOfVisits(reportList.size());
+        } else {
+            studentDTO.setNumOfVisits(0);
+        }
         return studentDTO;
     }
 }
