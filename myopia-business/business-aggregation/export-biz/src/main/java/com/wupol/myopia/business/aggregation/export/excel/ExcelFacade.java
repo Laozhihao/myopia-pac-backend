@@ -364,14 +364,7 @@ public class ExcelFacade {
 
         // 年级统计
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
-        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId).collect(Collectors.toList());
-
-        // 班级统计
-        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
-        // 通过班级id分组
-        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
-        // 年级设置班级
-        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+        packageGradeInfo(grades);
 
         // 年级通过学校ID分组
         Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
@@ -505,10 +498,13 @@ public class ExcelFacade {
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
-                    .setVisitsCount(visitMap.get(item.getId()).size())
                     .setQuestionCount(0)
                     .setLastScreeningTime(null);
-
+            if (Objects.nonNull(visitMap.get(item.getId()))) {
+                exportVo.setVisitsCount(visitMap.get(item.getId()).size());
+            } else {
+                exportVo.setVisitsCount(0);
+            }
             if (null != item.getClassId() && null != classMap.get(item.getClassId())) {
                 exportVo.setClassName(classMap.get(item.getClassId()).getName());
             }
@@ -584,14 +580,7 @@ public class ExcelFacade {
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schools.stream()
                 .map(School::getId).collect(Collectors.toList()));
-        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId)
-                .collect(Collectors.toList());
-        // 班级统计
-        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
-        // 通过班级id分组
-        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
-        // 年级设置班级
-        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+        packageGradeInfo(grades);
 
         // 通过学校编号分组
         Map<String, List<SchoolGradeExportDTO>> schoolGradeMaps = grades.stream()
@@ -687,6 +676,21 @@ public class ExcelFacade {
             importList.add(student);
         }
         studentService.saveBatch(importList);
+    }
+
+    /**
+     * 封装年级班级信息
+     *
+     * @param grades 年级列表
+     */
+    private void packageGradeInfo(List<SchoolGradeExportDTO> grades) {
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId).collect(Collectors.toList());
+        // 班级统计
+        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
+        // 通过班级id分组
+        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
+        // 年级设置班级
+        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
     }
 
 
