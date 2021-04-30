@@ -21,7 +21,9 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
@@ -381,9 +383,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<VisionResult>
      */
-    private List<VisionResultDO> setVisionResult(VisionDataDO result) {
-        VisionResultDO left = new VisionResultDO();
-        VisionResultDO right = new VisionResultDO();
+    private List<CardDetailsVO.VisionResultDO> setVisionResult(VisionDataDO result) {
+        CardDetailsVO.VisionResultDO left = new CardDetailsVO.VisionResultDO();
+        CardDetailsVO.VisionResultDO right = new CardDetailsVO.VisionResultDO();
 
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
@@ -405,9 +407,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<RefractoryResult>
      */
-    private List<RefractoryResultDO> setRefractoryResults(ComputerOptometryDO result) {
-        RefractoryResultDO left = new RefractoryResultDO();
-        RefractoryResultDO right = new RefractoryResultDO();
+    private List<CardDetailsVO.RefractoryResultDO> setRefractoryResults(ComputerOptometryDO result) {
+        CardDetailsVO.RefractoryResultDO left = new CardDetailsVO.RefractoryResultDO();
+        CardDetailsVO.RefractoryResultDO right = new CardDetailsVO.RefractoryResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -433,9 +435,9 @@ public class StudentBizService {
      * @param age    年龄
      * @return List<CrossMirrorResult>
      */
-    private List<CrossMirrorResultDO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
-        CrossMirrorResultDO left = new CrossMirrorResultDO();
-        CrossMirrorResultDO right = new CrossMirrorResultDO();
+    private List<CardDetailsVO.CrossMirrorResultDO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
+        CardDetailsVO.CrossMirrorResultDO left = new CardDetailsVO.CrossMirrorResultDO();
+        CardDetailsVO.CrossMirrorResultDO right = new CardDetailsVO.CrossMirrorResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -466,9 +468,9 @@ public class StudentBizService {
      * @param result 其他眼部疾病
      * @return List<EyeDiseasesResult>
      */
-    private List<EyeDiseasesResultDO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
-        EyeDiseasesResultDO left = new EyeDiseasesResultDO();
-        EyeDiseasesResultDO right = new EyeDiseasesResultDO();
+    private List<CardDetailsVO.EyeDiseasesResultDO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
+        CardDetailsVO.EyeDiseasesResultDO left = new CardDetailsVO.EyeDiseasesResultDO();
+        CardDetailsVO.EyeDiseasesResultDO right = new CardDetailsVO.EyeDiseasesResultDO();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dos;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;

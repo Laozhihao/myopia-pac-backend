@@ -1,9 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.CrossMirrorResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.EyeDiseasesResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionResultDO;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,5 +59,111 @@ public class CardDetailsVO {
          * 右眼视力
          */
         private BigDecimal rightVision;
+    }
+
+    /**
+     * 验光仪检查结果
+     *
+     * @author Simple4H
+     */
+    @Getter
+    @Setter
+    public static class RefractoryResultDO {
+
+        /**
+         * 0 为左眼 1 为右眼
+         */
+        private Integer lateriality;
+
+        /**
+         * 轴位
+         */
+        private BigDecimal axial;
+
+        /**
+         * 球镜
+         */
+        private BigDecimal sph;
+
+        /**
+         * 柱镜
+         */
+        private BigDecimal cyl;
+    }
+
+    /**
+     * 视力检查结果
+     *
+     * @author Simple4H
+     */
+    @Getter
+    @Setter
+    public static class VisionResultDO {
+
+        /**
+         * 0 为左眼 1 为右眼
+         */
+        private Integer lateriality;
+
+        /**
+         * 矫正视力
+         */
+        private BigDecimal correctedVision;
+
+        /**
+         * 裸眼视力
+         */
+        private BigDecimal nakedVision;
+
+    }
+
+    /**
+     * 串镜检查结果
+     *
+     * @author Simple4H
+     */
+    @Getter
+    @Setter
+    public static class CrossMirrorResultDO {
+
+        /**
+         * 0 为左眼 1 为右眼
+         */
+        private Integer lateriality;
+
+        /**
+         * 是否近视
+         */
+        private Boolean myopia;
+
+        /**
+         * 是否远视
+         */
+        private Boolean farsightedness;
+
+        /**
+         * 是否有其他
+         */
+        private Boolean other = false;
+    }
+
+    /**
+     * 其他眼病
+     *
+     * @author Simple4H
+     */
+    @Getter
+    @Setter
+    public static class EyeDiseasesResultDO {
+
+        /**
+         * 0 为左眼 1 为右眼
+         */
+        private Integer lateriality;
+
+        /**
+         * 眼部疾病
+         */
+        private List<String> eyeDiseases;
     }
 }
