@@ -47,31 +47,6 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("l_cyl")
     private BigDecimal lCyl;
 
-/*
-
-    *//**
-     * 左眼串镜
-     *//*
-    @JsonProperty("l_lcj")
-    private String lLcj;
-
-    *//**
-     * 右眼串镜
-     *//*
-    @JsonProperty("r_lcj")
-    private String rLcj;
-
-    *//**
-     * 右眼屈光
-     *//*
-    @JsonProperty("r_qg")
-    private String rQg;
-    *//**
-     * 左眼屈光
-     *//*
-    @JsonProperty("l_qg")
-    private String  lQg;*/
-
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(0);

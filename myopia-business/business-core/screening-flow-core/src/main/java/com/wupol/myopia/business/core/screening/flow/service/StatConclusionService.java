@@ -25,15 +25,20 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     /**
      * 获取筛查结论列表
      *
-     * @param StatConclusionQueryDTO
+     * @param statConclusionQueryDTO
      * @return
      */
-    public List<StatConclusion> listByQuery(StatConclusionQueryDTO StatConclusionQueryDTO) {
-        return baseMapper.listByQuery(StatConclusionQueryDTO);
+    public List<StatConclusion> listByQuery(StatConclusionQueryDTO statConclusionQueryDTO) {
+        return baseMapper.listByQuery(statConclusionQueryDTO);
     }
 
-    public StatConclusion getLastOne(StatConclusionQueryDTO StatConclusionQueryDTO) {
-        return baseMapper.selectLastOne(StatConclusionQueryDTO);
+    /**
+     * 获取最后一个
+     * @param statConclusionQueryDTO
+     * @return
+     */
+    public StatConclusion getLastOne(StatConclusionQueryDTO statConclusionQueryDTO) {
+        return baseMapper.selectLastOne(statConclusionQueryDTO);
     }
 
     /**

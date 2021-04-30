@@ -61,7 +61,7 @@ public class StudentResultDetailsDTO {
     private String AD;
 
     /**
-     眼轴
+     * 眼轴
      */
     private String AL;
 

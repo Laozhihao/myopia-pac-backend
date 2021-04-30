@@ -26,6 +26,12 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      */
     private ComputerOptometry leftEyeData;
 
+    /**
+     * 电脑验光具体数据
+     * @Description
+     * @Date 2021/1/22 16:37
+     * @Author by jacob
+     */
     @Data
     @Accessors(chain = true)
     public static class ComputerOptometry implements ValidResultDataInterface {

@@ -51,8 +51,9 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
          *
          * @return
          */
+        @Override
         public boolean judgeValidData() {
-            if (WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE.equals(glassesType)) {
+            if (WearingGlassesSituation.NOT_WEARING_GLASSES_KEY.equals(glassesType)) {
                 return nakedVision != null;
             }
             return nakedVision != null && correctedVision != null;
