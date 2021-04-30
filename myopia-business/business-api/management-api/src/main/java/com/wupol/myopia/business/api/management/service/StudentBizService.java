@@ -21,7 +21,9 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
@@ -117,7 +119,7 @@ public class StudentBizService {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
 
-            if (Objects.nonNull(visitMap.get(student.getId()))){
+            if (Objects.nonNull(visitMap.get(student.getId()))) {
                 // 就诊次数
                 student.setNumOfVisits(visitMap.get(student.getId()).size());
             } else {
@@ -368,10 +370,10 @@ public class StudentBizService {
             details.setGlassesTypeObj(glassesTypeObj);
         }
 
-        details.setVisionResultDOS(setVisionResult(visionData));
-        details.setRefractoryResultDOS(setRefractoryResults(result.getComputerOptometry()));
-        details.setCrossMirrorResultDOS(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
-        details.setEyeDiseasesResultDO(setEyeDiseasesResult(result.getOtherEyeDiseases()));
+        details.setVisionResults(setVisionResult(visionData));
+        details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
+        details.setCrossMirrorResults(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
+        details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
 
@@ -381,9 +383,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<VisionResult>
      */
-    private List<VisionResultDO> setVisionResult(VisionDataDO result) {
-        VisionResultDO left = new VisionResultDO();
-        VisionResultDO right = new VisionResultDO();
+    private List<CardDetailsVO.VisionResult> setVisionResult(VisionDataDO result) {
+        CardDetailsVO.VisionResult left = new CardDetailsVO.VisionResult();
+        CardDetailsVO.VisionResult right = new CardDetailsVO.VisionResult();
 
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
@@ -405,9 +407,9 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return List<RefractoryResult>
      */
-    private List<RefractoryResultDO> setRefractoryResults(ComputerOptometryDO result) {
-        RefractoryResultDO left = new RefractoryResultDO();
-        RefractoryResultDO right = new RefractoryResultDO();
+    private List<CardDetailsVO.RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
+        CardDetailsVO.RefractoryResult left = new CardDetailsVO.RefractoryResult();
+        CardDetailsVO.RefractoryResult right = new CardDetailsVO.RefractoryResult();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -433,9 +435,9 @@ public class StudentBizService {
      * @param age    年龄
      * @return List<CrossMirrorResult>
      */
-    private List<CrossMirrorResultDO> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
-        CrossMirrorResultDO left = new CrossMirrorResultDO();
-        CrossMirrorResultDO right = new CrossMirrorResultDO();
+    private List<CardDetailsVO.CrossMirrorResult> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
+        CardDetailsVO.CrossMirrorResult left = new CardDetailsVO.CrossMirrorResult();
+        CardDetailsVO.CrossMirrorResult right = new CardDetailsVO.CrossMirrorResult();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
 
@@ -466,9 +468,9 @@ public class StudentBizService {
      * @param result 其他眼部疾病
      * @return List<EyeDiseasesResult>
      */
-    private List<EyeDiseasesResultDO> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
-        EyeDiseasesResultDO left = new EyeDiseasesResultDO();
-        EyeDiseasesResultDO right = new EyeDiseasesResultDO();
+    private List<CardDetailsVO.EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
+        CardDetailsVO.EyeDiseasesResult left = new CardDetailsVO.EyeDiseasesResult();
+        CardDetailsVO.EyeDiseasesResult right = new CardDetailsVO.EyeDiseasesResult();
         left.setLateriality(CommonConst.LEFT_EYE);
         right.setLateriality(CommonConst.RIGHT_EYE);
         if (null != result) {
@@ -518,9 +520,14 @@ public class StudentBizService {
     public StudentDTO updateStudentReturnCountInfo(Student student) {
         StudentDTO studentDTO = studentService.updateStudent(student);
         studentDTO.setScreeningCount(student.getScreeningCount())
-                .setQuestionnaireCount(student.getQuestionnaireCount())
-                // TODO: 就诊次数
-                .setNumOfVisits(0);
+                .setQuestionnaireCount(student.getQuestionnaireCount());
+        // 就诊次数
+        List<ReportAndRecordDO> reportList = medicalReportService.getByStudentId(student.getId());
+        if (CollectionUtils.isEmpty(reportList)) {
+            studentDTO.setNumOfVisits(reportList.size());
+        } else {
+            studentDTO.setNumOfVisits(0);
+        }
         return studentDTO;
     }
 }

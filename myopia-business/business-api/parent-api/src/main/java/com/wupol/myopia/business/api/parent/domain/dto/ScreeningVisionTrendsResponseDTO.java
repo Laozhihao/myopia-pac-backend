@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.api.parent.domain.dto;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.CorrectedVisionDetails;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.CylDetails;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.NakedVisionDetails;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SphDetails;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.CorrectedVisionDetails;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.CylDetails;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.NakedVisionDetails;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SphDetails;
 import lombok.Getter;
 import lombok.Setter;
 
