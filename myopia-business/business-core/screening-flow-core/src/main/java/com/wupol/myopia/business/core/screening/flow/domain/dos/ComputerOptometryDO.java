@@ -6,6 +6,7 @@ import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterfac
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Accessors(chain = true)
-public class ComputerOptometryDO implements ScreeningResultStructureInterface<ComputerOptometryDO.ComputerOptometry> {
+public class ComputerOptometryDO implements ScreeningResultStructureInterface<ComputerOptometryDO.ComputerOptometry>, Serializable {
     /**
      * 右眼数据
      */

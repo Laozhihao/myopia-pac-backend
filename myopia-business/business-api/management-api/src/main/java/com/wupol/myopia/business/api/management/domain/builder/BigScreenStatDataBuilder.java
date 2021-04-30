@@ -2,11 +2,13 @@ package com.wupol.myopia.business.api.management.domain.builder;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
+import lombok.experimental.UtilityClass;
 
 /**
  * @Author HaoHao
  * @Date 2021/4/27
  **/
+@UtilityClass
 public class BigScreenStatDataBuilder {
     /**
      * 获取实例

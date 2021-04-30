@@ -171,7 +171,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param id           医院ID
      * @return 是否重复
      */
-    public Boolean checkHospitalName(String hospitalName, Integer id) {
+    public boolean checkHospitalName(String hospitalName, Integer id) {
         return baseMapper.getByNameNeId(hospitalName, id).size() > 0;
     }
 

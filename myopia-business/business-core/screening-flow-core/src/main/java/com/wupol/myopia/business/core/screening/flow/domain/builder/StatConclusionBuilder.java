@@ -411,6 +411,12 @@ public class StatConclusionBuilder {
 
         }
 
+        /**
+         * 获取实例
+          * @param visionScreeningResult
+         * @param screeningPlanSchoolStudent
+         * @return
+         */
         public static BasicData getInstance(VisionScreeningResult visionScreeningResult, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
             BasicData basicData = new BasicData();
             basicData.isRescreen = visionScreeningResult.getIsDoubleScreen();

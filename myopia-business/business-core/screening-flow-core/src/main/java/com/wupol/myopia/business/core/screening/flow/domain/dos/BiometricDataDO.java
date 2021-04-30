@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bouncycastle.asn1.x509.qualified.BiometricData;
 
+import java.io.Serializable;
+
 /**
  * 生物测量DO
  * @Description
@@ -12,7 +14,7 @@ import org.bouncycastle.asn1.x509.qualified.BiometricData;
  */
 @Data
 @Accessors(chain = true)
-public class BiometricDataDO {
+public class BiometricDataDO implements Serializable {
     /**
      * 右眼数据
      */

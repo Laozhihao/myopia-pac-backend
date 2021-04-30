@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.stat.domain.dos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Description
  * @Date 2021/3/7 20:47
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class AvgVisionDO {
+public class AvgVisionDO implements Serializable {
     private Double leftEyeVision;
     private Double rightEyeVision;
 

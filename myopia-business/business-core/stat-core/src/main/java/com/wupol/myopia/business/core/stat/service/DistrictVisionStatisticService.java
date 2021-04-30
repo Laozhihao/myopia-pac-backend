@@ -63,7 +63,7 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
      * @return
      * @throws IOException
      */
-    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) throws IOException {
+    public List<DistrictVisionStatistic> getStatisticDtoByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal)  {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }

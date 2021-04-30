@@ -42,7 +42,7 @@ public class CurrentUser {
     /**
      * 是否平台管理员
      */
-    public Boolean isPlatformAdminUser() {
+    public boolean isPlatformAdminUser() {
         return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SUPER_ADMIN.getType());
     }
 
@@ -50,7 +50,7 @@ public class CurrentUser {
      * 是否政府部门用户
      */
     @JsonIgnore
-    public Boolean isGovDeptUser() {
+    public boolean isGovDeptUser() {
         return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.GOVERNMENT_DEPARTMENT.getType());
     }
 
@@ -58,7 +58,7 @@ public class CurrentUser {
      * 是否筛查端用户
      */
     @JsonIgnore
-    public Boolean isScreeningUser() {
+    public boolean isScreeningUser() {
         return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SCREENING_ORGANIZATION.getType());
     }
 }

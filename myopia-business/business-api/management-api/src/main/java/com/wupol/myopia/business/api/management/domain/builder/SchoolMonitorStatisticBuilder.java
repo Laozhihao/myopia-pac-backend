@@ -15,8 +15,23 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/27
  **/
-public class SchoolMonitorStatisticBuilder {
+public final class SchoolMonitorStatisticBuilder {
 
+    private SchoolMonitorStatisticBuilder() {
+
+    }
+
+    /**
+     * 构建参数
+     * @param school
+     * @param screeningOrg
+     * @param screeningNoticeId
+     * @param screeningTaskId
+     * @param statConclusions
+     * @param planScreeningNumbers
+     * @param realScreeningNumbers
+     * @return
+     */
     public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
                                                Integer screeningNoticeId, Integer screeningTaskId,
                                                List<StatConclusionDTO> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {

@@ -191,7 +191,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         Integer startItem = (page - 1) * size;
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).last("limit " + startItem + "," + size);
-        ;
         if (StringUtils.isNotBlank(studentName)) {
             queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
         }

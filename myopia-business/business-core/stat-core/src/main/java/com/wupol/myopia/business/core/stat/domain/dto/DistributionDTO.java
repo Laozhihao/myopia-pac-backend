@@ -4,7 +4,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -75,11 +74,6 @@ public class DistributionDTO implements Serializable {
          */
         private Long realScreeningNum;
 
-        /**
-         * 城市地区的下属地区映射关系
-         */
-        private Map<District, List<District>> cityDistrictMap;
-
         public static Builder getBuilder() {
             return new Builder();
         }
@@ -100,12 +94,6 @@ public class DistributionDTO implements Serializable {
             this.realScreeningNum = realScreeningNum;
             return this;
         }
-
-        public Builder setCityDistrictMap(Map<District, List<District>> cityDistrictMap) {
-            this.cityDistrictMap = cityDistrictMap;
-            return this;
-        }
-
 
         /**
          * 构建
@@ -147,13 +135,13 @@ public class DistributionDTO implements Serializable {
          */
         private void setCityData() {
             List<StatisticDistrictDTO> statisticDistrictList = new ArrayList<>();
-            Map<Integer, String> cityDistrictIdNameMap = bigScreenStatDataDTOList.stream().collect(Collectors.toMap(e -> e.getCityDistrictId(), e -> e.getCityDistrictName(),(v1,v2)->v1));
-            bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getCityDistrictId, Collectors.counting())).forEach((cityDistrictId, num) -> {
+            Map<Integer, String> cityDistrictIdNameMap = bigScreenStatDataDTOList.stream().collect(Collectors.toMap(BigScreenStatDataDTO::getCityDistrictId, BigScreenStatDataDTO::getCityDistrictName,(v1,v2)->v1));
+            bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getCityDistrictId, Collectors.counting())).forEach((cityDistrictId, count) -> {
                 StatisticDistrictDTO statisticDistrictDTO = new StatisticDistrictDTO();
                 statisticDistrictDTO.cityName =cityDistrictIdNameMap.get(cityDistrictId);
-                statisticDistrictDTO.num = num;
+                statisticDistrictDTO.num = count;
                 statisticDistrictDTO.cityDistrictId = cityDistrictId;
-                statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(num / (double) screeningStudentNum * 100);
+                statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(count / (double) screeningStudentNum * 100);
                 statisticDistrictList.add(statisticDistrictDTO);
             });
             Collections.sort(statisticDistrictList,
@@ -263,7 +251,7 @@ public class DistributionDTO implements Serializable {
          */
         private Long studentNum;
         private double studentDistribution;
-        public Long realScreeningNum;
+        private Long realScreeningNum;
     }
 
     @Getter
@@ -304,11 +292,7 @@ public class DistributionDTO implements Serializable {
     @Getter
     @Setter
     public static class StatisticDistrictDTO implements Serializable {
-        public Integer cityDistrictId;
-        /**
-         * ratio : 23
-         * cityName : 广州市
-         */
+        private Integer cityDistrictId;
         private double ratio;
         private long num;
         private String cityName;
