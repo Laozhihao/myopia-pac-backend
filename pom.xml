@@ -14,8 +14,6 @@
     <description>近视防控系统</description>
 
     <modules>
-        <!--<module>myopia-business-backup</module>-->
-        <module>myopia-oauth-backup</module>
         <module>myopia-oauth</module>
         <module>myopia-gateway</module>
         <module>service-common</module>
