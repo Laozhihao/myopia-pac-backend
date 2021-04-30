@@ -2,8 +2,10 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.bouncycastle.asn1.x509.qualified.BiometricData;
 
 /**
+ * 生物测量DO
  * @Description
  * @Date 2021/1/26 1:08
  * @Author by Jacob
@@ -11,8 +13,13 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class BiometricDataDO {
-
+    /**
+     * 右眼数据
+     */
     private BiometricData rightEyeData;
+    /**
+     * 左眼数据
+     */
     private BiometricData leftEyeData;
 
     @Data
@@ -23,23 +30,23 @@ public class BiometricDataDO {
          */
         private Integer lateriality;
         /**
-         * AD
+         * 房水深度
          */
         private String ad;
         /**
-         * AL
+         * 眼轴
          */
         private String al;
         /**
-         * CCT
+         * 角膜中央厚度
          */
         private String cct;
         /**
-         * LT
+         * 晶状体厚度
          */
         private String lt;
         /**
-         * WTW
+         * 角膜白到白距离
          */
         private String wtw;
 

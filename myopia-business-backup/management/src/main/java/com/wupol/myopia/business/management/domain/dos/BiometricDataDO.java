@@ -27,19 +27,19 @@ public class BiometricDataDO {
          */
         private String ad;
         /**
-         * AL
+         眼轴
          */
         private String al;
         /**
-         * CCT
+         * 角膜中央厚度
          */
         private String cct;
         /**
-         * LT
+         * 晶状体厚度
          */
         private String lt;
         /**
-         * WTW
+         * 角膜白到白距离
          */
         private String wtw;
 

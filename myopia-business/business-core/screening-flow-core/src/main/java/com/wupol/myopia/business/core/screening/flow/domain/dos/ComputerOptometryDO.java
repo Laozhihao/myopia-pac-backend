@@ -9,14 +9,21 @@ import lombok.experimental.Accessors;
 import java.math.BigDecimal;
 
 /**
- * @Description 电脑验光数据
+ * 电脑验光数据
+ * @Description
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
 @Data
 @Accessors(chain = true)
 public class ComputerOptometryDO implements ScreeningResultStructureInterface<ComputerOptometryDO.ComputerOptometry> {
+    /**
+     * 右眼数据
+     */
     private ComputerOptometry rightEyeData;
+    /**
+     * 左眼数据
+     */
     private ComputerOptometry leftEyeData;
 
     @Data
