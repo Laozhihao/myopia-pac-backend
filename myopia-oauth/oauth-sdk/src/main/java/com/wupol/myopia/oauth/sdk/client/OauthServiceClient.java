@@ -105,7 +105,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/
     @PutMapping("/oauth/user")
-    User modifyUser(@RequestBody UserDTO param);
+    User updateUser(@RequestBody UserDTO param);
 
     /**
      * 重置管理端用户的密码【其他端用户的不适合】
@@ -188,7 +188,7 @@ public interface OauthServiceClient {
     Permission addPermission(@RequestBody PermissionDTO param);
 
     @PutMapping("/oauth/permission")
-    Permission modifyPermission(@RequestBody PermissionDTO param);
+    Permission updatePermission(@RequestBody PermissionDTO param);
 
     @DeleteMapping("/oauth/permission/{permissionId}")
     boolean deletePermission(@PathVariable("permissionId") Integer permissionId);

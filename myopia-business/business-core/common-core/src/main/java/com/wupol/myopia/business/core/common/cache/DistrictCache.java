@@ -32,7 +32,6 @@ public class DistrictCache implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Long startTime = System.currentTimeMillis();
         // 缓存全国行政区域-列表结构
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_LIST)) {
             List<District> districtList = districtService.findByList(new District());
@@ -52,7 +51,5 @@ public class DistrictCache implements CommandLineRunner {
             Map<String, District> districtMap = allDistrictTree.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()).substring(0, 2), Function.identity()));
             redisTemplate.opsForHash().putAll(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, districtMap);
         }
-        Long endTime = System.currentTimeMillis();
-        System.out.println((endTime - startTime)/1000);
     }
 }

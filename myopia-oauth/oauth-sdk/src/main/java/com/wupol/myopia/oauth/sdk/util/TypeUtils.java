@@ -36,7 +36,7 @@ public class TypeUtils {
             Class<?> rawType = parameterizedType.getRawType();
             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
             Type genericType = Arrays.stream(actualTypeArguments).findFirst().get();
-            Class<?> genericClass = null;
+            Class<?> genericClass;
             try {
                 genericClass = Class.forName(genericType.getTypeName());
             } catch (ClassNotFoundException e) {
