@@ -72,11 +72,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-        return page.convert(user -> {
+        List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = resultLists.stream().map(user -> {
             ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
             screeningOrgStaffUserDTO.setStaffId(staffSnMaps.get(user.getId()).getId());
             return screeningOrgStaffUserDTO;
-        });
+        }).collect(Collectors.toList());
+        return new Page<ScreeningOrgStaffUserDTO>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(screeningOrgStaffUserDTOList);
     }
 
     /**
@@ -156,7 +157,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
         resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
     }
@@ -174,7 +175,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userDTO = new UserDTO();
         userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        return oauthServiceClient.modifyUser(userDTO);
+        return oauthServiceClient.updateUser(userDTO);
     }
 
     /**

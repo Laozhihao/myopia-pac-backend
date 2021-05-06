@@ -1,8 +1,7 @@
 package com.wupol.myopia.oauth.sdk.domain.response;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -17,6 +16,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020-12-23
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

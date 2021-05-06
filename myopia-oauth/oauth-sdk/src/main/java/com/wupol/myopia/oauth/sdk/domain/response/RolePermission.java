@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.sdk.domain.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @Author HaoHao
  * @Date 2020-12-23
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
@@ -28,6 +30,5 @@ public class RolePermission implements Serializable {
      * 权限资源ID
      */
     private Integer permissionId;
-
 
 }

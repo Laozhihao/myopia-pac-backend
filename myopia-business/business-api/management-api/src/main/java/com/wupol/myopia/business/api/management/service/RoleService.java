@@ -10,10 +10,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.RoleQueryDTO;
 import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
-import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
@@ -77,7 +77,7 @@ public class RoleService {
         // 获取部门信息和行政区信息
         List<Integer> govDeptIds = roleList.stream().map(Role::getOrgId).distinct().collect(Collectors.toList());
         Map<Integer, GovDeptDTO> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
-        return rolePage.convert(role -> {
+        List<RoleVO> roleVOList = roleList.stream().map(role -> {
             RoleVO roleVO = new RoleVO(role);
             GovDeptDTO govDept = govDeptMap.get(role.getOrgId());
             if (Objects.isNull(govDept)) {
@@ -87,7 +87,9 @@ public class RoleService {
             roleVO.setDistrictDetail(districtService.getDistrictPositionDetail(govDept.getDistrict()));
             roleVO.setDistrictId(govDept.getDistrictId());
             return roleVO;
-        });
+        }).collect(Collectors.toList());
+        return new Page<RoleVO>(rolePage.getCurrent(), rolePage.getSize(), rolePage.getTotal()).setRecords(roleVOList);
+
     }
 
     /**
