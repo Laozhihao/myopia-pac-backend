@@ -18,7 +18,7 @@ import java.util.List;
 public class ReportConclusion {
     
     /** 学生信息 */
-    private MedicalReportStudent student;
+    private HospitalStudent student;
     /** 医院名称 */
     private String hospitalName;
     /** 医生签名id */

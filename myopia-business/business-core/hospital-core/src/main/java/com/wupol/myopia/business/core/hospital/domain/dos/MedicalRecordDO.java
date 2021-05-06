@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.dos;
 
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,11 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class MedicalReportDO extends MedicalReport {
+public class MedicalRecordDO extends MedicalRecord {
     /** 医院名称 */
     private String hospitalName;
-    /** 医生名称 */
-    private String doctorName;
-    /** 影像列表 */
-    private List<String> imageUrlList;
 }

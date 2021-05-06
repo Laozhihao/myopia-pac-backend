@@ -36,4 +36,7 @@ public interface MedicalReportMapper extends BaseMapper<MedicalReport> {
     List<ReportAndRecordDO> getStudentId(@Param("studentId") Integer studentId);
 
     List<ReportAndRecordDO> getByStudentIds(@Param("studentIds") List<Integer> studentIds);
+
+    List<MedicalReport> getInconclusiveReportList();
+
 }
