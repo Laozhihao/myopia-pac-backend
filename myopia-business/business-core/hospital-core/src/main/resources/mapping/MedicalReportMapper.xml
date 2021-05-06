@@ -117,4 +117,11 @@
         </foreach>
         order by report.create_time desc
     </select>
+
+    <select id="getInconclusiveReportList" resultMap="BaseResultMap">
+        select *
+        from h_medical_report
+        where
+    </select>
+
 </mapper>

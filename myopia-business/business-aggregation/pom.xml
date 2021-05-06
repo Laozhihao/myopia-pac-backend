@@ -19,6 +19,7 @@
         <module>export-biz</module>
         <module>message-biz</module>
         <module>student-biz</module>
+        <module>hospital-biz</module>
     </modules>
 
 </project>

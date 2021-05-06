@@ -12,6 +12,9 @@ import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseD
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +39,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     private MedicalRecordService medicalRecordService;
     @Autowired
     private ResourceFileService resourceFileService;
-    @Autowired
-    private HospitalDoctorService hospitalDoctorService;
-    @Autowired
-    private HospitalStudentService hospitalStudentService;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -86,8 +85,8 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveReport(MedicalReport medicalReport, Integer hospitalId, Integer departmentId, Integer doctorId, Integer studentId) {
-        MedicalRecordDO medicalRecordDO = medicalRecordService.getTodayLastMedicalRecordDO(hospitalId, studentId);
-        if (Objects.isNull(medicalRecordDO)) {
+        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(hospitalId, studentId);
+        if (Objects.isNull(medicalRecord)) {
             throw new BusinessException("无检查数据，不可录入诊断处方");
         }
 
@@ -100,8 +99,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         } else {
             dbReport = medicalReport;
         }
-        dbReport.setMedicalRecordId(medicalRecordDO.getId());
-        updateReportConclusion(dbReport, medicalRecordDO); // 更新固化数据
+        dbReport.setMedicalRecordId(medicalRecord.getId());
         saveOrUpdate(dbReport);
     }
 
@@ -121,7 +119,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
                 .setDepartmentId(departmentId)
                 .setDoctorId(doctorId)
                 .setStudentId(studentId);
-        updateReportConclusion(medicalReport, null);
         if (!save(medicalReport)) {
             throw new BusinessException("创建报告失败");
         }
@@ -142,39 +139,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         return String.format(sn+"%06d", count);
     }
 
-    /**
-     * 更新报告的固化数据 TODO 当学生信息修改时,也要更新固化结论的学生数据
-     * @param record
-     * @return void
-     **/
-    public void updateReportConclusionWithSave(MedicalRecordDO record) {
-        MedicalReportQuery medicalReportQuery = new MedicalReportQuery();
-        medicalReportQuery.setMedicalRecordId(record.getId());
-        MedicalReport report = getMedicalReportList(medicalReportQuery).stream().findFirst().orElseThrow(()-> new BusinessException("未找到该检查单"));
-        updateReportConclusion(report, record);
-        updateById(report);
-    }
-
-    /** 更新报告的固化数据 */
-    private void updateReportConclusion(MedicalReport report, MedicalRecordDO record) {
-        ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
-        BeanUtils.copyProperties(report, reportInfo);
-        HospitalStudent student = hospitalStudentService.getById(report.getStudentId());
-        MedicalReportStudent medicalReportStudent = new MedicalReportStudent();
-        BeanUtils.copyProperties(student, medicalReportStudent);
-        ReportConclusion conclusion = new ReportConclusion()
-                .setReport(reportInfo)
-                .setStudent(medicalReportStudent)
-                .setHospitalName(record.getHospitalName());
-        Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
-        if (Objects.nonNull(doctor)) {
-            conclusion.setSignFileId(doctor.getSignFileId());
-        }
-        if (Objects.nonNull(record)){
-            conclusion.setConsultation(record.getConsultation());
-        }
-        report.setReportConclusionData(conclusion);
-    }
 
 
 
@@ -252,5 +216,11 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     public MedicalReportDO getTodayLastMedicalReport(Integer hospitalId, Integer studentId) {
         return baseMapper.getTodayLastMedicalReportDO(hospitalId, studentId);
     }
+
+    /** 获取未生成固化结论的报告列表 */
+    public List<MedicalReport> getInconclusiveReportList() {
+        return baseMapper.getInconclusiveReportList();
+    }
+
 
 }

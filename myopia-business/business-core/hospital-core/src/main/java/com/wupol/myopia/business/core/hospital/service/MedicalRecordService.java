@@ -149,16 +149,15 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                             Integer departmentId,
                                             Integer doctorId,
                                             Integer studentId) {
-        MedicalRecordDO medicalRecordDO = getOrCreateTodayMedicalRecordDO(hospitalId, departmentId, doctorId, studentId);
+        MedicalRecord medicalRecord = getOrCreateTodayMedicalRecord(hospitalId, departmentId, doctorId, studentId);
         if (Objects.nonNull(consultation)) {
-            medicalRecordDO.setConsultation(consultation);
-            medicalReportService.updateReportConclusionWithSave(medicalRecordDO);
+            medicalRecord.setConsultation(consultation);
         }
-        if (Objects.nonNull(vision)) medicalRecordDO.setVision(vision);
-        if (Objects.nonNull(biometrics)) medicalRecordDO.setBiometrics(biometrics);
-        if (Objects.nonNull(diopter)) medicalRecordDO.setDiopter(diopter);
-        if (Objects.nonNull(tosca)) medicalRecordDO.setTosca(tosca);
-        if (!updateById(medicalRecordDO)) {
+        if (Objects.nonNull(vision)) medicalRecord.setVision(vision);
+        if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
+        if (Objects.nonNull(diopter)) medicalRecord.setDiopter(diopter);
+        if (Objects.nonNull(tosca)) medicalRecord.setTosca(tosca);
+        if (!updateById(medicalRecord)) {
             throw new BusinessException("修改失败");
         }
     }
@@ -182,28 +181,6 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         // 创建检查单的同时,创建对应的报告
         medicalReportService.createMedicalReport(medicalRecord.getId(), hospitalId, departmentId, doctorId, studentId);
         return medicalRecord;
-    }
-
-    /**
-     * 获取 或者 创建 学生今天最后一条问诊
-     * @param hospitalId 医院id
-     * @param departmentId 科室id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public MedicalRecordDO getOrCreateTodayMedicalRecordDO(Integer hospitalId,
-                                                       Integer departmentId,
-                                                       Integer doctorId,
-                                                       Integer studentId) {
-        MedicalRecordDO medicalRecordDO = getTodayLastMedicalRecordDO(hospitalId, studentId);
-        if (Objects.nonNull(medicalRecordDO)) {
-            return medicalRecordDO;
-        }
-        MedicalRecord medicalRecord = createMedicalRecord(hospitalId, departmentId, doctorId, studentId);
-        BeanUtils.copyProperties(medicalRecord, medicalRecordDO);
-        // 创建检查单的同时,创建对应的报告
-        medicalReportService.createMedicalReport(medicalRecordDO.getId(), hospitalId, departmentId, doctorId, studentId);
-        return medicalRecordDO;
     }
     
     /**
@@ -253,15 +230,6 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      */
     public MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId) {
         return baseMapper.getTodayLastMedicalRecord(hospitalId, studentId);
-    }
-    /**
-     * 获取学生今天最后一条检查单
-     * @param hospitalId 医院id
-     * @param studentId 学生id
-     */
-    //TODO 现在是连医院表查询,分析微服务时,将获取医院名称修改为从接口获取
-    public MedicalRecordDO getTodayLastMedicalRecordDO(Integer hospitalId, Integer studentId) {
-        return baseMapper.getTodayLastMedicalRecordDO(hospitalId, studentId);
     }
 
     /** 创建检查单 */
