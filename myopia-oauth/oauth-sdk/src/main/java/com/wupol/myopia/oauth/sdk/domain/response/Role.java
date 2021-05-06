@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.sdk.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,7 @@ import java.util.Date;
  * @Author HaoHao
  * @Date 2020-12-23
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

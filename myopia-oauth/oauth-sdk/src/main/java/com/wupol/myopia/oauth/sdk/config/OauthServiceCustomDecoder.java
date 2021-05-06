@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.oauth.sdk.exception.OauthServiceDecodeException;
+import com.wupol.myopia.oauth.sdk.exception.OauthServiceRequestException;
 import com.wupol.myopia.oauth.sdk.util.TypeUtils;
 import feign.Response;
 import feign.Util;
@@ -61,7 +61,7 @@ public class OauthServiceCustomDecoder extends Decoder.Default {
         if (ResultCode.SUCCESS.getCode().equals(code)) {
             return JSONObject.toJSONString(result.getData(), SerializerFeature.WriteMapNullValue);
         } else {
-            throw new OauthServiceDecodeException(result.getMessage(), result.getData());
+            throw new OauthServiceRequestException(result.getMessage(), result.getCode());
         }
     }
 }
