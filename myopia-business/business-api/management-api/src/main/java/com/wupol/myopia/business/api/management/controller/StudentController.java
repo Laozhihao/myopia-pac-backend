@@ -12,6 +12,8 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.school.constant.VisionLabels;
 import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -194,5 +196,29 @@ public class StudentController {
     @GetMapping("/screening/card/{resultId}")
     public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
         return studentBizService.packageCardDetails(resultId);
+    }
+
+    /**
+     * 获取就诊列表
+     *
+     * @param studentId 学生Id
+     * @return List<MedicalReportDO>
+     */
+    @GetMapping("/management/student/report/list/{studentId}")
+    public List<MedicalReportDO> getReportList(@PathVariable("studentId") Integer studentId) {
+        return studentBizService.getReportList(studentId);
+    }
+
+    /**
+     * 就诊卡（报告详情）
+     *
+     * @param hospitalId 医院Id
+     * @param reportId   报告Id
+     * @return StudentReportResponseDTO
+     */
+    @GetMapping("/report/detail/{hospitalId}/{reportId}")
+    public StudentReportResponseDTO getReportDetail(@PathVariable("hospitalId") Integer hospitalId,
+                                                    @PathVariable("reportId") Integer reportId) {
+        return studentBizService.gerReportDetail(hospitalId, reportId);
     }
 }
