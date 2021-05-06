@@ -259,6 +259,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      * @param hospitalId 医院id
      * @param studentId 学生id
      */
+    //TODO 现在是连医院表查询,分析微服务时,将获取医院名称修改为从接口获取
     public MedicalRecordDO getTodayLastMedicalRecordDO(Integer hospitalId, Integer studentId) {
         return baseMapper.getTodayLastMedicalRecordDO(hospitalId, studentId);
     }
