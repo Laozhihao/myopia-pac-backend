@@ -121,7 +121,7 @@
     <select id="getInconclusiveReportList" resultMap="BaseResultMap">
         select *
         from h_medical_report
-        where
+        where report_conclusion_data is null
     </select>
 
 </mapper>
