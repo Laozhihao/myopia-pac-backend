@@ -68,7 +68,7 @@
     <select id="getTodayLastMedicalRecordDO" resultMap="MedicalRecordDO">
         select mr.*, h.name as `hospitalName`
         from h_medical_record mr
-        left join h_hospital h on mr.hospital_id = h.id
+        left join m_hospital h on mr.hospital_id = h.id
         where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
         order by id desc
         limit 1
