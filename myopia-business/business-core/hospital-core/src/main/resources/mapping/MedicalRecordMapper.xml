@@ -9,8 +9,11 @@
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
-
     </resultMap>
+
+    <resultMap id="MedicalRecordDO" type="com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO">
+    </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -57,6 +60,15 @@
     <select id="getTodayLastMedicalRecord" resultMap="BaseResultMap">
         select mr.*
         from h_medical_record mr
+        where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="getTodayLastMedicalRecordDO" resultMap="MedicalRecordDO">
+        select mr.*, h.name as `hospitalName`
+        from h_medical_record mr
+        left join h_hospital h on mr.hospital_id = h.id
         where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
         order by id desc
         limit 1

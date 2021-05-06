@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
@@ -24,6 +25,7 @@ public interface MedicalRecordMapper extends BaseMapper<MedicalRecord> {
 
     MedicalRecord getLastOneByStudentId(Integer studentId);
     MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId);
+    MedicalRecordDO getTodayLastMedicalRecordDO(Integer hospitalId, Integer studentId);
 
     List<ReportAndRecordDO> getByStudentId(@Param("studentId") Integer studentId);
 }

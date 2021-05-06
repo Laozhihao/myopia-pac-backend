@@ -16,6 +16,4 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class MedicalReportVO extends MedicalReportDO {
-    /** 影像列表 */
-    private List<String> imageUrlList;
 }
