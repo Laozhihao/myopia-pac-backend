@@ -123,7 +123,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
@@ -412,7 +412,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(userId)
                 .setUsername(username);
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
     }
 
     public Set<Integer> getAllSchoolDistrictIdsBySchoolIds(Set<Integer> schoolIds) {

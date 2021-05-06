@@ -149,6 +149,6 @@ public class WxService {
                 .setPhone(wxLoginInfo.getPhone())
                 .setUsername(wxLoginInfo.getPhone())
                 .setPassword(parent.getHashKey());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
     }
 }

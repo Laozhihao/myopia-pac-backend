@@ -207,7 +207,7 @@ public class ScreeningOrganizationBizService {
                 .setPhone(screeningOrganization.getPhone())
                 .setRealName(screeningOrganization.getName())
                 .setUsername(screeningOrganization.getName());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
 
         // 名字更新重置密码
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {

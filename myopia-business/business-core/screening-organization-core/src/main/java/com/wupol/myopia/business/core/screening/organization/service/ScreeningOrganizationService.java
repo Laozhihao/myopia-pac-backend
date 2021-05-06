@@ -139,7 +139,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         UserDTO userDTO = new UserDTO();
         userDTO.setId(admin.getUserId())
                 .setStatus(request.getStatus());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
         return 1;
     }
 

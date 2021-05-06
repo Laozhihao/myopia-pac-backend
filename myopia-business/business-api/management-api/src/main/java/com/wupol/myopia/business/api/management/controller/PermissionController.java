@@ -70,7 +70,7 @@ public class PermissionController {
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
-        return oauthServiceClient.modifyPermission(param.convertToPermissionDTO());
+        return oauthServiceClient.updatePermission(param.convertToPermissionDTO());
     }
 
     /**
