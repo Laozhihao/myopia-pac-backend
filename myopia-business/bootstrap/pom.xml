@@ -13,6 +13,12 @@
     <description>启动模块</description>
 
     <dependencies>
+        <!-- 公共接口 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- 管理端 -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
