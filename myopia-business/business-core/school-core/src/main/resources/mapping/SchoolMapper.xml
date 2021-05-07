@@ -64,7 +64,7 @@
             <!--            left join m_district d on ms.district_id = d.id-->
             <!--            left join (select id, left(code, 2) as pre-->
             <!--                       from m_district md) as re on re.id = d.id-->
-            and ms.district_code = #{districtCode}
+            and ms.district_province_code = #{districtCode}
         </if>
         <if test="name != null and name != ''">
             and ms.name like CONCAT('%', #{name}, '%')
