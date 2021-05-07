@@ -68,6 +68,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      * @param doctorId 医生id
      * @param studentId 学生id
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveReport(MedicalReport medicalReport,
                            Integer hospitalId,
                            Integer doctorId,

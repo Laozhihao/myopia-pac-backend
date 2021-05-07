@@ -304,8 +304,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param id         学校ID
      * @return 是否重复
      */
-    public Boolean checkSchoolName(String schoolName, Integer id) {
-        return baseMapper.getByNameNeId(schoolName, id).size() > 0;
+    public boolean checkSchoolName(String schoolName, Integer id) {
+        return !baseMapper.getByNameNeId(schoolName, id).isEmpty();
     }
 
     /**

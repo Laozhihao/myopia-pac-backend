@@ -54,7 +54,7 @@ public class SchoolController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO getSchoolDetail(@RequestBody @Valid School school) {
+    public UsernameAndPasswordDTO saveSchool(@RequestBody @Valid School school) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
