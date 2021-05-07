@@ -34,6 +34,9 @@
                 <if test="@Ognl@isNotEmpty(studentIdList)">
                     AND hs.`id` in <foreach collection="studentIdList" item="item" open="(" close=")" separator=",">#{item}</foreach>
                 </if>
+
+                <!-- 模糊查询 -->
+                <if test="nameLike != null">and hs.`name` like CONCAT("%",#{nameLike},"%")</if>
             </trim>
 
         </where>
