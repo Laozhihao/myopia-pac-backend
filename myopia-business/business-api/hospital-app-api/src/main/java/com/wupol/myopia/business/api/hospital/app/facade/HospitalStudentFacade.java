@@ -90,7 +90,7 @@ public class HospitalStudentFacade {
             throw new BusinessException("未找到该学生");
         }
         // 设置最后的就诊日期
-        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getStudentId());
+        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getId());
         if (Objects.nonNull(medicalReport)) {
             studentDTO.setLastVisitDate(medicalReport.getCreateTime());
         }
@@ -108,7 +108,7 @@ public class HospitalStudentFacade {
         List<Integer> idList = hospitalStudentService.findByPage(new HospitalStudent().setHospitalId(hospitalId), 0, 3)
                 .getRecords().stream()
                 .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date()))
-                .map(HospitalStudent::getStudentId).collect(Collectors.toList());
+                .map(HospitalStudent::getId).collect(Collectors.toList());
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
@@ -131,9 +131,9 @@ public class HospitalStudentFacade {
 
         // 数据库中保存的学生信息
         // 优先使用studentId查询
-        HospitalStudent oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
-                hospitalStudentService.getById(studentVo.getStudentId()) :
-                hospitalStudentService.getByIdCard(studentVo.getIdCard());
+        Student oldStudent = Objects.nonNull(studentVo.getId()) ?
+                studentService.getById(studentVo.getId()) :
+                studentService.getByIdCard(studentVo.getIdCard());
         if (Objects.nonNull(oldStudent) && isCheckNameAndIDCard) {
             if(!(oldStudent.getIdCard().equals(studentVo.getIdCard()) && oldStudent.getName().equals(studentVo.getName()))) {
                 throw new BusinessException("学生的身份证与姓名不匹配");
@@ -172,7 +172,7 @@ public class HospitalStudentFacade {
             studentId = studentService.saveStudent(tmpStudent);
         } else {
             hospitalStudentService.saveOrUpdate(studentVo);
-            studentId = studentVo.getStudentId();
+            studentId = studentVo.getId();
         }
         return studentId;
     }
@@ -200,7 +200,7 @@ public class HospitalStudentFacade {
      */
     public HospitalStudentVO getHospitalStudentFromManagement(Integer studentId, String idCard, String name) {
 
-        HospitalStudentVO studentDTO = new HospitalStudentVO();
+        HospitalStudentVO studentVO = new HospitalStudentVO();
         Student student;
         if (null != studentId) {
             student = studentService.getById(studentId);
@@ -211,27 +211,27 @@ public class HospitalStudentFacade {
             student = studentService.getByIdCardAndName(idCard, name);
         }
         if (null == student) {
-            return studentDTO;
+            return studentVO;
         }
-        BeanUtils.copyProperties(student, studentDTO);
+        BeanUtils.copyProperties(student, studentVO);
 
         // 地区Maps
         Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
-        packageStudentDistrict(districtMaps, studentDTO, student);
+        packageStudentDistrict(districtMaps, studentVO, student);
 
         if (StringUtils.isNotBlank(student.getSchoolNo())) {
-            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+            studentVO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
         }
         if (null != student.getGradeId()) {
-            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+            studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
         }
         if (null != student.getClassId()) {
-            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+            studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
         }
         if (null != student.getNation()) {
-            studentDTO.setNationName(NationEnum.getName(studentDTO.getNation()));
+            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
         }
-        return studentDTO;
+        return studentVO;
     }
 
     /**

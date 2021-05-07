@@ -64,6 +64,7 @@ public class MedicalReportBizService {
     /** 更新报告的固化数据 */
     private void updateReportConclusion(MedicalReport report) {
         report.setReportConclusionData(generateReportConclusion(report));
+        medicalReportService.saveOrUpdate(report);
     }
 
     /** 获取报告的固化数据 */

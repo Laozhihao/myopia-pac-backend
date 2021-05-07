@@ -58,9 +58,8 @@ CREATE TABLE `h_doctor`  (
 DROP TABLE IF EXISTS `h_hospital_student`;
 CREATE TABLE `h_hospital_student`
 (
-    `id`              int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `id`              int(11) NOT NULL COMMENT '学生id',
     `hospital_id`     int(11) NOT NULL COMMENT '医院id',
-    `student_id`      int(11) NOT NULL COMMENT '学生id',
     `school_id`       int(11) DEFAULT NULL COMMENT '学校ID',
     `grade_id`        int(11) DEFAULT NULL COMMENT '年级ID',
     `class_id`        int(11) DEFAULT NULL COMMENT '班级ID',
@@ -76,6 +75,7 @@ CREATE TABLE `h_hospital_student`
     `area_id`       int(11) DEFAULT NULL COMMENT '区id',
     `town_id`       int(11) DEFAULT NULL COMMENT '镇/乡id',
     `address`         varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci         DEFAULT NULL COMMENT '详细地址',
+    `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '状态 0-启用 1-禁止 2-删除',
     `create_time`     timestamp(0)                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     timestamp(0)                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP (0) COMMENT '更新时间',
     PRIMARY KEY (`id`) USING BTREE,
