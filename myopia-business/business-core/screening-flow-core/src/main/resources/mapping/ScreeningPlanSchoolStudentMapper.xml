@@ -109,7 +109,7 @@
                 <if test="param.phoneLike != null and param.phoneLike != ''">
                     and mspss.`parent_phone` like CONCAT('%',#{param.phoneLike},'%')
                 </if>
-                <if test="param.gender != null and param.gender != ''">
+                <if test="param.gender != null">
                     and mspss.`gender` = #{param.gender}
                 </if>
                 <if test="param.gradeList != null">
