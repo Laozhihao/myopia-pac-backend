@@ -66,7 +66,7 @@ public enum GradeCodeEnum {
         this.type = type;
     }
 
-    public static final HashMap<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
+    public static final Map<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
 
     static {
         gradeByMap.put(SchoolAge.PRIMARY.code,privateSchool());

@@ -191,9 +191,6 @@ public class DistrictBigScreenStatisticBuilder {
      * @return b
      */
     private BigScreenScreeningDO getScreeningData(List<BigScreenStatDataDTO> bigScreenStatDataDTOList) {
-        if (CollectionUtils.isEmpty(bigScreenStatDataDTOList)) {
-            return null;
-        }
         DistributionDTO distributionDTO = DistributionDTO.Builder.getBuilder()
                 .setScreeningStudentNum(bigScreenStatDataDTOList.stream().count())
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOList)
@@ -215,7 +212,7 @@ public class DistrictBigScreenStatisticBuilder {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());
             mapLocationDataDTO.setValue(statisticDistrictDTO.getNum());
-            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId() + "");
+            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId().toString());
             ArrayList<List<Double>> locationList = new ArrayList<>();
             locationList.add(cityCenter);
             locationList.add(cityCenter);

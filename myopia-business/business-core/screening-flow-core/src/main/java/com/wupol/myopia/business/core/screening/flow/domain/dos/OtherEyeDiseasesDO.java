@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class OtherEyeDiseasesDO {
+public class OtherEyeDiseasesDO implements Serializable {
     /**
      * 右眼疾病
      */

@@ -7,6 +7,7 @@ import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterfac
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Accessors(chain = true)
-public class VisionDataDO implements ScreeningResultStructureInterface<VisionDataDO.VisionData> {
+public class VisionDataDO implements ScreeningResultStructureInterface<VisionDataDO.VisionData>, Serializable {
     /**
      * 右眼疾病
      */
@@ -51,8 +52,9 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
          *
          * @return
          */
+        @Override
         public boolean judgeValidData() {
-            if (WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE.equals(glassesType)) {
+            if (WearingGlassesSituation.NOT_WEARING_GLASSES_KEY.equals(glassesType)) {
                 return nakedVision != null;
             }
             return nakedVision != null && correctedVision != null;

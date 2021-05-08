@@ -15,8 +15,11 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/27
  **/
-public class DistrictVisionStatisticBuilder {
+public final class DistrictVisionStatisticBuilder {
 
+    private DistrictVisionStatisticBuilder() {
+
+    }
 
     public static DistrictVisionStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
                                                 List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.builder;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
+import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,8 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/27
  **/
-public class DistrictMonitorStatisticBuilder {
+@UtilityClass
+public final class DistrictMonitorStatisticBuilder {
 
     public static DistrictMonitorStatistic build(Integer screeningNoticeId, Integer screeningTaskId, Integer districtId, Integer isTotal,
                                                  List<StatConclusion> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {

@@ -24,23 +24,23 @@ public abstract class BaseJsonTypeHandler<T> extends BaseTypeHandler<T> {
     @Override
     public T getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String jsonStr = rs.getString(columnName);
-        return Json2TypeObject(jsonStr);
+        return json2TypeObject(jsonStr);
     }
 
     @Override
     public T getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String jsonStr = rs.getNString(columnIndex);
-        return Json2TypeObject(jsonStr);
+        return json2TypeObject(jsonStr);
     }
 
     @Override
     public T getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         String jsonStr = cs.getNString(columnIndex);
-        return Json2TypeObject(jsonStr);
+        return json2TypeObject(jsonStr);
     }
 
     public abstract Class<T> getTypeClass();
-    public T Json2TypeObject(String jsonStr) {
+    public T json2TypeObject(String jsonStr) {
         if(StringUtils.isEmpty(jsonStr) || "{}".equals(jsonStr)) {
             return null;
         }

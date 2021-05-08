@@ -123,17 +123,17 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         Set<Item> subordinateItemSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
-            Integer districtId = districtAttentiveObjectsStatistic.getDistrictId();
+            Integer districtAttentiveDistrictId = districtAttentiveObjectsStatistic.getDistrictId();
             String rangeName;
             //是合计数据
             if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
                 rangeName = TOTAL_RANGE_NAME;
-                FocusObjectsStatisticVO.Item item = this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
+                FocusObjectsStatisticVO.Item item = this.getItem(districtAttentiveDistrictId, rangeName, districtAttentiveObjectsStatistic);
                 totalData = item;
                 return null;
             }
-            rangeName = districtIdNameMap.get(districtId);
-            return this.getItem(districtId, rangeName, districtAttentiveObjectsStatistic);
+            rangeName = districtIdNameMap.get(districtAttentiveDistrictId);
+            return this.getItem(districtAttentiveDistrictId, rangeName, districtAttentiveObjectsStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
     }

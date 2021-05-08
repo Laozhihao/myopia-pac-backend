@@ -471,7 +471,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         try {
             district = findOne(new District().setCode(districtCode));
         } catch (IOException e) {
-            logger.error("存在多个行政区域的code={}", districtCode, e);
             throw new BusinessException("存在多个行政区域的code=" + districtCode, e);
         }
         redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);

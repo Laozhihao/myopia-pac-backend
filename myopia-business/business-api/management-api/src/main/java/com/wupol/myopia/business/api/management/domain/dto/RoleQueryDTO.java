@@ -6,7 +6,6 @@ import com.wupol.myopia.business.api.management.validator.RoleUpdateValidatorGro
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
 

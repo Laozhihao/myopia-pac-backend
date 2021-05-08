@@ -6,6 +6,8 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.core.common.constant.DistrictCacheKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
  * @Date 2021/1/26
  **/
 @Component
+@Slf4j
 public class DistrictCache implements CommandLineRunner {
 
     @Autowired

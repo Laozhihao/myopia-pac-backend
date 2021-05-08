@@ -4,6 +4,7 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
+import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,10 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/27
  **/
+@UtilityClass
 public class DistrictAttentiveObjectsStatisticBuilder {
 
-    public static DistrictAttentiveObjectsStatistic build(Integer districtId, Integer isTotal, List<StudentExtraDTO> studentDTOList) {
+    public DistrictAttentiveObjectsStatistic build(Integer districtId, Integer isTotal, List<StudentExtraDTO> studentDTOList) {
         Map<Integer, Long> visionLabelNumberMap = studentDTOList.stream().filter(vo -> Objects.nonNull(vo.getVisionLabel())).collect(Collectors.groupingBy(StudentExtraDTO::getVisionLabel, Collectors.counting()));
         DistrictAttentiveObjectsStatistic statistic = new DistrictAttentiveObjectsStatistic();
         Integer visionLabel0Numbers = visionLabelNumberMap.getOrDefault(WarningLevel.ZERO.code, 0L).intValue();

@@ -4,6 +4,7 @@ import com.wupol.myopia.business.api.management.domain.dto.ScreeningBasicResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
+@EqualsAndHashCode(callSuper = true)
 public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
 
 
@@ -103,7 +105,7 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
     private void setItemData(Integer currentDistrictId, List<DistrictMonitorStatistic> districtMonitorStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         Set<Item> subordinateItemSet = districtMonitorStatistics.stream().map(districtMonitorStatistic -> {
-            Integer districtId = districtMonitorStatistic.getDistrictId();
+            Integer districtMonitorDistrictId = districtMonitorStatistic.getDistrictId();
             String rangeName = "";
             //是合计数据
             if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
@@ -112,7 +114,7 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
                 totalData = item;
                 return null;
             }
-            rangeName = districtIdNameMap.get(districtId);
+            rangeName = districtIdNameMap.get(districtMonitorDistrictId);
             return this.getItem(rangeName, districtMonitorStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.subordinateDatas = subordinateItemSet;
@@ -128,7 +130,6 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
     private Item getItem(String rangeName, DistrictMonitorStatistic districtMonitorStatistic) {
         DistrictScreeningMonitorStatisticVO.Item item = new DistrictScreeningMonitorStatisticVO.Item();
         item.setScreeningRangeName(rangeName)
-                //todo
                 .setRescreenItemNum(districtMonitorStatistic.getRescreeningItemNumbers())
                 .setRescreenNum(districtMonitorStatistic.getDsn())
                 .setActualScreeningNum(districtMonitorStatistic.getRealScreeningNumbers())

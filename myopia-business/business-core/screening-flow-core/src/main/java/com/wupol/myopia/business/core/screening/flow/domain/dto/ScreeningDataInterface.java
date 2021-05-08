@@ -8,6 +8,11 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
  * @Author by Jacob
  */
 public interface ScreeningDataInterface {
+    /**
+     * 构建筛查数据
+     * @param visionScreeningResult
+     * @return
+     */
     VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult);
 
 }

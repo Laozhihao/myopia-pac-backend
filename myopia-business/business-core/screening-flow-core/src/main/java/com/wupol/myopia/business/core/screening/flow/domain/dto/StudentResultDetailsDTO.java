@@ -61,22 +61,22 @@ public class StudentResultDetailsDTO {
     private String AD;
 
     /**
-     * AL
+     * 眼轴
      */
     private String AL;
 
     /**
-     * CCT
+     * 角膜中央厚度
      */
     private String CCT;
 
     /**
-     * LT
+     * 晶状体厚度
      */
     private String LT;
 
     /**
-     * WTW
+     * 角膜白到白距离
      */
     private String WTW;
 
