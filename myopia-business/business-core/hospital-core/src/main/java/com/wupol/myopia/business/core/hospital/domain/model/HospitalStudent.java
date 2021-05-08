@@ -35,6 +35,9 @@ public class HospitalStudent implements Serializable {
     /** 医院id */
     private Integer hospitalId;
 
+    /** 创建人ID */
+    private Integer createUserId;
+
     /** 学校id */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer schoolId;

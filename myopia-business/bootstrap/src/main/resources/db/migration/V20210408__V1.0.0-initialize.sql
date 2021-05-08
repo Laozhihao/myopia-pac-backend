@@ -60,6 +60,7 @@ CREATE TABLE `h_hospital_student`
 (
     `id`              int(11) NOT NULL COMMENT '学生id',
     `hospital_id`     int(11) NOT NULL COMMENT '医院id',
+    `create_user_id`  int(11) DEFAULT NULL COMMENT '创建人ID',
     `school_id`       int(11) DEFAULT NULL COMMENT '学校ID',
     `grade_id`        int(11) DEFAULT NULL COMMENT '年级ID',
     `class_id`        int(11) DEFAULT NULL COMMENT '班级ID',
@@ -79,7 +80,7 @@ CREATE TABLE `h_hospital_student`
     `create_time`     timestamp(0)                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     timestamp(0)                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP (0) COMMENT '更新时间',
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `hospital_id_student_id_index`(`hospital_id`, `student_id`) USING BTREE,
+    UNIQUE INDEX `id_hospital_id_index`(`id`，`hospital_id`) USING BTREE,
     INDEX             `hospital_id_index`(`hospital_id`) USING BTREE,
     INDEX             `student_id_index`(`student_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '医院-学生表' ROW_FORMAT = Dynamic;

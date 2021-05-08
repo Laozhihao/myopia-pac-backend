@@ -40,15 +40,15 @@ public class HospitalStudentController {
     @GetMapping()
     public HospitalStudentVO getStudent(String token, String idCard, String name) {
         if (StringUtils.isEmpty(token)) {
-            return hospitalStudentFacade.getStudentFromManagement(idCard, name);
+            return hospitalStudentFacade.getStudent(idCard, name);
         } else {
-            return hospitalStudentFacade.getStudentFromManagementByToken(token);
+            return hospitalStudentFacade.getStudentByToken(token);
         }
     }
 
     @GetMapping("/{id}")
     public HospitalStudentVO getStudent(@PathVariable("id") Integer id) {
-        return hospitalStudentFacade.getStudentByIdFromManagement(id);
+        return hospitalStudentFacade.getStudentById(id);
     }
 
     @GetMapping("/recentList")
@@ -74,6 +74,7 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
+        studentVo.setCreateUserId(user.getId());
         Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
         return ApiResult.success("建档成功");
     }
