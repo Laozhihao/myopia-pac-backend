@@ -125,10 +125,9 @@ public class StudentController {
      * @throws UtilException       工具异常
      */
     @GetMapping("/export")
-    public ApiResult getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+    public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         excelFacade.generateStudent(user.getId(), schoolId, gradeId);
-        return ApiResult.success();
     }
 
     /**
@@ -139,10 +138,9 @@ public class StudentController {
      * @throws ParseException 转换异常
      */
     @PostMapping("/import")
-    public ApiResult importStudent(MultipartFile file) throws ParseException {
+    public void importStudent(MultipartFile file) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importStudent(currentUser.getId(), file);
-        return ApiResult.success();
     }
 
     /**

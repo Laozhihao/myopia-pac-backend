@@ -110,10 +110,6 @@ public class CommUtil {
         return m.matches();
     }
 
-    private static boolean wildcardEquals(String whitePath, String reqPath) {
-        String regPath = getRegPath(whitePath);
-        return Pattern.compile(regPath).matcher(reqPath).matches();
-    }
     /**
      * 将通配符表达式转化为正则表达式
      * @param path
