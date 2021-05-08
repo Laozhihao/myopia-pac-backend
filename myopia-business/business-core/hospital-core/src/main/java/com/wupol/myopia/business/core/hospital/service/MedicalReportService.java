@@ -53,7 +53,7 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     public MedicalReportDO getOrCreateTodayLastMedicalReportDO(Integer hospitalId, Integer studentId) {
         MedicalReportDO reportDO = getTodayLastMedicalReport(hospitalId, studentId);
         if (Objects.isNull(reportDO)) {
-            return null;
+            return new MedicalReportDO();
         }
         if (!CollectionUtils.isEmpty(reportDO.getImageIdList())) {
             reportDO.setImageUrlList(resourceFileService.getBatchResourcePath(reportDO.getImageIdList()));

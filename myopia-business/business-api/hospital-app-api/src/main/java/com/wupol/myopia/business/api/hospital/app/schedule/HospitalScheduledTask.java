@@ -21,6 +21,7 @@ public class HospitalScheduledTask {
 
     /** 生成报告的固化结论 */
     @Scheduled(cron = "0 1 0 * * *", zone = "GMT+8:00")
+//    @Scheduled(cron = "0 * * * * *", zone = "GMT+8:00")
     public void generateReportConclusion() {
         medicalReportBizService.generateReportConclusion();
     }
