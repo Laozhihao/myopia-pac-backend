@@ -1,15 +1,20 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningClassStat;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrast;
+import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @ResponseResultBody
 @CrossOrigin
@@ -25,15 +30,11 @@ public class StatController {
 
     /**
      * 获取预警信息
+     * @return
      */
     @GetMapping("warningList")
-    public ApiResult getWarningList() {
-        try {
-            return ApiResult.success(statService.getWarningList());
-        } catch (IOException e) {
-            log.error(e);
-        }
-        return ApiResult.failure("internal error");
+    public WarningInfo getWarningList() throws IOException {
+        return statService.getWarningList();
     }
 
     /**
@@ -45,16 +46,10 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataContrast")
-    public ApiResult getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-            @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolAge) {
-        try {
-            return ApiResult.success(statService.getScreeningDataContrast(
-                    notificationId1, notificationId2, districtId, schoolAge));
-        } catch (IOException e) {
-            log.error(e);
-        }
-        return ApiResult.failure("internal error");
+    public Map<String, ScreeningDataContrast> getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
+                                                                       @RequestParam(value = "nid2", required = false) Integer notificationId2,
+                                                                       Integer districtId, Integer schoolAge) throws IOException {
+            return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
     }
 
     /**
@@ -66,18 +61,10 @@ public class StatController {
      * @return
      */
     @GetMapping("/exportContrast")
-    public ApiResult exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
+    public void exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
             @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolAge) {
-        try {
+            Integer districtId, Integer schoolAge) throws IOException, UtilException {
             statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
-            return ApiResult.success();
-        } catch (IOException e) {
-            log.error(e);
-        } catch (UtilException e) {
-            log.error(e);
-        }
-        return ApiResult.failure("internal error");
     }
 
     /**
@@ -87,15 +74,9 @@ public class StatController {
      * @return
      */
     @GetMapping("/getDistrictReport")
-    public ApiResult getDistrictReport(@RequestParam("notificationId") Integer notificationId,
-            @RequestParam("districtId") Integer districtId) {
-        try {
-            return ApiResult.success(
-                    statReportService.getDistrictStatData(notificationId, districtId));
-        } catch (IOException e) {
-            log.error(e);
-            return ApiResult.failure("internal error");
-        }
+    public Map<String, Object> getDistrictReport(@RequestParam("notificationId") Integer notificationId,
+                                 @RequestParam("districtId") Integer districtId) throws IOException {
+            return statReportService.getDistrictStatData(notificationId, districtId);
     }
 
     /**
@@ -105,17 +86,11 @@ public class StatController {
      * @return
      */
     @GetMapping("/getSchoolReport")
-    public ApiResult getSchoolReport(
+    public Map<String, Object> getSchoolReport(
             @RequestParam(name = "notificationId", required = false) Integer notificationId,
             @RequestParam(name = "planId", required = false) Integer planId,
-            @RequestParam("schoolId") Integer schoolId) {
-        try {
-            return ApiResult.success(
-                    statReportService.getSchoolStatData(notificationId, planId, schoolId));
-        } catch (IOException e) {
-            log.error(e);
-            return ApiResult.failure("internal error");
-        }
+            @RequestParam("schoolId") Integer schoolId) throws IOException {
+            return statReportService.getSchoolStatData(notificationId, planId, schoolId);
     }
 
     /**
@@ -125,13 +100,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataClass")
-    public ApiResult getScreeningClassStat(@RequestParam("nid") Integer notificationId) {
-        try {
-            return ApiResult.success(statService.getScreeningClassStat(notificationId));
-        } catch (IOException e) {
-            log.error(e);
-        }
-        return ApiResult.failure("internal error");
+    public ScreeningClassStat getScreeningClassStat(@RequestParam("nid") Integer notificationId) throws IOException {
+        return   statService.getScreeningClassStat(notificationId);
     }
 
     /**
@@ -142,14 +112,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataContrastDistrictTree")
-    public ApiResult getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
-            @RequestParam(value = "nid2", required = false) Integer notificationId2) {
-        try {
-            return ApiResult.success(
-                    statService.getDataContrastDistrictTree(notificationId1, notificationId2));
-        } catch (IOException e) {
-            log.error(e);
-        }
-        return ApiResult.failure("internal error");
+    public List<District> getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
+                                                      @RequestParam(value = "nid2", required = false) Integer notificationId2) throws IOException {
+        return statService.getDataContrastDistrictTree(notificationId1, notificationId2);
     }
 }
