@@ -77,9 +77,7 @@ public class StatManagementController {
     public List<Integer> getYearsByUser() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //获取当前部门下的所有id
-        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
-        List<Integer> years = screeningNoticeService.getYears(screeningNotices);
-        return years;
+        return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(user));
     }
 
     /**
@@ -272,7 +270,6 @@ public class StatManagementController {
     @GetMapping("/trigger")
     public void statTaskTrigger() {
         scheduledTasksExecutor.statistic();
-        return;
     }
 
     /**
@@ -292,6 +289,5 @@ public class StatManagementController {
             return;
         }
         scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
-        return;
     }
 }

@@ -49,7 +49,7 @@ public class StatController {
     public Map<String, ScreeningDataContrast> getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
                                                                        @RequestParam(value = "nid2", required = false) Integer notificationId2,
                                                                        Integer districtId, Integer schoolAge) throws IOException {
-            return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
+        return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
     }
 
     /**
@@ -101,7 +101,7 @@ public class StatController {
      */
     @GetMapping("/dataClass")
     public ScreeningClassStat getScreeningClassStat(@RequestParam("nid") Integer notificationId) throws IOException {
-        return   statService.getScreeningClassStat(notificationId);
+        return  statService.getScreeningClassStat(notificationId);
     }
 
     /**

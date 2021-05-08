@@ -29,7 +29,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
 
     @Data
     @Accessors(chain = true)
-    public static class VisionData implements ValidResultDataInterface {
+    public static class VisionData implements ValidResultDataInterface,Serializable {
         /**
          * 0 为左眼 1 为右眼
          */
