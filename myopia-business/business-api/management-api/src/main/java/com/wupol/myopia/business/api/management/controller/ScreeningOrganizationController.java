@@ -134,10 +134,9 @@ public class ScreeningOrganizationController {
      * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public ApiResult getOrganizationExportData(Integer districtId) throws IOException, UtilException {
+    public void getOrganizationExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         excelFacade.generateScreeningOrganization(user.getId(), districtId);
-        return ApiResult.success();
     }
 
     /**

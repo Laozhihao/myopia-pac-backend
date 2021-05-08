@@ -166,7 +166,7 @@ public class StatReportService {
      * @return
      * @throws IOException
      */
-    public Map getDistrictStatData(int srcScreeningNoticeId, int districtId) throws IOException {
+    public Map<String, Object> getDistrictStatData(int srcScreeningNoticeId, int districtId) throws IOException {
         StatConclusionQueryDTO query = composeDistrictQuery(districtId);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);

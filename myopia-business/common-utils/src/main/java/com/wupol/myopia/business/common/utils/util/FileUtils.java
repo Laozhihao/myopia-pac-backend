@@ -12,7 +12,11 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 @Slf4j
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+
+    }
 
     /** 根据文件设置返回到前端的文件流,用于前端下载 */
     public static ResponseEntity<FileSystemResource> getResponseEntity(File file) {

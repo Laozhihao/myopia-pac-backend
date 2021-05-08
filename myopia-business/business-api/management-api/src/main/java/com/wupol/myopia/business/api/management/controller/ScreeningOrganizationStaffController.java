@@ -113,10 +113,9 @@ public class ScreeningOrganizationStaffController {
      * @throws UtilException 文件异常
      */
     @GetMapping("/export")
-    public ApiResult getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
+    public void getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateScreeningOrganizationStaff(currentUser.getId(), screeningOrgId);
-        return ApiResult.success();
     }
 
     /**
@@ -127,10 +126,9 @@ public class ScreeningOrganizationStaffController {
      * @return 是否成功
      */
     @PostMapping("/import/{screeningOrgId}")
-    public ApiResult importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) {
+    public void importOrganizationStaff(MultipartFile file, @PathVariable("screeningOrgId") Integer screeningOrgId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
-        return ApiResult.success();
     }
 
     /**

@@ -77,9 +77,7 @@ public class StatManagementController {
     public List<Integer> getYearsByUser() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //获取当前部门下的所有id
-        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
-        List<Integer> years = screeningNoticeService.getYears(screeningNotices);
-        return years;
+        return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(user));
     }
 
     /**
@@ -249,10 +247,8 @@ public class StatManagementController {
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
-        //获取当前范围名
-        String districtName = districtService.getDistrictNameByDistrictId(districtId);
         //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, districtName, screeningNotice);
+        return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, screeningNotice);
     }
 
     /**
@@ -272,7 +268,6 @@ public class StatManagementController {
     @GetMapping("/trigger")
     public void statTaskTrigger() {
         scheduledTasksExecutor.statistic();
-        return;
     }
 
     /**
@@ -292,6 +287,5 @@ public class StatManagementController {
             return;
         }
         scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
-        return;
     }
 }

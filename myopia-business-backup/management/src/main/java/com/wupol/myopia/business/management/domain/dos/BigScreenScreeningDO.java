@@ -48,7 +48,7 @@ public class BigScreenScreeningDO implements Serializable {
     private List<MapLocationDataDTO> mapLocationData;
 
     @Data
-    public static class MapLocationDataDTO {
+    public static class MapLocationDataDTO implements Serializable{
         private String name;
         private Long value;
         private List<List<Double>> coords;

@@ -229,12 +229,21 @@ public class ScreeningOrganizationBizService {
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
         // 是否能更新
+        setCanUpdate(currentUser, response);
+        return response;
+    }
+
+    /**
+     * 设置是否能更新
+     * @param currentUser
+     * @param response
+     */
+    private void setCanUpdate(CurrentUser currentUser, ScreeningOrgResponseDTO response) {
         if (currentUser.isPlatformAdminUser()) {
             response.setCanUpdate(true);
         } else if (response.getCreateUserId().equals(currentUser.getId())) {
             response.setCanUpdate(true);
         }
-        return response;
     }
 
     /**
@@ -275,12 +284,7 @@ public class ScreeningOrganizationBizService {
         // 封装DTO
         orgListsRecords.forEach(orgResponseDTO -> {
             // 同一部门才能更新
-            if (currentUser.isPlatformAdminUser()) {
-                orgResponseDTO.setCanUpdate(true);
-            } else if (orgResponseDTO.getCreateUserId().equals(currentUser.getId())) {
-                orgResponseDTO.setCanUpdate(true);
-            }
-
+            setCanUpdate(currentUser, orgResponseDTO);
             // 筛查人员
             List<ScreeningOrganizationStaff> staffLists = staffMaps.get(orgResponseDTO.getId());
             if (!CollectionUtils.isEmpty(staffLists)) {

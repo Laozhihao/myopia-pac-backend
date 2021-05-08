@@ -63,39 +63,4 @@ public class StudentInfoVO {
         this.schoolName = studentClazzDTO.getClazzName();
     }
 
-    public class SchoolInfo {
-        /**
-         * schoolId
-         */
-        private Integer schoolId;
-        /**
-         * 学校名称
-         */
-        private String schoolName;
-    }
-
-    public class GradeInfo {
-        /**
-         * gradeName
-         */
-        private String gradeName;
-        /**
-         * gradeId
-         */
-        private Integer gradeId;
-    }
-
-    public class ClazzInfo {
-        /**
-         * clazzName
-         */
-        private String clazzName;
-        /**
-         * gradeId
-         */
-        private Integer clazzId;
-    }
-
-
-
 }

@@ -35,7 +35,7 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      */
     @Data
     @Accessors(chain = true)
-    public static class ComputerOptometry implements ValidResultDataInterface {
+    public static class ComputerOptometry implements ValidResultDataInterface,Serializable {
         /**
          * 0 为左眼 1为右眼
          */

@@ -138,9 +138,8 @@ public class HospitalController {
      * @see ExcelFacade
      */
     @GetMapping("/export")
-    public ApiResult getHospitalExportData(Integer districtId) throws IOException, UtilException {
+    public void getHospitalExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateHospital(currentUser.getId(), districtId);
-        return ApiResult.success();
     }
 }

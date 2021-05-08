@@ -275,20 +275,12 @@ public class ScreeningAppService {
      * @param screeningResultBasicData
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
         allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
-        this.saveAll(allFirstAndSecondResult);
-    }
-
-    /**
-     * 保存所有
-     * @param allFirstAndSecondResult
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void saveAll(TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult) {
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新vision_result表
@@ -354,17 +346,6 @@ public class ScreeningAppService {
         return Collections.emptyList();
     }
 
-
-    /**
-     * 更新复测质控结果
-     *
-     * @return
-     */
-    public Boolean updateReviewResult(Integer eyeId) {
-        //TODO 筛查端，待修改
-        return true;
-    }
-
     /**
      * 上传筛查机构用户的签名图片
      * @param currentUser
@@ -392,16 +373,6 @@ public class ScreeningAppService {
 
 
     /**
-     * 人脸识别
-     *
-     * @return
-     */
-    public Object recognitionFace(Integer deptId, MultipartFile file) {
-        //TODO
-        return new Object();
-    }
-
-    /**
      * 获取复测质控结果
      *
      * @return
@@ -420,16 +391,6 @@ public class ScreeningAppService {
 
     public Map<String, List<StudentScreeningInfoWithResultDTO>> groupByKey(RescreeningStatisticEnum statisticType, List<StudentScreeningInfoWithResultDTO> studentInfoWithResult) {
         return studentInfoWithResult.stream().collect(Collectors.groupingBy(e -> e.getGroupKey(statisticType)));
-    }
-
-    /**
-     * 设置其他数据
-     *
-     * @param rescreeningResult
-     * @param studentClazzDTO
-     */
-    private void setOtherInfo(List<StudentInfoVO> rescreeningResult, StudentClazzDTO studentClazzDTO) {
-        rescreeningResult.forEach(studentInfoVO -> studentInfoVO.addOtherInfo(studentClazzDTO));
     }
 
     /**

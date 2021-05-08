@@ -85,10 +85,10 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public ApiResult getSchoolNameByNameLike(@RequestParam String schoolName, String deptId, Boolean isReview) {
+    public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, String deptId, Boolean isReview) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<School> schools = screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
-        return ApiResult.success(schools.stream().map(School::getName).collect(Collectors.toSet()));
+        return schools.stream().map(School::getName).collect(Collectors.toSet());
     }
 
     /**
@@ -99,7 +99,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public ApiResult getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId, boolean all) {
+    public Set<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId, boolean all) {
         Set<String> gradeNameSet;
         if (all) {
             //查找全部的年级
@@ -108,11 +108,11 @@ public class ScreeningAppController {
         } else {
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
             if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-                return ApiResult.success();
+                return Collections.emptySet();
             }
             gradeNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
         }
-        return ApiResult.success(gradeNameSet);
+        return gradeNameSet;
     }
 
     /**
@@ -124,8 +124,8 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public ApiResult getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId, boolean all) {
-        Set<String> classNameSet = new HashSet<>();
+    public Set<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId, boolean all) {
+        Set<String> classNameSet;
         if (all) {
             List<SchoolClass> schoolClassList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName);
             classNameSet = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toSet());
@@ -133,7 +133,7 @@ public class ScreeningAppController {
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
             classNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
         }
-        return ApiResult.success(classNameSet);
+        return classNameSet;
     }
 
     /**
@@ -164,9 +164,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/findSchoolByDeptId")
-    public ApiResult listSchoolByScreeningOrgId(Integer deptId) {
+    public List<School> listSchoolByScreeningOrgId(Integer deptId) {
         //筛查机构未完成的学校的信息
-        return ApiResult.success(screeningAppService.getSchoolByScreeningOrgId(deptId));
+        return screeningAppService.getSchoolByScreeningOrgId(deptId);
     }
 
     /**
@@ -175,7 +175,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/findAllEyeDisease")
-    public ApiResult getAllEyeDisease() {
+    public List<EyeDiseaseVO> getAllEyeDisease() {
         List<String> eyeDiseaseList = EyeDiseasesEnum.eyeDiseaseList;
         List<EyeDiseaseVO> LeftEyeDiseaseVO = eyeDiseaseList.stream().map(eyeDiseas -> {
             EyeDiseaseVO eyeDiseaseVO = new EyeDiseaseVO();
@@ -197,7 +197,7 @@ public class ScreeningAppController {
         List<EyeDiseaseVO> allEyeDiseaseVos = new ArrayList<>();
         allEyeDiseaseVos.addAll(rightEyeDiseaseVO);
         allEyeDiseaseVos.addAll(LeftEyeDiseaseVO);
-        return ApiResult.success(allEyeDiseaseVos);
+        return allEyeDiseaseVos;
     }
 
 
@@ -210,12 +210,10 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/uploadSignPic")
-    public @ResponseBody
-    ApiResult uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
+    public String uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
                                               @RequestParam(value = "userId") Long userId,
                                               @RequestParam(value = "file") MultipartFile file) {
-        String imgUrl = screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file);
-        return ApiResult.success(imgUrl);
+        return screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file);
     }
 
     /**
@@ -224,9 +222,9 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getUserInfo")
-    public ApiResult getUserInfo() throws IOException {
+    public AppUserInfo getUserInfo() throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return ApiResult.success(screeningAppService.getUserInfoByUser(currentUser));
+        return screeningAppService.getUserInfoByUser(currentUser);
     }
 
     /**
@@ -235,8 +233,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/recognitionFace")
-    public ApiResult recognitionFace(Integer deptId, MultipartFile file) {
-        return ApiResult.success(screeningAppService.recognitionFace(deptId, file));
+    public void recognitionFace(Integer deptId, MultipartFile file) {
+       // 暂时不用
     }
 
 
@@ -246,9 +244,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping(value = {"/eye/addVision"})
-    public ApiResult addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
+    public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
         screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
-        return ApiResult.success();
     }
 
     /**
@@ -257,9 +254,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addComputer")
-    public ApiResult addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) throws IOException {
+    public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) throws IOException {
         screeningAppService.saveOrUpdateStudentScreenData(computerOptometryDTO);
-        return ApiResult.success();
     }
 
     /**
@@ -268,9 +264,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addBiology")
-    public ApiResult addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) throws IOException {
+    public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) throws IOException {
         screeningAppService.saveOrUpdateStudentScreenData(biometricDataDTO);
-        return ApiResult.success();
     }
 
     /**
@@ -279,9 +274,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addEyeDisease")
-    public ApiResult addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) throws IOException {
+    public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) throws IOException {
         screeningAppService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
-        return ApiResult.success();
     }
 
 
@@ -298,7 +292,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public ApiResult findAllStudentName(
+    public Page<StudentVO> findAllStudentName(
             @RequestParam(value = "deptId") Integer deptId,
             @RequestParam(value = "schoolName") String schoolName,
             @RequestParam(value = "gradeName", required = false) String gradeName,
@@ -321,10 +315,9 @@ public class ScreeningAppController {
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent, page, size);
-
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
-        Page<StudentVO> sysStudents = new PageImpl(studentVOs, pageable, studentVOs.size());
-        return ApiResult.success(sysStudents);
+        Page<StudentVO> sysStudents = new PageImpl<StudentVO>(studentVOs, pageable, studentVOs.size());
+        return sysStudents;
     }
 
     /**
@@ -334,8 +327,7 @@ public class ScreeningAppController {
      * @return
      */
     @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
-    public @ResponseBody
-    ApiResult findAllNameReview(
+    public List<SysStudent> findAllNameReview(
             @RequestParam(value = "deptId") Integer deptId,
             @RequestParam(value = "schoolId") Integer schoolId,
             String studentName,
@@ -348,21 +340,21 @@ public class ScreeningAppController {
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
         List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
-        return ApiResult.success(sysStudentList);
+        return sysStudentList;
     }
 
     /**
-     * 更新复测质控结果 TODO
+     * 更新复测质控结果
      *
      * @return
      */
     @PostMapping("/eye/updateReviewResult")
-    public ApiResult updateReviewResult(Integer eyeId) {
-        return ApiResult.success(screeningAppService.updateReviewResult(eyeId));
+    public void updateReviewResult(Integer eyeId) {
+      //暂时不用
     }
 
     /**
-     * 保存学生信息  TODO
+     * 保存学生信息
      *
      * @return
      */
@@ -402,7 +394,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/eye/findAllReviewResult")
-    public ApiResult findAllReviewResult(
+    public List<RescreeningResultVO> findAllReviewResult(
             @RequestParam Integer deptId,
             @RequestParam(value = "schoolId") Integer schoolId,
             @RequestParam(value = "gradeName", required = false) String gradeName,
@@ -411,13 +403,7 @@ public class ScreeningAppController {
         screeningResultSearchDTO.setClazzName(clazzName);
         screeningResultSearchDTO.setGradeName(gradeName).setSchoolId(schoolId).setDepId(deptId);
         List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
-        //进行数据的转换
-        //this.convertToTheOldStructure(allReviewResult);
-        // String s = "{\"number\":100,\"qualified\":0,\"gradeName\":\"高一\",\"qualifiedCount\":0,\"eyeResult\":1,\"eyesCount\":1,\"reviewsCount\":1,\"schoolName\":\"吕梁高级中学\",\"content\":[{\"studentSex（性别）\":\"男\",\"lsl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"qualified\":0,\"leftQualified\":1,\"rightQualified\":1},\"reviewDoctor\":\"张艳珍\",\"studentSchool（学校）\":\"吕梁高级中学\",\"firstDoctor\":\"张艳珍\",\"sph\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"qualified\":0,\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"leftQualified\":1,\"rightQualified\":0},\"firstTime\":\"2020-08-19T06:21:18.000+0000\",\"reviewsId\":\"1597819899142384177\",\"cyl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"qualified\":0,\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"leftQualified\":1,\"rightQualified\":1},\"studentGrade（年级）\":\"高一\",\"studentClazz（班级）\":\"1922\",\"studentName（姓名）\":\"常耀方\",\"jzsl\":{\"firstRight\":\"4.7\",\"firstLeft\":\"4.7\",\"reviewRight\":\"4.6\",\"reviewLeft\":\"4.6\",\"qualified\":0,\"leftQualified\":1,\"rightQualified\":1},\"reviewTime\":\"2020-08-19T06:51:39.000+0000\"}],\"clazzName\":1922}";
-        // Object allReviewResult = JSON.parse(s);
-        ApiResult success = ApiResult.success(allReviewResult);
-        System.out.println(success);
-        return success;
+        return allReviewResult;
     }
 
 

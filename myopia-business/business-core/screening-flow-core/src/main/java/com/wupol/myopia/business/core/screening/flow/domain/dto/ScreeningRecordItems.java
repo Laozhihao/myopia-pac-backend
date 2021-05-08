@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ScreeningRecordItems {
+public class ScreeningRecordItems implements Serializable {
 
     private Integer schoolCount;
 
