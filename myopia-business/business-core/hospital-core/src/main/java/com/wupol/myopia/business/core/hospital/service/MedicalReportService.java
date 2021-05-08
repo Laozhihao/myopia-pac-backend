@@ -1,17 +1,18 @@
 package com.wupol.myopia.business.core.hospital.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,11 +198,12 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     /**
      * 通过学生ID(只取当前时间的前一天)
      *
-     * @param studentId 学生ID
+     * @param pageRequest 分页请求
+     * @param studentId   学生ID
      * @return List<ReportAndRecordVo>
      */
-    public IPage<ReportAndRecordDO> getByStudentIdWithPage(Page<ReportAndRecordDO> page, Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(page, studentId);
+    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
     }
 
     /**

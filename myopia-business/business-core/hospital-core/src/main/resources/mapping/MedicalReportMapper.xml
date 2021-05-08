@@ -102,16 +102,19 @@
     </select>
 
 
-    <select id="getByStudentIdWithPage" resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">
-        select report.id          as reportId,
-               report.hospital_id as hospitalId,
+    <select id="getByStudentIdWithPage"
+            resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">
+        select report.id                as reportId,
+               report.hospital_id       as hospitalId,
                report.create_time,
-               report.update_time as updateTime,
-               mh.name            as hospitalName,
-               report.student_id  as studentId
+               report.update_time       as updateTime,
+               mh.name                  as hospitalName,
+               report.student_id        as studentId,
+               report.glasses_situation as glassesSituation,
+               report.medical_content   as medicalContent
         from h_medical_report report
-                 left join h_medical_record record on report.medical_record_id = record.id
-                 left join m_hospital mh on report.hospital_id = mh.id
+                     left join h_medical_record record on report.medical_record_id = record.id
+                     left join m_hospital mh on report.hospital_id = mh.id
         where report.student_id = #{studentId}
         order by report.create_time desc
     </select>
