@@ -40,15 +40,15 @@ public class HospitalStudentController {
     @GetMapping()
     public HospitalStudentVO getStudent(String token, String idCard, String name) {
         if (StringUtils.isEmpty(token)) {
-            return hospitalStudentFacade.getStudentFromManagement(idCard, name);
+            return hospitalStudentFacade.getStudent(idCard, name);
         } else {
-            return hospitalStudentFacade.getStudentFromManagementByToken(token);
+            return hospitalStudentFacade.getStudentByToken(token);
         }
     }
 
     @GetMapping("/{id}")
     public HospitalStudentVO getStudent(@PathVariable("id") Integer id) {
-        return hospitalStudentFacade.getStudentByIdFromManagement(id);
+        return hospitalStudentFacade.getStudentById(id);
     }
 
     @GetMapping("/recentList")
@@ -69,13 +69,13 @@ public class HospitalStudentController {
     public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
-
+        studentVo.setHospitalId(hospitalId);
         Student student = studentService.getByIdCard(studentVo.getIdCard());
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
+        studentVo.setCreateUserId(user.getId());
         Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
-        hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
         return ApiResult.success("建档成功");
     }
 
@@ -83,8 +83,9 @@ public class HospitalStudentController {
     public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
+        studentVo.setHospitalId(hospitalId);
         // 如果医院没有该学生的档案,则不允许操作
-        if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getStudentId())) {
+        if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
             return ApiResult.failure("该学生未建档");
         }
         hospitalStudentFacade.saveStudent(studentVo, false);

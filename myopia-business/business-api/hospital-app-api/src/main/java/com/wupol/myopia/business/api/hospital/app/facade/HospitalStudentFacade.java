@@ -64,33 +64,35 @@ public class HospitalStudentFacade {
      * @param token
      * @return com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentDTO
      **/
-    public HospitalStudentVO getStudentFromManagementByToken(String token) {
+    public HospitalStudentVO getStudentByToken(String token) {
         Integer studentId = studentService.parseToken2StudentId(token);
-        return getStudentByIdFromManagement(studentId);
+        return getStudentById(studentId);
     }
 
     /**
      * 从管理端获取学生信息
-     * @param idCard    学生的身份证
-     * @param name    学生的姓名
+     *
+     * @param idCard 学生的身份证
+     * @param name   学生的姓名
      * @return
      */
-    public HospitalStudentVO getStudentFromManagement(String idCard, String name) {
-        return getHospitalStudentFromManagement(null, idCard, name);
+    public HospitalStudentVO getStudent(String idCard, String name) {
+        return getHospitalStudent(null, idCard, name);
     }
 
     /**
      * 从管理端获取学生信息
-     * @param id     学生id
+     *
+     * @param id 学生id
      * @return
      */
-    public HospitalStudentVO getStudentByIdFromManagement(Integer id) {
-        HospitalStudentVO studentDTO = getHospitalStudentFromManagement(id, null, null);
+    public HospitalStudentVO getStudentById(Integer id) {
+        HospitalStudentVO studentDTO = getHospitalStudent(id, null, null);
         if (Objects.isNull(studentDTO)) {
             throw new BusinessException("未找到该学生");
         }
         // 设置最后的就诊日期
-        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getStudentId());
+        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getId());
         if (Objects.nonNull(medicalReport)) {
             studentDTO.setLastVisitDate(medicalReport.getCreateTime());
         }
@@ -100,6 +102,7 @@ public class HospitalStudentFacade {
     /**
      * 获取最近6条的学生信息.
      * 今天建档的患者姓名【前3名】+今天眼健康检查【前3名】的患者姓名，最新时间排在最前面 。最多显示6个。
+     *
      * @param hospitalId 医院id
      * @return
      */
@@ -107,8 +110,8 @@ public class HospitalStudentFacade {
         // 今天建档的患者姓名【前3名】
         List<Integer> idList = hospitalStudentService.findByPage(new HospitalStudent().setHospitalId(hospitalId), 0, 3)
                 .getRecords().stream()
-                .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date()))
-                .map(HospitalStudent::getStudentId).collect(Collectors.toList());
+                .filter(item -> DateUtils.isSameDay(item.getCreateTime(), new Date()))
+                .map(HospitalStudent::getId).collect(Collectors.toList());
 
         // 今天眼健康检查【前3名】的患者
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
@@ -119,23 +122,24 @@ public class HospitalStudentFacade {
 
     /**
      * 保存学生信息, 带id是更新,不带是新增
-     * @param studentVo 学生信息
+     *
+     * @param studentVo            学生信息
      * @param isCheckNameAndIDCard 是否校验名称与身份证的匹配性
-     * @return  学生的id
+     * @return 学生的id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(HospitalStudentVO studentVo, Boolean isCheckNameAndIDCard) throws IOException {
+    public Integer saveStudent(HospitalStudentVO studentVo, Boolean isCheckNameAndIDCard) {
         if (Objects.isNull(studentVo)) {
             throw new BusinessException("学生信息不能为空");
         }
 
         // 数据库中保存的学生信息
         // 优先使用studentId查询
-        HospitalStudent oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
-                hospitalStudentService.getById(studentVo.getStudentId()) :
-                hospitalStudentService.getByIdCard(studentVo.getIdCard());
+        Student oldStudent = Objects.nonNull(studentVo.getId()) ?
+                studentService.getById(studentVo.getId()) :
+                studentService.getByIdCard(studentVo.getIdCard());
         if (Objects.nonNull(oldStudent) && isCheckNameAndIDCard) {
-            if(!(oldStudent.getIdCard().equals(studentVo.getIdCard()) && oldStudent.getName().equals(studentVo.getName()))) {
+            if (!(oldStudent.getIdCard().equals(studentVo.getIdCard()) && oldStudent.getName().equals(studentVo.getName()))) {
                 throw new BusinessException("学生的身份证与姓名不匹配");
             }
         }
@@ -164,17 +168,22 @@ public class HospitalStudentFacade {
             studentVo.setTownId(studentVo.getTown().getId());
         }
 
-        Integer studentId;
         // 如果医院端没有该学生信息, 则先到管理端创建,再到医院端创建
         if (Objects.isNull(oldStudent)) {
             Student tmpStudent = new Student();
             BeanUtils.copyProperties(studentVo, tmpStudent);
-            studentId = studentService.saveStudent(tmpStudent);
-        } else {
-            hospitalStudentService.saveOrUpdate(studentVo);
-            studentId = studentVo.getStudentId();
+            // 转换地址与学校数据
+            tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo())
+                      .setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode())
+                      .setCityCode(districtService.getById(studentVo.getCityId()).getCode())
+                      .setAreaCode(districtService.getById(studentVo.getAreaId()).getCode())
+                      .setTownCode(districtService.getById(studentVo.getTownId()).getCode());
+
+            Integer studentId = studentService.saveStudent(tmpStudent);
+            studentVo.setId(studentId);
         }
-        return studentId;
+        hospitalStudentService.saveOrUpdate(studentVo);
+        return studentVo.getId();
     }
 
     /**
@@ -189,6 +198,51 @@ public class HospitalStudentFacade {
         return updateStudentVoInfo(studentDOList);
     }
 
+    /**
+     * 获取学生详情,先从医院端获取，如果没有，则从管理端获取
+     *
+     * @param studentId 学生ID
+     * @param idCard    身份证
+     * @param name      姓名
+     * @return HospitalStudentDTO
+     */
+    public HospitalStudentVO getHospitalStudent(Integer studentId, String idCard, String name) {
+        HospitalStudentVO studentVO = new HospitalStudentVO();
+        HospitalStudent student;
+        if (null != studentId) {
+            student = hospitalStudentService.getById(studentId);
+        } else {
+            if (StringUtils.isBlank(idCard) || StringUtils.isBlank(name)) {
+                throw new BusinessException("数据异常，请确认");
+            }
+            HospitalStudentQuery query = new HospitalStudentQuery();
+            query.setIdCard(idCard).setName(name);
+            student = hospitalStudentService.getBy(query).stream().findFirst().orElse(null);
+        }
+        // 医院端没有该学生信息，从则管理端获取
+        if (null == student) {
+            return getHospitalStudentFromManagement(studentId, idCard, name);
+        }
+        BeanUtils.copyProperties(student, studentVO);
+
+        // 地区Maps
+        Map<Integer, District> districtMaps = getDistrictMapByDistrictId(Lists.newArrayList(student));
+        packageStudentDistrict(districtMaps, studentVO, student);
+
+        if (Objects.nonNull(student.getSchoolId())) {
+            studentVO.setSchool(schoolService.getById(student.getSchoolId()));
+        }
+        if (Objects.nonNull(student.getGradeId())) {
+            studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+        }
+        if (Objects.nonNull(student.getClassId())) {
+            studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+        }
+        if (Objects.nonNull(student.getNation())) {
+            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
+        }
+        return studentVO;
+    }
 
     /**
      * 获取学生详情
@@ -198,9 +252,9 @@ public class HospitalStudentFacade {
      * @param name      姓名
      * @return HospitalStudentDTO
      */
-    public HospitalStudentVO getHospitalStudentFromManagement(Integer studentId, String idCard, String name) {
+    private HospitalStudentVO getHospitalStudentFromManagement(Integer studentId, String idCard, String name) {
 
-        HospitalStudentVO studentDTO = new HospitalStudentVO();
+        HospitalStudentVO studentVO = new HospitalStudentVO();
         Student student;
         if (null != studentId) {
             student = studentService.getById(studentId);
@@ -211,28 +265,29 @@ public class HospitalStudentFacade {
             student = studentService.getByIdCardAndName(idCard, name);
         }
         if (null == student) {
-            return studentDTO;
+            return studentVO;
         }
-        BeanUtils.copyProperties(student, studentDTO);
+        BeanUtils.copyProperties(student, studentVO);
 
         // 地区Maps
         Map<Long, District> districtMaps = getDistrictMap(Lists.newArrayList(student));
-        packageStudentDistrict(districtMaps, studentDTO, student);
+        packageStudentDistrict(districtMaps, studentVO, student);
 
         if (StringUtils.isNotBlank(student.getSchoolNo())) {
-            studentDTO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
+            studentVO.setSchool(schoolService.getBySchoolNo(student.getSchoolNo()));
         }
         if (null != student.getGradeId()) {
-            studentDTO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
+            studentVO.setSchoolGrade(schoolGradeService.getById(student.getGradeId()));
         }
         if (null != student.getClassId()) {
-            studentDTO.setSchoolClass(schoolClassService.getById(student.getClassId()));
+            studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
         }
         if (null != student.getNation()) {
-            studentDTO.setNationName(NationEnum.getName(studentDTO.getNation()));
+            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
         }
-        return studentDTO;
+        return studentVO;
     }
+
 
     /**
      * 获取学生地区Maps
@@ -261,6 +316,35 @@ public class HospitalStudentFacade {
         return districtService.getByCodes(districtCode)
                 .stream().distinct().collect(Collectors
                         .toMap(District::getCode, Function.identity()));
+    }
+
+    /**
+     * 获取学生地区Maps
+     *
+     * @param students 学生列表
+     * @return Map<Long, District>
+     */
+    private Map<Integer, District> getDistrictMapByDistrictId(List<HospitalStudent> students) {
+        List<Integer> districtCode = new ArrayList<>();
+        students.forEach(student -> {
+            if (null != student.getProvinceId()) {
+                districtCode.add(student.getProvinceId());
+            }
+            if (null != student.getCityId()) {
+                districtCode.add(student.getCityId());
+            }
+            if (null != student.getAreaId()) {
+                districtCode.add(student.getAreaId());
+            }
+            if (null != student.getTownId()) {
+                districtCode.add(student.getTownId());
+            }
+        });
+
+        // 地区Maps
+        return districtService.getDistrictByIds(districtCode)
+                .stream().distinct().collect(Collectors
+                        .toMap(District::getId, Function.identity()));
     }
 
     /**
@@ -328,4 +412,25 @@ public class HospitalStudentFacade {
         }
     }
 
+    /**
+     * 封装学生区域
+     *
+     * @param districtMaps 区域Maps
+     * @param dto          dto
+     * @param student      学生
+     */
+    private void packageStudentDistrict(Map<Integer, District> districtMaps, HospitalStudentVO dto, HospitalStudent student) {
+        if (null != student.getProvinceId()) {
+            dto.setProvince(districtMaps.get(student.getProvinceId()));
+        }
+        if (null != student.getCityId()) {
+            dto.setCity(districtMaps.get(student.getCityId()));
+        }
+        if (null != student.getAreaId()) {
+            dto.setArea(districtMaps.get(student.getAreaId()));
+        }
+        if (null != student.getAreaId()) {
+            dto.setTown(districtMaps.get(student.getAreaId()));
+        }
+    }
 }

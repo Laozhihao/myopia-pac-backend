@@ -29,14 +29,14 @@ public class HospitalStudent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    /** 等同学生id */
     private Integer id;
-
-    /** 学生id */
-    private Integer studentId;
 
     /** 医院id */
     private Integer hospitalId;
+
+    /** 创建人ID */
+    private Integer createUserId;
 
     /** 学校id */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
@@ -109,8 +109,8 @@ public class HospitalStudent implements Serializable {
     private Date updateTime;
 
 
-    public HospitalStudent(Integer hospitalId, Integer studentId) {
-        this.studentId = studentId;
+    public HospitalStudent(Integer hospitalId, Integer id) {
+        this.id = id;
         this.hospitalId = hospitalId;
     }
 
