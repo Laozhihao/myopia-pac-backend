@@ -13,7 +13,6 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
@@ -544,11 +543,12 @@ public class StudentBizService {
     /**
      * 获取学生就诊列表
      *
-     * @param studentId 学生ID
+     * @param pageRequest 分页请求
+     * @param studentId   学生ID
      * @return List<MedicalReportDO>
      */
-    public List<MedicalReportDO> getReportList(Integer studentId) {
-        return medicalReportService.getReportListByStudentId(null, studentId);
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId) {
+        return medicalReportService.getByStudentIdWithPage(pageRequest, studentId);
     }
 
     /**

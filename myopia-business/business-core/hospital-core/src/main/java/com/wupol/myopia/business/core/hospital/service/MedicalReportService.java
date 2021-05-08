@@ -1,22 +1,20 @@
 package com.wupol.myopia.business.core.hospital.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalReportMapper;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -141,8 +139,6 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
     }
 
 
-
-
     /**
      * 获取学生报告列表
      * @param studentId 学生id
@@ -197,6 +193,17 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
      */
     public List<ReportAndRecordDO> getByStudentId(Integer studentId) {
         return baseMapper.getStudentId(studentId);
+    }
+
+    /**
+     * 通过学生ID(只取当前时间的前一天)
+     *
+     * @param pageRequest 分页请求
+     * @param studentId   学生ID
+     * @return List<ReportAndRecordVo>
+     */
+    public IPage<ReportAndRecordDO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
     }
 
     /**
