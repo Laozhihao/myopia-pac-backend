@@ -204,7 +204,7 @@ public class StudentController {
      * @param studentId 学生Id
      * @return List<MedicalReportDO>
      */
-    @GetMapping("/management/student/report/list/{studentId}")
+    @GetMapping("/report/list/{studentId}")
     public List<MedicalReportDO> getReportList(@PathVariable("studentId") Integer studentId) {
         return studentBizService.getReportList(studentId);
     }
