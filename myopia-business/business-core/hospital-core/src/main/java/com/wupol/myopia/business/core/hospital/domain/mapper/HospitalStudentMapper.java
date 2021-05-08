@@ -19,7 +19,6 @@ import java.util.List;
 public interface HospitalStudentMapper extends BaseMapper<HospitalStudent> {
 
     List<HospitalStudent> getBy(HospitalStudentQuery query);
-    List<HospitalStudentDO> getHospitalStudentDoList(HospitalStudentQuery query);
     IPage<HospitalStudent> getByPage(@Param("page") Page<?> page, @Param("query") HospitalStudentQuery query);
-
+    List<HospitalStudentDO> getHospitalStudentDoList(HospitalStudentQuery query);
 }

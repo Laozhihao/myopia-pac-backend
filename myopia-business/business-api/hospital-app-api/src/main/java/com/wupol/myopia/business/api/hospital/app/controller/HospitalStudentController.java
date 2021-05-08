@@ -4,8 +4,9 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.hospital.app.domain.dto.HospitalStudentDTO;
+import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
 import com.wupol.myopia.business.api.hospital.app.facade.HospitalStudentFacade;
+import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -37,7 +38,7 @@ public class HospitalStudentController {
     private HospitalStudentFacade hospitalStudentFacade;
 
     @GetMapping()
-    public HospitalStudentDTO getStudent(String token, String idCard, String name) {
+    public HospitalStudentVO getStudent(String token, String idCard, String name) {
         if (StringUtils.isEmpty(token)) {
             return hospitalStudentFacade.getStudent(idCard, name);
         } else {
@@ -46,40 +47,43 @@ public class HospitalStudentController {
     }
 
     @GetMapping("/{id}")
-    public HospitalStudentDTO getStudent(@PathVariable("id") Integer id) {
+    public HospitalStudentVO getStudent(@PathVariable("id") Integer id) {
         return hospitalStudentFacade.getStudentById(id);
     }
 
     @GetMapping("/recentList")
-    public List<HospitalStudentDTO> getRecentList() throws IOException {
+    public List<HospitalStudentVO> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalStudentFacade.getRecentList(user.getOrgId());
     }
 
     @GetMapping("/list")
-    public List<HospitalStudentDTO> getStudentList(String nameLike) {
+    public List<HospitalStudentVO> getStudentVOList(String nameLike) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentFacade.getStudentList(user.getOrgId(), nameLike);
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setNameLike(nameLike).setHospitalId(user.getOrgId());
+        return hospitalStudentFacade.getHospitalStudentVoList(query);
     }
 
     @PostMapping()
-    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
+    public ApiResult<String> saveStudentArchive(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
-
+        studentVo.setHospitalId(hospitalId);
         Student student = studentService.getByIdCard(studentVo.getIdCard());
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
+        studentVo.setCreateUserId(user.getId());
         Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
-        hospitalStudentService.saveHospitalStudentArchive(hospitalId, studentId);
         return ApiResult.success("建档成功");
     }
 
     @PutMapping()
-    public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentDTO studentVo) throws IOException {
+    public ApiResult<String> updateStudent(@RequestBody @Valid HospitalStudentVO studentVo) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = user.getOrgId();
+        studentVo.setHospitalId(hospitalId);
         // 如果医院没有该学生的档案,则不允许操作
         if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
             return ApiResult.failure("该学生未建档");

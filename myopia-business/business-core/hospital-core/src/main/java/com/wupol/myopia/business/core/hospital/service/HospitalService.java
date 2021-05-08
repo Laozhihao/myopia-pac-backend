@@ -86,7 +86,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
         Hospital hospital = new Hospital()
                 .setId(request.getId())
                 .setStatus(request.getStatus());

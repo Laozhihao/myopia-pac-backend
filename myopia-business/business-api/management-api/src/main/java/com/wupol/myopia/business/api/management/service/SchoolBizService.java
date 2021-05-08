@@ -157,21 +157,21 @@ public class SchoolBizService {
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
      *
-     * @param SchoolQueryDTO 条件
+     * @param schoolQueryDTO 条件
      * @return List<SchoolResponseDTO>
      */
-    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO SchoolQueryDTO) {
-        Assert.notNull(SchoolQueryDTO.getDistrictId(), "层级id不能为空");
-        SchoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(SchoolQueryDTO.getDistrictId())).setDistrictId(null);
-        SchoolQueryDTO.setStatus(CommonConst.STATUS_NOT_DELETED);
+    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO schoolQueryDTO) {
+        Assert.notNull(schoolQueryDTO.getDistrictId(), "层级id不能为空");
+        schoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQueryDTO.getDistrictId())).setDistrictId(null);
+        schoolQueryDTO.setStatus(CommonConst.STATUS_NOT_DELETED);
         // 查询
-        List<School> schoolList = schoolService.getBy(SchoolQueryDTO);
+        List<School> schoolList = schoolService.getBy(schoolQueryDTO);
         // 为空直接返回
         if (CollectionUtils.isEmpty(schoolList)) {
             return Collections.emptyList();
         }
         // 获取已有计划的学校ID列表
-        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(SchoolQueryDTO);
+        List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQueryDTO);
         // 封装DTO
         return schoolList.stream().map(school -> {
             SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
@@ -260,7 +260,6 @@ public class SchoolBizService {
                                                   CurrentUser currentUser) {
 
         String createUser = schoolQueryDTO.getCreateUser();
-        Integer districtCode = null;
         List<Integer> userIds = new ArrayList<>();
 
         // 创建人ID处理
@@ -273,14 +272,10 @@ public class SchoolBizService {
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId());
-        if (Objects.nonNull(resultDistrictId.getSecond())) {
-            District district = districtService.getById(resultDistrictId.getSecond());
-            districtCode = Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2));
-        }
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
-                schoolQueryDTO, resultDistrictId, userIds, districtCode);
+                schoolQueryDTO, resultDistrictId, userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
 
@@ -294,8 +289,8 @@ public class SchoolBizService {
         Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountDTO> StudentCountDTOS = studentService.countStudentBySchoolNo();
-        Map<String, Integer> studentCountMaps = StudentCountDTOS.stream()
+        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolNo();
+        Map<String, Integer> studentCountMaps = studentCountDTOS.stream()
                 .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
 
         // 学校筛查次数

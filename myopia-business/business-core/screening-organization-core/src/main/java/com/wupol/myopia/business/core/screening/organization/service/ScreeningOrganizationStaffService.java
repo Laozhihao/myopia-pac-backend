@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -64,7 +65,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
         Page<User> page = oauthServiceClient.getUserListPage(userQuery);
-        List<User> resultLists = page.getRecords();
+        List<User> resultLists = JSONObject.parseArray(JSONObject.toJSONString(page.getRecords()), User.class);
         if (CollectionUtils.isEmpty(resultLists)) {
             return new Page<>(request.getCurrent(), request.getSize());
         }
@@ -72,11 +73,12 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         List<Integer> userIds = resultLists.stream().map(User::getId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganizationStaff> staffSnMaps = getStaffsByUserIds(userIds)
                 .stream().collect(Collectors.toMap(ScreeningOrganizationStaff::getUserId, Function.identity()));
-        return page.convert(user -> {
+        List<ScreeningOrgStaffUserDTO> screeningOrgStaffUserDTOList = resultLists.stream().map(user -> {
             ScreeningOrgStaffUserDTO screeningOrgStaffUserDTO = new ScreeningOrgStaffUserDTO(user);
             screeningOrgStaffUserDTO.setStaffId(staffSnMaps.get(user.getId()).getId());
             return screeningOrgStaffUserDTO;
-        });
+        }).collect(Collectors.toList());
+        return new Page<ScreeningOrgStaffUserDTO>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(screeningOrgStaffUserDTOList);
     }
 
     /**
@@ -156,7 +158,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setIdCard(staff.getIdCard())
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark());
-        oauthServiceClient.modifyUser(userDTO);
+        oauthServiceClient.updateUser(userDTO);
         resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
     }
@@ -174,7 +176,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         UserDTO userDTO = new UserDTO();
         userDTO.setId(staff.getUserId())
                 .setStatus(request.getStatus());
-        return oauthServiceClient.modifyUser(userDTO);
+        return oauthServiceClient.updateUser(userDTO);
     }
 
     /**

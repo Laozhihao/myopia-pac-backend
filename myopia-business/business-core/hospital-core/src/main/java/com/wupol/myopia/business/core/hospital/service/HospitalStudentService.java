@@ -37,7 +37,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public Map<Integer, HospitalStudentDO> getHospitalStudentVoMap(HospitalStudentQuery query) {
         return getHospitalStudentDoList(query).stream()
-                .collect(Collectors.toMap(HospitalStudentDO::getStudentId, Function.identity()));
+                .collect(Collectors.toMap(HospitalStudentDO::getId, Function.identity()));
 
     }
 
@@ -56,4 +56,13 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
         return baseMapper.getBy(query);
     }
 
+    /**
+     * 通过身份证查找学生
+     *
+     * @param idCard 身份证
+     * @return Student
+     */
+    public HospitalStudent getByIdCard(String idCard) throws IOException {
+        return findOne(new HospitalStudent().setIdCard(idCard));
+    }
 }

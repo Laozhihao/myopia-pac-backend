@@ -8,6 +8,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -34,13 +35,12 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultItems;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionItems;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -78,6 +78,8 @@ public class ParentStudentBizService {
     private RedisUtil redisUtil;
     @Resource
     private ParentStudentService parentStudentService;
+    @Resource
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 孩子统计、孩子列表
@@ -109,10 +111,10 @@ public class ParentStudentBizService {
             throw new BusinessException("数据异常");
         }
         // 获取固化报告
-        ReportConclusion reportConclusionData = report.getReportConclusionData();
+        ReportConclusion reportConclusionData = medicalReportBizService.getReportConclusion(report);
         if (Objects.nonNull(reportConclusionData)) {
             // 学生
-            MedicalReportStudent student = reportConclusionData.getStudent();
+            HospitalStudent student = reportConclusionData.getStudent();
             // 医生签名资源ID
             Integer doctorSignFileId = reportConclusionData.getSignFileId();
             responseDTO.setStudent(packageStudentInfo(student));
@@ -139,7 +141,7 @@ public class ParentStudentBizService {
      * @param student 学生
      * @return {@link StudentVisitReportResponseDTO.StudentInfo}
      */
-    private StudentVisitReportResponseDTO.StudentInfo packageStudentInfo(MedicalReportStudent student) {
+    private StudentVisitReportResponseDTO.StudentInfo packageStudentInfo(HospitalStudent student) {
         StudentVisitReportResponseDTO.StudentInfo studentInfo = new StudentVisitReportResponseDTO.StudentInfo();
         studentInfo.setName(student.getName());
         studentInfo.setBirthday(student.getBirthday());

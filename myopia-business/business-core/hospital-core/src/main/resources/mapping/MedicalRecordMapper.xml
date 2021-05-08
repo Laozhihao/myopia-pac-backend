@@ -9,8 +9,11 @@
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.DiopterMedicalRecordTypeHandler" column="diopter" property="diopter"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.ToscaMedicalRecordTypeHandler" column="tosca" property="tosca"/>
         <result typeHandler="com.wupol.myopia.business.core.hospital.domain.handler.VisionMedicalRecordTypeHandler" column="vision" property="vision"/>
-
     </resultMap>
+
+    <resultMap id="MedicalRecordDO" type="com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO">
+    </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">

@@ -8,10 +8,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.api.management.domain.dto.UserQueryDTO;
 import com.wupol.myopia.business.api.management.domain.vo.UserVO;
-import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
@@ -79,7 +79,7 @@ public class UserService {
         // 获取部门信息和行政区信息
         List<Integer> govDeptIds = users.stream().map(User::getOrgId).distinct().collect(Collectors.toList());
         Map<Integer, GovDeptDTO> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
-        return userPage.convert(user -> {
+        List<UserVO> userVOList = users.stream().map(user -> {
             UserVO userVO = new UserVO(user);
             GovDeptDTO govDeptVo = govDeptMap.get(user.getOrgId());
             if (Objects.isNull(govDeptVo)) {
@@ -88,7 +88,8 @@ public class UserService {
             userVO.setOrgName(govDeptVo.getName());
             userVO.setDistrictDetail(districtService.getDistrictPositionDetail(govDeptVo.getDistrict()));
             return userVO;
-        });
+        }).collect(Collectors.toList());
+        return new Page<UserVO>(userPage.getCurrent(), userPage.getSize(), userPage.getTotal()).setRecords(userVOList);
     }
 
     /**
@@ -125,7 +126,7 @@ public class UserService {
         }
         // 该接口不允许更新密码
         user.setSystemCode(currentUser.getSystemCode()).setPassword(null);
-        User newUser = oauthServiceClient.modifyUser(user.convertToOauthUserDTO());
+        User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
         UserVO userVO = new UserVO(newUser);
@@ -208,7 +209,7 @@ public class UserService {
         Assert.notNull(status, "status不能为空");
         UserDTO userDTO = new UserDTO();
         userDTO.setId(userId).setStatus(status);
-        return oauthServiceClient.modifyUser(userDTO);
+        return oauthServiceClient.updateUser(userDTO);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -63,6 +64,7 @@ public class StudentDO {
     /**
      * 出生日期
      */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
