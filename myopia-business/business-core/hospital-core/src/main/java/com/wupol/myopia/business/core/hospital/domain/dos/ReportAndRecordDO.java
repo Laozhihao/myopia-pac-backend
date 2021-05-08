@@ -25,4 +25,14 @@ public class ReportAndRecordDO {
     private String hospitalName;
 
     private Integer studentId;
+
+    /**
+     * 戴镜类型
+     */
+    private Integer glassesSituation;
+
+    /**
+     * 综合处方
+     */
+    private String medicalContent;
 }

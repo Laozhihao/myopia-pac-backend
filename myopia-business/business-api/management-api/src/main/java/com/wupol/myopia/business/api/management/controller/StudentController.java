@@ -12,7 +12,7 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalReportDO;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.school.constant.VisionLabels;
 import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
@@ -201,12 +201,13 @@ public class StudentController {
     /**
      * 获取就诊列表
      *
-     * @param studentId 学生Id
+     * @param pageRequest 分页请求
+     * @param studentId   学生Id
      * @return List<MedicalReportDO>
      */
-    @GetMapping("/management/student/report/list/{studentId}")
-    public List<MedicalReportDO> getReportList(@PathVariable("studentId") Integer studentId) {
-        return studentBizService.getReportList(studentId);
+    @GetMapping("/report/list/{studentId}")
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
+        return studentBizService.getReportList(pageRequest, studentId);
     }
 
     /**
