@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -307,7 +308,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         screeningOrganizationStaff.setScreeningOrgId(currentUser.getOrgId()).setUserId(currentUser.getId());
         List<ScreeningOrganizationStaff> screeningOrganizationStaffs = getByEntity(screeningOrganizationStaff);
         if (CollectionUtils.isNotEmpty(screeningOrganizationStaffs)) {
-            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().get();
+            screeningOrganizationStaff = screeningOrganizationStaffs.stream().findFirst().orElseThrow(()->new BusinessException("无法找到当前用户的机构人员信息,当前用户数据 User = " + JSON.toJSONString(currentUser)));
         }
         if (screeningOrganizationStaff.getId() != null) {
             screeningOrganizationStaff.setSignFileId(resourceFile.getId());

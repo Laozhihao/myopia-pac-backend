@@ -98,10 +98,9 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
          * 获取实例
          *
          * @param schoolMonitorStatistic
-         * @param screeningRangeName     学校范围
          * @return
          */
-        public static Item getInstance(SchoolMonitorStatistic schoolMonitorStatistic, String screeningRangeName) {
+        public static Item getInstance(SchoolMonitorStatistic schoolMonitorStatistic) {
             Item item = new Item();
             item.setScreeningRangeName(schoolMonitorStatistic.getSchoolName())
                     .setRescreenItemNum(schoolMonitorStatistic.getRescreeningItemNumbers())
@@ -138,7 +137,7 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
      * @param screeningNotice
      * @return
      */
-    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatistic> schoolMonitorStatistics, String districtName, ScreeningNotice screeningNotice) {
+    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatistic> schoolMonitorStatistics, ScreeningNotice screeningNotice) {
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return null;
         }
@@ -146,7 +145,7 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
         //设置基础数据
         schoolScreeningMonitorStatisticVO.setBasicData(screeningNotice);
         //设置统计数据
-        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatistics, districtName);
+        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatistics);
         return schoolScreeningMonitorStatisticVO;
     }
 
@@ -154,12 +153,11 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
      * 设置item数据
      *
      * @param schoolMonitorStatistics
-     * @param districtName
      * @return
      */
-    private void setItemData(List<SchoolMonitorStatistic> schoolMonitorStatistics, String districtName) {
+    private void setItemData(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
         Set<Item> items = schoolMonitorStatistics.stream().map(schoolMonitorStatistic ->
-                Item.getInstance(schoolMonitorStatistic, districtName)
+                Item.getInstance(schoolMonitorStatistic)
         ).collect(Collectors.toSet());
         contents = items;
     }

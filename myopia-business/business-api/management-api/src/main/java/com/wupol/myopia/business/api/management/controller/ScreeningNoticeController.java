@@ -6,6 +6,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -58,8 +59,7 @@ public class ScreeningNoticeController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningNotice screeningNotice) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        // 2021.02.01 与肖肖确认，发布时确认即可
-        // createOrReleaseValidate(screeningNotice);
+        // TODO 2021.02.01 与肖肖确认，发布时确认即可 createOrReleaseValidate(screeningNotice);
         if (user.isPlatformAdminUser()) {
             Assert.notNull(screeningNotice.getDistrictId(), "请选择行政区域");
             Assert.notNull(screeningNotice.getGovDeptId(), "请选择所处部门");
@@ -167,7 +167,7 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("dept/page")
-    public IPage queryDeptPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
+    public IPage<ScreeningNoticeVO> queryDeptPage(ScreeningNoticeQueryDTO query, PageRequest pageRequest) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setType(0);
         if (user.isPlatformAdminUser()) {
@@ -188,7 +188,7 @@ public class ScreeningNoticeController {
      * @return Object
      */
     @GetMapping("page")
-    public IPage queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) throws IOException {
+    public IPage<ScreeningNoticeVO> queryInfo(ScreeningNoticeQueryDTO query, PageRequest pageRequest) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         query.setReleaseStatus(CommonConst.STATUS_RELEASE);
         if (user.isGovDeptUser()) {

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.screening.app.domain.vo;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -28,9 +29,9 @@ public class RescreeningResultVO {
     public static final Integer RESCREENING_PASS = 1;
     public static final Integer RESCREENING_NOT_PASS = 2;
     @JsonIgnore
-    private final BigDecimal AVE_RANGE_VALUE = new BigDecimal(0.5);
+    private final BigDecimal AVE_RANGE_VALUE = BigDecimal.valueOf(0.5);
     @JsonIgnore
-    private final BigDecimal OTHERS_RANGE_VALUE = new BigDecimal(1.0);
+    private final BigDecimal OTHERS_RANGE_VALUE = BigDecimal.valueOf(1.0);
     /**
      * -1 代表
      * 1 代表
@@ -190,7 +191,7 @@ public class RescreeningResultVO {
             errorRatio = eyeResult * 100 / eyesCount;
         }
         //总的筛查结果 todo 魔数
-        qualified = errorRatio > 10 ? RESCREENING_NOT_PASS : RESCREENING_NOT_PASS;
+        qualified = errorRatio > 10 ? RESCREENING_NOT_PASS : RESCREENING_PASS;
     }
 
     /**

@@ -370,7 +370,7 @@ public class ScheduledTasksExecutor {
                 .setPlanScreeningNum(screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId()));
         if (realScreeningNum > 0 && realValidScreeningNum > 0) {
             //更新城市名
-            this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
+            bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
             //构建数据
             districtBigScreenStatisticBuilder.setBigScreenStatDataDTOList(bigScreenStatDataDTOs);
         }
@@ -383,8 +383,8 @@ public class ScheduledTasksExecutor {
      * @param bigScreenStatDataDTOs
      * @param districtSetMap
      */
-    private void updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
-        bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
+    private List<BigScreenStatDataDTO> updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
+       return bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
             Set<District> districtSet = districtSetMap.keySet();
             for (District cityDistrict : districtSet) {
                 Set<Integer> districtIds = districtSetMap.get(cityDistrict);

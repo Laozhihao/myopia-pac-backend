@@ -143,10 +143,9 @@ public class SchoolController {
      * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public ApiResult getSchoolExportData(Integer districtId) throws IOException, UtilException {
+    public void getSchoolExportData(Integer districtId) throws IOException, UtilException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.generateSchool(currentUser.getId(), districtId);
-        return ApiResult.success();
     }
 
     /**

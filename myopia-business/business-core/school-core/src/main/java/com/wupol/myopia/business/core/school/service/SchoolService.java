@@ -358,14 +358,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             default:
                 break;
         }
-        if (!CollectionUtils.isEmpty(schoolGrades)) {
-            // 批量新增年级
-            if (schoolGradeService.saveBatch(schoolGrades)) {
-                // 批量新增班级
-                batchCreateClass(createUserId, schoolId,
-                        schoolGrades.stream().map(SchoolGrade::getId)
-                                .collect(Collectors.toList()));
-            }
+        if (!CollectionUtils.isEmpty(schoolGrades) && schoolGradeService.saveBatch(schoolGrades)) {
+            // 批量新增班级
+            List<Integer> schoolGradeIds = schoolGrades.stream().map(SchoolGrade::getId).collect(Collectors.toList());
+            batchCreateClass(createUserId, schoolId, schoolGradeIds);
         }
     }
 

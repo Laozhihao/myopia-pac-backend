@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 筛查机构-告知书配置
  *
@@ -14,7 +16,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotificationConfig {
+public class NotificationConfig implements Serializable {
 
     /**
      * 二维码文件地址

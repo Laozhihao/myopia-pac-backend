@@ -234,10 +234,12 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
         }
     }
 
-
+    /**
+     * 获取空对象
+     * @return
+     */
     public static ScreeningSchoolVisionStatisticVO getEmptyInstance() {
-        ScreeningSchoolVisionStatisticVO screeningSchoolVisionStatisticVO = new ScreeningSchoolVisionStatisticVO();
-        return screeningSchoolVisionStatisticVO;
+        return new ScreeningSchoolVisionStatisticVO();
     }
 
     /**

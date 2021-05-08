@@ -235,8 +235,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/recognitionFace")
-    public ApiResult recognitionFace(Integer deptId, MultipartFile file) {
-        return ApiResult.success(screeningAppService.recognitionFace(deptId, file));
+    public void recognitionFace(Integer deptId, MultipartFile file) {
+
     }
 
 
@@ -357,8 +357,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/updateReviewResult")
-    public ApiResult updateReviewResult(Integer eyeId) {
-        return ApiResult.success(screeningAppService.updateReviewResult(eyeId));
+    public void updateReviewResult(Integer eyeId) {
+
     }
 
     /**

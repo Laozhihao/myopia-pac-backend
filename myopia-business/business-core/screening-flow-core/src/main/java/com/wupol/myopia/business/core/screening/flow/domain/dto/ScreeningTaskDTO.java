@@ -16,6 +16,6 @@ public class ScreeningTaskDTO extends ScreeningTask {
     /**
      * 筛查任务中的筛查机构
      */
-    List<ScreeningTaskOrg> screeningOrgs;
+    private List<ScreeningTaskOrg> screeningOrgs;
 
 }

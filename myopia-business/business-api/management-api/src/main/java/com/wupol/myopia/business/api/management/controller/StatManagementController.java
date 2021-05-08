@@ -247,10 +247,8 @@ public class StatManagementController {
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
-        //获取当前范围名
-        String districtName = districtService.getDistrictNameByDistrictId(districtId);
         //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, districtName, screeningNotice);
+        return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, screeningNotice);
     }
 
     /**

@@ -12,8 +12,8 @@ import java.util.Objects;
  */
 public enum ScreeningOrgConfigTypeEnum {
 
-    config_type_1(0, "省级配置"),
-    config_type_2(1, "单点配置");
+    CONFIG_TYPE_0(0, "省级配置"),
+    CONFIG_TYPE_1(1, "单点配置");
 
     /**
      * 类型

@@ -40,8 +40,8 @@ public final class S3Utils {
     @Autowired
     private ResourceFileService resourceFileService;
 
-    private static final String CACHE_IMAGE_PREFIX = "cache_image_";
-    private static final String CACHE_FILE_PREFIX = "cache_file_";
+    public static final String CACHE_IMAGE_PREFIX = "cache_image_";
+    public static final String CACHE_FILE_PREFIX = "cache_file_";
     /**
      * 默认是1个小时
      */
