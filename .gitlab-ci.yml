@@ -1,0 +1,6 @@
+sonar:
+  stage: test
+  script: mvn sonar:sonar   -Dsonar.projectKey=myopia   -Dsonar.host.url=https://sonarqube.tulab.cn   -Dsonar.login=93b38a3f79ae6bfcba51fd985e3a1612c8ea7c89
+  only:
+    refs:
+      - merge_requests
