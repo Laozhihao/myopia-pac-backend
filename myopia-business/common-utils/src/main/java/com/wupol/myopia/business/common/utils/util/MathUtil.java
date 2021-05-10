@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.math.BigDecimal;
 
 /**
  * 计算工具
  */
+@UtilityClass
 public class MathUtil {
 
     /**
@@ -13,7 +16,7 @@ public class MathUtil {
      * @param denominator 分母
      * @return
      */
-    public static BigDecimal divide(Integer numerator, Integer denominator) {
+    public BigDecimal divide(Integer numerator, Integer denominator) {
         if (numerator == 0 || denominator == 0) {
             return BigDecimal.ZERO;
         }
@@ -29,7 +32,7 @@ public class MathUtil {
      * @param num
      * @return
      */
-    public static double getFormatNumWith2Scale(Double num) {
+    public double getFormatNumWith2Scale(Double num) {
         if (num == null) {
             num = 0.0D;
         }
@@ -41,7 +44,7 @@ public class MathUtil {
      * @param num
      * @return
      */
-    public static double getFormatNumWith1Scale(Double num) {
+    public double getFormatNumWith1Scale(Double num) {
         if (num == null) {
             num = 0.0D;
         }
@@ -54,7 +57,7 @@ public class MathUtil {
      * @param num  原数字
      * @return
      */
-    private static double getFormatNum(int scale,double num) {
+    private double getFormatNum(int scale,double num) {
         BigDecimal bigDecimal = BigDecimal.valueOf(num);
         bigDecimal = bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
         return bigDecimal.doubleValue();
