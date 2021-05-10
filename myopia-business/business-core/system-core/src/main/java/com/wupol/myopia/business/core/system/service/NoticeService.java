@@ -118,7 +118,6 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
      * @param fileId       资源文件ID
      * @param type         类型
      */
-    @Transactional(rollbackFor = Exception.class)
     public void createExportNotice(Integer createUserId, Integer noticeUserId, String title, String content, Integer fileId, Byte type) {
         Notice notice = new Notice();
         notice.setCreateUserId(createUserId);
