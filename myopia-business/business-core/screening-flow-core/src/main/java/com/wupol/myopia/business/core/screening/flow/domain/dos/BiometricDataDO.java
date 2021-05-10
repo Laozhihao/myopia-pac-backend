@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.bouncycastle.asn1.x509.qualified.BiometricData;
 
 import java.io.Serializable;
 

@@ -5,7 +5,6 @@ import com.wupol.myopia.business.management.constant.CommonConst;
 import com.wupol.myopia.business.management.domain.dto.TemplateBindRequest;
 import com.wupol.myopia.business.management.domain.dto.TemplateResponse;
 import com.wupol.myopia.business.management.service.TemplateService;
-import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;

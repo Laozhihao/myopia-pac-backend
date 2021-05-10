@@ -2,6 +2,7 @@ package com.wupol.myopia.business.screening.domain.vo;
 
 
 import lombok.Data;
+
 import java.util.Date;
 
 @Data

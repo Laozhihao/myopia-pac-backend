@@ -3,13 +3,11 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

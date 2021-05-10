@@ -1,16 +1,13 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
-
-import java.util.Date;
-import java.util.List;
-
+import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
+import com.wupol.myopia.business.management.domain.vo.SchoolScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanSchoolVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**

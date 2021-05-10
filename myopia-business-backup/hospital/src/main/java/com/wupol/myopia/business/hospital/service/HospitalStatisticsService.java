@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.hospital.service;
 
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

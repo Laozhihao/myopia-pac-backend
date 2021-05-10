@@ -6,13 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.hospital.domain.vo.ReportAndRecordVo;
-import com.wupol.myopia.business.management.domain.dto.StudentDTO;
-import com.wupol.myopia.business.management.domain.model.Student;
-import com.wupol.myopia.business.management.domain.query.StudentQuery;
-import com.wupol.myopia.business.management.domain.vo.StudentCountVO;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 
 /**

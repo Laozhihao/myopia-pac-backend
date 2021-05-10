@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wupol.myopia.business.management.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Data;

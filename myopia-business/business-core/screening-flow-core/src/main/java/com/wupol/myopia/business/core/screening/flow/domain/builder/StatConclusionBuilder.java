@@ -344,7 +344,7 @@ public class StatConclusionBuilder {
             return errorNum;
         }
         //属于误差范围内
-        if (beforeValue.subtract(afterValue).abs().compareTo(rangeValue) == 1) {
+        if (beforeValue.subtract(afterValue).abs().compareTo(rangeValue) > 0) {
             errorNum++;
         }
         return errorNum;
@@ -502,16 +502,13 @@ public class StatConclusionBuilder {
          * @param basicData
          */
         private static void setVisionWarningLevel(BasicData basicData) {
-            List<Integer> warningLevelList = new ArrayList<Integer>() {
-                {
-                    if (basicData.leftNakedVisionWarningLevel != null) {
-                        add(basicData.leftNakedVisionWarningLevel.code);
-                    }
-                    if (basicData.rightNakedVisionWarningLevel != null) {
-                        add(basicData.rightNakedVisionWarningLevel.code);
-                    }
-                }
-            };
+            List<Integer> warningLevelList = new ArrayList<>();
+            if (basicData.leftNakedVisionWarningLevel != null) {
+                warningLevelList.add(basicData.leftNakedVisionWarningLevel.code);
+            }
+            if (basicData.rightNakedVisionWarningLevel != null) {
+                warningLevelList.add(basicData.rightNakedVisionWarningLevel.code);
+            }
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.nakedVisionWarningLevel = Collections.max(warningLevelList);
             }
@@ -524,16 +521,13 @@ public class StatConclusionBuilder {
          * @param basicData
          */
         private static void setMypoiaVisionWarningLevel(BasicData basicData) {
-            List<Integer> warningLevelList = new ArrayList<Integer>() {
-                {
-                    if (basicData.leftMyopiaWarningLevel != null) {
-                        add(basicData.leftMyopiaWarningLevel.code);
-                    }
-                    if (basicData.rightMyopiaWarningLevel != null) {
-                        add(basicData.rightMyopiaWarningLevel.code);
-                    }
-                }
-            };
+            List<Integer> warningLevelList = new ArrayList<>();
+            if (basicData.leftMyopiaWarningLevel != null) {
+                warningLevelList.add(basicData.leftMyopiaWarningLevel.code);
+            }
+            if (basicData.rightMyopiaWarningLevel != null) {
+                warningLevelList.add(basicData.rightMyopiaWarningLevel.code);
+            }
             if (CollectionUtils.isNotEmpty(warningLevelList)) {
                 basicData.myopiaWarningLevel = Collections.max(warningLevelList);
             }

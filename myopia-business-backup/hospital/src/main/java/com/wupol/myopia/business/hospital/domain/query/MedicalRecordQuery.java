@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.hospital.domain.query;
 
-import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

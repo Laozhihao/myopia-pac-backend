@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.model.HospitalAdmin;
 import org.apache.ibatis.annotations.Param;
 
 /**

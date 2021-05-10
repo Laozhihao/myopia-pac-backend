@@ -5,7 +5,6 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.hospital.domain.mapper.HospitalStudentMapper;
 import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.hospital.domain.vo.HospitalStudentVo;
@@ -22,7 +21,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

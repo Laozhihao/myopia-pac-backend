@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.domain.dos;
 
-import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.common.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.management.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.management.interfaces.ValidResultDataInterface;
 import lombok.Data;

@@ -1,32 +1,14 @@
 package com.wupol.myopia.business.api.hospital.app.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
-import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
-import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

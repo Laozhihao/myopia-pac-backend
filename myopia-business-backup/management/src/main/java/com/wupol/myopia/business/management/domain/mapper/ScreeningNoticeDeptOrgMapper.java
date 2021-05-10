@@ -1,17 +1,14 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningNoticeDeptOrg;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * 筛查通知通知到的部门或者机构表Mapper接口

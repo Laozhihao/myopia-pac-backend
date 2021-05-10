@@ -2,8 +2,6 @@ package com.wupol.myopia.business.management.domain.query;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.management.domain.model.Hospital;
-import com.wupol.myopia.business.management.domain.model.Student;
 import com.wupol.myopia.business.management.domain.vo.StudentVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.constant.CommonConst;
@@ -11,7 +10,6 @@ import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

@@ -1,18 +1,15 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
-
-import java.util.Date;
-import java.io.Serializable;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 参与筛查计划的学生表

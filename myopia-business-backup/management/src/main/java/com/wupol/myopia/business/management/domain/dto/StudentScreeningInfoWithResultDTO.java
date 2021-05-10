@@ -10,7 +10,6 @@ import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**

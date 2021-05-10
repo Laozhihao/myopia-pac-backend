@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.hospital.app.controller;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.api.hospital.app.service.DoctorService;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.query.DoctorQuery;

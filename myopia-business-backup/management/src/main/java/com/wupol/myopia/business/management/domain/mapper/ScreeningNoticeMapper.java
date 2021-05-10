@@ -1,13 +1,12 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.query.ScreeningNoticeQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningNoticeVo;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
