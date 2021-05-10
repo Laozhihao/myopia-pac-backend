@@ -2,7 +2,7 @@ package com.wupol.myopia.oauth.util;
 
 public class JWTUtil {
 
-    public static final long TOKEN_EXPIRE_TIME = 7200 * 1000;
+    public static final long TOKEN_EXPIRE_TIME = 7200 * 1000l;
     private static final String ISSUER = "cheng";
 
     /**
