@@ -1,16 +1,15 @@
 package com.wupol.myopia.base.util;
 
-import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
 import com.alibaba.excel.write.handler.SheetWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.vistel.Interface.util.ZipUtil;
-import org.apache.commons.io.FileExistsException;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.annotation.processing.FilerException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +22,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/21
  **/
+@UtilityClass
 public class ExcelUtil {
     /** Excel文件名，占位符：前缀、时间戳 */
     private static final String EXCEL_FILE_NAME = "%s-%s.xlsx";
@@ -39,7 +39,7 @@ public class ExcelUtil {
      **/
     public static File exportListToExcel(String fileNamePrefix, List data, Class head) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
-        EasyExcel.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
+        EasyExcelFactory.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
         return outputFile;
     }
 
@@ -55,7 +55,7 @@ public class ExcelUtil {
      **/
     public static File exportListToExcel(String fileNamePrefix, List data, SheetWriteHandler sheetWriteHandler,  Class head) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
-        EasyExcel.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
+        EasyExcelFactory.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
     }
 
@@ -72,7 +72,7 @@ public class ExcelUtil {
      **/
     public static File exportListToExcelWithFolder(String folder, String fileNamePrefix, List data, SheetWriteHandler sheetWriteHandler,  Class head) throws IOException {
         File outputFile = getOutputFileWithFolder(folder, fileNamePrefix);
-        EasyExcel.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
+        EasyExcelFactory.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
     }
 
@@ -164,8 +164,8 @@ public class ExcelUtil {
     public static File exportHorizonListToExcel(
             String fileNamePrefix, List data, InputStream template) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
-        ExcelWriter excelWriter = EasyExcel.write(outputFile).withTemplate(template).build();
-        WriteSheet writeSheet = EasyExcel.writerSheet().build();
+        ExcelWriter excelWriter = EasyExcelFactory.write(outputFile).withTemplate(template).build();
+        WriteSheet writeSheet = EasyExcelFactory.writerSheet().build();
         FillConfig fillConfig =
                 FillConfig.builder().direction(WriteDirectionEnum.HORIZONTAL).build();
         excelWriter.fill(data, fillConfig, writeSheet);

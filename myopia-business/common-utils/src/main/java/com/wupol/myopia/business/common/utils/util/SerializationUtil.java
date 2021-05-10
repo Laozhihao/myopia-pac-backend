@@ -3,6 +3,7 @@ package com.wupol.myopia.business.common.utils.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wupol.myopia.business.common.utils.exception.SerializeErrorException;
+import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -15,6 +16,7 @@ import java.util.Objects;
  * @author Alix
  * @date 2019-01-17
  */
+@UtilityClass
 public class SerializationUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(SerializationUtil.class);
     /**

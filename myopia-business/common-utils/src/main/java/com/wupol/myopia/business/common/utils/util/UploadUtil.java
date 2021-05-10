@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class UploadUtil {
             log.error("文件保存到服务器失败:\n文件名: " + file.getOriginalFilename(), e);
             throw new UploadException("文件保存到服务器失败:\n文件名: " + file.getOriginalFilename(), e);
         }
-        String path = savePath + "/" + fileName;
+        String path = Paths.get(savePath, fileName).toString();
         return new TwoTuple<>(orgFileName, path);
     }
 

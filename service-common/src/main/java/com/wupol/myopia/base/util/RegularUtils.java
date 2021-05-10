@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Pattern;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class RegularUtils {
 
     // 手机正则
@@ -16,9 +18,6 @@ public class RegularUtils {
 
     // 身份证正则
     public static final String REGULAR_ID_CARD = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}$)";
-
-//    private static final String REGULAR_ID_CARD = "^[1-9][0-9]{5}(18|19|20)[0-9]{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)[0-9]{3}([0-9]|([Xx]))";
-
 
     /**
      * 校验手机号

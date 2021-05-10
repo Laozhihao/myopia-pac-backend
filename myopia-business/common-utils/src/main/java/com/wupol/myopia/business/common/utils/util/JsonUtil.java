@@ -27,7 +27,6 @@ public class JsonUtil {
     }
 
     public String objectToJsonString(Object object) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             return new ObjectMapper().writeValueAsString(object);
         } catch (JsonProcessingException ex) {
