@@ -1,8 +1,10 @@
 package com.wupol.myopia.oauth.sdk.util;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -35,7 +37,7 @@ public class TypeUtils {
             ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) type;
             Class<?> rawType = parameterizedType.getRawType();
             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-            Type genericType = Arrays.stream(actualTypeArguments).findFirst().get();
+            Type genericType = Arrays.stream(actualTypeArguments).findFirst().orElseThrow(()-> new BusinessException("参数为空,type = " + JSON.toJSONString(type)));
             Class<?> genericClass;
             try {
                 genericClass = Class.forName(genericType.getTypeName());
