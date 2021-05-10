@@ -50,7 +50,7 @@ public class PermissionQueryDTO implements Serializable {
      * put:/management/permission/template/**
      * get:/management/district/all
      */
-    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]+(/([\\w-]+|(\\*\\*)))*$", message = "功能接口url格式错误", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
+    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]{1,80}(/([\\w-]{1,80}|(\\*\\*))){0,15}$", message = "功能接口url格式错误", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private String apiUrl;
 
     /**
