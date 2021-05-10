@@ -106,12 +106,12 @@ public class RescreeningGenericStructure implements JudgePassInterfaces {
             BigDecimal leftValue = rescreeningGenericStructure.getFirstLeft().subtract(rescreeningGenericStructure.getReviewLeft()).abs();
             //属于误差范围内
             rescreeningGenericStructure.setQualified(RescreeningResultVO.RESCREENING_PASS);
-            if (rightValue.compareTo(rangeValue) == 1) {
+            if (rightValue.compareTo(rangeValue) > 0) {
                 rescreeningGenericStructure.addErrorTimes();
                 rescreeningGenericStructure.setQualified(RescreeningResultVO.RESCREENING_NOT_PASS);
             }
 
-            if (leftValue.compareTo(rangeValue) == 1) {
+            if (leftValue.compareTo(rangeValue) > 0) {
                 rescreeningGenericStructure.addErrorTimes();
                 rescreeningGenericStructure.setQualified(RescreeningResultVO.RESCREENING_NOT_PASS);
             }
