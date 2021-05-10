@@ -847,9 +847,9 @@ public class ScreeningResultUtil {
         BigDecimal visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision,
                 leftNakedVision, rightNakedVision, nakedVisionResult);
         if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
-            return DoctorConclusion.CorrectedVisionLessThan_49;
+            return DoctorConclusion.CORRECTED_VISION_LESS_THAN_49;
         } else {
-            return DoctorConclusion.CorrectedVisionGreaterThan_49;
+            return DoctorConclusion.CORRECTED_VISION_GREATER_THAN_49;
         }
     }
 
@@ -895,12 +895,12 @@ public class ScreeningResultUtil {
                 ||
                 (SchoolAge.isMiddleSchool(schoolAge) && isBetweenLeft(se, "-0.50", "3.00") && checkCyl)
         ) {
-            return new TwoTuple<>(1, DoctorConclusion.VisualFunctionAbnormal);
+            return new TwoTuple<>(1, DoctorConclusion.VISUAL_FUNCTION_ABNORMAL);
             // (小学生 && !(0 <= SE < 2)) || (初中生、高中、职业高中 && (Cyl >= 1.5 || !(-0.5 <= SE < 3)))
         } else if ((SchoolAge.PRIMARY.code.equals(schoolAge) && !isBetweenLeft(se, "0.00", "2.00"))
                 ||
                 (SchoolAge.isMiddleSchool(schoolAge) && (!isBetweenLeft(se, "-0.50", "3.00") || !checkCyl))) {
-            return new TwoTuple<>(2, DoctorConclusion.RefractiveErrorScreeningPositive);
+            return new TwoTuple<>(2, DoctorConclusion.REFRACTIVE_ERROR_SCREENING_POSITIVE);
         }
         return new TwoTuple<>(0, "");
     }
@@ -920,9 +920,9 @@ public class ScreeningResultUtil {
                                            TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         BigDecimal se = getSE(leftNakedVision, rightNakedVision, leftSe, rightSe, nakedVisionResult);
         if (se.compareTo(new BigDecimal("0.00")) >= 0) {
-            return DoctorConclusion.NormalSEGreaterThan_0;
+            return DoctorConclusion.NORMAL_SE_GREATER_THAN_0;
         } else {
-            return DoctorConclusion.NormalSELessThan_0;
+            return DoctorConclusion.NORMAL_SE_LESS_THAN_0;
         }
     }
 
