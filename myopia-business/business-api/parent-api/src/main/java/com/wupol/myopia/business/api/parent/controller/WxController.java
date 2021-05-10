@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.LoginInfo;
+import com.wupol.myopia.oauth.sdk.domain.response.TokenInfo;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,20 +86,20 @@ public class WxController {
      **/
     @GetMapping("/callback/login")
     public String wxCallbackToLogin(String code) {
-        logger.debug("【微信回调-login】code = " + code);
+        logger.debug("【微信回调-login】code = {}", code);
         try {
             // 获取openId
             String openId = wxService.getOpenId(code);
             // 根据openId判断用户是否授权，未授权则跳到“用户协议”页面
             Parent parent = parentService.getParentByOpenId(openId);
             if (Objects.isNull(parent)) {
-                logger.debug("重定向到协议页面：" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode()));
+                logger.debug("重定向到协议页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode()));
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode());
             }
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
             User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
-                logger.debug("重定向到绑定手机页面页面：" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey()));
+                logger.debug("重定向到绑定手机页面页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey()));
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
             }
             // 自动登录
@@ -122,7 +123,7 @@ public class WxController {
      **/
     @GetMapping("/callback/userInfo")
     public String wxCallbackToCreateUser(String code) {
-        logger.debug("【微信回调-userInfo】code = " + code);
+        logger.debug("【微信回调-userInfo】code = {}", code);
         try {
             // 获取 accessToken 和 openId
             WxAuthorizationInfo accessTokenAndOpenId = wxService.getAccessTokenAndOpenId(code);
@@ -146,7 +147,7 @@ public class WxController {
      **/
     @GetMapping("/smsCode/{phone}")
     @ResponseBody
-    public ApiResult sendSmsCode(@PathVariable String phone) {
+    public ApiResult<Objects> sendSmsCode(@PathVariable String phone) {
         Assert.hasLength(phone, "手机号码不能为空");
         smsService.sendSms(phone);
         return ApiResult.success();
@@ -160,9 +161,9 @@ public class WxController {
      **/
     @PostMapping("/phone/bind")
     @ResponseBody
-    public ApiResult bindPhoneToParent(@RequestBody @Validated WxLoginInfo wxLoginInfo) throws IOException {
+    public ApiResult<TokenInfo> bindPhoneToParent(@RequestBody @Validated WxLoginInfo wxLoginInfo) throws IOException {
         // 校验短信验证码
-        Boolean isRight = smsService.checkSmsCode(wxLoginInfo.getPhone(), wxLoginInfo.getSmsCode());
+        boolean isRight = smsService.checkSmsCode(wxLoginInfo.getPhone(), wxLoginInfo.getSmsCode());
         if (!isRight) {
             return ApiResult.failure("验证码错误");
         }

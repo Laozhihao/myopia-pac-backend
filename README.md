@@ -156,7 +156,11 @@ docker-compose -f docker-compose-nacos-cluster.yml up -d
 ### 修改 Nginx 配置
  1. 由于管理端、家长端、筛查PDF报告的属于不同的前端工程，若都在同台主机上，则需要不同端口来监听进而区别开
  2. nginx.conf 中增加应用服务配置内容，示例详情查看：doc/nginx.conf
- 
+
+### 初始化数据
+- 需要到管理平台的“权限集合包设置”菜单完成筛查端管理员角色权限初始化
+- 执行district.sql初始化表d_district，由于district.sql文件较大，放在了OneDrive
+
 ## 开发规范约定
 ### 团队Java代码规范
 https://git.vistel.cn/web/web-toolkits/java-coding-guide

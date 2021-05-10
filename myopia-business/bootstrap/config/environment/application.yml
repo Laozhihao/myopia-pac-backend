@@ -128,23 +128,23 @@ upload:
 ### 微信相关
 wechat:
   app:
-    id: wxb1812cb2767ace39
-    secret: c26c5d9601c0c4c2cf83519f9e8fba39
+    id: ${WECHAT_APP_ID}
+    secret: ${WECHAT_APP_SECRET}
   authorize:
     url: https://open.weixin.qq.com/connect/oauth2/authorize
   api:
     url-host: https://api.weixin.qq.com
-  # 近视防控后端工程访问域名【即Gateway的访问域名】
+  # 微信回调域名——同家长端域名
   callback:
-    url-host: http://wupol.com
+    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
   # 家长端前端工程访问域名
   h5-client:
-    url-host: http://8.135.35.154:7001
+    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
 
 ### 致远慧图 tools 项目访问域名【目前发送短信用到】
 vistel:
   tools:
-    remoteAddress: http://myopia.nat100.top
+    remoteAddress: ${VISTEL_TOOLS_URI}
 
 ### 报告相关
 report:
@@ -152,7 +152,7 @@ report:
     save-path: /app/pdf/
   # 筛查报告前端工程访问域名
   html:
-    url-host: http://172.17.0.1:7002
+    url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
 
 ### 健康监控 - actuator 配置
 management:

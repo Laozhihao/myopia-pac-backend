@@ -134,7 +134,7 @@ wechat:
     url: https://open.weixin.qq.com/connect/oauth2/authorize
   api:
     url-host: https://api.weixin.qq.com
-  # 近视防控后端工程访问域名【即Gateway的访问域名】
+  # 微信回调域名——同家长端域名
   callback:
     url-host: http://wupol.com
   # 家长端前端工程访问域名
