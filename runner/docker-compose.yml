@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: runner/Dockerfile
+    env_file:
+      - .data/runner.env
+      - application.env
+    volumes:
+      - /cache/.m2/repository:/root/.m2/repository
+    environment:
+      - TEST_ENV=unit
+    command: >
+      sh -c '
+        mvn package -Dmaven.test.skip=true && mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}
+      '

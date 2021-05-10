@@ -7,11 +7,14 @@ import com.alibaba.excel.write.handler.SheetWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.vistel.Interface.util.ZipUtil;
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FilenameUtils;
 
+import javax.annotation.processing.FilerException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystemException;
 import java.util.List;
 
 /**
@@ -80,15 +83,12 @@ public class ExcelUtil {
      * @return java.io.File
      **/
     private static File getOutputFile(String fileNamePrefix) throws IOException {
-        String tempSubPath = IOUtils.getTempSubPath("export/excel");
-        String fileName = String.format(EXCEL_FILE_NAME, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
-                .replaceAll("[\\s\\\\/:\\*\\?\\\"<>\\|]", "");
-        File outputFile = new File(FilenameUtils.concat(tempSubPath, fileName));
+        File outputFile = getOutputFile(fileNamePrefix, "export/excel");
         if (outputFile.exists()) {
             // same file name existed, generate new file name
             return getOutputFile(fileNamePrefix);
         }
-        outputFile.createNewFile();
+        createNewFile(outputFile);
         return outputFile;
     }
 
@@ -100,16 +100,39 @@ public class ExcelUtil {
      * @return java.io.File
      **/
     private static File getOutputFileWithFolder(String folder, String fileNamePrefix) throws IOException {
-        String tempSubPath = IOUtils.getTempSubPath(String.format("export/%s", folder));
-        String fileName = String.format(EXCEL_FILE_NAME, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
-                .replaceAll("[\\s\\\\/:\\*\\?\\\"<>\\|]", "");
-        File outputFile = new File(FilenameUtils.concat(tempSubPath, fileName));
+        File outputFile = getOutputFile(fileNamePrefix, String.format("export/%s", folder));
         if (outputFile.exists()) {
             // same file name existed, generate new file name
             return getOutputFileWithFolder(folder, fileNamePrefix);
         }
-        outputFile.createNewFile();
+        createNewFile(outputFile);
         return outputFile;
+    }
+
+    /**
+     * 创建新文件
+     * @param outputFile
+     * @return
+     * @throws IOException
+     */
+    private static void createNewFile(File outputFile) throws IOException {
+        boolean newFile = outputFile.createNewFile();
+        if (!newFile) {
+            throw new FileSystemException("创建新文件失败,fileName = " + outputFile.getName());
+        }
+    }
+
+    /**
+     * 获取外输文件
+     * @param fileNamePrefix
+     * @param folderString
+     * @return
+     */
+    private static File getOutputFile(String fileNamePrefix, String folderString) {
+        String tempSubPath = IOUtils.getTempSubPath(folderString);
+        String fileName = String.format(EXCEL_FILE_NAME, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
+                .replaceAll("[\\s\\\\/:\\*\\?\\\"<>\\|]", "");
+        return new File(FilenameUtils.concat(tempSubPath, fileName));
     }
 
     /**
