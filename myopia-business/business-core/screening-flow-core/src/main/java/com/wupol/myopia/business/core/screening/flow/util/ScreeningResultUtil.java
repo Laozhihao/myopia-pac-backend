@@ -844,6 +844,28 @@ public class ScreeningResultUtil {
         if (Objects.isNull(leftCorrectedVision) || Objects.isNull(rightCorrectedVision)) {
             return "";
         }
+        BigDecimal visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision,
+                leftNakedVision, rightNakedVision, nakedVisionResult);
+        if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
+            // 矫正视力小于4.9
+            return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
+        } else {
+            // 矫正视力大于4.9
+            return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
+        }
+    }
+
+    /**
+     * 获取矫正视力
+     *
+     * @param leftCorrectedVision  左眼矫正视力
+     * @param rightCorrectedVision 右眼矫正视力
+     * @param leftNakedVision      左眼裸眼视力
+     * @param rightNakedVision     右眼裸眼视力
+     * @param nakedVisionResult    取视力值低的眼球
+     * @return 矫正视力
+     */
+    public static BigDecimal getResultVision(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision, BigDecimal leftNakedVision, BigDecimal rightNakedVision, TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         BigDecimal visionVal;
         // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
@@ -858,13 +880,7 @@ public class ScreeningResultUtil {
                 visionVal = rightCorrectedVision;
             }
         }
-        if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
-            // 矫正视力小于4.9
-            return "裸眼远视力下降，戴镜远视力下降。建议：请及时到医疗机构复查。";
-        } else {
-            // 矫正视力大于4.9
-            return "裸眼远视力下降，戴镜远视力≥4.9。建议：请3个月或半年1次检查裸眼视力和戴镜视力。";
-        }
+        return visionVal;
     }
 
     /**
