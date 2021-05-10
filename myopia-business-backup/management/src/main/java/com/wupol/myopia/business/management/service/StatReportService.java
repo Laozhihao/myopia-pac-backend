@@ -3,12 +3,7 @@ package com.wupol.myopia.business.management.service;
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
 import com.wupol.myopia.business.common.constant.GlassesType;
-import com.wupol.myopia.business.management.constant.GenderEnum;
-import com.wupol.myopia.business.management.constant.GradeCodeEnum;
-import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.constant.ScreeningResultPahtConst;
-import com.wupol.myopia.business.management.constant.VisionCorrection;
-import com.wupol.myopia.business.management.constant.WarningLevel;
+import com.wupol.myopia.business.management.constant.*;
 import com.wupol.myopia.business.management.domain.dto.SchoolGradeItems;
 import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
@@ -20,7 +15,8 @@ import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
 import com.wupol.myopia.business.management.domain.vo.VisionScreeningResultReportVo;
 import com.wupol.myopia.business.management.util.StatUtil;
-
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,19 +24,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import lombok.Builder;
-import lombok.Data;
 
 @Service
 public class StatReportService {

@@ -1,18 +1,12 @@
 package com.wupol.myopia.business.hospital.service;
 
-import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.management.service.HospitalService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 医院-信息

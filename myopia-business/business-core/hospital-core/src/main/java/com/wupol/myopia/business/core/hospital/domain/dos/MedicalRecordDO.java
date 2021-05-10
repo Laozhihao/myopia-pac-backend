@@ -1,12 +1,9 @@
 package com.wupol.myopia.business.core.hospital.domain.dos;
 
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 医院的检查报告

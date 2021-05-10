@@ -8,7 +8,6 @@ import com.wupol.myopia.oauth.service.DistrictPermissionService;
 import com.wupol.myopia.oauth.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;

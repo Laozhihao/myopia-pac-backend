@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
-import software.amazon.ion.Decimal;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -2,12 +2,8 @@ package com.wupol.myopia.business.management.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
-
-import java.util.List;
-
 import com.wupol.myopia.business.management.domain.query.ScreeningTaskQuery;
+import com.wupol.myopia.business.management.domain.vo.OrgScreeningCountVO;
 import com.wupol.myopia.business.management.domain.vo.ScreeningTaskOrgVo;
 import org.apache.ibatis.annotations.Param;
 

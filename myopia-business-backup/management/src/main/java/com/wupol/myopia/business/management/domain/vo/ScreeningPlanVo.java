@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.vo;
 
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

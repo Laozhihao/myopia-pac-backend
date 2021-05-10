@@ -3,8 +3,6 @@ package com.wupol.myopia.business.management.exception;
 import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 数据不存在异常

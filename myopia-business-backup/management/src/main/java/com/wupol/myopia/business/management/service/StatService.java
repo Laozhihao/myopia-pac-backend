@@ -8,12 +8,6 @@ import com.wupol.myopia.business.management.constant.SchoolAge;
 import com.wupol.myopia.business.management.constant.StatClassLabel;
 import com.wupol.myopia.business.management.constant.WarningLevel;
 import com.wupol.myopia.business.management.domain.dto.stat.*;
-import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
-import com.wupol.myopia.business.management.domain.dto.stat.ClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.RescreenStat;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningClassStat;
-import com.wupol.myopia.business.management.domain.dto.stat.ScreeningDataContrast;
-import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo;
 import com.wupol.myopia.business.management.domain.dto.stat.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.model.District;
@@ -22,7 +16,9 @@ import com.wupol.myopia.business.management.domain.model.StatConclusion;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningDataContrastVo;
 import com.wupol.myopia.business.management.facade.ExcelFacade;
-
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,16 +31,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j

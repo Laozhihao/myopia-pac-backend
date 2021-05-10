@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
-import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -21,6 +20,7 @@ import com.wupol.myopia.business.management.domain.model.*;
 import com.wupol.myopia.business.management.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.management.service.*;
 import com.wupol.myopia.business.management.util.S3Utils;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.util.UploadUtil;
 import com.wupol.myopia.business.screening.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.screening.domain.dto.AppUserInfo;
@@ -33,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

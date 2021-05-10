@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.business.management.domain.model.GradeCode;
 import lombok.Getter;
 
-import java.util.*;
-
 /**
  * 年级编码枚举类
  *

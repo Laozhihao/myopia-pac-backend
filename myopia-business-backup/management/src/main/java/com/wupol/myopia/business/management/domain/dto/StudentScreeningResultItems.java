@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.management.domain.dto;
-import com.google.common.collect.Lists;
 
-import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import lombok.Getter;
 import lombok.Setter;
 

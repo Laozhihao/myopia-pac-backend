@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Getter;

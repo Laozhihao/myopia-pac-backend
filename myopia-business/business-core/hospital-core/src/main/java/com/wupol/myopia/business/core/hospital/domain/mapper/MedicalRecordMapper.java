@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.hospital.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;

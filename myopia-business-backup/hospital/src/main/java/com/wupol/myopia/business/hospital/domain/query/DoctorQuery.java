@@ -1,12 +1,9 @@
 package com.wupol.myopia.business.hospital.domain.query;
 
 import com.wupol.myopia.business.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.hospital.domain.model.HospitalStudent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 /**
  * 医生查询

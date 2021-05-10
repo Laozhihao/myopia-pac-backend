@@ -1,7 +1,7 @@
 package com.wupol.myopia.oauth.domain.mapper;
 
-import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import org.apache.ibatis.annotations.Param;
 

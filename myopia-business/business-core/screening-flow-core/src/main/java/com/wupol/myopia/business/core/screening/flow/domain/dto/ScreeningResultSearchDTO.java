@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.common.utils.domain.query.AppPageRequest;
 import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
+import com.wupol.myopia.business.common.utils.domain.query.AppPageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import lombok.Data;
 import lombok.experimental.Accessors;
