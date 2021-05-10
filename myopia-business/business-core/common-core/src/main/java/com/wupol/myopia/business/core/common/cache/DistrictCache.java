@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/1/26
  **/
-@Component
+//@Component
 @Slf4j
 public class DistrictCache implements CommandLineRunner {
 
