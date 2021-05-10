@@ -3,12 +3,9 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.management.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
-import lombok.Data;
 import lombok.Setter;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

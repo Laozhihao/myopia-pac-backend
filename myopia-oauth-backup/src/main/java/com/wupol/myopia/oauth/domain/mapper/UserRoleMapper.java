@@ -1,8 +1,7 @@
 package com.wupol.myopia.oauth.domain.mapper;
 
-import com.wupol.myopia.oauth.domain.model.UserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.commons.collections4.CollectionUtils;
+import com.wupol.myopia.oauth.domain.model.UserRole;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
@@ -10,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.Range;
-import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

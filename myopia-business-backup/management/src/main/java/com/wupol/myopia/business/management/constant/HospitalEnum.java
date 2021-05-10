@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.management.constant;
 
 
-import java.util.Arrays;
-import java.util.Objects;
-
 /**
  * 医院相关常量
  *

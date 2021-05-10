@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.domain.query;
 
 
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.interfaces.HasCreatorNameLikeAndCreateUserIds;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

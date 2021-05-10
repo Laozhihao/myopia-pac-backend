@@ -7,7 +7,6 @@ import com.wupol.myopia.business.management.domain.dto.ScreeningOrgPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanResponse;
 import com.wupol.myopia.business.management.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.management.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.management.domain.query.ScreeningPlanQuery;
 import com.wupol.myopia.business.management.domain.vo.ScreeningPlanVo;
 import org.apache.ibatis.annotations.Param;

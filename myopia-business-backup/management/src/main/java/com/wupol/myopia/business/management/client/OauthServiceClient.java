@@ -10,7 +10,6 @@ import com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO;
 import com.wupol.myopia.business.management.domain.query.UserDTOQuery;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

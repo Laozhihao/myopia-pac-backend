@@ -7,14 +7,12 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.SchoolMonitorStatisticMapper;
 import com.wupol.myopia.business.management.domain.model.SchoolMonitorStatistic;
-import com.wupol.myopia.business.management.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.management.domain.model.ScreeningPlan;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
 import java.util.stream.Collectors;
 
 /**

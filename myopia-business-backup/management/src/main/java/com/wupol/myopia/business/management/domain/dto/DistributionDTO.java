@@ -3,7 +3,6 @@ package com.wupol.myopia.business.management.domain.dto;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.management.constant.GenderEnum;
 import com.wupol.myopia.business.management.constant.SchoolAge;
-import com.wupol.myopia.business.management.domain.dto.stat.BasicStatParams;
 import com.wupol.myopia.business.management.domain.model.District;
 import com.wupol.myopia.business.management.util.MathUtil;
 import lombok.Data;
@@ -13,7 +12,6 @@ import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
 import java.util.stream.Collectors;
 
 /**

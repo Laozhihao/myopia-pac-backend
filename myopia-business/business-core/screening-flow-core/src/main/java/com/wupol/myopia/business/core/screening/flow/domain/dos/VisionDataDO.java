@@ -35,7 +35,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
          */
         private Integer lateriality;
         /**
-         * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
+         * 佩戴眼镜的类型： {@link com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation}
          */
         private Integer glassesType;
         /**
