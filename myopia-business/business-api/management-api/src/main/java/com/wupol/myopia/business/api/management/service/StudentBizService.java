@@ -598,7 +598,7 @@ public class StudentBizService {
                 String noticeInfo;
                 if (glassesType >= 1) {
                     noticeInfo = getSMSNoticeInfo(student.getName(), leftNakedVision, rightNakedVision,
-                            getIsWearingGlasses(leftCorrectedVision, rightCorrectedVision,
+                            getWearingGlassesConclusion(leftCorrectedVision, rightCorrectedVision,
                                     leftNakedVision, rightNakedVision, nakedVisionResult));
                 } else {
                     // 没有佩戴眼镜
@@ -639,26 +639,14 @@ public class StudentBizService {
      * @param nakedVisionResult    取视力值低的眼球
      * @return 结论
      */
-    private String getIsWearingGlasses(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-                                       BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-                                       TwoTuple<BigDecimal, Integer> nakedVisionResult) {
+    private String getWearingGlassesConclusion(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                               BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                               TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         if (Objects.isNull(leftCorrectedVision) && Objects.isNull(rightCorrectedVision)) {
             return "";
         }
-        BigDecimal visionVal;
-        // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
-        if (ScreeningResultUtil.isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
-            // 获取矫正视力低的眼球
-            visionVal = ScreeningResultUtil.getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
-        } else {
-            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                // 取左眼数据
-                visionVal = leftCorrectedVision;
-            } else {
-                // 取右眼数据
-                visionVal = rightCorrectedVision;
-            }
-        }
+        BigDecimal visionVal = ScreeningResultUtil.getResultVision(leftCorrectedVision, rightCorrectedVision,
+                leftNakedVision, rightNakedVision, nakedVisionResult);
         if (visionVal.compareTo(new BigDecimal("4.9")) < 0) {
             // 矫正视力小于4.9
             return "裸眼视力下降，建议：请及时到医疗机构复查。";
