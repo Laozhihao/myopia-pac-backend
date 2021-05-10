@@ -815,9 +815,9 @@ public class ScreeningResultUtil {
      *
      * @param leftNakedVision  左裸眼视力
      * @param rightNakedVision 右裸眼数据
-     * @return Boolean
+     * @return boolean
      */
-    public static Boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
+    public static boolean isNakedVisionMatch(BigDecimal leftNakedVision, BigDecimal rightNakedVision) {
         if (Objects.isNull(leftNakedVision) || Objects.isNull(rightNakedVision)) {
             return true;
         }
