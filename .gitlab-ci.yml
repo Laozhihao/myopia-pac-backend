@@ -1,6 +1,16 @@
-sonar:
+image: tmaier/docker-compose:latest
+
+services:
+  - docker:dind
+
+build:
   stage: test
-  script: mvn sonar:sonar   -Dsonar.projectKey=myopia   -Dsonar.host.url=https://sonarqube.tulab.cn   -Dsonar.login=93b38a3f79ae6bfcba51fd985e3a1612c8ea7c89
+  before_script:
+    - cp /env/docker.env runner/.env
+    - cp /env/runner.env runner/.data/
+  script: docker-compose -f runner/docker-compose.yml up --build --abort-on-container-exit
+  after_script:
+    - docker-compose -f runner/docker-compose.yml down -v
   only:
     refs:
       - merge_requests
