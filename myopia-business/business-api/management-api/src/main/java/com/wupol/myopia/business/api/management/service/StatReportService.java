@@ -82,14 +82,12 @@ public class StatReportService {
                                .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
                                .count();
         Long femaleNum = total - maleNum;
-        return new HashMap<String, Object>() {
-            {
-                put("name", name);
-                put("male", maleNum);
-                put("female", femaleNum);
-                put("total", total);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("name", name);
+        resultMap.put("male", maleNum);
+        resultMap.put("female", femaleNum);
+        resultMap.put("total", total);
+        return resultMap;
     }
 
     /**
@@ -234,16 +232,12 @@ public class StatReportService {
                         .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
                         .collect(Collectors.toList());
 
-        Map<String, List<StatConclusion>> schoolAgeMap =
-                new HashMap<String, List<StatConclusion>>() {
-                    {
-                        put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
-                        put(SchoolAge.PRIMARY.name(), primaryList);
-                        put(SchoolAge.JUNIOR.name(), juniorList);
-                        put(SchoolAge.HIGH.name(), highList);
-                        put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
-                    }
-                };
+        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<String, List<StatConclusion>>();
+        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
+        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
+        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
+        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
+        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
 
         List<StatConclusion> myopiaConclusions =
                 validConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
@@ -579,14 +573,11 @@ public class StatReportService {
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         Collections.sort(warningLevelThreeSchoolAgeList,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        List<List<BasicStatParams>> sortedList = new ArrayList() {
-            {
-                add(warningLevelZeroSchoolAgeList);
-                add(warningLevelOneSchoolAgeList);
-                add(warningLevelTwoSchoolAgeList);
-                add(warningLevelThreeSchoolAgeList);
-            }
-        };
+        List<List<BasicStatParams>> sortedList = new ArrayList();
+        sortedList.add(warningLevelZeroSchoolAgeList);
+        sortedList.add(warningLevelOneSchoolAgeList);
+        sortedList.add(warningLevelTwoSchoolAgeList);
+        sortedList.add(warningLevelThreeSchoolAgeList);
 
         Map<String, Object> conclusionDesc = new HashMap<>();
 
@@ -686,13 +677,11 @@ public class StatReportService {
                                    .map(x -> x.getRatio())
                                    .findFirst()
                                    .get();
-        return new HashMap() {
-            {
-                put("maleRatio", maleRatio);
-                put("femaleRatio", femaleRatio);
-                put("totalRatio", totalRatio);
-            }
-        };
+        Map<String,Object> resultMap = new HashMap();
+        resultMap.put("maleRatio", maleRatio);
+        resultMap.put("femaleRatio", femaleRatio);
+        resultMap.put("totalRatio", totalRatio);
+        return resultMap;
     }
 
     /**
@@ -912,14 +901,12 @@ public class StatReportService {
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         long totalWarningNum = totalStatList.stream().mapToLong(x -> x.getNum()).sum();
         long totalSize = statConclusions.size();
-        return new HashMap<String, Object>() {
-            {
-                put("list", schoolGradeGenderVisionTable);
-                put("totalStatList", totalStatList);
-                put("totalWarningNum", totalWarningNum);
-                put("totalWarningRatio", convertToPercentage(totalWarningNum * 1f / totalSize));
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", schoolGradeGenderVisionTable);
+        resultMap.put("totalStatList", totalStatList);
+        resultMap.put("totalWarningNum", totalWarningNum);
+        resultMap.put("totalWarningRatio", convertToPercentage(totalWarningNum * 1f / totalSize));
+        return resultMap;
     }
 
     /**
@@ -948,12 +935,10 @@ public class StatReportService {
                 composeGenderVisionUncorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
-        return new HashMap<String, Object>() {
-            {
-                put("list", schoolGradeGenderVisionTable);
-                put("totalStatList", totalStatList);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", schoolGradeGenderVisionTable);
+        resultMap.put("totalStatList", totalStatList);
+        return resultMap;
     }
 
     /**
@@ -980,12 +965,10 @@ public class StatReportService {
                 composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
-        return new HashMap<String, Object>() {
-            {
-                put("list", schoolGradeGenderVisionTable);
-                put("totalStatList", totalStatList);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", schoolGradeGenderVisionTable);
+        resultMap.put("totalStatList", totalStatList);
+        return resultMap;
     }
 
     /**
@@ -1016,14 +999,12 @@ public class StatReportService {
                                         && !GlassesType.NOT_WEARING.code.equals(x.getGlassesType()))
                         .count();
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
-        return new HashMap<String, Object>() {
-            {
-                put("list", schoolGradeWearingTypeTable);
-                put("totalWearingNum", totalWearingNum);
-                put("totalWearingRatio", convertToPercentage(totalWearingNum * 1f / totalSize));
-                put("totalStatList", totalStatList);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", schoolGradeWearingTypeTable);
+        resultMap.put("totalWearingNum", totalWearingNum);
+        resultMap.put("totalWearingRatio", convertToPercentage(totalWearingNum * 1f / totalSize));
+        resultMap.put("totalStatList", totalStatList);
+        return resultMap;
     }
 
     /**
@@ -1055,14 +1036,12 @@ public class StatReportService {
         int totalSize = totalStat.size();
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
         BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalSize - 1);
-        return new HashMap<String, Object>() {
-            {
-                put("list", list);
-                put("averageVision", totalStat.get("averageVision"));
-                put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", list);
+        resultMap.put("averageVision", totalStat.get("averageVision"));
+        resultMap.put("totalRatio", lastTotalLevelStat.getRatio());
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalSize - 1)));
+        return resultMap;
     }
 
     /**
@@ -1093,13 +1072,11 @@ public class StatReportService {
         List<BasicStatParams> totalLevelStat = (List<BasicStatParams>) totalStat.get("list");
         int totalLevelStatSize = totalLevelStat.size();
         BasicStatParams lastTotalLevelStat = totalLevelStat.get(totalLevelStatSize - 1);
-        return new HashMap<String, Object>() {
-            {
-                put("list", list);
-                put("totalRatio", lastTotalLevelStat.getRatio());
-                put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", list);
+        resultMap.put("totalRatio", lastTotalLevelStat.getRatio());
+        resultMap.put("topStat", getTopStatList(totalLevelStat.subList(0, totalLevelStatSize - 1)));
+        return resultMap;
     }
 
     /**
@@ -1141,12 +1118,11 @@ public class StatReportService {
         list.add(composeMyopiaLevelStat("total", statConclusions));
         Collections.sort(schoolGradeMyopiaRatioList,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        return new HashMap<String, Object>() {
-            {
-                put("list", list);
-                put("sortedStat", schoolGradeMyopiaRatioList);
-            }
-        };
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", list);
+        resultMap.put("sortedStat", schoolGradeMyopiaRatioList);
+        return resultMap;
     }
 
     /**
@@ -1172,12 +1148,10 @@ public class StatReportService {
         list.add(composeLowVisionLevelStat("total", statConclusions));
         Collections.sort(schoolGradeLowVisionRatioList,
                 Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        return new HashMap<String, Object>() {
-            {
-                put("list", list);
-                put("sortedStat", schoolGradeLowVisionRatioList);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("list", list);
+        resultMap.put("sortedStat", schoolGradeLowVisionRatioList);
+        return resultMap;
     }
 
     /**
@@ -1337,13 +1311,11 @@ public class StatReportService {
                         "total", maleLowVisionNum + femaleLowVisionNum, rowTotal));
             }
         };
-        return new HashMap<String, Object>() {
-            {
-                put("name", name);
-                put("rowTotal", rowTotal);
-                put("list", list);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("name", name);
+        resultMap.put("rowTotal", rowTotal);
+        resultMap.put("list", list);
+        return resultMap;
     }
 
     /**
@@ -1418,13 +1390,11 @@ public class StatReportService {
                 add(composeBasicParams(WarningLevel.THREE.name(), levelThreeNum, rowTotal));
             }
         };
-        return new HashMap<String, Object>() {
-            {
-                put("name", name);
-                put("rowTotal", rowTotal);
-                put("list", list);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("name", name);
+        resultMap.put("rowTotal", rowTotal);
+        resultMap.put("list", list);
+        return resultMap;
     }
 
     /**
@@ -1453,13 +1423,11 @@ public class StatReportService {
                         "levelTotal", levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
             }
         };
-        return new HashMap<String, Object>() {
-            {
-                put("name", name);
-                put("rowTotal", rowTotal);
-                put("list", list);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("name", name);
+        resultMap.put("rowTotal", rowTotal);
+        resultMap.put("list", list);
+        return resultMap;
     }
 
     /**
@@ -1498,13 +1466,11 @@ public class StatReportService {
                         GlassesType.NOT_WEARING.name(), typeNotWearingNum, rowTotal));
             }
         };
-        return new HashMap<String, Object>() {
-            {
-                put("name", name);
-                put("rowTotal", rowTotal);
-                put("list", list);
-            }
-        };
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("name", name);
+        resultMap.put("rowTotal", rowTotal);
+        resultMap.put("list", list);
+        return resultMap;
     }
 
     /**

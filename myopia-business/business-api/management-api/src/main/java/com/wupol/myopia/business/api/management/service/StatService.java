@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
@@ -129,23 +131,17 @@ public class StatService {
                                    .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
                                    .count();
         long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
+        ArrayList<WarningLevelInfo> warningLevelInfoArrayList = new ArrayList<WarningLevelInfo>();
+        warningLevelInfoArrayList.add(new WarningLevelInfo(0, warning0Num, convertToPercentage(warning0Num * 1f / total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(1, warning1Num, convertToPercentage(warning1Num * 1f / total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(2, warning2Num, convertToPercentage(warning2Num * 1f / total)));
+        warningLevelInfoArrayList.add(new WarningLevelInfo(3, warning3Num, convertToPercentage(warning3Num * 1f / total)));
         return WarningInfo.builder()
                 .statTime(startDate.atStartOfDay(zoneId).toInstant().toEpochMilli())
                 .endTime(endDate.atStartOfDay(zoneId).toInstant().toEpochMilli() - 1)
                 .focusTargetsNum(focusTargetsNum)
                 .focusTargetsPercentage(convertToPercentage(focusTargetsNum * 1f / total))
-                .warningLevelInfoList(new ArrayList<WarningLevelInfo>() {
-                    {
-                        add(new WarningLevelInfo(
-                                0, warning0Num, convertToPercentage(warning0Num * 1f / total)));
-                        add(new WarningLevelInfo(
-                                1, warning1Num, convertToPercentage(warning1Num * 1f / total)));
-                        add(new WarningLevelInfo(
-                                2, warning2Num, convertToPercentage(warning2Num * 1f / total)));
-                        add(new WarningLevelInfo(
-                                3, warning3Num, convertToPercentage(warning3Num * 1f / total)));
-                    }
-                })
+                .warningLevelInfoList(warningLevelInfoArrayList)
                 .build();
     }
 
@@ -331,6 +327,9 @@ public class StatService {
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
 
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
+        if (planScreeningNum <= 0) {
+            throw new BusinessException("计划筛查学生数不能低于0,notificationId = " + notificationId);
+        }
         return ScreeningClassStat.builder()
                 .notificationId(notificationId)
                 .screeningNum(planScreeningNum)
@@ -353,7 +352,7 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    private Integer getPlanScreeningStudentNum(int notificationId, List<Integer> validDistrictIds)
+    private int getPlanScreeningStudentNum(int notificationId, List<Integer> validDistrictIds)
             throws IOException {
         Map<Integer, Long> planDistrictStudentMap =
                 screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
