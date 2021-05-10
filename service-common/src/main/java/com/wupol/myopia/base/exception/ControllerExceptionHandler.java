@@ -2,6 +2,7 @@ package com.wupol.myopia.base.exception;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -110,12 +111,9 @@ public class ControllerExceptionHandler {
     public ApiResult handleConstraintViolationException(ConstraintViolationException ex){
         logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-        StringBuilder strBuilder = new StringBuilder();
-        for (ConstraintViolation<?> violation : violations) {
-            strBuilder.append(violation.getMessage());
-        }
-        return ApiResult.failure(strBuilder.toString());
+        return ApiResult.failure(violations.stream().map(ConstraintViolation::getMessage).findFirst().orElse(StringUtils.EMPTY));
     }
+
 
     /**
      * 使用@NotEmpty、@NotNull等注释的参数验证失败时引发的异常
