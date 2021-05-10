@@ -865,22 +865,15 @@ public class ScreeningResultUtil {
      * @param nakedVisionResult    取视力值低的眼球
      * @return 矫正视力
      */
-    public static BigDecimal getResultVision(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision, BigDecimal leftNakedVision, BigDecimal rightNakedVision, TwoTuple<BigDecimal, Integer> nakedVisionResult) {
-        BigDecimal visionVal;
+    public static BigDecimal getResultVision(BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                             BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                             TwoTuple<BigDecimal, Integer> nakedVisionResult) {
         // 判断两只眼睛的裸眼视力是否都小于4.9或大于等于4.9
         if (isNakedVisionMatch(leftNakedVision, rightNakedVision)) {
             // 获取矫正视力低的眼球
-            visionVal = getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
-        } else {
-            if (nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE)) {
-                // 取左眼数据
-                visionVal = leftCorrectedVision;
-            } else {
-                // 取右眼数据
-                visionVal = rightCorrectedVision;
-            }
+            return getResultVision(leftCorrectedVision, rightCorrectedVision).getFirst();
         }
-        return visionVal;
+        return nakedVisionResult.getSecond().equals(CommonConst.LEFT_EYE) ? leftCorrectedVision : rightCorrectedVision;
     }
 
     /**
