@@ -45,7 +45,8 @@ public class StatUtil {
      * @return
      */
     public static boolean isHyperopia(Float sphere, Float cylinder, Integer age) {
-        return getHyperopiaWarningLevel(sphere, cylinder, age).code > 0;
+        WarningLevel hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
+        return hyperopiaWarningLevel != null && hyperopiaWarningLevel.code > 0;
     }
 
     /**
@@ -65,7 +66,8 @@ public class StatUtil {
      * @return
      */
     public static boolean isAstigmatism(Float cylinder) {
-        return getAstigmatismWarningLevel(cylinder).code > 0 ? true : false;
+        WarningLevel astigmatismWarningLevel = getAstigmatismWarningLevel(cylinder);
+        return astigmatismWarningLevel != null && astigmatismWarningLevel.code > 0 ;
     }
 
     /**
