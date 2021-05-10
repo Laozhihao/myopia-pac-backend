@@ -113,7 +113,6 @@ public class ControllerExceptionHandler {
         StringBuilder strBuilder = new StringBuilder();
         for (ConstraintViolation<?> violation : violations) {
             strBuilder.append(violation.getMessage());
-            break;
         }
         return ApiResult.failure(strBuilder.toString());
     }
