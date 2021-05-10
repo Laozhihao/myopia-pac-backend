@@ -55,7 +55,7 @@ public class MathUtil {
      * @return
      */
     private static double getFormatNum(int scale,double num) {
-        BigDecimal bigDecimal = new BigDecimal(num);
+        BigDecimal bigDecimal = BigDecimal.valueOf(num);
         bigDecimal = bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
         return bigDecimal.doubleValue();
     }
