@@ -344,7 +344,7 @@ public class StatConclusionBuilder {
             return errorNum;
         }
         //属于误差范围内
-        if (beforeValue.subtract(afterValue).abs().compareTo(rangeValue) == 1) {
+        if (beforeValue.subtract(afterValue).abs().compareTo(rangeValue) > 0) {
             errorNum++;
         }
         return errorNum;
