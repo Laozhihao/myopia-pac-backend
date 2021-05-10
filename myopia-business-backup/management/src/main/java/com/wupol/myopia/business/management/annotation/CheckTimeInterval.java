@@ -4,7 +4,6 @@ import com.wupol.myopia.business.management.annotation.validation.CheckTimeInter
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
 
 /**
  * 校验结束时间大于等于开始时间

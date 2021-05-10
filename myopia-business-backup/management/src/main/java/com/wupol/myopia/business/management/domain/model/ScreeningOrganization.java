@@ -1,19 +1,16 @@
 package com.wupol.myopia.business.management.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
-
-import java.util.Date;
-import java.io.Serializable;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.dto.NotificationConfig;
 import com.wupol.myopia.business.management.domain.handler.NotificationConfigTypeHandler;
 import com.wupol.myopia.business.management.interfaces.HasName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 筛查机构表

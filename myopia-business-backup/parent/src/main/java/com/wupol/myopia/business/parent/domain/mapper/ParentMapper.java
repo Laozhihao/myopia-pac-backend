@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.parent.domain.mapper;
 
-import com.wupol.myopia.business.parent.domain.model.Parent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.parent.domain.model.Parent;
 
 /**
  * 家长表Mapper接口

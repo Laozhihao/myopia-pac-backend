@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import com.wupol.framework.core.util.DateUtil;
+import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -11,8 +12,10 @@ import java.util.Date;
  *
  * @author sheldon
  */
+@UtilityClass
 public class AgeUtil {
-    public static String getPatientAgeDisplay(Date birthday, Boolean needEnglish) {
+
+    public static String getPatientAgeDisplay(Date birthday, boolean needEnglish) {
         if (birthday == null) {
             return needEnglish? "Unknown" : "未知";
         }
@@ -26,7 +29,7 @@ public class AgeUtil {
         return countAge(birthday, DateUtil.fromDate(certainDay), false);
     }
 
-    private static String countAge(Date birthday, LocalDate compareDate, Boolean needEnglish) {
+    private static String countAge(Date birthday, LocalDate compareDate, boolean needEnglish) {
         LocalDate birthLocalDate = DateUtil.fromDate(birthday);
         Period period = Period.between(birthLocalDate, compareDate);
         int years = period.getYears();

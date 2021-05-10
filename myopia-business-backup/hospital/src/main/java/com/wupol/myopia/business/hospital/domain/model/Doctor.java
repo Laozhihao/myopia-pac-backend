@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.management.domain.dto.UserDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 

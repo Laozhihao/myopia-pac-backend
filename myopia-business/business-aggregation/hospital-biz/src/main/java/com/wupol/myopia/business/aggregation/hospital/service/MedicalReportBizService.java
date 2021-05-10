@@ -1,16 +1,16 @@
 package com.wupol.myopia.business.aggregation.hospital.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
-import com.wupol.myopia.business.core.hospital.domain.query.MedicalReportQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -18,14 +18,11 @@ import com.wupol.myopia.business.management.service.ScreeningNoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Objects;
-import java.util.TimeZone;
 
 /**
  * @author Alix

@@ -11,7 +11,6 @@ import com.wupol.myopia.business.management.util.S3Utils;
 import com.wupol.myopia.business.management.util.TwoTuple;
 import com.wupol.myopia.business.management.util.UploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;

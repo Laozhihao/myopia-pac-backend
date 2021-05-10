@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.parent.domain.dto;
 
-import java.math.BigDecimal;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 /**
  * 验光仪检查结果

@@ -1,11 +1,8 @@
 package com.wupol.myopia.business.management.domain.vo;
 
 import com.wupol.myopia.business.management.domain.model.SchoolClass;
-import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 班级数据

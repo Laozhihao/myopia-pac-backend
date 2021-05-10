@@ -15,7 +15,6 @@ import com.wupol.myopia.business.management.facade.ExcelFacade;
 import com.wupol.myopia.business.management.service.GovDeptService;
 import com.wupol.myopia.business.management.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;

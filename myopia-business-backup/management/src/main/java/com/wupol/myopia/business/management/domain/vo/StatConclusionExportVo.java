@@ -2,7 +2,6 @@ package com.wupol.myopia.business.management.domain.vo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.management.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.management.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.management.domain.model.StatConclusion;

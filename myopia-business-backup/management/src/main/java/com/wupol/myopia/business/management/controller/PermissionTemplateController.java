@@ -6,7 +6,6 @@ import com.wupol.myopia.business.management.client.OauthService;
 import com.wupol.myopia.business.management.domain.dto.PermissionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

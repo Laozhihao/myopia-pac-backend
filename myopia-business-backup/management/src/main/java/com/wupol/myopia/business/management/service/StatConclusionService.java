@@ -13,9 +13,8 @@ import com.wupol.myopia.business.management.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.management.domain.query.StatConclusionQuery;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionExportVo;
 import com.wupol.myopia.business.management.domain.vo.StatConclusionReportVo;
-import com.wupol.myopia.business.management.util.TwoTuple;
-
 import com.wupol.myopia.business.management.domain.vo.StatConclusionVo;
+import com.wupol.myopia.business.management.util.TwoTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -23,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

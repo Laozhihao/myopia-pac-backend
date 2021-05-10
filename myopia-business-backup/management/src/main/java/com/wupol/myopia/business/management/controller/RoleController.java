@@ -10,7 +10,6 @@ import com.wupol.myopia.business.management.validator.RoleUpdateValidatorGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;

@@ -1,14 +1,11 @@
 package com.wupol.myopia.business.management.domain.dto;
 
 import com.wupol.myopia.business.management.domain.model.District;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.management.domain.model.ScreeningTask;
 import com.wupol.myopia.business.management.domain.model.ScreeningTaskOrg;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 

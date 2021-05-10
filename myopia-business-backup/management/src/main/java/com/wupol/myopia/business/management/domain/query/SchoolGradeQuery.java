@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.management.domain.query;
 
 
-import com.wupol.myopia.business.management.domain.model.School;
 import com.wupol.myopia.business.management.domain.model.SchoolGrade;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

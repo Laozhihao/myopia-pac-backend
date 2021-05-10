@@ -1,19 +1,15 @@
 package com.wupol.myopia.business.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.hospital.domain.handler.VisionMedicalRecordTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 医院-科室

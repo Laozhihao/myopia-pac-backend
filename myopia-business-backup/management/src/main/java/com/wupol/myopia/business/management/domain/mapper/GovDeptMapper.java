@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.management.domain.mapper;
 
-import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.management.domain.model.GovDept;
 import com.wupol.myopia.business.management.domain.vo.GovDeptVo;
 import org.apache.ibatis.annotations.Param;
 

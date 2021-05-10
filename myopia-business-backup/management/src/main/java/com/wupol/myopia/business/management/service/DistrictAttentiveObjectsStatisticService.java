@@ -6,7 +6,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.management.domain.mapper.DistrictAttentiveObjectsStatisticMapper;
 import com.wupol.myopia.business.management.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.management.domain.model.ScreeningNotice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 地区重点对象统计服务层

@@ -8,7 +8,6 @@ import com.wupol.myopia.business.management.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.management.domain.model.Notice;
 import com.wupol.myopia.business.management.domain.query.PageRequest;
 import com.wupol.myopia.business.management.service.NoticeService;
-import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
