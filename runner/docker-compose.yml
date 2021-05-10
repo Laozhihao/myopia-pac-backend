@@ -14,5 +14,5 @@ services:
       - TEST_ENV=unit
     command: >
       sh -c '
-        mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}
+        mvn package -Dmaven.test.skip=true && mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}
       '
