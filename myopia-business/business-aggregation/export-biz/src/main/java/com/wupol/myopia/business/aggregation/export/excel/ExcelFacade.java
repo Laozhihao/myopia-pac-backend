@@ -133,18 +133,9 @@ public class ExcelFacade {
      **/
     @Async
     public void generateScreeningOrganization(Integer userId, Integer districtId) throws IOException, UtilException {
-        if (Objects.isNull(districtId)) {
-            throw new BusinessException("行政区域id不能为空");
-        }
+        District district = checkAndGetDistrict(districtId);
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append("筛查机构");
-        District district = districtService.findOne(new District().setId(districtId));
-        if (Objects.isNull(district)) {
-            throw new BusinessException("未找到该行政区域");
-        }
-        builder.append("-").append(district.getName());
-        String fileName = builder.toString();
-
+        String fileName = "筛查机构" + "-" + district.getName();
         // 查询数据
         ScreeningOrganizationQueryDTO query = new ScreeningOrganizationQueryDTO();
         query.setDistrictId(districtId);
@@ -185,21 +176,21 @@ public class ExcelFacade {
             } else {
                 exportVo.setScreeningCount(planResult.size());
             }
-            if (null != staffMaps.get(item.getId())) {
+            if (Objects.nonNull(staffMaps.get(item.getId()))) {
                 exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
             } else {
                 exportVo.setPersonSituation(0);
             }
-            if (null != item.getProvinceCode()) {
+            if (Objects.nonNull(item.getProvinceCode())) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
-            if (null != item.getCityCode()) {
+            if (Objects.nonNull(item.getCityCode())) {
                 exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
             }
-            if (null != item.getAreaCode()) {
+            if (Objects.nonNull(item.getAreaCode())) {
                 exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
             }
-            if (null != item.getTownCode()) {
+            if (Objects.nonNull(item.getTownCode())) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
@@ -261,20 +252,10 @@ public class ExcelFacade {
      * @param districtId 地区id
      **/
     public void generateHospital(Integer userId, Integer districtId) throws IOException, UtilException {
-        if (Objects.isNull(districtId)) {
-            throw new BusinessException("行政区域id不能为空");
-        }
+        District district = checkAndGetDistrict(districtId);
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append("医院");
-        District district = districtService.findOne(new District().setId(districtId));
-        if (Objects.isNull(district)) {
-            throw new BusinessException("未找到该行政区域");
-        }
-        builder.append("-").append(district.getName());
-        String fileName = builder.toString();
-
+        String fileName = "医院" + "-" + district.getName();
         List<HospitalExportDTO> exportList = new ArrayList<>();
-
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
         List<Hospital> list = hospitalService.getBy(query);
@@ -302,16 +283,16 @@ public class ExcelFacade {
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            if (null != item.getProvinceCode()) {
+            if (Objects.nonNull(item.getProvinceCode())) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
-            if (null != item.getCityCode()) {
+            if (Objects.nonNull(item.getCityCode())) {
                 exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
             }
-            if (null != item.getAreaCode()) {
+            if (Objects.nonNull(item.getAreaCode())) {
                 exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
             }
-            if (null != item.getTownCode()) {
+            if (Objects.nonNull(item.getTownCode())) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
@@ -327,19 +308,9 @@ public class ExcelFacade {
      * @param districtId 地区id
      **/
     public void generateSchool(Integer userId, Integer districtId) throws IOException, UtilException {
-        if (Objects.isNull(districtId)) {
-            throw new BusinessException("行政区域id不能为空");
-        }
-
+        District district = checkAndGetDistrict(districtId);
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append("学校");
-        District district = districtService.findOne(new District().setId(districtId));
-        if (Objects.isNull(district)) {
-            throw new BusinessException("未找到该行政区域");
-        }
-        builder.append("-").append(district.getName());
-        String fileName = builder.toString();
-
+        String fileName = "学校" + "-" + district.getName();
         SchoolQueryDTO query = new SchoolQueryDTO();
         query.setDistrictId(districtId);
         List<School> list = schoolService.getBy(query);
@@ -402,19 +373,19 @@ public class ExcelFacade {
                 }
                 exportVo.setClassName(result.toString());
             }
-            if (null != item.getLodgeStatus()) {
+            if (Objects.nonNull(item.getLodgeStatus())) {
                 exportVo.setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()));
             }
-            if (null != item.getProvinceCode()) {
+            if (Objects.nonNull(item.getProvinceCode())) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
-            if (null != item.getCityCode()) {
+            if (Objects.nonNull(item.getCityCode())) {
                 exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
             }
-            if (null != item.getAreaCode()) {
+            if (Objects.nonNull(item.getAreaCode())) {
                 exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
             }
-            if (null != item.getTownCode()) {
+            if (Objects.nonNull(item.getTownCode())) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
@@ -505,20 +476,19 @@ public class ExcelFacade {
             } else {
                 exportVo.setVisitsCount(0);
             }
-            if (null != item.getClassId() && null != classMap.get(item.getClassId())) {
+            if (Objects.nonNull(item.getClassId()) && null != classMap.get(item.getClassId())) {
                 exportVo.setClassName(classMap.get(item.getClassId()).getName());
             }
-
-            if (null != item.getProvinceCode()) {
+            if (Objects.nonNull(item.getProvinceCode())) {
                 exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
             }
-            if (null != item.getCityCode()) {
+            if (Objects.nonNull(item.getCityCode())) {
                 exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
             }
-            if (null != item.getAreaCode()) {
+            if (Objects.nonNull(item.getAreaCode())) {
                 exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
             }
-            if (null != item.getTownCode()) {
+            if (Objects.nonNull(item.getTownCode())) {
                 exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
@@ -1015,5 +985,28 @@ public class ExcelFacade {
      */
     private Map<Integer, User> getUserMapByIds(Set<Integer> userIds) {
         return oauthServiceClient.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(User::getId, Function.identity()));
+    }
+
+    /**
+     * 检查行政区域id
+     *
+     * @param districtId 行政区域
+     * @return District 行政区域
+     */
+    private District checkAndGetDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            throw new BusinessException("行政区域id不能为空");
+        }
+        District district = null;
+        try {
+            district = districtService.findOne(new District().setId(districtId));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
+        }
+        return district;
+
     }
 }
