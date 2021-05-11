@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
+import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.screening.organization.domain.handler.NotificationConfigTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_screening_organization")
-public class ScreeningOrganization implements Serializable, HasName {
+public class ScreeningOrganization extends AddressCode implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
 
@@ -78,30 +79,6 @@ public class ScreeningOrganization implements Serializable, HasName {
      * 联系方式
      */
     private String phone;
-
-    /**
-     * 省代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long provinceCode;
-
-    /**
-     * 市代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long cityCode;
-
-    /**
-     * 区代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long areaCode;
-
-    /**
-     * 镇/乡代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long townCode;
 
     /**
      * 详细地址

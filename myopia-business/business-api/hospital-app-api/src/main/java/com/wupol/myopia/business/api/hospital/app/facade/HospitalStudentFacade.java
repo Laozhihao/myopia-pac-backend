@@ -173,11 +173,11 @@ public class HospitalStudentFacade {
             Student tmpStudent = new Student();
             BeanUtils.copyProperties(studentVo, tmpStudent);
             // 转换地址与学校数据
-            tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo())
-                      .setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode())
-                      .setCityCode(districtService.getById(studentVo.getCityId()).getCode())
-                      .setAreaCode(districtService.getById(studentVo.getAreaId()).getCode())
-                      .setTownCode(districtService.getById(studentVo.getTownId()).getCode());
+            tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo());
+            tmpStudent.setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode());
+            tmpStudent.setCityCode(districtService.getById(studentVo.getCityId()).getCode());
+            tmpStudent.setAreaCode(districtService.getById(studentVo.getAreaId()).getCode());
+            tmpStudent.setTownCode(districtService.getById(studentVo.getTownId()).getCode());
 
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setId(studentId);

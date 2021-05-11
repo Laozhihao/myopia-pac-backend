@@ -14,6 +14,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
 import com.wupol.myopia.business.aggregation.export.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
+import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -160,6 +162,7 @@ public class ExcelFacade {
 
         List<ScreeningOrganizationExportDTO> exportList = new ArrayList<>();
         for (ScreeningOrganization item : list) {
+            HashMap<String, String> addressMap = generateAddressMap(item);
             ScreeningOrganizationExportDTO exportVo = new ScreeningOrganizationExportDTO();
             exportVo.setName(item.getName())
                     .setType(ScreeningOrganizationEnum.getTypeName(item.getType()))
@@ -169,7 +172,11 @@ public class ExcelFacade {
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
+                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
+                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
+                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
+                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             List<ScreeningPlan> planResult = screeningPlanService.getByOrgId(item.getId());
             if (CollectionUtils.isEmpty(planResult)) {
                 exportVo.setScreeningCount(0);
@@ -180,18 +187,6 @@ public class ExcelFacade {
                 exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
             } else {
                 exportVo.setPersonSituation(0);
-            }
-            if (Objects.nonNull(item.getProvinceCode())) {
-                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
-            }
-            if (Objects.nonNull(item.getCityCode())) {
-                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
-            }
-            if (Objects.nonNull(item.getAreaCode())) {
-                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
-            }
-            if (Objects.nonNull(item.getTownCode())) {
-                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
         }
@@ -272,6 +267,7 @@ public class ExcelFacade {
         Map<Integer, User> userMap = getUserMapByIds(createUserIds);
 
         for (Hospital item : list) {
+            HashMap<String, String> addressMap = generateAddressMap(item);
             HospitalExportDTO exportVo = new HospitalExportDTO()
                     .setName(item.getName())
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
@@ -282,19 +278,11 @@ public class ExcelFacade {
                     .setAccountNo(item.getName())
                     .setAddress(item.getAddress())
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-            if (Objects.nonNull(item.getProvinceCode())) {
-                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
-            }
-            if (Objects.nonNull(item.getCityCode())) {
-                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
-            }
-            if (Objects.nonNull(item.getAreaCode())) {
-                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
-            }
-            if (Objects.nonNull(item.getTownCode())) {
-                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
-            }
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
+                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
+                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
+                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
+                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             exportList.add(exportVo);
         }
         File file = ExcelUtil.exportListToExcel(fileName, exportList, HospitalExportDTO.class);
@@ -342,6 +330,7 @@ public class ExcelFacade {
 
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
+            HashMap<String, String> addressMap = generateAddressMap(item);
             SchoolExportDTO exportVo = new SchoolExportDTO()
                     .setNo(item.getSchoolNo())
                     .setName(item.getName())
@@ -353,8 +342,11 @@ public class ExcelFacade {
                     .setRemark(item.getRemark())
                     .setScreeningCount(886)
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
-                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME));
-
+                    .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
+                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
+                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
+                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
+                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
@@ -375,18 +367,6 @@ public class ExcelFacade {
             }
             if (Objects.nonNull(item.getLodgeStatus())) {
                 exportVo.setLodgeStatus(SchoolEnum.getLodgeName(item.getLodgeStatus()));
-            }
-            if (Objects.nonNull(item.getProvinceCode())) {
-                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
-            }
-            if (Objects.nonNull(item.getCityCode())) {
-                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
-            }
-            if (Objects.nonNull(item.getAreaCode())) {
-                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
-            }
-            if (Objects.nonNull(item.getTownCode())) {
-                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
         }
@@ -453,6 +433,7 @@ public class ExcelFacade {
 
         List<StudentExportDTO> exportList = new ArrayList<>();
         for (StudentDTO item : studentLists) {
+            HashMap<String, String> addressMap = generateAddressMap(item);
             StudentExportDTO exportVo = new StudentExportDTO()
                     .setNo(item.getSno())
                     .setName(item.getName())
@@ -470,7 +451,11 @@ public class ExcelFacade {
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     .setQuestionCount(0)
-                    .setLastScreeningTime(null);
+                    .setLastScreeningTime(null)
+                    .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
+                    .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
+                    .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
+                    .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             if (Objects.nonNull(visitMap.get(item.getId()))) {
                 exportVo.setVisitsCount(visitMap.get(item.getId()).size());
             } else {
@@ -478,18 +463,6 @@ public class ExcelFacade {
             }
             if (Objects.nonNull(item.getClassId()) && null != classMap.get(item.getClassId())) {
                 exportVo.setClassName(classMap.get(item.getClassId()).getName());
-            }
-            if (Objects.nonNull(item.getProvinceCode())) {
-                exportVo.setProvince(districtService.getDistrictName(item.getProvinceCode()));
-            }
-            if (Objects.nonNull(item.getCityCode())) {
-                exportVo.setCity(districtService.getDistrictName(item.getCityCode()));
-            }
-            if (Objects.nonNull(item.getAreaCode())) {
-                exportVo.setArea(districtService.getDistrictName(item.getAreaCode()));
-            }
-            if (Objects.nonNull(item.getTownCode())) {
-                exportVo.setTown(districtService.getDistrictName(item.getTownCode()));
             }
             exportList.add(exportVo);
         }
@@ -607,12 +580,12 @@ public class ExcelFacade {
                     .setSno((item.get(7)))
                     .setIdCard(item.get(8))
                     .setParentPhone(item.get(9))
-                    .setProvinceCode(districtService.getCodeByName(item.get(10)))
-                    .setCityCode(districtService.getCodeByName(item.get(11)))
-                    .setAreaCode(districtService.getCodeByName(item.get(12)))
-                    .setTownCode(districtService.getCodeByName(item.get(13)))
-                    .setAddress(item.get(14))
                     .setCreateUserId(createUserId);
+            student.setProvinceCode(districtService.getCodeByName(item.get(10)));
+            student.setCityCode(districtService.getCodeByName(item.get(11)));
+            student.setAreaCode(districtService.getCodeByName(item.get(12)));
+            student.setTownCode(districtService.getCodeByName(item.get(13)));
+            student.setAddress(item.get(14));
 
             // 通过学校编号获取改学校的年级信息
             List<SchoolGradeExportDTO> schoolGradeExportVOS = schoolGradeMaps.get(item.get(4));
@@ -1007,6 +980,29 @@ public class ExcelFacade {
             throw new BusinessException("未找到该行政区域");
         }
         return district;
+    }
 
+    /**
+     * 获取省市区
+     *
+     * @param item AddressCode
+     * @param <T>  实体
+     * @return HashMap<String, String>
+     */
+    private <T extends AddressCode> HashMap<String, String> generateAddressMap(T item) {
+        HashMap<String, String> addressCodeMap = new HashMap<>();
+        if (Objects.nonNull(item.getProvinceCode())) {
+            addressCodeMap.put(ExportAddressKey.PROVIDE, districtService.getDistrictName(item.getProvinceCode()));
+        }
+        if (Objects.nonNull(item.getCityCode())) {
+            addressCodeMap.put(ExportAddressKey.CITY, districtService.getDistrictName(item.getCityCode()));
+        }
+        if (Objects.nonNull(item.getAreaCode())) {
+            addressCodeMap.put(ExportAddressKey.AREA, districtService.getDistrictName(item.getAreaCode()));
+        }
+        if (Objects.nonNull(item.getTownCode())) {
+            addressCodeMap.put(ExportAddressKey.TOWN, districtService.getDistrictName(item.getTownCode()));
+        }
+        return addressCodeMap;
     }
 }

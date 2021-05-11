@@ -220,12 +220,12 @@ public class ExcelStudentService {
                         .setBirthday(excelStudent.getBirthday()).setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
                         .setGradeId(excelStudent.getGradeId()).setGradeType(GradeCodeEnum.getByName(excelStudent.getGradeName()).getType())
                         .setClassId(excelStudent.getClassId()).setSno(excelStudent.getSno())
-                        .setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()))
-                        .setCityCode(ObjectsUtil.getDefaultIfNull(excelStudent.getCityCode(), student.getCityCode()))
-                        .setAreaCode(ObjectsUtil.getDefaultIfNull(excelStudent.getAreaCode(), student.getAreaCode()))
-                        .setTownCode(ObjectsUtil.getDefaultIfNull(excelStudent.getTownCode(), student.getTownCode()))
                         .setAddress(StringUtils.getDefaultIfBlank(excelStudent.getAddress(), student.getAddress()))
                         .setParentPhone(StringUtils.getDefaultIfBlank(excelStudent.getParentPhone(), student.getParentPhone()));
+                updateStudent.setProvinceCode(ObjectsUtil.getDefaultIfNull(excelStudent.getProvinceCode(), student.getProvinceCode()));
+                updateStudent.setCityCode(ObjectsUtil.getDefaultIfNull(excelStudent.getCityCode(), student.getCityCode()));
+                updateStudent.setAreaCode(ObjectsUtil.getDefaultIfNull(excelStudent.getAreaCode(), student.getAreaCode()));
+                updateStudent.setTownCode(ObjectsUtil.getDefaultIfNull(excelStudent.getTownCode(), student.getTownCode()));
                 updateStudents.add(updateStudent);
                 BeanUtils.copyProperties(updateStudent, planSchoolStudent);
                 planSchoolStudent.setStudentNo(updateStudent.getSno());
@@ -355,7 +355,10 @@ public class ExcelStudentService {
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
                 List<Long> codeList = districtNameCodeMap.get(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName));
                 if (CollectionUtils.hasLength(codeList)) {
-                    student.setProvinceCode(codeList.get(0)).setCityCode(codeList.get(1)).setAreaCode(codeList.get(2)).setTownCode(codeList.get(3));
+                    student.setProvinceCode(codeList.get(0));
+                    student.setCityCode(codeList.get(1));
+                    student.setAreaCode(codeList.get(2));
+                    student.setTownCode(codeList.get(3));
                 }
             }
             return student;

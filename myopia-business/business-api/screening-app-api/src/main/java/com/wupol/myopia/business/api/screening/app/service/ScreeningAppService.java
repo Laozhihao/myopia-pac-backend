@@ -416,11 +416,11 @@ public class ScreeningAppService {
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
                 .setAddress(appStudentDTO.getAddress())
-                .setProvinceCode(school.getProvinceCode())
-                .setCityCode(school.getCityCode())
-                .setTownCode(school.getTownCode())
                 .setParentPhone(appStudentDTO.getStudentPhone())
                 .setStatus(0);
+        student.setProvinceCode(school.getProvinceCode());
+        student.setCityCode(school.getCityCode());
+        student.setTownCode(school.getTownCode());
         return student;
 
     }
