@@ -43,6 +43,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionEx
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -128,6 +130,8 @@ public class ExcelFacade {
     private ExcelStudentService excelStudentService;
     @Resource
     private MedicalReportService medicalReportService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 生成筛查机构Excel
@@ -180,11 +184,7 @@ public class ExcelFacade {
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
                     .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
             List<ScreeningPlan> planResult = screeningPlanService.getByOrgId(item.getId());
-            if (CollectionUtils.isEmpty(planResult)) {
-                exportVo.setScreeningCount(0);
-            } else {
-                exportVo.setScreeningCount(planResult.size());
-            }
+            exportVo.setScreeningCount(CollectionUtils.isEmpty(planResult) ? 0 : planResult.size());
             if (Objects.nonNull(staffMaps.get(item.getId()))) {
                 exportVo.setPersonSituation(staffMaps.get(item.getId()).size());
             } else {
@@ -328,7 +328,13 @@ public class ExcelFacade {
         packageGradeInfo(grades);
 
         // 年级通过学校ID分组
-        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream()
+                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+
+        // 学校筛查次数
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIds);
+        Map<Integer, Long> planSchoolMaps = planSchoolList.stream()
+                .collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
 
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
@@ -342,7 +348,7 @@ public class ExcelFacade {
                     .setDistrictName(districtService.getDistrictName(item.getDistrictDetail()))
                     .setAddress(item.getAddress())
                     .setRemark(item.getRemark())
-                    .setScreeningCount(886)
+                    .setScreeningCount(planSchoolMaps.getOrDefault(item.getId(), 0L))
                     .setCreateUser(userMap.get(item.getCreateUserId()).getRealName())
                     .setCreateTime(DateFormatUtil.format(item.getCreateTime(), DateFormatUtil.FORMAT_DETAIL_TIME))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
