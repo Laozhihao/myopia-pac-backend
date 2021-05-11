@@ -44,12 +44,14 @@ public class DistrictCache implements CommandLineRunner {
             List<District> districtList = districtService.findByList(new District());
             Map<String, District> districtMap = districtList.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()), Function.identity()));
             redisTemplate.opsForHash().putAll(DistrictCacheKey.DISTRICT_ALL_LIST, districtMap);
+            logger.debug("...完成缓存全国行政区域-列表结构");
         }
 
         // 缓存全国行政区域-树结构
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
             logger.debug("...缓存全国行政区域-树结构");
             redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districtService.getWholeCountryDistrictTree());
+            logger.debug("...完成全国行政区域-树结构");
         }
 
         // 缓存各省行政区域-树结构
