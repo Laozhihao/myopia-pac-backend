@@ -1,11 +1,14 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.io.File;
 
 /**
  * @Author HaoHao
  * @Date 2020/12/21
  **/
+@UtilityClass
 public class IOUtils {
 
     public static String getTempSubPath(String sub) {

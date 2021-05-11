@@ -7,6 +7,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/22
  **/
+@UtilityClass
 public class ScreeningResultUtil {
 
     /**

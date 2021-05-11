@@ -861,7 +861,7 @@ public class ExcelFacade {
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error(e);
                 }
             });
             File zipFile = ExcelUtil.zip(folder, fileName);

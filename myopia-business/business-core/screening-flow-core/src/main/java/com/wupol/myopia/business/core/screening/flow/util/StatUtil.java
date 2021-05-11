@@ -121,6 +121,7 @@ public class StatUtil {
                     case VOCATIONAL_HIGH:
                         if (se >= -0.5 && se < 3 && Math.abs(cylinder) < 1.5) return true;
                         if (se < -0.5 || se >= 3 || Math.abs(cylinder) >= 1.5) return true;
+                        break;
                     default:
                 }
             }
