@@ -3,6 +3,7 @@ package com.wupol.myopia.gateway.filter;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.nimbusds.jose.JWSObject;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -14,7 +15,6 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +38,7 @@ import java.nio.charset.StandardCharsets;
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisUtil redisUtil;
 
     @SneakyThrows
     @Override
@@ -55,8 +55,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // JWT唯一标识
         String jti = payloadJson.getStr("jti");
         // 黑名单token校验
-        Boolean isBlack = redisTemplate.hasKey(AuthConstants.TOKEN_BLACKLIST_PREFIX + jti);
-        if (isBlack != null && isBlack) {
+        if (redisUtil.hasKey(AuthConstants.TOKEN_BLACKLIST_PREFIX + jti)) {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.OK);
             response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
