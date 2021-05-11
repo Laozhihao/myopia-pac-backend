@@ -352,18 +352,7 @@ public class ExcelFacade {
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
-                exportGrade.forEach(grade -> {
-                    result.append(grade.getName()).append(": ");
-                    List<SchoolClassExportDTO> child = grade.getChild();
-                    for (int i = 0; i < child.size(); i++) {
-                        result.append(child.get(i).getName());
-                        if (i < child.size() - 1) {
-                            result.append("、");
-                        } else {
-                            result.append("。");
-                        }
-                    }
-                });
+                getSchoolGradeAndClass(result, exportGrade);
                 exportVo.setClassName(result.toString());
             }
             if (Objects.nonNull(item.getLodgeStatus())) {
@@ -374,6 +363,27 @@ public class ExcelFacade {
         log.info("导出学校文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportDTO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 获取当前学校下的年级和班级
+     *
+     * @param result      结果
+     * @param exportGrade 年级和班级信息
+     */
+    private void getSchoolGradeAndClass(StringBuilder result, List<SchoolGradeExportDTO> exportGrade) {
+        exportGrade.forEach(grade -> {
+            result.append(grade.getName()).append(": ");
+            List<SchoolClassExportDTO> child = grade.getChild();
+            for (int i = 0; i < child.size(); i++) {
+                result.append(child.get(i).getName());
+                if (i < child.size() - 1) {
+                    result.append("、");
+                } else {
+                    result.append("。");
+                }
+            }
+        });
     }
 
     /**
@@ -842,7 +852,7 @@ public class ExcelFacade {
      * @throws UtilException
      */
     @Async
-    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, Boolean isSchoolExport, String districtOrSchoolName) throws IOException, UtilException {
+    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName) throws IOException, UtilException {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
@@ -1039,10 +1049,8 @@ public class ExcelFacade {
             throw new BusinessException("学生身份证异常");
         }
 
-        if (StringUtils.isNotBlank(item.get(9))) {
-            if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
-                throw new BusinessException("学生手机号码异常");
-            }
+        if (StringUtils.isNotBlank(item.get(9)) && !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
+            throw new BusinessException("学生手机号码异常");
         }
     }
 }
