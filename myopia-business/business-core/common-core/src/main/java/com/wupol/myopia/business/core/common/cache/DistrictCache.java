@@ -42,8 +42,9 @@ public class DistrictCache implements CommandLineRunner {
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_LIST)) {
             logger.debug("...缓存全国行政区域-列表结构");
             List<District> districtList = districtService.findByList(new District());
-            Map<String, District> districtMap = districtList.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()), Function.identity()));
-            redisTemplate.opsForHash().putAll(DistrictCacheKey.DISTRICT_ALL_LIST, districtMap);
+            Map<String, Object> districtMap = districtList.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()), Function.identity()));
+//            redisTemplate.opsForHash().putAll(DistrictCacheKey.DISTRICT_ALL_LIST, districtMap)
+            redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_LIST, districtMap);
             logger.debug("...完成缓存全国行政区域-列表结构");
         }
 
