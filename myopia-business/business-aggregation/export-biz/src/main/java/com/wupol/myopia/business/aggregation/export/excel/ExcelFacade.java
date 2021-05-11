@@ -323,17 +323,12 @@ public class ExcelFacade {
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
                 .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
 
-        // 查询学校下的年级
+        // 年级统计
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
-//        packageGradeInfo(grades);
-
-        // 查询学校下的班级
-        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(grades.stream()
-                .map(SchoolGradeExportDTO::getId).collect(Collectors.toList()));
+        packageGradeInfo(grades);
 
         // 年级通过学校ID分组
-        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream()
-                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
