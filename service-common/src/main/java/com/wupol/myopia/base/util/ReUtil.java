@@ -38,12 +38,8 @@ public class ReUtil {
      * @return
      */
     public static boolean isName(String name) {
-
         Matcher m = SPECIAL_STR.matcher(name);
-        if (!m.find() && name.length() > 1) {
-            return true;
-        }
-        return false;
+        return (!m.find() && name.length() > 1);
     }
 
     /**
@@ -156,12 +152,7 @@ public class ReUtil {
      */
     public static boolean filtration(String str) {
         Matcher m = SPECIAL_STR.matcher(str);
-        if (m.find()){
-
-        }else {
-            return false;
-        }
-        return true;
+        return m.find();
     }
 
     /**
@@ -170,14 +161,7 @@ public class ReUtil {
      */
     public static boolean isValidStudentNo(String str){
         Matcher m = STUDENT_NO.matcher(str);
-        if (m.find()){
-
-        }else {
-            return false;
-        }
-        return true;
-
+        return m.find();
     }
-
 
 }
