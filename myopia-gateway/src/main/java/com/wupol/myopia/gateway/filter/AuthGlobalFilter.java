@@ -1,6 +1,5 @@
 package com.wupol.myopia.gateway.filter;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.nimbusds.jose.JWSObject;
@@ -8,6 +7,7 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 全局过滤器
@@ -44,7 +44,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String token = exchange.getRequest().getHeaders().getFirst(AuthConstants.JWT_TOKEN_HEADER);
-        if (StrUtil.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return chain.filter(exchange);
         }
         // 解析token
@@ -63,7 +63,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             response.getHeaders().set("Access-Control-Allow-Origin", "*");
             response.getHeaders().set("Cache-Control", "no-cache");
             String body = JSONUtil.toJsonStr(ApiResult.failure(ResultCode.TOKEN_INVALID_OR_EXPIRED.getMessage()));
-            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
+            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(buffer));
         }
         // 把用户信息并设置到Header中去

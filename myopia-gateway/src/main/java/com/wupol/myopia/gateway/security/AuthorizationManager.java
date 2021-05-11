@@ -1,6 +1,5 @@
 package com.wupol.myopia.gateway.security;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.nimbusds.jose.JWSObject;
 import com.wupol.myopia.base.cache.RedisConstant;
@@ -8,6 +7,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         }
         // token为空拒绝访问
         String token = request.getHeaders().getFirst(AuthConstants.JWT_TOKEN_HEADER);
-        if (StrUtil.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return Mono.just(new AuthorizationDecision(false));
         }
         // 解析token
