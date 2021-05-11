@@ -201,56 +201,32 @@ public class StatReportService {
                                                 x.getVisionCorrection()))
                         .collect(Collectors.toList());
 
-        long validFirstScreeningNum = validConclusions.size();
-
         List<StatConclusion> maleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
         List<StatConclusion> femaleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
         List<StatConclusion> kindergartenList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> primaryList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> juniorList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> highList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> vocationalHighList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
-
-        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<>();
-        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
-        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
-        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
-        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
-        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
-
-        List<StatConclusion> myopiaConclusions =
-                validConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
 
         List<Map<String, Object>> schoolGenderTable = new ArrayList<>();
         for (School school : schools) {
             int schoolId = school.getId();
-            List<StatConclusion> schoolList = validConclusions.stream()
-                                                      .filter(x -> x.getSchoolId() == schoolId)
-                                                      .collect(Collectors.toList());
+            List<StatConclusion> schoolList =
+                    validConclusions.stream().filter(x -> x.getSchoolId() == schoolId).collect(Collectors.toList());
             Map<String, Object> schoolGenderStat = composeGenderStat(school.getName(), schoolList);
             schoolGenderTable.add(schoolGenderStat);
-        };
+        }
+
+        Map<String, List<StatConclusion>> schoolAgeMap = this.createSchoolAgeMap(kindergartenList, primaryList,
+                juniorList, highList, vocationalHighList);
 
         List<Map<String, Object>> schoolAgeGenderTable = new ArrayList<>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
@@ -259,74 +235,51 @@ public class StatReportService {
 
         List<Map<String, Object>> schoolAgeLowVisionLevelTable = new ArrayList<>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+            schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
         }
         schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat("total", validConclusions));
 
         List<Map<String, Object>> schoolAgeGenderLowVisionTable = new ArrayList<Map<String, Object>>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+            schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat(schoolAgeName,
+                    schoolAgeMap.get(schoolAgeName)));
         }
         schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat("total", validConclusions));
 
         List<Map<String, Object>> schoolAgeGenderMyopiaTable = new ArrayList<>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+            schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
         }
         schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
 
-        List<Map<String, Object>> schoolGradeGenderMyopiaTable = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat(gradeCode.name(),
-                    validConclusions.stream()
-                            .filter(x
-                                    -> gradeCode.getCode().equals(
-                                    x.getSchoolGradeCode()))
-                            .collect(Collectors.toList())));
-        }
-        schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        List<Map<String, Object>> schoolGradeGenderMyopiaTable =
+                this.createSchoolGradeGenderMyopiaTable(validConclusions);
 
-        List<Map<String, Object>> schoolAgeMyopiaLevelTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeMyopiaLevelTable = this.createSchoolAgeMyopiaLevelTable(validConclusions,
+                schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGlassesTypeTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGlassesTypeTable.add(composeGlassesTypeStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeGlassesTypeTable.add(composeGlassesTypeStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeGlassesTypeTable = this.createSchoolAgeGlassesTypeTable(validConclusions,
+                schoolAgeMap);
 
         List<Map<String, Object>> schoolAgeGenderVisionUncorrectedTable = new ArrayList<>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
             List<StatConclusion> schoolAgeMyopiaConclusions =
-                    schoolAgeMap.get(schoolAgeName)
-                            .stream()
-                            .filter(x
-                                    -> x.getIsMyopia() == null ? false
-                                    : x.getIsMyopia())
-                            .collect(Collectors.toList());
-            schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat(
-                    schoolAgeName, schoolAgeMyopiaConclusions));
+                    schoolAgeMap.get(schoolAgeName).stream().filter(x -> x.getIsMyopia() == null ? false :
+                            x.getIsMyopia()).collect(Collectors.toList());
+            schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat(schoolAgeName,
+                    schoolAgeMyopiaConclusions));
         }
+
+        List<StatConclusion> myopiaConclusions =
+                validConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
         schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat("total", myopiaConclusions));
 
         List<Map<String, Object>> schoolAgeGenderVisionUnderCorrectedTable = new ArrayList<>();
         for (String schoolAgeName : schoolAgeMap.keySet()) {
             List<StatConclusion> schoolAgeVisionCorrectionConclusions =
-                    schoolAgeMap.get(schoolAgeName)
-                            .stream()
-                            .filter(x
-                                    -> x.getVisionCorrection() != null
-                                    && !VisionCorrection.NORMAL.code.equals(
-                                    x.getVisionCorrection()))
-                            .collect(Collectors.toList());
-            schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(
-                    schoolAgeName, schoolAgeVisionCorrectionConclusions));
+                    schoolAgeMap.get(schoolAgeName).stream().filter(x -> x.getVisionCorrection() != null && !VisionCorrection.NORMAL.code.equals(x.getVisionCorrection())).collect(Collectors.toList());
+            schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(schoolAgeName,
+                    schoolAgeVisionCorrectionConclusions));
         }
         schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(
                 "total", visionCorrectionConclusions));
@@ -349,7 +302,7 @@ public class StatReportService {
         result.put("schoolExamples", schoolExamples);
         result.put("planScreeningNum", planScreeningNum);
         result.put("actualScreeningNum", totalFirstScreeningNum);
-        result.put("validFirstScreeningNum", validFirstScreeningNum);
+        result.put("validFirstScreeningNum", validConclusions.size());
         result.put("kindergartenScreeningNum", kindergartenList.size());
         result.put("primaryScreeningNum", primaryList.size());
         result.put("juniorScreeningNum", juniorList.size());
@@ -359,42 +312,76 @@ public class StatReportService {
         result.put("vocationalHighScreeningNum", vocationalHighList.size());
         result.put("schoolGenderTable", schoolGenderTable);
         result.put("schoolAgeGenderTable", schoolAgeGenderTable);
-        result.put("schoolAgeLowVisionLevelDesc",
-                composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
-        result.put("schoolAgeGenderLowVisionDesc",
-                composeSchoolAgeGenderVisionDesc(
-                        "schoolAgeGenderLowVisionTable", schoolAgeGenderLowVisionTable));
-        result.put("schoolAgeGenderMyopiaDesc",
-                composeSchoolAgeGenderVisionDesc(
-                        "schoolAgeGenderMyopiaTable", schoolAgeGenderMyopiaTable));
+        result.put("schoolAgeLowVisionLevelDesc", composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
+        result.put("schoolAgeGenderLowVisionDesc", composeSchoolAgeGenderVisionDesc("schoolAgeGenderLowVisionTable",
+                schoolAgeGenderLowVisionTable));
+        result.put("schoolAgeGenderMyopiaDesc", composeSchoolAgeGenderVisionDesc("schoolAgeGenderMyopiaTable",
+                schoolAgeGenderMyopiaTable));
         result.put("schoolGradeGenderMyopiaTable", schoolGradeGenderMyopiaTable);
-        result.put("schoolAgeMyopiaLevelDesc",
-                composeSchoolAgeMyopiaLevelDesc(
-                        "schoolAgeMyopiaLevelTable", schoolAgeMyopiaLevelTable));
-        result.put("schoolAgeGlassesTypeDesc",
-                composeSchoolAgeGlassesTypeDesc(
-                        "schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable));
-        result.put("schoolAgeGenderVisionUncorrectedDesc",
-                composeSchoolAgeGenderVisionCorrectionDesc(
-                        "schoolAgeGenderVisionUncorrectedTable",
-                        schoolAgeGenderVisionUncorrectedTable));
-        result.put("schoolAgeGenderVisionUnderCorrectedDesc",
-                composeSchoolAgeGenderVisionCorrectionDesc(
-                        "schoolAgeGenderVisionUnderCorrectedTable",
-                        schoolAgeGenderVisionUnderCorrectedTable));
-        result.put("schoolAgeWarningLevelDesc",
-                composeSchoolAgeWarningLevelDesc(
-                        "schoolAgeWarningLevelTable", schoolAgeWarningLevelTable));
+        result.put("schoolAgeMyopiaLevelDesc", composeSchoolAgeMyopiaLevelDesc("schoolAgeMyopiaLevelTable",
+                schoolAgeMyopiaLevelTable));
+        result.put("schoolAgeGlassesTypeDesc", composeSchoolAgeGlassesTypeDesc("schoolAgeGlassesTypeTable",
+                schoolAgeGlassesTypeTable));
+        result.put("schoolAgeGenderVisionUncorrectedDesc", composeSchoolAgeGenderVisionCorrectionDesc(
+                "schoolAgeGenderVisionUncorrectedTable", schoolAgeGenderVisionUncorrectedTable));
+        result.put("schoolAgeGenderVisionUnderCorrectedDesc", composeSchoolAgeGenderVisionCorrectionDesc(
+                "schoolAgeGenderVisionUnderCorrectedTable", schoolAgeGenderVisionUnderCorrectedTable));
+        result.put("schoolAgeWarningLevelDesc", composeSchoolAgeWarningLevelDesc("schoolAgeWarningLevelTable",
+                schoolAgeWarningLevelTable));
         return result;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGlassesTypeTable(List<StatConclusion> validConclusions,
+                                                                      Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGlassesTypeTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeGlassesTypeTable.add(composeGlassesTypeStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeGlassesTypeTable.add(composeGlassesTypeStat("total", validConclusions));
+        return schoolAgeGlassesTypeTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeMyopiaLevelTable(List<StatConclusion> validConclusions,
+                                                                      Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeMyopiaLevelTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat("total", validConclusions));
+        return schoolAgeMyopiaLevelTable;
+    }
+
+    private List<Map<String, Object>> createSchoolGradeGenderMyopiaTable(List<StatConclusion> validConclusions) {
+        List<Map<String, Object>> schoolGradeGenderMyopiaTable = new ArrayList<>();
+        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+            schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat(gradeCode.name(),
+                    validConclusions.stream().filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList())));
+        }
+        schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        return schoolGradeGenderMyopiaTable;
+    }
+
+    private Map<String, List<StatConclusion>> createSchoolAgeMap(List<StatConclusion> kindergartenList,
+                                                                 List<StatConclusion> primaryList,
+                                                                 List<StatConclusion> juniorList,
+                                                                 List<StatConclusion> highList,
+                                                                 List<StatConclusion> vocationalHighList) {
+        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<>();
+        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
+        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
+        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
+        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
+        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
+        return schoolAgeMap;
     }
 
     /**
      * 构造 学龄/视力低下程度 描述
+     *
      * @param schoolAgeLowVisionLevelTable
      * @return
      */
-    private Map<String, Object> composeSchoolAgeLowVisionLevelDesc(
-            List<Map<String, Object>> schoolAgeLowVisionLevelTable) {
+    private Map<String, Object> composeSchoolAgeLowVisionLevelDesc(List<Map<String, Object>> schoolAgeLowVisionLevelTable) {
         int size = schoolAgeLowVisionLevelTable.size();
         Map<String, Object> conclusionDesc = new HashMap<>();
         List<BasicStatParams> schoolAgeLowVisionRatio = new ArrayList<>();
