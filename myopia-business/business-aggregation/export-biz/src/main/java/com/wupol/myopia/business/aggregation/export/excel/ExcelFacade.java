@@ -94,7 +94,7 @@ import java.util.stream.Collectors;
 @Service
 public class ExcelFacade {
 
-    private final static String FILE_SUFFIX = ".xlsx";
+    private static final String FILE_SUFFIX = ".xlsx";
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
@@ -192,7 +192,7 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        log.info("导出文件: {}", fileName);
+        log.info("导出筛查机构文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationExportDTO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
@@ -237,7 +237,7 @@ public class ExcelFacade {
                         .setPhone(item.getPhone())
                         .setIdCard(item.getIdCard())
                         .setOrganization(orgName)).collect(Collectors.toList());
-        log.info("导出文件: {}", fileName);
+        log.info("导出筛查机构人员文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, ScreeningOrganizationStaffExportDTO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
@@ -372,7 +372,7 @@ public class ExcelFacade {
             }
             exportList.add(exportVo);
         }
-        log.info("导出文件: {}", fileName);
+        log.info("导出学校文件: {}", fileName);
         File file = ExcelUtil.exportListToExcel(fileName, exportList, SchoolExportDTO.class);
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
@@ -500,7 +500,7 @@ public class ExcelFacade {
         if (CollectionUtils.isEmpty(listMap)) {
             return;
         }
-        if (listMap.size() != 0) {
+        if (!listMap.isEmpty()) {
             // 去头部
             listMap.remove(0);
         }
@@ -651,7 +651,7 @@ public class ExcelFacade {
             log.error("导入机构人员异常", e);
             throw new BusinessException("解析Excel文件异常");
         }
-        if (listMap.size() != 0) { // 去头部
+        if (!listMap.isEmpty()) { // 去头部
             listMap.remove(0);
         }
 
@@ -802,7 +802,7 @@ public class ExcelFacade {
             log.error("导入筛查学生数据异常", e);
             throw new BusinessException("解析Excel文件异常");
         }
-        if (listMap.size() != 0) {
+        if (!listMap.isEmpty()) {
             // 去头部
             listMap.remove(0);
         }
@@ -828,7 +828,7 @@ public class ExcelFacade {
     public void exportStatContrast(Integer userId, List<ScreeningDataContrastDTO> exportList,
                                    InputStream template) throws IOException, UtilException {
         String fileName = "统计对比报表";
-        log.info("导出文件: {}", fileName);
+        log.info("导出统计对比报文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS + "统计报表", "数据对比表", new Date());
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
@@ -847,7 +847,7 @@ public class ExcelFacade {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
-        log.info("导出文件: {}", fileName);
+        log.info("导出筛查结果文件: {}", fileName);
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (isSchoolExport) {
             List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = genVisionScreeningResultExportVos(statConclusionExportDTOs);
