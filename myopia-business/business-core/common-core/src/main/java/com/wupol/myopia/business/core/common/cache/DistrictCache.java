@@ -45,7 +45,7 @@ public class DistrictCache implements CommandLineRunner {
         }
 
         // 缓存全国行政区域-树结构
-        if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
+        /*if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
             logger.info("...缓存全国行政区域-树结构");
             redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districtService.getWholeCountryDistrictTree());
             logger.info("...完成全国行政区域-树结构");
@@ -57,9 +57,9 @@ public class DistrictCache implements CommandLineRunner {
             Object cacheTree = redisUtil.get(DistrictCacheKey.DISTRICT_ALL_TREE);
             List<District> allDistrictTree = JSON.parseObject(JSON.toJSONString(cacheTree), new TypeReference<List<District>>() {});
             Map<String, Object> districtMap = allDistrictTree.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()).substring(0, 2), Function.identity()));
-//            redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, districtMap);
+            redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, districtMap);
             logger.info("...完成缓存各省行政区域-树结构");
-        }
+        }*/
         logger.info("完成缓存district数据");
     }
 }
