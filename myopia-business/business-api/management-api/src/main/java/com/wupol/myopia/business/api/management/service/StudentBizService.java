@@ -302,7 +302,7 @@ public class StudentBizService {
      * @param resultId 筛查结果
      * @return StudentCardResponseDTO
      */
-    public StudentCardResponseVO packageCardDetails(Integer resultId) {
+    public StudentCardResponseVO getCardDetail(Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         return getStudentCardResponseDTO(visionScreeningResult);
     }
@@ -323,7 +323,7 @@ public class StudentBizService {
         responseDTO.setInfo(cardInfoVO);
 
         // 获取结果记录
-        responseDTO.setDetails(packageCardDetails(visionScreeningResult));
+        responseDTO.setDetails(packageCardDetail(visionScreeningResult));
         return responseDTO;
     }
 
@@ -363,7 +363,7 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return CardDetails
      */
-    private CardDetailsVO packageCardDetails(VisionScreeningResult result) {
+    private CardDetailsVO packageCardDetail(VisionScreeningResult result) {
         CardDetailsVO details = new CardDetailsVO();
         VisionDataDO visionData = result.getVisionData();
 

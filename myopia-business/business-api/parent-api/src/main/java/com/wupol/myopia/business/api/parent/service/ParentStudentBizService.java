@@ -187,15 +187,11 @@ public class ParentStudentBizService {
         }
         ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
         ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
-        if (Objects.nonNull(mydriasis)) {
-            if (!CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
-                mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
-            }
+        if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
+            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
         }
-        if (Objects.nonNull(nonMydriasis)) {
-            if (!CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
-                nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
-            }
+        if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
+            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
         }
         return record;
     }
@@ -242,41 +238,20 @@ public class ParentStudentBizService {
      * @return TwoTuple<Date, Integer> 出生日期, 性别
      */
     private TwoTuple<Date, Integer> getIdCardInfo(String idCard) {
-        String birthdayStr = null;
-        Integer gender = null;
 
-        char[] number = idCard.toCharArray();
-        boolean flag = true;
-        if (number.length == 15) {
-            for (char c : number) {
-                if (!flag) {
-                    return new TwoTuple<>();
-                }
-                flag = Character.isDigit(c);
-            }
-        } else if (number.length == 18) {
-            for (int x = 0; x < number.length - 1; x++) {
-                if (!flag) {
-                    return new TwoTuple<>();
-                }
-                flag = Character.isDigit(number[x]);
-            }
+        if (StringUtils.isEmpty(idCard) || idCard.length() < 18) {
+            throw new BusinessException("身份证异常");
         }
-        if (flag && idCard.length() == 15) {
-            birthdayStr = "19" + idCard.substring(6, 8) + "-"
-                    + idCard.substring(8, 10) + "-"
-                    + idCard.substring(10, 12);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 3)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
-        } else if (flag && idCard.length() == 18) {
-            birthdayStr = idCard.substring(6, 10) + "-"
-                    + idCard.substring(10, 12) + "-"
-                    + idCard.substring(12, 14);
-            gender = Integer.parseInt(idCard.substring(idCard.length() - 4, idCard.length() - 1)) % 2 == 0 ? GenderEnum.FEMALE.type : GenderEnum.MALE.type;
-        }
+        Integer gender = Integer.parseInt(idCard.substring(16, 17)) % 2 != 0 ? GenderEnum.MALE.type : GenderEnum.FEMALE.type;
+        String birthdayStr = idCard.substring(6, 10)
+                + "-"
+                + idCard.substring(10, 12)
+                + "-"
+                + idCard.substring(12, 14);
         try {
             return new TwoTuple<>(DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE), gender);
         } catch (ParseException e) {
-            throw new BusinessException("身份证信息异常");
+            throw new BusinessException("通过身份证获取个人信息异常");
         }
     }
 

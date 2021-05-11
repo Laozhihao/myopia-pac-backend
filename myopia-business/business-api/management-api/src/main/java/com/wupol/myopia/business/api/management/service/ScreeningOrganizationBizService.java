@@ -235,13 +235,12 @@ public class ScreeningOrganizationBizService {
 
     /**
      * 设置是否能更新
-     * @param currentUser
-     * @param response
+     *
+     * @param currentUser 当前用户
+     * @param response    请求
      */
     private void setCanUpdate(CurrentUser currentUser, ScreeningOrgResponseDTO response) {
-        if (currentUser.isPlatformAdminUser()) {
-            response.setCanUpdate(true);
-        } else if (response.getCreateUserId().equals(currentUser.getId())) {
+        if (currentUser.isPlatformAdminUser() || response.getCreateUserId().equals(currentUser.getId())) {
             response.setCanUpdate(true);
         }
     }
