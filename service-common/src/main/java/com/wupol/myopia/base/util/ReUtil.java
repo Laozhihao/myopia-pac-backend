@@ -1,18 +1,16 @@
 package com.wupol.myopia.base.util;
 
-import java.text.SimpleDateFormat;
+import lombok.experimental.UtilityClass;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * 正则匹配验证
  */
+@UtilityClass
 public class ReUtil {
-    /**
-     *匹配规则
-     */
-    private static final Pattern CHINESE_XINJIANG_PATTERN =
-            Pattern.compile("^[\\u4E00-\\u9FA5\\uf900-\\ufa2d·s]{2,20}$");
+
     /**
      * 日期匹配规则
      */
@@ -35,20 +33,13 @@ public class ReUtil {
 
     /**
      * 姓名匹配方法
+     *
      * @param name
      * @return
      */
-    public static boolean isName(String name){
-
+    public static boolean isName(String name) {
         Matcher m = SPECIAL_STR.matcher(name);
-        if (m.find()){
-
-        }else {
-            if (name.length()>1){
-                return true;
-            }
-        }
-        return false;
+        return (!m.find() && name.length() > 1);
     }
 
     /**
@@ -56,7 +47,6 @@ public class ReUtil {
      */
     public static String convertDate(String date){
         int length = date.length();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Pattern date1 = Pattern.compile(DATE1);
         Pattern date2 = Pattern.compile(DATE2);
         Pattern date3 = Pattern.compile(DATE3);
@@ -66,7 +56,6 @@ public class ReUtil {
         Matcher matcherDate2 = date2.matcher(date);
         Matcher matcherDate3 = date3.matcher(date);
         Matcher matcherDate4 = date4.matcher(date);
-        Matcher matcherDate5 = date5.matcher(date);
         if (matcherDate1.find()){
             if (length==10){
                 return date;
@@ -83,7 +72,7 @@ public class ReUtil {
         }else if (matcherDate2.find()){
             String sub = null;
             if (length==10){
-                return date.replaceAll("/","-");
+                return date.replace("/","-");
             }else if (length==9){
                 if (!date.substring(5,6).equals("0")){
                     sub = date.substring(0,5)+"0"+date.substring(5);
@@ -93,7 +82,7 @@ public class ReUtil {
             }else{
                 sub = date.substring(0,5)+"0"+date.substring(5,7)+"0"+date.substring(7);
             }
-            return sub.replaceAll("/","-");
+            return sub.replace("/","-");
         }else if (matcherDate3.find()) {
             String sub = null;
             if (length==11){
@@ -107,7 +96,7 @@ public class ReUtil {
             }else{
                 sub = date.substring(0,5)+"0"+date.substring(5,7)+"0"+date.substring(7);
             }
-            return sub.replaceAll("\\u5e74","-").replaceAll("\\u6708","-").replaceAll("\\u65e5","");
+            return sub.replace("\\u5e74","-").replace("\\u6708","-").replace("\\u65e5","");
         }else if (matcherDate4.find()){
             String sub = null;
             if (length==8){
@@ -115,7 +104,7 @@ public class ReUtil {
             }else{
                 sub = date.substring(0,5)+"0"+date.substring(5)+"01";
             }
-            return sub.replaceAll("\\u5e74","-").replaceAll("\\u6708","-");
+            return sub.replace("\\u5e74","-").replace("\\u6708","-");
         } else{
             return date.substring(0,4)+"-"+date.substring(4,6)+"-"+date.substring(6);
         }
@@ -163,12 +152,7 @@ public class ReUtil {
      */
     public static boolean filtration(String str) {
         Matcher m = SPECIAL_STR.matcher(str);
-        if (m.find()){
-
-        }else {
-            return false;
-        }
-        return true;
+        return m.find();
     }
 
     /**
@@ -177,14 +161,7 @@ public class ReUtil {
      */
     public static boolean isValidStudentNo(String str){
         Matcher m = STUDENT_NO.matcher(str);
-        if (m.find()){
-
-        }else {
-            return false;
-        }
-        return true;
-
+        return m.find();
     }
-
 
 }

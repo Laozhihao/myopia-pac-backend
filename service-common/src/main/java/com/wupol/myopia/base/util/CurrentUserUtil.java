@@ -1,7 +1,6 @@
 package com.wupol.myopia.base.util;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -39,7 +38,7 @@ public class CurrentUserUtil {
             throw new BusinessException("请登录");
         }
         String user = JSON.parseObject(payload).getString(AuthConstants.JWT_USER_INFO_KEY);
-        CurrentUser currentUser = JSONObject.parseObject(user, CurrentUser.class);
+        CurrentUser currentUser = JSON.parseObject(user, CurrentUser.class);
         if (Objects.isNull(currentUser)) {
             throw new BusinessException("请登录");
         }
