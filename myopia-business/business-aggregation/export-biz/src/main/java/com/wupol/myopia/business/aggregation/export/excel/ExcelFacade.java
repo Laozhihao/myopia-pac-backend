@@ -71,6 +71,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -400,12 +401,8 @@ public class ExcelFacade {
      * @param gradeId  年级id
      **/
     public void generateStudent(Integer userId, Integer schoolId, Integer gradeId) throws IOException, UtilException {
-        if (Objects.isNull(schoolId)) {
-            throw new BusinessException("学校id不能为空");
-        }
-        if (Objects.isNull(gradeId)) {
-            throw new BusinessException("年级id不能为空");
-        }
+        Assert.isTrue(Objects.isNull(schoolId), "学校id不能为空");
+        Assert.isTrue(Objects.isNull(gradeId), "年级id不能为空");
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("学生");
         School school = schoolService.getById(schoolId);
@@ -604,17 +601,9 @@ public class ExcelFacade {
      * @param idCards 身份证信息
      */
     private void preCheckStudent(List<School> schools, List<String> idCards) {
-        if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("学校编号异常");
-        }
-
-        if (idCards.stream().distinct().count() < idCards.size()) {
-            throw new BusinessException("学生身份证号码重复");
-        }
-
-        if (studentService.checkIdCards(idCards)) {
-            throw new BusinessException("学生身份证号码重复");
-        }
+        Assert.isTrue(CollectionUtils.isEmpty(schools), "学校编号异常");
+        Assert.isTrue(idCards.stream().distinct().count() < idCards.size(), "学生身份证号码重复");
+        Assert.isTrue(studentService.checkIdCards(idCards), "学生身份证号码重复");
     }
 
     /**
@@ -728,20 +717,15 @@ public class ExcelFacade {
         }
         List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
                 SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
-        if (!CollectionUtils.isEmpty(checkIdCards)) {
-            throw new BusinessException("身份证号码已经被使用，请确认！");
-        }
+        Assert.isTrue(!CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
 
         // 收集手机号码
         List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        if (phones.stream().distinct().count() < phones.size()) {
-            throw new BusinessException("手机号码重复");
-        }
+        Assert.isTrue(phones.stream().distinct().count() < phones.size(), "手机号码重复");
 
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
-        if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("手机号码已经被使用，请确认！");
-        }
+        Assert.isTrue(!CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
+
     }
 
     /**
@@ -750,17 +734,9 @@ public class ExcelFacade {
      * @param item 筛查人员
      */
     private void checkStaffInfo(Map<Integer, String> item) {
-        if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
-            throw new BusinessException("性别异常");
-        }
-
-        if (StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2))) {
-            throw new BusinessException("身份证异常");
-        }
-
-        if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
-            throw new BusinessException("手机号码异常");
-        }
+        Assert.isTrue(StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0), "性别异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
 
     /**
@@ -1027,36 +1003,13 @@ public class ExcelFacade {
      * @param item 学生信息
      */
     private void checkStudentInfo(Map<Integer, String> item) {
-        if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1)) {
-            throw new BusinessException("学生性别异常");
-        }
-
-        if (StringUtils.isBlank(item.get(2))) {
-            throw new BusinessException("学生出生日期不能为空");
-        }
-
-        if (StringUtils.isBlank(item.get(4))) {
-            throw new BusinessException("学校编号不能为空");
-        }
-
-        if (StringUtils.isBlank(item.get(5))) {
-            throw new BusinessException("学生年级不能为空");
-        }
-
-        if (StringUtils.isBlank(item.get(6))) {
-            throw new BusinessException("学生班级不能为空");
-        }
-
-        if (StringUtils.isBlank(item.get(7))) {
-            throw new BusinessException("学生学号异常");
-        }
-
-        if (StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8))) {
-            throw new BusinessException("学生身份证异常");
-        }
-
-        if (StringUtils.isNotBlank(item.get(9)) && !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
-            throw new BusinessException("学生手机号码异常");
-        }
+        Assert.isTrue(StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1), "学生性别异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(2)), "学生出生日期不能为空");
+        Assert.isTrue(StringUtils.isBlank(item.get(4)), "学校编号不能为空");
+        Assert.isTrue(StringUtils.isBlank(item.get(5)), "学生年级不能为空");
+        Assert.isTrue(StringUtils.isBlank(item.get(6)), "学生班级不能为空");
+        Assert.isTrue(StringUtils.isBlank(item.get(7)), "学生学号异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(9)) && !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
     }
 }
