@@ -535,40 +535,7 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-
-            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1)) {
-                throw new BusinessException("学生性别异常");
-            }
-
-            if (StringUtils.isBlank(item.get(2))) {
-                throw new BusinessException("学生出生日期不能为空");
-            }
-
-            if (StringUtils.isBlank(item.get(4))) {
-                throw new BusinessException("学校编号不能为空");
-            }
-
-            if (StringUtils.isBlank(item.get(5))) {
-                throw new BusinessException("学生年级不能为空");
-            }
-
-            if (StringUtils.isBlank(item.get(6))) {
-                throw new BusinessException("学生班级不能为空");
-            }
-
-            if (StringUtils.isBlank(item.get(7))) {
-                throw new BusinessException("学生学号异常");
-            }
-
-            if (StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8))) {
-                throw new BusinessException("学生身份证异常");
-            }
-
-            if (StringUtils.isNotBlank(item.get(9))) {
-                if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
-                    throw new BusinessException("学生手机号码异常");
-                }
-            }
+            checkStudentInfo(item);
 
             // excel 格式： 姓名	性别	出生日期	民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  ) 年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             student.setName(item.get(0))
@@ -1004,5 +971,46 @@ public class ExcelFacade {
             addressCodeMap.put(ExportAddressKey.TOWN, districtService.getDistrictName(item.getTownCode()));
         }
         return addressCodeMap;
+    }
+
+    /**
+     * 检查学生信息是否完整
+     *
+     * @param item 学生信息
+     */
+    private void checkStudentInfo(Map<Integer, String> item) {
+        if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1)) {
+            throw new BusinessException("学生性别异常");
+        }
+
+        if (StringUtils.isBlank(item.get(2))) {
+            throw new BusinessException("学生出生日期不能为空");
+        }
+
+        if (StringUtils.isBlank(item.get(4))) {
+            throw new BusinessException("学校编号不能为空");
+        }
+
+        if (StringUtils.isBlank(item.get(5))) {
+            throw new BusinessException("学生年级不能为空");
+        }
+
+        if (StringUtils.isBlank(item.get(6))) {
+            throw new BusinessException("学生班级不能为空");
+        }
+
+        if (StringUtils.isBlank(item.get(7))) {
+            throw new BusinessException("学生学号异常");
+        }
+
+        if (StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8))) {
+            throw new BusinessException("学生身份证异常");
+        }
+
+        if (StringUtils.isNotBlank(item.get(9))) {
+            if (!Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9))) {
+                throw new BusinessException("学生手机号码异常");
+            }
+        }
     }
 }
