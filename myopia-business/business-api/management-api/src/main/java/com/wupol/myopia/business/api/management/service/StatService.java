@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
-import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -290,31 +289,25 @@ public class StatService {
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
 
-        List<ClassStat> tabGender = new ArrayList<ClassStat>() {
-            {
-                add(composeGenderClassStat(
-                        StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-                add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum,
-                        refractiveErrorConclusions));
-                add(composeGenderClassStat(
-                        StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-                add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum,
-                        wearingGlassesConclusions));
-            }
-        };
+        List<ClassStat> tabGender = new ArrayList<>();
+        tabGender.add(composeGenderClassStat(
+                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum,
+                refractiveErrorConclusions));
+        tabGender.add(composeGenderClassStat(
+                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum,
+                wearingGlassesConclusions));
 
-        List<ClassStat> tabSchoolAge = new ArrayList<ClassStat>() {
-            {
-                add(composeSchoolAgeClassStat(
-                        StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-                add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
-                        validFirstScreeningNum, refractiveErrorConclusions));
-                add(composeSchoolAgeClassStat(
-                        StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-                add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
-                        validFirstScreeningNum, wearingGlassesConclusions));
-            }
-        };
+        List<ClassStat> tabSchoolAge = new ArrayList<>();
+        tabSchoolAge.add(composeSchoolAgeClassStat(
+                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
+                validFirstScreeningNum, refractiveErrorConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(
+                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
+                validFirstScreeningNum, wearingGlassesConclusions));
 
         List<StatConclusion> rescreenConclusions =
                 statConclusions.stream()
@@ -382,12 +375,13 @@ public class StatService {
                 getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
         ScreeningDataContrast result1 = contrastResultMap.get("result1");
         ScreeningDataContrast result2 = contrastResultMap.get("result2");
-        List<ScreeningDataContrastDTO> exportList = new ArrayList<ScreeningDataContrastDTO>() {
-            {
-                if (result1 != null) add(composeScreeningDataContrastDTO("对比项1", result1));
-                if (result2 != null) add(composeScreeningDataContrastDTO("对比项2", result2));
-            };
-        };
+        List<ScreeningDataContrastDTO> exportList = new ArrayList<>();
+        if (result1 != null) {
+            exportList.add(composeScreeningDataContrastDTO("对比项1", result1));
+        }
+        if (result2 != null) {
+            exportList.add(composeScreeningDataContrastDTO("对比项2", result2));
+        }
         excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
                 exportStatContrastTemplate.getInputStream());
     }
@@ -488,16 +482,14 @@ public class StatService {
                                .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
                                .count();
         long femaleNum = statConclusions.size() - maleNum;
+        List<BasicStatParams> basicStatParams = new ArrayList<>();
+        basicStatParams.add(composeBasicParams(GenderEnum.MALE.name(), maleNum, statNum));
+        basicStatParams.add(composeBasicParams(GenderEnum.FEMALE.name(), femaleNum, statNum));
         return ClassStat.builder()
                 .title(label.name())
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
-                .items(new ArrayList<BasicStatParams>() {
-                    {
-                        add(composeBasicParams(GenderEnum.MALE.name(), maleNum, statNum));
-                        add(composeBasicParams(GenderEnum.FEMALE.name(), femaleNum, statNum));
-                    }
-                })
+                .items(basicStatParams)
                 .build();
     }
 
@@ -529,21 +521,19 @@ public class StatService {
                         .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
                         .count();
 
+        List<BasicStatParams> basicStatParams = new ArrayList<>();
+        basicStatParams.add(composeBasicParams(
+                SchoolAge.KINDERGARTEN.name(), kindergartenNum, statNum));
+        basicStatParams.add(composeBasicParams(SchoolAge.PRIMARY.name(), primaryNum, statNum));
+        basicStatParams.add(composeBasicParams(SchoolAge.JUNIOR.name(), juniorNum, statNum));
+        basicStatParams.add(composeBasicParams(SchoolAge.HIGH.name(), highNum, statNum));
+        basicStatParams.add(composeBasicParams(
+                SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighNum, statNum));
         return ClassStat.builder()
                 .title(label.name())
                 .num(statNum)
                 .ratio(convertToPercentage(statNum * 1f / validScreeningNum))
-                .items(new ArrayList<BasicStatParams>() {
-                    {
-                        add(composeBasicParams(
-                                SchoolAge.KINDERGARTEN.name(), kindergartenNum, statNum));
-                        add(composeBasicParams(SchoolAge.PRIMARY.name(), primaryNum, statNum));
-                        add(composeBasicParams(SchoolAge.JUNIOR.name(), juniorNum, statNum));
-                        add(composeBasicParams(SchoolAge.HIGH.name(), highNum, statNum));
-                        add(composeBasicParams(
-                                SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighNum, statNum));
-                    }
-                })
+                .items(basicStatParams)
                 .build();
     }
 
