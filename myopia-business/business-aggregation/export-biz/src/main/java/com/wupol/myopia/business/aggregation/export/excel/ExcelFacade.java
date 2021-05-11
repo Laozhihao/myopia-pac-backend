@@ -94,6 +94,8 @@ import java.util.stream.Collectors;
 @Service
 public class ExcelFacade {
 
+    private final static String FILE_SUFFIX = ".xlsx";
+
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
@@ -479,7 +481,7 @@ public class ExcelFacade {
      * @throws BusinessException 异常
      */
     public void importStudent(Integer createUserId, MultipartFile multipartFile) throws ParseException {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
         File file = new File(fileName);
         try {
             FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -505,20 +507,12 @@ public class ExcelFacade {
         // 收集学校编号
         List<String> schoolNos = listMap.stream().map(s -> s.get(4)).collect(Collectors.toList());
         List<School> schools = schoolService.getBySchoolNos(schoolNos);
-        if (CollectionUtils.isEmpty(schools)) {
-            throw new BusinessException("学校编号异常");
-        }
 
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8))
                 .filter(Objects::nonNull).collect(Collectors.toList());
 
-        if (idCards.stream().distinct().count() < idCards.size()) {
-            throw new BusinessException("学生身份证号码重复");
-        }
-        if (studentService.checkIdCards(idCards)) {
-            throw new BusinessException("学生身份证号码重复");
-        }
+        preCheckStudent(schools, idCards);
 
         // 收集年级信息
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schools.stream()
@@ -576,7 +570,7 @@ public class ExcelFacade {
                 Map<String, Integer> classExportMaps = classExportVOS.stream()
                         .collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
                 Integer classId = classExportMaps.get(item.get(6));
-                if (null == classId) {
+                if (Objects.isNull(classId)) {
                     throw new BusinessException("班级数据异常");
                 } else {
                     // 设置班级信息
@@ -586,6 +580,26 @@ public class ExcelFacade {
             importList.add(student);
         }
         studentService.saveBatch(importList);
+    }
+
+    /**
+     * 前置校验
+     *
+     * @param schools 学校列表
+     * @param idCards 身份证信息
+     */
+    private void preCheckStudent(List<School> schools, List<String> idCards) {
+        if (CollectionUtils.isEmpty(schools)) {
+            throw new BusinessException("学校编号异常");
+        }
+
+        if (idCards.stream().distinct().count() < idCards.size()) {
+            throw new BusinessException("学生身份证号码重复");
+        }
+
+        if (studentService.checkIdCards(idCards)) {
+            throw new BusinessException("学生身份证号码重复");
+        }
     }
 
     /**
@@ -618,7 +632,7 @@ public class ExcelFacade {
             throw new BusinessException("机构ID不能为空");
         }
 
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
         File file = new File(fileName);
         try {
             FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -641,27 +655,7 @@ public class ExcelFacade {
             listMap.remove(0);
         }
 
-        // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(2)).collect(Collectors.toList());
-        if (idCards.stream().distinct().count() < idCards.size()) {
-            throw new BusinessException("身份证号码重复");
-        }
-        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
-                SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
-        if (!CollectionUtils.isEmpty(checkIdCards)) {
-            throw new BusinessException("身份证号码已经被使用，请确认！");
-        }
-
-        // 收集手机号码
-        List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        if (phones.stream().distinct().count() < phones.size()) {
-            throw new BusinessException("手机号码重复");
-        }
-
-        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
-        if (!CollectionUtils.isEmpty(checkPhones)) {
-            throw new BusinessException("手机号码已经被使用，请确认！");
-        }
+        preCheckStaff(screeningOrgId, listMap);
 
         // excel格式：序号	姓名	性别	身份证号	手机号码	说明
         List<UserDTO> userList = new ArrayList<>();
@@ -669,17 +663,7 @@ public class ExcelFacade {
             if (StringUtils.isBlank(item.get(0))) {
                 break;
             }
-            if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
-                throw new BusinessException("性别异常");
-            }
-
-            if (StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2))) {
-                throw new BusinessException("身份证异常");
-            }
-
-            if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
-                throw new BusinessException("手机号码异常");
-            }
+            checkStaffInfo(item);
             UserDTO userDTO = new UserDTO();
             userDTO.setRealName(item.get(0))
                     .setGender(GenderEnum.getType(item.get(1)))
@@ -716,12 +700,61 @@ public class ExcelFacade {
     }
 
     /**
+     * 筛查人员前置校验
+     *
+     * @param screeningOrgId 筛查机构ID
+     * @param listMap        筛查人员
+     */
+    private void preCheckStaff(Integer screeningOrgId, List<Map<Integer, String>> listMap) {
+        // 收集身份证号码
+        List<String> idCards = listMap.stream().map(s -> s.get(2)).collect(Collectors.toList());
+        if (idCards.stream().distinct().count() < idCards.size()) {
+            throw new BusinessException("身份证号码重复");
+        }
+        List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
+                SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
+        if (!CollectionUtils.isEmpty(checkIdCards)) {
+            throw new BusinessException("身份证号码已经被使用，请确认！");
+        }
+
+        // 收集手机号码
+        List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+        if (phones.stream().distinct().count() < phones.size()) {
+            throw new BusinessException("手机号码重复");
+        }
+
+        List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
+        if (!CollectionUtils.isEmpty(checkPhones)) {
+            throw new BusinessException("手机号码已经被使用，请确认！");
+        }
+    }
+
+    /**
+     * 检查筛查人员信息
+     *
+     * @param item 筛查人员
+     */
+    private void checkStaffInfo(Map<Integer, String> item) {
+        if (StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0)) {
+            throw new BusinessException("性别异常");
+        }
+
+        if (StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2))) {
+            throw new BusinessException("身份证异常");
+        }
+
+        if (StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3))) {
+            throw new BusinessException("手机号码异常");
+        }
+    }
+
+    /**
      * 获取学生的导入模版
      */
     public File getStudentImportDemo() throws IOException {
         ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStudentTemplate.xlsx");
         InputStream inputStream = resource.getInputStream();
-        File templateFile = File.createTempFile("ImportStudentTemplate", ".xlsx");
+        File templateFile = File.createTempFile("ImportStudentTemplate", FILE_SUFFIX);
         try {
             FileUtils.copyInputStreamToFile(inputStream, templateFile);
         } finally {
@@ -737,7 +770,7 @@ public class ExcelFacade {
         ClassPathResource resource = new ClassPathResource("excel" + File.separator + "ImportStaffTemplate.xlsx");
         // 获取文件
         InputStream inputStream = resource.getInputStream();
-        File templateFile = File.createTempFile("ImportStaffTemplate", ".xlsx");
+        File templateFile = File.createTempFile("ImportStaffTemplate", FILE_SUFFIX);
         try {
             FileUtils.copyInputStreamToFile(inputStream, templateFile);
         } finally {
@@ -755,7 +788,7 @@ public class ExcelFacade {
      * @throws IOException
      */
     public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) throws IOException {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + ".xlsx";
+        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + FILE_SUFFIX;
         File file = new File(fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
