@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.screening.app.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.google.common.collect.Maps;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -14,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Log4j2
 public class CommUtil {
     /**
      * 15位身份证号
@@ -274,17 +276,15 @@ public class CommUtil {
                     }
                     char idCardLast = charArray[17];
                     int idCardMod = sum % 11;
-                    if (idCardY[idCardMod].toUpperCase().equals(String.valueOf(idCardLast).toUpperCase())) {
+                    if (idCardY[idCardMod].equalsIgnoreCase(String.valueOf(idCardLast))) {
                         return true;
                     } else {
-                        System.out.println("身份证最后一位:" + String.valueOf(idCardLast).toUpperCase() +
-                                "错误,正确的应该是:" + idCardY[idCardMod].toUpperCase());
+                        log.warn("身份证最后一位:{}错误,正确的应该是:{}", String.valueOf(idCardLast).toUpperCase(), idCardY[idCardMod].toUpperCase());
                         return false;
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("异常:" + idCard);
+                    log.warn("异常：{}", idCard, e);
                     return false;
                 }
             }

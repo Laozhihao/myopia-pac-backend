@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
  * @Date 2021/3/17
  **/
 @Log4j2
+@UtilityClass
 public class HtmlToPdfUtil {
     /**
      * 转换工具命令

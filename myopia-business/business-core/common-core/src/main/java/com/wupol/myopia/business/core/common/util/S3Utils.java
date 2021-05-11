@@ -176,7 +176,7 @@ public final class S3Utils {
         Date expire = DateUtil.getRecentDate(expiredHours);
         try {
             String resourceS3Url = s3Client.getResourceS3Url(bucketName, s3Key, expire);
-            redisUtil.set(key, resourceS3Url, expiredHours * 60 * 60);
+            redisUtil.set(key, resourceS3Url, expiredHours * 60l * 60);
             return resourceS3Url;
         } catch (UtilException e) {
             log.error(String.format("获取文件链接失败, bucket: %s, key: %s", bucketName, s3Key), e);
@@ -201,7 +201,7 @@ public final class S3Utils {
         Date expire = DateUtil.getRecentDate(expiredHours);
         try {
             String resourceS3Url = s3Client.getResourceS3Url(bucketName, s3Key, responseHeaderOverrides, expire);
-            redisUtil.set(key, resourceS3Url, expiredHours * 60 * 60);
+            redisUtil.set(key, resourceS3Url, expiredHours * 60l * 60);
             return resourceS3Url;
         } catch (UtilException e) {
             log.error(String.format("获取文件链接失败, bucket: %s, key: %s", bucketName, key));
