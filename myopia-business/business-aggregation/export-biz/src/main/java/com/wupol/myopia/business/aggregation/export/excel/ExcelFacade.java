@@ -323,12 +323,17 @@ public class ExcelFacade {
         Map<String, Integer> studentCountMaps = studentCountVOS.stream()
                 .collect(Collectors.toMap(StudentCountDTO::getSchoolNo, StudentCountDTO::getCount));
 
-        // 年级统计
+        // 查询学校下的年级
         List<SchoolGradeExportDTO> grades = schoolGradeService.getBySchoolIds(schoolIds);
-        packageGradeInfo(grades);
+//        packageGradeInfo(grades);
+
+        // 查询学校下的班级
+        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(grades.stream()
+                .map(SchoolGradeExportDTO::getId).collect(Collectors.toList()));
 
         // 年级通过学校ID分组
-        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMaps = grades.stream()
+                .collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         List<SchoolExportDTO> exportList = new ArrayList<>();
         for (School item : list) {
@@ -352,19 +357,18 @@ public class ExcelFacade {
             StringBuilder result = new StringBuilder();
             List<SchoolGradeExportDTO> exportGrade = gradeMaps.get(item.getId());
             if (!CollectionUtils.isEmpty(exportGrade)) {
-                for (SchoolGradeExportDTO g : exportGrade) {
-                    result.append(g.getName()).append(": ");
-                    if (!CollectionUtils.isEmpty(g.getChild())) {
-                        for (int i = 0; i < g.getChild().size(); i++) {
-                            result.append(g.getChild().get(i).getName());
-                            if (i < g.getChild().size() - 1) {
-                                result.append("、");
-                            } else {
-                                result.append("。");
-                            }
+                exportGrade.forEach(grade -> {
+                    result.append(grade.getName()).append(": ");
+                    List<SchoolClassExportDTO> child = grade.getChild();
+                    for (int i = 0; i < child.size(); i++) {
+                        result.append(child.get(i).getName());
+                        if (i < child.size() - 1) {
+                            result.append("、");
+                        } else {
+                            result.append("。");
                         }
                     }
-                }
+                });
                 exportVo.setClassName(result.toString());
             }
             if (Objects.nonNull(item.getLodgeStatus())) {
