@@ -88,6 +88,12 @@ spring:
     password: ${REDIS_PASSWORD}
     database: ${REDIS_DB_INDEX}
     timeout: 5000ms
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
     redisson:
       file: classpath:redisson.yaml
   servlet:

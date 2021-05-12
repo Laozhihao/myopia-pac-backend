@@ -11,9 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.types.RedisClientInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,24 +31,9 @@ public class DistrictCache implements CommandLineRunner {
     private DistrictService districtService;
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private RedisProperties properties;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void run(String... args) throws Exception {
-        logger.info("Redis host: {}", properties.getHost());
-        logger.info("Redis port: {}", properties.getPort());
-        logger.info("Redis password: {}", properties.getPassword());
-        logger.info("Redis database: {}", properties.getDatabase());
-
-        redisTemplate.getClientList().forEach(client -> {
-            logger.info(client.get(RedisClientInfo.INFO.ADDRESS_PORT));
-            logger.info(client.get(RedisClientInfo.INFO.DATABSE_ID));
-        });
-
-        logger.info("开始缓存district数据");
         // 缓存全国行政区域-列表结构
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_LIST)) {
             logger.info("...缓存全国行政区域-列表结构");
@@ -62,7 +44,7 @@ public class DistrictCache implements CommandLineRunner {
         }
 
         // 缓存全国行政区域-树结构
-        /*if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
+        if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
             logger.info("...缓存全国行政区域-树结构");
             redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districtService.getWholeCountryDistrictTree());
             logger.info("...完成全国行政区域-树结构");
@@ -76,7 +58,6 @@ public class DistrictCache implements CommandLineRunner {
             Map<String, Object> districtMap = allDistrictTree.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()).substring(0, 2), Function.identity()));
             redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, districtMap);
             logger.info("...完成缓存各省行政区域-树结构");
-        }*/
-        logger.info("完成缓存district数据");
+        }
     }
 }
