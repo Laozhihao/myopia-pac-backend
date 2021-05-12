@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,9 +32,16 @@ public class DistrictCache implements CommandLineRunner {
     private DistrictService districtService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private RedisProperties properties;
 
     @Override
     public void run(String... args) throws Exception {
+        logger.info("Redis host: {}", properties.getHost());
+        logger.info("Redis port: {}", properties.getPort());
+        logger.info("Redis password: {}", properties.getPassword());
+        logger.info("Redis database: {}", properties.getDatabase());
+
         logger.info("开始缓存district数据");
         // 缓存全国行政区域-列表结构
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_LIST)) {
