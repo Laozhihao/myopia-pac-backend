@@ -19,6 +19,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
 import com.wupol.myopia.oauth.sdk.domain.response.Role;
+import com.wupol.myopia.oauth.sdk.domain.response.RolePermission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -181,7 +182,7 @@ public class RoleService {
      * @param permissionIds 权限ID集
      * @return java.lang.Object
      **/
-    public Role assignRolePermission(Integer roleId, List<Integer> permissionIds) {
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         validatePermission(roleId);
         // 判断权限全来自模板
         List<Integer> permissionTemplateIdList = oauthServiceClient.getPermissionTemplateIdList(getPermissionTemplateTypeByRoleId(roleId));

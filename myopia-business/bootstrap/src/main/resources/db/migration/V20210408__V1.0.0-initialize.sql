@@ -147,7 +147,7 @@ CREATE TABLE `m_big_screen_map`  (
 -- ----------------------------
 -- Table structure for m_district
 -- ----------------------------
-/*DROP TABLE IF EXISTS `m_district`;
+DROP TABLE IF EXISTS `m_district`;
 CREATE TABLE `m_district`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '行政区ID',
   `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行政区名称',
@@ -159,7 +159,7 @@ CREATE TABLE `m_district`  (
   UNIQUE INDEX `m_district_pk`(`code`) USING BTREE,
   INDEX `m_district_parent_code_code_index`(`parent_code`, `code`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '行政区域表' ROW_FORMAT = Dynamic;
-*/
+
 -- ----------------------------
 -- Table structure for m_district_attentive_objects_statistic
 -- ----------------------------

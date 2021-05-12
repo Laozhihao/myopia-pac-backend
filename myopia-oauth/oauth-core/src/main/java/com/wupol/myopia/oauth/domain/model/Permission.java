@@ -51,7 +51,6 @@ public class Permission implements Serializable {
      * put:/management/permission/template/**
      * get:/management/district/all
      */
-    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]+(/([\\w-]+|(\\*\\*)))*$", message = "功能接口url格式错误")
     private String apiUrl;
 
     /**

@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.management.validator.RoleAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.RoleUpdateValidatorGroup;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
 import com.wupol.myopia.oauth.sdk.domain.response.Role;
+import com.wupol.myopia.oauth.sdk.domain.response.RolePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -100,7 +101,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PostMapping("/permission/{roleId}")
-    public Role assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
+    public List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
         return roleService.assignRolePermission(roleId, permissionIds);
     }
 
