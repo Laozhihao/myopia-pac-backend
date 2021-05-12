@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.RegExpUtil;
 import com.wupol.myopia.oauth.domain.mapper.PermissionMapper;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import org.slf4j.Logger;
@@ -84,5 +85,6 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
             List<Permission> exist = findByList(new Permission().setMenuBtnName(param.getMenuBtnName()));
             Assert.isTrue(CollectionUtils.isEmpty(exist), "该页面或按钮name已经存在");
         }
+        Assert.isTrue(param.getIsPage() == 1 || RegExpUtil.isApiUrl(param.getApiUrl()), "apiUrl参数格式错误");
     }
 }

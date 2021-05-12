@@ -59,6 +59,7 @@ public class HtmlToPdfUtil {
             log.debug("exitCode = "+exitCode);
         } catch (IOException | InterruptedException e) {
             log.error("【HTML转PDF异常】", e);
+            Thread.currentThread().interrupt();
             return false;
         } finally {
             try {
