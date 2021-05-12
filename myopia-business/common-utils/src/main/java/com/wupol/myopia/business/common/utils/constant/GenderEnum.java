@@ -13,24 +13,24 @@ public enum GenderEnum {
     /** 类型 **/
     public final Integer type;
     /** 描述 **/
-    public final String name;
+    public final String desc;
 
-    GenderEnum(Integer type, String name) {
+    GenderEnum(Integer type, String desc) {
         this.type = type;
-        this.name = name;
+        this.desc = desc;
     }
 
     /** 获取性别名称 */
     public static String getName(Integer type) {
-        if (MALE.type.equals(type)) return MALE.name;
-        if (FEMALE.type.equals(type)) return FEMALE.name;
+        if (MALE.type.equals(type)) return MALE.desc;
+        if (FEMALE.type.equals(type)) return FEMALE.desc;
         return "未知";
     }
 
     /** 获取性别对应数值 */
     public static Integer getType(String name) {
-        if (MALE.name.equals(name)) return MALE.type;
-        if (FEMALE.name.equals(name)) return FEMALE.type;
+        if (MALE.desc.equals(name)) return MALE.type;
+        if (FEMALE.desc.equals(name)) return FEMALE.type;
         return -1;
     }
 }
