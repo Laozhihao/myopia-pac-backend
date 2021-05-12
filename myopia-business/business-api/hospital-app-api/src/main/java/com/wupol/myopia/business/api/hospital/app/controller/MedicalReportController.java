@@ -41,7 +41,7 @@ public class MedicalReportController {
      * @return
      */
     @GetMapping("/list")
-    public List<MedicalReportDO> getStudentReportList(Integer studentId, Boolean filterHospital) {
+    public List<MedicalReportDO> getStudentReportList(Integer studentId, boolean filterHospital) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Integer hospitalId = filterHospital ? user.getOrgId() : null;
         return medicalReportService.getReportListByStudentId(hospitalId, studentId);

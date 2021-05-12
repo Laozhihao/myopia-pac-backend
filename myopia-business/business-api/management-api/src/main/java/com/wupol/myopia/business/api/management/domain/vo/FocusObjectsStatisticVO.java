@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 public class FocusObjectsStatisticVO extends ScreeningBasicResult {
 
-    private final String TOTAL_RANGE_NAME = "合计";
+    private static final String TOTAL_RANGE_NAME = "合计";
 
     /**
      * 私有构造方法
@@ -122,20 +122,18 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<Item> subordinateItemSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
+        this.subordinateDatas = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
             Integer districtAttentiveDistrictId = districtAttentiveObjectsStatistic.getDistrictId();
             String rangeName;
             //是合计数据
             if (currentDistrictId.equals(districtAttentiveObjectsStatistic.getDistrictId())) {
                 rangeName = TOTAL_RANGE_NAME;
-                FocusObjectsStatisticVO.Item item = this.getItem(districtAttentiveDistrictId, rangeName, districtAttentiveObjectsStatistic);
-                totalData = item;
+                totalData = this.getItem(districtAttentiveDistrictId, rangeName, districtAttentiveObjectsStatistic);
                 return null;
             }
             rangeName = districtIdNameMap.get(districtAttentiveDistrictId);
             return this.getItem(districtAttentiveDistrictId, rangeName, districtAttentiveObjectsStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.subordinateDatas = subordinateItemSet;
     }
 
     /**

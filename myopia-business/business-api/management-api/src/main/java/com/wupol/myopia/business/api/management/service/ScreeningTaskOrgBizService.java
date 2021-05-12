@@ -55,7 +55,7 @@ public class ScreeningTaskOrgBizService {
      */
     public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
         // 删除掉已有的不存在的机构信息
-        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.EMPTY_LIST : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.emptyList() : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
         screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
         if (!CollectionUtils.isEmpty(screeningOrgs)) {
             saveOrUpdateBatchByTaskId(user, screeningTaskId, screeningOrgs, false);

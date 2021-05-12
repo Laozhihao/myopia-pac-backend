@@ -75,7 +75,7 @@ public class HospitalStudentController {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
         studentVo.setCreateUserId(user.getId());
-        Integer studentId = hospitalStudentFacade.saveStudent(studentVo, true);
+        hospitalStudentFacade.saveStudent(studentVo, true);
         return ApiResult.success("建档成功");
     }
 

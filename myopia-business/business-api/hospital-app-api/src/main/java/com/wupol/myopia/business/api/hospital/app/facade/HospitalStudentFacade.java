@@ -117,7 +117,7 @@ public class HospitalStudentFacade {
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentIdList(idList).setHospitalId(hospitalId);
-        return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentVoList(query);
+        return CollectionUtils.isEmpty(idList) ? Collections.emptyList() : getHospitalStudentVoList(query);
     }
 
     /**

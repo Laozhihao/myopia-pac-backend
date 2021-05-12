@@ -104,20 +104,18 @@ public class DistrictScreeningMonitorStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<DistrictMonitorStatistic> districtMonitorStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<Item> subordinateItemSet = districtMonitorStatistics.stream().map(districtMonitorStatistic -> {
+        this.subordinateDatas = districtMonitorStatistics.stream().map(districtMonitorStatistic -> {
             Integer districtMonitorDistrictId = districtMonitorStatistic.getDistrictId();
             String rangeName = "";
             //是合计数据
             if (currentDistrictId.equals(districtMonitorStatistic.getDistrictId())) {
                 rangeName = "合计";
-                Item item = this.getItem(rangeName, districtMonitorStatistic);
-                totalData = item;
+                totalData = this.getItem(rangeName, districtMonitorStatistic);
                 return null;
             }
             rangeName = districtIdNameMap.get(districtMonitorDistrictId);
             return this.getItem(rangeName, districtMonitorStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.subordinateDatas = subordinateItemSet;
     }
 
     /**

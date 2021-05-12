@@ -125,15 +125,13 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
      * @return
      */
     public static SchoolScreeningMonitorStatisticVO getEmptyInstance() {
-        SchoolScreeningMonitorStatisticVO schoolScreeningMonitorStatisticVO = new SchoolScreeningMonitorStatisticVO();
-        return schoolScreeningMonitorStatisticVO;
+        return new SchoolScreeningMonitorStatisticVO();
     }
 
     /**
      * 获取实例
      *
      * @param schoolMonitorStatistics
-     * @param districtName
      * @param screeningNotice
      * @return
      */
@@ -156,10 +154,7 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
      * @return
      */
     private void setItemData(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
-        Set<Item> items = schoolMonitorStatistics.stream().map(schoolMonitorStatistic ->
-                Item.getInstance(schoolMonitorStatistic)
-        ).collect(Collectors.toSet());
-        contents = items;
+        contents = schoolMonitorStatistics.stream().map(Item::getInstance).collect(Collectors.toSet());
     }
 
     /**
