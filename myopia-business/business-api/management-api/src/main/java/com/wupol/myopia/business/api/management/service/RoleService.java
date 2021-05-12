@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
@@ -71,7 +71,7 @@ public class RoleService {
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
         Page<Role> rolePage = oauthServiceClient.getRoleListByPage(param.convertToOauthRoleDTO());
-        List<Role> roleList = JSONObject.parseArray(JSONObject.toJSONString(rolePage.getRecords()), Role.class);
+        List<Role> roleList = JSON.parseArray(JSON.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {
             return new Page<>(current, size);
         }

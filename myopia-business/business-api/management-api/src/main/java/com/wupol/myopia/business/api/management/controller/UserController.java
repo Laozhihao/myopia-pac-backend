@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -106,7 +107,7 @@ public class UserController {
         Assert.notNull(user, "不存在该用户");
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         Assert.isTrue(currentUser.isPlatformAdminUser() || currentUser.getOrgId().equals(user.getOrgId()), "没有访问该用户信息权限");
-        UserVO userVO = new UserVO(user);
+        UserVO userVO = JSON.parseObject(JSON.toJSONString(user), UserVO.class);
         // 屏蔽密码
         userVO.setPassword(null);
         // 管理端 - 平台管理员或政府部门人员用户
