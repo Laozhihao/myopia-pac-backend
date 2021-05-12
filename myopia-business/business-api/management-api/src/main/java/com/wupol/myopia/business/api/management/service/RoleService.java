@@ -182,7 +182,7 @@ public class RoleService {
      * @param permissionIds 权限ID集
      * @return java.lang.Object
      **/
-    public RolePermission assignRolePermission(Integer roleId, List<Integer> permissionIds) {
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         validatePermission(roleId);
         // 判断权限全来自模板
         List<Integer> permissionTemplateIdList = oauthServiceClient.getPermissionTemplateIdList(getPermissionTemplateTypeByRoleId(roleId));

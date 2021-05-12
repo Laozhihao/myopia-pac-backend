@@ -157,7 +157,7 @@ public interface OauthServiceClient {
     Role updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
-    RolePermission assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
+    List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
 
     @GetMapping("/oauth/role/{roleId}")
     Role getRoleById(@PathVariable("roleId") Integer roleId);

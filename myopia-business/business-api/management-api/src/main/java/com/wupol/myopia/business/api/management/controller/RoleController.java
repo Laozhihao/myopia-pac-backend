@@ -101,7 +101,7 @@ public class RoleController {
      * @return java.lang.Object
      **/
     @PostMapping("/permission/{roleId}")
-    public RolePermission assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
+    public List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds) {
         return roleService.assignRolePermission(roleId, permissionIds);
     }
 
