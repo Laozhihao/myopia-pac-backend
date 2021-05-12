@@ -30,6 +30,7 @@
         <mybatis-plus.version>3.4.1</mybatis-plus.version>
         <mybatis-plus-generator.version>3.4.1</mybatis-plus-generator.version>
         <easyexcel.version>2.2.6</easyexcel.version>
+        <flyway.version>6.5.7</flyway.version>
     </properties>
 
     <dependencyManagement>

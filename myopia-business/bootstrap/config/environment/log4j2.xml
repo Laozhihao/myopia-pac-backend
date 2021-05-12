@@ -17,7 +17,7 @@
         </Socket> -->
     </Appenders>
     <Loggers>
-        <Logger name="com.wupol" level="debug" additivity="false">
+        <Logger name="com.wupol" level="INFO" additivity="false">
             <AppenderRef ref="Console-Appender"/>
             <!-- <AppenderRef ref="logstash"/> -->
         </Logger>

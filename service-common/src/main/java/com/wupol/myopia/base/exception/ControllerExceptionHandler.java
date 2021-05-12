@@ -41,7 +41,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleBusinessError(BusinessException ex) {
+    public ApiResult<Object> handleBusinessError(BusinessException ex) {
         logger.error("【业务异常】{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getCode(), ex.getMessage());
     }
@@ -52,7 +52,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleIllegalArgumentExceptionException(IllegalArgumentException ex) {
+    public ApiResult<Object> handleIllegalArgumentExceptionException(IllegalArgumentException ex) {
         logger.error("数据校验异常，{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getMessage());
     }
@@ -63,7 +63,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleTypeMismatchException(ValidationException ex) {
+    public ApiResult<Object> handleTypeMismatchException(ValidationException ex) {
         logger.error("数据校验异常，{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getMessage());
     }
@@ -74,7 +74,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResult handleTypeMismatchException(NullPointerException ex) {
+    public ApiResult<Object> handleTypeMismatchException(NullPointerException ex) {
         logger.error("空指针异常", ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
     }
@@ -85,7 +85,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleHttpMessageNotReadableException(MissingServletRequestParameterException ex) {
+    public ApiResult<Object> handleHttpMessageNotReadableException(MissingServletRequestParameterException ex) {
         logger.error("缺少请求参数，{}", ex.getMessage(), ex);
         return ApiResult.failure("缺少必要的请求参数");
     }
@@ -96,7 +96,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+    public ApiResult<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
         logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         return ApiResult.failure(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
@@ -107,7 +107,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleConstraintViolationException(ConstraintViolationException ex){
+    public ApiResult<Object> handleConstraintViolationException(ConstraintViolationException ex){
         logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
         return ApiResult.failure(violations.stream().map(ConstraintViolation::getMessage).findFirst().orElse("请求参数不正确"));
@@ -120,7 +120,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult handleBindException(BindException ex){
+    public ApiResult<Object> handleBindException(BindException ex){
         logger.error("请求参数不正确，{}", ex.getMessage(), ex);
         List<ObjectError> allErrors = ex.getAllErrors();
         return ApiResult.failure(CollectionUtils.isEmpty(allErrors) ? "请求参数错误": allErrors.get(0).getDefaultMessage());
@@ -132,7 +132,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public ApiResult accessDeniedExceptionHandler(AccessDeniedException ex) {
+    public ApiResult<Object> accessDeniedExceptionHandler(AccessDeniedException ex) {
         logger.error("没有访问权限，{}", ex.getMessage(), ex);
         return ApiResult.failure(HttpStatus.UNAUTHORIZED.value(), "没有访问权限");
     }
@@ -143,7 +143,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
+    public ApiResult<Object> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
         logger.error("传输数据格式有误，{}", ex.getMessage(), ex);
         return ApiResult.failure("传输数据格式有误");
     }
@@ -154,7 +154,7 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(value = {DuplicateKeyException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult duplicateErrorHandler(HttpServletRequest req, Exception ex) {
+    public ApiResult<Object> duplicateErrorHandler(HttpServletRequest req, Exception ex) {
         logger.error("接口: [URI]:{} 唯一索引冲突", req.getRequestURL(), ex);
         return ApiResult.failure("录入了重复的数据，请检查数据的唯一约束");
     }
@@ -165,8 +165,8 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResult handleUnexpectedServer(Exception ex) {
-        logger.error("【系统异常】{}", ex.getMessage(), ex);
+    public ApiResult<Object> handleUnexpectedServer(HttpServletRequest req, Exception ex) {
+        logger.error("【系统异常】接口:{}，异常信息：{}", req.getRequestURL(), ex.getMessage(), ex);
         return ApiResult.failure(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
