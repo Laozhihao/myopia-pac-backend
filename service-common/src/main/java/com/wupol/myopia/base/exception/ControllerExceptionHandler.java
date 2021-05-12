@@ -41,8 +41,8 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResult<Object> handleBusinessError(BusinessException ex) {
-        logger.error("【业务异常】{}", ex.getMessage(), ex);
+    public ApiResult<Object> handleBusinessError(HttpServletRequest req, BusinessException ex) {
+        logger.error("【业务异常】接口:{}，异常信息：{}", req.getRequestURL(), ex.getMessage(), ex);
         return ApiResult.failure(ex.getCode(), ex.getMessage());
     }
 
