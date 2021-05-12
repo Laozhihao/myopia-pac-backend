@@ -67,7 +67,7 @@ public class ScreeningTaskOrgBizService {
      * @param screeningTaskId
      * @param screeningOrgs
      */
-    public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, Boolean needNotice) {
+    public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, boolean needNotice) {
         // 1. 查出剩余的
         Map<Integer, Integer> orgIdMap = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
         // 2. 更新id，并批量新增或修改
