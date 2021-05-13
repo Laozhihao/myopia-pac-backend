@@ -321,7 +321,7 @@ public class StatService {
 
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
         if (planScreeningNum <= 0) {
-            throw new BusinessException("计划筛查学生数不能低于0,notificationId = " + notificationId);
+            throw new BusinessException("没有筛查数据");
         }
         return ScreeningClassStat.builder()
                 .notificationId(notificationId)
