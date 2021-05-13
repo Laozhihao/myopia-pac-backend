@@ -119,6 +119,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             isSchoolExport = true;
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
         }
+        if (CollectionUtils.isEmpty(statConclusionExportVos)) {
+            throw new BusinessException("暂无筛查数据，无法导出");
+        }
         statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
         excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
@@ -148,6 +151,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
             isSchoolExport = true;
             statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+        }
+        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
+            throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称

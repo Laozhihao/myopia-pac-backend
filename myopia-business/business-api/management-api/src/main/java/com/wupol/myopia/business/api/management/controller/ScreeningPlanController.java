@@ -389,7 +389,7 @@ public class ScreeningPlanController {
      * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
-    public Object downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+    public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         try {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
@@ -422,7 +422,7 @@ public class ScreeningPlanController {
      * @return PDF的URL
      */
     @GetMapping("/export/notice")
-    public Object downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+    public Map<String, String> downloadNoticeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
         try {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
