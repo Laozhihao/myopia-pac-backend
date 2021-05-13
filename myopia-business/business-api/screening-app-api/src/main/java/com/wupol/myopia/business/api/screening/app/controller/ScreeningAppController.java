@@ -4,6 +4,7 @@ import cn.hutool.core.util.IdcardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
@@ -38,6 +39,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,7 +56,8 @@ import java.util.stream.Collectors;
  * @Date 2021-01-21
  */
 @CrossOrigin
-@RestController
+@ResponseResultBody
+@Controller
 @RequestMapping("/app/screening")
 @Slf4j
 public class ScreeningAppController {

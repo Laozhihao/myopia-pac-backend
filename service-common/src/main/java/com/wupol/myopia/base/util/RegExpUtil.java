@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import lombok.experimental.UtilityClass;
+import org.springframework.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +10,7 @@ import java.util.regex.Pattern;
  * 正则匹配验证
  */
 @UtilityClass
-public class ReUtil {
+public class RegExpUtil {
 
     /**
      * 日期匹配规则
@@ -19,28 +20,6 @@ public class ReUtil {
     private static final String DATE3 = "^\\d{4}\\u5e74\\d{1,2}\\u6708\\d{1,2}\\u65e5$";
     private static final String DATE4 = "^\\d{4}\\u5e74\\d{1,2}\\u6708$";
     private static final String DATE5 = "^\\d{8}$";
-
-    /**
-     * 学籍号匹配规则
-     */
-    private static final Pattern STUDENT_NO = Pattern.compile("^[0-9][1-9][0-9][1-9][0-9][1-9][1,2][0-9]{3}[0,1][0-9][0,1,2,3][0-9][0-9]{4}$");
-
-    /**
-     * 常见特殊符号匹配规则
-     */
-    private static final Pattern SPECIAL_STR =Pattern.compile("[`~!@#$%^&*()+=|{}:;\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？']");
-
-
-    /**
-     * 姓名匹配方法
-     *
-     * @param name
-     * @return
-     */
-    public static boolean isName(String name) {
-        Matcher m = SPECIAL_STR.matcher(name);
-        return (!m.find() && name.length() > 1);
-    }
 
     /**
      * 日期匹配
@@ -70,7 +49,7 @@ public class ReUtil {
             }
 
         }else if (matcherDate2.find()){
-            String sub = null;
+            String sub;
             if (length==10){
                 return date.replace("/","-");
             }else if (length==9){
@@ -84,7 +63,7 @@ public class ReUtil {
             }
             return sub.replace("/","-");
         }else if (matcherDate3.find()) {
-            String sub = null;
+            String sub;
             if (length==11){
                 sub = date;
             }else if (length==10){
@@ -98,7 +77,7 @@ public class ReUtil {
             }
             return sub.replace("\\u5e74","-").replace("\\u6708","-").replace("\\u65e5","");
         }else if (matcherDate4.find()){
-            String sub = null;
+            String sub;
             if (length==8){
                 sub = date + "01";
             }else{
@@ -126,42 +105,25 @@ public class ReUtil {
         Matcher matcherDate3 = date3.matcher(date);
         Matcher matcherDate4 = date4.matcher(date);
         Matcher matcherDate5 = date5.matcher(date);
-        if (matcherDate1.find()){
+        return matcherDate1.find() || matcherDate2.find() || matcherDate3.find() || matcherDate4.find() || matcherDate5.find();
+    }
 
-        } else if (matcherDate2.find()){
 
-        } else if (matcherDate3.find()){
-
-        }else if (matcherDate4.find()){
-
-        }else if (matcherDate5.find()){
-
-        } else {
+    /**
+     * 判断权是否为api地址，如：
+     *  put:/management/permission/template/**
+     *  get:/management/district/all
+     * @param apiUrl api url
+     * @return boolean
+     **/
+    public static boolean isApiUrl(String apiUrl) {
+        if (StringUtils.isEmpty(apiUrl)) {
             return false;
         }
-        return true;
-
-    }
-
-
-    /**
-     * 常见特殊字符过滤
-     *
-     * @param str
-     * @return
-     */
-    public static boolean filtration(String str) {
-        Matcher m = SPECIAL_STR.matcher(str);
-        return m.find();
-    }
-
-    /**
-     * StudentNo是否符合规范
-     * @return
-     */
-    public static boolean isValidStudentNo(String str){
-        Matcher m = STUDENT_NO.matcher(str);
-        return m.find();
+        String apiUrlRegExp = "^((get)|(post)|(put)|(delete)):/[\\w-]{1,80}(/([\\w-]{1,80}|(\\*\\*))){0,15}$";
+        Pattern p = Pattern.compile(apiUrlRegExp);
+        Matcher m = p.matcher(apiUrl);
+        return m.matches();
     }
 
 }

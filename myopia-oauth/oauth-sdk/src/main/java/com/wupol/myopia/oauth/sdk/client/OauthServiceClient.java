@@ -6,10 +6,7 @@ import com.wupol.myopia.oauth.sdk.config.OauthServiceFeignConfig;
 import com.wupol.myopia.oauth.sdk.domain.request.PermissionDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
-import com.wupol.myopia.oauth.sdk.domain.response.LoginInfo;
-import com.wupol.myopia.oauth.sdk.domain.response.Permission;
-import com.wupol.myopia.oauth.sdk.domain.response.Role;
-import com.wupol.myopia.oauth.sdk.domain.response.User;
+import com.wupol.myopia.oauth.sdk.domain.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.*;
@@ -160,7 +157,7 @@ public interface OauthServiceClient {
     Role updateRole(@RequestBody RoleDTO param);
 
     @PostMapping("/oauth/role/permission/{roleId}")
-    Role assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
+    List<RolePermission> assignRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionIds);
 
     @GetMapping("/oauth/role/{roleId}")
     Role getRoleById(@PathVariable("roleId") Integer roleId);

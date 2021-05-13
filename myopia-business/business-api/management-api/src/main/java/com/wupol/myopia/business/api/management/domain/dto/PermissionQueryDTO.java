@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -50,7 +49,6 @@ public class PermissionQueryDTO implements Serializable {
      * put:/management/permission/template/**
      * get:/management/district/all
      */
-    @Pattern(regexp="^((get)|(post)|(put)|(delete)):/[\\w-]{1,80}(/([\\w-]{1,80}|(\\*\\*))){0,15}$", message = "功能接口url格式错误", groups = {PermissionAddValidatorGroup.class, PermissionUpdateValidatorGroup.class})
     private String apiUrl;
 
     /**

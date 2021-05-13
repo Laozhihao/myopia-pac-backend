@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.UserType;
@@ -72,16 +72,15 @@ public class UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(param, userDTO);
         Page<User> userPage = oauthServiceClient.getUserListPage(userDTO);
-        List<User> users = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), User.class);
+        List<UserVO> users = JSON.parseArray(JSON.toJSONString(userPage.getRecords()), UserVO.class);
         if (CollectionUtils.isEmpty(users)) {
             return new Page<>(current, size);
         }
         // 获取部门信息和行政区信息
-        List<Integer> govDeptIds = users.stream().map(User::getOrgId).distinct().collect(Collectors.toList());
+        List<Integer> govDeptIds = users.stream().map(UserVO::getOrgId).distinct().collect(Collectors.toList());
         Map<Integer, GovDeptDTO> govDeptMap = govDeptService.getGovDeptMapByIds(govDeptIds);
-        List<UserVO> userVOList = users.stream().map(user -> {
-            UserVO userVO = new UserVO(user);
-            GovDeptDTO govDeptVo = govDeptMap.get(user.getOrgId());
+        List<UserVO> userVOList = users.stream().map(userVO -> {
+            GovDeptDTO govDeptVo = govDeptMap.get(userVO.getOrgId());
             if (Objects.isNull(govDeptVo)) {
                 return userVO;
             }
@@ -129,7 +128,7 @@ public class UserService {
         User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
-        UserVO userVO = new UserVO(newUser);
+        UserVO userVO = JSON.parseObject(JSON.toJSONString(user), UserVO.class);
         return userVO.setOrgName(govDept.getName()).setDistrictDetail(districtService.getDistrictPositionDetail(district));
     }
 

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
@@ -19,6 +19,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
 import com.wupol.myopia.oauth.sdk.domain.response.Role;
+import com.wupol.myopia.oauth.sdk.domain.response.RolePermission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +71,7 @@ public class RoleService {
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
         Page<Role> rolePage = oauthServiceClient.getRoleListByPage(param.convertToOauthRoleDTO());
-        List<Role> roleList = JSONObject.parseArray(JSONObject.toJSONString(rolePage.getRecords()), Role.class);
+        List<Role> roleList = JSON.parseArray(JSON.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {
             return new Page<>(current, size);
         }
@@ -181,7 +182,7 @@ public class RoleService {
      * @param permissionIds 权限ID集
      * @return java.lang.Object
      **/
-    public Role assignRolePermission(Integer roleId, List<Integer> permissionIds) {
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         validatePermission(roleId);
         // 判断权限全来自模板
         List<Integer> permissionTemplateIdList = oauthServiceClient.getPermissionTemplateIdList(getPermissionTemplateTypeByRoleId(roleId));

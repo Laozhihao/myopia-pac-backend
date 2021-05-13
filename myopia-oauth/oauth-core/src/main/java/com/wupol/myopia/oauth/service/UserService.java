@@ -187,7 +187,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.UserWithRole
      **/
     @Transactional(rollbackFor = Exception.class)
-    public UserWithRole updateUser(UserDTO user) throws Exception {
+    public UserWithRole updateUser(UserDTO user) throws IOException {
         Integer userId = user.getId();
         User existUser = getById(userId);
         Assert.notNull(existUser, "该用户不存在");
@@ -200,7 +200,7 @@ public class UserService extends BaseService<UserMapper, User> {
         }
         // 更新用户
         if (!updateById(user)) {
-            throw new Exception("更新用户信息失败");
+            throw new BusinessException("更新用户信息失败");
         }
         // 获取用户最新信息
         UserDTO newUser = new UserDTO();
