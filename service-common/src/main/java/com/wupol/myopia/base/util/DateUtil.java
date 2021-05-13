@@ -231,10 +231,10 @@ public class DateUtil {
      * @return
      */
     public static String isValidDate(String sDate){
-        if (!ReUtil.isDate(sDate)){
+        if (!RegExpUtil.isDate(sDate)){
             return null;
         }
-        String s = ReUtil.convertDate(sDate);
+        String s = RegExpUtil.convertDate(sDate);
         SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd");
         try{
             format.setLenient(false); // 严格检查

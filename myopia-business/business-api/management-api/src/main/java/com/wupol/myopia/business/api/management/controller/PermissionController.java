@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.RegExpUtil;
 import com.wupol.myopia.business.api.management.domain.dto.PermissionQueryDTO;
 import com.wupol.myopia.business.api.management.validator.PermissionAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.PermissionUpdateValidatorGroup;
@@ -66,7 +67,7 @@ public class PermissionController {
     @PutMapping()
     public Permission updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionQueryDTO param) {
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
+        Assert.isTrue(param.getIsPage() == 1 || RegExpUtil.isApiUrl(param.getApiUrl()), "功能接口url参数格式错误");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
