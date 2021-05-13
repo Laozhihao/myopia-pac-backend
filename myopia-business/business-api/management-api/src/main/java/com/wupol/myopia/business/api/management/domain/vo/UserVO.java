@@ -4,12 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.api.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGroup;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.beans.BeanUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -26,16 +23,10 @@ import java.util.List;
  * @Date 2020-12-23
  */
 @Data
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class UserVO implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
-    public UserVO(User user) {
-        BeanUtils.copyProperties(user, this);
-    }
 
     /**
      * 用户ID
