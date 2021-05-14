@@ -3,9 +3,8 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.constant.SystemCode;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffExportDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
@@ -19,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,17 +75,15 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         String orgName = screeningOrganizationService.getById(exportCondition.getScreeningOrgId()).getName();
-        return String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
-                orgName + FileNameConstant.STAFF_EXCEL_FILE_NAME,
-                new Date());
+        return String.format(ExcelFileNameConstant.STAFF_EXCEL_FILE_NAME, orgName);
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
         // 设置文件名
-        StringBuilder builder = new StringBuilder().append("筛查机构人员");
+        StringBuilder builder = new StringBuilder().append(ExcelFileNameConstant.STAFF_NAME);
         String orgName = screeningOrganizationService.getById(exportCondition.getScreeningOrgId()).getName();
-        builder.append("-").append(orgName);
+        builder.append(orgName);
         return builder.toString();
     }
 }

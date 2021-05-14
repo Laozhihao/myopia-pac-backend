@@ -2,7 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -49,6 +49,6 @@ public class ExportDistrictScreeningService extends BaseExportPdfFileService {
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, districtFullName);
+        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, districtFullName);
     }
 }

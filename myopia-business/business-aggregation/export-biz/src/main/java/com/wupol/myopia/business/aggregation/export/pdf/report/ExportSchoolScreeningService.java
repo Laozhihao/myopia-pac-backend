@@ -2,7 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -45,6 +45,6 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
+        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
     }
 }

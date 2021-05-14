@@ -506,40 +506,6 @@ public class ExcelFacade {
     }
 
     /**
-     * 根据id批量获取用户
-     *
-     * @param userIds 用户id列
-     * @return Map<用户id ， 用户>
-     */
-    private Map<Integer, User> getUserMapByIds(Set<Integer> userIds) {
-        return oauthServiceClient.getUserBatchByIds(new ArrayList<>(userIds)).stream().collect(Collectors.toMap(User::getId, Function.identity()));
-    }
-
-    /**
-     * 获取省市区
-     *
-     * @param item AddressCode
-     * @param <T>  实体
-     * @return HashMap<String, String>
-     */
-    private <T extends AddressCode> HashMap<String, String> generateAddressMap(T item) {
-        HashMap<String, String> addressCodeMap = new HashMap<>(5);
-        if (Objects.nonNull(item.getProvinceCode())) {
-            addressCodeMap.put(ExportAddressKey.PROVIDE, districtService.getDistrictName(item.getProvinceCode()));
-        }
-        if (Objects.nonNull(item.getCityCode())) {
-            addressCodeMap.put(ExportAddressKey.CITY, districtService.getDistrictName(item.getCityCode()));
-        }
-        if (Objects.nonNull(item.getAreaCode())) {
-            addressCodeMap.put(ExportAddressKey.AREA, districtService.getDistrictName(item.getAreaCode()));
-        }
-        if (Objects.nonNull(item.getTownCode())) {
-            addressCodeMap.put(ExportAddressKey.TOWN, districtService.getDistrictName(item.getTownCode()));
-        }
-        return addressCodeMap;
-    }
-
-    /**
      * 检查学生信息是否完整
      *
      * @param item 学生信息

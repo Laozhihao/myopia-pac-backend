@@ -1,9 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -85,15 +84,13 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         District district = districtService.checkAndGetDistrict(exportCondition.getDistrictId());
-        return String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
-                districtService.getTopDistrictName(district.getCode()) + FileNameConstant.HOSPITAL_EXCEL_FILE_NAME,
-                new Date());
+        return String.format(ExcelFileNameConstant.HOSPITAL_EXCEL_FILE_NAME, districtService.getTopDistrictName(district.getCode()));
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.checkAndGetDistrict(exportCondition.getDistrictId());
         // 设置文件名
-        return "医院" + "-" + district.getName();
+        return ExcelFileNameConstant.HOSPITAL_NAME + district.getName();
     }
 }

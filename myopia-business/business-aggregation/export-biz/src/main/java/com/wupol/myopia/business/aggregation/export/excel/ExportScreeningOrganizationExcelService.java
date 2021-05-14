@@ -1,9 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -53,9 +52,7 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     @Override
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
-        return String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
-                districtService.getTopDistrictName(district.getCode()) + FileNameConstant.SCREENING_ORG_EXCEL_FILE_NAME,
-                new Date());
+        return String.format(ExcelFileNameConstant.SCREENING_ORG_EXCEL_FILE_NAME, districtService.getTopDistrictName(district.getCode()));
     }
 
     /**
@@ -135,6 +132,6 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
-        return String.format(FileNameConstant.SCREENING_ORG_NOTICE_KEY_CONTENT, districtFullName);
+        return String.format(ExcelFileNameConstant.SCREENING_ORG_NOTICE_KEY_CONTENT, districtFullName);
     }
 }
