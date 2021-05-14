@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 筛查人员Controller
@@ -40,6 +44,9 @@ public class ScreeningOrganizationStaffController {
 
     @Autowired
     private ExcelFacade excelFacade;
+
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     /**
      * 筛查人员列表
@@ -108,13 +115,17 @@ public class ScreeningOrganizationStaffController {
      *
      * @param screeningOrgId 筛查机构ID
      * @return 是否成功
-     * @throws IOException   IO异常
-     * @throws UtilException 文件异常
      */
     @GetMapping("/export")
-    public void getOrganizationStaffExportData(Integer screeningOrgId) throws IOException, UtilException {
+    public void getOrganizationStaffExportData(Integer screeningOrgId) {
+        if (Objects.isNull(screeningOrgId)) {
+            throw new BusinessException("筛查机构id不能为空");
+        }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.generateScreeningOrganizationStaff(currentUser.getId(), screeningOrgId);
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(currentUser.getId())
+                        .setScreeningOrgId(screeningOrgId),
+                ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_STAFF_EXCEL_SERVICE);
     }
 
     /**
@@ -130,14 +141,4 @@ public class ScreeningOrganizationStaffController {
         excelFacade.importScreeningOrganizationStaff(currentUser, file, screeningOrgId);
     }
 
-    /**
-     * 导出-导入模板
-     *
-     * @return 导入模板
-     * @throws IOException IO异常
-     */
-    @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.getScreeningOrganizationStaffImportDemo());
-    }
 }

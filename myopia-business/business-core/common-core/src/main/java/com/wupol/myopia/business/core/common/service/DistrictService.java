@@ -723,4 +723,26 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
                 cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));
     }
+
+    /**
+     * 检查行政区域id
+     *
+     * @param districtId 行政区域
+     * @return District 行政区域
+     */
+    public District checkAndGetDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            throw new BusinessException("行政区域id不能为空");
+        }
+        District district = null;
+        try {
+            district = findOne(new District().setId(districtId));
+        } catch (IOException e) {
+            log.info("检查行政区域Id异常", e);
+        }
+        if (Objects.isNull(district)) {
+            throw new BusinessException("未找到该行政区域");
+        }
+        return district;
+    }
 }

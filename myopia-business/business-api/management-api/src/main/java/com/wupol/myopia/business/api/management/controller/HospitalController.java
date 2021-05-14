@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.HospitalBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -19,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 /**
  * 医院控制层
@@ -40,6 +41,9 @@ public class HospitalController {
 
     @Autowired
     private HospitalBizService hospitalBizService;
+
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     /**
      * 保存医院
@@ -132,13 +136,14 @@ public class HospitalController {
      *
      * @param districtId 行政区域ID
      * @return 是否导出成功
-     * @throws IOException   IO异常
-     * @throws UtilException 工具异常
      * @see ExcelFacade
      */
     @GetMapping("/export")
-    public void getHospitalExportData(Integer districtId) throws IOException, UtilException {
+    public void getHospitalExportData(Integer districtId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.generateHospital(currentUser.getId(), districtId);
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(currentUser.getId())
+                        .setDistrictId(districtId),
+                ExportExcelServiceNameConstant.HOSPITAL_EXCEL_SERVICE);
     }
 }

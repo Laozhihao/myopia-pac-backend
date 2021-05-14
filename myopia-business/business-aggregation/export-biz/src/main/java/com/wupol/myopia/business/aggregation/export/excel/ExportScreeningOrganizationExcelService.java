@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -52,7 +53,9 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
     @Override
     public String getFileName(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
-        return String.format(FileNameConstant.SCREENING_ORG_EXCEL_FILE_NAME, district.getName());
+        return String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS,
+                districtService.getTopDistrictName(district.getCode()) + FileNameConstant.SCREENING_ORG_EXCEL_FILE_NAME,
+                new Date());
     }
 
     /**
