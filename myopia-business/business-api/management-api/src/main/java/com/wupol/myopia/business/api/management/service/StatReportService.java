@@ -27,7 +27,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -59,11 +58,11 @@ public class StatReportService {
 
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件
+     *
      * @param districtId 区域 id
      * @return
-     * @throws IOException
      */
-    private StatConclusionQueryDTO composeDistrictQuery(Integer districtId) throws IOException {
+    private StatConclusionQueryDTO composeDistrictQuery(Integer districtId) {
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return query;
@@ -78,10 +77,8 @@ public class StatReportService {
     private Map<String, Object> composeGenderStat(
             String name, List<StatConclusion> statConclusions) {
         long total = statConclusions.size();
-        Long maleNum = statConclusions.stream()
-                               .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                               .count();
-        Long femaleNum = total - maleNum;
+        long maleNum = statConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).count();
+        long femaleNum = total - maleNum;
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("name", name);
         resultMap.put("male", maleNum);
@@ -139,14 +136,11 @@ public class StatReportService {
      */
     private AverageVision calculateAverageVision(List<StatConclusion> statConclusions) {
         int size = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(x -> x.getVisionL()).sum();
-        double sumVisionR = statConclusions.stream().mapToDouble(x -> x.getVisionR()).sum();
+        double sumVisionL = statConclusions.stream().mapToDouble(StatConclusion::getVisionL).sum();
+        double sumVisionR = statConclusions.stream().mapToDouble(StatConclusion::getVisionR).sum();
         float avgVisionL = round2Digits(sumVisionL / size);
         float avgVisionR = round2Digits(sumVisionR / size);
-        return AverageVision.builder()
-                .averageVisionLeft(avgVisionL)
-                .averageVisionRight(avgVisionR)
-                .build();
+        return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
     }
 
     /** 平均视力 */
@@ -159,12 +153,12 @@ public class StatReportService {
 
     /**
      * 获取区域筛查报告数据
+     *
      * @param srcScreeningNoticeId 政府下发的原始通知id
-     * @param districtId 区域id
+     * @param districtId           区域id
      * @return
-     * @throws IOException
      */
-    public Map<String, Object> getDistrictStatData(int srcScreeningNoticeId, int districtId) throws IOException {
+    public Map<String, Object> getDistrictStatData(int srcScreeningNoticeId, int districtId) {
         StatConclusionQueryDTO query = composeDistrictQuery(districtId);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
@@ -178,165 +172,65 @@ public class StatReportService {
         Date startDate = notice.getStartTime();
         Date endDate = notice.getEndTime();
         List<StatConclusion> firstScreenConclusions =
-                statConclusions.stream()
-                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
-                        .collect(Collectors.toList());
+                statConclusions.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
         long totalFirstScreeningNum = firstScreenConclusions.size();
-        List<Integer> schoolIds = statConclusions.stream()
-                                          .map(x -> x.getSchoolId())
-                                          .distinct()
-                                          .collect(Collectors.toList());
+        List<Integer> schoolIds =
+                statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
         List<School> schools = schoolService.getByIds(schoolIds);
-        List<String> schoolExamples =
-                schools.stream().map(School::getName).limit(3).collect(Collectors.toList());
+        List<String> schoolExamples = schools.stream().map(School::getName).limit(3).collect(Collectors.toList());
         List<StatConclusion> validConclusions =
-                firstScreenConclusions.stream()
-                        .filter(x -> Boolean.TRUE.equals(x.getIsValid()))
-                        .collect(Collectors.toList());
+                firstScreenConclusions.stream().filter(x -> Boolean.TRUE.equals(x.getIsValid())).collect(Collectors.toList());
         List<StatConclusion> visionCorrectionConclusions =
-                firstScreenConclusions.stream()
-                        .filter(x
-                                -> x.getVisionCorrection() != null
-                                        && !VisionCorrection.NORMAL.code.equals(
-                                                x.getVisionCorrection()))
-                        .collect(Collectors.toList());
-
-        long validFirstScreeningNum = validConclusions.size();
+                firstScreenConclusions.stream().filter(x -> x.getVisionCorrection() != null && !VisionCorrection.NORMAL.code.equals(x.getVisionCorrection())).collect(Collectors.toList());
 
         List<StatConclusion> maleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
         List<StatConclusion> femaleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
         List<StatConclusion> kindergartenList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> primaryList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> juniorList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> highList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
         List<StatConclusion> vocationalHighList =
-                validConclusions.stream()
-                        .filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
 
-        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<>();
-        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
-        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
-        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
-        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
-        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
+        List<Map<String, Object>> schoolGenderTable = this.createSchoolGenderTable(validConclusions, schools);
 
-        List<StatConclusion> myopiaConclusions =
-                validConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
+        Map<String, List<StatConclusion>> schoolAgeMap = this.createSchoolAgeMap(kindergartenList, primaryList,
+                juniorList, highList, vocationalHighList);
 
-        List<Map<String, Object>> schoolGenderTable = new ArrayList<>();
-        for (School school : schools) {
-            int schoolId = school.getId();
-            List<StatConclusion> schoolList = validConclusions.stream()
-                                                      .filter(x -> x.getSchoolId() == schoolId)
-                                                      .collect(Collectors.toList());
-            Map<String, Object> schoolGenderStat = composeGenderStat(school.getName(), schoolList);
-            schoolGenderTable.add(schoolGenderStat);
-        };
+        List<Map<String, Object>> schoolAgeGenderTable = this.createSchoolAgeGenderTable(schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGenderTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGenderTable.add(composeGenderStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
+        List<Map<String, Object>> schoolAgeLowVisionLevelTable =
+                this.createSchoolAgeLowVisionLevelTable(validConclusions, schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeLowVisionLevelTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeGenderLowVisionTable =
+                this.createSchoolAgeGenderLowVisionTable(validConclusions, schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGenderLowVisionTable = new ArrayList<Map<String, Object>>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeGenderMyopiaTable = this.createSchoolAgeGenderMyopiaTable(validConclusions
+                , schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGenderMyopiaTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        List<Map<String, Object>> schoolGradeGenderMyopiaTable =
+                this.createSchoolGradeGenderMyopiaTable(validConclusions);
 
-        List<Map<String, Object>> schoolGradeGenderMyopiaTable = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
-            schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat(gradeCode.name(),
-                    validConclusions.stream()
-                            .filter(x
-                                    -> gradeCode.getCode().equals(
-                                    x.getSchoolGradeCode()))
-                            .collect(Collectors.toList())));
-        }
-        schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeMyopiaLevelTable = this.createSchoolAgeMyopiaLevelTable(validConclusions,
+                schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeMyopiaLevelTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeGlassesTypeTable = this.createSchoolAgeGlassesTypeTable(validConclusions,
+                schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGlassesTypeTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeGlassesTypeTable.add(composeGlassesTypeStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeGlassesTypeTable.add(composeGlassesTypeStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeGenderVisionUncorrectedTable =
+                this.createSchoolAgeGenderVisionUncorrectedTable(validConclusions, schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGenderVisionUncorrectedTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            List<StatConclusion> schoolAgeMyopiaConclusions =
-                    schoolAgeMap.get(schoolAgeName)
-                            .stream()
-                            .filter(x
-                                    -> x.getIsMyopia() == null ? false
-                                    : x.getIsMyopia())
-                            .collect(Collectors.toList());
-            schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat(
-                    schoolAgeName, schoolAgeMyopiaConclusions));
-        }
-        schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat("total", myopiaConclusions));
+        List<Map<String, Object>> schoolAgeGenderVisionUnderCorrectedTable =
+                this.createSchoolAgeGenderVisionUnderCorrectedTable(visionCorrectionConclusions, schoolAgeMap);
 
-        List<Map<String, Object>> schoolAgeGenderVisionUnderCorrectedTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            List<StatConclusion> schoolAgeVisionCorrectionConclusions =
-                    schoolAgeMap.get(schoolAgeName)
-                            .stream()
-                            .filter(x
-                                    -> x.getVisionCorrection() != null
-                                    && !VisionCorrection.NORMAL.code.equals(
-                                    x.getVisionCorrection()))
-                            .collect(Collectors.toList());
-            schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(
-                    schoolAgeName, schoolAgeVisionCorrectionConclusions));
-        }
-        schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(
-                "total", visionCorrectionConclusions));
-
-        List<Map<String, Object>> schoolAgeWarningLevelTable = new ArrayList<>();
-        for (String schoolAgeName : schoolAgeMap.keySet()) {
-            schoolAgeWarningLevelTable.add(composeWarningLevelStat(
-                    schoolAgeName, schoolAgeMap.get(schoolAgeName)));
-        }
-        schoolAgeWarningLevelTable.add(composeWarningLevelStat("total", validConclusions));
+        List<Map<String, Object>> schoolAgeWarningLevelTable = this.createSchoolAgeWarningLevelTable(validConclusions
+                , schoolAgeMap);
 
         Map<String, Object> result = new HashMap<>();
         result.put("districtName", districtName);
@@ -349,7 +243,7 @@ public class StatReportService {
         result.put("schoolExamples", schoolExamples);
         result.put("planScreeningNum", planScreeningNum);
         result.put("actualScreeningNum", totalFirstScreeningNum);
-        result.put("validFirstScreeningNum", validFirstScreeningNum);
+        result.put("validFirstScreeningNum", validConclusions.size());
         result.put("kindergartenScreeningNum", kindergartenList.size());
         result.put("primaryScreeningNum", primaryList.size());
         result.put("juniorScreeningNum", juniorList.size());
@@ -359,49 +253,172 @@ public class StatReportService {
         result.put("vocationalHighScreeningNum", vocationalHighList.size());
         result.put("schoolGenderTable", schoolGenderTable);
         result.put("schoolAgeGenderTable", schoolAgeGenderTable);
-        result.put("schoolAgeLowVisionLevelDesc",
-                composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
-        result.put("schoolAgeGenderLowVisionDesc",
-                composeSchoolAgeGenderVisionDesc(
-                        "schoolAgeGenderLowVisionTable", schoolAgeGenderLowVisionTable));
-        result.put("schoolAgeGenderMyopiaDesc",
-                composeSchoolAgeGenderVisionDesc(
-                        "schoolAgeGenderMyopiaTable", schoolAgeGenderMyopiaTable));
+        result.put("schoolAgeLowVisionLevelDesc", composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
+        result.put("schoolAgeGenderLowVisionDesc", composeSchoolAgeGenderVisionDesc("schoolAgeGenderLowVisionTable",
+                schoolAgeGenderLowVisionTable));
+        result.put("schoolAgeGenderMyopiaDesc", composeSchoolAgeGenderVisionDesc("schoolAgeGenderMyopiaTable",
+                schoolAgeGenderMyopiaTable));
         result.put("schoolGradeGenderMyopiaTable", schoolGradeGenderMyopiaTable);
-        result.put("schoolAgeMyopiaLevelDesc",
-                composeSchoolAgeMyopiaLevelDesc(
-                        "schoolAgeMyopiaLevelTable", schoolAgeMyopiaLevelTable));
-        result.put("schoolAgeGlassesTypeDesc",
-                composeSchoolAgeGlassesTypeDesc(
-                        "schoolAgeGlassesTypeTable", schoolAgeGlassesTypeTable));
-        result.put("schoolAgeGenderVisionUncorrectedDesc",
-                composeSchoolAgeGenderVisionCorrectionDesc(
-                        "schoolAgeGenderVisionUncorrectedTable",
-                        schoolAgeGenderVisionUncorrectedTable));
-        result.put("schoolAgeGenderVisionUnderCorrectedDesc",
-                composeSchoolAgeGenderVisionCorrectionDesc(
-                        "schoolAgeGenderVisionUnderCorrectedTable",
-                        schoolAgeGenderVisionUnderCorrectedTable));
-        result.put("schoolAgeWarningLevelDesc",
-                composeSchoolAgeWarningLevelDesc(
-                        "schoolAgeWarningLevelTable", schoolAgeWarningLevelTable));
+        result.put("schoolAgeMyopiaLevelDesc", composeSchoolAgeMyopiaLevelDesc("schoolAgeMyopiaLevelTable",
+                schoolAgeMyopiaLevelTable));
+        result.put("schoolAgeGlassesTypeDesc", composeSchoolAgeGlassesTypeDesc("schoolAgeGlassesTypeTable",
+                schoolAgeGlassesTypeTable));
+        result.put("schoolAgeGenderVisionUncorrectedDesc", composeSchoolAgeGenderVisionCorrectionDesc(
+                "schoolAgeGenderVisionUncorrectedTable", schoolAgeGenderVisionUncorrectedTable));
+        result.put("schoolAgeGenderVisionUnderCorrectedDesc", composeSchoolAgeGenderVisionCorrectionDesc(
+                "schoolAgeGenderVisionUnderCorrectedTable", schoolAgeGenderVisionUnderCorrectedTable));
+        result.put("schoolAgeWarningLevelDesc", composeSchoolAgeWarningLevelDesc("schoolAgeWarningLevelTable",
+                schoolAgeWarningLevelTable));
         return result;
+    }
+
+    private List<Map<String, Object>> createSchoolGenderTable(List<StatConclusion> validConclusions,
+                                                              List<School> schools) {
+        List<Map<String, Object>> schoolGenderTable = new ArrayList<>();
+        for (School school : schools) {
+            int schoolId = school.getId();
+            List<StatConclusion> schoolList =
+                    validConclusions.stream().filter(x -> x.getSchoolId() == schoolId).collect(Collectors.toList());
+            Map<String, Object> schoolGenderStat = composeGenderStat(school.getName(), schoolList);
+            schoolGenderTable.add(schoolGenderStat);
+        }
+        return schoolGenderTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeWarningLevelTable(List<StatConclusion> validConclusions,
+                                                                       Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeWarningLevelTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeWarningLevelTable.add(composeWarningLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeWarningLevelTable.add(composeWarningLevelStat("total", validConclusions));
+        return schoolAgeWarningLevelTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGenderVisionUnderCorrectedTable(List<StatConclusion> visionCorrectionConclusions, Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGenderVisionUnderCorrectedTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            List<StatConclusion> schoolAgeVisionCorrectionConclusions =
+                    schoolAgeMap.get(schoolAgeName).stream().filter(x -> x.getVisionCorrection() != null && !VisionCorrection.NORMAL.code.equals(x.getVisionCorrection())).collect(Collectors.toList());
+            schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat(schoolAgeName,
+                    schoolAgeVisionCorrectionConclusions));
+        }
+        schoolAgeGenderVisionUnderCorrectedTable.add(composeGenderVisionUnderCorrectedStat("total",
+                visionCorrectionConclusions));
+        return schoolAgeGenderVisionUnderCorrectedTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGenderVisionUncorrectedTable(List<StatConclusion> validConclusions, Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGenderVisionUncorrectedTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            List<StatConclusion> schoolAgeMyopiaConclusions =
+                    schoolAgeMap.get(schoolAgeName).stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).collect(Collectors.toList());
+            schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat(schoolAgeName,
+                    schoolAgeMyopiaConclusions));
+        }
+        List<StatConclusion> myopiaConclusions =
+                validConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+        schoolAgeGenderVisionUncorrectedTable.add(composeGenderVisionUncorrectedStat("total", myopiaConclusions));
+        return schoolAgeGenderVisionUncorrectedTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGenderTable(Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGenderTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeGenderTable.add(composeGenderStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        return schoolAgeGenderTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeLowVisionLevelTable(List<StatConclusion> validConclusions,
+                                                                         Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeLowVisionLevelTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeLowVisionLevelTable.add(composeLowVisionLevelStat("total", validConclusions));
+        return schoolAgeLowVisionLevelTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGenderLowVisionTable(List<StatConclusion> validConclusions,
+                                                                          Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGenderLowVisionTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat(schoolAgeName,
+                    schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeGenderLowVisionTable.add(composeGenderLowVisionStat("total", validConclusions));
+        return schoolAgeGenderLowVisionTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGenderMyopiaTable(List<StatConclusion> validConclusions,
+                                                                       Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGenderMyopiaTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        return schoolAgeGenderMyopiaTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeGlassesTypeTable(List<StatConclusion> validConclusions,
+                                                                      Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeGlassesTypeTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeGlassesTypeTable.add(composeGlassesTypeStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeGlassesTypeTable.add(composeGlassesTypeStat("total", validConclusions));
+        return schoolAgeGlassesTypeTable;
+    }
+
+    private List<Map<String, Object>> createSchoolAgeMyopiaLevelTable(List<StatConclusion> validConclusions,
+                                                                      Map<String, List<StatConclusion>> schoolAgeMap) {
+        List<Map<String, Object>> schoolAgeMyopiaLevelTable = new ArrayList<>();
+        for (String schoolAgeName : schoolAgeMap.keySet()) {
+            schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat(schoolAgeName, schoolAgeMap.get(schoolAgeName)));
+        }
+        schoolAgeMyopiaLevelTable.add(composeMyopiaLevelStat("total", validConclusions));
+        return schoolAgeMyopiaLevelTable;
+    }
+
+    private List<Map<String, Object>> createSchoolGradeGenderMyopiaTable(List<StatConclusion> validConclusions) {
+        List<Map<String, Object>> schoolGradeGenderMyopiaTable = new ArrayList<>();
+        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+            schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat(gradeCode.name(),
+                    validConclusions.stream().filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList())));
+        }
+        schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat("total", validConclusions));
+        return schoolGradeGenderMyopiaTable;
+    }
+
+    private Map<String, List<StatConclusion>> createSchoolAgeMap(List<StatConclusion> kindergartenList,
+                                                                 List<StatConclusion> primaryList,
+                                                                 List<StatConclusion> juniorList,
+                                                                 List<StatConclusion> highList,
+                                                                 List<StatConclusion> vocationalHighList) {
+        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<>();
+        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
+        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
+        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
+        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
+        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
+        return schoolAgeMap;
     }
 
     /**
      * 构造 学龄/视力低下程度 描述
+     *
      * @param schoolAgeLowVisionLevelTable
      * @return
      */
-    private Map<String, Object> composeSchoolAgeLowVisionLevelDesc(
-            List<Map<String, Object>> schoolAgeLowVisionLevelTable) {
+    private Map<String, Object> composeSchoolAgeLowVisionLevelDesc(List<Map<String, Object>> schoolAgeLowVisionLevelTable) {
         int size = schoolAgeLowVisionLevelTable.size();
         Map<String, Object> conclusionDesc = new HashMap<>();
         List<BasicStatParams> schoolAgeLowVisionRatio = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             Map<String, Object> stats = schoolAgeLowVisionLevelTable.get(i);
             List<BasicStatParams> list = (List<BasicStatParams>) stats.get("list");
-            Float ratio = (Float) list.get(list.size() - 1).getRatio();
+            Float ratio = list.get(list.size() - 1).getRatio();
             if (i != size - 1) {
                 String name = (String) stats.get("name");
                 schoolAgeLowVisionRatio.add(new BasicStatParams(name, ratio, null));
@@ -410,8 +427,7 @@ public class StatReportService {
                 conclusionDesc.put("totalLowVisionRatio", ratio);
             }
         }
-        Collections.sort(schoolAgeLowVisionRatio,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        schoolAgeLowVisionRatio.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("sortedList", schoolAgeLowVisionRatio);
         conclusionDesc.put("schoolAgeLowVisionLevelTable", schoolAgeLowVisionLevelTable);
         return conclusionDesc;
@@ -450,16 +466,14 @@ public class StatReportService {
         int primaryToHighCorrectionNum = 0;
         int primaryToHighCorrectionRatio = 0;
         List<BasicStatParams> sortedList = new ArrayList<>();
-        for (int i = 0; i < schoolAgeGenderVisionCorrectionTable.size(); i++) {
-            Map<String, Object> item = schoolAgeGenderVisionCorrectionTable.get(i);
+        for (Map<String, Object> item : schoolAgeGenderVisionCorrectionTable) {
             String schoolAgeName = (String) item.get("name");
             if (schoolAgeName.equals("total")) {
                 continue;
             }
             SchoolAge schoolAge = SchoolAge.valueOf(schoolAgeName);
             List<TableBasicStatParams> list = (List<TableBasicStatParams>) item.get("list");
-            TableBasicStatParams params =
-                    list.stream().filter(x -> x.getTitle().equals("total")).findFirst().get();
+            TableBasicStatParams params = list.stream().filter(x -> x.getTitle().equals("total")).findFirst().get();
             sortedList.add(new BasicStatParams(schoolAgeName, params.getRatio(), null));
             switch (schoolAge) {
                 case KINDERGARTEN:
@@ -476,8 +490,7 @@ public class StatReportService {
                 default:
             }
         }
-        Collections.sort(
-                sortedList, Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        sortedList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         Map<String, Object> conclusionDesc = new HashMap<>();
         conclusionDesc.put("totalList", totalList);
         conclusionDesc.put("sortedList", sortedList);
@@ -511,31 +524,27 @@ public class StatReportService {
                 WarningLevel wl = WarningLevel.valueOf(params.getTitle());
                 switch (wl) {
                     case ZERO:
-                        warningLevelZeroSchoolAgeList.add(new BasicStatParams(
-                                schoolAgeName, params.getRatio(), params.getNum()));
+                        warningLevelZeroSchoolAgeList.add(new BasicStatParams(schoolAgeName, params.getRatio(),
+                                params.getNum()));
                         break;
                     case ONE:
-                        warningLevelOneSchoolAgeList.add(new BasicStatParams(
-                                schoolAgeName, params.getRatio(), params.getNum()));
+                        warningLevelOneSchoolAgeList.add(new BasicStatParams(schoolAgeName, params.getRatio(),
+                                params.getNum()));
                         break;
                     case TWO:
-                        warningLevelTwoSchoolAgeList.add(new BasicStatParams(
-                                schoolAgeName, params.getRatio(), params.getNum()));
+                        warningLevelTwoSchoolAgeList.add(new BasicStatParams(schoolAgeName, params.getRatio(),
+                                params.getNum()));
                         break;
                     case THREE:
-                        warningLevelThreeSchoolAgeList.add(new BasicStatParams(
-                                schoolAgeName, params.getRatio(), params.getNum()));
+                        warningLevelThreeSchoolAgeList.add(new BasicStatParams(schoolAgeName, params.getRatio(),
+                                params.getNum()));
                 }
             }
         }
-        Collections.sort(warningLevelZeroSchoolAgeList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        Collections.sort(warningLevelOneSchoolAgeList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        Collections.sort(warningLevelTwoSchoolAgeList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
-        Collections.sort(warningLevelThreeSchoolAgeList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        warningLevelZeroSchoolAgeList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        warningLevelOneSchoolAgeList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        warningLevelTwoSchoolAgeList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        warningLevelThreeSchoolAgeList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         List<List<BasicStatParams>> sortedList = new ArrayList();
         sortedList.add(warningLevelZeroSchoolAgeList);
         sortedList.add(warningLevelOneSchoolAgeList);
@@ -545,7 +554,7 @@ public class StatReportService {
         Map<String, Object> conclusionDesc = new HashMap<>();
 
         List<BasicStatParams> totalRowList = (List<BasicStatParams>) totalStat.get("list");
-        Long totalWarningNum = totalRowList.stream().mapToLong(x -> x.getNum()).sum();
+        long totalWarningNum = totalRowList.stream().mapToLong(x -> x.getNum()).sum();
         conclusionDesc.put("totalNum", totalWarningNum);
         conclusionDesc.put("totalRatio", convertToPercentage(totalWarningNum * 1f / totalNum));
 
@@ -575,14 +584,13 @@ public class StatReportService {
         for (int i = 0; i < size; i++) {
             Map<String, Object> stats = schoolAgeMyopiaLevelTable.get(i);
             List<BasicStatParams> list = (List<BasicStatParams>) stats.get("list");
-            Float ratio = (Float) list.get(list.size() - 1).getRatio();
+            Float ratio = list.get(list.size() - 1).getRatio();
             if (i != size - 1) {
                 String name = (String) stats.get("name");
                 schoolAgeMyopiaRatio.add(new BasicStatParams(name, ratio, null));
             }
         }
-        Collections.sort(schoolAgeMyopiaRatio,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        schoolAgeMyopiaRatio.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("sortedList", schoolAgeMyopiaRatio);
         conclusionDesc.put(title, schoolAgeMyopiaLevelTable);
         return conclusionDesc;
@@ -597,7 +605,6 @@ public class StatReportService {
     private Map<String, Object> composeSchoolAgeGlassesTypeDesc(
             String title, List<Map<String, Object>> schoolAgeGlassesTypeTable) {
         int size = schoolAgeGlassesTypeTable.size();
-        List<BasicStatParams> schoolAgeMyopiaRatio = new ArrayList<>();
         Map<String, Object> conclusionDesc = new HashMap<>();
         Map<String, Object> totalStat = schoolAgeGlassesTypeTable.get(size - 1);
         List<BasicStatParams> list = (List<BasicStatParams>) totalStat.get("list");
@@ -610,8 +617,6 @@ public class StatReportService {
             wearingNum += params.getNum();
             wearingRatio += params.getRatio();
         }
-        Collections.sort(schoolAgeMyopiaRatio,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         conclusionDesc.put("wearingNum", wearingNum);
         conclusionDesc.put("wearingRatio", round2Digits(wearingRatio));
         conclusionDesc.put("list", list);
@@ -625,22 +630,13 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeGenderRatio(List<TableBasicStatParams> list) {
-        float maleRatio = list.stream()
-                                  .filter(x -> GenderEnum.MALE.name().equals(x.getTitle()))
-                                  .map(x -> x.getRatio())
-                                  .findFirst()
-                                  .get();
-        float femaleRatio = list.stream()
-                                    .filter(x -> GenderEnum.FEMALE.name().equals(x.getTitle()))
-                                    .map(x -> x.getRatio())
-                                    .findFirst()
-                                    .get();
-        float totalRatio = list.stream()
-                                   .filter(x -> x.getTitle().equals("total"))
-                                   .map(x -> x.getRatio())
-                                   .findFirst()
-                                   .get();
-        Map<String,Object> resultMap = new HashMap();
+        float maleRatio =
+                list.stream().filter(x -> GenderEnum.MALE.name().equals(x.getTitle())).map(BasicStatParams::getRatio).findFirst().get();
+        float femaleRatio =
+                list.stream().filter(x -> GenderEnum.FEMALE.name().equals(x.getTitle())).map(BasicStatParams::getRatio).findFirst().get();
+        float totalRatio =
+                list.stream().filter(x -> x.getTitle().equals("total")).map(BasicStatParams::getRatio).findFirst().get();
+        Map<String, Object> resultMap = new HashMap();
         resultMap.put("maleRatio", maleRatio);
         resultMap.put("femaleRatio", femaleRatio);
         resultMap.put("totalRatio", totalRatio);
@@ -649,17 +645,16 @@ public class StatReportService {
 
     /**
      * 获取学校筛查报告数据
+     *
      * @param srcScreeningNoticeId 通知ID
-     * @param planId 计划ID
-     * @param schoolId 学校ID
+     * @param planId               计划ID
+     * @param schoolId             学校ID
      * @return
-     * @throws IOException
      */
-    public Map<String, Object> getSchoolStatData(
-            Integer srcScreeningNoticeId, Integer planId, int schoolId) throws IOException {
-        Date startDate = null;
-        Date endDate = null;
-        long planStudentNum = 0;
+    public Map<String, Object> getSchoolStatData(Integer srcScreeningNoticeId, Integer planId, int schoolId) {
+        Date startDate;
+        Date endDate;
+        long planStudentNum;
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setSchoolId(schoolId);
         if (srcScreeningNoticeId != null) {
@@ -667,8 +662,7 @@ public class StatReportService {
             query.setSrcScreeningNoticeId(srcScreeningNoticeId);
             startDate = notice.getStartTime();
             endDate = notice.getEndTime();
-            planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(
-                    srcScreeningNoticeId, schoolId);
+            planStudentNum = screeningPlanSchoolStudentService.countPlanSchoolStudent(srcScreeningNoticeId, schoolId);
         } else if (planId != null) {
             query.setPlanId(planId);
             ScreeningPlan sp = screeningPlanService.getById(planId);
@@ -690,48 +684,32 @@ public class StatReportService {
         String schoolName = school.getName();
 
         List<StatConclusion> firstScreenConclusions =
-                statConclusions.stream()
-                        .filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
-                        .collect(Collectors.toList());
+                statConclusions.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
         List<StatConclusion> validConclusions =
-                firstScreenConclusions.stream()
-                        .filter(x -> Boolean.TRUE.equals(x.getIsValid()))
-                        .collect(Collectors.toList());
+                firstScreenConclusions.stream().filter(x -> Boolean.TRUE.equals(x.getIsValid())).collect(Collectors.toList());
         List<StatConclusion> maleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
         List<StatConclusion> femaleList =
-                validConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                validConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
 
         long totalFirstScreeningNum = firstScreenConclusions.size();
         long validFirstScreeningNum = validConclusions.size();
-        long myopiaNum = validConclusions.stream()
-                                 .filter(x -> x.getIsMyopia() == null ? false : x.getIsMyopia())
-                                 .count();
+        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).count();
         long lowVisionNum =
-                validConclusions.stream()
-                        .filter(x -> x.getIsLowVision() == null ? false : x.getIsLowVision())
-                        .count();
-        long warning0Num = validConclusions.stream()
-                                   .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
-                                   .count();
-        long warning1Num = validConclusions.stream()
-                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
-                                   .count();
-        long warning2Num = validConclusions.stream()
-                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
-                                   .count();
-        long warning3Num = validConclusions.stream()
-                                   .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
-                                   .count();
+                validConclusions.stream().filter(x -> x.getIsLowVision() != null && x.getIsLowVision()).count();
+        long warning0Num =
+                validConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
+        long warning1Num =
+                validConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
+        long warning2Num =
+                validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
+        long warning3Num =
+                validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
         long warningNum = warning0Num + warning1Num + warning2Num + warning3Num;
 
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
-        float averageVisionValue = round2Digits(
-                (averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
+        float averageVisionValue =
+                round2Digits((averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
         List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
         List<StatConclusionReportDTO> statConclusionReportDTOs =
@@ -840,8 +818,7 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeWarningLevelDesc(
             List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> schoolGradeGenderVisionTable =
-                new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
@@ -853,7 +830,7 @@ public class StatReportService {
         Map<String, Object> totalStat = composeWarningLevelStat("total", statConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
-        long totalWarningNum = totalStatList.stream().mapToLong(x -> x.getNum()).sum();
+        long totalWarningNum = totalStatList.stream().mapToLong(BasicStatParams::getNum).sum();
         long totalSize = statConclusions.size();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", schoolGradeGenderVisionTable);
@@ -871,22 +848,15 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeGenderUncorrectedDesc(
             List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions =
-                statConclusions.stream()
-                        .filter(x -> x.getIsMyopia() == null ? false : x.getIsMyopia())
-                        .collect(Collectors.toList());
-        List<Map<String, Object>> schoolGradeGenderVisionTable =
-                new ArrayList<Map<String, Object>>();
+                statConclusions.stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).collect(Collectors.toList());
+        List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    myopiaConclusions.stream()
-                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
-                            .collect(Collectors.toList());
-            schoolGradeGenderVisionTable.add(
-                    composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
+                    myopiaConclusions.stream().filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList());
+            schoolGradeGenderVisionTable.add(composeGenderVisionUncorrectedStat(gradeCodeEnum.name(), list));
         }
-        Map<String, Object> totalStat =
-                composeGenderVisionUncorrectedStat("total", myopiaConclusions);
+        Map<String, Object> totalStat = composeGenderVisionUncorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         Map<String, Object> resultMap = new HashMap<>();
@@ -903,20 +873,15 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeGenderUnderCorrectedDesc(
             List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
         List<StatConclusion> myopiaConclusions =
-                statConclusions.stream().filter(x -> x.getIsMyopia()).collect(Collectors.toList());
-        List<Map<String, Object>> schoolGradeGenderVisionTable =
-                new ArrayList<Map<String, Object>>();
+                statConclusions.stream().filter(StatConclusion::getIsMyopia).collect(Collectors.toList());
+        List<Map<String, Object>> schoolGradeGenderVisionTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    myopiaConclusions.stream()
-                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
-                            .collect(Collectors.toList());
-            schoolGradeGenderVisionTable.add(
-                    composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
+                    myopiaConclusions.stream().filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList());
+            schoolGradeGenderVisionTable.add(composeGenderVisionUnderCorrectedStat(gradeCodeEnum.name(), list));
         }
-        Map<String, Object> totalStat =
-                composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
+        Map<String, Object> totalStat = composeGenderVisionUnderCorrectedStat("total", myopiaConclusions);
         schoolGradeGenderVisionTable.add(totalStat);
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         Map<String, Object> resultMap = new HashMap<>();
@@ -932,26 +897,19 @@ public class StatReportService {
      */
     private Map<String, Object> composeSchoolGradeWearingTypeDesc(
             List<SchoolGradeItemsDTO> schoolGradeItemList, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> schoolGradeWearingTypeTable =
-                new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> schoolGradeWearingTypeTable = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
             List<StatConclusion> list =
-                    statConclusions.stream()
-                            .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode()))
-                            .collect(Collectors.toList());
+                    statConclusions.stream().filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())).collect(Collectors.toList());
             schoolGradeWearingTypeTable.add(composeGlassesTypeStat(gradeCodeEnum.name(), list));
         }
         Map<String, Object> totalStat = composeGlassesTypeStat("total", statConclusions);
         schoolGradeWearingTypeTable.add(totalStat);
 
         long totalSize = statConclusions.size();
-        Long totalWearingNum =
-                statConclusions.stream()
-                        .filter(x
-                                -> x.getGlassesType() != null
-                                        && !GlassesType.NOT_WEARING.code.equals(x.getGlassesType()))
-                        .count();
+        long totalWearingNum =
+                statConclusions.stream().filter(x -> x.getGlassesType() != null && !GlassesType.NOT_WEARING.code.equals(x.getGlassesType())).count();
         List<BasicStatParams> totalStatList = (List<BasicStatParams>) totalStat.get("list");
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", schoolGradeWearingTypeTable);
@@ -1035,12 +993,7 @@ public class StatReportService {
     private List<BasicStatParams> getTopStatList(List<BasicStatParams> list) {
         Map<Float, List<BasicStatParams>> map =
                 list.stream().collect(Collectors.groupingBy(BasicStatParams::getRatio));
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                .findFirst()
-                .get()
-                .getValue();
+        return map.entrySet().stream().min(Map.Entry.comparingByKey(Comparator.reverseOrder())).get().getValue();
     }
 
     /**
@@ -1051,7 +1004,7 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(
             List<StatConclusion> statConclusions) {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> list = new ArrayList<>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
                     statConclusions.stream()
@@ -1064,8 +1017,7 @@ public class StatReportService {
                     gradeCode.name(), paramsList.get(paramsList.size() - 1).getRatio(), null));
         }
         list.add(composeMyopiaLevelStat("total", statConclusions));
-        Collections.sort(schoolGradeMyopiaRatioList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        schoolGradeMyopiaRatioList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", list);
@@ -1081,7 +1033,7 @@ public class StatReportService {
     private Map<String, Object> composeSchoolGradeLowVisionLevelDesc(
             List<StatConclusion> statConclusions) {
         List<BasicStatParams> schoolGradeLowVisionRatioList = new ArrayList<>();
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> list = new ArrayList<>();
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.name(),
                     statConclusions.stream()
@@ -1094,8 +1046,7 @@ public class StatReportService {
                     gradeCode.name(), paramsList.get(paramsList.size() - 1).getRatio(), null));
         }
         list.add(composeLowVisionLevelStat("total", statConclusions));
-        Collections.sort(schoolGradeLowVisionRatioList,
-                Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
+        schoolGradeLowVisionRatioList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("list", list);
         resultMap.put("sortedStat", schoolGradeLowVisionRatioList);
@@ -1109,7 +1060,7 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassLowVisionLevelTable(
             List<SchoolGradeItemsDTO> schoolGradeItems, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> classList = new ArrayList<>();
         int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItemsDTO schoolGradeItem =
@@ -1146,7 +1097,7 @@ public class StatReportService {
      */
     private List<Map<String, Object>> composeSchoolGradeClassMyopiaLevelTable(
             List<SchoolGradeItemsDTO> schoolGradeItems, List<StatConclusion> statConclusions) {
-        List<Map<String, Object>> classList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> classList = new ArrayList<>();
         int rowKey = 0;
         for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
             SchoolGradeItemsDTO schoolGradeItem =
@@ -1183,7 +1134,7 @@ public class StatReportService {
      */
     private Map<String, Object> composeGenderLowVisionStat(
             String name, List<StatConclusion> statConclusions) {
-        Predicate<StatConclusion> predicate = x -> x.getIsLowVision();
+        Predicate<StatConclusion> predicate = StatConclusion::getIsLowVision;
         return composeGenderPredicateStat(name, statConclusions, predicate);
     }
 
@@ -1238,24 +1189,17 @@ public class StatReportService {
         long rowTotal = statConclusions.size();
 
         List<StatConclusion> maleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.MALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                statConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
 
         List<StatConclusion> femaleList =
-                statConclusions.stream()
-                        .filter(x -> GenderEnum.FEMALE.type.equals(x.getGender()))
-                        .collect(Collectors.toList());
+                statConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
 
-        Long maleLowVisionNum = maleList.stream().filter(predicate).count();
-        Long femaleLowVisionNum = femaleList.stream().filter(predicate).count();
-        List<TableBasicStatParams> list = new ArrayList<TableBasicStatParams>();
-        list.add(composeTableBasicParams(
-                GenderEnum.MALE.name(), maleLowVisionNum, maleList.size()));
-        list.add(composeTableBasicParams(
-                GenderEnum.FEMALE.name(), femaleLowVisionNum, femaleList.size()));
-        list.add(composeTableBasicParams(
-                "total", maleLowVisionNum + femaleLowVisionNum, rowTotal));
+        long maleLowVisionNum = maleList.stream().filter(predicate).count();
+        long femaleLowVisionNum = femaleList.stream().filter(predicate).count();
+        List<TableBasicStatParams> list = new ArrayList<>();
+        list.add(composeTableBasicParams(GenderEnum.MALE.name(), maleLowVisionNum, maleList.size()));
+        list.add(composeTableBasicParams(GenderEnum.FEMALE.name(), femaleLowVisionNum, femaleList.size()));
+        list.add(composeTableBasicParams("total", maleLowVisionNum + femaleLowVisionNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("name", name);
         resultMap.put("rowTotal", rowTotal);
@@ -1314,19 +1258,14 @@ public class StatReportService {
     private Map<String, Object> composeWarningLevelStat(
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
-        Long levelZeroNum = statConclusions.stream()
-                                    .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
-                                    .count();
-        Long levelOneNum = statConclusions.stream()
-                                   .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
-                                   .count();
-        Long levelTwoNum = statConclusions.stream()
-                                   .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
-                                   .count();
-        Long levelThreeNum =
-                statConclusions.stream()
-                        .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
-                        .count();
+        long levelZeroNum =
+                statConclusions.stream().filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel())).count();
+        long levelOneNum =
+                statConclusions.stream().filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel())).count();
+        long levelTwoNum =
+                statConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
+        long levelThreeNum =
+                statConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
         List<BasicStatParams> list = new ArrayList<>();
         list.add(composeBasicParams(WarningLevel.ZERO.name(), levelZeroNum, rowTotal));
         list.add(composeBasicParams(WarningLevel.ONE.name(), levelOneNum, rowTotal));
@@ -1353,15 +1292,14 @@ public class StatReportService {
             Predicate<StatConclusion> levelTwoPredicate,
             Predicate<StatConclusion> levelThreePredicate) {
         long rowTotal = statConclusions.size();
-        Long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
-        Long levelTwoNum = statConclusions.stream().filter(levelTwoPredicate).count();
-        Long levelThreeNum = statConclusions.stream().filter(levelThreePredicate).count();
+        long levelOneNum = statConclusions.stream().filter(levelOnePredicate).count();
+        long levelTwoNum = statConclusions.stream().filter(levelTwoPredicate).count();
+        long levelThreeNum = statConclusions.stream().filter(levelThreePredicate).count();
         List<BasicStatParams> list = new ArrayList<>();
         list.add(composeBasicParams(WarningLevel.ONE.name(), levelOneNum, rowTotal));
         list.add(composeBasicParams(WarningLevel.TWO.name(), levelTwoNum, rowTotal));
         list.add(composeBasicParams(WarningLevel.THREE.name(), levelThreeNum, rowTotal));
-        list.add(composeBasicParams(
-                "levelTotal", levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
+        list.add(composeBasicParams("levelTotal", levelOneNum + levelTwoNum + levelThreeNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("name", name);
         resultMap.put("rowTotal", rowTotal);
@@ -1378,30 +1316,19 @@ public class StatReportService {
     private Map<String, Object> composeGlassesTypeStat(
             String name, List<StatConclusion> statConclusions) {
         long rowTotal = statConclusions.size();
-        Long typeFrameNum =
-                statConclusions.stream()
-                        .filter(x -> GlassesType.FRAME_GLASSES.code.equals(x.getGlassesType()))
-                        .count();
-        Long typeContactLensNum =
-                statConclusions.stream()
-                        .filter(x -> GlassesType.CONTACT_LENS.code.equals(x.getGlassesType()))
-                        .count();
-        Long typeOrthokeratologyNum =
-                statConclusions.stream()
-                        .filter(x -> GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType()))
-                        .count();
-        Long typeNotWearingNum =
-                statConclusions.stream()
-                        .filter(x -> GlassesType.NOT_WEARING.code.equals(x.getGlassesType()))
-                        .count();
+        long typeFrameNum =
+                statConclusions.stream().filter(x -> GlassesType.FRAME_GLASSES.code.equals(x.getGlassesType())).count();
+        long typeContactLensNum =
+                statConclusions.stream().filter(x -> GlassesType.CONTACT_LENS.code.equals(x.getGlassesType())).count();
+        long typeOrthokeratologyNum =
+                statConclusions.stream().filter(x -> GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        long typeNotWearingNum =
+                statConclusions.stream().filter(x -> GlassesType.NOT_WEARING.code.equals(x.getGlassesType())).count();
         List<BasicStatParams> list = new ArrayList<>();
         list.add(composeBasicParams(GlassesType.FRAME_GLASSES.name(), typeFrameNum, rowTotal));
-        list.add(composeBasicParams(
-                GlassesType.FRAME_GLASSES.name(), typeContactLensNum, rowTotal));
-        list.add(composeBasicParams(
-                GlassesType.ORTHOKERATOLOGY.name(), typeOrthokeratologyNum, rowTotal));
-        list.add(composeBasicParams(
-                GlassesType.NOT_WEARING.name(), typeNotWearingNum, rowTotal));
+        list.add(composeBasicParams(GlassesType.FRAME_GLASSES.name(), typeContactLensNum, rowTotal));
+        list.add(composeBasicParams(GlassesType.ORTHOKERATOLOGY.name(), typeOrthokeratologyNum, rowTotal));
+        list.add(composeBasicParams(GlassesType.NOT_WEARING.name(), typeNotWearingNum, rowTotal));
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("name", name);
         resultMap.put("rowTotal", rowTotal);
@@ -1498,18 +1425,15 @@ public class StatReportService {
 
     /**
      * 获取区域学生计划筛查数量
-     * @param notificationId 通知ID
+     *
+     * @param notificationId     通知ID
      * @param specificDistrictId 筛选区域ID
      * @return
-     * @throws IOException
      */
-    private Integer getPlanScreeningStudentNum(int notificationId, Integer specificDistrictId)
-            throws IOException {
+    private Integer getPlanScreeningStudentNum(int notificationId, Integer specificDistrictId) {
         Map<Integer, Long> planDistrictStudentMap =
-                screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(
-                        notificationId);
-        List<Integer> validDistrictIds =
-                districtService.getSpecificDistrictTreeAllDistrictIds(specificDistrictId);
+                screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(notificationId);
+        List<Integer> validDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(specificDistrictId);
         int planStudentNum = 0;
         for (Integer districtId : planDistrictStudentMap.keySet()) {
             if (!validDistrictIds.contains(districtId)) {
