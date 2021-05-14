@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
-import com.wupol.myopia.business.aggregation.export.pdf.BaseExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @Date 2021/3/24
  **/
 @Service("screeningOrgArchivesService")
-public class ExportScreeningOrgArchivesService extends BaseExportFileService {
+public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
@@ -32,7 +32,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportFileService {
      * @return void
      **/
     @Override
-    public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+    public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         generateReportPdfService.generateScreeningOrgArchivesPdfFile(fileSavePath, exportCondition.getPlanId());
     }
 

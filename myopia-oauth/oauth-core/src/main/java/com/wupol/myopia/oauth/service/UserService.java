@@ -123,7 +123,7 @@ public class UserService extends BaseService<UserMapper, User> {
     }
 
     /**
-     * 管理端创建其他系统的用户(医院端、学校端、筛查端)
+     * 管理端创建其他系统的用户(医院端、学校端、筛查端、筛查管理端)
      *
      * @param userDTO 用户数据
      * @return com.wupol.myopia.oauth.domain.model.User

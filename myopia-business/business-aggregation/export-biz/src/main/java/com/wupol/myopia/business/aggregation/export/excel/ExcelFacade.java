@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
@@ -12,7 +12,7 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.*;
-import com.wupol.myopia.business.aggregation.export.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.constant.ExportAddressKey;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
@@ -215,7 +215,7 @@ public class ExcelFacade {
                 .setOrgId(screeningOrgId)
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         Page<User> userPage = oauthServiceClient.getUserListPage(userQuery);
-        List<User> userList = JSONObject.parseArray(JSONObject.toJSONString(userPage.getRecords()), User.class);
+        List<User> userList = JSON.parseArray(JSON.toJSONString(userPage.getRecords()), User.class);
         // 设置文件名
         StringBuilder builder = new StringBuilder().append("筛查机构人员");
         String orgName = screeningOrganizationService.getById(screeningOrgId).getName();
@@ -981,7 +981,7 @@ public class ExcelFacade {
      * @return HashMap<String, String>
      */
     private <T extends AddressCode> HashMap<String, String> generateAddressMap(T item) {
-        HashMap<String, String> addressCodeMap = new HashMap<>();
+        HashMap<String, String> addressCodeMap = new HashMap<>(5);
         if (Objects.nonNull(item.getProvinceCode())) {
             addressCodeMap.put(ExportAddressKey.PROVIDE, districtService.getDistrictName(item.getProvinceCode()));
         }

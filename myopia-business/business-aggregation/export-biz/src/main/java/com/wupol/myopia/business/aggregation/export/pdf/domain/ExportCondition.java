@@ -34,4 +34,8 @@ public class ExportCondition {
      * 学校ID
      **/
     private Integer schoolId;
+    /**
+     * 年级ID
+     **/
+    private Integer gradeId;
 }

@@ -1,11 +1,9 @@
-package com.wupol.myopia.business.aggregation.export.pdf;
+package com.wupol.myopia.business.aggregation.export;
 
-import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.export.pdf.interfaces.ExportFileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -23,15 +21,10 @@ public class ExportStrategy {
     @Autowired
     Map<String, ExportFileService> exportFileServiceMap = new ConcurrentHashMap<>(8);
 
-    @Async
     public void doExport(ExportCondition exportCondition, String serviceName) {
         ExportFileService exportFileService = getExportFileService(serviceName);
-        try {
-            exportFileService.export(exportCondition);
-        } catch (Exception e) {
-            log.error("导出文件-生成文件名或文件保存路径时异常", e);
-            exportFileService.sendFailNotice(exportCondition.getApplyExportFileUserId(), StringUtils.EMPTY);
-        }
+        exportFileService.validateBeforeExport(exportCondition);
+        exportFileService.export(exportCondition);
     }
 
     private ExportFileService getExportFileService(String serviceName) {
