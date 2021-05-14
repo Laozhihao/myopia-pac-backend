@@ -3,7 +3,7 @@
 <mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.Hospital">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.Doctor">
     </resultMap>
 
     <resultMap id="DoctorDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO">
