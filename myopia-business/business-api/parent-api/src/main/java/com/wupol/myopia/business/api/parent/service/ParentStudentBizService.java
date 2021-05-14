@@ -43,11 +43,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -90,6 +92,11 @@ public class ParentStudentBizService {
     public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
         List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parentId);
+        if (studentIds.isEmpty()) {
+            responseDTO.setTotal(0);
+            responseDTO.setItem(new ArrayList<>());
+            return responseDTO;
+        }
         List<ParentStudentDTO> parentStudentDTOS = studentService.countParentStudent(studentIds);
         responseDTO.setTotal(parentStudentDTOS.size());
         responseDTO.setItem(parentStudentDTOS);
