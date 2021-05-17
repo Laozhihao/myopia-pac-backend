@@ -246,11 +246,6 @@ public class StatService {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Integer> validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
 
-        int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
-        if (planScreeningNum <= 0) {
-            return ScreeningClassStat.builder().build();
-        }
-
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
@@ -312,19 +307,19 @@ public class StatService {
                 statConclusions.stream()
                         .filter(x
                                 -> Boolean.TRUE.equals(x.getIsRescreen())
-                                        && Boolean.TRUE.equals(x.getIsValid()))
+                                && Boolean.TRUE.equals(x.getIsValid()))
                         .collect(Collectors.toList());
 
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
+        int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
 
-        return ScreeningClassStat.builder()
-                .notificationId(notificationId)
+        return ScreeningClassStat.builder().notificationId(notificationId)
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(validFirstScreeningNum)
-                .screeningFinishedRatio(
-                        convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
+                .screeningFinishedRatio(planScreeningNum > 0 ?
+                        convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
                 .averageVisionLeft(averageVision.getAverageVisionLeft())
                 .averageVisionRight(averageVision.getAverageVisionRight())
                 .tabGender(tabGender)
