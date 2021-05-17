@@ -55,8 +55,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class StatService {
-    private final static int WEARING_GLASSES_RESCREEN_INDEX_NUM = 6;
-    private final static int WITHOUT_GLASSES_RESCREEN_INDEX_NUM = 4;
+    private static final int WEARING_GLASSES_RESCREEN_INDEX_NUM = 6;
+    private static final int WITHOUT_GLASSES_RESCREEN_INDEX_NUM = 4;
 
     @Autowired
     private StatConclusionService statConclusionService;
@@ -339,11 +339,11 @@ public class StatService {
         Map<Integer, Long> planDistrictStudentMap =
                 screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(notificationId);
         int planStudentNum = 0;
-        for (Integer districtId : planDistrictStudentMap.keySet()) {
-            if (!validDistrictIds.contains(districtId)) {
+        for (Map.Entry<Integer, Long> entry : planDistrictStudentMap.entrySet()) {
+            if (!validDistrictIds.contains(entry.getKey())) {
                 continue;
             }
-            planStudentNum += planDistrictStudentMap.get(districtId);
+            planStudentNum += entry.getValue();
         }
         return planStudentNum;
     }
@@ -446,12 +446,11 @@ public class StatService {
      */
     private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser() || currentUser.getOrgId() == null) {
-            return null;
+            return Collections.emptyList();
         }
         GovDept govDept = govDeptService.getById(currentUser.getOrgId());
         District userDistrict = districtService.getById(govDept.getDistrictId());
-        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
-        return districtIds;
+        return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
     }
 
     /**
