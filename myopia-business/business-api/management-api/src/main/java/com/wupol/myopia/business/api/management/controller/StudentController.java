@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
@@ -24,14 +26,15 @@ import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardRespon
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 学生Controller
@@ -52,6 +55,9 @@ public class StudentController {
 
     @Autowired
     private StudentBizService studentBizService;
+
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     /**
      * 新增学生
@@ -119,14 +125,17 @@ public class StudentController {
      * @param schoolId 学校ID
      * @param gradeId  年级ID
      * @return 是否成功
-     * @throws IOException         IO异常
-     * @throws ValidationException 检验异常
-     * @throws UtilException       工具异常
      */
     @GetMapping("/export")
-    public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException, ValidationException, UtilException {
+    public void getStudentExportData(Integer schoolId, Integer gradeId) {
+        Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
+        Assert.isTrue(Objects.nonNull(gradeId), "年级id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        excelFacade.generateStudent(user.getId(), schoolId, gradeId);
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(user.getId())
+                        .setSchoolId(schoolId)
+                        .setGradeId(gradeId),
+                ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
     }
 
     /**
@@ -140,17 +149,6 @@ public class StudentController {
     public void importStudent(MultipartFile file) throws ParseException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         excelFacade.importStudent(currentUser.getId(), file);
-    }
-
-    /**
-     * 导入模板
-     *
-     * @return File
-     * @throws IOException IO异常
-     */
-    @GetMapping("/import/demo")
-    public ResponseEntity<FileSystemResource> getImportDemo() throws IOException {
-        return FileUtils.getResponseEntity(excelFacade.getStudentImportDemo());
     }
 
     /**
@@ -192,7 +190,7 @@ public class StudentController {
      */
     @GetMapping("/screening/card/{resultId}")
     public StudentCardResponseVO getCardDetails(@PathVariable("resultId") Integer resultId) {
-        return studentBizService.packageCardDetails(resultId);
+        return studentBizService.getCardDetail(resultId);
     }
 
     /**

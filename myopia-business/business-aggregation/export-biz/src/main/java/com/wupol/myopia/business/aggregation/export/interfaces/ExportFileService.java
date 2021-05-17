@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.pdf.interfaces;
+package com.wupol.myopia.business.aggregation.export.interfaces;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -14,31 +14,20 @@ import java.io.File;
 public interface ExportFileService {
 
     /**
+     * 导出前的校验
+     *
+     * @param exportCondition 导出条件
+     * @return void
+     **/
+    void validateBeforeExport(ExportCondition exportCondition);
+
+    /**
      * 导出文件
      *
      * @param exportCondition 导出条件
      * @return void
      **/
     void export(ExportCondition exportCondition);
-
-    /**
-     * 生成文件
-     *
-     * @param exportCondition 导出条件
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
-     * @return void
-     **/
-    void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName);
-
-    /**
-     * 压缩文件
-     *
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
-     * @return java.io.File
-     **/
-    File compressFile(String fileSavePath, String fileName);
 
     /**
      * 上传文件
@@ -83,20 +72,4 @@ public interface ExportFileService {
      * @return java.lang.String
      **/
     String getFileName(ExportCondition exportCondition);
-
-    /**
-     * 获取文件保存父目录路径
-     *
-     * @return java.lang.String
-     **/
-    String getFileSaveParentPath();
-
-    /**
-     * 获取文件保存路径
-     *
-     * @param parentPath 文件名
-     * @param fileName 文件名
-     * @return java.lang.String
-     **/
-    String getFileSavePath(String parentPath, String fileName);
 }

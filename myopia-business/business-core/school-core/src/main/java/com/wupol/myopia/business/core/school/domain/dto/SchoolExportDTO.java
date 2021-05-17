@@ -48,7 +48,7 @@ public class SchoolExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "说明"})
     private String remark;
     @ExcelProperty({TOP_HEADER, "筛查次数"})
-    private Integer screeningCount;
+    private Long screeningCount;
     @ExcelProperty({TOP_HEADER, "省"})
     private String province;
     @ExcelProperty({TOP_HEADER, "市"})

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -115,7 +115,7 @@ public class GeneratePdfFileService {
         Assert.isTrue(Objects.nonNull(noticeId) || Objects.nonNull(planId), "筛查通知ID和筛查计划ID都为空");
         Assert.notNull(schoolId, "学校ID不能为空");
         School school = schoolService.getById(schoolId);
-        String schoolReportFileName = String.format(FileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
+        String schoolReportFileName = String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
         String schoolPdfHtmlUrl = String.format(Objects.isNull(noticeId) ? HtmlPageUrlConstant.SCHOOL_REPORT_HTML_URL_WITH_PLAN_ID : HtmlPageUrlConstant.SCHOOL_REPORT_HTML_URL_WITH_NOTICE_ID, htmlUrlHost, Objects.isNull(noticeId) ? planId : noticeId, schoolId);
         Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, schoolReportFileName + ".pdf").toString()), "【生成报告PDF文件异常】：" + school.getName());
     }
@@ -147,7 +147,7 @@ public class GeneratePdfFileService {
         Assert.notNull(planId, "筛查计划ID为空");
         Assert.notNull(schoolId, "学校ID不能为空");
         School school = schoolService.getById(schoolId);
-        String schoolReportFileName = String.format(FileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
+        String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL , htmlUrlHost, planId, schoolId);
         Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }

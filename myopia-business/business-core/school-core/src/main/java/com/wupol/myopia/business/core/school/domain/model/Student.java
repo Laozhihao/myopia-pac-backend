@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,7 +29,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_student")
-public class Student implements Serializable {
+public class Student extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -111,30 +112,6 @@ public class Student implements Serializable {
      * 家长公众号手机号码
      */
     private String mpParentPhone;
-
-    /**
-     * 省代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long provinceCode;
-
-    /**
-     * 市代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long cityCode;
-
-    /**
-     * 区代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long areaCode;
-
-    /**
-     * 镇/乡代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long townCode;
 
     /**
      * 详细地址
@@ -239,11 +216,11 @@ public class Student implements Serializable {
                 !this.gradeId.equals(excelStudent.gradeId) ||
                 !this.classId.equals(excelStudent.classId) ||
                 !StringUtils.equalsIgnoreCase(this.sno, excelStudent.sno) ||
-                (Objects.nonNull(excelStudent.provinceCode)) ||
-                (Objects.nonNull(excelStudent.cityCode)) ||
-                (Objects.nonNull(excelStudent.areaCode)) ||
-                (Objects.nonNull(excelStudent.townCode)) ||
-                (StringUtils.isNotBlank(excelStudent.address)) ||
+                (Objects.nonNull(excelStudent.getProvinceCode())) ||
+                (Objects.nonNull(excelStudent.getCityCode())) ||
+                (Objects.nonNull(excelStudent.getAreaCode())) ||
+                (Objects.nonNull(excelStudent.getTownCode())) ||
+                (StringUtils.isNotBlank(excelStudent.getAddress())) ||
                 (StringUtils.isNotBlank(excelStudent.parentPhone) && !StringUtils.equalsIgnoreCase(this.parentPhone, excelStudent.parentPhone));
     }
 

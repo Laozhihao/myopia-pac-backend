@@ -117,7 +117,7 @@ public class HospitalStudentFacade {
         idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentIdList(idList).setHospitalId(hospitalId);
-        return CollectionUtils.isEmpty(idList) ? Collections.EMPTY_LIST : getHospitalStudentVoList(query);
+        return CollectionUtils.isEmpty(idList) ? Collections.emptyList() : getHospitalStudentVoList(query);
     }
 
     /**
@@ -173,12 +173,21 @@ public class HospitalStudentFacade {
             Student tmpStudent = new Student();
             BeanUtils.copyProperties(studentVo, tmpStudent);
             // 转换地址与学校数据
-            tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo())
-                      .setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode())
-                      .setCityCode(districtService.getById(studentVo.getCityId()).getCode())
-                      .setAreaCode(districtService.getById(studentVo.getAreaId()).getCode())
-                      .setTownCode(districtService.getById(studentVo.getTownId()).getCode());
-
+            if (Objects.nonNull(studentVo.getSchoolId())) {
+                tmpStudent.setSchoolNo(schoolService.getById(studentVo.getSchoolId()).getSchoolNo());
+            }
+            if (Objects.nonNull(studentVo.getProvinceId())) {
+                tmpStudent.setProvinceCode(districtService.getById(studentVo.getProvinceId()).getCode());
+            }
+            if (Objects.nonNull(studentVo.getCityId())) {
+                tmpStudent.setCityCode(districtService.getById(studentVo.getCityId()).getCode());
+            }
+            if (Objects.nonNull(studentVo.getAreaId())) {
+                tmpStudent.setAreaCode(districtService.getById(studentVo.getAreaId()).getCode());
+            }
+            if (Objects.nonNull(studentVo.getTownId())) {
+                tmpStudent.setTownCode(districtService.getById(studentVo.getTownId()).getCode());
+            }
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setId(studentId);
         }
@@ -341,6 +350,9 @@ public class HospitalStudentFacade {
             }
         });
 
+        if (CollectionUtils.isEmpty(districtCode)) {
+            return new HashMap<>();
+        }
         // 地区Maps
         return districtService.getDistrictByIds(districtCode)
                 .stream().distinct().collect(Collectors
@@ -429,8 +441,8 @@ public class HospitalStudentFacade {
         if (null != student.getAreaId()) {
             dto.setArea(districtMaps.get(student.getAreaId()));
         }
-        if (null != student.getAreaId()) {
-            dto.setTown(districtMaps.get(student.getAreaId()));
+        if (null != student.getTownId()) {
+            dto.setTown(districtMaps.get(student.getTownId()));
         }
     }
 }

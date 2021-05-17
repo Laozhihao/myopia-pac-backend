@@ -8,10 +8,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeQueryDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -258,6 +255,21 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public String getGradeNameById(Integer id) {
         SchoolGrade grade = this.getById(id);
         return Objects.nonNull(grade) ? grade.getName() : "";
+    }
+
+    /**
+     * 封装年级班级信息
+     *
+     * @param grades 年级列表
+     */
+    public void packageGradeInfo(List<SchoolGradeExportDTO> grades) {
+        List<Integer> gradeIds = grades.stream().map(SchoolGradeExportDTO::getId).collect(Collectors.toList());
+        // 班级统计
+        List<SchoolClassExportDTO> classes = schoolClassService.getByGradeIds(gradeIds);
+        // 通过班级id分组
+        Map<Integer, List<SchoolClassExportDTO>> classMaps = classes.stream().collect(Collectors.groupingBy(SchoolClassExportDTO::getGradeId));
+        // 年级设置班级
+        grades.forEach(g -> g.setChild(classMaps.get(g.getId())));
     }
 
 }

@@ -1,11 +1,12 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,15 +38,12 @@ public class ScreeningOrganizationController {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-
-    @Autowired
-    private ExcelFacade excelFacade;
-
     @Autowired
     private GovDeptService govDeptService;
-
     @Autowired
     private ScreeningOrganizationBizService screeningOrganizationBizService;
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     /**
      * 新增筛查机构
@@ -129,13 +126,11 @@ public class ScreeningOrganizationController {
      *
      * @param districtId 行政区域ID
      * @return 是否成功
-     * @throws IOException   IO异常
-     * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public void getOrganizationExportData(Integer districtId) throws IOException, UtilException {
+    public void getOrganizationExportData(Integer districtId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        excelFacade.generateScreeningOrganization(user.getId(), districtId);
+        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setDistrictId(districtId), ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
 
     /**

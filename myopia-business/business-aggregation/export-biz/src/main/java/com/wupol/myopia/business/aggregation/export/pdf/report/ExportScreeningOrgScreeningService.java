@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
-import com.wupol.myopia.business.aggregation.export.pdf.BaseExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @Date 2021/3/24
  **/
 @Service("screeningOrgScreeningReportService")
-public class ExportScreeningOrgScreeningService extends BaseExportFileService {
+public class ExportScreeningOrgScreeningService extends BaseExportPdfFileService {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
@@ -32,7 +32,7 @@ public class ExportScreeningOrgScreeningService extends BaseExportFileService {
      * @return void
      **/
     @Override
-    public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+    public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
     }
 
@@ -45,7 +45,7 @@ public class ExportScreeningOrgScreeningService extends BaseExportFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
+        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
     }
 
 }

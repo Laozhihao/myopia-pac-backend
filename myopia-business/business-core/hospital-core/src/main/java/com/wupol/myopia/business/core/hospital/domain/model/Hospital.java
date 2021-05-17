@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -21,7 +22,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_hospital")
-public class Hospital implements Serializable {
+public class Hospital extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -79,30 +80,6 @@ public class Hospital implements Serializable {
      */
     @NotNull(message = "医院医院性质不能为空")
     private Integer kind;
-
-    /**
-     * 省代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long provinceCode;
-
-    /**
-     * 市代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long cityCode;
-
-    /**
-     * 区代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long areaCode;
-
-    /**
-     * 镇/乡代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long townCode;
 
     /**
      * 详细地址

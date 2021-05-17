@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
-import com.wupol.myopia.business.aggregation.export.pdf.BaseExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.FileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @Date 2021/3/24
  **/
 @Service("schoolScreeningReportService")
-public class ExportSchoolScreeningService extends BaseExportFileService {
+public class ExportSchoolScreeningService extends BaseExportPdfFileService {
 
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
@@ -32,7 +32,7 @@ public class ExportSchoolScreeningService extends BaseExportFileService {
      * @return void
      **/
     @Override
-    public void generateFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+    public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         generateReportPdfService.generateSchoolScreeningReportPdfFile(fileSavePath, exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getSchoolId());
     }
 
@@ -45,6 +45,6 @@ public class ExportSchoolScreeningService extends BaseExportFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(FileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
+        return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, school.getName());
     }
 }

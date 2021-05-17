@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.domain.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
+import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_school")
-public class School implements Serializable, HasName {
+public class School extends AddressCode implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
 
@@ -85,30 +86,6 @@ public class School implements Serializable, HasName {
      * 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他
      */
     private Integer type;
-
-    /**
-     * 省代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED )
-    private Long provinceCode;
-
-    /**
-     * 市代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long cityCode;
-
-    /**
-     * 区代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long areaCode;
-
-    /**
-     * 镇/乡代码
-     */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Long townCode;
 
     /**
      * 详细地址

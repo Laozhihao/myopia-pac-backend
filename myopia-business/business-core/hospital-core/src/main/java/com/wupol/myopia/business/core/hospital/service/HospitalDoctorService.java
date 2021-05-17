@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 医院-医生
@@ -87,6 +88,12 @@ public class HospitalDoctorService extends BaseService<DoctorMapper, Doctor> {
      * @return
      */
     public List<DoctorDTO> getDoctorVoList(DoctorQuery query)  {
-        return baseMapper.getDoctorVoList(query);
+        List<DoctorDTO> list = baseMapper.getDoctorVoList(query);
+        list.forEach(item-> {
+            if (Objects.nonNull(item.getAvatarFileId()) && item.getAvatarFileId() != 0) {
+                item.setAvatarUrl(resourceFileService.getResourcePath(item.getAvatarFileId()));
+            }
+        });
+        return list;
     }
 }

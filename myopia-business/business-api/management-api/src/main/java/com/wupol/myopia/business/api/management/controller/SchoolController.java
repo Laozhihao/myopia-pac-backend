@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -45,6 +46,9 @@ public class SchoolController {
 
     @Resource
     private SchoolBizService schoolBizService;
+
+    @Resource
+    private ExportStrategy exportStrategy;
 
     /**
      * 新增学校
@@ -138,13 +142,14 @@ public class SchoolController {
      *
      * @param districtId 行政区域
      * @return 是否成功
-     * @throws IOException   io异常
-     * @throws UtilException 工具异常
      */
     @GetMapping("/export")
-    public void getSchoolExportData(Integer districtId) throws IOException, UtilException {
+    public void getSchoolExportData(Integer districtId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        excelFacade.generateSchool(currentUser.getId(), districtId);
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(currentUser.getId())
+                        .setDistrictId(districtId),
+                ExportExcelServiceNameConstant.SCHOOL_EXCEL_SERVICE);
     }
 
     /**
