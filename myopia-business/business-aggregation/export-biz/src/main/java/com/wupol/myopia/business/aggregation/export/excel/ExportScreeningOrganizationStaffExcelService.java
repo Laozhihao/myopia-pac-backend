@@ -86,4 +86,8 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
         builder.append(orgName);
         return builder.toString();
     }
+
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition) {
+    }
 }
