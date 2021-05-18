@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -95,11 +94,10 @@ public class SchoolBizService {
      * 更新学校
      *
      * @param school      学校实体类
-     * @param currentUser 当前登录用户
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
+    public SchoolResponseDTO updateSchool(School school) {
 
         if (schoolService.checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
@@ -115,12 +113,7 @@ public class SchoolBizService {
 
         // 名字更新重置密码
         if (!StringUtils.equals(checkSchool.getName(), school.getName())) {
-            dto.setUpdatePassword(Boolean.TRUE);
             dto.setUsername(school.getName());
-            // 重置密码
-            String password = PasswordGenerator.getSchoolAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            dto.setPassword(password);
         }
         schoolService.updateById(school);
         // 更新筛查计划中的学校
@@ -131,7 +124,7 @@ public class SchoolBizService {
         dto.setAddressDetail(districtService.getAddressDetails(
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         // 判断是否能更新
-        dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+        dto.setCanUpdate(s.getGovDeptId().equals(school.getGovDeptId()));
         dto.setStudentCount(school.getStudentCount())
                 .setScreeningCount(school.getScreeningCount())
                 .setCreateUser(school.getCreateUser());

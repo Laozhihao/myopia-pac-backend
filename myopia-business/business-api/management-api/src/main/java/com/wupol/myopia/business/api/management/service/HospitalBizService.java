@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
@@ -13,7 +12,6 @@ import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -41,8 +39,6 @@ public class HospitalBizService {
     private DistrictService districtService;
     @Resource
     private GovDeptService govDeptService;
-    @Resource
-    private OauthServiceClient oauthServiceClient;
 
     /**
      * 更新医院信息
@@ -66,14 +62,9 @@ public class HospitalBizService {
         // 更新OAuth账号
         schoolService.updateOAuthName(admin.getUserId(), hospital.getName());
 
-        // 名字更新重置密码
+        // 名字更新
         if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
-            response.setUpdatePassword(Boolean.TRUE);
             response.setUsername(hospital.getName());
-            // 重置密码
-            String password = PasswordGenerator.getHospitalAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            response.setPassword(password);
         }
 
         hospitalService.updateById(hospital);

@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -209,14 +208,9 @@ public class ScreeningOrganizationBizService {
                 .setUsername(screeningOrganization.getName());
         oauthServiceClient.updateUser(userDTO);
 
-        // 名字更新重置密码
+        // 名字更新
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
-            response.setUpdatePassword(Boolean.TRUE);
             response.setUsername(screeningOrganization.getName());
-            // 重置密码
-            String password = PasswordGenerator.getScreeningAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            response.setPassword(password);
         }
 
         screeningOrganizationService.updateById(screeningOrganization);

@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,7 +60,12 @@ public class ScreeningOrganizationController {
         if (user.isGovDeptUser()) {
             screeningOrganization.setConfigType(0);
         }
-        return screeningOrganizationService.saveScreeningOrganization(screeningOrganization);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.saveScreeningOrganization(screeningOrganization);
+        // 非平台管理员屏蔽账号密码信息
+        if (!user.isPlatformAdminUser()) {
+            usernameAndPasswordDTO.setNoDisplay();
+        }
+        return usernameAndPasswordDTO;
     }
 
     /**
@@ -71,7 +77,12 @@ public class ScreeningOrganizationController {
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
+        ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
+        // 若为平台管理员且修改了用户名，则回显账户名
+        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(screeningOrgResponseDTO.getUsername())) {
+            screeningOrgResponseDTO.setDisplayUsername(true);
+        }
+        return screeningOrgResponseDTO;
     }
 
     /**

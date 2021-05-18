@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,6 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     @Autowired
-    private ExcelFacade excelFacade;
-
-    @Autowired
     private HospitalBizService hospitalBizService;
 
     @Autowired
@@ -56,7 +54,12 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        return hospitalService.saveHospital(hospital);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
+        // 非平台管理员屏蔽账号密码信息
+        if (!user.isPlatformAdminUser()) {
+            usernameAndPasswordDTO.setNoDisplay();
+        }
+        return usernameAndPasswordDTO;
     }
 
     /**
@@ -70,7 +73,12 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        return hospitalBizService.updateHospital(hospital);
+        HospitalResponseDTO hospitalResponseDTO = hospitalBizService.updateHospital(hospital);
+        // 若为平台管理员且修改了用户名，则回显账户名
+        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(hospitalResponseDTO.getUsername())) {
+            hospitalResponseDTO.setDisplayUsername(true);
+        }
+        return hospitalResponseDTO;
     }
 
     /**
