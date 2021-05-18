@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,7 +22,7 @@ public class ExportStrategy {
     @Autowired
     Map<String, ExportFileService> exportFileServiceMap = new ConcurrentHashMap<>(8);
 
-    public void doExport(ExportCondition exportCondition, String serviceName) {
+    public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
         ExportFileService exportFileService = getExportFileService(serviceName);
         exportFileService.validateBeforeExport(exportCondition);
         exportFileService.export(exportCondition);

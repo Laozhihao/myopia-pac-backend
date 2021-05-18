@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -81,7 +82,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * @return void
      **/
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) {
+    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
         // 有需要校验的，重写覆盖该方法
     }
 
