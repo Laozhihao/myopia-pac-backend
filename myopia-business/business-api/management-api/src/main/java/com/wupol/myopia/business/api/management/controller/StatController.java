@@ -30,10 +30,11 @@ public class StatController {
 
     /**
      * 获取预警信息
+     *
      * @return
      */
     @GetMapping("warningList")
-    public WarningInfo getWarningList() throws IOException {
+    public WarningInfo getWarningList() {
         return statService.getWarningList();
     }
 
@@ -69,28 +70,30 @@ public class StatController {
 
     /**
      * 获取区域筛查报告
+     *
      * @param notificationId 通知ID
-     * @param districtId 区域ID
+     * @param districtId     区域ID
      * @return
      */
     @GetMapping("/getDistrictReport")
     public Map<String, Object> getDistrictReport(@RequestParam("notificationId") Integer notificationId,
-                                 @RequestParam("districtId") Integer districtId) throws IOException {
-            return statReportService.getDistrictStatData(notificationId, districtId);
+                                                 @RequestParam("districtId") Integer districtId) {
+        return statReportService.getDistrictStatData(notificationId, districtId);
     }
 
     /**
      * 获取学校筛查报告
+     *
      * @param notificationId 通知ID
-     * @param schoolId 学校ID
+     * @param schoolId       学校ID
      * @return
      */
     @GetMapping("/getSchoolReport")
     public Map<String, Object> getSchoolReport(
             @RequestParam(name = "notificationId", required = false) Integer notificationId,
             @RequestParam(name = "planId", required = false) Integer planId,
-            @RequestParam("schoolId") Integer schoolId) throws IOException {
-            return statReportService.getSchoolStatData(notificationId, planId, schoolId);
+            @RequestParam("schoolId") Integer schoolId) {
+        return statReportService.getSchoolStatData(notificationId, planId, schoolId);
     }
 
     /**
