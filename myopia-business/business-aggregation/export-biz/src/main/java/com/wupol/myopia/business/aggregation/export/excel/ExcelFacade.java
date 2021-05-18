@@ -385,7 +385,7 @@ public class ExcelFacade {
         String fileName = "统计对比报表";
         log.info("导出统计对比报文件: {}", fileName);
         File file = ExcelUtil.exportHorizonListToExcel(fileName, exportList, template);
-        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS + "统计报表", "数据对比表", new Date());
+        String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, fileName, new Date());
         noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(file), CommonConst.NOTICE_STATION_LETTER);
     }
 

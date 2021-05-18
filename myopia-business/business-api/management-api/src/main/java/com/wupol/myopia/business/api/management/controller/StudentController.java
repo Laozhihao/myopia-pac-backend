@@ -127,7 +127,7 @@ public class StudentController {
      * @return 是否成功
      */
     @GetMapping("/export")
-    public void getStudentExportData(Integer schoolId, Integer gradeId) {
+    public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
         Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
         Assert.isTrue(Objects.nonNull(gradeId), "年级id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();

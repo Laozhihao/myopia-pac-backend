@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 /**
  * 医院控制层
@@ -139,7 +140,7 @@ public class HospitalController {
      * @see ExcelFacade
      */
     @GetMapping("/export")
-    public void getHospitalExportData(Integer districtId) {
+    public void getHospitalExportData(Integer districtId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(currentUser.getId())
