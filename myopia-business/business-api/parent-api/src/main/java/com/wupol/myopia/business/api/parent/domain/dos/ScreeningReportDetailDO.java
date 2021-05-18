@@ -19,6 +19,11 @@ import java.util.List;
 public class ScreeningReportDetailDO {
 
     /**
+     * 筛查机构Id
+     */
+    private Integer screeningOrgId;
+
+    /**
      * 检查日期
      */
     private Date screeningDate;
@@ -52,5 +57,10 @@ public class ScreeningReportDetailDO {
      * 生物测量
      */
     private List<BiometricItems> biometricItems;
+
+    /**
+     * 建议医院
+     */
+    private SuggestHospitalDO suggestHospital;
 
 }

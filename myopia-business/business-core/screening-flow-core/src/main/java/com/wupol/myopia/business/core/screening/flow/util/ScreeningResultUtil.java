@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -128,6 +129,7 @@ public class ScreeningResultUtil {
      */
     public static VisionItems.Item packageNakedVision(VisionItems.Item nakedVision, BigDecimal nakedVisionValue, Integer age) {
         nakedVision.setVision(nakedVisionValue);
+        nakedVision.setDecimalVision(toDecimalVision(nakedVisionValue));
         nakedVision.setType(lowVisionType(nakedVisionValue, age));
         return nakedVision;
     }
@@ -144,6 +146,7 @@ public class ScreeningResultUtil {
     public static VisionItems.Item packageCorrectedVision(VisionItems.Item correctedVision, BigDecimal correctedVisionValue,
                                                           BigDecimal nakedVisionValue, Integer glassesType) {
         correctedVision.setVision(correctedVisionValue);
+        correctedVision.setDecimalVision(toDecimalVision(correctedVisionValue));
         if (Objects.nonNull(nakedVisionValue)) {
             correctedVision.setType(getCorrected2Type(nakedVisionValue, correctedVisionValue, glassesType));
         }
@@ -217,7 +220,7 @@ public class ScreeningResultUtil {
             }
             // 右眼轴位A
             if (Objects.nonNull(rightAxial)) {
-                axialItems.setOs(packageAxialItem(rightAxial));
+                axialItems.setOd(packageAxialItem(rightAxial));
             }
             items.add(axialItems);
             return new TwoTuple<>(items, maxType);
@@ -975,5 +978,50 @@ public class ScreeningResultUtil {
             }
         }
         return se;
+    }
+
+    /**
+     * 五分视力转换成一分视力
+     *
+     * @param vision 视力
+     * @return 视力
+     */
+    private BigDecimal toDecimalVision(BigDecimal vision) {
+        if (Objects.isNull(vision)) {
+            return null;
+        }
+        String strVision = vision.toString();
+        switch (strVision) {
+            case "4.0":
+                return new BigDecimal("0.1");
+            case "4.1":
+                return new BigDecimal("0.12");
+            case "4.2":
+                return new BigDecimal("0.15");
+            case "4.3":
+                return new BigDecimal("0.2");
+            case "4.4":
+                return new BigDecimal("0.25");
+            case "4.5":
+                return new BigDecimal("0.3");
+            case "4.6":
+                return new BigDecimal("0.4");
+            case "4.7":
+                return new BigDecimal("0.5");
+            case "4.8":
+                return new BigDecimal("0.6");
+            case "4.9":
+                return new BigDecimal("0.8");
+            case "5.0":
+                return new BigDecimal("1.0");
+            case "5.1":
+                return new BigDecimal("1.2");
+            case "5.2":
+                return new BigDecimal("1.5");
+            case "5.3":
+                return new BigDecimal("2.0");
+            default:
+                return null;
+        }
     }
 }

@@ -542,9 +542,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 名字
      */
     private String getName(String name, Long code) {
-        District district = baseMapper
-                .selectOne(new QueryWrapper<District>()
-                        .eq("code", code));
+        District district = baseMapper.getByCode(code);
         if (null == district) {
             return name;
         }
@@ -563,14 +561,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 全名称
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
+        return getAddressByCode(townCode, areaCode, cityCode, provinceCode) + " " + StringUtils.defaultString(address);
+    }
+
+    /**
+     * 通过code拼接详细地址(不包含详细地址)
+     *
+     * @param provinceCode 省代码
+     * @param cityCode     市代码
+     * @param areaCode     区代码
+     * @param townCode     镇代码
+     * @return 全名称
+     * @see #getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) 包含详细地址
+     */
+    public String getAddressByCode(Long provinceCode, Long cityCode, Long areaCode, Long townCode) {
         if (null != townCode) {
-            return getTopDistrictName(townCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(townCode);
         } else if (null != areaCode) {
-            return getTopDistrictName(areaCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(areaCode);
         } else if (null != cityCode) {
-            return getTopDistrictName(cityCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(cityCode);
         } else if (null != provinceCode) {
-            return getTopDistrictName(provinceCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(provinceCode);
         }
         return "";
     }

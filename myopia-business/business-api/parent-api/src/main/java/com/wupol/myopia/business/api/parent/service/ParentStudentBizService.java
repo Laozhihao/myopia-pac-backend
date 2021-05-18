@@ -504,6 +504,7 @@ public class ParentStudentBizService {
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
         responseDTO.setScreeningDate(result.getUpdateTime());
+        responseDTO.setScreeningOrgId(result.getScreeningOrgId());
         VisionDataDO visionData = result.getVisionData();
         // 视力检查结果
         responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
@@ -525,9 +526,9 @@ public class ParentStudentBizService {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
         }
+        // TODO: 建议医院
+//        responseDTO.setSuggestHospital();
         response.setDetail(responseDTO);
         return response;
     }
-
-
 }
