@@ -8,6 +8,11 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.RecordDetails;
@@ -73,6 +78,10 @@ public class ScreeningOrganizationBizService {
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
     private DistrictBizService districtBizService;
+    @Autowired
+    private OrgCooperationHospitalService orgCooperationHospitalService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 获取筛查记录列表
@@ -301,6 +310,7 @@ public class ScreeningOrganizationBizService {
             // 详细地址
             orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
+            orgResponseDTO.setCountCooperationHospital(orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId()));
         });
         return orgLists;
     }
@@ -342,5 +352,47 @@ public class ScreeningOrganizationBizService {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 获取合作医院列表
+     *
+     * @param pageRequest    分页请求
+     * @param screeningOrgId 筛查机构Id
+     * @return List<CooperationHospitalDTO>
+     */
+    public List<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
+        List<CooperationHospitalDTO> responseListDTO = new ArrayList<>();
+
+        // 筛查机构获取合作医院列表
+        IPage<CooperationHospitalDTO> cooperationHospitalPage = orgCooperationHospitalService.getCooperationHospitalList(pageRequest, screeningOrgId);
+        List<CooperationHospitalDTO> cooperationHospitalList = cooperationHospitalPage.getRecords();
+        if (CollectionUtils.isEmpty(cooperationHospitalList)) {
+            return responseListDTO;
+        }
+
+        // 装换成<医院Id，是否置顶>
+        Map<Integer, Integer> cooperationHospitalMap = cooperationHospitalList.stream()
+                .collect(Collectors.toMap(CooperationHospitalDTO::getHospitalId, CooperationHospitalDTO::getIsTop));
+
+        // 查询医院
+        List<Integer> hospitalIds = cooperationHospitalList.stream()
+                .map(CooperationHospitalDTO::getHospitalId).collect(Collectors.toList());
+        List<Hospital> hospitalList = hospitalService.listByIds(hospitalIds);
+        Map<Integer, Hospital> hospitalMap = hospitalList.stream()
+                .collect(Collectors.toMap(Hospital::getId, Function.identity()));
+
+        // 封装DTO
+        cooperationHospitalList.forEach(cp -> {
+            Hospital hospital = hospitalMap.get(cp.getHospitalId());
+            CooperationHospitalDTO responseDTO = new CooperationHospitalDTO();
+            BeanUtils.copyProperties(hospital, responseDTO);
+            responseDTO.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
+            responseDTO.setAddressDetail(districtService.getAddressDetails(
+                    hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()));
+            responseDTO.setIsTop(cooperationHospitalMap.get(cp.getHospitalId()));
+            responseListDTO.add(responseDTO);
+        });
+        return responseListDTO;
     }
 }

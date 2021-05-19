@@ -14,6 +14,9 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -44,6 +47,8 @@ public class ScreeningOrganizationController {
     private ScreeningOrganizationBizService screeningOrganizationBizService;
     @Autowired
     private ExportStrategy exportStrategy;
+    @Autowired
+    private OrgCooperationHospitalService orgCooperationHospitalService;
 
     /**
      * 新增筛查机构
@@ -180,4 +185,56 @@ public class ScreeningOrganizationController {
         }
         return null;
     }
+
+    /**
+     * 获取合作医院列表
+     *
+     * @param request        分页请求
+     * @param screeningOrgId 筛查机构Id
+     * @return List<CooperationHospitalDTO>
+     */
+    @GetMapping("/getOrgCooperationHospital/{screeningOrgId}")
+    public List<CooperationHospitalDTO> getOrgCooperationHospital(PageRequest request,
+                                                                  @PathVariable("screeningOrgId") Integer screeningOrgId) {
+        return screeningOrganizationBizService.getCooperationHospitalList(request, screeningOrgId);
+    }
+
+    /**
+     * 新增合作医院
+     *
+     * @param requestDTO 请求入参
+     * @return 是否新增成功
+     */
+    @PostMapping("/saveOrgCooperationHospital")
+    public boolean saveOrgCooperationHospital(@RequestBody CooperationHospitalRequestDTO requestDTO) {
+        return orgCooperationHospitalService.saveCooperationHospital(requestDTO);
+    }
+
+    /**
+     * 删除合作医院
+     *
+     * @param id Id
+     * @return 是否删除成功
+     */
+    @DeleteMapping("/deletedCooperationHospital/{id}")
+    public boolean deletedCooperationHospital(@PathVariable("id") Integer id) {
+        return orgCooperationHospitalService.deletedCooperationHospital(id);
+    }
+
+    /**
+     * 置顶医院
+     *
+     * @param id 合作医院Id
+     * @return 是否置顶成功
+     */
+    @PutMapping("/topCooperationHospital/{id}")
+    public boolean topCooperationHospital(@PathVariable("id") Integer id) {
+        return orgCooperationHospitalService.topCooperationHospital(id);
+    }
+
+//    @GetMapping()
+//    public Object getOrgCooperationHospitalList(String name) {
+//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+//        currentUser
+//    }
 }

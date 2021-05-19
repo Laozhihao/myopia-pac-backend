@@ -1,20 +1,20 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 筛查机构合作医院表
  *
- * @Author jacob
- * @Date 2021-05-19
+ * @author Simple4H
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

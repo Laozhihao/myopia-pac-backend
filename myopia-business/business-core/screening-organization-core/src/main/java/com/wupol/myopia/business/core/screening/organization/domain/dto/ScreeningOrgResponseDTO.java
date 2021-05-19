@@ -55,4 +55,9 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      * 密码
      */
     private String password;
+
+    /**
+     * 合作医院个数
+     */
+    private Integer countCooperationHospital;
 }

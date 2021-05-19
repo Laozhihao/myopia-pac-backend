@@ -25,4 +25,42 @@
         id, screening_org_id, hospital_id, is_top, create_time, update_time
     </sql>
 
+    <insert id="batchSaveOrgCooperationHospital">
+        insert into m_org_cooperation_hospital (screening_org_id, hospital_id)
+                values
+        <foreach collection="hospitalIds" item="hospitalId" index="index" separator=",">
+            (#{screeningOrgId}, #{hospitalId})
+        </foreach>
+    </insert>
+
+    <update id="updateByScreeningOrgId">
+        update m_org_cooperation_hospital
+        set is_top = 0
+        where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
+    </update>
+
+    <select id="getByScreeningOrgId"
+            resultType="com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_org_cooperation_hospital
+        where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
+        order by is_top desc, create_time desc
+    </select>
+
+    <select id="countByScreeningOrgId" resultType="java.lang.Integer">
+        select count(1)
+        from m_org_cooperation_hospital
+        where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
+    </select>
+
+    <select id="countByOrgIdAndHospitalIds" resultType="java.lang.Integer">
+        select count(1)
+        from m_org_cooperation_hospital
+                where screening_org_id = #{screeningOrgId}
+                  and hospital_id in
+        <foreach collection="hospitalIds" open="(" close=")" separator="," item="hospitalId">
+            #{hospitalId}
+        </foreach>
+    </select>
 </mapper>

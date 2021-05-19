@@ -17,9 +17,9 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 /**
@@ -33,16 +33,13 @@ import javax.validation.Valid;
 @RequestMapping("/management/hospital")
 public class HospitalController {
 
-    @Autowired
+    @Resource
     private HospitalService hospitalService;
 
-    @Autowired
-    private ExcelFacade excelFacade;
-
-    @Autowired
+    @Resource
     private HospitalBizService hospitalBizService;
 
-    @Autowired
+    @Resource
     private ExportStrategy exportStrategy;
 
     /**
@@ -135,7 +132,6 @@ public class HospitalController {
      * 导出医院
      *
      * @param districtId 行政区域ID
-     * @return 是否导出成功
      * @see ExcelFacade
      */
     @GetMapping("/export")

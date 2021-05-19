@@ -561,7 +561,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 全名称
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
-        return getAddressByCode(townCode, areaCode, cityCode, provinceCode) + " " + StringUtils.defaultString(address);
+        return getAddressByCode(provinceCode, cityCode, areaCode, townCode) + " " + StringUtils.defaultString(address);
     }
 
     /**
