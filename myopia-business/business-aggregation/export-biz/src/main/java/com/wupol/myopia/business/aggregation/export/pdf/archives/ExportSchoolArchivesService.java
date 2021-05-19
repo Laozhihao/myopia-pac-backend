@@ -7,13 +7,12 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import java.io.IOException;
 
 /**
  * 导出学校的档案卡（压缩文件仅包含一个该学校的PDF文件）
@@ -29,7 +28,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 生成文件
@@ -57,9 +56,9 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId());
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+        int total = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(exportCondition.getPlanId()).setSchoolId(exportCondition.getSchoolId()).setIsDoubleScreen(Boolean.FALSE));
+        if (total == 0) {
             throw new BusinessException("该计划下该学校暂无筛查学生数据，无法导出档案卡");
         }
     }
