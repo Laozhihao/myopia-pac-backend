@@ -37,4 +37,9 @@ public class HospitalResponseDTO extends Hospital {
      * 密码
      */
     private String password;
+
+    /**
+     * 头像Url
+     */
+    private String avatarUrl;
 }

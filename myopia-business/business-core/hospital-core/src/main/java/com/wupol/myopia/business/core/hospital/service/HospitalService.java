@@ -9,6 +9,8 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -35,8 +37,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     private HospitalAdminService hospitalAdminService;
+
     @Resource
     private OauthServiceClient oauthServiceClient;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 保存医院
@@ -49,6 +55,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (checkHospitalName(hospital.getName(), null)) {
             throw new BusinessException("医院名字重复，请确认");
         }
+        District district = districtService.getById(hospital.getDistrictId());
+        hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital);
     }
@@ -188,7 +196,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @param status
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO>
      **/
-    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId, String name, Integer type, Integer kind, Integer level, Integer districtId, Integer status) {
+    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId,
+                                                                 String name, Integer type, Integer kind, Integer level,
+                                                                 Integer districtId, Integer status) {
         return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
     }
 }

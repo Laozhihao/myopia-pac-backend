@@ -42,9 +42,6 @@ public class SchoolController {
     private SchoolService schoolService;
 
     @Resource
-    private ExcelFacade excelFacade;
-
-    @Resource
     private SchoolBizService schoolBizService;
 
     @Resource

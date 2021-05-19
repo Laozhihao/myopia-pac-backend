@@ -48,6 +48,11 @@ public class Hospital extends AddressCode implements Serializable {
     private Integer districtId;
 
     /**
+     * 行政区域-省Code
+     */
+    private Integer districtProvinceCode;
+
+    /**
      * 行政区域JSON
      */
     private String districtDetail;
@@ -86,6 +91,12 @@ public class Hospital extends AddressCode implements Serializable {
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String address;
+
+    /**
+     * 头像
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Integer avatarFileId;
 
     /**
      * 说明
