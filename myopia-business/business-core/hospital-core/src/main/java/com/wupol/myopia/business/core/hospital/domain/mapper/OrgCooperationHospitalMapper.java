@@ -26,4 +26,6 @@ public interface OrgCooperationHospitalMapper extends BaseMapper<OrgCooperationH
     Integer countByScreeningOrgId(@Param("screeningOrgId") Integer screeningOrgId);
 
     Integer countByOrgIdAndHospitalIds(@Param("screeningOrgId") Integer screeningOrgId, @Param("hospitalIds") List<Integer> hospitalIds);
+
+    Integer getSuggestHospital(@Param("screeningOrgId") Integer screeningOrgId);
 }

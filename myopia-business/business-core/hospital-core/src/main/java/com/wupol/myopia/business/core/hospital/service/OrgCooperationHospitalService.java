@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.hospital.service;
 
-import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -35,7 +34,7 @@ public class OrgCooperationHospitalService extends BaseService<OrgCooperationHos
 
         Integer screeningOrgId = requestDTO.getScreeningOrgId();
         List<Integer> hospitalIds = requestDTO.getHospitalIds();
-        if (Objects.isNull(screeningOrgId) || CollectionUtils.isEmpty(hospitalIds)){
+        if (Objects.isNull(screeningOrgId) || CollectionUtils.isEmpty(hospitalIds)) {
             throw new BusinessException("数据不能为空");
         }
         // 检查是否重复
@@ -95,5 +94,15 @@ public class OrgCooperationHospitalService extends BaseService<OrgCooperationHos
      */
     public Integer countCooperationHospital(Integer screeningOrgId) {
         return baseMapper.countByScreeningOrgId(screeningOrgId);
+    }
+
+    /**
+     * 获取推荐医院
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return 医院Id
+     */
+    public Integer getSuggestHospital(Integer screeningOrgId) {
+        return baseMapper.getSuggestHospital(screeningOrgId);
     }
 }

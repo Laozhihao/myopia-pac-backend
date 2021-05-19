@@ -17,11 +17,14 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
@@ -43,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -82,6 +84,12 @@ public class ParentStudentBizService {
     private ParentStudentService parentStudentService;
     @Resource
     private MedicalReportBizService medicalReportBizService;
+    @Resource
+    private OrgCooperationHospitalService orgCooperationHospitalService;
+    @Resource
+    private HospitalService hospitalService;
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 孩子统计、孩子列表
@@ -497,22 +505,28 @@ public class ParentStudentBizService {
      */
     private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
         ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
-
+        Integer screeningOrgId = result.getScreeningOrgId();
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
+
         responseDTO.setScreeningDate(result.getUpdateTime());
-        responseDTO.setScreeningOrgId(result.getScreeningOrgId());
+        responseDTO.setScreeningOrgId(screeningOrgId);
+
         VisionDataDO visionData = result.getVisionData();
+
         // 视力检查结果
         responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
+
         // 验光仪检查结果
         TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
+
         // 生物测量
         responseDTO.setBiometricItems(ScreeningResultUtil.packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
+
         // 医生建议一（这里-5是为了type的偏移量）
         Integer doctorAdvice1 = refractoryResult.getSecond() - 5;
         if (doctorAdvice1.equals(-5)) {
@@ -526,9 +540,38 @@ public class ParentStudentBizService {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
         }
-        // TODO: 建议医院
-//        responseDTO.setSuggestHospital();
+        responseDTO.setSuggestHospital(packageSuggestHospital(screeningOrgId));
         response.setDetail(responseDTO);
         return response;
+    }
+
+    /**
+     * 封装推荐医院
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return SuggestHospitalDO
+     */
+    private SuggestHospitalDO packageSuggestHospital(Integer screeningOrgId) {
+        SuggestHospitalDO hospitalDO = new SuggestHospitalDO();
+        Integer hospitalId = orgCooperationHospitalService.getSuggestHospital(screeningOrgId);
+        if (Objects.isNull(hospitalId)) {
+            return hospitalDO;
+        }
+        Hospital hospital = hospitalService.getById(hospitalId);
+
+        if (Objects.nonNull(hospital.getAvatarFileId())) {
+            hospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
+        }
+        hospitalDO.setName(hospital.getName());
+
+        // 行政区域名称
+        String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
+                hospital.getAreaCode(), hospital.getTownCode());
+        if (StringUtils.isNotBlank(address)) {
+            hospitalDO.setAddress(address);
+        } else {
+            hospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
+        }
+        return hospitalDO;
     }
 }
