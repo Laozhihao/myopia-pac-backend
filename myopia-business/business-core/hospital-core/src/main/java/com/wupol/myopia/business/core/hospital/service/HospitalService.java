@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
@@ -200,5 +201,17 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
                                                                  String name, Integer type, Integer kind, Integer level,
                                                                  Integer districtId, Integer status) {
         return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
+    }
+
+    /**
+     * 筛查机构合作医院列表查询
+     *
+     * @param pageRequest 分页请求
+     * @param name        名称
+     * @param codePre     代码前缀
+     * @return IPage<HospitalResponseDTO>
+     */
+    public IPage<HospitalResponseDTO> getHospitalByName(PageRequest pageRequest, String name, Integer codePre) {
+        return baseMapper.getHospitalByName(pageRequest.toPage(), name, codePre);
     }
 }

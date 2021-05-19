@@ -100,4 +100,15 @@
             and id != #{id}
         </if>
     </select>
+
+    <select id="getHospitalByName" resultMap="BaseResponseMap">
+        select *
+        from m_hospital where status = 0
+        <if test="name != null and name != ''">
+            and name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="codePre != null">
+            and district_province_code = #{codePre}
+        </if>
+    </select>
 </mapper>

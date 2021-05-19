@@ -232,9 +232,16 @@ public class ScreeningOrganizationController {
         return orgCooperationHospitalService.topCooperationHospital(id);
     }
 
-//    @GetMapping()
-//    public Object getOrgCooperationHospitalList(String name) {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-//        currentUser
-//    }
+    /**
+     * 获取医院（筛查机构只能看到全省）
+     *
+     * @param pageRequest 分页请求
+     * @param name        名称
+     * @return IPage<HospitalResponseDTO>
+     */
+    @GetMapping("/getOrgCooperationHospitalList")
+    public Object getOrgCooperationHospitalList(PageRequest pageRequest, String name) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningOrganizationBizService.getHospitalList(currentUser, pageRequest, name);
+    }
 }

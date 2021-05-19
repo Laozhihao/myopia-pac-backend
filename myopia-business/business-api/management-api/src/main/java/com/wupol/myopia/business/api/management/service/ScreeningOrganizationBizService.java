@@ -9,7 +9,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
@@ -82,6 +82,8 @@ public class ScreeningOrganizationBizService {
     private OrgCooperationHospitalService orgCooperationHospitalService;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private HospitalBizService hospitalBizService;
 
     /**
      * 获取筛查记录列表
@@ -394,5 +396,25 @@ public class ScreeningOrganizationBizService {
             responseListDTO.add(responseDTO);
         });
         return responseListDTO;
+    }
+
+
+    /**
+     * 筛查机构合作医院列表查询
+     *
+     * @param currentUser 当前用户
+     * @param pageRequest 分页请求
+     * @param name        名称
+     * @return IPage<HospitalResponseDTO>
+     */
+    public IPage<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, PageRequest pageRequest, String name) {
+        Integer codePre = null;
+        // 筛查角色的只能看到全省
+        if (currentUser.isScreeningUser()) {
+            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
+            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+            codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
+        }
+        return hospitalBizService.getHospitalByName(pageRequest, name, codePre);
     }
 }

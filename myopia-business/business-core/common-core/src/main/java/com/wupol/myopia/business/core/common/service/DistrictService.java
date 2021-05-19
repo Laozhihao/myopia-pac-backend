@@ -757,4 +757,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         return district;
     }
+
+    /**
+     * 获取前缀
+     *
+     * @param districtId 行政区域ID
+     * @return TwoTuple<Integer, Integer>
+     */
+    public TwoTuple<Integer, Integer> getTwoTuple(Integer districtId) {
+        District district = getProvinceDistrictTreePriorityCache(getById(districtId).getCode());
+        String pre = String.valueOf(district.getCode()).substring(0, 2);
+        return new TwoTuple<>(null, Integer.valueOf(pre));
+    }
 }

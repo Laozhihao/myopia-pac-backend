@@ -328,26 +328,12 @@ public class SchoolBizService {
             // 只能看到所属的省级数据
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            return getTwoTuple(org.getDistrictId());
+            return districtService.getTwoTuple(org.getDistrictId());
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-            return getTwoTuple(govDept.getDistrictId());
+            return districtService.getTwoTuple(govDept.getDistrictId());
         }
         return new TwoTuple<>(districtId, null);
-    }
-
-    /**
-     * 获取前缀
-     *
-     * @param districtId 行政区域ID
-     * @return TwoTuple<Integer, Integer>
-     */
-    private TwoTuple<Integer, Integer> getTwoTuple(Integer districtId) {
-        District district = districtService
-                .getProvinceDistrictTreePriorityCache(districtService
-                        .getById(districtId).getCode());
-        String pre = String.valueOf(district.getCode()).substring(0, 2);
-        return new TwoTuple<>(null, Integer.valueOf(pre));
     }
 
     /**
