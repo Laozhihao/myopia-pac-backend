@@ -5,15 +5,14 @@ import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import java.io.IOException;
 
 /**
  * 导出筛查机构的档案卡（压缩包中包含多个学校的PDF文件）
@@ -29,7 +28,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 生成文件
@@ -57,9 +56,9 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(exportCondition.getPlanId());
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+        int total = visionScreeningResultService.count(new VisionScreeningResult().setScreeningOrgId(exportCondition.getScreeningOrgId()).setPlanId(exportCondition.getPlanId()).setIsDoubleScreen(Boolean.FALSE));
+        if (total == 0) {
             throw new BusinessException("该计划下暂无筛查学生数据，无法导出档案卡");
         }
     }
