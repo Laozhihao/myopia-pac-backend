@@ -217,7 +217,7 @@ public class ScreeningResultUtil {
             }
             // 右眼轴位A
             if (Objects.nonNull(rightAxial)) {
-                axialItems.setOs(packageAxialItem(rightAxial));
+                axialItems.setOd(packageAxialItem(rightAxial));
             }
             items.add(axialItems);
             return new TwoTuple<>(items, maxType);

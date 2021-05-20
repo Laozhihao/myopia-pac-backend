@@ -1,16 +1,21 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
- * 导出学校的档案卡
+ * 导出学校的档案卡（压缩文件仅包含一个该学校的PDF文件）
  *
  * @Author HaoHao
  * @Date 2021/3/24
@@ -22,6 +27,8 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     private SchoolService schoolService;
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 生成文件
@@ -46,5 +53,13 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     public String getFileName(ExportCondition exportCondition) {
         School school = schoolService.getById(exportCondition.getSchoolId());
         return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
+    }
+
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+        int total = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(exportCondition.getPlanId()).setSchoolId(exportCondition.getSchoolId()).setIsDoubleScreen(Boolean.FALSE));
+        if (total == 0) {
+            throw new BusinessException("该计划下该学校暂无筛查学生数据，无法导出档案卡");
+        }
     }
 }

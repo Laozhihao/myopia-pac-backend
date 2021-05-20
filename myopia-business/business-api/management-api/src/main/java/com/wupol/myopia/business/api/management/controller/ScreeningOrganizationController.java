@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -139,7 +140,7 @@ public class ScreeningOrganizationController {
      * @return 是否成功
      */
     @GetMapping("/export")
-    public void getOrganizationExportData(Integer districtId) {
+    public void getOrganizationExportData(Integer districtId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setDistrictId(districtId), ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
