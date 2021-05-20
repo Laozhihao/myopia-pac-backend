@@ -8,7 +8,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,9 +27,10 @@ public class ScreeningResultUtil {
      *
      * @param result    筛查结果
      * @param gradeType 学龄段
+     * @param age       年龄
      * @return 医生建议
      */
-    public static String getDoctorAdviceDetail(VisionScreeningResult result, Integer gradeType) {
+    public static String getDoctorAdviceDetail(VisionScreeningResult result, Integer gradeType, Integer age) {
 
         VisionDataDO visionData = result.getVisionData();
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
@@ -59,7 +59,7 @@ public class ScreeningResultUtil {
         return packageDoctorAdvice(leftNakedVision, rightNakedVision,
                 leftCorrectedVision, rightCorrectedVision,
                 leftSph, rightSph, leftCyl, rightCyl,
-                glassesType, gradeType);
+                glassesType, gradeType, age);
     }
 
     /**
@@ -619,7 +619,19 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 判断是否在某个区间，左闭右比区间
+     * 判断是否在某个区间，左开右闭区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static Boolean isBetweenRight(BigDecimal val, String start, String end) {
+        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
+    }
+
+    /**
+     * 判断是否在某个区间，左闭右闭区间
      *
      * @param val   值
      * @param start 开始值
@@ -778,17 +790,23 @@ public class ScreeningResultUtil {
      * @param rightCyl             右-球镜
      * @param glassesType          戴镜类型
      * @param schoolAge            学龄段
+     * @param age                  年龄
      * @return 医生建议
      */
     public static String packageDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                              BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                              BigDecimal leftSph, BigDecimal rightSph,
                                              BigDecimal leftCyl, BigDecimal rightCyl,
-                                             Integer glassesType, Integer schoolAge) {
+                                             Integer glassesType, Integer schoolAge, Integer age) {
 
         TwoTuple<BigDecimal, Integer> nakedVisionResult = getResultVision(leftNakedVision, rightNakedVision);
         BigDecimal leftSe = calculationSE(leftSph, leftCyl);
         BigDecimal rightSe = calculationSE(rightSph, rightCyl);
+
+        // 只要存在裸眼视力，进入正常情况建议判断
+        if (Objects.nonNull(leftNakedVision) || Objects.nonNull(rightNakedVision)) {
+
+        }
 
         // 裸眼视力是否小于4.9
         if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
@@ -1023,5 +1041,83 @@ public class ScreeningResultUtil {
             default:
                 return null;
         }
+    }
+
+//    private boolean checkIsNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+//                                  BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+//                                  BigDecimal leftSph, BigDecimal rightSph,
+//                                  BigDecimal leftCyl, BigDecimal rightCyl,
+//                                  Integer glassesType, Integer schoolAge, Integer age) {
+//
+//        if (Objects.isNull(leftSph) && Objects.isNull(rightSph) &&
+//                Objects.isNull(leftCyl) && Objects.isNull(rightCyl)) {
+//            return checkNakedVisionIsNormal(getSeriousVision(leftNakedVision, rightNakedVision), age);
+//        }
+//
+//
+//    }
+
+    /**
+     * 取严重的眼别
+     *
+     * @param leftVision  左眼视力
+     * @param rightVision 右眼视力
+     * @return 视力
+     */
+    private BigDecimal getSeriousVision(BigDecimal leftVision, BigDecimal rightVision) {
+        return Objects.isNull(leftVision) ?
+                rightVision : Objects.isNull(rightVision) ?
+                leftVision : leftVision.compareTo(rightVision) >= 0 ?
+                rightVision : leftVision;
+    }
+
+    /**
+     * 检查裸眼视力是否正常水平
+     *
+     * @param nakedVision 裸眼视力
+     * @param age         年龄
+     * @return 是否正常水平
+     */
+    private boolean checkNakedVisionIsNormal(BigDecimal nakedVision, Integer age) {
+
+        if (age < 3 && nakedVision.compareTo(new BigDecimal("4.6")) >= 0) {
+            return true;
+        }
+        if (age < 4 && nakedVision.compareTo(new BigDecimal("4.7")) >= 0) {
+            return true;
+        }
+        if (age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) >= 0) {
+            return true;
+        }
+        return age > 6 && nakedVision.compareTo(new BigDecimal("5.0")) >= 0;
+    }
+
+    /**
+     * 等效球镜是否属于正常范围
+     *
+     * @param leftSph  左-柱镜
+     * @param rightSph 右-柱镜
+     * @param leftCyl  左-球镜
+     * @param rightCyl 右-球镜
+     * @return 是否属于正常范围
+     */
+    private boolean checkSEIsNormal(BigDecimal leftSph, BigDecimal rightSph,
+                                    BigDecimal leftCyl, BigDecimal rightCyl) {
+        BigDecimal leftSE;
+        BigDecimal rightSE;
+        if (Objects.isNull(leftSph) || Objects.isNull(leftCyl)) {
+            leftSE = null;
+        } else {
+            leftSE = calculationSE(leftSph, leftCyl);
+        }
+        if (Objects.isNull(rightSph) || Objects.isNull(rightCyl)) {
+            rightSE = null;
+        } else {
+            rightSE = calculationSE(rightSph, rightCyl);
+        }
+        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
+            return false;
+        }
+        return isBetweenLeft(getSeriousVision(leftSE, rightSE), "-0.5", "0.0");
     }
 }

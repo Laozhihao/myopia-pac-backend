@@ -535,7 +535,7 @@ public class ParentStudentBizService {
             responseDTO.setDoctorAdvice1(doctorAdvice1);
         }
         // 医生建议二
-        responseDTO.setDoctorAdvice2(ScreeningResultUtil.getDoctorAdviceDetail(result, student.getGradeType()));
+        responseDTO.setDoctorAdvice2(ScreeningResultUtil.getDoctorAdviceDetail(result, student.getGradeType(), age));
         if (null != visionData) {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
