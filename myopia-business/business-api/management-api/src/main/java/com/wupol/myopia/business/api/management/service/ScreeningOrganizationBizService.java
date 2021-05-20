@@ -407,7 +407,7 @@ public class ScreeningOrganizationBizService {
      * @param name        名称
      * @return IPage<HospitalResponseDTO>
      */
-    public IPage<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, PageRequest pageRequest, String name) {
+    public List<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, PageRequest pageRequest, String name) {
         Integer codePre = null;
         // 筛查角色的只能看到全省
         if (currentUser.isScreeningUser()) {
@@ -415,6 +415,6 @@ public class ScreeningOrganizationBizService {
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
             codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
         }
-        return hospitalBizService.getHospitalByName(pageRequest, name, codePre);
+        return hospitalBizService.getHospitalByName(name, codePre);
     }
 }

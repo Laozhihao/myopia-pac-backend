@@ -29,6 +29,5 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
 
     List<Hospital> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
 
-    IPage<HospitalResponseDTO> getHospitalByName(@Param("page") Page<?> page, @Param("name") String name,
-                                                 @Param("codePre") Integer codePre);
+    List<HospitalResponseDTO> getHospitalByName(@Param("name") String name, @Param("codePre") Integer codePre);
 }

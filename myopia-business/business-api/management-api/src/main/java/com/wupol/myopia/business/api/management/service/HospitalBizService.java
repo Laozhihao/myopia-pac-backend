@@ -137,18 +137,11 @@ public class HospitalBizService {
     /**
      * 筛查机构合作医院列表查询
      *
-     * @param pageRequest 分页请求
-     * @param name        名称
-     * @param codePre     代码前缀
+     * @param name    名称
+     * @param codePre 代码前缀
      * @return IPage<HospitalResponseDTO>
      */
-    public IPage<HospitalResponseDTO> getHospitalByName(PageRequest pageRequest, String name, Integer codePre) {
-        IPage<HospitalResponseDTO> hospitalPage = hospitalService.getHospitalByName(pageRequest, name, codePre);
-        List<HospitalResponseDTO> records = hospitalPage.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
-            return hospitalPage;
-        }
-        packageHospitalDTO(records);
-        return hospitalPage;
+    public List<HospitalResponseDTO> getHospitalByName(String name, Integer codePre) {
+        return hospitalService.getHospitalByName(name, codePre);
     }
 }
