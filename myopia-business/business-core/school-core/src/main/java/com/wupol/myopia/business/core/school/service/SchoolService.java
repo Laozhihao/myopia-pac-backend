@@ -35,10 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -125,8 +122,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .setStatus(request.getStatus());
         oauthServiceClient.updateUser(userDTO);
         School school = new School().setId(request.getId()).setStatus(request.getStatus());
-        District district = districtService.getById(school.getDistrictId());
-        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        if (Objects.nonNull(school.getDistrictId())) {
+            District district = districtService.getById(school.getDistrictId());
+            school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        }
         return baseMapper.updateById(school);
     }
 
