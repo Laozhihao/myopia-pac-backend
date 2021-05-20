@@ -192,11 +192,11 @@ public class ScreeningOrganizationController {
      *
      * @param request        分页请求
      * @param screeningOrgId 筛查机构Id
-     * @return List<CooperationHospitalDTO>
+     * @return IPage<CooperationHospitalDTO>
      */
     @GetMapping("/getOrgCooperationHospital/{screeningOrgId}")
-    public List<CooperationHospitalDTO> getOrgCooperationHospital(PageRequest request,
-                                                                  @PathVariable("screeningOrgId") Integer screeningOrgId) {
+    public IPage<CooperationHospitalDTO> getOrgCooperationHospital(PageRequest request,
+                                                                   @PathVariable("screeningOrgId") Integer screeningOrgId) {
         return screeningOrganizationBizService.getCooperationHospitalList(request, screeningOrgId);
     }
 

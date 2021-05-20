@@ -361,16 +361,15 @@ public class ScreeningOrganizationBizService {
      *
      * @param pageRequest    分页请求
      * @param screeningOrgId 筛查机构Id
-     * @return List<CooperationHospitalDTO>
+     * @return IPage<CooperationHospitalDTO>
      */
-    public List<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
-        List<CooperationHospitalDTO> responseListDTO = new ArrayList<>();
+    public IPage<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
 
         // 筛查机构获取合作医院列表
         IPage<CooperationHospitalDTO> cooperationHospitalPage = orgCooperationHospitalService.getCooperationHospitalList(pageRequest, screeningOrgId);
         List<CooperationHospitalDTO> cooperationHospitalList = cooperationHospitalPage.getRecords();
         if (CollectionUtils.isEmpty(cooperationHospitalList)) {
-            return responseListDTO;
+            return cooperationHospitalPage;
         }
 
         // 装换成<医院Id，是否置顶>
@@ -387,15 +386,12 @@ public class ScreeningOrganizationBizService {
         // 封装DTO
         cooperationHospitalList.forEach(cp -> {
             Hospital hospital = hospitalMap.get(cp.getHospitalId());
-            CooperationHospitalDTO responseDTO = new CooperationHospitalDTO();
-            BeanUtils.copyProperties(hospital, responseDTO);
-            responseDTO.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
-            responseDTO.setAddressDetail(districtService.getAddressDetails(
+            cp.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
+            cp.setAddressDetail(districtService.getAddressDetails(
                     hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()));
-            responseDTO.setIsTop(cooperationHospitalMap.get(cp.getHospitalId()));
-            responseListDTO.add(responseDTO);
+            cp.setIsTop(cooperationHospitalMap.get(cp.getHospitalId()));
         });
-        return responseListDTO;
+        return cooperationHospitalPage;
     }
 
 
