@@ -81,8 +81,10 @@ public class HospitalBizService {
             oauthServiceClient.resetPwd(admin.getUserId(), password);
             response.setPassword(password);
         }
-        District district = districtService.getById(hospital.getDistrictId());
-        hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        if( Objects.nonNull(hospital.getDistrictId())) {
+            District district = districtService.getById(hospital.getDistrictId());
+            hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
+        }
         hospitalService.updateById(hospital);
         Hospital h = hospitalService.getById(hospital.getId());
         BeanUtils.copyProperties(h, response);
