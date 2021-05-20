@@ -1,13 +1,18 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 /**
  * 导出筛查机构的筛查报告
@@ -16,12 +21,14 @@ import org.springframework.stereotype.Service;
  * @Date 2021/3/24
  **/
 @Service("screeningOrgScreeningReportService")
-public class ExportScreeningOrgScreeningService extends BaseExportPdfFileService {
+public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileService {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private GeneratePdfFileService generateReportPdfService;
+    @Autowired
+    private StatConclusionService statConclusionService;
 
     /**
      * 生成文件
@@ -46,6 +53,14 @@ public class ExportScreeningOrgScreeningService extends BaseExportPdfFileService
     public String getFileName(ExportCondition exportCondition) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
         return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, screeningOrganization.getName());
+    }
+
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+        int total = statConclusionService.count(new StatConclusion().setPlanId(exportCondition.getPlanId()));
+        if (total == 0) {
+            throw new BusinessException("暂无筛查数据，无法导出筛查报告");
+        }
     }
 
 }

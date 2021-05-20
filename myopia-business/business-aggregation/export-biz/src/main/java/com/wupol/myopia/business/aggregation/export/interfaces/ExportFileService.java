@@ -4,6 +4,7 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 导出文件接口类
@@ -19,7 +20,7 @@ public interface ExportFileService {
      * @param exportCondition 导出条件
      * @return void
      **/
-    void validateBeforeExport(ExportCondition exportCondition);
+    void validateBeforeExport(ExportCondition exportCondition) throws IOException;
 
     /**
      * 导出文件

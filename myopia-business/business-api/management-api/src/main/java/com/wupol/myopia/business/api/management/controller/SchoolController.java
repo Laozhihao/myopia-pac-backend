@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -141,7 +142,7 @@ public class SchoolController {
      * @return 是否成功
      */
     @GetMapping("/export")
-    public void getSchoolExportData(Integer districtId) {
+    public void getSchoolExportData(Integer districtId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(currentUser.getId())

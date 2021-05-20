@@ -23,7 +23,7 @@ public enum SchoolEnum {
     TYPE_9(4, "九年一贯制学校"),
     TYPE_12(5, "十二年一贯制学校"),
     TYPE_VOCATIONAL(6, "职业高中"),
-    TYPE_OTHER(7, "7其他"),
+    TYPE_OTHER(7, "其他"),
     KIND_1(0, "公办"),
     KIND_2(1, "民办"),
     KIND_3(2, "其他");

@@ -117,7 +117,7 @@ public class ScreeningOrganizationStaffController {
      * @return 是否成功
      */
     @GetMapping("/export")
-    public void getOrganizationStaffExportData(Integer screeningOrgId) {
+    public void getOrganizationStaffExportData(Integer screeningOrgId) throws IOException {
         if (Objects.isNull(screeningOrgId)) {
             throw new BusinessException("筛查机构id不能为空");
         }
