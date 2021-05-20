@@ -318,7 +318,7 @@ public class ScheduledTasksExecutor {
     /**
      * 筛查数据统计 测试环境暂时关闭
      */
-    @Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
+    //@Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
     public void statisticBigScreen() throws IOException {
         //找到所有省级部门
         List<GovDept> proviceGovDepts = govDeptService.getProviceGovDept();

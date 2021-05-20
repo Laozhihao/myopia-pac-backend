@@ -257,9 +257,9 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/big-screen")
-    public BigScreeningVO getBigScreeningVO() {
+    public BigScreeningVO getBigScreeningVO(Integer noticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return statService.getLatestData(currentUser);
+        return statService.getBigScreeningVO(currentUser,noticeId);
     }
 
     /**

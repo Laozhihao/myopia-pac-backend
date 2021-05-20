@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
@@ -764,21 +765,34 @@ public class StatService {
     }
 
     /**
-     * 获取最新的数据
+     * 获取大屏的数据
      *
      * @param currentUser
      */
-    public BigScreeningVO getLatestData(CurrentUser currentUser) {
-        //根据角色获取当前的id
+    public BigScreeningVO getBigScreeningVO(CurrentUser currentUser, Integer noticeId) {
+        if (ObjectsUtil.hasNull(currentUser,noticeId)) {
+            throw new ManagementUncheckedException("noticeId 或者 currentUser 不能为空");
+        }
+        //查找 district
         District district = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
         if (district == null) {
             throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
         }
-        //查找最新的noticeId
-        ScreeningNotice screeningNotice = screeningNoticeService.getLatestNoticeByUser(currentUser);
+        //查找最新的notice
+        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到筛查通知，user = " + JSON.toJSONString(currentUser));
+            throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
         }
+        return getBigScreeningVO(screeningNotice,district);
+    }
+
+    /**
+     * 获取大屏数据
+     * @param screeningNotice
+     * @param district
+     * @return
+     */
+    private BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice,District district) {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district.getId());
         if (districtBigScreenStatistic == null) {
@@ -787,5 +801,4 @@ public class StatService {
         //对数据进行整合
         return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
     }
-
 }
