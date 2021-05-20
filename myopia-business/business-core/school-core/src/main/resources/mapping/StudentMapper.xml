@@ -95,7 +95,7 @@
             and ms.name like CONCAT('%', #{name}, '%')
         </if>
         <if test="parentPhone != null and parentPhone != ''">
-            and ms.parent_phone like CONCAT('%', #{parentPhone}, '%')
+            and ms.mp_parent_phone like CONCAT('%', #{parentPhone}, '%')
         </if>
         <if test="gender != null">
             and ms.gender = #{gender}
