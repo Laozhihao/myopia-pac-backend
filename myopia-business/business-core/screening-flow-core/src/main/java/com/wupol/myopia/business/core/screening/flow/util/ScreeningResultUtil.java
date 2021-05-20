@@ -619,18 +619,6 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 判断是否在某个区间，左开右闭区间
-     *
-     * @param val   值
-     * @param start 开始值
-     * @param end   结束值
-     * @return 是否在区间内
-     */
-    public static Boolean isBetweenRight(BigDecimal val, String start, String end) {
-        return val.compareTo(new BigDecimal(start)) > 0 && val.compareTo(new BigDecimal(end)) <= 0;
-    }
-
-    /**
      * 判断是否在某个区间，左闭右闭区间
      *
      * @param val   值
@@ -805,7 +793,9 @@ public class ScreeningResultUtil {
 
         // 只要存在裸眼视力，进入正常情况建议判断
         if (Objects.nonNull(leftNakedVision) || Objects.nonNull(rightNakedVision)) {
-
+            if (checkIsNormal(leftNakedVision, rightNakedVision, leftSph, rightSph, leftCyl, rightCyl, age)) {
+                return DoctorConclusion.NORMAL_SE;
+            }
         }
 
         // 裸眼视力是否小于4.9
@@ -1043,19 +1033,32 @@ public class ScreeningResultUtil {
         }
     }
 
-//    private boolean checkIsNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
-//                                  BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
-//                                  BigDecimal leftSph, BigDecimal rightSph,
-//                                  BigDecimal leftCyl, BigDecimal rightCyl,
-//                                  Integer glassesType, Integer schoolAge, Integer age) {
-//
-//        if (Objects.isNull(leftSph) && Objects.isNull(rightSph) &&
-//                Objects.isNull(leftCyl) && Objects.isNull(rightCyl)) {
-//            return checkNakedVisionIsNormal(getSeriousVision(leftNakedVision, rightNakedVision), age);
-//        }
-//
-//
-//    }
+    /**
+     * 是否在正常视力范围
+     *
+     * @param leftNakedVision  左眼裸眼视力
+     * @param rightNakedVision 右眼裸眼视力
+     * @param leftSph          左-柱镜
+     * @param rightSph         右-柱镜
+     * @param leftCyl          左-球镜
+     * @param rightCyl         右-球镜
+     * @param age              年龄
+     * @return 是否正常
+     */
+    private boolean checkIsNormal(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                  BigDecimal leftSph, BigDecimal rightSph,
+                                  BigDecimal leftCyl, BigDecimal rightCyl,
+                                  Integer age) {
+
+        if (Objects.isNull(leftSph) && Objects.isNull(rightSph) &&
+                Objects.isNull(leftCyl) && Objects.isNull(rightCyl)) {
+            return checkNakedVisionIsNormal(getSeriousVision(leftNakedVision, rightNakedVision), age);
+        } else {
+            return checkNakedVisionIsNormal(getSeriousVision(leftNakedVision, rightNakedVision), age) &&
+                    (checkSEIsNormal(leftSph, rightSph, leftCyl, rightCyl) ||
+                            checkSEIsNormalWithAge(leftSph, rightSph, leftCyl, rightCyl, age));
+        }
+    }
 
     /**
      * 取严重的眼别
@@ -1103,6 +1106,83 @@ public class ScreeningResultUtil {
      */
     private boolean checkSEIsNormal(BigDecimal leftSph, BigDecimal rightSph,
                                     BigDecimal leftCyl, BigDecimal rightCyl) {
+
+        TwoTuple<BigDecimal, BigDecimal> normalSE = getNormalSE(leftSph, rightSph, leftCyl, rightCyl);
+        BigDecimal leftSE = normalSE.getFirst();
+        BigDecimal rightSE = normalSE.getSecond();
+        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
+            return false;
+        }
+        return isBetweenLeft(getSeriousVision(leftSE, rightSE), "-0.5", "0.0");
+    }
+
+    /**
+     * 年龄段内等效球镜是否属于正常范围
+     *
+     * @param leftSph  左-柱镜
+     * @param rightSph 右-柱镜
+     * @param leftCyl  左-球镜
+     * @param rightCyl 右-球镜
+     * @return 是否属于正常范围
+     */
+    private boolean checkSEIsNormalWithAge(BigDecimal leftSph, BigDecimal rightSph,
+                                           BigDecimal leftCyl, BigDecimal rightCyl, Integer age) {
+        TwoTuple<BigDecimal, BigDecimal> normalSE = getNormalSE(leftSph, rightSph, leftCyl, rightCyl);
+        BigDecimal leftSE = normalSE.getFirst();
+        BigDecimal rightSE = normalSE.getSecond();
+        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
+            return false;
+        }
+        if (age < 3 && isMatchSEWithVision(leftSE, rightSE, "3.0")) {
+            return true;
+        }
+
+        if (age >= 4 && age <= 5 && isMatchSEWithVision(leftSE, rightSE, "2.0")) {
+            return true;
+        }
+
+        if (age >= 6 && age <= 7 && isMatchSEWithVision(leftSE, rightSE, "1.5")) {
+            return true;
+        }
+
+        if (age == 8 && isMatchSEWithVision(leftSE, rightSE, "1.0")) {
+            return true;
+        }
+
+        if (age == 9 && isMatchSEWithVision(leftSE, rightSE, "0.75")) {
+            return true;
+        }
+
+        if (age >= 10 && age <= 12 && isMatchSEWithVision(leftSE, rightSE, "0.5")) {
+            return true;
+        }
+        return age > 12 && new BigDecimal("0.5").compareTo(getSeriousVision(leftSE, rightSE)) >= 0;
+    }
+
+    /**
+     * 是否满足指定视力区间
+     *
+     * @param leftSE            左眼等效球镜
+     * @param rightSE           右眼等效球镜
+     * @param rightTargetVision 右区间
+     * @return 是否满足指定视力区间
+     */
+    private boolean isMatchSEWithVision(BigDecimal leftSE, BigDecimal rightSE,
+                                        String rightTargetVision) {
+        return isBetweenAll(getSeriousVision(leftSE, rightSE), new BigDecimal("0.0"), new BigDecimal(rightTargetVision));
+    }
+
+    /**
+     * 获取正常的等效球镜
+     *
+     * @param leftSph  左-柱镜
+     * @param rightSph 右-柱镜
+     * @param leftCyl  左-球镜
+     * @param rightCyl 右-球镜
+     * @return TwoTuple<BigDecimal, BigDecimal>
+     */
+    private TwoTuple<BigDecimal, BigDecimal> getNormalSE(BigDecimal leftSph, BigDecimal rightSph,
+                                                         BigDecimal leftCyl, BigDecimal rightCyl) {
         BigDecimal leftSE;
         BigDecimal rightSE;
         if (Objects.isNull(leftSph) || Objects.isNull(leftCyl)) {
@@ -1115,9 +1195,6 @@ public class ScreeningResultUtil {
         } else {
             rightSE = calculationSE(rightSph, rightCyl);
         }
-        if (Objects.isNull(leftSE) && Objects.isNull(rightSE)) {
-            return false;
-        }
-        return isBetweenLeft(getSeriousVision(leftSE, rightSE), "-0.5", "0.0");
+        return new TwoTuple<>(leftSE, rightSE);
     }
 }
