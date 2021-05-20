@@ -8,7 +8,7 @@ public interface WxConstant {
     /**
      * 微信静默授权地址
      **/
-    String WX_AUTHORIZE_BASE_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/login&response_type=code&scope=snsapi_base&state=state#wechat_redirect";
+    String WX_AUTHORIZE_BASE_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/login&response_type=code&scope=snsapi_base&state=simple4h#wechat_redirect";
     /**
      * 获取微信用户个人信息授权地址
      **/
