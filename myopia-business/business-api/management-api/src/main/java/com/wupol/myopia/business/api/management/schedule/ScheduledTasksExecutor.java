@@ -2,9 +2,11 @@ package com.wupol.myopia.business.api.management.schedule;
 
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
+import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -16,7 +18,10 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.RescreenStat;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -27,12 +32,15 @@ import com.wupol.myopia.business.core.stat.service.*;
 import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,6 +92,10 @@ public class ScheduledTasksExecutor {
     private BigScreeningStatService bigScreeningStatService;
     @Autowired
     private StudentBizService studentBizService;
+    @Autowired
+    private StatService statService;
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 筛查数据统计
@@ -418,4 +430,49 @@ public class ScheduledTasksExecutor {
         studentResult.forEach(studentBizService.getVisionScreeningResultConsumer(studentMaps));
         visionScreeningResultService.updateBatchById(studentResult);
     }
+
+    /**
+     * 每天凌晨0点30分执行，复测统计
+     */
+    @Scheduled(cron = "0 30 0 * * ?", zone = "GMT+8:00")
+    @Transactional(rollbackFor = Exception.class)
+    public void rescreenStat() {
+        log.info("开始进行复测报告统计");
+        List<StatRescreen> statRescreens = new ArrayList<>();
+        // 获取昨日有进行复测的计划及学校信息
+        Date date = DateUtils.addDays(new Date(), -1);
+        List<ScreenPlanSchoolDTO> rescreenInfo = statConclusionService.getRescreenPlanSchoolByTime(date);
+        // 按计划 + 学校统计复测数据
+        rescreenInfo.forEach(rescreen -> {
+            List<StatConclusion> yesterdayRescreenInfo = getYesterdayRescreenInfo(rescreen.getPlanId(), rescreen.getSchoolId());
+            if (CollectionUtils.isNotEmpty(yesterdayRescreenInfo)) {
+                // 组建统计数据
+                StatRescreen statRescreen = new StatRescreen();
+                StatConclusion conclusion = yesterdayRescreenInfo.get(0);
+                statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
+                        .setTaskId(conclusion.getTaskId())
+                        .setSchoolId(conclusion.getSchoolId())
+                        .setScreeningTime(date);
+                RescreenStat rescreenStat = statService.composeRescreenConclusion(yesterdayRescreenInfo);
+                BeanUtils.copyProperties(rescreenStat, statRescreen);
+                statRescreens.add(statRescreen);
+            }
+        });
+        statRescreenService.saveBatch(statRescreens);
+        log.info("本次复测统计共新增加内容{}条", statRescreens.size());
+    }
+
+    private List<StatConclusion> getYesterdayRescreenInfo(Integer planId, Integer schoolId) {
+        LocalDate startDate = DateUtil.convertToLocalDate(DateUtil.getYesterdayStartTime(), DateUtil.ZONE_UTC_8);
+        LocalDate endDate = startDate.plusDays(1l);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setStartTime(startDate)
+                .setEndTime(endDate)
+                .setIsRescreen(true)
+                .setPlanId(planId)
+                .setSchoolId(schoolId);
+        return statConclusionService.listByQuery(query);
+    }
+
 }

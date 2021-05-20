@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
 import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
@@ -45,10 +46,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,7 +104,7 @@ public class StatService {
             return WarningInfo.builder().build();
         }
         ZoneId zoneId = ZoneId.of("UTC+8");
-        LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
+        LocalDate endDate = DateUtil.convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
         StatConclusionQueryDTO warningListQuery = new StatConclusionQueryDTO();
         warningListQuery.setStartTime(startDate)
@@ -527,7 +526,7 @@ public class StatService {
      * @param rescreenConclusions 复查统计记录
      * @return
      */
-    private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
+    public RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
         long totalScreeningNum = rescreenConclusions.size();
         long wearingGlassesNum =
                 rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
@@ -624,18 +623,6 @@ public class StatService {
         float avgVisionL = round2Digits(sumVisionL / size);
         float avgVisionR = round2Digits(sumVisionR / size);
         return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
-    }
-
-    /**
-     * Date to LocalDate
-     * @param date 日期
-     * @param zoneId 时区ID
-     * @return
-     */
-    private LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
-        Instant instant = date.toInstant();
-        ZonedDateTime zdt = instant.atZone(zoneId);
-        return zdt.toLocalDate();
     }
 
     /** 平均视力 */

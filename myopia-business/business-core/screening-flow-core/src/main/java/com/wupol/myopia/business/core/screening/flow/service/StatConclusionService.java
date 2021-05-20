@@ -2,10 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.springframework.stereotype.Service;
@@ -13,6 +10,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -156,5 +154,15 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         Assert.notNull(planId, "筛查计划ID不能为空");
         return baseMapper.selectSchoolIdByPlanId(planId);
     }
+
+    /**
+     * 获取指定时间内进行复测的计划及学校
+     * @param date
+     * @return
+     */
+    public List<ScreenPlanSchoolDTO> getRescreenPlanSchoolByTime(Date date) {
+        return baseMapper.getPlanSchoolByDate(date, true);
+    }
+
 }
 
