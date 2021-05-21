@@ -35,10 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -435,4 +432,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),
                 resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
     }
+
+    public String getNameById(Integer id) {
+        School school = getById(id);
+        return Objects.nonNull(school) ? school.getName() : "";
+    }
+
 }

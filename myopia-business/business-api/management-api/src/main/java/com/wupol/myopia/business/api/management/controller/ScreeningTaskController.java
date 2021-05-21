@@ -7,6 +7,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -96,7 +97,7 @@ public class ScreeningTaskController {
      * @return Object
      */
     @GetMapping("{id}")
-    public Object getInfo(@PathVariable Integer id) {
+    public ScreeningTaskAndDistrictVO getInfo(@PathVariable Integer id) {
         return screeningTaskBizService.getScreeningTaskAndDistrictById(id);
     }
 
@@ -201,6 +202,17 @@ public class ScreeningTaskController {
         // 任务状态判断
         validateExist(screeningTaskId);
         return screeningTaskOrgBizService.getOrgVoListsByTaskId(screeningTaskId);
+    }
+
+    /**
+     * 获取指定任务下的机构信息
+     * @param screeningTaskId
+     * @param orgId
+     * @return
+     */
+    @GetMapping("orgs/{screeningTaskId}/{orgId}")
+    public ScreeningTaskOrg getTaskOrg(@PathVariable Integer screeningTaskId, @PathVariable Integer orgId) {
+        return screeningTaskOrgService.getOne(screeningTaskId, orgId);
     }
 
     /**

@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -50,6 +52,20 @@ public class ScreeningPlanSchool implements Serializable {
      * 筛查计划--学校名字
      */
     private String schoolName;
+
+    /**
+     * 机构质控员名字
+     */
+    @NotBlank
+    @Length(max = 15)
+    private String qualityControllerName;
+
+    /**
+     * 机构质控员队长
+     */
+    @NotBlank
+    @Length(max = 15)
+    private String qualityControllerCommander;
 
     /**
      * 创建时间

@@ -6,10 +6,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
-import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
-import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
+import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -18,14 +15,18 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
@@ -40,6 +41,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -83,6 +85,12 @@ public class StatService {
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
+    @Autowired
+    private StatRescreenService statRescreenService;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -773,6 +781,34 @@ public class StatService {
         }
         //对数据进行整合
         return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
+    }
+
+    /**
+     * 获取复测报告信息
+     * @param planId
+     * @param schoolId
+     * @param qualityControllerName
+     * @param qualityControllerCommander
+     * @return
+     */
+    public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId, String qualityControllerName, String qualityControllerCommander) {
+        List<RescreenReportVO> rrvos = new ArrayList<>();
+        List<StatRescreen> rescreens = statRescreenService.getList(planId, schoolId);
+        if (CollectionUtils.isEmpty(rescreens)) {
+            return rrvos;
+        }
+        String orgName = screeningOrganizationService.getNameById(rescreens.get(0).getScreeningOrgId());
+        String schoolName = schoolService.getNameById(schoolId);
+        rescreens.forEach(rescreen -> {
+            RescreenReportVO rrvo = new RescreenReportVO();
+            BeanUtils.copyProperties(rescreen, rrvo);
+            rrvo.setQualityControllerName(qualityControllerName)
+                    .setQualityControllerCommander(qualityControllerCommander)
+                    .setOrgName(orgName)
+                    .setSchoolName(schoolName);
+            rrvos.add(rrvo);
+        });
+        return rrvos;
     }
 
 }

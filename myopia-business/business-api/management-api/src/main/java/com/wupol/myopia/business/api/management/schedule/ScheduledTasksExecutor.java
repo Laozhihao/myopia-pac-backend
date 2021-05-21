@@ -198,7 +198,7 @@ public class ScheduledTasksExecutor {
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
                 schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
-                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
+                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
             });
         });
     }
@@ -452,6 +452,7 @@ public class ScheduledTasksExecutor {
                 statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
                         .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
                         .setTaskId(conclusion.getTaskId())
+                        .setPlanId(conclusion.getPlanId())
                         .setSchoolId(conclusion.getSchoolId())
                         .setScreeningTime(date);
                 RescreenStat rescreenStat = statService.composeRescreenConclusion(yesterdayRescreenInfo);
@@ -470,6 +471,7 @@ public class ScheduledTasksExecutor {
         query.setStartTime(startDate)
                 .setEndTime(endDate)
                 .setIsRescreen(true)
+                .setIsValid(true)
                 .setPlanId(planId)
                 .setSchoolId(schoolId);
         return statConclusionService.listByQuery(query);

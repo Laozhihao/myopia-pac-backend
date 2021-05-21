@@ -259,6 +259,17 @@ public class ScreeningPlanController {
     }
 
     /**
+     * 获取指定计划下学校信息
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    @GetMapping("schools/{screeningPlanId}/{schoolId}")
+    public ScreeningPlanSchool getPlanSchool(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
+    }
+
+    /**
      * 获取计划学校的年级情况
      *
      * @param screeningPlanId 计划ID

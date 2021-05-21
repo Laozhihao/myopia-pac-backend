@@ -59,42 +59,42 @@ public class StatRescreen implements Serializable {
     /**
      * 复测人数
      */
-    private long rescreenNum;
+    private Long rescreenNum;
 
     /**
      * 戴镜复测人数
      */
-    private long wearingGlassesRescreenNum;
+    private Long wearingGlassesRescreenNum;
 
     /**
      * 戴镜复测指标数
      */
-    private long wearingGlassesRescreenIndexNum;
+    private Long wearingGlassesRescreenIndexNum;
 
     /**
      * 非戴镜复测人数
      */
-    private long withoutGlassesRescreenNum;
+    private Long withoutGlassesRescreenNum;
 
     /**
      * 非戴镜复测指标数
      */
-    private long withoutGlassesRescreenIndexNum;
+    private Long withoutGlassesRescreenIndexNum;
 
     /**
      * 复测项次
      */
-    private long rescreenItemNum;
+    private Long rescreenItemNum;
 
     /**
      * 错误项次数
      */
-    private long incorrectItemNum;
+    private Long incorrectItemNum;
 
     /**
      * 错误率/发生率
      */
-    private float incorrectRatio;
+    private Float incorrectRatio;
 
     /**
      * 统计时间
