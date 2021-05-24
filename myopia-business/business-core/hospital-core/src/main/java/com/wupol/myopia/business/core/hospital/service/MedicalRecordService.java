@@ -8,8 +8,10 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -32,6 +34,33 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     @Autowired
     private ResourceFileService resourceFileService;
 
+
+    /**
+     * 获取检查单信息，包含数据对比的内容
+     * @param hospitalId        医院id
+     * @param medicalRecordId   检查单id
+     * @param studentId         学生id
+     */
+    public CompareMedicalRecord getMedicalRecordWithCompare(Integer hospitalId, Integer medicalRecordId, Integer studentId) {
+        MedicalRecord medicalRecord = getMedicalRecord(hospitalId, medicalRecordId);
+        CompareMedicalRecord compareMedicalRecord = new CompareMedicalRecord();
+        BeanUtils.copyProperties(medicalRecord, compareMedicalRecord);
+        // 除最新一条外的最近6条就诊记录
+        List<MedicalRecordDate> medicalRecordDateList = baseMapper.getMedicalRecordDateList(hospitalId, studentId);
+        // 没有旧记录，直接返回
+        if (CollectionUtils.isEmpty(medicalRecordDateList)) {
+            return compareMedicalRecord;
+        }
+        // 获取除最新一条外的最新记录
+        MedicalRecord lastMedicalRecord = getMedicalRecord(hospitalId, medicalRecordDateList.stream().findFirst().get().getMedicalRecordId());
+        compareMedicalRecord.setCompareDateList(medicalRecordDateList)
+                .setCompareBiometrics(lastMedicalRecord.getBiometrics())
+                .setCompareDiopter(lastMedicalRecord.getDiopter());
+
+        return compareMedicalRecord;
+    }
+
+
     /**
      * 获取学生今天最后一条角膜地形图数据
      * @param hospitalId 医院id
@@ -52,78 +81,6 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
             mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
         }
         return medicalRecord.getTosca();
-    }
-
-
-
-    /**
-     * 追加问诊到检查单
-     * @param consultation    问诊内容
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public void addConsultationToMedicalRecord(Consultation consultation,
-                                               Integer hospitalId,
-                                               Integer doctorId,
-                                               Integer studentId) {
-        addCheckDataToMedicalRecord(consultation,null, null, null, null,hospitalId, -1, doctorId, studentId);
-    }
-
-    /**
-     * 追加视力检查数据到检查单
-     * @param vision    检查数据
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public void addVisionToMedicalRecord(VisionMedicalRecord vision,
-                                         Integer hospitalId,
-                                         Integer doctorId,
-                                         Integer studentId) {
-        addCheckDataToMedicalRecord(null,vision, null, null, null,hospitalId, -1, doctorId, studentId);
-    }
-
-    /**
-     * 追加生物测量检查数据到检查单
-     * @param biometrics    检查数据
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public void addBiometricsToMedicalRecord(BiometricsMedicalRecord biometrics,
-                                             Integer hospitalId,
-                                             Integer doctorId,
-                                             Integer studentId) {
-        addCheckDataToMedicalRecord(null,null, biometrics, null, null,hospitalId, -1, doctorId, studentId);
-    }
-
-    /**
-     * 追加屈光检查数据到检查单
-     * @param diopter    检查数据
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public void addDiopterToMedicalRecord(DiopterMedicalRecord diopter,
-                                          Integer hospitalId,
-                                          Integer doctorId,
-                                          Integer studentId) {
-        addCheckDataToMedicalRecord(null,null, null, diopter, null,hospitalId, -1, doctorId, studentId);
-    }
-
-    /**
-     * 追加角膜地形图检查数据到检查单
-     * @param tosca    检查数据
-     * @param hospitalId 医院id
-     * @param doctorId 医生id
-     * @param studentId 学生id
-     */
-    public void addToscaToMedicalRecord(ToscaMedicalRecord tosca,
-                                        Integer hospitalId,
-                                        Integer doctorId,
-                                        Integer studentId) {
-        addCheckDataToMedicalRecord(null,null, null, null, tosca,hospitalId, -1, doctorId, studentId);
     }
 
     /**
@@ -161,7 +118,8 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     }
 
     /**
-     * 获取 或者 创建 学生今天最后一条问诊
+     * 获取 或者 创建 学生今天最后一条问诊。
+     * 如果学生未建档，则自动建档
      * @param hospitalId 医院id
      * @param departmentId 科室id
      * @param doctorId 医生id
@@ -237,7 +195,18 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         return createMedicalRecord(hospitalId, -1, doctorId, studentId);
     }
 
-    /** 创建检查单 */
+    /**
+     * 获取检查单
+     * @param hospitalId   医院id
+     * @param medicalRecordId   检查单id
+     */
+    public MedicalRecord getMedicalRecord(Integer hospitalId, Integer medicalRecordId) {
+        MedicalRecordQuery query = new MedicalRecordQuery();
+        query.setHospitalId(hospitalId).setId(medicalRecordId);
+        return baseMapper.getBy(query).stream().findFirst().orElseThrow(()-> new BusinessException("未找到检查单. id:"+medicalRecordId));
+    }
+
+   /** 创建检查单 */
     private MedicalRecord createMedicalRecord(Integer hospitalId,
                                              Integer departmentId,
                                              Integer doctorId,

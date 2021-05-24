@@ -57,8 +57,9 @@ CREATE TABLE `h_doctor`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `h_hospital_student`;
 CREATE TABLE `h_hospital_student`  (
-  `id` int(11) NOT NULL COMMENT '学生id',
-  `hospital_id` int(11) NOT NULL COMMENT '医院id',
+  `id`              int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `hospital_id`     int(11) NOT NULL COMMENT '医院id',
+  `student_id`      int(11) NOT NULL COMMENT '学生id',
   `create_user_id` int(11) DEFAULT NULL COMMENT '创建人ID',
   `school_id` int(11) DEFAULT NULL COMMENT '学校ID',
   `grade_id` int(11) DEFAULT NULL COMMENT '年级ID',
