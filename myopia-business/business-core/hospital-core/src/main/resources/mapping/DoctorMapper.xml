@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.hospital.domain.mapper.DoctorMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.hospital.domain.model.Doctor">
+    </resultMap>
+
+    <resultMap id="DoctorDTO" type="com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and d.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(hospitalId)">and d.`hospital_id` = #{hospitalId}</if>
+                <if test="@Ognl@isNotEmpty(departmentId)">and d.`department_id` = #{departmentId}</if>
+                <if test="@Ognl@isNotEmpty(status)">and d.`status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and d.`create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and d.`update_time` = #{updateTime}</if>
+
+                <!-- 模糊查询 -->
+                <if test="@Ognl@isNotEmpty(like)">and (
+                    d.`name` like CONCAT("%",#{like},"%") or
+                    d.`title_name` like CONCAT("%",#{like},"%") or
+                    d.`department_name` like CONCAT("%",#{like},"%"))
+                </if>
+
+            </trim>
+        </where>
+    </sql>
+
+    <select id="getBy" resultMap="BaseResultMap">
+        select *
+        from h_doctor d
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getByPage" resultMap="BaseResultMap">
+        select *
+        from h_doctor d
+        <include refid="Base_Where_Clause"/>
+    </select>
+
+    <select id="getDoctorVoList" resultMap="DoctorDTO">
+        SELECT d.*, count(mr.id) as reportCount
+        FROM h_doctor d
+        LEFT JOIN h_medical_report mr ON d.id = mr.doctor_id
+        <include refid="Base_Where_Clause"/>
+        group by d.id
+    </select>
+
+</mapper>

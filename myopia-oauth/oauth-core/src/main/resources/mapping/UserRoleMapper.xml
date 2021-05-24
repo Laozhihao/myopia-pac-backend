@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.oauth.domain.mapper.UserRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.oauth.domain.model.UserRole">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(roleId)">and `role_id` = #{roleId}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id, role_id
+    </sql>
+
+    <insert id="insertBatch">
+        INSERT INTO o_user_role (user_id, role_id)
+        VALUES
+        <foreach collection ="userRoles" item="item" separator =",">
+            (#{item.userId}, #{item.roleId})
+        </foreach >
+    </insert>
+
+    <delete id="deleteByRoleIds">
+        delete
+        from o_user_role
+        where user_id = #{userId} and role_id in
+        <foreach collection="roleIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

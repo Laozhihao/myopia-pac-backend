@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.oauth.domain.mapper.RoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.oauth.domain.model.Role">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(orgId)">and `org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(enName)">and `en_name` = #{enName}</if>
+                <if test="@Ognl@isNotEmpty(chName)">and `ch_name` = #{chName}</if>
+                <if test="@Ognl@isNotEmpty(roleType)">and `role_type` = #{roleType}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(systemCode)">and `system_code` = #{systemCode}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, org_id, en_name, ch_name, role_type, create_user_id, system_code, status, remark, create_time, update_time
+    </sql>
+
+    <select id="selectRoleList" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+           r.*,
+           u.real_name as create_user_name
+        FROM
+           o_role r LEFT JOIN o_user u ON r.create_user_id = u.id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="param.id != null">and r.id = #{param.id}</if>
+                <if test="param.orgId != null">and r.org_id = #{param.orgId}</if>
+                <if test="param.roleType != null">and r.role_type = #{param.roleType}</if>
+                <if test="param.systemCode != null">and r.system_code = #{param.systemCode}</if>
+                <if test="param.status != null">and r.status = #{param.status}</if>
+                <if test="param.chName != null and param.chName != ''">and r.ch_name like CONCAT("%",#{param.chName},"%")</if>
+                <if test="param.createUserName != null and param.createUserName != ''">and u.real_name like CONCAT("%",#{param.createUserName},"%")</if>
+                <if test="param.orgIds != null">
+                    and r.`org_id` IN <foreach collection="param.orgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+            </trim>
+        </where>
+        ORDER BY r.create_time DESC
+    </select>
+
+    <select id="selectRoleListByUserId" resultMap="BaseResultMap">
+        SELECT
+               r.*
+        FROM
+             o_user_role ur,
+             o_role r
+        WHERE
+                r.id = ur.role_id
+          AND ur.user_id = #{userId}
+    </select>
+
+    <select id="selectUserIdList" resultType="integer">
+        SELECT
+             ur.user_id
+        FROM
+             o_role r INNER JOIN o_user_role ur ON r.id = ur.role_id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="orgId != null">and r.org_id = #{orgId}</if>
+                <if test="systemCode != null">and r.system_code = #{systemCode}</if>
+                <if test="chName != null and chName != ''">and r.ch_name like CONCAT("%",#{chName},"%")</if>
+            </trim>
+        </where>
+    </select>
+
+</mapper>

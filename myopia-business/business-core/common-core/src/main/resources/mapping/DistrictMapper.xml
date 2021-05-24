@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.common.domain.mapper.DistrictMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.common.domain.model.District">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
+                <if test="@Ognl@isNotEmpty(code)">and `code` = #{code}</if>
+                <if test="@Ognl@isNotEmpty(parentCode)">and `parent_code` = #{parentCode}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, code, parent_code
+    </sql>
+
+    <resultMap id="treeVoMap" type="com.wupol.myopia.business.core.common.domain.model.District">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="code" property="code" jdbcType="VARCHAR" />
+        <result column="parent_code" property="parentCode" jdbcType="INTEGER" />
+        <collection property="child" ofType="com.wupol.myopia.business.core.common.domain.model.District" column="code" select="selectChildNodeByParentCode"/>
+    </resultMap>
+
+    <!-- 查询根节点行政区 -->
+    <select id="selectDistrictTree" resultMap="treeVoMap" >
+        select * from m_district where `code` = #{code}
+    </select>
+
+    <!-- 级联查询子行政区 -->
+    <select id="selectChildNodeByParentCode" resultMap="treeVoMap" >
+        select * from m_district where parent_code = #{code}
+    </select>
+
+    <select id="findByCodeList" resultMap="BaseResultMap">
+        select *
+        from m_district
+        where code = #{provinceCode} or code = #{cityCode} or code = #{areaCode} or code = #{townCode}
+    </select>
+
+    <select id="getByCodes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_district where code in
+        <foreach collection="codes" item="code" index="index" open="(" close=")" separator=",">
+            #{code}
+        </foreach>
+    </select>
+</mapper>

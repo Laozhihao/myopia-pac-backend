@@ -1,0 +1,176 @@
+### 服务端口号
+server:
+  port: 8080
+
+### log4j2配置 ###
+logging:
+  config: classpath:log4j2.xml
+
+### 配置Mybatis-plus的xml路径，多个用逗号隔开 ###
+mybatis-plus:
+  mapper-locations: classpath*:/mapping/*.xml
+
+spring:
+  cloud:
+    ### 注册中心地址
+    nacos:
+      discovery:
+        server-addr: ${NACOS_DISCOVERY_SERVER_ADDR}
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+    ### sentinel dashboard
+    sentinel:
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD_URI}
+      # 取消Sentinel控制台懒加载
+      eager: true
+
+  ### 为true设置的是web开启sleuth功能
+  sleuth:
+    web:
+      client:
+        enabled: true
+    # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
+    sampler:
+      probability: 1.0
+
+  ### 指定了 Zipkin 服务器的地址
+  zipkin:
+    base-url: ${ZIPKIN_BASE_URI}
+
+  datasource:
+    druid:
+      ### 数据库配置
+      url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?useUnicode=true&characterEncoding=${DATABASE_CHARSET}&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: ${DATABASE_USER}
+      password: ${DATABASE_PASSWORD}
+      ### 连接池配置
+      initial-size: 2
+      min-idle: 1
+      max-active: 20
+      test-on-borrow: true
+      ### SQL监控统计配置
+      filters: stat,wall
+      filter:
+        stat:
+          enabled: true
+          db-type: mysql
+          log-slow-sql: true
+          slow-sql-millis: 2000
+      web-stat-filter:
+        enabled: false
+      ### 在线监控面板账号密码
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        reset-enable: false
+        login-username: admin
+        login-password: EnM4deHc9N8sgrEU
+        allow:
+
+  flyway:
+    # flyway是否启用, 生产/stg为true, 测试环境为false, 因为测试环境经常多个分支的切换
+    enabled: ${SPRING_FLYWAY_ENABLED}
+    # sql文件位置（db/migration是默认路径，放在resource下，需要手动创建）
+    locations: classpath:db/migration
+    # flyway版本表
+    table: d_devops_flyway_schemas_version
+    encoding: utf-8
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+  ### Redis配置
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DB_INDEX}
+    timeout: 5000ms
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    redisson:
+      file: classpath:redisson.yaml
+  servlet:
+    multipart:
+      # 上传限制：10M
+      max-file-size: 10485760
+      max-request-size: 10485760
+
+### 远程调用oauth服务的负载均衡策略
+myopia-oauth:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule
+
+### feign 配置
+feign:
+  # 打开 Sentinel 对 Feign 的支持
+  sentinel:
+    enabled: true
+  # 超时时间（毫秒）
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
+
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath: /myopia/uploadPic
+  # 可上传的文件类型后缀
+  suffixs: pdf,jpg,jpeg,png,xlsx
+  # 上传S3的bucket
+  bucketName: ${AWS_S3_BUCKET}
+  # 文件上传S3的prefix
+  prefix: ${AWS_S3_PREFIX}/upload
+  # 静态文件上传S3的prefix，该目录文件的访问链接要求不能过期
+  staticPrefix: ${AWS_S3_PREFIX}/public
+  # 静态文件访问的host
+  staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com.cn
+  # S3链接失效时间（小时）
+  expiredHours: 2
+
+### 微信相关
+wechat:
+  app:
+    id: ${WECHAT_APP_ID}
+    secret: ${WECHAT_APP_SECRET}
+  authorize:
+    url: https://open.weixin.qq.com/connect/oauth2/authorize
+  api:
+    url-host: https://api.weixin.qq.com
+  # 微信回调域名——同家长端域名
+  callback:
+    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
+  # 家长端前端工程访问域名
+  h5-client:
+    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
+
+### 致远慧图 tools 项目访问域名【目前发送短信用到】
+vistel:
+  tools:
+    remoteAddress: ${VISTEL_TOOLS_URI}
+
+### 报告相关
+report:
+  pdf:
+    save-path: /app/pdf/
+  # 筛查报告前端工程访问域名
+  html:
+    url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

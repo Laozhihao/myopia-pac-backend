@@ -1,0 +1,20 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+**/src/main/resources/*.yaml
+**/src/main/resources/*.xml
+**/src/main/resources/*.yml
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.settings/
+.vscode/
+.project
+.classpath
+.factorypath
+soar*

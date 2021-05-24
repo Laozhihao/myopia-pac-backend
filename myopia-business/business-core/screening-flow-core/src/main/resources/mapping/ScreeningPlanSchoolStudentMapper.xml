@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent">
+    </resultMap>
+    <resultMap id="GradeClassesDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO">
+    </resultMap>
+    <resultMap id="ScreeningStudentDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO">
+    </resultMap>
+
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(screeningPlanId)">and `screening_plan_id` = #{screeningPlanId}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(planDistrictId)">and `plan_district_id` = #{planDistrictId}</if>
+                <if test="@Ognl@isNotEmpty(schoolDistrictId)">and `school_district_id` = #{schoolDistrictId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(schoolNo)">and `school_no` = #{schoolNo}</if>
+                <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
+                <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
+                <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
+                <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
+                <if test="@Ognl@isNotEmpty(birthday)">and `birthday` = #{birthday}</if>
+                <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
+                <if test="@Ognl@isNotEmpty(studentAge)">and `student_age` = #{studentAge}</if>
+                <if test="@Ognl@isNotEmpty(studentSituation)">and `student_situation` = #{studentSituation}</if>
+                <if test="@Ognl@isNotEmpty(studentNo)">and `student_no` = #{studentNo}</if>
+                <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
+                <if test="@Ognl@isNotEmpty(cityCode)">and `city_code` = #{cityCode}</if>
+                <if test="@Ognl@isNotEmpty(areaCode)">and `area_code` = #{areaCode}</if>
+                <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
+                <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
+                <if test="@Ognl@isNotEmpty(nation)">and `nation` = #{nation}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name, school_no,
+        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code,parent_phone,nation
+    </sql>
+
+    <select id="selectStudentInfoWithResult"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO">
+        SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
+        , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.gender
+        , s.screening_task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
+        , r.other_eye_diseases
+        FROM m_screening_plan_school_student s
+        LEFT JOIN m_vision_screening_result r ON s.id = r.screening_plan_school_student_id
+        WHERE
+        s.school_id = #{data.schoolId}
+        <if test="data.clazzName != null">
+            AND s.class_name = #{data.clazzName}
+        </if>
+        <if test="data.gradeName != null">
+            AND s.grade_name = #{data.gradeName}
+        </if>
+        <if test="data.depId != null">
+            AND s.screening_org_id = #{data.depId}
+        </if>
+    </select>
+
+
+    <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
+        select grade_id, class_id from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        group by grade_id, class_id
+    </select>
+
+    <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
+        SELECT
+        mspss.student_id as id, mspss.student_no as sno, mspss.student_name as name, mspss.gender, mspss.birthday, mspss.province_code, mspss.city_code, mspss.area_code, mspss.town_code, mspss.address, mspss.id_card, mspss.nation, mspss.parent_phone,
+        mspss.grade_id, mspss.class_id
+        FROM
+        m_screening_plan_school_student mspss
+<!--        LEFT JOIN m_student ms ON mspss.student_id = ms.id
+        LEFT JOIN m_school_grade msg ON msg.id = mspss.grade_id
+        LEFT JOIN m_school_class msc ON msc.id = mspss.class_id -->
+        <where>
+            <trim prefixOverrides="and">
+                AND mspss.screening_plan_id = #{param.screeningPlanId}
+                AND mspss.school_id = #{param.schoolId}
+                <if test="param.nameLike != null and param.nameLike != ''">
+                    and mspss.`student_name` like CONCAT('%',#{param.nameLike},'%')
+                </if>
+                <if test="param.idCardLike != null and param.idCardLike != ''">
+                    and mspss.`id_card` like CONCAT('%',#{param.idCardLike},'%')
+                </if>
+                <if test="param.snoLike != null and param.snoLike != ''">
+                    and mspss.`student_no` like CONCAT('%',#{param.snoLike},'%')
+                </if>
+                <if test="param.phoneLike != null and param.phoneLike != ''">
+                    and mspss.`parent_phone` like CONCAT('%',#{param.phoneLike},'%')
+                </if>
+                <if test="param.gender != null">
+                    and mspss.`gender` = #{param.gender}
+                </if>
+                <if test="param.gradeList != null">
+                    and mspss.`grade_id` in <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectByIdCards" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
+        and id_card in <foreach collection="idCards" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="selectByGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
+        select mspss.student_name as name, mspss.student_no as sno, mspss.gender, mspss.student_id as id
+        from m_screening_plan_school_student mspss
+        where mspss.screening_plan_id = #{screeningPlanId} and mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}
+    </select>
+
+    <select id="findByStudentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where student_id = #{studentId}
+    </select>
+
+    <select id="findByPlanId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+    </select>
+
+    <select id="findByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+          and school_id = #{schoolId}
+    </select>
+
+    <select id="countByPlanId" resultType="java.lang.Integer">
+        select count(1)
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+    </select>
+
+    <select id="countBySchoolIdAndNoticeId" resultType="java.lang.Integer">
+        select count(1)
+        from m_screening_plan_school_student
+        where school_id = #{schoolId}
+          and src_screening_notice_id = #{noticeId}
+    </select>
+
+    <delete id="deleteByPlanIdAndExcludeSchoolIds">
+        delete
+        from m_screening_plan_school_student
+                where screening_plan_id = #{screeningPlanId}
+        <if test="excludeSchoolIds != null and excludeSchoolIds.size() != 0">
+            and school_id not in
+            <foreach collection="excludeSchoolIds" open="(" close=")" separator="," item="schoolId">
+                #{schoolId}
+            </foreach>
+        </if>
+    </delete>
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningNoticeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice">
+    </resultMap>
+    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
+                <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
+                <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
+                <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
+                <if test="@Ognl@isNotEmpty(operationVersion)">and `operation_version` = #{operationVersion}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
+                <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
+    </sql>
+
+    <update id="release">
+        update m_screening_notice set release_status = 1 , release_time = current_timestamp where id = #{id}
+    </update>
+
+    <select id="selectPageByQuery" resultMap="VoResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        m_screening_notice
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
+                <if test="@Ognl@isNotEmpty(param.type)">and `type` = #{param.type}</if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and `district_id` = #{param.districtId}</if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and `title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.createUserIds != null">
+                    and `create_user_id` in <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(`start_time`) < DATE(#{param.endCreateTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectByTimePeriods" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        m_screening_notice
+        <where>
+            <trim prefixOverrides="and">
+                and release_status = 1 and type = 0
+                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
+                <if test="param.startTime != null and param.endTime != null">
+                    and <![CDATA[ DATE(`start_time`) < DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectDistrictIds" resultType="integer">
+        SELECT distinct msndo.district_id FROM  m_screening_notice msn JOIN m_screening_notice_dept_org msndo ON  msn.id = msndo.screening_notice_id
+        WHERE type = #{type} AND msndo.accept_org_id IN
+             <foreach collection="govDeptIds"  separator=","  open = "(" close=")" item="govDeptId"  >
+                 #{govDeptId}
+             </foreach>
+    </select>
+
+    <select id="getByTaskId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_screening_notice
+        where screening_task_id = #{taskId}
+          and type = 1
+    </select>
+
+    <select id="getByIdsOrderByCreateTime" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from m_screening_notice
+                where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <select id="checkTitleExist" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_notice where gov_dept_id = #{govDeptId}
+                                  and title = #{title}
+                                  and release_status = 1
+                                  and type = 0
+        <if test="screeningNoticeId != null">
+            and id != #{screeningNoticeId}
+        </if>
+    </select>
+</mapper>

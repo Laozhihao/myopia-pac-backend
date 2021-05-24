@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan">
+    </resultMap>
+    <resultMap id="ScreeningPlanPageDTOMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO">
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultDTOMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO">
+    </resultMap>
+
+
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(srcScreeningNoticeId)">and `src_screening_notice_id` = #{srcScreeningNoticeId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
+                <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(content)">and `content` = #{content}</if>
+                <if test="@Ognl@isNotEmpty(startTime)">and `start_time` = #{startTime}</if>
+                <if test="@Ognl@isNotEmpty(endTime)">and `end_time` = #{endTime}</if>
+                <if test="@Ognl@isNotEmpty(govDeptId)">and `gov_dept_id` = #{govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(studentNumbers)">and `student_numbers` = #{studentNumbers}</if>
+                <if test="@Ognl@isNotEmpty(releaseStatus)">and `release_status` = #{releaseStatus}</if>
+                <if test="@Ognl@isNotEmpty(releaseTime)">and `release_time` = #{releaseTime}</if>
+                <if test="@Ognl@isNotEmpty(createUserId)">and `create_user_id` = #{createUserId}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
+                <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time
+    </sql>
+
+    <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
+        select p.* from m_screening_plan p , m_screening_plan_school sps
+        where
+        p.id = sps.screening_plan_id
+        and p.screening_org_id = #{screeningOrgId}
+        and p.release_status = #{releaseStatus}
+        and sps.school_id = #{schoolId}
+        and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
+                    <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
+    </select>
+
+    <select id="getPlanLists" resultMap="BaseResultDTOMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan msp where msp.id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and msp.release_status = 1
+                order by msp.create_time desc
+    </select>
+
+    <select id="selectPageByQuery" resultMap="ScreeningPlanPageDTOMap" parameterType="java.util.Map">
+        SELECT
+        mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mst.title, mst.start_time,
+        mst.end_time, mst.content, mst.release_time, mst.release_status,
+        mst.district_id, mst.gov_dept_id, mst.create_user_id,
+        mst.create_time
+        FROM
+        m_screening_plan mst
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
+                <if test="@Ognl@isNotEmpty(param.districtId)">and mst.`district_id` = #{param.districtId}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mst.`screening_org_id` = #{param.screeningOrgId}
+                </if>
+                <if test="param.titleLike != null and param.titleLike != ''">
+                    and mst.`title` like CONCAT('%',#{param.titleLike},'%')
+                </if>
+                <if test="param.createUserIds != null">
+                    and mst.`create_user_id` in
+                    <foreach collection="param.createUserIds" open="(" close=")" separator="," item="item">#{item}
+                    </foreach>
+                </if>
+                <if test="param.screeningOrgIds != null">
+                    and mst.`screening_org_id` in
+                    <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}
+                    </foreach>
+                </if>
+                <if test="param.startCreateTime != null and param.endCreateTime != null">
+                    and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and
+                    <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+            </trim>
+        </where>
+        order by mst.create_time desc
+    </select>
+
+    <select id="selectSchoolInfo"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO">
+        select student.name, student.id
+        from m_screening_plan msp
+                 inner join m_screening_plan_school_student student on msp.id = student.screening_plan_id
+        where msp.district_id = #{districtId}
+          and msp.screening_task_id = #{taskId}
+          and msp.release_status = #{releaseStatus}
+    </select>
+
+    <select id="selectSchoolIds" resultType="java.lang.Integer">
+        SELECT msps.school_id FROM m_screening_plan msp INNER JOIN m_screening_plan_school msps ON msp.id =
+        msps.screening_plan_id
+        WHERE screening_task_id = #{taskId} and msp.district_id IN
+        <foreach collection="districtIds" item="districtId" open="(" close=")" separator=",">
+            #{districtId}
+        </foreach>
+    </select>
+
+    <select id="getPageByOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan msp
+        where release_status = 1
+          and msp.screening_org_id = #{orgId}
+        order by msp.create_time desc
+    </select>
+
+    <select id="getByOrgId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan msp
+        where screening_org_id = #{orgId}
+          and release_status = 1
+<!--        and create_time &lt;= CURDATE()-->
+    </select>
+
+    <select id="countByTaskIdAndOrgId" resultType="java.lang.Integer">
+        select count(1)
+        from m_screening_plan
+        where screening_task_id = #{taskId}
+          and screening_org_id = #{orgId}
+    </select>
+
+    <select id="getByOrgIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan where screening_org_id in
+        <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
+            #{orgId}
+        </foreach>
+    </select>
+</mapper>
