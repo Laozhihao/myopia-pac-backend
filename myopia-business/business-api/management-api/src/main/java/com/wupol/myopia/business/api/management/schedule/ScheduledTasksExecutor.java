@@ -329,16 +329,24 @@ public class ScheduledTasksExecutor {
         Map<Integer, List<ScreeningNotice>> districtIdNoticeListMap = screeningNotices.stream().collect(Collectors.groupingBy(ScreeningNotice::getDistrictId));
         //将每个省最新发布的notice拿出来
         Set<Integer> provinceDistrictIds = districtIdNoticeListMap.keySet();
-        Map<Integer, ScreeningNotice> districtIdNoticeMap = new HashMap<>();
-        provinceDistrictIds.forEach(districtId -> {
-            List<ScreeningNotice> screeningNoticeList = districtIdNoticeListMap.get(districtId);
-            ScreeningNotice screeningNotice = screeningNoticeList.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).findFirst().get();
-            districtIdNoticeMap.put(districtId, screeningNotice);
-        });
-        for (Integer provinceDistrictId : provinceDistrictIds) {
-            DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, districtIdNoticeMap.get(provinceDistrictId));
+        for (Integer provinceDistrictId : provinceDistrictIds)  {
+            List<ScreeningNotice> screeningNoticeList = districtIdNoticeListMap.get(provinceDistrictId);
+            //生成数据
+            execute(provinceDistrictId, screeningNoticeList);
+        }
+    }
+
+    /**
+     * 生成数据
+     * @param provinceDistrictId
+     * @param districtIdNotices
+     * @throws IOException
+     */
+    private void execute(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
+        for (ScreeningNotice screeningNotice : districtIdNotices) {
+            DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId,  screeningNotice);
             if (districtBigScreenStatistic != null) {
-                districtBigScreenStatisticService.saveOrUpdateByDistrictId(districtBigScreenStatistic);
+                districtBigScreenStatisticService.saveOrUpdateByDistrictIdAndNoticeId(districtBigScreenStatistic);
             }
         }
     }

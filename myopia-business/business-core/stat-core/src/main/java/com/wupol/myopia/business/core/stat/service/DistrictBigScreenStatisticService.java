@@ -35,14 +35,19 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
      * @param districtBigScreenStatistic
      * @return
      */
-    public boolean saveOrUpdateByDistrictId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
+    public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
         if (null == districtBigScreenStatistic) {
             return false;
+        }
+        Integer districtId = districtBigScreenStatistic.getDistrictId();
+        LambdaQueryWrapper<DistrictBigScreenStatistic> districtBigScreenStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getDistrictId, districtId);
+        districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getScreeningNoticeId,districtBigScreenStatistic.getScreeningNoticeId());
+        DistrictBigScreenStatistic districtBigScreenStatistic1 = new DistrictBigScreenStatistic().setDistrictId(districtId).setScreeningNoticeId(districtBigScreenStatistic.getScreeningNoticeId());
+        if (Objects.nonNull(districtId) && Objects.nonNull(this.findOne(districtBigScreenStatistic1))) {
+            return  this.update(districtBigScreenStatistic, districtBigScreenStatisticLambdaQueryWrapper);
         } else {
-            Integer districtId = districtBigScreenStatistic.getDistrictId();
-            LambdaQueryWrapper<DistrictBigScreenStatistic> districtBigScreenStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getDistrictId, districtId);
-            return Objects.nonNull(districtId) && !Objects.isNull(this.findOne(new DistrictBigScreenStatistic().setDistrictId(districtId))) ? this.update(districtBigScreenStatistic, districtBigScreenStatisticLambdaQueryWrapper) : this.save(districtBigScreenStatistic);
+            return this.save(districtBigScreenStatistic);
         }
     }
 }
