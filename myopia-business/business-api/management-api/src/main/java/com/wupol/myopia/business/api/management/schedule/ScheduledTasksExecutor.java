@@ -363,8 +363,8 @@ public class ScheduledTasksExecutor {
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = bigScreeningStatService.getByNoticeIdAndDistrictIds(screeningNotice.getId());
         int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
-        //获取地图数据
-        BigScreenMap bigScreenMap = bigScreenMapService.getByDistrictId(provinceDistrictId);
+        //获取地图数据 todo 待优化
+        BigScreenMap bigScreenMap = bigScreenMapService.getCityCenterLocationByDistrictId(provinceDistrictId);
         //将基本数据放入构造器
         bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
         int realValidScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
@@ -372,7 +372,6 @@ public class ScheduledTasksExecutor {
                 .setRealValidScreeningNum((long) realValidScreeningNum)
                 .setRealScreeningNum((long) realScreeningNum)
                 .setDistrictId(provinceDistrictId)
-                .setMapJson(bigScreenMap.getJson())
                 .setCityCenterMap(bigScreenMap.getCityCenterLocation())
                 .setNoticeId(screeningNotice.getId())
                 .setPlanScreeningNum(screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId()));
