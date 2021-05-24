@@ -118,7 +118,7 @@ upload:
   bucketName: test.vistel.cn
   # 文件上传S3的prefix
   prefix: vistel-appdata-myopia/upload
-  # 静态文件上传S3的prefix
+  # 静态文件上传S3的prefix，该目录的链接要求不会过期
   staticPrefix: vistel-appdata-myopia/public
   # 静态文件访问的host
   staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn

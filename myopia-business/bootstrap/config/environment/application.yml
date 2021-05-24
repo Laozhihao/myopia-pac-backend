@@ -129,7 +129,7 @@ upload:
   bucketName: ${AWS_S3_BUCKET}
   # 文件上传S3的prefix
   prefix: ${AWS_S3_PREFIX}/upload
-  # 静态文件上传S3的prefix
+  # 静态文件上传S3的prefix，该目录文件的访问链接要求不能过期
   staticPrefix: ${AWS_S3_PREFIX}/public
   # 静态文件访问的host
   staticHost: https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com.cn
