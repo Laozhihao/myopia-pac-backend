@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -36,6 +37,7 @@ import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStati
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +90,8 @@ public class StatService {
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
+    @Autowired
+    private BigScreenMapService bigScreenMapService;
 
     /**
      * 预警信息
@@ -798,7 +802,9 @@ public class StatService {
         if (districtBigScreenStatistic == null) {
             return BigScreeningVO.getImmutableEmptyInstance();
         }
+        //查找map数据
+        Object provinceMapData = bigScreenMapService.getMapDataByDistrictId(district.getId());
         //对数据进行整合
-        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
+        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName(),provinceMapData);
     }
 }

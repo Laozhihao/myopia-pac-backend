@@ -95,15 +95,16 @@ public class BigScreeningVO {
      * @param screeningNotice
      * @param districtBigScreenStatistic
      * @param districtName
+     * @param provinceMapData 省的地图数据
      * @return
      */
-    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName) {
+    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName, Object provinceMapData) {
         BigScreeningVO bigScreeningVO = new BigScreeningVO();
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
         bigScreeningVO.setAvgVision(districtBigScreenStatistic.getAvgVision());
         bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
-        bigScreeningVO.setMapData(districtBigScreenStatistic.getMapdata());
+        bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
         bigScreeningVO.setTitle(districtName + "近视防控中心");

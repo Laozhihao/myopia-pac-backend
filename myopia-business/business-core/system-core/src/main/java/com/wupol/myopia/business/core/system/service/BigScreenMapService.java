@@ -5,6 +5,8 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.system.domain.mapper.BigScreenMapMapper;
 import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author jacob
@@ -14,13 +16,27 @@ import org.springframework.stereotype.Service;
 public class BigScreenMapService extends BaseService<BigScreenMapMapper, BigScreenMap> {
 
     /**
-     * 通过地区id获取jsonObject 地图数据
+     * 通过地区id获取城市位置
      * @param provinceDistrictId
      * @return
      */
-    public BigScreenMap getCityCenterLocationByDistrictId(Integer provinceDistrictId) {
+    public  Map<Integer, List<Double>>  getCityCenterLocationByDistrictId(Integer provinceDistrictId) {
         LambdaQueryWrapper<BigScreenMap> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BigScreenMap::getDistrictId,provinceDistrictId).select(BigScreenMap::getCityCenterLocation);
-        return baseMapper.selectOne(queryWrapper);
+        BigScreenMap bigScreenMap = baseMapper.selectOne(queryWrapper);
+        return bigScreenMap.getCityCenterLocation();
     }
+
+    /**
+     * 通过地区id获取MapData 的json数据
+     * @param provinceDistrictId
+     * @return
+     */
+    public Object getMapDataByDistrictId(Integer provinceDistrictId) {
+        LambdaQueryWrapper<BigScreenMap> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BigScreenMap::getDistrictId,provinceDistrictId).select(BigScreenMap::getJson);
+        BigScreenMap bigScreenMap = baseMapper.selectOne(queryWrapper);
+        return bigScreenMap.getJson();
+    }
+
 }
