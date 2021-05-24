@@ -45,19 +45,16 @@ public class ScreeningTaskOrg implements Serializable {
     /**
      * 筛查任务--机构质控员名字（长度限制未知）
      */
-    @NotNull
     private String qualityControllerName;
 
     /**
      * 筛查任务--机构质控员联系方式（长度限制未知）
      */
-    @NotNull
     private String qualityControllerContact;
 
     /**
      * 筛查任务--机构质控员队长（长度限制未知）
      */
-    @NotNull
     private String qualityControllerCommander;
 
     /**

@@ -17,6 +17,11 @@ import java.util.Date;
 @Setter
 public class SchoolVisionStatisticItem implements Serializable {
 
+    /**
+     * 是否拥有复测报告
+     */
+    private boolean hasRescreenReport;
+
     private Integer id;
 
     /**

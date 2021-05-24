@@ -15,10 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -72,6 +69,8 @@ public class ScreeningOrganizationBizService {
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
     private DistrictBizService districtBizService;
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 获取筛查记录列表
@@ -104,6 +103,8 @@ public class ScreeningOrganizationBizService {
 
         Integer planId = planResponse.getId();
         List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
+        Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
+                .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
         planResponse.setScreeningStatus(getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
@@ -148,6 +149,9 @@ public class ScreeningOrganizationBizService {
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());
             detail.setPlanTitle(planResponse.getTitle());
+            detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
+            detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
+            detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
             details.add(detail);
         });
         response.setDetails(details);

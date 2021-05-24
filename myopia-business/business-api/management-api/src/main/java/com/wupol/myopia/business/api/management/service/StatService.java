@@ -291,24 +291,16 @@ public class StatService {
         long validFirstScreeningNum = validConclusions.size();
 
         List<ClassStat> tabGender = new ArrayList<>();
-        tabGender.add(composeGenderClassStat(
-                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-        tabGender.add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum,
-                refractiveErrorConclusions));
-        tabGender.add(composeGenderClassStat(
-                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-        tabGender.add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum,
-                wearingGlassesConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum, refractiveErrorConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum, wearingGlassesConclusions));
 
         List<ClassStat> tabSchoolAge = new ArrayList<>();
-        tabSchoolAge.add(composeSchoolAgeClassStat(
-                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
-                validFirstScreeningNum, refractiveErrorConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(
-                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
-                validFirstScreeningNum, wearingGlassesConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum, refractiveErrorConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum, wearingGlassesConclusions));
 
         List<StatConclusion> rescreenConclusions =
                 statConclusions.stream()

@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
@@ -18,6 +19,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -66,6 +68,8 @@ public class StatManagementController {
     private SchoolVisionStatisticBizService schoolVisionStatisticBizService;
     @Autowired
     private SchoolMonitorStatisticBizService schoolMonitorStatisticBizService;
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -248,7 +252,12 @@ public class StatManagementController {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
         //获取数据
-        return SchoolScreeningMonitorStatisticVO.getInstance(schoolMonitorStatistics, screeningNotice);
+        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), screeningNotice);
+    }
+
+    private List<SchoolMonitorStatisticDTO> getPlanSchoolReportStatus(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
+        return schoolMonitorStatistics.stream().map(schoolMonitorStatistic ->
+            new SchoolMonitorStatisticDTO(schoolMonitorStatistic, statRescreenService.hasRescreenReport(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId()))).collect(Collectors.toList());
     }
 
     /**

@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
@@ -89,6 +90,9 @@ public class SchoolBizService {
 
     @Resource
     private OauthServiceClient oauthServiceClient;
+
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 更新学校
@@ -221,6 +225,7 @@ public class SchoolBizService {
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
                     BeanUtils.copyProperties(schoolVisionStatistic, item);
+                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), schoolVisionStatistic.getSchoolId()));
                     plan.setItems(Lists.newArrayList(item));
                 }
             });
