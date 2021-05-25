@@ -16,55 +16,58 @@ import java.util.Date;
 @Data
 public class BigScreeningVO {
 
-
+    private final static String TITLE_SUFFIX_STRING = "近视防控中心";
+    /**
+     * 大屏统计标题
+     */
     private String title;
     /**
-     * screeningTitle
+     * 筛查标题
      */
     private String screeningTitle;
     /**
-     * screeningStartTime
+     * 筛查开始时间
      */
     private Date screeningStartTime;
     /**
-     * screeningEndTime
+     * 筛查结束时间
      */
     private Date screeningEndTime;
     /**
-     * validDataNum
+     * 有效学生数量
      */
     private Long validDataNum;
     /**
-     * planScreeningNum
+     * 计划筛查数量
      */
     private Long planScreeningNum;
     /**
-     * progressRate
+     * 筛查进度
      */
     private Double progressRate;
     /**
-     * realScreeningNum
+     * 实际筛查数
      */
     private Long realScreeningNum;
 
     /**
-     * realScreening
+     * 有效学生的 学生数据情况
      */
     private BigScreenScreeningDO realScreening;
     /**
-     * lowVision
+     * 有效学生的 视力低下情况
      */
     private BigScreenScreeningDO lowVision;
     /**
-     * myopia
+     * 有效学生的 近视情况
      */
     private BigScreenScreeningDO myopia;
     /**
-     * ametropia
+     * 有效学生的 屈光不正情况
      */
     private BigScreenScreeningDO ametropia;
     /**
-     * focusOjects
+     * 有效学生的 重点视力对象情况
      */
     private BigScreenScreeningDO focusObjects;
     /**
@@ -83,10 +86,18 @@ public class BigScreeningVO {
 
 
     /**
+     * 这个方法是为了大屏统计还没来得及统计的时候显示一些基本信息
      * 空对象
+     *
+     * @param districtName
+     * @param planStudentNum
      */
-    public static BigScreeningVO getImmutableEmptyInstance() {
-        return new BigScreeningVO();
+    public static BigScreeningVO getImmutableEmptyInstance(String districtName, long planStudentNum) {
+        BigScreeningVO bigScreeningVO = new BigScreeningVO();
+        bigScreeningVO.title = districtName + TITLE_SUFFIX_STRING;
+        bigScreeningVO.planScreeningNum = planStudentNum;
+        bigScreeningVO.progressRate = 0.0;
+        return bigScreeningVO;
     }
 
     /**
@@ -107,7 +118,7 @@ public class BigScreeningVO {
         bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
         bigScreeningVO.setMyopia(districtBigScreenStatistic.getMyopia());
-        bigScreeningVO.setTitle(districtName + "近视防控中心");
+        bigScreeningVO.setTitle(districtName + TITLE_SUFFIX_STRING);
         bigScreeningVO.setValidDataNum(districtBigScreenStatistic.getValidDataNum());
         bigScreeningVO.setPlanScreeningNum(districtBigScreenStatistic.getPlanScreeningNum());
         bigScreeningVO.setRealScreeningNum(districtBigScreenStatistic.getRealScreeningNum());

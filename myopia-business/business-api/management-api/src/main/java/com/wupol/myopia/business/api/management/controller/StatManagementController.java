@@ -53,6 +53,8 @@ public class StatManagementController {
     @Autowired
     private StatService statService;
     @Autowired
+    private BigScreeningStatService bigScreeningStatService;
+    @Autowired
     private ScheduledTasksExecutor scheduledTasksExecutor;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
@@ -257,9 +259,9 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/big-screen")
-    public BigScreeningVO getBigScreeningVO(Integer noticeId) {
+    public BigScreeningVO getBigScreeningVO(Integer noticeId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return statService.getBigScreeningVO(currentUser,noticeId);
+        return bigScreeningStatService.getBigScreeningVO(currentUser, noticeId);
     }
 
     /**
@@ -276,7 +278,7 @@ public class StatManagementController {
      */
     @GetMapping("/big")
     public void statBigScreen() throws IOException {
-        scheduledTasksExecutor.statisticBigScreen();
+        bigScreeningStatService.statisticBigScreen();
     }
 
     @GetMapping("/triggerAll")
