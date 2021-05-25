@@ -110,6 +110,16 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
          */
         private BigDecimal incorrectRatio;
 
+        /**
+         * 机构质控员名字
+         */
+        private String qualityControllerName;
+
+        /**
+         * 机构质控员队长
+         */
+        private String qualityControllerCommander;
+
 
         /**
          * 获取实例
@@ -135,7 +145,9 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
                     .setWearingGlassesRescreenIndexNum(schoolMonitorStatistic.getWearingGlassDsin())
                     .setWithoutGlassesRescreenIndexNum(schoolMonitorStatistic.getWithoutGlassDsin())
                     .setWearingGlassesRescreenNum(schoolMonitorStatistic.getWearingGlassDsn())
-                    .setWithoutGlassesRescreenNum(schoolMonitorStatistic.getWithoutGlassDsn());
+                    .setWithoutGlassesRescreenNum(schoolMonitorStatistic.getWithoutGlassDsn())
+                    .setQualityControllerName(schoolMonitorStatisticDTO.getQualityControllerName())
+                    .setQualityControllerCommander(schoolMonitorStatisticDTO.getQualityControllerCommander());
             return item;
         }
     }

@@ -169,6 +169,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public Set<ScreeningPlanNameDTO> getScreeningPlanNameDTOs(List<ScreeningPlan> screeningPlans, Integer year) {
+        screeningPlans = screeningPlans.stream().sorted(Comparator.comparing(ScreeningPlan::getReleaseTime).reversed()).collect(Collectors.toList());
         return screeningPlans.stream().filter(screeningPlan ->
                 year.equals(DateUtil.getYear(screeningPlan.getStartTime())) || year.equals(DateUtil.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {

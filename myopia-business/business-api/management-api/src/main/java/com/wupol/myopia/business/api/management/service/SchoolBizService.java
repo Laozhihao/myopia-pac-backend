@@ -216,6 +216,9 @@ public class SchoolBizService {
             Map<Integer, String> orgMaps = orgLists.stream()
                     .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
 
+            // 获取计划对应的学校信息
+            Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
+
             // 封装DTO
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
@@ -224,8 +227,11 @@ public class SchoolBizService {
                     plan.setItems(new ArrayList<>());
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
+                    ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
                     BeanUtils.copyProperties(schoolVisionStatistic, item);
                     item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), schoolVisionStatistic.getSchoolId()));
+                    item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
+                    item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
                     plan.setItems(Lists.newArrayList(item));
                 }
             });

@@ -17,7 +17,9 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanNam
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
@@ -70,6 +72,8 @@ public class StatManagementController {
     private SchoolMonitorStatisticBizService schoolMonitorStatisticBizService;
     @Autowired
     private StatRescreenService statRescreenService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -84,6 +88,11 @@ public class StatManagementController {
         return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(user));
     }
 
+    @GetMapping("plan-year")
+    public List<Integer> getPlanYearsByUser() {
+        return null;
+    }
+
     /**
      * 查找所在年度的筛查任务
      *
@@ -95,8 +104,7 @@ public class StatManagementController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         //找到筛查通知year的所有相关的screeningNotice
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
-        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
-        return screeningNoticeService.getScreeningNoticeNameDTO(screeningNoticeIds, year);
+        return screeningNoticeService.getScreeningNoticeNameDTO(screeningNotices, year);
     }
 
 
@@ -256,8 +264,11 @@ public class StatManagementController {
     }
 
     private List<SchoolMonitorStatisticDTO> getPlanSchoolReportStatus(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
-        return schoolMonitorStatistics.stream().map(schoolMonitorStatistic ->
-            new SchoolMonitorStatisticDTO(schoolMonitorStatistic, statRescreenService.hasRescreenReport(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId()))).collect(Collectors.toList());
+        return schoolMonitorStatistics.stream().map(schoolMonitorStatistic -> {
+            ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId());
+            return new SchoolMonitorStatisticDTO(schoolMonitorStatistic, statRescreenService.hasRescreenReport(schoolMonitorStatistic.getScreeningPlanId(), schoolMonitorStatistic.getSchoolId()),
+                    screeningPlanSchool.getQualityControllerName(), screeningPlanSchool.getQualityControllerCommander());
+        }).collect(Collectors.toList());
     }
 
     /**

@@ -18,5 +18,13 @@ public class SchoolMonitorStatisticDTO {
 
     private SchoolMonitorStatistic schoolMonitorStatistic;
     private boolean hasRescreenReport;
+    /**
+     * 质控员
+     */
+    private String qualityControllerName;
+    /**
+     * 检测队长
+     */
+    private String qualityControllerCommander;
 
 }

@@ -134,7 +134,7 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtId
+            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
