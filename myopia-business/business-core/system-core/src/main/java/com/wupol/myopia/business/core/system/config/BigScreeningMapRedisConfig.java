@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.system.config;
 
 import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,7 @@ import java.time.Duration;
  **/
 @Configuration
 @EnableCaching
-public class BigScreeningMapRedisConfig extends CachingConfigurerSupport {
+public class BigScreeningMapRedisConfig {
 
     private static final int EXPIRED_DAYS = 30;
 
