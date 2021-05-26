@@ -94,12 +94,13 @@ public class ParentStudentBizService {
     /**
      * 孩子统计、孩子列表
      *
-     * @param parentId 家长ID
+     * @param currentUser 当前用户
      * @return CountParentStudentResponseDTO 家长端-统计家长绑定学生
      */
-    public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
+    public CountParentStudentResponseDTO countParentStudent(CurrentUser currentUser) throws IOException {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
-        List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parentId);
+        Parent parent = parentService.getParentByUserId(currentUser.getId());
+        List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parent.getId());
         if (studentIds.isEmpty()) {
             responseDTO.setTotal(0);
             responseDTO.setItem(new ArrayList<>());

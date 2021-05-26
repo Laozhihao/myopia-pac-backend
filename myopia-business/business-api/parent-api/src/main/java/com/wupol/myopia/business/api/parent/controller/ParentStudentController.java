@@ -50,12 +50,12 @@ public class ParentStudentController {
     /**
      * 获取孩子统计、孩子列表
      *
-     * @param parentId 家长ID
      * @return 孩子统计、孩子列表
      */
-    @GetMapping("count/{parentId}")
-    public CountParentStudentResponseDTO countParentStudent(@PathVariable("parentId") Integer parentId) {
-        return parentStudentBizService.countParentStudent(parentId);
+    @GetMapping("count")
+    public CountParentStudentResponseDTO countParentStudent() throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return parentStudentBizService.countParentStudent(currentUser);
     }
 
     /**
