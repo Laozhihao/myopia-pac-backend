@@ -19,13 +19,6 @@ spring:
         predicates:
         - Path=/management/**, /hospital/**, /parent/**, /app/**
 
-      - id: route_device
-        uri: lb://myopia-device
-        predicates:
-        - Path=/device/**
-        filters:
-        - StripPrefix=1
-
     # 注册中心地址
     nacos:
       discovery:
@@ -54,7 +47,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # 获取JWT验签公钥请求路径【如果直接访问oauth服务，则去掉“/auth”前缀】
+          # 通过gateway访问oauth服务，获取JWT验签公钥请求路径【如果直接访问oauth服务，则去掉“/auth”前缀】
           jwk-set-uri: ${SECURITY_JWT_SET_URI}
 
   ### Redis配置
