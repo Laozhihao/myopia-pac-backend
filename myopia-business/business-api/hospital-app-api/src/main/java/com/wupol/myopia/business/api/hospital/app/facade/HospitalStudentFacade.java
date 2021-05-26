@@ -145,7 +145,7 @@ public class HospitalStudentFacade {
             studentVo.setTownId(studentVo.getTown().getId());
         }
 
-        // 如果医院端没有该学生信息, 则先到管理端创建,再到医院端创建
+        // 如果管理端没有该学生信息, 则先到管理端创建,再到医院端创建
         if (Objects.isNull(oldStudent)) {
             Student tmpStudent = new Student();
             BeanUtils.copyProperties(studentVo, tmpStudent);
@@ -220,7 +220,6 @@ public class HospitalStudentFacade {
             return getHospitalStudentFromManagement(studentId, idCard, name);
         }
         BeanUtils.copyProperties(student, studentVO);
-        studentVO.setId(null).setStudentId(studentId);
 
         // 地区Maps
         Map<Integer, District> districtMaps = getDistrictMapByDistrictId(Lists.newArrayList(student));

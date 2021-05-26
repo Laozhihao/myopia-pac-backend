@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.hospital.app.facade;
 
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.vo.HospitalStudentVO;
 import com.wupol.myopia.business.core.hospital.constant.HospitalCacheKey;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,6 +58,9 @@ public class MedicalRecordFacade {
                                              Integer hospitalId,
                                              Integer doctorId,
                                              Integer studentId) {
+        if (Objects.isNull(studentId)) {
+            throw new BusinessException("学生id不能为空");
+        }
         // 追加检查单数据
         medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, hospitalId, -1, doctorId, studentId);
         // 已建档则跳过

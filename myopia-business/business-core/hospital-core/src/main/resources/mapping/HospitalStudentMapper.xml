@@ -14,6 +14,7 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and hs.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and hs.`student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and hs.`hospital_id` = #{hospitalId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and  hs.`school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and  hs.`grade_id` = #{gradeId}</if>
