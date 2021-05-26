@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.stat.domain.mapper.DistrictBigScreenStatisticMapper;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,10 +32,11 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
 
     /**
      * 保存 或 通过id更新
-     *
+     * 关于缓存驱逐: 缓存驱逐会在方法执行成功后执行,失败则不执行
      * @param districtBigScreenStatistic
      * @return
      */
+    @CacheEvict(value = "myopia:big_screening_data",key = "#districtBigScreenStatistic.screeningNoticeId + '_' + #districtBigScreenStatistic.districtId")
     public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
         if (null == districtBigScreenStatistic) {
             return false;

@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -14,9 +15,9 @@ import java.util.Date;
  * @Author by Jacob
  */
 @Data
-public class BigScreeningVO {
+public class BigScreeningVO implements Serializable {
 
-    private final static String TITLE_SUFFIX_STRING = "近视防控中心";
+    private static final String TITLE_SUFFIX_STRING = "近视防控中心";
     /**
      * 大屏统计标题
      */

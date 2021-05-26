@@ -1,14 +1,10 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSON;
-import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.domain.CurrentUser;
+import org.apache.commons.collections.CollectionUtils;
 import com.wupol.myopia.business.api.management.constant.BigScreeningProperties;
 import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatDataBuilder;
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -23,6 +19,7 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatist
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -53,34 +50,8 @@ public class BigScreeningStatService {
     @Autowired
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
-    private BigScreeningStatService bigScreeningStatService;
-    @Autowired
-    private DistrictBizService districtBizService;
-    @Autowired
     private BigScreeningProperties bigScreeningProperties;
 
-
-    /**
-     * 获取大屏的数据
-     *
-     * @param currentUser
-     */
-    public BigScreeningVO getBigScreeningVO(CurrentUser currentUser, Integer noticeId) throws IOException {
-        if (ObjectsUtil.hasNull(currentUser, noticeId)) {
-            throw new ManagementUncheckedException("noticeId 或者 currentUser 不能为空");
-        }
-        //查找 district
-        District district = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
-        if (district == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
-        }
-        //查找最新的notice
-        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        if (screeningNotice == null) {
-            throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
-        }
-        return getBigScreeningVO(screeningNotice, district);
-    }
 
     /**
      * 获取大屏数据
@@ -89,16 +60,10 @@ public class BigScreeningStatService {
      * @param district
      * @return
      */
+    @Cacheable(cacheNames = "myopia:big_screening_data",key = "#screeningNotice.id + '_' + #district.id",condition = "#result == null")
     public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district) throws IOException {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district.getId());
-        if (districtBigScreenStatistic == null) {
-            //如果是第一天的话,直接触发第一次计算
-            districtBigScreenStatistic = bigScreeningStatService.generateResultAndSave(district.getId(), screeningNotice);
-            //long planStudentNum = screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId());
-            //实际筛查学生数
-            //return BigScreeningVO.getImmutableEmptyInstance(district.getName(),planStudentNum);
-        }
         //查找map数据
         Object provinceMapData = bigScreenMapService.getMapDataByDistrictId(district.getId());
         //对数据进行整合
@@ -116,9 +81,14 @@ public class BigScreeningStatService {
      */
     private DistrictBigScreenStatistic getDistrictBigScreenStatistic(ScreeningNotice screeningNotice, Integer districtId) throws IOException {
         if (bigScreeningProperties.isDebug()) {
-            return bigScreeningStatService.generateResult(districtId, screeningNotice);
+            return generateResult(districtId, screeningNotice);
         }
-        return districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), districtId);
+        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), districtId);
+        if (districtBigScreenStatistic == null) {
+            //如果是第一天的话,直接触发第一次计算
+            districtBigScreenStatistic = generateResultAndSave(districtId, screeningNotice);
+        }
+        return districtBigScreenStatistic;
     }
 
     /**
@@ -139,8 +109,9 @@ public class BigScreeningStatService {
         for (Integer provinceDistrictId : provinceDistrictIds) {
             List<ScreeningNotice> screeningNoticeList = districtIdNoticeListMap.get(provinceDistrictId);
             //生成数据
-            execute(provinceDistrictId, screeningNoticeList);
+            batchGenerateResultAndSave(provinceDistrictId, screeningNoticeList);
         }
+
     }
 
     /**
@@ -150,14 +121,14 @@ public class BigScreeningStatService {
      * @param districtIdNotices
      * @throws IOException
      */
-    private void execute(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
+    public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
             this.generateResultAndSave(provinceDistrictId, screeningNotice);
         }
     }
 
     /**
-     * 生成结果并报错
+     * 生成结果
      *
      * @param provinceDistrictId
      * @param screeningNotice
@@ -182,7 +153,7 @@ public class BigScreeningStatService {
      */
     public DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
-        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = bigScreeningStatService.getByNoticeIdAndDistrictIds(screeningNotice.getId());
+        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = getByNoticeIdAndDistrictIds(screeningNotice.getId());
         //实际筛查数量
         int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         //获取地图数据

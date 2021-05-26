@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -7,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
+import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -261,7 +264,20 @@ public class StatManagementController {
     @GetMapping("/big-screen")
     public BigScreeningVO getBigScreeningVO(Integer noticeId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return bigScreeningStatService.getBigScreeningVO(currentUser, noticeId);
+        if (ObjectsUtil.hasNull(currentUser, noticeId)) {
+            throw new ManagementUncheckedException("noticeId 或者 currentUser 不能为空");
+        }
+        //查找 district
+        District district = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
+        if (district == null) {
+            throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
+        }
+        //查找最新的notice
+        ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
+        if (screeningNotice == null) {
+            throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
+        }
+        return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
     }
 
     /**
