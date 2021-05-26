@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -71,9 +72,11 @@ public class MedicalReportBizService {
     private ReportConclusion generateReportConclusion(MedicalReport report) {
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
+        HospitalStudentQuery query = new HospitalStudentQuery();
+        query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
         ReportConclusion conclusion = new ReportConclusion()
                 .setReport(reportInfo)
-                .setStudent(hospitalStudentService.getById(report.getStudentId()))
+                .setStudent(hospitalStudentService.getBy(query).stream().findFirst().orElse(null))
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
