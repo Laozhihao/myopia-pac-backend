@@ -408,11 +408,10 @@ public class ScreeningOrganizationBizService {
      * 筛查机构合作医院列表查询
      *
      * @param currentUser 当前用户
-     * @param pageRequest 分页请求
      * @param name        名称
      * @return IPage<HospitalResponseDTO>
      */
-    public List<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, PageRequest pageRequest, String name) {
+    public List<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, String name) {
         Integer codePre = null;
         // 筛查角色的只能看到全省
         if (currentUser.isScreeningUser()) {

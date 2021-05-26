@@ -139,14 +139,14 @@ public class ParentStudentBizService {
             responseDTO.setHospitalName(reportConclusionData.getHospitalName());
         }
         // 检查单
-        if (null != report.getMedicalRecordId()) {
-            MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
-            responseDTO.setVision(record.getVision());
-            responseDTO.setBiometrics(record.getBiometrics());
-            responseDTO.setDiopter(record.getDiopter());
-            responseDTO.setTosca(packageToscaMedicalRecordImages(record.getTosca()));
+        if (Objects.nonNull(report.getMedicalRecordId())) {
+            MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
+            responseDTO.setVision(medicalRecord.getVision());
+            responseDTO.setBiometrics(medicalRecord.getBiometrics());
+            responseDTO.setDiopter(medicalRecord.getDiopter());
+            responseDTO.setTosca(packageToscaMedicalRecordImages(medicalRecord.getTosca()));
             // 问诊内容
-            responseDTO.setConsultation(record.getConsultation());
+            responseDTO.setConsultation(medicalRecord.getConsultation());
         }
         return responseDTO;
     }
@@ -194,22 +194,22 @@ public class ParentStudentBizService {
     /**
      * 报告-设置角膜地形图图片
      *
-     * @param record 角膜地形图检查数据
+     * @param toscaMedicalRecord 角膜地形图检查数据
      * @return ToscaMedicalRecord
      */
-    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord record) {
-        if (Objects.isNull(record)) {
+    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord toscaMedicalRecord) {
+        if (Objects.isNull(toscaMedicalRecord)) {
             return null;
         }
-        ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
-        ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
+        ToscaMedicalRecord.Tosco mydriasis = toscaMedicalRecord.getMydriasis();
+        ToscaMedicalRecord.Tosco nonMydriasis = toscaMedicalRecord.getNonMydriasis();
         if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
             mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
         }
         if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
             nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
         }
-        return record;
+        return toscaMedicalRecord;
     }
 
 
@@ -492,7 +492,7 @@ public class ParentStudentBizService {
         }
         String md5 = StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
         String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, md5);
-        if (!redisUtil.set(key, studentId, 60 * 60)) {
+        if (!redisUtil.set(key, studentId, 3600)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
         return md5;
