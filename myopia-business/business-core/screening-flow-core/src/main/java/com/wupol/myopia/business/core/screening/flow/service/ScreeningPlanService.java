@@ -283,4 +283,38 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         queryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 获取年度
+     *
+     * @return
+     */
+    public List<Integer> getYears(List<ScreeningPlan> screeningPlans) {
+        Set<Integer> yearSet = new HashSet<>();
+        screeningPlans.forEach(screeningPlan -> {
+            Integer startYear = DateUtil.getYear(screeningPlan.getStartTime());
+            Integer endYear = DateUtil.getYear(screeningPlan.getEndTime());
+            yearSet.add(startYear);
+            yearSet.add(endYear);
+        });
+        return new ArrayList<>(yearSet).stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取已经发布的通知
+     *
+     * @param planId
+     * @return
+     */
+    public ScreeningPlan getReleasedPlanById(Integer planId) {
+        ScreeningPlan screeningPlan = getById(planId);
+        if (screeningPlan == null) {
+            throw new BusinessException("无法找到该计划");
+        }
+        if (!screeningPlan.getReleaseStatus().equals(CommonConst.STATUS_RELEASE)) {
+            throw new BusinessException("该计划未发布");
+        }
+        return screeningPlan;
+    }
+
 }

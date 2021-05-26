@@ -11,8 +11,10 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -47,6 +49,8 @@ public class ManagementScreeningPlanBizService {
     private DistrictService districtService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
 
     /**
      * 分页查询
@@ -81,6 +85,16 @@ public class ManagementScreeningPlanBizService {
                     .setScreeningOrgName(screeningOrganizationService.getNameById(vo.getScreeningOrgId()));
         });
         return screeningPlanIPage;
+    }
+
+    public List<ScreeningPlan> getScreeningPlanByUser(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
+        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
+        // 筛查机构可以直接创建计划，不需要有通知下发
+        if (user.isScreeningUser()) {
+            screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
+        }
+        return this.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
     }
 
     /**

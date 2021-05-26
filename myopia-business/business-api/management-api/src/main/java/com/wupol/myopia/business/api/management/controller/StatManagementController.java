@@ -31,10 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ResponseResultBody
@@ -88,9 +85,9 @@ public class StatManagementController {
         return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(user));
     }
 
-    @GetMapping("plan-year")
+    @GetMapping("/plan-year")
     public List<Integer> getPlanYearsByUser() {
-        return null;
+        return screeningPlanService.getYears(managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser()));
     }
 
     /**
@@ -109,17 +106,14 @@ public class StatManagementController {
 
 
     /**
-     * 查找所在年度的筛查计划 todo 这个应该是不用的
+     * 查找所在年度的筛查计划
      *
      * @param
      * @return
      */
     @GetMapping("/plan")
     public Set<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
-        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
         return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
 
@@ -142,6 +136,11 @@ public class StatManagementController {
         return districtBizService.getValidDistrictTree(currentUser, districts);
     }
 
+    @GetMapping("/plan-district")
+    public List<District> getDistrictByPlanId(@RequestParam Integer planId) throws IOException {
+        return districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(),
+                schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(Arrays.asList(planId)));
+    }
 
     /**
      * 根据地区id获取学校情况 todo 可能不用
@@ -308,4 +307,53 @@ public class StatManagementController {
         }
         scheduledTasksExecutor.statisticByPlanIds(yesterdayScreeningPlanIds);
     }
+
+    /**
+     * 学校视力情况
+     *
+     * @param districtId
+     * @param planId
+     * @return
+     */
+    @GetMapping("/plan/school/screening-vision-result")
+    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticByPlan(@RequestParam Integer districtId, @RequestParam Integer planId) {
+        // 获取当前层级下，所有参与任务的学校
+        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
+        ScreeningNotice notice = screeningNoticeService.getReleasedNoticeById(plan.getSrcScreeningNoticeId());
+        // TODO wulizhou 待优化，加强权限校验
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), districtId);
+        if (CollectionUtils.isEmpty(schoolVisionStatistics)) {
+            return ScreeningSchoolVisionStatisticVO.getEmptyInstance();
+        }
+        //学校id
+        List<Integer> schoolIds = schoolVisionStatistics.stream().map(SchoolVisionStatistic::getSchoolId).collect(Collectors.toList());
+        List<Integer> schoolDistrictIdList = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
+        //获取学校的地区
+        Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
+        //获取数据
+        return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
+    }
+
+    /**
+     * 获取学校监控统计
+     * @param districtId
+     * @param planId
+     * @return
+     * @throws IOException
+     */
+    @GetMapping("/plan/school/screening-monitor-result")
+    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam Integer districtId, @RequestParam Integer planId) throws IOException {
+        // 获取当前层级下，所有参与任务的学校
+        ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
+        ScreeningNotice notice = screeningNoticeService.getReleasedNoticeById(plan.getSrcScreeningNoticeId());
+        // TODO wulizhou 待优化，加强权限校验
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtId);
+        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
+            return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
+        }
+        //获取数据
+        return SchoolScreeningMonitorStatisticVO.getInstance(getPlanSchoolReportStatus(schoolMonitorStatistics), notice);
+    }
+
+
 }
