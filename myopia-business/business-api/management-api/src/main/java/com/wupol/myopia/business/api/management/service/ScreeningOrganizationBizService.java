@@ -391,8 +391,10 @@ public class ScreeningOrganizationBizService {
 
         // 封装DTO
         cooperationHospitalList.forEach(cp -> {
+            Integer id = cp.getId();
             Hospital hospital = hospitalMap.get(cp.getHospitalId());
             BeanUtils.copyProperties(hospital, cp);
+            cp.setId(id);
             cp.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
             cp.setAddressDetail(districtService.getAddressDetails(
                     hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()));
