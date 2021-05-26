@@ -31,6 +31,7 @@
                 <if test="@Ognl@isNotEmpty(address)">and `address` = #{address}</if>
                 <if test="@Ognl@isNotEmpty(avatarFileId)">and `avatar_file_id` = #{avatarFileId}</if>
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(isCooperation)">and `is_cooperation` = #{isCooperation}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -47,7 +48,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, avatar_file_id, remark, status, create_time, update_time
+        id, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, avatar_file_id, remark, is_cooperation, status, create_time, update_time
     </sql>
 
     <select id="getHospitalListByCondition" resultMap="BaseResponseMap">

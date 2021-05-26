@@ -104,6 +104,11 @@ public class Hospital extends AddressCode implements Serializable {
     private String remark;
 
     /**
+     * 是否合作医院 0-否 1-是
+     */
+    private Integer isCooperation;
+
+    /**
      * 状态 0-启用 1-禁止 2-删除
      */
     private Integer status;

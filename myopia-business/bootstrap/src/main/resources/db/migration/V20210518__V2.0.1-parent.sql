@@ -15,3 +15,6 @@ alter table m_hospital
 
 alter table m_hospital
     add avatar_file_id int null comment '头像资源Id' after address;
+
+alter table m_hospital
+    add is_cooperation tinyint default 0 null comment '是否合作医院 0-否 1-是' after remark;
