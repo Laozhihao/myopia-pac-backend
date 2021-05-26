@@ -312,7 +312,13 @@ public class ScreeningOrganizationBizService {
             // 详细地址
             orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
-            orgResponseDTO.setCountCooperationHospital(orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId()));
+            Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId());
+            if (Objects.isNull(countCooperationHospital) || countCooperationHospital == 0) {
+                orgResponseDTO.setCountCooperationHospital(0);
+            } else {
+                orgResponseDTO.setCountCooperationHospital(countCooperationHospital);
+            }
+
         });
         return orgLists;
     }
