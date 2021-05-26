@@ -366,7 +366,7 @@ public class ScreeningOrganizationBizService {
     public IPage<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
 
         // 筛查机构获取合作医院列表
-        IPage<CooperationHospitalDTO> cooperationHospitalPage = orgCooperationHospitalService.getCooperationHospitalList(pageRequest, screeningOrgId);
+        IPage<CooperationHospitalDTO> cooperationHospitalPage = orgCooperationHospitalService.getCooperationHospitalListByPage(pageRequest, screeningOrgId);
         List<CooperationHospitalDTO> cooperationHospitalList = cooperationHospitalPage.getRecords();
         if (CollectionUtils.isEmpty(cooperationHospitalList)) {
             return cooperationHospitalPage;

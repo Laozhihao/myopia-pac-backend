@@ -82,8 +82,18 @@ public class OrgCooperationHospitalService extends BaseService<OrgCooperationHos
      * @param screeningOrgId 筛查机构Id
      * @return IPage<CooperationHospitalDTO>
      */
-    public IPage<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
+    public IPage<CooperationHospitalDTO> getCooperationHospitalListByPage(PageRequest pageRequest, Integer screeningOrgId) {
         return baseMapper.getByScreeningOrgId(pageRequest.toPage(), screeningOrgId);
+    }
+
+    /**
+     * 筛查机构获取合作医院列表
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return List<OrgCooperationHospital>
+     */
+    public List<OrgCooperationHospital> getCooperationHospitalList(Integer screeningOrgId) {
+        return baseMapper.getListByScreeningOrgId(screeningOrgId);
     }
 
     /**

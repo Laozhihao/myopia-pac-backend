@@ -6,6 +6,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
+import com.wupol.myopia.business.api.parent.domain.dos.SuggestHospitalDO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
@@ -46,6 +48,8 @@ public class ParentStudentController {
     private DistrictService districtService;
     @Resource
     private ParentStudentBizService parentStudentBizService;
+    @Resource
+    private OrgCooperationHospitalService orgCooperationHospitalService;
 
     /**
      * 获取孩子统计、孩子列表
@@ -225,5 +229,16 @@ public class ParentStudentController {
     @GetMapping("/getTownInfo/{areaCode}")
     public List<District> getTownInfo(@PathVariable("areaCode") Long areaCode) {
         return districtService.getNextDistrictByCode(areaCode);
+    }
+
+    /**
+     * 获取推荐医院列表
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return 推荐医院列表
+     */
+    @GetMapping("/getCooperationHospital/{screeningOrgId}")
+    public List<SuggestHospitalDO> getCooperationHospital(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+        return parentStudentBizService.getCooperationHospital(screeningOrgId);
     }
 }

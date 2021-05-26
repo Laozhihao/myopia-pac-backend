@@ -71,4 +71,12 @@
         order by is_top desc, create_time desc
         limit 1
     </select>
+
+    <select id="getListByScreeningOrgId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_org_cooperation_hospital
+        where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
+        order by is_top desc, create_time desc
+    </select>
 </mapper>

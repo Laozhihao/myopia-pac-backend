@@ -547,6 +547,28 @@ public class ParentStudentBizService {
     }
 
     /**
+     * 获取推荐医院列表
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return 推荐医院列表
+     */
+    public List<SuggestHospitalDO> getCooperationHospital(Integer screeningOrgId) {
+        List<SuggestHospitalDO> responseDTO = new ArrayList<>();
+        List<OrgCooperationHospital> cooperationHospitalList = orgCooperationHospitalService.getCooperationHospitalList(screeningOrgId);
+        if (cooperationHospitalList.isEmpty()) {
+            return responseDTO;
+        }
+        cooperationHospitalList.forEach(c -> {
+            SuggestHospitalDO suggestHospitalDO = new SuggestHospitalDO();
+            Hospital hospital = hospitalService.getById(c.getHospitalId());
+            packageHospitalInfo(suggestHospitalDO, hospital);
+            responseDTO.add(suggestHospitalDO);
+        });
+        return responseDTO;
+    }
+
+
+    /**
      * 封装推荐医院
      *
      * @param screeningOrgId 筛查机构Id
@@ -559,20 +581,28 @@ public class ParentStudentBizService {
             return hospitalDO;
         }
         Hospital hospital = hospitalService.getById(hospitalId);
+        packageHospitalInfo(hospitalDO, hospital);
+        return hospitalDO;
+    }
 
+    /**
+     * 封装医院信息
+     *
+     * @param suggestHospitalDO 推荐医院
+     * @param hospital          医院实体
+     */
+    private void packageHospitalInfo(SuggestHospitalDO suggestHospitalDO, Hospital hospital) {
         if (Objects.nonNull(hospital.getAvatarFileId())) {
-            hospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
+            suggestHospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
         }
-        hospitalDO.setName(hospital.getName());
-
+        suggestHospitalDO.setName(hospital.getName());
         // 行政区域名称
         String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
                 hospital.getAreaCode(), hospital.getTownCode());
         if (StringUtils.isNotBlank(address)) {
-            hospitalDO.setAddress(address);
+            suggestHospitalDO.setAddress(address);
         } else {
-            hospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
+            suggestHospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
         }
-        return hospitalDO;
     }
 }
