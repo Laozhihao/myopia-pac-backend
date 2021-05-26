@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import org.apache.commons.collections.CollectionUtils;
 import com.wupol.myopia.business.api.management.constant.BigScreeningProperties;
 import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatDataBuilder;
@@ -19,6 +20,7 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatist
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +62,7 @@ public class BigScreeningStatService {
      * @param district
      * @return
      */
-    @Cacheable(cacheNames = "myopia:big_screening_data",key = "#screeningNotice.id + '_' + #district.id",condition = "#result == null")
+    @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
     public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district) throws IOException {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district.getId());
@@ -135,6 +137,7 @@ public class BigScreeningStatService {
      * @return
      * @throws IOException
      */
+    @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX,key = "#districtBigScreenStatistic.screeningNoticeId + '_' + #districtBigScreenStatistic.districtId")
     public DistrictBigScreenStatistic generateResultAndSave(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
         DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, screeningNotice);
         if (districtBigScreenStatistic != null) {

@@ -27,7 +27,7 @@ public class BigScreenScheduledTasksExecutor {
     /**
      * 筛查数据统计 测试环境暂时关闭
      */
-    @Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 0 23 * * ?", zone = "GMT+8:00")
     public void statisticBigScreen() throws IOException {
         bigScreeningStatService.statisticBigScreen();
     }

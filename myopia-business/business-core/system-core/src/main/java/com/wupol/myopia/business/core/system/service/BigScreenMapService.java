@@ -2,11 +2,13 @@ package com.wupol.myopia.business.core.system.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import com.wupol.myopia.business.core.system.domain.mapper.BigScreenMapMapper;
 import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +37,7 @@ public class BigScreenMapService extends BaseService<BigScreenMapMapper, BigScre
      * @param provinceDistrictId
      * @return
      */
-    @Cacheable(cacheNames = "myopia:big_screening_map",key = "#provinceDistrictId",condition = "#result == null")
+    @Cacheable(cacheNames = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_KEY_PREFIX_NAME, key = "#provinceDistrictId", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
     public Object getMapDataByDistrictId(Integer provinceDistrictId) {
         LambdaQueryWrapper<BigScreenMap> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BigScreenMap::getDistrictId,provinceDistrictId).select(BigScreenMap::getJson);

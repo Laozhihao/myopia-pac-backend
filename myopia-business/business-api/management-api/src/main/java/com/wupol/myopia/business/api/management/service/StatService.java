@@ -78,19 +78,8 @@ public class StatService {
     private DistrictVisionStatisticService districtVisionStatisticService;
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-    @Autowired
-    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
-
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
-    @Autowired
-    private BigScreenMapService bigScreenMapService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
-    private BigScreeningStatService bigScreeningStatService;
 
     /**
      * 预警信息

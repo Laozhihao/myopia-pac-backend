@@ -20,7 +20,14 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class BigScreeningProperties {
 
+    /**
+     * 属性前缀
+     */
     public static final String PROPERTIES_PREFIX = "vistel.myopia.big-screening";
+    /**
+     * 缓存前缀
+     */
+    public static final String BIG_SCREENING_DATA_CACHE_KEY_PREFIX = "myopia:big_screening_data";
     /**
      * 是否开启debug模式,debug模式开启后
      * 1.关闭定时任务统计大屏数据

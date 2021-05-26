@@ -36,7 +36,6 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
      * @param districtBigScreenStatistic
      * @return
      */
-    @CacheEvict(value = "myopia:big_screening_data",key = "#districtBigScreenStatistic.screeningNoticeId + '_' + #districtBigScreenStatistic.districtId")
     public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic) throws IOException {
         if (null == districtBigScreenStatistic) {
             return false;
