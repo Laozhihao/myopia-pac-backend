@@ -14,7 +14,6 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.CountParentStudentResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
@@ -48,8 +47,6 @@ public class ParentStudentController {
     private DistrictService districtService;
     @Resource
     private ParentStudentBizService parentStudentBizService;
-    @Resource
-    private OrgCooperationHospitalService orgCooperationHospitalService;
 
     /**
      * 获取孩子统计、孩子列表

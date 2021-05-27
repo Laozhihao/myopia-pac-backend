@@ -22,9 +22,9 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -40,15 +40,15 @@ import java.util.List;
 @RequestMapping("/management/screeningOrganization")
 public class ScreeningOrganizationController {
 
-    @Autowired
+    @Resource
     private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
+    @Resource
     private GovDeptService govDeptService;
-    @Autowired
+    @Resource
     private ScreeningOrganizationBizService screeningOrganizationBizService;
-    @Autowired
+    @Resource
     private ExportStrategy exportStrategy;
-    @Autowired
+    @Resource
     private OrgCooperationHospitalService orgCooperationHospitalService;
 
     /**
@@ -131,7 +131,6 @@ public class ScreeningOrganizationController {
      * 导出筛查机构
      *
      * @param districtId 行政区域ID
-     * @return 是否成功
      */
     @GetMapping("/export")
     public void getOrganizationExportData(Integer districtId) throws IOException {
@@ -236,7 +235,7 @@ public class ScreeningOrganizationController {
     /**
      * 获取医院（筛查机构只能看到全省）
      *
-     * @param name        名称
+     * @param name 名称
      * @return IPage<HospitalResponseDTO>
      */
     @GetMapping("/getOrgCooperationHospitalList")

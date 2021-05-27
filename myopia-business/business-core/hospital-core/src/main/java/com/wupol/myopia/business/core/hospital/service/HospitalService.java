@@ -184,18 +184,18 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 根据条件获取医院列表
+     * 获取医院列表
      *
-     * @param page
-     * @param govDeptId
-     * @param name
-     * @param type
-     * @param kind
-     * @param level
-     * @param districtId
-     * @param status
-     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO>
-     **/
+     * @param page       分页请求
+     * @param govDeptId  政府机构Id
+     * @param name       医院名称
+     * @param type       医院类型
+     * @param kind       医院性质
+     * @param level      医院等级
+     * @param districtId 行政区域Id
+     * @param status     状态
+     * @return {@link IPage}
+     */
     public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId,
                                                                  String name, Integer type, Integer kind, Integer level,
                                                                  Integer districtId, Integer status) {

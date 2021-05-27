@@ -38,7 +38,6 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -76,13 +75,13 @@ public class ScreeningOrganizationBizService {
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Resource
     private ScreeningTaskOrgService screeningTaskOrgService;
-    @Autowired
+    @Resource
     private DistrictBizService districtBizService;
-    @Autowired
+    @Resource
     private OrgCooperationHospitalService orgCooperationHospitalService;
-    @Autowired
+    @Resource
     private HospitalService hospitalService;
-    @Autowired
+    @Resource
     private HospitalBizService hospitalBizService;
 
     /**
