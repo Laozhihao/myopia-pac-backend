@@ -119,6 +119,8 @@ public class SchoolBizService {
         if (!StringUtils.equals(checkSchool.getName(), school.getName())) {
             dto.setUsername(school.getName());
         }
+        District district = districtService.getById(school.getDistrictId());
+        school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         schoolService.updateById(school);
         // 更新筛查计划中的学校
         screeningPlanSchoolService.updateSchoolNameBySchoolId(school.getId(), school.getName());

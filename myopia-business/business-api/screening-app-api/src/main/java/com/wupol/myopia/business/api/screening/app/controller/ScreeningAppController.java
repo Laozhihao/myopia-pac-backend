@@ -213,10 +213,10 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/uploadSignPic")
-    public String uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
+    public ApiResult uploadUserAutographImageWithUser(@RequestParam(value = "deptId") Long deptId,
                                               @RequestParam(value = "userId") Long userId,
                                               @RequestParam(value = "file") MultipartFile file) {
-        return screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file);
+        return ApiResult.success(screeningAppService.uploadSignPic(CurrentUserUtil.getCurrentUser(), file));
     }
 
     /**

@@ -285,7 +285,8 @@ public class ScheduledTasksExecutor {
     private void genSelfStatistics(Integer screeningNoticeId, Integer districtId, Integer planStudentNum,
                                    List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics,
                                    List<StatConclusion> selfStatConclusions) {
-        if (CollectionUtils.isEmpty(selfStatConclusions)) {
+        if (CollectionUtils.isEmpty(selfStatConclusions) && planStudentNum == 0) {
+            // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
         Map<Boolean, List<StatConclusion>> isValidMap = selfStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
@@ -293,7 +294,7 @@ public class ScheduledTasksExecutor {
         List<StatConclusion> validStatConclusions = isValidMap.getOrDefault(true, Collections.emptyList());
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
-        Integer screeningTaskId = selfStatConclusions.get(0).getTaskId();
+        Integer screeningTaskId = CollectionUtils.isEmpty(selfStatConclusions) ? CommonConst.DEFAULT_ID : selfStatConclusions.get(0).getTaskId();
         Integer realScreeningStudentNum = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
         districtMonitorStatistics.add(DistrictMonitorStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(true, Collections.emptyList()), planStudentNum, realScreeningStudentNum));
         districtVisionStatistics.add(DistrictVisionStatisticBuilder.build(screeningNoticeId, screeningTaskId, districtId, CommonConst.NOT_TOTAL, isRescreenMap.getOrDefault(false, Collections.emptyList()), realScreeningStudentNum, planStudentNum));
@@ -312,7 +313,8 @@ public class ScheduledTasksExecutor {
     private void genTotalStatistics(Integer screeningNoticeId, Integer districtId, Integer planStudentNum,
                                     List<DistrictMonitorStatistic> districtMonitorStatistics, List<DistrictVisionStatistic> districtVisionStatistics,
                                     List<StatConclusion> totalStatConclusions) {
-        if (CollectionUtils.isEmpty(totalStatConclusions)) {
+        if (CollectionUtils.isEmpty(totalStatConclusions) && planStudentNum == 0) {
+            // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
         Map<Boolean, List<StatConclusion>> isValidMap = totalStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsValid));
