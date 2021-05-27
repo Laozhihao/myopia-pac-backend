@@ -113,6 +113,9 @@ public class ManagementScreeningPlanBizService {
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
+        if (CollectionUtils.isEmpty(noticeIds)) {
+            return Collections.emptyList();
+        }
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
         return screeningPlanService.list(screeningPlanLambdaQueryWrapper);
     }

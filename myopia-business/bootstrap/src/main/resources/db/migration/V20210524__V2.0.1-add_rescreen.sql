@@ -27,6 +27,5 @@ ALTER TABLE `m_screening_plan_school` ADD COLUMN `quality_controller_commander` 
 
 ALTER TABLE `m_screening_task_org`
 MODIFY COLUMN `quality_controller_name`  varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '筛查任务--机构质控员名字（长度限制未知）' AFTER `screening_org_id`,
-MODIFY COLUMN `quality_controller_contact`  varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '筛查任务--机构质控员联系方式（长度限制未知）' AFTER `quality_controller_name`,
 MODIFY COLUMN `quality_controller_commander`  varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '筛查任务--机构质控员队长（长度限制未知）' AFTER `quality_controller_contact`;
 
