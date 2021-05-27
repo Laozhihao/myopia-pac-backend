@@ -24,6 +24,9 @@ import javax.annotation.Resource;
 public class SmsService {
     private static final Logger logger = LoggerFactory.getLogger(SmsService.class);
 
+    /** 验证码短信签名，这里是“【青少年近视防控】” */
+    private static final String MSG_SIGN = "jsfk";
+
     @Resource
     private VistelToolsService vistelToolsService;
     @Resource
@@ -40,9 +43,9 @@ public class SmsService {
             throw new BusinessException(String.format("%d分钟内只能发送一次", SmsConstant.EXPIRED_MINUTE));
         }
         SmsResult smsResult = sendSmsResult(new MsgData(phone, SmsConstant.ZONE));
-        if (!smsResult.isSuccessful()) {
+        if (!Boolean.TRUE.equals(smsResult.isSuccessful())) {
             String result = smsResult.getData() != null ? smsResult.getErrorMsg() : smsResult.getMessage();
-            logger.error("发送验证码消息到"+ phone +"失败，原因：" + result);
+            logger.error("发送验证码消息到{}失败，原因：{}", phone, result);
             throw new BusinessException("发送验证码失败");
         }
         saveToken(phone, smsResult.getToken());
@@ -55,11 +58,11 @@ public class SmsService {
      * @param data
      * @return
      */
-    private SmsResult sendSmsResult(MsgData data) {
+    public SmsResult sendSmsResult(MsgData data) {
         try {
-            return vistelToolsService.sendVerifyCode(data, StringUtils.EMPTY);
+            return vistelToolsService.sendVerifyCode(data, MSG_SIGN);
         } catch (Exception e) {
-            logger.error("发送短信验证码请求失败: " + data.getPhone(), e);
+            logger.error("发送短信验证码请求失败：{}", data.getPhone(), e);
         }
         return new SmsResult(-1, "发送短信验证码失败");
     }
@@ -80,9 +83,9 @@ public class SmsService {
             return false;
         }
         SmsResult smsResult = checkSmsCode(new CheckVerifyCodeData(token, smsCode));
-        logger.info("校验Token：{}" + token + "，结果是：" + smsResult.toString());
+        logger.info("校验Token：{}，结果是：{}", token, smsResult);
         Boolean successful = smsResult.isSuccessful();
-        if (!successful) {
+        if (!Boolean.TRUE.equals(successful)) {
             preventVulnerability(phone);
         }
         return successful;
@@ -114,7 +117,7 @@ public class SmsService {
         try {
             return vistelToolsService.checkVerifyCode(data);
         } catch (Exception e) {
-            logger.error("校验短信验证码请求失败，code: " + data.getCode() + "，token: " + data.getToken(), e);
+            logger.error("校验短信验证码请求失败，code：{}，token：{}", data.getCode(), data.getToken(), e);
         }
         return new SmsResult(-1, "校验短信验证码失败");
     }
