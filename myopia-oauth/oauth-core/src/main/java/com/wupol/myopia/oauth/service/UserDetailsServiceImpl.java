@@ -5,8 +5,6 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     @Autowired
     private HttpServletRequest request;
@@ -89,7 +87,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private List<Integer> validateRole(Integer systemCode, Integer userId) {
         // 非管理端和筛查管理端的用户不需要校验角色
         if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
-            return null;
+            return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(userId);
         if (CollectionUtils.isEmpty(roles)) {
