@@ -39,6 +39,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -770,6 +771,46 @@ public class StatService {
             rrvos.add(rrvo);
         });
         return rrvos;
+    }
+
+    public int rescreenStat() {
+        List<StatRescreen> statRescreens = new ArrayList<>();
+        // 获取昨日有进行复测的计划及学校信息
+        Date date = DateUtils.addDays(new Date(), -1);
+        List<ScreenPlanSchoolDTO> rescreenInfo = statConclusionService.getRescreenPlanSchoolByTime(date);
+        // 按计划 + 学校统计复测数据
+        rescreenInfo.forEach(rescreen -> {
+            List<StatConclusion> yesterdayRescreenInfo = getYesterdayRescreenInfo(rescreen.getPlanId(), rescreen.getSchoolId());
+            if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(yesterdayRescreenInfo)) {
+                // 组建统计数据
+                StatRescreen statRescreen = new StatRescreen();
+                StatConclusion conclusion = yesterdayRescreenInfo.get(0);
+                statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
+                        .setTaskId(conclusion.getTaskId())
+                        .setPlanId(conclusion.getPlanId())
+                        .setSchoolId(conclusion.getSchoolId())
+                        .setScreeningTime(date);
+                RescreenStat rescreenStat = this.composeRescreenConclusion(yesterdayRescreenInfo);
+                BeanUtils.copyProperties(rescreenStat, statRescreen);
+                statRescreens.add(statRescreen);
+            }
+        });
+        statRescreenService.saveBatch(statRescreens);
+        return statRescreens.size();
+    }
+
+    private List<StatConclusion> getYesterdayRescreenInfo(Integer planId, Integer schoolId) {
+        LocalDate startDate = DateUtil.convertToLocalDate(DateUtil.getYesterdayStartTime(), DateUtil.ZONE_UTC_8);
+        LocalDate endDate = startDate.plusDays(1l);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setStartTime(startDate)
+                .setEndTime(endDate)
+                .setIsRescreen(true)
+                .setIsValid(true)
+                .setPlanId(planId)
+                .setSchoolId(schoolId);
+        return statConclusionService.listByQuery(query);
     }
 
 }

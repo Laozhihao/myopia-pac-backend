@@ -161,26 +161,26 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
         return new SchoolScreeningMonitorStatisticVO();
     }
 
-    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOS, ScreeningNotice screeningNotice) {
-        if (CollectionUtils.isEmpty(schoolMonitorStatisticDTOS)) {
+    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOs, ScreeningNotice screeningNotice) {
+        if (CollectionUtils.isEmpty(schoolMonitorStatisticDTOs)) {
             return null;
         }
         SchoolScreeningMonitorStatisticVO schoolScreeningMonitorStatisticVO = new SchoolScreeningMonitorStatisticVO();
         //设置基础数据
         schoolScreeningMonitorStatisticVO.setBasicData(screeningNotice);
         //设置统计数据
-        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatisticDTOS);
+        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatisticDTOs);
         return schoolScreeningMonitorStatisticVO;
     }
 
     /**
      * 设置item数据
      *
-     * @param schoolMonitorStatisticDTOS
+     * @param schoolMonitorStatisticDTOs
      * @return
      */
-    private void setItemData(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOS) {
-        contents = schoolMonitorStatisticDTOS.stream().map(Item::getInstance).collect(Collectors.toSet());
+    private void setItemData(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOs) {
+        contents = schoolMonitorStatisticDTOs.stream().map(Item::getInstance).collect(Collectors.toSet());
     }
 
     /**
