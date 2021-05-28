@@ -777,7 +777,7 @@ public class StatService {
         //查找最新的noticeId
         ScreeningNotice screeningNotice = screeningNoticeService.getLatestNoticeByUser(currentUser);
         if (screeningNotice == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到筛查通知，user = " + JSON.toJSONString(currentUser));
+            return BigScreeningVO.getImmutableEmptyInstance();
         }
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district.getId());
