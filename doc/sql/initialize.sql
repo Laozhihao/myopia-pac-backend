@@ -203,7 +203,6 @@ CREATE TABLE `m_district_big_screen_statistic`  (
   `ametropia` json COMMENT '大屏展示--屈光不正情况',
   `focus_objects` json COMMENT '大屏展示--重点视力对象情况',
   `avg_vision` json COMMENT '大屏展示--平均视力情况',
-  `mapData` json COMMENT '大屏展示--地图json',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '大屏展示--更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE

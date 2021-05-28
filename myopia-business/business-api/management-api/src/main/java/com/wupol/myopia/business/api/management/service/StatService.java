@@ -1,18 +1,15 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
 import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
 import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -24,17 +21,18 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -80,11 +78,6 @@ public class StatService {
     private DistrictVisionStatisticService districtVisionStatisticService;
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-    @Autowired
-    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
-
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
 
@@ -762,30 +755,4 @@ public class StatService {
         return DistrictScreeningMonitorStatisticVO.getInstance(districtMonitorStatistics,
                 districtId, currentRangeName, screeningNotice, districtIdNameMap,currentDistrictMonitorStatistic);
     }
-
-    /**
-     * 获取最新的数据
-     *
-     * @param currentUser
-     */
-    public BigScreeningVO getLatestData(CurrentUser currentUser) {
-        //根据角色获取当前的id
-        District district = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
-        if (district == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
-        }
-        //查找最新的noticeId
-        ScreeningNotice screeningNotice = screeningNoticeService.getLatestNoticeByUser(currentUser);
-        if (screeningNotice == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到筛查通知，user = " + JSON.toJSONString(currentUser));
-        }
-        //根据noticeId 和 districtId 查找数据
-        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district.getId());
-        if (districtBigScreenStatistic == null) {
-            return BigScreeningVO.getImmutableEmptyInstance();
-        }
-        //对数据进行整合
-        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
-    }
-
 }
