@@ -14,6 +14,11 @@ import java.util.Date;
 @Setter
 public class RecordDetails {
 
+    /**
+     * 是否拥有复测报告
+     */
+    private boolean hasRescreenReport;
+
     private Integer schoolId;
 
     /**
@@ -50,6 +55,16 @@ public class RecordDetails {
      * 计划结束时间
      */
     private Date endTime;
+
+    /**
+     * 机构质控员名字
+     */
+    private String qualityControllerName;
+
+    /**
+     * 机构质控员队长
+     */
+    private String qualityControllerCommander;
 
 
 }

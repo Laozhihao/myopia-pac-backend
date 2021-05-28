@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,5 +65,13 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @param planId 筛查计划ID
      * @return java.util.List<java.lang.Integer>
      **/
-    List<Integer> selectSchoolIdByPlanId(Integer planId);
+    List<Integer> selectSchoolIdByPlanId(@Param("planId") Integer planId);
+
+    /**
+     * 获取指定时间内进行
+     * @param date
+     * @param isRescreen
+     * @return
+     */
+    List<ScreenPlanSchoolDTO> getPlanSchoolByDate(@Param("date") Date date, @Param("isRescreen") Boolean isRescreen);
 }

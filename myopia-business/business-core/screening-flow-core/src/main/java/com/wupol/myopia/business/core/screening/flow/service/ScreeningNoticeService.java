@@ -190,11 +190,10 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     /**
      * 获取筛查任务名字
      *
-     * @param screeningNoticeIds
+     * @param screeningNotices
      * @param year
      */
-    public List<ScreeningNoticeNameDTO> getScreeningNoticeNameDTO(Set<Integer> screeningNoticeIds, Integer year) {
-        List<ScreeningNotice> screeningNotices = listByIds(screeningNoticeIds);
+    public List<ScreeningNoticeNameDTO> getScreeningNoticeNameDTO(List<ScreeningNotice> screeningNotices, Integer year) {
         screeningNotices = screeningNotices.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).collect(Collectors.toList());
         return screeningNotices.stream().filter(screeningNotice ->
                 year.equals(DateUtil.getYear(screeningNotice.getStartTime())) || year.equals(DateUtil.getYear(screeningNotice.getEndTime()))

@@ -17,6 +17,20 @@ import java.util.Date;
 @Setter
 public class SchoolVisionStatisticItem implements Serializable {
 
+    /**
+     * 是否拥有复测报告
+     */
+    private boolean hasRescreenReport;
+
+    /**
+     * 质控员
+     */
+    private String qualityControllerName;
+    /**
+     * 检测队长
+     */
+    private String qualityControllerCommander;
+
     private Integer id;
 
     /**

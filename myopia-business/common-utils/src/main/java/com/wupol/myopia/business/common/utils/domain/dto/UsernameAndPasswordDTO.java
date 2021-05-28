@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class UsernameAndPasswordDTO {
 
+    private boolean display;
+
     private String username;
 
     private String password;
@@ -17,5 +19,13 @@ public class UsernameAndPasswordDTO {
     public UsernameAndPasswordDTO(String username, String password) {
         this.username = username;
         this.password = password;
+        this.display = true;
     }
+
+    public void setNoDisplay() {
+        display = false;
+        username = null;
+        password = null;
+    }
+
 }

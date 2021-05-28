@@ -33,7 +33,7 @@ public final class SchoolMonitorStatisticBuilder {
      * @return
      */
     public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
-                                               Integer screeningNoticeId, Integer screeningTaskId,
+                                               Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
                                                List<StatConclusionDTO> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
         SchoolMonitorStatistic statistic = new SchoolMonitorStatistic();
         Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
@@ -44,7 +44,8 @@ public final class SchoolMonitorStatisticBuilder {
         int dsn = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
-                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(school.getDistrictId())
+                .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId)
+                .setScreeningPlanId(screeningPlanId).setDistrictId(school.getDistrictId())
                 .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
                 .setWithoutGlassDsn(withoutGlassDsn).setWithoutGlassDsin(4)
                 .setWearingGlassDsn(wearingGlassDsn).setWearingGlassDsin(6)

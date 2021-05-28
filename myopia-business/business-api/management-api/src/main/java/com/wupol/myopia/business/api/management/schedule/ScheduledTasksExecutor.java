@@ -4,6 +4,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
+import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -70,6 +71,10 @@ public class ScheduledTasksExecutor {
     private SchoolBizService schoolBizService;
     @Autowired
     private StudentBizService studentBizService;
+    @Autowired
+    private StatService statService;
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 筛查数据统计
@@ -172,7 +177,7 @@ public class ScheduledTasksExecutor {
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
                 schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
-                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
+                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
             });
         });
     }
@@ -323,4 +328,16 @@ public class ScheduledTasksExecutor {
         studentResult.forEach(studentBizService.getVisionScreeningResultConsumer(studentMaps));
         visionScreeningResultService.updateBatchById(studentResult);
     }
+
+    /**
+     * 每天凌晨0点30分执行，复测统计
+     */
+    @Scheduled(cron = "0 30 0 * * ?", zone = "GMT+8:00")
+    @Transactional(rollbackFor = Exception.class)
+    public void rescreenStat() {
+        log.info("开始进行复测报告统计");
+        int size = statService.rescreenStat();
+        log.info("本次复测统计共新增加内容{}条", size);
+    }
+
 }
