@@ -272,7 +272,7 @@ public class StatManagementController {
         if (district == null) {
             throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
         }
-        //查找最新的notice
+        //查找notice
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
             throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
