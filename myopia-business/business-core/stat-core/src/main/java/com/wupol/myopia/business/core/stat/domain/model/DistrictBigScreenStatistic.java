@@ -94,12 +94,6 @@ public class DistrictBigScreenStatistic implements Serializable {
     private AvgVisionDO avgVision;
 
     /**
-     * 大屏展示--地图json
-     */
-    @TableField(value = "mapData",typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
-    private Object mapdata;
-
-    /**
      * 大屏展示--更新时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

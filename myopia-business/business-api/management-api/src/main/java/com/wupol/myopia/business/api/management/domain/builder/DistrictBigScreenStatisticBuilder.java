@@ -29,7 +29,6 @@ public class DistrictBigScreenStatisticBuilder {
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
     private long realValidScreeningNum;
     private long planScreeningNum;
-    private Object mapJsonObject;
     private Map<Integer, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
@@ -62,7 +61,7 @@ public class DistrictBigScreenStatisticBuilder {
      */
     public DistrictBigScreenStatistic build() {
         // 最基本的参数校验
-        if (ObjectsUtil.hasNull(realScreeningNum, realScreeningNum, planScreeningNum, mapJsonObject, districtId, noticeId)) {
+        if (ObjectsUtil.hasNull(realScreeningNum, realScreeningNum, planScreeningNum, districtId, noticeId)) {
             throw new ManagementUncheckedException("构建DistrictBigScreenStatistic失败，基本参数不足");
         }
         DistrictBigScreenStatistic districtBigScreenStatistic = new DistrictBigScreenStatistic();
@@ -105,7 +104,6 @@ public class DistrictBigScreenStatisticBuilder {
             progressRate = MathUtil.getFormatNumWith2Scale((double) realScreeningNum / planScreeningNum * 100);
         }
         districtBigScreenStatistic.setProgressRate(progressRate);
-        districtBigScreenStatistic.setMapdata(mapJsonObject);
         districtBigScreenStatistic.setDistrictId(districtId);
         districtBigScreenStatistic.setScreeningNoticeId(noticeId);
         return districtBigScreenStatistic;
@@ -170,17 +168,6 @@ public class DistrictBigScreenStatisticBuilder {
      */
     public DistrictBigScreenStatisticBuilder setDistrictId(Integer districtId) {
         this.districtId = districtId;
-        return this;
-    }
-
-    /**
-     * 设置jsonMap
-     *
-     * @param mapJsonObject
-     * @return
-     */
-    public DistrictBigScreenStatisticBuilder setMapJson(Object mapJsonObject) {
-        this.mapJsonObject = mapJsonObject;
         return this;
     }
 
