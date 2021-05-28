@@ -72,6 +72,7 @@ public class MedicalReportBizService {
     private ReportConclusion generateReportConclusion(MedicalReport report) {
         ReportConclusion.ReportInfo reportInfo = new ReportConclusion.ReportInfo();
         BeanUtils.copyProperties(report, reportInfo);
+
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
         ReportConclusion conclusion = new ReportConclusion()
