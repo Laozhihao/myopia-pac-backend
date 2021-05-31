@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -21,10 +20,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -83,6 +79,8 @@ public class ScreeningOrganizationBizService {
     private HospitalService hospitalService;
     @Resource
     private HospitalBizService hospitalBizService;
+    @Resource
+    private StatRescreenService statRescreenService;
 
     /**
      * 获取筛查记录列表
@@ -115,6 +113,8 @@ public class ScreeningOrganizationBizService {
 
         Integer planId = planResponse.getId();
         List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId);
+        Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
+                .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
         planResponse.setScreeningStatus(getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
@@ -159,6 +159,9 @@ public class ScreeningOrganizationBizService {
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());
             detail.setPlanTitle(planResponse.getTitle());
+            detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
+            detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
+            detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
             details.add(detail);
         });
         response.setDetails(details);
@@ -219,14 +222,9 @@ public class ScreeningOrganizationBizService {
                 .setUsername(screeningOrganization.getName());
         oauthServiceClient.updateUser(userDTO);
 
-        // 名字更新重置密码
+        // 名字更新
         if (!StringUtils.equals(checkOrg.getName(), screeningOrganization.getName())) {
-            response.setUpdatePassword(Boolean.TRUE);
             response.setUsername(screeningOrganization.getName());
-            // 重置密码
-            String password = PasswordGenerator.getScreeningAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            response.setPassword(password);
         }
 
         screeningOrganizationService.updateById(screeningOrganization);

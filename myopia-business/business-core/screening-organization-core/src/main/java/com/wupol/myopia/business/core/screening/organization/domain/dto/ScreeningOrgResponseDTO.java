@@ -42,19 +42,14 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
     private String addressDetail;
 
     /**
-     * 是否重置密码
-     */
-    private Boolean updatePassword = false;
-
-    /**
      * 账号
      */
     private String username;
 
     /**
-     * 密码
+     * 是否回显账号
      */
-    private String password;
+    private boolean displayUsername = false;
 
     /**
      * 合作医院个数

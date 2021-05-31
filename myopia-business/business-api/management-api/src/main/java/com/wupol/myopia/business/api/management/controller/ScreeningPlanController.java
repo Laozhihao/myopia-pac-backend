@@ -134,7 +134,7 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtId
+            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
@@ -256,6 +256,17 @@ public class ScreeningPlanController {
         // 任务状态判断
         validateExist(screeningPlanId);
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
+    }
+
+    /**
+     * 获取指定计划下学校信息
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    @GetMapping("schools/{screeningPlanId}/{schoolId}")
+    public ScreeningPlanSchool getPlanSchool(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**

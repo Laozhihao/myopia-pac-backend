@@ -19,6 +19,9 @@ import java.util.Map;
 @UtilityClass
 public class DateUtil {
 
+    public static final String UTC_8 = "UTC+8";
+    public static final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
+
     /**
      * 获取当前时间的年与上一个月,若当前是1月,则取得上年12月
      *
@@ -260,4 +263,17 @@ public class DateUtil {
         calendar.setTime(date);
         return calendar.get(Calendar.YEAR);
     }
+
+    /**
+     * Date to LocalDate
+     * @param date 日期
+     * @param zoneId 时区ID
+     * @return
+     */
+    public static LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zdt = instant.atZone(zoneId);
+        return zdt.toLocalDate();
+    }
+
 }

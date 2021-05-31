@@ -8,11 +8,17 @@ import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * Redis配置
@@ -23,6 +29,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
+
+    private static final int EXPIRED_DAYS = 1;
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -46,12 +54,30 @@ public class RedisConfig extends CachingConfigurerSupport {
         return template;
     }
 
+    /**
+     * cache配置:
+     * 1.不缓存null
+     * 2.默认过期时间1天
+     * 3.默认分割符为 单冒号
+     * @param redisConnectionFactory
+     * @return
+     */
     @Bean
+    @Primary
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager
-                .RedisCacheManagerBuilder
-                .fromConnectionFactory(redisConnectionFactory);
-        return builder.build();
-    }
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                //变双冒号为单冒号
+                .computePrefixWith(name -> name + ":")
+                //默认一天
+                .entryTtl(Duration.ofDays(EXPIRED_DAYS))
+                //不保存空
+                .disableCachingNullValues()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
+        return RedisCacheManager.RedisCacheManagerBuilder
+                .fromConnectionFactory(redisConnectionFactory)
+                .cacheDefaults(config)
+                .transactionAware()
+                .build();
+    }
 }

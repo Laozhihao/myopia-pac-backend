@@ -3,14 +3,12 @@ package com.wupol.myopia.business.api.management.schedule;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
-import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
+import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
-import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -21,11 +19,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
-import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.model.*;
 import com.wupol.myopia.business.core.stat.service.*;
-import com.wupol.myopia.business.core.system.domain.model.BigScreenMap;
-import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -73,17 +68,13 @@ public class ScheduledTasksExecutor {
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
     @Autowired
-    private GovDeptService govDeptService;
-    @Autowired
-    private BigScreenMapService bigScreenMapService;
-    @Autowired
-    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
-    @Autowired
     private SchoolBizService schoolBizService;
     @Autowired
-    private BigScreeningStatService bigScreeningStatService;
-    @Autowired
     private StudentBizService studentBizService;
+    @Autowired
+    private StatService statService;
+    @Autowired
+    private StatRescreenService statRescreenService;
 
     /**
      * 筛查数据统计
@@ -186,7 +177,7 @@ public class ScheduledTasksExecutor {
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
                 schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
-                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
+                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
             });
         });
     }
@@ -318,89 +309,6 @@ public class ScheduledTasksExecutor {
     }
 
     /**
-     * 筛查数据统计 测试环境暂时关闭
-     */
-    @Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
-    public void statisticBigScreen() throws IOException {
-        //找到所有省级部门
-        List<GovDept> proviceGovDepts = govDeptService.getProviceGovDept();
-        Set<Integer> govDeptIds = proviceGovDepts.stream().map(GovDept::getId).collect(Collectors.toSet());
-        //通过所有省级部门查找所有通知
-        List<ScreeningNotice> screeningNotices = screeningNoticeService.getNoticeByReleaseOrgId(govDeptIds, ScreeningNotice.TYPE_GOV_DEPT);
-        //发布过的省级部门的省地区id
-        Map<Integer, List<ScreeningNotice>> districtIdNoticeListMap = screeningNotices.stream().collect(Collectors.groupingBy(ScreeningNotice::getDistrictId));
-        //将每个省最新发布的notice拿出来
-        Set<Integer> provinceDistrictIds = districtIdNoticeListMap.keySet();
-        Map<Integer, ScreeningNotice> districtIdNoticeMap = new HashMap<>();
-        provinceDistrictIds.forEach(districtId -> {
-            List<ScreeningNotice> screeningNoticeList = districtIdNoticeListMap.get(districtId);
-            ScreeningNotice screeningNotice = screeningNoticeList.stream().sorted(Comparator.comparing(ScreeningNotice::getReleaseTime).reversed()).findFirst().get();
-            districtIdNoticeMap.put(districtId, screeningNotice);
-        });
-        for (Integer provinceDistrictId : provinceDistrictIds) {
-            DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, districtIdNoticeMap.get(provinceDistrictId));
-            if (districtBigScreenStatistic != null) {
-                districtBigScreenStatisticService.saveOrUpdateByDistrictId(districtBigScreenStatistic);
-            }
-        }
-    }
-
-    /**
-     * 生成某个省的数据
-     *
-     * @param provinceDistrictId
-     * @param screeningNotice
-     * @return
-     * @throws IOException
-     */
-    private DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
-        //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
-        List<BigScreenStatDataDTO> bigScreenStatDataDTOs = bigScreeningStatService.getByNoticeIdAndDistrictIds(screeningNotice.getId());
-        int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
-        //获取地图数据
-        BigScreenMap bigScreenMap = bigScreenMapService.getByDistrictId(provinceDistrictId);
-        //将基本数据放入构造器
-        bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
-        int realValidScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
-        DistrictBigScreenStatisticBuilder districtBigScreenStatisticBuilder = DistrictBigScreenStatisticBuilder.getBuilder()
-                .setRealValidScreeningNum((long) realValidScreeningNum)
-                .setRealScreeningNum((long) realScreeningNum)
-                .setDistrictId(provinceDistrictId)
-                .setMapJson(bigScreenMap.getJson())
-                .setCityCenterMap(bigScreenMap.getCityCenterLocation())
-                .setNoticeId(screeningNotice.getId())
-                .setPlanScreeningNum(screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId()));
-        if (realScreeningNum > 0 && realValidScreeningNum > 0) {
-            //更新城市名
-            bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
-            //构建数据
-            districtBigScreenStatisticBuilder.setBigScreenStatDataDTOList(bigScreenStatDataDTOs);
-        }
-        return districtBigScreenStatisticBuilder.build();
-    }
-
-    /**
-     * 更新大屏数据的城市名
-     *
-     * @param bigScreenStatDataDTOs
-     * @param districtSetMap
-     */
-    private List<BigScreenStatDataDTO> updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
-       return bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
-            Set<District> districtSet = districtSetMap.keySet();
-            for (District cityDistrict : districtSet) {
-                Set<Integer> districtIds = districtSetMap.get(cityDistrict);
-                if (districtIds.contains(bigScreenStatDataDTO.getDistrictId()) || cityDistrict.getId().equals(bigScreenStatDataDTO.getDistrictId())) {
-                    bigScreenStatDataDTO.setCityDistrictId(cityDistrict.getId());
-                    bigScreenStatDataDTO.setCityDistrictName(cityDistrict.getName());
-                    break;
-                }
-            }
-            return bigScreenStatDataDTO;
-        }).collect(Collectors.toList());
-    }
-
-    /**
      * 每天9点执行，发送短信
      */
     @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
@@ -420,4 +328,16 @@ public class ScheduledTasksExecutor {
         studentResult.forEach(studentBizService.getVisionScreeningResultConsumer(studentMaps));
         visionScreeningResultService.updateBatchById(studentResult);
     }
+
+    /**
+     * 每天凌晨0点30分执行，复测统计
+     */
+    @Scheduled(cron = "0 30 0 * * ?", zone = "GMT+8:00")
+    @Transactional(rollbackFor = Exception.class)
+    public void rescreenStat() {
+        log.info("开始进行复测报告统计");
+        int size = statService.rescreenStat();
+        log.info("本次复测统计共新增加内容{}条", size);
+    }
+
 }

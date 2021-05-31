@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ScreeningBasicResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
@@ -32,6 +33,22 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
     @Accessors(chain = true)
     @Setter
     public static class Item {
+
+        /**
+         * 是否拥有复测报告
+         */
+        private boolean hasRescreenReport;
+
+        /**
+         * 学校标识
+         */
+        private Integer schoolId;
+
+        /**
+         * 计划标识
+         */
+        private Integer planId;
+
         /**
          * 查看的范围(地区或者学校名）
          */
@@ -93,16 +110,30 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
          */
         private BigDecimal incorrectRatio;
 
+        /**
+         * 机构质控员名字
+         */
+        private String qualityControllerName;
+
+        /**
+         * 机构质控员队长
+         */
+        private String qualityControllerCommander;
+
 
         /**
          * 获取实例
          *
-         * @param schoolMonitorStatistic
+         * @param schoolMonitorStatisticDTO
          * @return
          */
-        public static Item getInstance(SchoolMonitorStatistic schoolMonitorStatistic) {
+        public static Item getInstance(SchoolMonitorStatisticDTO schoolMonitorStatisticDTO) {
             Item item = new Item();
-            item.setScreeningRangeName(schoolMonitorStatistic.getSchoolName())
+            SchoolMonitorStatistic schoolMonitorStatistic = schoolMonitorStatisticDTO.getSchoolMonitorStatistic();
+            item.setHasRescreenReport(schoolMonitorStatisticDTO.isHasRescreenReport())
+                    .setSchoolId(schoolMonitorStatistic.getSchoolId())
+                    .setPlanId(schoolMonitorStatistic.getScreeningPlanId())
+                    .setScreeningRangeName(schoolMonitorStatistic.getSchoolName())
                     .setRescreenItemNum(schoolMonitorStatistic.getRescreeningItemNumbers())
                     .setRescreenNum(schoolMonitorStatistic.getDsn())
                     .setScreeningNum(schoolMonitorStatistic.getPlanScreeningNumbers())
@@ -114,7 +145,9 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
                     .setWearingGlassesRescreenIndexNum(schoolMonitorStatistic.getWearingGlassDsin())
                     .setWithoutGlassesRescreenIndexNum(schoolMonitorStatistic.getWithoutGlassDsin())
                     .setWearingGlassesRescreenNum(schoolMonitorStatistic.getWearingGlassDsn())
-                    .setWithoutGlassesRescreenNum(schoolMonitorStatistic.getWithoutGlassDsn());
+                    .setWithoutGlassesRescreenNum(schoolMonitorStatistic.getWithoutGlassDsn())
+                    .setQualityControllerName(schoolMonitorStatisticDTO.getQualityControllerName())
+                    .setQualityControllerCommander(schoolMonitorStatisticDTO.getQualityControllerCommander());
             return item;
         }
     }
@@ -128,33 +161,26 @@ public class SchoolScreeningMonitorStatisticVO extends ScreeningBasicResult {
         return new SchoolScreeningMonitorStatisticVO();
     }
 
-    /**
-     * 获取实例
-     *
-     * @param schoolMonitorStatistics
-     * @param screeningNotice
-     * @return
-     */
-    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatistic> schoolMonitorStatistics, ScreeningNotice screeningNotice) {
-        if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
+    public static SchoolScreeningMonitorStatisticVO getInstance(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOs, ScreeningNotice screeningNotice) {
+        if (CollectionUtils.isEmpty(schoolMonitorStatisticDTOs)) {
             return null;
         }
         SchoolScreeningMonitorStatisticVO schoolScreeningMonitorStatisticVO = new SchoolScreeningMonitorStatisticVO();
         //设置基础数据
         schoolScreeningMonitorStatisticVO.setBasicData(screeningNotice);
         //设置统计数据
-        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatistics);
+        schoolScreeningMonitorStatisticVO.setItemData(schoolMonitorStatisticDTOs);
         return schoolScreeningMonitorStatisticVO;
     }
 
     /**
      * 设置item数据
      *
-     * @param schoolMonitorStatistics
+     * @param schoolMonitorStatisticDTOs
      * @return
      */
-    private void setItemData(List<SchoolMonitorStatistic> schoolMonitorStatistics) {
-        contents = schoolMonitorStatistics.stream().map(Item::getInstance).collect(Collectors.toSet());
+    private void setItemData(List<SchoolMonitorStatisticDTO> schoolMonitorStatisticDTOs) {
+        contents = schoolMonitorStatisticDTOs.stream().map(Item::getInstance).collect(Collectors.toSet());
     }
 
     /**
