@@ -25,7 +25,7 @@ public interface DistrictMapper extends BaseMapper<District> {
 
     List<District> findByCodeList(Long provinceCode, Long cityCode, Long areaCode, Long townCode);
 
-    District getByCode(@Param("code") Long codes);
+    District getByCode(@Param("code") Long code);
 
     List<District> getByCodes(@Param("codes") List<Long> codes);
 }

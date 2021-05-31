@@ -524,8 +524,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name;
         }
         // 为空，从数据库查询
-        District district = baseMapper.selectOne(new QueryWrapper<District>()
-                .eq("code", code));
+        District district = baseMapper.getByCode(code);
         if (null == district) {
             return "";
         }
