@@ -9,6 +9,8 @@ import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.HospitalMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -35,8 +37,12 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
 
     @Resource
     private HospitalAdminService hospitalAdminService;
+
     @Resource
     private OauthServiceClient oauthServiceClient;
+
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 保存医院
@@ -49,6 +55,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (checkHospitalName(hospital.getName(), null)) {
             throw new BusinessException("医院名字重复，请确认");
         }
+        District district = districtService.getById(hospital.getDistrictId());
+        hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         baseMapper.insert(hospital);
         return generateAccountAndPassword(hospital);
     }
@@ -176,19 +184,32 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     }
 
     /**
-     * 根据条件获取医院列表
+     * 获取医院列表
      *
-     * @param page
-     * @param govDeptId
-     * @param name
-     * @param type
-     * @param kind
-     * @param level
-     * @param districtId
-     * @param status
-     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO>
-     **/
-    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId, String name, Integer type, Integer kind, Integer level, Integer districtId, Integer status) {
+     * @param page       分页请求
+     * @param govDeptId  政府机构Id
+     * @param name       医院名称
+     * @param type       医院类型
+     * @param kind       医院性质
+     * @param level      医院等级
+     * @param districtId 行政区域Id
+     * @param status     状态
+     * @return {@link IPage}
+     */
+    public IPage<HospitalResponseDTO> getHospitalListByCondition(Page<?> page, List<Integer> govDeptId,
+                                                                 String name, Integer type, Integer kind, Integer level,
+                                                                 Integer districtId, Integer status) {
         return baseMapper.getHospitalListByCondition(page, govDeptId, name, type, kind, level, districtId, status);
+    }
+
+    /**
+     * 筛查机构合作医院列表查询
+     *
+     * @param name    名称
+     * @param codePre 代码前缀
+     * @return List<HospitalResponseDTO>
+     */
+    public List<HospitalResponseDTO> getHospitalByName(String name, Integer codePre) {
+        return baseMapper.getHospitalByName(name, codePre);
     }
 }

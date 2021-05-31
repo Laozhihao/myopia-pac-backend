@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -35,13 +36,13 @@ import java.io.IOException;
 @RequestMapping("/management/hospital")
 public class HospitalController {
 
-    @Autowired
+    @Resource
     private HospitalService hospitalService;
 
-    @Autowired
+    @Resource
     private HospitalBizService hospitalBizService;
 
-    @Autowired
+    @Resource
     private ExportStrategy exportStrategy;
 
     /**
@@ -144,7 +145,6 @@ public class HospitalController {
      * 导出医院
      *
      * @param districtId 行政区域ID
-     * @return 是否导出成功
      * @see ExcelFacade
      */
     @GetMapping("/export")

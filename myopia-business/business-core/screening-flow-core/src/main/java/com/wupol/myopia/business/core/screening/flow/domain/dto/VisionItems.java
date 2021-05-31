@@ -45,6 +45,11 @@ public class VisionItems {
         private BigDecimal vision;
 
         /**
+         * 小数位视力
+         */
+        private BigDecimal decimalVision;
+
+        /**
          * 类型
          */
         private Integer type;

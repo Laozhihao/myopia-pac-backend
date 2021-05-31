@@ -6,6 +6,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
+import com.wupol.myopia.business.api.parent.domain.dos.SuggestHospitalDO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
@@ -50,12 +51,12 @@ public class ParentStudentController {
     /**
      * 获取孩子统计、孩子列表
      *
-     * @param parentId 家长ID
      * @return 孩子统计、孩子列表
      */
-    @GetMapping("count/{parentId}")
-    public CountParentStudentResponseDTO countParentStudent(@PathVariable("parentId") Integer parentId) {
-        return parentStudentBizService.countParentStudent(parentId);
+    @GetMapping("count")
+    public CountParentStudentResponseDTO countParentStudent() throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return parentStudentBizService.countParentStudent(currentUser);
     }
 
     /**
@@ -225,5 +226,16 @@ public class ParentStudentController {
     @GetMapping("/getTownInfo/{areaCode}")
     public List<District> getTownInfo(@PathVariable("areaCode") Long areaCode) {
         return districtService.getNextDistrictByCode(areaCode);
+    }
+
+    /**
+     * 获取推荐医院列表
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return 推荐医院列表
+     */
+    @GetMapping("/getCooperationHospital/{screeningOrgId}")
+    public List<SuggestHospitalDO> getCooperationHospital(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+        return parentStudentBizService.getCooperationHospital(screeningOrgId);
     }
 }

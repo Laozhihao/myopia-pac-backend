@@ -51,4 +51,8 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
      */
     private boolean displayUsername = false;
 
+    /**
+     * 合作医院个数
+     */
+    private Integer countCooperationHospital;
 }

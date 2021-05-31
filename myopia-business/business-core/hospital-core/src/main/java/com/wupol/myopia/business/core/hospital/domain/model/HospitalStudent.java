@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.RegularUtils;
 import lombok.Getter;
@@ -31,8 +29,11 @@ public class HospitalStudent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 等同学生id */
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
+
+    /** 学生id */
+    private Integer studentId;
 
     /** 医院id */
     private Integer hospitalId;
@@ -111,8 +112,8 @@ public class HospitalStudent implements Serializable {
     private Date updateTime;
 
 
-    public HospitalStudent(Integer hospitalId, Integer id) {
-        this.id = id;
+    public HospitalStudent(Integer hospitalId, Integer studentId) {
+        this.studentId = studentId;
         this.hospitalId = hospitalId;
     }
 

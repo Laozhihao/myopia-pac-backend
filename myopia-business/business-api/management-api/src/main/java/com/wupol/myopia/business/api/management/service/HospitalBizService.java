@@ -3,7 +3,9 @@ package com.wupol.myopia.business.api.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -20,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 医院
@@ -39,6 +42,9 @@ public class HospitalBizService {
     private DistrictService districtService;
     @Resource
     private GovDeptService govDeptService;
+
+    @Resource
+    private ResourceFileService resourceFileService;
 
     /**
      * 更新医院信息
@@ -66,7 +72,8 @@ public class HospitalBizService {
         if (!StringUtils.equals(checkHospital.getName(), hospital.getName())) {
             response.setUsername(hospital.getName());
         }
-
+        District district = districtService.getById(hospital.getDistrictId());
+        hospital.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
         hospitalService.updateById(hospital);
         Hospital h = hospitalService.getById(hospital.getId());
         BeanUtils.copyProperties(h, response);
@@ -74,6 +81,9 @@ public class HospitalBizService {
         // 行政区域名称
         response.setAddressDetail(districtService.getAddressDetails(
                 h.getProvinceCode(), h.getCityCode(), h.getAreaCode(), h.getTownCode(), h.getAddress()));
+        if (Objects.nonNull(hospital.getAvatarFileId())) {
+            response.setAvatarUrl(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
+        }
         return response;
     }
 
@@ -94,6 +104,11 @@ public class HospitalBizService {
         if (CollectionUtils.isEmpty(records)) {
             return hospitalListsPage;
         }
+        packageHospitalDTO(records);
+        return hospitalListsPage;
+    }
+
+    private void packageHospitalDTO(List<HospitalResponseDTO> records) {
         records.forEach(h -> {
             // 详细地址
             h.setAddressDetail(districtService.getAddressDetails(
@@ -101,7 +116,23 @@ public class HospitalBizService {
 
             // 行政区域名称
             h.setDistrictName(districtService.getDistrictName(h.getDistrictDetail()));
+
+            // 头像
+            if (Objects.nonNull(h.getAvatarFileId())) {
+                h.setAvatarUrl(resourceFileService.getResourcePath(h.getAvatarFileId()));
+            }
         });
-        return hospitalListsPage;
+    }
+
+
+    /**
+     * 筛查机构合作医院列表查询
+     *
+     * @param name    名称
+     * @param codePre 代码前缀
+     * @return IPage<HospitalResponseDTO>
+     */
+    public List<HospitalResponseDTO> getHospitalByName(String name, Integer codePre) {
+        return hospitalService.getHospitalByName(name, codePre);
     }
 }

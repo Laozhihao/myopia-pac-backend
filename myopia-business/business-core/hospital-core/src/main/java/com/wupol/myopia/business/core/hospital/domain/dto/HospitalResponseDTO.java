@@ -33,4 +33,8 @@ public class HospitalResponseDTO extends Hospital {
      */
     private boolean displayUsername = false;
 
+    /**
+     * 头像Url
+     */
+    private String avatarUrl;
 }

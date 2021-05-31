@@ -28,4 +28,6 @@ public interface HospitalMapper extends BaseMapper<Hospital> {
     IPage<Hospital> getByPage(@Param("page") Page<?> page, @Param("hospitalQuery") HospitalQuery hospitalQuery);
 
     List<Hospital> getByNameNeId(@Param("name") String name, @Param("id") Integer id);
+
+    List<HospitalResponseDTO> getHospitalByName(@Param("name") String name, @Param("codePre") Integer codePre);
 }

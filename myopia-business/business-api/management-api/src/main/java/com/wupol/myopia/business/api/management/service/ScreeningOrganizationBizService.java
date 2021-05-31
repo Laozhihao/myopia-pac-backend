@@ -7,6 +7,11 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.RecordDetails;
@@ -29,7 +34,6 @@ import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -67,9 +71,15 @@ public class ScreeningOrganizationBizService {
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Resource
     private ScreeningTaskOrgService screeningTaskOrgService;
-    @Autowired
+    @Resource
     private DistrictBizService districtBizService;
-    @Autowired
+    @Resource
+    private OrgCooperationHospitalService orgCooperationHospitalService;
+    @Resource
+    private HospitalService hospitalService;
+    @Resource
+    private HospitalBizService hospitalBizService;
+    @Resource
     private StatRescreenService statRescreenService;
 
     /**
@@ -299,6 +309,13 @@ public class ScreeningOrganizationBizService {
             // 详细地址
             orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
+            Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId());
+            if (Objects.isNull(countCooperationHospital) || countCooperationHospital == 0) {
+                orgResponseDTO.setCountCooperationHospital(0);
+            } else {
+                orgResponseDTO.setCountCooperationHospital(countCooperationHospital);
+            }
+
         });
         return orgLists;
     }
@@ -340,5 +357,65 @@ public class ScreeningOrganizationBizService {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 获取合作医院列表
+     *
+     * @param pageRequest    分页请求
+     * @param screeningOrgId 筛查机构Id
+     * @return IPage<CooperationHospitalDTO>
+     */
+    public IPage<CooperationHospitalDTO> getCooperationHospitalList(PageRequest pageRequest, Integer screeningOrgId) {
+
+        // 筛查机构获取合作医院列表
+        IPage<CooperationHospitalDTO> cooperationHospitalPage = orgCooperationHospitalService.getCooperationHospitalListByPage(pageRequest, screeningOrgId);
+        List<CooperationHospitalDTO> cooperationHospitalList = cooperationHospitalPage.getRecords();
+        if (CollectionUtils.isEmpty(cooperationHospitalList)) {
+            return cooperationHospitalPage;
+        }
+
+        // 装换成<医院Id，是否置顶>
+        Map<Integer, Integer> cooperationHospitalMap = cooperationHospitalList.stream()
+                .collect(Collectors.toMap(CooperationHospitalDTO::getHospitalId, CooperationHospitalDTO::getIsTop));
+
+        // 查询医院
+        List<Integer> hospitalIds = cooperationHospitalList.stream()
+                .map(CooperationHospitalDTO::getHospitalId).collect(Collectors.toList());
+        List<Hospital> hospitalList = hospitalService.listByIds(hospitalIds);
+        Map<Integer, Hospital> hospitalMap = hospitalList.stream()
+                .collect(Collectors.toMap(Hospital::getId, Function.identity()));
+
+        // 封装DTO
+        cooperationHospitalList.forEach(cp -> {
+            Integer id = cp.getId();
+            Hospital hospital = hospitalMap.get(cp.getHospitalId());
+            BeanUtils.copyProperties(hospital, cp);
+            cp.setId(id);
+            cp.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
+            cp.setAddressDetail(districtService.getAddressDetails(
+                    hospital.getProvinceCode(), hospital.getCityCode(), hospital.getAreaCode(), hospital.getTownCode(), hospital.getAddress()));
+            cp.setIsTop(cooperationHospitalMap.get(cp.getHospitalId()));
+        });
+        return cooperationHospitalPage;
+    }
+
+
+    /**
+     * 筛查机构合作医院列表查询
+     *
+     * @param currentUser 当前用户
+     * @param name        名称
+     * @return IPage<HospitalResponseDTO>
+     */
+    public List<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, String name) {
+        Integer codePre = null;
+        // 筛查角色的只能看到全省
+        if (currentUser.isScreeningUser()) {
+            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
+            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+            codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
+        }
+        return hospitalBizService.getHospitalByName(name, codePre);
     }
 }

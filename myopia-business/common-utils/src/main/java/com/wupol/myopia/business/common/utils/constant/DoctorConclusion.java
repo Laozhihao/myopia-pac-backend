@@ -36,4 +36,11 @@ public class DoctorConclusion {
      * SE < 0
      */
     public final static String NORMAL_SE_LESS_THAN_0 = "裸眼远视力≥4.9，可能存在近视高危因素。建议：1、严格注意用眼卫生。2、到医疗机构检查了解是否可能发展未近视。";
+
+    /**
+     * 正常情况
+     */
+    public final static String NORMAL_SE = "远视力双眼视力正常，建议：平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+
+
 }

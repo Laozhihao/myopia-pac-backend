@@ -39,22 +39,18 @@ public class HospitalStudentController {
 
     @GetMapping()
     public HospitalStudentVO getStudent(String token, String idCard, String name) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (StringUtils.isEmpty(token)) {
-            return hospitalStudentFacade.getStudent(idCard, name);
+            return hospitalStudentFacade.getStudent(user.getOrgId(), idCard, name);
         } else {
-            return hospitalStudentFacade.getStudentByToken(token);
+            return hospitalStudentFacade.getStudentByToken(user.getOrgId(), token);
         }
     }
 
     @GetMapping("/{id}")
     public HospitalStudentVO getStudent(@PathVariable("id") Integer id) {
-        return hospitalStudentFacade.getStudentById(id);
-    }
-
-    @GetMapping("/recentList")
-    public List<HospitalStudentVO> getRecentList() throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentFacade.getRecentList(user.getOrgId());
+        return hospitalStudentFacade.getStudentById(user.getOrgId(), id);
     }
 
     @GetMapping("/list")
@@ -85,7 +81,7 @@ public class HospitalStudentController {
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
         // 如果医院没有该学生的档案,则不允许操作
-        if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getId())) {
+        if (!hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, studentVo.getStudentId())) {
             return ApiResult.failure("该学生未建档");
         }
         hospitalStudentFacade.saveStudent(studentVo, false);

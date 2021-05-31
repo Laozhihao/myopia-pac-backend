@@ -17,11 +17,14 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
@@ -43,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -56,8 +58,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @Author HaoHao
- * @Date 2021/4/21
+ * @author HaoHao
+ * Date 2021/4/21
  **/
 @Service
 public class ParentStudentBizService {
@@ -82,16 +84,23 @@ public class ParentStudentBizService {
     private ParentStudentService parentStudentService;
     @Resource
     private MedicalReportBizService medicalReportBizService;
+    @Resource
+    private OrgCooperationHospitalService orgCooperationHospitalService;
+    @Resource
+    private HospitalService hospitalService;
+    @Resource
+    private DistrictService districtService;
 
     /**
      * 孩子统计、孩子列表
      *
-     * @param parentId 家长ID
+     * @param currentUser 当前用户
      * @return CountParentStudentResponseDTO 家长端-统计家长绑定学生
      */
-    public CountParentStudentResponseDTO countParentStudent(Integer parentId) {
+    public CountParentStudentResponseDTO countParentStudent(CurrentUser currentUser) throws IOException {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
-        List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parentId);
+        Parent parent = parentService.getParentByUserId(currentUser.getId());
+        List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parent.getId());
         if (studentIds.isEmpty()) {
             responseDTO.setTotal(0);
             responseDTO.setItem(new ArrayList<>());
@@ -130,14 +139,14 @@ public class ParentStudentBizService {
             responseDTO.setHospitalName(reportConclusionData.getHospitalName());
         }
         // 检查单
-        if (null != report.getMedicalRecordId()) {
-            MedicalRecord record = medicalRecordService.getById(report.getMedicalRecordId());
-            responseDTO.setVision(record.getVision());
-            responseDTO.setBiometrics(record.getBiometrics());
-            responseDTO.setDiopter(record.getDiopter());
-            responseDTO.setTosca(packageToscaMedicalRecordImages(record.getTosca()));
+        if (Objects.nonNull(report.getMedicalRecordId())) {
+            MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
+            responseDTO.setVision(medicalRecord.getVision());
+            responseDTO.setBiometrics(medicalRecord.getBiometrics());
+            responseDTO.setDiopter(medicalRecord.getDiopter());
+            responseDTO.setTosca(packageToscaMedicalRecordImages(medicalRecord.getTosca()));
             // 问诊内容
-            responseDTO.setConsultation(record.getConsultation());
+            responseDTO.setConsultation(medicalRecord.getConsultation());
         }
         return responseDTO;
     }
@@ -185,22 +194,22 @@ public class ParentStudentBizService {
     /**
      * 报告-设置角膜地形图图片
      *
-     * @param record 角膜地形图检查数据
+     * @param toscaMedicalRecord 角膜地形图检查数据
      * @return ToscaMedicalRecord
      */
-    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord record) {
-        if (Objects.isNull(record)) {
+    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord toscaMedicalRecord) {
+        if (Objects.isNull(toscaMedicalRecord)) {
             return null;
         }
-        ToscaMedicalRecord.Tosco mydriasis = record.getMydriasis();
-        ToscaMedicalRecord.Tosco nonMydriasis = record.getNonMydriasis();
+        ToscaMedicalRecord.Tosco mydriasis = toscaMedicalRecord.getMydriasis();
+        ToscaMedicalRecord.Tosco nonMydriasis = toscaMedicalRecord.getNonMydriasis();
         if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
             mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
         }
         if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
             nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
         }
-        return record;
+        return toscaMedicalRecord;
     }
 
 
@@ -483,7 +492,7 @@ public class ParentStudentBizService {
         }
         String md5 = StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
         String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, md5);
-        if (!redisUtil.set(key, studentId, 60 * 60)) {
+        if (!redisUtil.set(key, studentId, 3600)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
         return md5;
@@ -497,21 +506,28 @@ public class ParentStudentBizService {
      */
     private ScreeningReportResponseDTO packageScreeningReport(VisionScreeningResult result) {
         ScreeningReportResponseDTO response = new ScreeningReportResponseDTO();
-
+        Integer screeningOrgId = result.getScreeningOrgId();
         // 查询学生
         Student student = studentService.getById(result.getStudentId());
         int age = DateUtil.ageOfNow(student.getBirthday());
 
         ScreeningReportDetailDO responseDTO = new ScreeningReportDetailDO();
+
         responseDTO.setScreeningDate(result.getUpdateTime());
+        responseDTO.setScreeningOrgId(screeningOrgId);
+
         VisionDataDO visionData = result.getVisionData();
+
         // 视力检查结果
         responseDTO.setVisionResultItems(ScreeningResultUtil.packageVisionResult(visionData, age));
+
         // 验光仪检查结果
         TwoTuple<List<RefractoryResultItems>, Integer> refractoryResult = ScreeningResultUtil.packageRefractoryResult(result.getComputerOptometry(), age);
         responseDTO.setRefractoryResultItems(refractoryResult.getFirst());
+
         // 生物测量
         responseDTO.setBiometricItems(ScreeningResultUtil.packageBiometricResult(result.getBiometricData(), result.getOtherEyeDiseases()));
+
         // 医生建议一（这里-5是为了type的偏移量）
         Integer doctorAdvice1 = refractoryResult.getSecond() - 5;
         if (doctorAdvice1.equals(-5)) {
@@ -520,14 +536,73 @@ public class ParentStudentBizService {
             responseDTO.setDoctorAdvice1(doctorAdvice1);
         }
         // 医生建议二
-        responseDTO.setDoctorAdvice2(ScreeningResultUtil.getDoctorAdviceDetail(result, student.getGradeType()));
+        responseDTO.setDoctorAdvice2(ScreeningResultUtil.getDoctorAdviceDetail(result, student.getGradeType(), age));
         if (null != visionData) {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
         }
+        responseDTO.setSuggestHospital(packageSuggestHospital(screeningOrgId));
         response.setDetail(responseDTO);
         return response;
     }
 
+    /**
+     * 获取推荐医院列表
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return 推荐医院列表
+     */
+    public List<SuggestHospitalDO> getCooperationHospital(Integer screeningOrgId) {
+        List<SuggestHospitalDO> responseDTO = new ArrayList<>();
+        List<OrgCooperationHospital> cooperationHospitalList = orgCooperationHospitalService.getCooperationHospitalList(screeningOrgId);
+        if (cooperationHospitalList.isEmpty()) {
+            return responseDTO;
+        }
+        cooperationHospitalList.forEach(c -> {
+            SuggestHospitalDO suggestHospitalDO = new SuggestHospitalDO();
+            Hospital hospital = hospitalService.getById(c.getHospitalId());
+            packageHospitalInfo(suggestHospitalDO, hospital);
+            responseDTO.add(suggestHospitalDO);
+        });
+        return responseDTO;
+    }
 
+
+    /**
+     * 封装推荐医院
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @return SuggestHospitalDO
+     */
+    private SuggestHospitalDO packageSuggestHospital(Integer screeningOrgId) {
+        SuggestHospitalDO hospitalDO = new SuggestHospitalDO();
+        Integer hospitalId = orgCooperationHospitalService.getSuggestHospital(screeningOrgId);
+        if (Objects.isNull(hospitalId)) {
+            return hospitalDO;
+        }
+        Hospital hospital = hospitalService.getById(hospitalId);
+        packageHospitalInfo(hospitalDO, hospital);
+        return hospitalDO;
+    }
+
+    /**
+     * 封装医院信息
+     *
+     * @param suggestHospitalDO 推荐医院
+     * @param hospital          医院实体
+     */
+    private void packageHospitalInfo(SuggestHospitalDO suggestHospitalDO, Hospital hospital) {
+        if (Objects.nonNull(hospital.getAvatarFileId())) {
+            suggestHospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
+        }
+        suggestHospitalDO.setName(hospital.getName());
+        // 行政区域名称
+        String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
+                hospital.getAreaCode(), hospital.getTownCode());
+        if (StringUtils.isNotBlank(address)) {
+            suggestHospitalDO.setAddress(address);
+        } else {
+            suggestHospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
+        }
+    }
 }
