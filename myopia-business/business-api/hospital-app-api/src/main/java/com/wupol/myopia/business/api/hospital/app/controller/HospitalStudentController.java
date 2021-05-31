@@ -76,7 +76,7 @@ public class HospitalStudentController {
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }
-        studentVo.setStudentId(student.getId()).setCreateUserId(user.getId());
+        studentVo.setCreateUserId(user.getId());
         hospitalStudentFacade.saveStudent(studentVo, true);
         return ApiResult.success("建档成功");
     }
