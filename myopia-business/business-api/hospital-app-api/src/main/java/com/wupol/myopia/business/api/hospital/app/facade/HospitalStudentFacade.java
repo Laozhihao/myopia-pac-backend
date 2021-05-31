@@ -94,6 +94,12 @@ public class HospitalStudentFacade {
         if (Objects.isNull(studentDTO)) {
             throw new BusinessException("未找到该学生");
         }
+        // 设置最后的就诊日期
+        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getId());
+        if (Objects.nonNull(medicalReport)) {
+            studentDTO.setLastVisitDate(medicalReport.getCreateTime());
+        }
+
         return studentDTO;
     }
 
