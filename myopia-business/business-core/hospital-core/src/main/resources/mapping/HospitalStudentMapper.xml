@@ -14,6 +14,7 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and hs.`id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and hs.`student_id` = #{studentId}</if>
                 <if test="@Ognl@isNotEmpty(hospitalId)">and hs.`hospital_id` = #{hospitalId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and  hs.`school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and  hs.`grade_id` = #{gradeId}</if>
@@ -57,9 +58,9 @@
     <select id="getHospitalStudentDoList" resultMap="HospitalStudentDO">
         SELECT hs.*, count(mr.student_id) as numOfVisits, max(mr.create_time) as lastVisitDate
         FROM h_hospital_student hs
-        LEFT JOIN h_medical_report mr ON hs.id = mr.student_id and hs.hospital_id = mr.hospital_id
+        LEFT JOIN h_medical_report mr ON hs.student_id = mr.student_id and hs.hospital_id = mr.hospital_id
         <include refid="Base_Where_Clause"/>
-        group by hs.id
+        group by hs.student_id
     </select>
 
 </mapper>

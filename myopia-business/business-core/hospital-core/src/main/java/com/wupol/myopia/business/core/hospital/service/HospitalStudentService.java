@@ -37,7 +37,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      */
     public Map<Integer, HospitalStudentDO> getHospitalStudentVoMap(HospitalStudentQuery query) {
         return getHospitalStudentDoList(query).stream()
-                .collect(Collectors.toMap(HospitalStudentDO::getId, Function.identity()));
+                .collect(Collectors.toMap(HospitalStudentDO::getStudentId, Function.identity()));
 
     }
 

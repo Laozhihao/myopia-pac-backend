@@ -101,7 +101,7 @@ public class HospitalStatisticsService {
         List<MedicalReport> todayReportList = reportList.stream()
                 .filter(item-> DateUtils.isSameDay(item.getCreateTime(), new Date())).collect(Collectors.toList());
         // Map<学生id，学生信息>，总的医院的学生信息
-        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentList.stream().collect(Collectors.toMap(HospitalStudent::getId, Function.identity()));
+        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentList.stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity()));
         // 就诊人数
         map.put("medicalPersonCount", todayMedicalList.size());
         // 建档人数
@@ -148,7 +148,7 @@ public class HospitalStatisticsService {
                                              List<MedicalRecord> medicalList) {
         Map<String, Object> map = new HashMap<>();
         // Map<学生id，学生信息>
-        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentList.stream().collect(Collectors.toMap(HospitalStudent::getId, Function.identity()));
+        Map<Integer, HospitalStudent> hospitalStudentMap = hospitalStudentList.stream().collect(Collectors.toMap(HospitalStudent::getStudentId, Function.identity()));
         // 就诊人数
         map.put("medicalPersonStatistics", formatStatisticsMap(medicalList.stream().collect(Collectors.groupingBy(item-> groupingByMonthFormat(item.getCreateTime()), LinkedHashMap::new, Collectors.counting()))));
         // 建档人数
