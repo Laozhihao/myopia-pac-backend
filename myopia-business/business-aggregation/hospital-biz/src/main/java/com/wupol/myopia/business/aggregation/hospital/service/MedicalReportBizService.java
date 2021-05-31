@@ -1,10 +1,9 @@
 package com.wupol.myopia.business.aggregation.hospital.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
@@ -13,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,16 +28,15 @@ public class MedicalReportBizService {
     @Autowired
     private MedicalReportService medicalReportService;
     @Autowired
-    private StudentService studentService;
-    @Autowired
     private MedicalRecordService medicalRecordService;
-
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
     @Autowired
     private HospitalStudentService hospitalStudentService;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -109,11 +108,112 @@ public class MedicalReportBizService {
             throw new BusinessException("报告不能为空");
         }
         ReportConclusion conclusion = report.getReportConclusionData();
-        if (Objects.nonNull(conclusion)) { // 如果已经有结论，则直接返回
-            return conclusion;
-        }
+//        if (Objects.nonNull(conclusion)) { // 如果已经有结论，则直接返回
+//            return conclusion;
+//        }
         conclusion = generateReportConclusion(report);
         return conclusion;
     }
+
+    /**
+     * 获取学生的就诊档案详情（报告）
+     *
+     * @param reportId 报告ID
+     * @return StudentVisitReportResponseDTO
+     */
+    public StudentVisitReportResponseDTO getStudentVisitReport(Integer reportId) {
+        StudentVisitReportResponseDTO responseDTO = new StudentVisitReportResponseDTO();
+
+        // 报告
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (null == report) {
+            throw new BusinessException("数据异常");
+        }
+        // 获取固化报告
+        ReportConclusion reportConclusionData = getReportConclusion(report);
+        if (Objects.nonNull(reportConclusionData)) {
+            // 学生
+            HospitalStudent student = reportConclusionData.getStudent();
+            // 医生签名资源ID
+            Integer doctorSignFileId = reportConclusionData.getSignFileId();
+            responseDTO.setStudent(packageStudentInfo(student));
+
+            responseDTO.setReport(packageReportInfo(reportId, reportConclusionData.getReport(), doctorSignFileId));
+            responseDTO.setHospitalName(reportConclusionData.getHospitalName());
+        }
+        // 检查单
+        if (Objects.nonNull(report.getMedicalRecordId())) {
+            MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
+            responseDTO.setVision(medicalRecord.getVision());
+            responseDTO.setBiometrics(medicalRecord.getBiometrics());
+            responseDTO.setDiopter(medicalRecord.getDiopter());
+            responseDTO.setTosca(packageToscaMedicalRecordImages(medicalRecord.getTosca()));
+            // 问诊内容
+            responseDTO.setConsultation(medicalRecord.getConsultation());
+        }
+        return responseDTO;
+    }
+
+    /**
+     * 报告-设置学生信息
+     *
+     * @param student 学生
+     * @return {@link StudentVisitReportResponseDTO.StudentInfo}
+     */
+    private StudentVisitReportResponseDTO.StudentInfo packageStudentInfo(HospitalStudent student) {
+        StudentVisitReportResponseDTO.StudentInfo studentInfo = new StudentVisitReportResponseDTO.StudentInfo();
+        studentInfo.setName(student.getName());
+        studentInfo.setBirthday(student.getBirthday());
+        studentInfo.setGender(student.getGender());
+        return studentInfo;
+    }
+
+    /**
+     * 报告-设置报告、医生信息
+     *
+     * @param reportId         报告ID
+     * @param reportInfo       固化报告
+     * @param doctorSignFileId 医生签名资源ID
+     * @return {@link StudentVisitReportResponseDTO.ReportInfo}
+     */
+    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(Integer reportId, ReportConclusion.ReportInfo reportInfo, Integer doctorSignFileId) {
+        StudentVisitReportResponseDTO.ReportInfo reportResult = new StudentVisitReportResponseDTO.ReportInfo();
+        if (Objects.nonNull(reportInfo)) {
+            reportResult.setReportId(reportId);
+            reportResult.setNo(reportInfo.getNo());
+            reportResult.setCreateTime(reportInfo.getCreateTime());
+            reportResult.setGlassesSituation(reportInfo.getGlassesSituation());
+            reportResult.setMedicalContent(reportInfo.getMedicalContent());
+            if (!CollectionUtils.isEmpty(reportInfo.getImageIdList())) {
+                reportResult.setImageUrlList(resourceFileService.getBatchResourcePath(reportInfo.getImageIdList()));
+            }
+        }
+        if (null != doctorSignFileId) {
+            reportResult.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
+        }
+        return reportResult;
+    }
+
+    /**
+     * 报告-设置角膜地形图图片
+     *
+     * @param toscaMedicalRecord 角膜地形图检查数据
+     * @return ToscaMedicalRecord
+     */
+    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord toscaMedicalRecord) {
+        if (Objects.isNull(toscaMedicalRecord)) {
+            return null;
+        }
+        ToscaMedicalRecord.Tosco mydriasis = toscaMedicalRecord.getMydriasis();
+        ToscaMedicalRecord.Tosco nonMydriasis = toscaMedicalRecord.getNonMydriasis();
+        if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
+            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
+        }
+        if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
+            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
+        }
+        return toscaMedicalRecord;
+    }
+
 
 }

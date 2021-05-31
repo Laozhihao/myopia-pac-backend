@@ -8,11 +8,11 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
-import com.wupol.myopia.business.api.parent.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
@@ -20,9 +20,9 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.model.*;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
-import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.parent.domain.dto.CheckIdCardRequestDTO;
@@ -71,8 +71,6 @@ public class ParentStudentBizService {
     @Resource
     private MedicalReportService medicalReportService;
     @Resource
-    private MedicalRecordService medicalRecordService;
-    @Resource
     private VisionScreeningResultService visionScreeningResultService;
     @Resource
     private ParentService parentService;
@@ -83,13 +81,13 @@ public class ParentStudentBizService {
     @Resource
     private ParentStudentService parentStudentService;
     @Resource
-    private MedicalReportBizService medicalReportBizService;
-    @Resource
     private OrgCooperationHospitalService orgCooperationHospitalService;
     @Resource
     private HospitalService hospitalService;
     @Resource
     private DistrictService districtService;
+    @Resource
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 孩子统计、孩子列表
@@ -111,107 +109,6 @@ public class ParentStudentBizService {
         responseDTO.setItem(parentStudentDTOS);
         return responseDTO;
     }
-
-    /**
-     * 获取学生的就诊档案详情（报告）
-     *
-     * @param reportId 报告ID
-     * @return StudentVisitReportResponseDTO
-     */
-    public StudentVisitReportResponseDTO getStudentVisitReport(Integer reportId) {
-        StudentVisitReportResponseDTO responseDTO = new StudentVisitReportResponseDTO();
-
-        // 报告
-        MedicalReport report = medicalReportService.getById(reportId);
-        if (null == report) {
-            throw new BusinessException("数据异常");
-        }
-        // 获取固化报告
-        ReportConclusion reportConclusionData = medicalReportBizService.getReportConclusion(report);
-        if (Objects.nonNull(reportConclusionData)) {
-            // 学生
-            HospitalStudent student = reportConclusionData.getStudent();
-            // 医生签名资源ID
-            Integer doctorSignFileId = reportConclusionData.getSignFileId();
-            responseDTO.setStudent(packageStudentInfo(student));
-
-            responseDTO.setReport(packageReportInfo(reportId, reportConclusionData.getReport(), doctorSignFileId));
-            responseDTO.setHospitalName(reportConclusionData.getHospitalName());
-        }
-        // 检查单
-        if (Objects.nonNull(report.getMedicalRecordId())) {
-            MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
-            responseDTO.setVision(medicalRecord.getVision());
-            responseDTO.setBiometrics(medicalRecord.getBiometrics());
-            responseDTO.setDiopter(medicalRecord.getDiopter());
-            responseDTO.setTosca(packageToscaMedicalRecordImages(medicalRecord.getTosca()));
-            // 问诊内容
-            responseDTO.setConsultation(medicalRecord.getConsultation());
-        }
-        return responseDTO;
-    }
-
-    /**
-     * 报告-设置学生信息
-     *
-     * @param student 学生
-     * @return {@link StudentVisitReportResponseDTO.StudentInfo}
-     */
-    private StudentVisitReportResponseDTO.StudentInfo packageStudentInfo(HospitalStudent student) {
-        StudentVisitReportResponseDTO.StudentInfo studentInfo = new StudentVisitReportResponseDTO.StudentInfo();
-        studentInfo.setName(student.getName());
-        studentInfo.setBirthday(student.getBirthday());
-        studentInfo.setGender(student.getGender());
-        return studentInfo;
-    }
-
-    /**
-     * 报告-设置报告、医生信息
-     *
-     * @param reportId         报告ID
-     * @param reportInfo       固化报告
-     * @param doctorSignFileId 医生签名资源ID
-     * @return {@link StudentVisitReportResponseDTO.ReportInfo}
-     */
-    private StudentVisitReportResponseDTO.ReportInfo packageReportInfo(Integer reportId, ReportConclusion.ReportInfo reportInfo, Integer doctorSignFileId) {
-        StudentVisitReportResponseDTO.ReportInfo reportResult = new StudentVisitReportResponseDTO.ReportInfo();
-        if (Objects.nonNull(reportInfo)) {
-            reportResult.setReportId(reportId);
-            reportResult.setNo(reportInfo.getNo());
-            reportResult.setCreateTime(reportInfo.getCreateTime());
-            reportResult.setGlassesSituation(reportInfo.getGlassesSituation());
-            reportResult.setMedicalContent(reportInfo.getMedicalContent());
-            if (!CollectionUtils.isEmpty(reportInfo.getImageIdList())) {
-                reportResult.setImageUrlList(resourceFileService.getBatchResourcePath(reportInfo.getImageIdList()));
-            }
-        }
-        if (null != doctorSignFileId) {
-            reportResult.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
-        }
-        return reportResult;
-    }
-
-    /**
-     * 报告-设置角膜地形图图片
-     *
-     * @param toscaMedicalRecord 角膜地形图检查数据
-     * @return ToscaMedicalRecord
-     */
-    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord toscaMedicalRecord) {
-        if (Objects.isNull(toscaMedicalRecord)) {
-            return null;
-        }
-        ToscaMedicalRecord.Tosco mydriasis = toscaMedicalRecord.getMydriasis();
-        ToscaMedicalRecord.Tosco nonMydriasis = toscaMedicalRecord.getNonMydriasis();
-        if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
-            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
-        }
-        if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
-            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
-        }
-        return toscaMedicalRecord;
-    }
-
 
     /**
      * 检查身份证
@@ -443,7 +340,7 @@ public class ParentStudentBizService {
             return new StudentVisitReportResponseDTO();
         }
         ReportAndRecordDO reportAndRecordVo = visitLists.get(0);
-        return getStudentVisitReport(reportAndRecordVo.getReportId());
+        return medicalReportBizService.getStudentVisitReport(reportAndRecordVo.getReportId());
     }
 
     /**
@@ -453,7 +350,7 @@ public class ParentStudentBizService {
      * @return StudentVisitReportResponseDTO 学生就诊记录档案卡
      */
     public StudentVisitReportResponseDTO getVisitsReportDetails(VisitsReportDetailRequest request) {
-        return getStudentVisitReport(request.getReportId());
+        return medicalReportBizService.getStudentVisitReport(request.getReportId());
     }
 
     /**
