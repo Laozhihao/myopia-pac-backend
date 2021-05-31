@@ -899,7 +899,7 @@ public class ScreeningResultUtil {
     public static TwoTuple<Integer, String> getNotWearingGlasses(BigDecimal cyl, BigDecimal se,
                                                                  Integer schoolAge, BigDecimal nakedVision) {
         // 是否大于4.9，大于4.9直接返回
-        if (nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
+        if (Objects.isNull(nakedVision) || nakedVision.compareTo(new BigDecimal("4.90")) >= 0) {
             return new TwoTuple<>(0, "");
         }
         boolean checkCyl = cyl.abs().compareTo(new BigDecimal("1.5")) < 0;
