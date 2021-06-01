@@ -33,7 +33,7 @@
                     and DATE(hs.`create_time`) &lt;= Date(#{endDate})
                 </if>
                 <if test="@Ognl@isNotEmpty(studentIdList)">
-                    AND hs.`id` in <foreach collection="studentIdList" item="item" open="(" close=")" separator=",">#{item}</foreach>
+                    AND hs.`student_id` in <foreach collection="studentIdList" item="item" open="(" close=")" separator=",">#{item}</foreach>
                 </if>
 
                 <!-- 模糊查询 -->
