@@ -8,6 +8,8 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
@@ -55,6 +57,9 @@ public class StudentController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 新增学生
@@ -205,13 +210,11 @@ public class StudentController {
     /**
      * 就诊卡（报告详情）
      *
-     * @param hospitalId 医院Id
      * @param reportId   报告Id
-     * @return StudentReportResponseDTO
+     * @return StudentVisitReportResponseDTO
      */
-    @GetMapping("/report/detail/{hospitalId}/{reportId}")
-    public StudentReportResponseDTO getReportDetail(@PathVariable("hospitalId") Integer hospitalId,
-                                                    @PathVariable("reportId") Integer reportId) {
-        return studentBizService.gerReportDetail(hospitalId, reportId);
+    @GetMapping("/report/detail/{reportId}")
+    public StudentVisitReportResponseDTO getReportDetail(@PathVariable("reportId") Integer reportId) {
+        return medicalReportBizService.getStudentVisitReport(reportId);
     }
 }
