@@ -41,7 +41,7 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
     }
 
     public int deleteByScreeningTime(Date screeningTime) {
-        return deleteByScreeningTime(screeningTime);
+        return baseMapper.deleteByScreeningTime(screeningTime);
     }
 
 }
