@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -160,8 +161,12 @@ public class DateUtil {
      * @return long
      **/
     public static Date getYesterdayStartTime() {
+        return getStartTime(DateUtils.addDays(new Date(), -1));
+    }
+
+    public static Date getStartTime(Date date) {
         Calendar cal=Calendar.getInstance();
-        cal.add(Calendar.DATE,-1);
+        cal.setTime(date);
         cal.set(Calendar.HOUR, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);

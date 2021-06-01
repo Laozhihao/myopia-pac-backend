@@ -6,6 +6,7 @@ import com.wupol.myopia.business.api.management.service.StatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,6 +25,11 @@ public class StatRescreenController {
     @GetMapping("/export")
     public List<RescreenReportVO> export(@RequestParam Integer planId, @RequestParam Integer schoolId, @RequestParam String qualityControllerName, @RequestParam String qualityControllerCommander) {
         return statService.getRescreenStatInfo(planId, schoolId, qualityControllerName, qualityControllerCommander);
+    }
+
+    @GetMapping("/manualStat")
+    public void manualStat() {
+        statService.rescreenStat(new Date());
     }
 
 }

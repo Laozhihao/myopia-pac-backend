@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
+
 /**
  * @Author wulizhou
  * @Date 2021/5/20 10:11
@@ -11,5 +13,7 @@ import org.apache.ibatis.annotations.Param;
 public interface StatRescreenMapper extends BaseMapper<StatRescreen> {
 
     int countByPlanAndSchool(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+
+    int deleteByScreeningTime(@Param("screeningTime") Date screeningTime);
 
 }

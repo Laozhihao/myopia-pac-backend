@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import io.jsonwebtoken.lang.Assert;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,6 +38,10 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         Assert.notNull(planId);
         Assert.notNull(schoolId);
         return baseMapper.countByPlanAndSchool(planId, schoolId);
+    }
+
+    public int deleteByScreeningTime(Date screeningTime) {
+        return baseMapper.deleteByScreeningTime(screeningTime);
     }
 
 }
