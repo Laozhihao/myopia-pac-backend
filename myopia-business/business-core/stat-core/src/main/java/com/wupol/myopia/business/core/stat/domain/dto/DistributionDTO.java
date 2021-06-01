@@ -101,7 +101,7 @@ public class DistributionDTO implements Serializable {
          * @return
          */
         public DistributionDTO build() {
-            if (CollectionUtils.isEmpty(bigScreenStatDataDTOList) || screeningStudentNum == null || screeningStudentNum < 0) {
+            if (bigScreenStatDataDTOList== null || screeningStudentNum == null || screeningStudentNum < 0) {
                 throw new BusinessException("构建对象DistributionDTO失败，部分构建参数为空");
             }
             //设置总数的比例
