@@ -74,9 +74,14 @@ public class MedicalReportBizService {
 
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
+        HospitalStudent hospitalStudent = hospitalStudentService.getBy(query).stream().findFirst()
+                .orElseThrow(()-> {
+                    log.error("生成固化结论时，未找到对应学生. studentId="+report.getStudentId() + ", hospitalId="+report.getHospitalId());
+                    return new BusinessException("未找到该学生");
+                });
         ReportConclusion conclusion = new ReportConclusion()
                 .setReport(reportInfo)
-                .setStudent(hospitalStudentService.getBy(query).stream().findFirst().orElse(null))
+                .setStudent(hospitalStudent)
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
@@ -108,9 +113,9 @@ public class MedicalReportBizService {
             throw new BusinessException("报告不能为空");
         }
         ReportConclusion conclusion = report.getReportConclusionData();
-//        if (Objects.nonNull(conclusion)) { // 如果已经有结论，则直接返回
-//            return conclusion;
-//        }
+        if (Objects.nonNull(conclusion)) { // 如果已经有结论，则直接返回
+            return conclusion;
+        }
         conclusion = generateReportConclusion(report);
         return conclusion;
     }
