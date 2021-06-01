@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.aggregation.hospital.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
@@ -75,9 +72,14 @@ public class MedicalReportBizService {
 
         HospitalStudentQuery query = new HospitalStudentQuery();
         query.setStudentId(report.getStudentId()).setHospitalId(report.getHospitalId());
+        HospitalStudent hospitalStudent = hospitalStudentService.getBy(query).stream().findFirst()
+                .orElseThrow(()-> {
+                    log.error("生成固化结论时，未找到对应学生. studentId="+report.getStudentId() + ", hospitalId="+report.getHospitalId());
+                    return new BusinessException("未找到该学生");
+                });
         ReportConclusion conclusion = new ReportConclusion()
                 .setReport(reportInfo)
-                .setStudent(hospitalStudentService.getBy(query).stream().findFirst().orElse(null))
+                .setStudent(hospitalStudent)
                 .setHospitalName(hospitalService.getById(report.getHospitalId()).getName());
         Doctor doctor = hospitalDoctorService.getById(report.getDoctorId());
         if (Objects.nonNull(doctor)) {
