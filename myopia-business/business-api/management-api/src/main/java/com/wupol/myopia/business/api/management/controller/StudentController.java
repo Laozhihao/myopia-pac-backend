@@ -15,7 +15,6 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.school.constant.VisionLabels;
 import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -210,7 +209,7 @@ public class StudentController {
     /**
      * 就诊卡（报告详情）
      *
-     * @param reportId   报告Id
+     * @param reportId 报告Id
      * @return StudentVisitReportResponseDTO
      */
     @GetMapping("/report/detail/{reportId}")
