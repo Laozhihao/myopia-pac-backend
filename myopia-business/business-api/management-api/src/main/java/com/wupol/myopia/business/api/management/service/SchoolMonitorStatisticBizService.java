@@ -53,7 +53,7 @@ public class SchoolMonitorStatisticBizService {
         List<SchoolMonitorStatistic> statistics = new ArrayList<>();
         Lists.partition(screeningOrgIds, 100).forEach(screeningOrgIdList -> {
             LambdaQueryWrapper<SchoolMonitorStatistic> query = new LambdaQueryWrapper<>();
-            query.eq(SchoolMonitorStatistic::getDistrictId, districtId);
+            query.eq(Objects.nonNull(districtId), SchoolMonitorStatistic::getDistrictId, districtId);
             query.in(SchoolMonitorStatistic::getScreeningPlanId, planIds);
             query.in(SchoolMonitorStatistic::getScreeningOrgId, screeningOrgIdList);
             statistics.addAll(schoolMonitorStatisticService.list(query));

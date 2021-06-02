@@ -12,6 +12,7 @@ import com.wupol.myopia.business.api.management.domain.vo.UserVO;
 import com.wupol.myopia.business.api.management.service.UserService;
 import com.wupol.myopia.business.api.management.validator.UserAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UserUpdateValidatorGroup;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -43,6 +45,8 @@ public class UserController {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 分页获取用户列表
@@ -113,11 +117,17 @@ public class UserController {
         // 管理端 - 平台管理员或政府部门人员用户
         if (SystemCode.MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
             GovDept govDept = govDeptService.getById(user.getOrgId());
+            if (Objects.nonNull(govDept.getDistrictId())) {
+                userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(govDept.getDistrictId()));
+            }
             return userVO.setOrgName(govDept.getName()).setDistrictId(govDept.getDistrictId());
         }
         // 管理端 - 筛查机构管理员用户
         if (SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode())) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(user.getOrgId());
+            if (Objects.nonNull(screeningOrganization.getDistrictId())) {
+                userVO.setDistrictDetail(districtService.getDistrictPositionDetailById(screeningOrganization.getDistrictId()));
+            }
             return userVO.setOrgName(screeningOrganization.getName()).setDistrictId(screeningOrganization.getDistrictId());
         }
         throw new BusinessException("不支持查询该用户");

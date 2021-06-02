@@ -780,18 +780,18 @@ public class StatService {
         List<ScreenPlanSchoolDTO> rescreenInfo = statConclusionService.getRescreenPlanSchoolByTime(screeningTime);
         // 按计划 + 学校统计复测数据
         rescreenInfo.forEach(rescreen -> {
-            List<StatConclusion> yesterdayRescreenInfo = getRescreenInfo(screeningTime, rescreen.getPlanId(), rescreen.getSchoolId());
-            if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(yesterdayRescreenInfo)) {
+            List<StatConclusion> rescreenInfoByTime = getRescreenInfo(screeningTime, rescreen.getPlanId(), rescreen.getSchoolId());
+            if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(rescreenInfoByTime)) {
                 // 组建统计数据
                 StatRescreen statRescreen = new StatRescreen();
-                StatConclusion conclusion = yesterdayRescreenInfo.get(0);
+                StatConclusion conclusion = rescreenInfoByTime.get(0);
                 statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
                         .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
                         .setTaskId(conclusion.getTaskId())
                         .setPlanId(conclusion.getPlanId())
                         .setSchoolId(conclusion.getSchoolId())
                         .setScreeningTime(screeningTime);
-                RescreenStat rescreenStat = this.composeRescreenConclusion(yesterdayRescreenInfo);
+                RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
                 statRescreens.add(statRescreen);
             }
