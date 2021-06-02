@@ -173,6 +173,11 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    /**
+     * 获取指定日期的中午时间（12点整）
+     * @param date
+     * @return
+     */
     public static Date getMidday(Date date) {
         Calendar cal=Calendar.getInstance();
         cal.setTime(date);
