@@ -97,6 +97,16 @@ public class StatController {
     }
 
     /**
+     * 获取计划下学校统计数据
+     * @param planId
+     * @return
+     */
+    @GetMapping("/getAllSchoolReport")
+    public Map<String, Object> getSchoolReportByPlanId(@RequestParam Integer planId) {
+        return null;
+    }
+
+    /**
      * 分类统计数据
      *
      * @param notificationId 通知ID
