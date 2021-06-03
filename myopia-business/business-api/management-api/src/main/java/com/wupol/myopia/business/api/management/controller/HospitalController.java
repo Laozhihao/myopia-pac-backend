@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.HospitalBizService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -56,6 +57,10 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
+        // 非平台管理员默认状态为停用
+        if (!user.isPlatformAdminUser()) {
+            hospital.setStatus(CommonConst.STATUS_BAN);
+        }
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
