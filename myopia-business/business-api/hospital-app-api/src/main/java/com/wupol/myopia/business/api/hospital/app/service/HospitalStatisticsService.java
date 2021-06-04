@@ -125,7 +125,9 @@ public class HospitalStatisticsService {
             // 报告日期与建档日期不是同一天，则为复诊
             MedicalRecord lastMedical = itemMedicalList.get(itemMedicalList.size()-1);
             HospitalStudent hospitalStudent = hospitalStudentMap.get(key);
-            if (Objects.isNull(hospitalStudent)) continue;
+            if (Objects.isNull(hospitalStudent)) {
+                continue;
+            }
             if (!DateUtils.isSameDay(hospitalStudent.getCreateTime(), lastMedical.getCreateTime())) {
                 subsequentVisitMedicalList.add(lastMedical);
             }
