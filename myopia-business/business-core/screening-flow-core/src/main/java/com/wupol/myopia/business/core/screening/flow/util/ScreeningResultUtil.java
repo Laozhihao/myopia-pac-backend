@@ -754,10 +754,10 @@ public class ScreeningResultUtil {
                 return ParentReportConst.CORRECTED_NOT;
             } else {
                 if (correctedVision.compareTo(new BigDecimal("4.9")) > 0) {
-                    // 戴镜视力都＞4.9，正常
+                    // 矫正视力都＞4.9，正常
                     return ParentReportConst.CORRECTED_NORMAL;
                 } else {
-                    // 戴镜视力都<=4.9，欠矫
+                    // 矫正视力都<=4.9，欠矫
                     return ParentReportConst.CORRECTED_OWE;
                 }
             }
@@ -1000,7 +1000,7 @@ public class ScreeningResultUtil {
         }
         String strVision = vision.toString();
         switch (strVision) {
-            case "4.0":
+            case "4":
                 return new BigDecimal("0.1");
             case "4.1":
                 return new BigDecimal("0.12");
@@ -1020,7 +1020,7 @@ public class ScreeningResultUtil {
                 return new BigDecimal("0.6");
             case "4.9":
                 return new BigDecimal("0.8");
-            case "5.0":
+            case "5":
                 return new BigDecimal("1.0");
             case "5.1":
                 return new BigDecimal("1.2");
