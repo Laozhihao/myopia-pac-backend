@@ -754,10 +754,10 @@ public class ScreeningResultUtil {
                 return ParentReportConst.CORRECTED_NOT;
             } else {
                 if (correctedVision.compareTo(new BigDecimal("4.9")) > 0) {
-                    // 戴镜视力都＞4.9，正常
+                    // 矫正视力都＞4.9，正常
                     return ParentReportConst.CORRECTED_NORMAL;
                 } else {
-                    // 戴镜视力都<=4.9，欠矫
+                    // 矫正视力都<=4.9，欠矫
                     return ParentReportConst.CORRECTED_OWE;
                 }
             }
