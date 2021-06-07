@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.common.utils.constant.GlassesType;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -183,9 +184,9 @@ public class StatConclusionBuilder {
      * 设置预警级别
      */
     private void setWarningLevel() {
-        // 特殊处理
-        if (basicData.glassesType != null && basicData.glassesType == 3) {
-            statConclusion.setWarningLevel(2);
+        // 特殊处理 角膜塑型镜特殊处理
+        if (basicData.glassesType != null && basicData.glassesType == GlassesType.ORTHOKERATOLOGY.code) {
+            statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
         List<WarningLevel> warningLevelList = Arrays.asList(
