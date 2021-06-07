@@ -114,8 +114,8 @@ public class ScreeningResultUtil {
                         rightNakedVisionValue, glassesType));
             }
         }
-        itemsList.add(correctedVision);
         itemsList.add(nakedVision);
+        itemsList.add(correctedVision);
         return itemsList;
     }
 
@@ -1001,33 +1001,33 @@ public class ScreeningResultUtil {
         String strVision = vision.toString();
         switch (strVision) {
             case "4":
-                return new BigDecimal("0.1");
+                return BigDecimal.valueOf(0.1);
             case "4.1":
-                return new BigDecimal("0.12");
+                return BigDecimal.valueOf(0.12);
             case "4.2":
-                return new BigDecimal("0.15");
+                return BigDecimal.valueOf(0.15);
             case "4.3":
-                return new BigDecimal("0.2");
+                return BigDecimal.valueOf(0.2);
             case "4.4":
-                return new BigDecimal("0.25");
+                return BigDecimal.valueOf(0.25);
             case "4.5":
-                return new BigDecimal("0.3");
+                return BigDecimal.valueOf(0.3);
             case "4.6":
-                return new BigDecimal("0.4");
+                return BigDecimal.valueOf(0.4);
             case "4.7":
-                return new BigDecimal("0.5");
+                return BigDecimal.valueOf(0.5);
             case "4.8":
-                return new BigDecimal("0.6");
+                return BigDecimal.valueOf(0.6);
             case "4.9":
-                return new BigDecimal("0.8");
+                return BigDecimal.valueOf(0.8);
             case "5":
-                return new BigDecimal("1.0");
+                return BigDecimal.valueOf(1.0);
             case "5.1":
-                return new BigDecimal("1.2");
+                return BigDecimal.valueOf(1.2);
             case "5.2":
-                return new BigDecimal("1.5");
+                return BigDecimal.valueOf(1.5);
             case "5.3":
-                return new BigDecimal("2.0");
+                return BigDecimal.valueOf(2.0);
             default:
                 return null;
         }
