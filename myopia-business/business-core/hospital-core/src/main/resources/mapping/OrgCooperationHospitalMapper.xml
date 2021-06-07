@@ -79,4 +79,10 @@
         where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
         order by is_top desc, create_time desc
     </select>
+
+    <delete id="deletedByHospitalId">
+        delete
+        from m_org_cooperation_hospital
+        where hospital_id = #{hospitalId}
+    </delete>
 </mapper>
