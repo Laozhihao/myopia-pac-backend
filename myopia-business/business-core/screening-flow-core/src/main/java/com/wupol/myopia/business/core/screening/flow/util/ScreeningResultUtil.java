@@ -1000,7 +1000,7 @@ public class ScreeningResultUtil {
         }
         String strVision = vision.toString();
         switch (strVision) {
-            case "4.0":
+            case "4":
                 return new BigDecimal("0.1");
             case "4.1":
                 return new BigDecimal("0.12");
@@ -1020,7 +1020,7 @@ public class ScreeningResultUtil {
                 return new BigDecimal("0.6");
             case "4.9":
                 return new BigDecimal("0.8");
-            case "5.0":
+            case "5":
                 return new BigDecimal("1.0");
             case "5.1":
                 return new BigDecimal("1.2");
