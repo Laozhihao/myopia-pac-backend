@@ -92,18 +92,22 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public Integer updateStatus(StatusRequest request) {
 
         Integer hospitalId = request.getId();
+        Integer status = request.getStatus();
         // 获取医院管理员信息
         HospitalAdmin staff = hospitalAdminService.getByHospitalId(hospitalId);
         // 更新OAuth2
         UserDTO userDTO = new UserDTO();
+
         userDTO.setId(staff.getUserId())
-                .setStatus(request.getStatus());
+                .setStatus(status);
         oauthServiceClient.updateUser(userDTO);
         Hospital hospital = new Hospital()
                 .setId(hospitalId)
-                .setStatus(request.getStatus());
+                .setStatus(status);
         // 从合作医院中移除
-        orgCooperationHospitalService.deletedHospital(hospitalId);
+        if (CommonConst.STATUS_BAN.equals(status)) {
+            orgCooperationHospitalService.deletedHospital(hospitalId);
+        }
         return baseMapper.updateById(hospital);
     }
 
