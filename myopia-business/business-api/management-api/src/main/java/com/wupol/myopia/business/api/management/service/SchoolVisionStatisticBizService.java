@@ -10,7 +10,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +36,7 @@ public class SchoolVisionStatisticBizService {
      * @param user     用户
      * @return List<SchoolVisionStatistic>
      */
-    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) {
+    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Set<Integer> districtIds) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
@@ -46,10 +49,17 @@ public class SchoolVisionStatisticBizService {
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-        return getStatisticDtoByPlanIdsAndOrgId(screeningPlans, districtId);
+        return getStatisticDtoByPlanIdsAndOrgId(screeningPlans, districtIds);
     }
 
-    public List<SchoolVisionStatistic> getStatisticDtoByPlanIdsAndOrgId(List<ScreeningPlan> screeningPlans, Integer districtId) {
+    /**
+     * 获取学校的统计数据
+     *
+     * @param screeningPlans
+     * @param districtIds
+     * @return
+     */
+    public List<SchoolVisionStatistic> getStatisticDtoByPlanIdsAndOrgId(List<ScreeningPlan> screeningPlans, Set<Integer> districtIds) {
         List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());
         List<Integer> planIds = screeningPlans.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
@@ -58,7 +68,7 @@ public class SchoolVisionStatisticBizService {
         List<SchoolVisionStatistic> statistics = new ArrayList<>();
         Lists.partition(screeningOrgIds, 100).forEach(screeningOrgIdList -> {
             LambdaQueryWrapper<SchoolVisionStatistic> query = new LambdaQueryWrapper<>();
-            query.eq(Objects.nonNull(districtId), SchoolVisionStatistic::getDistrictId, districtId)
+            query.in(CollectionUtils.isNotEmpty(districtIds), SchoolVisionStatistic::getDistrictId, districtIds)
                     .in(SchoolVisionStatistic::getScreeningPlanId, planIds)
                     .in(SchoolVisionStatistic::getScreeningOrgId, screeningOrgIdList);
             statistics.addAll(schoolVisionStatisticService.list(query));
