@@ -114,8 +114,8 @@ public class ScreeningResultUtil {
                         rightNakedVisionValue, glassesType));
             }
         }
-        itemsList.add(correctedVision);
         itemsList.add(nakedVision);
+        itemsList.add(correctedVision);
         return itemsList;
     }
 
