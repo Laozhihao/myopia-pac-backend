@@ -103,10 +103,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <!-- Sentry -->
-        <dependency>
+        <!--<dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-log4j2</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- HuTool -->
         <dependency>
