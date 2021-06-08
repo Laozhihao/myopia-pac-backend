@@ -12,7 +12,7 @@ public interface WxConstant {
     /**
      * 获取微信用户个人信息授权地址
      **/
-    String WX_AUTHORIZE_USER_INFO_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/userInfo&response_type=code&scope=snsapi_userinfo&state=state#wechat_redirect";
+    String WX_AUTHORIZE_USER_INFO_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/userInfo&response_type=code&scope=snsapi_userinfo&state=%s#wechat_redirect";
 
     /**
      * 家长端前端地址

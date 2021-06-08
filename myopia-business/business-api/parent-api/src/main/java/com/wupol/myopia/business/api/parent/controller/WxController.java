@@ -74,8 +74,8 @@ public class WxController {
      * 唤起获取微信头像、昵称、地区和性别信息授权页面地址
      **/
     @GetMapping("/authorize")
-    public String authorize() {
-        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost);
+    public String authorize(String state) {
+        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
     /**
@@ -136,7 +136,7 @@ public class WxController {
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
         } catch (Exception e) {
             logger.error("获取微信用户个人信息失败", e);
-            return "redirect:"+ String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
         }
     }
 
