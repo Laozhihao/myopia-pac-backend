@@ -47,7 +47,7 @@ public class VisionItems {
         /**
          * 小数位视力
          */
-        private BigDecimal decimalVision;
+        private String decimalVision;
 
         /**
          * 类型

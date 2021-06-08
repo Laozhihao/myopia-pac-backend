@@ -994,40 +994,40 @@ public class ScreeningResultUtil {
      * @param vision 视力
      * @return 视力
      */
-    private BigDecimal toDecimalVision(BigDecimal vision) {
+    private String toDecimalVision(BigDecimal vision) {
         if (Objects.isNull(vision)) {
             return null;
         }
         String strVision = vision.toString();
         switch (strVision) {
             case "4":
-                return BigDecimal.valueOf(0.1);
+                return "0.1";
             case "4.1":
-                return BigDecimal.valueOf(0.12);
+                return "0.12";
             case "4.2":
-                return BigDecimal.valueOf(0.15);
+                return "0.15";
             case "4.3":
-                return BigDecimal.valueOf(0.2);
+                return "0.2";
             case "4.4":
-                return BigDecimal.valueOf(0.25);
+                return "0.25";
             case "4.5":
-                return BigDecimal.valueOf(0.3);
+                return "0.3";
             case "4.6":
-                return BigDecimal.valueOf(0.4);
+                return "0.4";
             case "4.7":
-                return BigDecimal.valueOf(0.5);
+                return "0.5";
             case "4.8":
-                return BigDecimal.valueOf(0.6);
+                return "0.6";
             case "4.9":
-                return BigDecimal.valueOf(0.8);
+                return "0.8";
             case "5":
-                return BigDecimal.valueOf(1.0);
+                return "1.0";
             case "5.1":
-                return BigDecimal.valueOf(1.2);
+                return "1.2";
             case "5.2":
-                return BigDecimal.valueOf(1.5);
+                return "1.5";
             case "5.3":
-                return BigDecimal.valueOf(2.0);
+                return "2.0";
             default:
                 return null;
         }
