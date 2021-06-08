@@ -15,6 +15,8 @@
         <!-- <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
             <PatternLayout pattern="${PATTERN}" />
         </Socket> -->
+        <!-- Sentry -->
+        <Sentry name="sentry" />
     </Appenders>
     <Loggers>
         <Logger name="com.wupol" level="INFO" additivity="false">
@@ -25,6 +27,7 @@
         <Root>
             <AppenderRef ref="Console-Appender"/>
             <!-- <AppenderRef ref="logstash"/> -->
+            <appender-ref ref="sentry" level="WARN" />
         </Root>
     </Loggers>
 </Configuration>

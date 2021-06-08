@@ -87,6 +87,7 @@ public class WxController {
     @GetMapping("/callback/login")
     public String wxCallbackToLogin(String code, String state) {
         logger.info("【微信回调-login】code = {}，state = {}", code, state);
+        int aa = 1/0;
         try {
             // 获取openId
             String openId = wxService.getOpenId(code);
