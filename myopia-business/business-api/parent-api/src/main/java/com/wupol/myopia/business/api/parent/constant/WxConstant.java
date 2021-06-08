@@ -17,7 +17,7 @@ public interface WxConstant {
     /**
      * 家长端前端地址
      **/
-    String WX_H5_CLIENT_URL = "%s/#/middle-transform?code=%s";
+    String WX_H5_CLIENT_URL = "%s/#/middle-transform?code=%s&state=%s";
     /**
      * 家长端前端地址，带openId
      **/
