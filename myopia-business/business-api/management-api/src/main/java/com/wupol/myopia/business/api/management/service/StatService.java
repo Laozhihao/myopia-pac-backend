@@ -9,6 +9,7 @@ import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonit
 import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
 import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
+import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -23,9 +24,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
@@ -86,6 +85,12 @@ public class StatService {
     private SchoolService schoolService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -211,6 +216,18 @@ public class StatService {
 
     /**
      * 获取用户对应权限的可对比区域ID
+     *
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    public List<District> getDataContrastDistrictTree(Integer id) throws IOException {
+        return this.getDataContrastDistrictTree(id, null);
+    }
+
+    /**
+     * 获取用户对应权限的可对比区域ID
+     *
      * @param notificationId1 筛查通知ID_1
      * @param notificationId2 筛查通知ID_2
      * @return
@@ -620,7 +637,27 @@ public class StatService {
         return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
     }
 
-    /** 平均视力 */
+    /**
+     * 返回当前用户权限范围内的年度数据
+     *
+     * @param contrastType 对比项类型
+     * @return
+     */
+    public List<Integer> getDataContrastYear(Integer contrastType) {
+        switch (ContrastTypeEnum.get(contrastType)) {
+            case NOTIFICATION:
+                return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(CurrentUserUtil.getCurrentUser()));
+            case PLAN:
+                return screeningPlanService.getYears(managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser()));
+            case TASK:
+            default:
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * 平均视力
+     */
     @Data
     @Builder
     public static class AverageVision {
@@ -655,7 +692,7 @@ public class StatService {
                 districtAttentiveObjectsStatisticService.getStatisticDtoByCurrentDistrictIdAndTaskId(districtId,false);
         DistrictAttentiveObjectsStatistic  currentDistrictAttentiveObjectsStatistic = null;
         if (CollectionUtils.isNotEmpty(currentAttentiveObjectsStatistics)) {
-            currentDistrictAttentiveObjectsStatistic = currentAttentiveObjectsStatistics.stream().findFirst().get();
+            currentDistrictAttentiveObjectsStatistic = currentAttentiveObjectsStatistics.stream().findFirst().orElse(null);
         }
         //获取数据
         return FocusObjectsStatisticVO.getInstance(districtAttentiveObjectsStatistics, districtId,
@@ -696,11 +733,11 @@ public class StatService {
                         noticeId, districtId, CurrentUserUtil.getCurrentUser(),false);
         DistrictVisionStatistic currentDistrictVisionStatistic = null;
         if (CollectionUtils.isNotEmpty(currentDistrictVisionStatistics)) {
-            currentDistrictVisionStatistic = currentDistrictVisionStatistics.stream().findFirst().get();
+            currentDistrictVisionStatistic = currentDistrictVisionStatistics.stream().findFirst().orElse(null);
         }
         //获取数据
         return ScreeningVisionStatisticVO.getInstance(districtVisionStatistics, districtId,
-                currentRangeName, screeningNotice, districtIdNameMap,currentDistrictVisionStatistic);
+                currentRangeName, screeningNotice, districtIdNameMap, currentDistrictVisionStatistic);
     }
 
     /**
@@ -738,7 +775,7 @@ public class StatService {
                         noticeId, districtId, CurrentUserUtil.getCurrentUser(),false);
         DistrictMonitorStatistic  currentDistrictMonitorStatistic = null;
         if (CollectionUtils.isNotEmpty(currentDistrictMonitorStatistics)) {
-            currentDistrictMonitorStatistic = currentDistrictMonitorStatistics.stream().findFirst().get();
+            currentDistrictMonitorStatistic = currentDistrictMonitorStatistics.stream().findFirst().orElse(null);
         }
         //获取数据
         return DistrictScreeningMonitorStatisticVO.getInstance(districtMonitorStatistics,

@@ -119,4 +119,16 @@ public class StatController {
                                                       @RequestParam(value = "nid2", required = false) Integer notificationId2) throws IOException {
         return statService.getDataContrastDistrictTree(notificationId1, notificationId2);
     }
+
+    /**
+     * 返回当前用户权限范围内的年度数据
+     *
+     * @param contrastType 对比项类型
+     * @return
+     */
+    @GetMapping("/dataContrastYear")
+    public List<Integer> getDataContrastYear(@RequestParam("cType") Integer contrastType) {
+        return statService.getDataContrastYear(contrastType);
+    }
+
 }
