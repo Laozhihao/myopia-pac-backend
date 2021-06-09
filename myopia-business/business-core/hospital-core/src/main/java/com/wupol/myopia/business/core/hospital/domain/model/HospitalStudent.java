@@ -38,6 +38,9 @@ public class HospitalStudent implements Serializable {
     /** 医院id */
     private Integer hospitalId;
 
+    /** 学号 */
+    private String sno;
+
     /** 创建人ID */
     private Integer createUserId;
 
