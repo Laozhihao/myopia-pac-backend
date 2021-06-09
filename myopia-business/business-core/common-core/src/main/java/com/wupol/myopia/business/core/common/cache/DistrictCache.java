@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,9 @@ public class DistrictCache implements CommandLineRunner {
         }
 
         // 缓存全国行政区域-树结构
-        if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_TREE)) {
+        Object cacheList = redisUtil.get(DistrictCacheKey.DISTRICT_ALL_TREE);
+        List<District> districtList = JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+        if (CollectionUtils.isEmpty(districtList)) {
             logger.info("...缓存全国行政区域-树结构");
             redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districtService.getWholeCountryDistrictTree());
             logger.info("...完成全国行政区域-树结构");
