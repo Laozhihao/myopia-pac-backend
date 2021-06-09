@@ -3,11 +3,11 @@ package com.wupol.myopia.business.aggregation.hospital.service;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.common.util.ImageUtils;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,11 +190,15 @@ public class MedicalReportBizService {
             reportResult.setGlassesSituation(reportInfo.getGlassesSituation());
             reportResult.setMedicalContent(reportInfo.getMedicalContent());
             if (!CollectionUtils.isEmpty(reportInfo.getImageIdList())) {
-                reportResult.setImageUrlList(resourceFileService.getBatchResourcePath(reportInfo.getImageIdList()));
+                List<String> batchResourcePath = resourceFileService.getBatchResourcePath(reportInfo.getImageIdList());
+                reportResult.setImageUrlList(batchResourcePath);
+                reportResult.setImageBase64List(ImageUtils.batchImageToBase64(batchResourcePath));
             }
         }
         if (null != doctorSignFileId) {
-            reportResult.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
+            String resourcePath = resourceFileService.getResourcePath(doctorSignFileId);
+            reportResult.setDoctorSign(resourcePath);
+            reportResult.setDoctorBase64Sign(ImageUtils.imageToBase64(resourcePath));
         }
         return reportResult;
     }

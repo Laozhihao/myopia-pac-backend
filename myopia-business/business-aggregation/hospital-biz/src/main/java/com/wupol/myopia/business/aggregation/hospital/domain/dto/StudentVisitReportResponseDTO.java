@@ -110,5 +110,15 @@ public class StudentVisitReportResponseDTO {
          * 医生签名图片
          */
         private String doctorSign;
+
+        /**
+         * 诊断处方图片
+         */
+        private List<String> imageBase64List;
+
+        /**
+         * 医生签名图片
+         */
+        private String doctorBase64Sign;
     }
 }
