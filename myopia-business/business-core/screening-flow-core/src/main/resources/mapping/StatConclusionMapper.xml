@@ -203,7 +203,7 @@
 
     <select id="getPlanSchoolByDate" resultMap="PlanAndSchoolMap">
         select plan_id, school_id from m_stat_conclusion
-        where DATE(create_time) = DATE(#{date})
+        where DATE(create_time) = DATE(#{date}) and is_valid = 1
         <if test="@Ognl@isNotEmpty(isRescreen)">
             and is_rescreen = #{isRescreen}
         </if>

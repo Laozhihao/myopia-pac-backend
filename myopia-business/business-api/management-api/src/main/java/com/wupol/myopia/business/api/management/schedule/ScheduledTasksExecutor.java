@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.schedule;
 
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.builder.*;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.StatService;
@@ -22,6 +23,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.stat.domain.model.*;
 import com.wupol.myopia.business.core.stat.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -336,7 +338,7 @@ public class ScheduledTasksExecutor {
     @Transactional(rollbackFor = Exception.class)
     public void rescreenStat() {
         log.info("开始进行复测报告统计");
-        int size = statService.rescreenStat();
+        int size = statService.rescreenStat(DateUtils.addDays(DateUtil.getMidday(new Date()), -1));
         log.info("本次复测统计共新增加内容{}条", size);
     }
 

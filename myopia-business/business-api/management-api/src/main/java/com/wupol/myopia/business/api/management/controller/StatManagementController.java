@@ -325,7 +325,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/plan/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticByPlan(@RequestParam Integer districtId, @RequestParam Integer planId) {
+    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
@@ -341,7 +341,7 @@ public class StatManagementController {
      * @throws IOException
      */
     @GetMapping("/plan/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam Integer districtId, @RequestParam Integer planId) throws IOException {
+    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) throws IOException {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());

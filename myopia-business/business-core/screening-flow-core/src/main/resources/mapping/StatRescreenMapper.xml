@@ -6,6 +6,10 @@
         SELECT COUNT(*) FROM m_stat_rescreen
         WHERE plan_id = #{planId} AND school_id = #{schoolId}
     </select>
-    
+
+    <delete id="deleteByScreeningTime">
+        DELETE FROM m_stat_rescreen
+        WHERE DATE(screening_time) = DATE(#{screeningTime})
+    </delete>
 
 </mapper>
