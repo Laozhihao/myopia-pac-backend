@@ -67,6 +67,7 @@ public class WxController {
      **/
     @GetMapping("/index")
     public String getCode(String state) {
+        logger.info("家长端入口，访问微信api获取授权code，获取state:{}", state);
         return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
@@ -75,6 +76,7 @@ public class WxController {
      **/
     @GetMapping("/authorize")
     public String authorize(String state) {
+        logger.info("唤起获取微信头像、昵称、地区和性别信息授权页面地址，获取state:{}", state);
         return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
@@ -86,7 +88,7 @@ public class WxController {
      **/
     @GetMapping("/callback/login")
     public String wxCallbackToLogin(String code, String state) {
-        logger.debug("【微信回调-login】code = {}", code);
+        logger.info("微信授权回调-检查是否授权登录、绑定手机号码，获取state:{}", state);
         try {
             // 获取openId
             String openId = wxService.getOpenId(code);
@@ -123,7 +125,7 @@ public class WxController {
      **/
     @GetMapping("/callback/userInfo")
     public String wxCallbackToCreateUser(String code, String state) {
-        logger.debug("【微信回调-userInfo】code = {}", code);
+        logger.info("微信回调-获取微信用户个人信息，获取state:{}", state);
         try {
             // 获取 accessToken 和 openId
             WxAuthorizationInfo accessTokenAndOpenId = wxService.getAccessTokenAndOpenId(code);
