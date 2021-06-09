@@ -21,6 +21,11 @@ public class CommonConst {
     public Integer STATUS_NOT_DELETED = 0;
 
     /**
+     * 状态-禁用
+     */
+    public Integer STATUS_BAN = 1;
+
+    /**
      * 通知中心 未读状态
      */
     public Integer STATUS_NOTICE_UNREAD = 0;

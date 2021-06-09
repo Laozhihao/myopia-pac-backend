@@ -44,6 +44,9 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private OrgCooperationHospitalService orgCooperationHospitalService;
+
     /**
      * 保存医院
      *
@@ -88,16 +91,23 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
 
+        Integer hospitalId = request.getId();
+        Integer status = request.getStatus();
         // 获取医院管理员信息
-        HospitalAdmin staff = hospitalAdminService.getByHospitalId(request.getId());
+        HospitalAdmin staff = hospitalAdminService.getByHospitalId(hospitalId);
         // 更新OAuth2
         UserDTO userDTO = new UserDTO();
+
         userDTO.setId(staff.getUserId())
-                .setStatus(request.getStatus());
+                .setStatus(status);
         oauthServiceClient.updateUser(userDTO);
         Hospital hospital = new Hospital()
-                .setId(request.getId())
-                .setStatus(request.getStatus());
+                .setId(hospitalId)
+                .setStatus(status);
+        // 从合作医院中移除
+        if (CommonConst.STATUS_BAN.equals(status)) {
+            orgCooperationHospitalService.deletedHospital(hospitalId);
+        }
         return baseMapper.updateById(hospital);
     }
 
