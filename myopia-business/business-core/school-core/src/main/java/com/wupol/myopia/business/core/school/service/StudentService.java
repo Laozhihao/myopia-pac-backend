@@ -59,7 +59,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param ids id列表
      * @return List<Student>
      */
-    public List<Student> getByIds(List<Integer> ids) {
+    public List<Student> getByIds(Collection<Integer> ids) {
         return baseMapper.selectBatchIds(ids);
     }
 
@@ -364,5 +364,40 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             resultStudent.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
         }
         return resultStudent;
+    }
+
+    /**
+     * 获取学生联系人电话
+     * @param studentIds
+     * @return
+     */
+    public Map<Integer, StudentBasicInfoDTO> getPhonesMap(Set<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return Collections.emptyMap();
+        }
+        List<Student> warnStudentList = getByIds(studentIds);
+        if(CollectionUtils.isEmpty(warnStudentList)) {
+            return Collections.emptyMap();
+        }
+         return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
+            List<String> phoneNumList = getPhones(student.getMpParentPhone(), student.getParentPhone());
+            StudentBasicInfoDTO studentBasicInfoDTO = new StudentBasicInfoDTO();
+            studentBasicInfoDTO.setStudentId(student.getId()).setStudentName(student.getName()).setPhoneNums(phoneNumList);
+            return studentBasicInfoDTO;
+        }));
+    }
+
+    /**
+     * 获取电话
+     * @param mpParentPhonesStr
+     * @param parentPhone
+     * @return
+     */
+    public List<String> getPhones(String mpParentPhonesStr, String parentPhone) {
+        if (StringUtils.isNotBlank(mpParentPhonesStr)) {
+            return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
+                    .collect(Collectors.toList());
+        }
+        return  StringUtils.isBlank(parentPhone) ? Collections.EMPTY_LIST : Arrays.asList(parentPhone);
     }
 }

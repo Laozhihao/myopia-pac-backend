@@ -8,7 +8,6 @@ import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 
@@ -23,6 +22,18 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WarningMsg implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * 可以准备发送
+     */
+    public final static Integer STATUS_READY_TO_SEND = 0;
+    /**
+     * 发送失败
+     */
+    public final static Integer STATUS_SEND_FAILURE = -1;
+    /**
+     * 发送成功
+     */
+    public final static Integer STATUS_SEND_SUCCESS = 1;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;

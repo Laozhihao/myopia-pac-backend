@@ -295,4 +295,37 @@ public class DateUtil {
         return zdt.toLocalDate();
     }
 
+    /**
+     * 获取日期的前几天或者后几天的零点
+     * todo 补充详细说明?? 或者直接用datetime
+     * @param date
+     * @param offsetDays
+     * @return
+     */
+    public Date getOffsetDays(Date date,Integer offsetDays) {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(date);
+        instance.add(Calendar.DAY_OF_MONTH,offsetDays);
+        instance.set(Calendar.HOUR_OF_DAY,0);
+        instance.set(Calendar.SECOND,0);
+        instance.set(Calendar.MILLISECOND,0);
+        instance.set(Calendar.MINUTE,0);
+        return instance.getTime();
+    }
+
+    /**
+     * 获取今天的日期如 2020-10-20 00:00:00 的Date
+     * @return
+     */
+    public Date getTodayDate(Date date) {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(date);
+        instance.set(Calendar.HOUR_OF_DAY,0);
+        instance.set(Calendar.SECOND,0);
+        instance.set(Calendar.MILLISECOND,0);
+        instance.set(Calendar.MINUTE,0);
+        return instance.getTime();
+    }
+
+
 }

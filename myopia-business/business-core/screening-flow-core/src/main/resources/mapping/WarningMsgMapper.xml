@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wupol.myopia.jacob.domain.mapper.WarningMsgMapper">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.WarningMsgMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.jacob.domain.model.WarningMsg">
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg">
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -29,5 +29,9 @@
     <sql id="Base_Column_List">
         id, notice_id, student_id, plan_id, msg_template_id, phone_numbers, msg_params, send_status, send_time, update_time, create_time
     </sql>
+
+    <select id="selectNeedToNotice" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg">
+        select * from m_warning_msg WHERE UNIX_TIMESTAMP(send_time) * 1000 = ${sendDate} and send_status = ${sendStatus}
+    </select>
 
 </mapper>
