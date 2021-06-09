@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -32,7 +34,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param pageSize 页数
      * @return com.baomidou.mybatisplus.core.metadata.IPage<T>
      **/
-    public IPage<T> findByPage(T entity, Integer pageNum, Integer pageSize) throws IOException {
+    public IPage<T> findByPage(T entity, Integer pageNum, Integer pageSize) {
         Page<T> page = new Page<>(pageNum, pageSize);
         return page(page, getQueryWrapper(entity).orderByDesc("id"));
     }
@@ -43,7 +45,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 查询实体参数
      * @return java.util.List<T>
      **/
-    public List<T> findByList(T entity) throws IOException {
+    public List<T> findByList(T entity) {
         return list(getQueryWrapper(entity));
     }
 
@@ -53,7 +55,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 查询实体参数
      * @return java.util.List<T>
      **/
-    public List<T> findByListOrderByIdDesc(T entity) throws IOException {
+    public List<T> findByListOrderByIdDesc(T entity) {
         return list(getQueryWrapper(entity).orderByDesc("id"));
     }
 
@@ -63,7 +65,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 查询实体参数
      * @return T
      **/
-    public T findOne(T entity) throws IOException {
+    public T findOne(T entity) {
         return getOne(getQueryWrapper(entity));
     }
 
@@ -74,11 +76,16 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 实体类
      * @return com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<T>
      **/
-    public QueryWrapper<T> getQueryWrapper(T entity) throws IOException {
+    public QueryWrapper<T> getQueryWrapper(T entity){
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE);
-        Map<String, Object> params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>() {
-        });
+        Map<String, Object> params;
+        try {
+            params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new BusinessException("JSON转换异常:{}", e);
+        }
         return new QueryWrapper<T>().allEq((k, v) -> !StringUtils.isEmpty(v), params);
     }
 
@@ -89,7 +96,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param query 更新查询条件
      * @return java.lang.Boolean
      **/
-    public Boolean update(T data, T query) throws IOException {
+    public Boolean update(T data, T query) {
         return update(data, getQueryWrapper(query));
     }
 
@@ -99,7 +106,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 删除条件
      * @return java.lang.Boolean
      **/
-    public Boolean remove(T entity) throws IOException {
+    public Boolean remove(T entity) {
         return remove(getQueryWrapper(entity));
     }
 
@@ -109,7 +116,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 统计条件
      * @return int
      **/
-    public int count(T entity) throws IOException {
+    public int count(T entity) {
         return count(getQueryWrapper(entity));
     }
 

@@ -147,13 +147,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         School school = schoolService.getById(exportCondition.getSchoolId());
         String gradeName = schoolGradeService.getById(exportCondition.getGradeId()).getName();
         // 行政区域
-        District district;
-        try {
-            district = districtService.findOne(new District().setId(school.getDistrictId()));
-        } catch (IOException e) {
-            log.error("查询行政区域异常", e);
-            return "";
-        }
+        District district = districtService.findOne(new District().setId(school.getDistrictId()));
         return String.format(ExcelFileNameConstant.STUDENT_EXCEL_FILE_NAME,
                 districtService.getTopDistrictName(district.getCode()),
                 school.getName(),

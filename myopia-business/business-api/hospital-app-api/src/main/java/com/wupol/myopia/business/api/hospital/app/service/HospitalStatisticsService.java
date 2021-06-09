@@ -40,7 +40,7 @@ public class HospitalStatisticsService {
      * @param hospitalId 医院id
      * @return
      */
-    public Map<String, Object> getStatistics(Integer hospitalId) throws IOException {
+    public Map<String, Object> getStatistics(Integer hospitalId) {
         Map<String, Object> map = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
         Date endDate = calendar.getTime();
