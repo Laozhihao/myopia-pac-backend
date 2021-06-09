@@ -103,6 +103,8 @@ public class StatController {
      */
     @GetMapping("/getAllSchoolReport")
     public Map<String, Object> getSchoolReportByPlanId(@RequestParam Integer planId) {
+
+
         return null;
     }
 

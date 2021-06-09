@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
@@ -117,7 +118,7 @@ public class GeneratePdfFileService {
     public void generateScreeningPlanReportPdfFile(String saveDirectory, Integer planId) {
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "该计划不存在");
-        String reportFileName = String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, plan.getTitle());
+        String reportFileName = String.format(PDFFileNameConstant.PLAN_REPORT_PDF_FILE_NAME, DateUtil.getYear(plan.getStartTime()));
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_HTML_URL_WITH_PLAN_ID, htmlUrlHost, planId);
         Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, reportFileName + ".pdf").toString()), "【生成计划报告PDF文件异常】：" + plan.getTitle());
     }

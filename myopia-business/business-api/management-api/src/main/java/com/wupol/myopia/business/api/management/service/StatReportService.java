@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
+import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -15,6 +16,7 @@ import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPah
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
@@ -177,37 +180,25 @@ public class StatReportService {
         ScreeningNotice notice = screeningNoticeService.getById(srcScreeningNoticeId);
         Date startDate = notice.getStartTime();
         Date endDate = notice.getEndTime();
-        List<StatConclusion> firstScreenConclusions =
-                statConclusions.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
-        long totalFirstScreeningNum = firstScreenConclusions.size();
+        StatBaseDTO statBase = new StatBaseDTO(statConclusions);
+        List<StatConclusion> validConclusions = statBase.getValid();
+
+        long totalFirstScreeningNum = statBase.getFirstScreen().size();
         List<Integer> schoolIds =
                 statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
         List<School> schools = schoolService.getByIds(schoolIds);
         List<String> schoolExamples = schools.stream().map(School::getName).limit(3).collect(Collectors.toList());
-        List<StatConclusion> validConclusions =
-                firstScreenConclusions.stream().filter(x -> Boolean.TRUE.equals(x.getIsValid())).collect(Collectors.toList());
-        List<StatConclusion> visionCorrectionConclusions =
-                firstScreenConclusions.stream().filter(x -> x.getVisionCorrection() != null && !VisionCorrection.NORMAL.code.equals(x.getVisionCorrection())).collect(Collectors.toList());
 
-        List<StatConclusion> maleList =
-                validConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
-        List<StatConclusion> femaleList =
-                validConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
-        List<StatConclusion> kindergartenList =
-                validConclusions.stream().filter(x -> SchoolAge.KINDERGARTEN.code.equals(x.getSchoolAge())).collect(Collectors.toList());
-        List<StatConclusion> primaryList =
-                validConclusions.stream().filter(x -> SchoolAge.PRIMARY.code.equals(x.getSchoolAge())).collect(Collectors.toList());
-        List<StatConclusion> juniorList =
-                validConclusions.stream().filter(x -> SchoolAge.JUNIOR.code.equals(x.getSchoolAge())).collect(Collectors.toList());
-        List<StatConclusion> highList =
-                validConclusions.stream().filter(x -> SchoolAge.HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
-        List<StatConclusion> vocationalHighList =
-                validConclusions.stream().filter(x -> SchoolAge.VOCATIONAL_HIGH.code.equals(x.getSchoolAge())).collect(Collectors.toList());
+        List<StatConclusion> visionCorrectionConclusions =
+                statBase.getFirstScreen().stream().filter(x -> x.getVisionCorrection() != null && !VisionCorrection.NORMAL.code.equals(x.getVisionCorrection())).collect(Collectors.toList());
+        // 组装性别信息
+        StatGenderDTO statGender = new StatGenderDTO(validConclusions);
+        // 组装各学龄段信息
+        StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
 
         List<Map<String, Object>> schoolGenderTable = this.createSchoolGenderTable(validConclusions, schools);
 
-        Map<String, List<StatConclusion>> schoolAgeMap = this.createSchoolAgeMap(kindergartenList, primaryList,
-                juniorList, highList, vocationalHighList);
+        Map<String, List<StatConclusion>> schoolAgeMap = businessSchoolAge.getValidSchoolAgeMap();
 
         List<Map<String, Object>> schoolAgeGenderTable = this.createSchoolAgeGenderTable(schoolAgeMap);
 
@@ -250,13 +241,13 @@ public class StatReportService {
         result.put("planScreeningNum", planScreeningNum);
         result.put("actualScreeningNum", totalFirstScreeningNum);
         result.put("validFirstScreeningNum", validConclusions.size());
-        result.put("kindergartenScreeningNum", kindergartenList.size());
-        result.put("primaryScreeningNum", primaryList.size());
-        result.put("juniorScreeningNum", juniorList.size());
-        result.put("highScreeningNum", highList.size());
-        result.put("maleNum", maleList.size());
-        result.put("femaleNum", femaleList.size());
-        result.put("vocationalHighScreeningNum", vocationalHighList.size());
+        result.put("kindergartenScreeningNum", businessSchoolAge.getKindergarten().size());
+        result.put("primaryScreeningNum", businessSchoolAge.getPrimary().size());
+        result.put("juniorScreeningNum", businessSchoolAge.getJunior().size());
+        result.put("highScreeningNum", businessSchoolAge.getHigh().size());
+        result.put("maleNum", statGender.getMale().size());
+        result.put("femaleNum", statGender.getFemale().size());
+        result.put("vocationalHighScreeningNum", businessSchoolAge.getVocationalHigh().size());
         result.put("schoolGenderTable", schoolGenderTable);
         result.put("schoolAgeGenderTable", schoolAgeGenderTable);
         result.put("schoolAgeLowVisionLevelDesc", composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
@@ -396,20 +387,6 @@ public class StatReportService {
         }
         schoolGradeGenderMyopiaTable.add(composeGenderMyopiaStat(TABLE_LABEL_TOTAL, validConclusions));
         return schoolGradeGenderMyopiaTable;
-    }
-
-    private Map<String, List<StatConclusion>> createSchoolAgeMap(List<StatConclusion> kindergartenList,
-                                                                 List<StatConclusion> primaryList,
-                                                                 List<StatConclusion> juniorList,
-                                                                 List<StatConclusion> highList,
-                                                                 List<StatConclusion> vocationalHighList) {
-        Map<String, List<StatConclusion>> schoolAgeMap = new HashMap<>();
-        schoolAgeMap.put(SchoolAge.KINDERGARTEN.name(), kindergartenList);
-        schoolAgeMap.put(SchoolAge.PRIMARY.name(), primaryList);
-        schoolAgeMap.put(SchoolAge.JUNIOR.name(), juniorList);
-        schoolAgeMap.put(SchoolAge.HIGH.name(), highList);
-        schoolAgeMap.put(SchoolAge.VOCATIONAL_HIGH.name(), vocationalHighList);
-        return schoolAgeMap;
     }
 
     /**
@@ -651,6 +628,91 @@ public class StatReportService {
         return resultMap;
     }
 
+    public StatWholeResultDTO getPlanStatData(Integer planId) {
+
+        ScreeningPlan sp = screeningPlanService.getById(planId);
+
+        List<ScreeningPlanSchoolStudent> screenPlanSchoolStudent = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
+        Map<Integer, Long> planSchoolStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+        Map<Integer, Long> planSchoolAgeStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType, Collectors.counting()));
+
+        // 预计需要筛查的学生数
+        long planStudentNum = screenPlanSchoolStudent.stream().count();
+        // 通过筛查数据进行统计
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setPlanId(planId);
+        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        List<Integer> schoolIds =
+                statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        List<School> schools = schoolService.getByIds(schoolIds);
+        // 按拼音获取前三个学校名
+        List<String> schoolExamples = schools.stream().map(School::getName).sorted(Collator.getInstance(java.util.Locale.CHINA)).limit(3).collect(Collectors.toList());
+        StatBaseDTO statBase = new StatBaseDTO(statConclusions);
+        Map<Integer, List<StatConclusion>> schoolFirstScreenMap = statBase.getFirstScreen().stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        Map<Integer, List<StatConclusion>> schoolValidMap = statBase.getValid().stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+
+        // 实际筛查人数
+        long actualScreeningNum = statBase.getFirstScreen().size();
+        // 有效人数
+        long validFirstScreeningNum = statBase.getValid().size();
+
+        // 组装各学龄段信息
+        StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
+
+        // 各学校筛查人员信息
+        List<StatSchoolPersonnelDTO> schoolPersonnelDTOS = schools.stream().map(school -> {
+            StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
+            persionnel.setName(school.getName())
+                    .setPlanScreeningNum(planSchoolStudentMap.get(school.getId()))
+                    .setActualScreeningNum(schoolFirstScreenMap.get(school.getId()).size())
+                    .setValidFirstScreeningNum(schoolValidMap.get(school.getId()).size());
+            return persionnel;
+        }).collect(Collectors.toList());
+
+        // 各学段筛查人员信息
+        List<StatSchoolAgePersonnelDTO> schoolAgePersonnelDTOS = planSchoolAgeStudentMap.keySet().stream().sorted().map(gradeType -> {
+            StatSchoolAgePersonnelDTO persionnel = new StatSchoolAgePersonnelDTO();
+            String schoolAgeName = SchoolAge.get(gradeType).name();
+            persionnel.setSchoolAge(schoolAgeName)
+                    .setPlanScreeningNum(planSchoolAgeStudentMap.get(gradeType))
+                    .setActualScreeningNum(businessSchoolAge.getFirstScreenSchoolAgeNumMap().get(schoolAgeName))
+                    .setValidFirstScreeningNum(businessSchoolAge.getValidSchoolAgeNumMap().get(schoolAgeName));
+            return persionnel;
+        }).collect(Collectors.toList());
+
+
+
+        StatWholeResultDTO whole = StatWholeResultDTO.builder()
+                .plan(sp)
+                .schoolCount(schools.size())
+                .planStudentNum(planStudentNum)
+                .actualScreeningNum(actualScreeningNum)
+                .validFirstScreeningNum(validFirstScreeningNum)
+                .validRatio(convertToPercentage(validFirstScreeningNum * 1f / actualScreeningNum))
+                .schoolAgeDistribution(businessSchoolAge.getValidSchoolAgeNumMap())
+                .averageVision(23.89f)
+                .myopia(NumAndRatio.getInstance(245, 22.78f))
+                .lowVision(NumAndRatio.getInstance(245, 22.78f))
+                .w(NumAndRatio.getInstance(245, 22.78f))
+                .q(NumAndRatio.getInstance(216, 42.78f))
+                .z(NumAndRatio.getInstance(445, 22.78f))
+                .l0(NumAndRatio.getInstance(456, 28.78f))
+                .l1(NumAndRatio.getInstance(245, 22.78f))
+                .l2(NumAndRatio.getInstance(245, 22.78f))
+                .l3(NumAndRatio.getInstance(245, 22.11f))
+                .schoolExamples(schoolExamples)
+                .schoolPersonnel(schoolPersonnelDTOS)
+                .schoolAgePersonnel(schoolAgePersonnelDTOS)
+                .genderMyopia(genderMyopia)
+                .schoolAgeMyopia(Arrays.asList(m1))
+                .schoolMyopia(Arrays.asList(m2))
+                .gradeMyopia(Arrays.asList(m3))
+                .build();
+
+
+        return whole;
+    }
+
     /**
      * 获取学校筛查报告数据
      *
@@ -691,16 +753,12 @@ public class StatReportService {
         School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
 
-        List<StatConclusion> firstScreenConclusions =
-                statConclusions.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen())).collect(Collectors.toList());
-        List<StatConclusion> validConclusions =
-                firstScreenConclusions.stream().filter(x -> Boolean.TRUE.equals(x.getIsValid())).collect(Collectors.toList());
-        List<StatConclusion> maleList =
-                validConclusions.stream().filter(x -> GenderEnum.MALE.type.equals(x.getGender())).collect(Collectors.toList());
-        List<StatConclusion> femaleList =
-                validConclusions.stream().filter(x -> GenderEnum.FEMALE.type.equals(x.getGender())).collect(Collectors.toList());
+        StatBaseDTO statBase = new StatBaseDTO(statConclusions);
+        List<StatConclusion> validConclusions = statBase.getValid();
+        // 组装性别信息
+        StatGenderDTO statGender = new StatGenderDTO(validConclusions);
 
-        long totalFirstScreeningNum = firstScreenConclusions.size();
+        long totalFirstScreeningNum = statBase.getFirstScreen().size();
         long validFirstScreeningNum = validConclusions.size();
         long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() != null && x.getIsMyopia()).count();
         long lowVisionNum =
@@ -726,8 +784,8 @@ public class StatReportService {
         resultMap.put("schoolName", schoolName);
         resultMap.put("actualScreeningNum", totalFirstScreeningNum);
         resultMap.put("validFirstScreeningNum", validFirstScreeningNum);
-        resultMap.put("maleNum", maleList.size());
-        resultMap.put("femaleNum", femaleList.size());
+        resultMap.put("maleNum", statGender.getMale().size());
+        resultMap.put("femaleNum", statGender.getFemale().size());
         resultMap.put("myopiaRatio", convertToPercentage(myopiaNum * 1f / validFirstScreeningNum));
         resultMap.put("lowVisionRatio",
                 convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum));
@@ -775,12 +833,8 @@ public class StatReportService {
         resultMap.put("schoolClassStudentStatList",
                 composeSchoolClassStudentStatList(
                         schoolGradeItems, statConclusionReportDTOs));
-        if (startDate != null) {
-            resultMap.put("startDate", startDate.getTime());
-        }
-        if (endDate != null) {
-            resultMap.put("endDate", endDate.getTime());
-        }
+        resultMap.put("startDate", startDate.getTime());
+        resultMap.put("endDate", endDate.getTime());
         resultMap.put("planStudentNum", planStudentNum);
         return resultMap;
     }
