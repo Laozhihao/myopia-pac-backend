@@ -47,6 +47,10 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         BeanUtils.copyProperties(medicalRecord, compareMedicalRecord);
         // 除最新一条外的最近6条就诊记录
         List<MedicalRecordDate> medicalRecordDateList = baseMapper.getMedicalRecordDateList(hospitalId, studentId);
+
+        // 设置角膜地形图的图片
+        generateToscaImageUrls(medicalRecord);
+
         // 没有旧记录，直接返回
         if (CollectionUtils.isEmpty(medicalRecordDateList)) {
             return compareMedicalRecord;
@@ -71,15 +75,8 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getTosca())) {
             return new ToscaMedicalRecord();
         }
-
-        ToscaMedicalRecord.Tosco nonMydriasis = medicalRecord.getTosca().getNonMydriasis();
-        if (Objects.nonNull(nonMydriasis)) {
-            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
-        }
-        ToscaMedicalRecord.Tosco mydriasis = medicalRecord.getTosca().getMydriasis();
-        if (Objects.nonNull(mydriasis)) {
-            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
-        }
+        // 设置角膜地形图的图片
+        generateToscaImageUrls(medicalRecord);
         return medicalRecord.getTosca();
     }
 
@@ -204,6 +201,18 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         MedicalRecordQuery query = new MedicalRecordQuery();
         query.setHospitalId(hospitalId).setId(medicalRecordId);
         return baseMapper.getBy(query).stream().findFirst().orElseThrow(()-> new BusinessException("未找到检查单. id:"+medicalRecordId));
+    }
+
+    /** 生成并设置角膜地形图的图片url */
+    public void generateToscaImageUrls(MedicalRecord medicalRecord) {
+        ToscaMedicalRecord.Tosco nonMydriasis = medicalRecord.getTosca().getNonMydriasis();
+        if (Objects.nonNull(nonMydriasis)) {
+            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
+        }
+        ToscaMedicalRecord.Tosco mydriasis = medicalRecord.getTosca().getMydriasis();
+        if (Objects.nonNull(mydriasis)) {
+            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
+        }
     }
 
    /** 创建检查单 */

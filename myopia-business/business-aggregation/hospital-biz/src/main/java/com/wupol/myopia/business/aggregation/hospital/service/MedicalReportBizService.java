@@ -149,10 +149,11 @@ public class MedicalReportBizService {
         // 检查单
         if (Objects.nonNull(report.getMedicalRecordId())) {
             MedicalRecord medicalRecord = medicalRecordService.getById(report.getMedicalRecordId());
+            medicalRecordService.generateToscaImageUrls(medicalRecord); // 设置角膜地形图的图片
             responseDTO.setVision(medicalRecord.getVision());
             responseDTO.setBiometrics(medicalRecord.getBiometrics());
             responseDTO.setDiopter(medicalRecord.getDiopter());
-            responseDTO.setTosca(packageToscaMedicalRecordImages(medicalRecord.getTosca()));
+            responseDTO.setTosca(medicalRecord.getTosca());
             // 问诊内容
             responseDTO.setConsultation(medicalRecord.getConsultation());
         }
@@ -197,27 +198,6 @@ public class MedicalReportBizService {
             reportResult.setDoctorSign(resourceFileService.getResourcePath(doctorSignFileId));
         }
         return reportResult;
-    }
-
-    /**
-     * 报告-设置角膜地形图图片
-     *
-     * @param toscaMedicalRecord 角膜地形图检查数据
-     * @return ToscaMedicalRecord
-     */
-    private ToscaMedicalRecord packageToscaMedicalRecordImages(ToscaMedicalRecord toscaMedicalRecord) {
-        if (Objects.isNull(toscaMedicalRecord)) {
-            return null;
-        }
-        ToscaMedicalRecord.Tosco mydriasis = toscaMedicalRecord.getMydriasis();
-        ToscaMedicalRecord.Tosco nonMydriasis = toscaMedicalRecord.getNonMydriasis();
-        if (Objects.nonNull(mydriasis) && !CollectionUtils.isEmpty(mydriasis.getImageIdList())) {
-            mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
-        }
-        if (Objects.nonNull(nonMydriasis) && !CollectionUtils.isEmpty(nonMydriasis.getImageIdList())) {
-            nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
-        }
-        return toscaMedicalRecord;
     }
 
 
