@@ -48,7 +48,7 @@ public class DistrictPermissionController {
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.DistrictPermission>
      **/
     @GetMapping("/list/{templateType}")
-    public List<Integer> getPermissionTemplateList(@PathVariable Integer templateType) throws IOException {
+    public List<Integer> getPermissionTemplateList(@PathVariable Integer templateType) {
         Assert.notNull(templateType, "模板类型不能为空");
         if (PermissionTemplateType.ALL.getType().equals(templateType)) {
             return permissionService.findByList(new Permission()).stream().map(Permission::getId).collect(Collectors.toList());

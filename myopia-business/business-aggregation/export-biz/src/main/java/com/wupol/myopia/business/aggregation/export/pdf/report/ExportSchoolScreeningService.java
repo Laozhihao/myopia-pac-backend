@@ -58,7 +58,7 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+    public void validateBeforeExport(ExportCondition exportCondition) {
         Assert.isTrue(Objects.nonNull(exportCondition.getNotificationId()) || Objects.nonNull(exportCondition.getPlanId()), "筛查通知ID和筛查计划ID都为空");
         int total = statConclusionService.count(new StatConclusion().setSrcScreeningNoticeId(exportCondition.getNotificationId()).setPlanId(exportCondition.getPlanId()).setSchoolId(exportCondition.getSchoolId()));
         if (total == 0) {
