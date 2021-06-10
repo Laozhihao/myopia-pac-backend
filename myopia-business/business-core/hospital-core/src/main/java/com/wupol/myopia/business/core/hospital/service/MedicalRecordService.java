@@ -205,6 +205,9 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     /** 生成并设置角膜地形图的图片url */
     public void generateToscaImageUrls(MedicalRecord medicalRecord) {
+        if (Objects.isNull(medicalRecord.getTosca())) {
+            return;
+        }
         ToscaMedicalRecord.Tosco nonMydriasis = medicalRecord.getTosca().getNonMydriasis();
         if (Objects.nonNull(nonMydriasis)) {
             nonMydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(nonMydriasis.getImageIdList()));
