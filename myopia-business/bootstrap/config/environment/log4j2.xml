@@ -11,22 +11,16 @@
                 </pattern>>
             </PatternLayout>
         </Console>
-        <!-- 公网且没有认证，测试环境关闭 -->
-        <!-- <Socket name="logstash" host="139.9.183.146" port="5044" protocol="TCP">
-            <PatternLayout pattern="${PATTERN}" />
-        </Socket> -->
         <!-- Sentry -->
         <Sentry name="sentry" />
     </Appenders>
     <Loggers>
         <Logger name="com.wupol" level="INFO" additivity="false">
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
         </Logger>
         <!-- 默认level为error级别 -->
         <Root>
             <AppenderRef ref="Console-Appender"/>
-            <!-- <AppenderRef ref="logstash"/> -->
             <appender-ref ref="sentry" level="WARN" />
         </Root>
     </Loggers>
