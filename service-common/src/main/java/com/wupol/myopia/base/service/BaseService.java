@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +75,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
      * @param entity 实体类
      * @return com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<T>
      **/
-    public QueryWrapper<T> getQueryWrapper(T entity){
+    public QueryWrapper<T> getQueryWrapper(T entity) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE);
         Map<String, Object> params;
@@ -84,7 +83,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
             params = mapper.readValue(mapper.writeValueAsString(entity), new TypeReference<Map<String, Object>>() {
             });
         } catch (JsonProcessingException e) {
-            throw new BusinessException("JSON转换异常:{}", e);
+            throw new BusinessException("JSON转换异常:" + e.getMessage(), e);
         }
         return new QueryWrapper<T>().allEq((k, v) -> !StringUtils.isEmpty(v), params);
     }
