@@ -62,7 +62,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
      * @return 角色权限列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) throws IOException {
+    public List<RolePermission> assignRolePermission(Integer roleId, List<Integer> permissionIds) {
         rolePermissionService.remove(new RolePermission().setRoleId(roleId));
         List<RolePermission> rolePermission = permissionIds.stream().map(id -> new RolePermission().setRoleId(roleId).setPermissionId(id)).collect(Collectors.toList());
         rolePermissionService.saveBatch(rolePermission);

@@ -56,7 +56,7 @@ public class ExportSchoolArchivesService extends BaseExportPdfFileService {
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+    public void validateBeforeExport(ExportCondition exportCondition) {
         int total = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(exportCondition.getPlanId()).setSchoolId(exportCondition.getSchoolId()).setIsDoubleScreen(Boolean.FALSE));
         if (total == 0) {
             throw new BusinessException("该计划下该学校暂无筛查学生数据，无法导出档案卡");

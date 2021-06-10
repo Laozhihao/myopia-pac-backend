@@ -387,9 +387,10 @@ public class ParentStudentBizService {
         if (Objects.isNull(student)) {
             throw new BusinessException("学生信息异常");
         }
-        String md5 = StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
+        String md5 = QrCodeCacheKey.PARENT_STUDENT_PREFIX + StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
         String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, md5);
-        if (!redisUtil.set(key, studentId, 3600)) {
+//        if (!redisUtil.set(key, studentId, 3600)) {
+        if (!redisUtil.set(key, studentId, 60)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
         return md5;

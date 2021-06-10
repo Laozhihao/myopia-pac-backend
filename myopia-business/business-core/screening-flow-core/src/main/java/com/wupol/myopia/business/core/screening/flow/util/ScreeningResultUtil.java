@@ -114,8 +114,8 @@ public class ScreeningResultUtil {
                         rightNakedVisionValue, glassesType));
             }
         }
-        itemsList.add(correctedVision);
         itemsList.add(nakedVision);
+        itemsList.add(correctedVision);
         return itemsList;
     }
 
@@ -754,10 +754,10 @@ public class ScreeningResultUtil {
                 return ParentReportConst.CORRECTED_NOT;
             } else {
                 if (correctedVision.compareTo(new BigDecimal("4.9")) > 0) {
-                    // 戴镜视力都＞4.9，正常
+                    // 矫正视力都＞4.9，正常
                     return ParentReportConst.CORRECTED_NORMAL;
                 } else {
-                    // 戴镜视力都<=4.9，欠矫
+                    // 矫正视力都<=4.9，欠矫
                     return ParentReportConst.CORRECTED_OWE;
                 }
             }
@@ -994,40 +994,40 @@ public class ScreeningResultUtil {
      * @param vision 视力
      * @return 视力
      */
-    private BigDecimal toDecimalVision(BigDecimal vision) {
+    private String toDecimalVision(BigDecimal vision) {
         if (Objects.isNull(vision)) {
             return null;
         }
         String strVision = vision.toString();
         switch (strVision) {
-            case "4.0":
-                return new BigDecimal("0.1");
+            case "4":
+                return "0.1";
             case "4.1":
-                return new BigDecimal("0.12");
+                return "0.12";
             case "4.2":
-                return new BigDecimal("0.15");
+                return "0.15";
             case "4.3":
-                return new BigDecimal("0.2");
+                return "0.2";
             case "4.4":
-                return new BigDecimal("0.25");
+                return "0.25";
             case "4.5":
-                return new BigDecimal("0.3");
+                return "0.3";
             case "4.6":
-                return new BigDecimal("0.4");
+                return "0.4";
             case "4.7":
-                return new BigDecimal("0.5");
+                return "0.5";
             case "4.8":
-                return new BigDecimal("0.6");
+                return "0.6";
             case "4.9":
-                return new BigDecimal("0.8");
-            case "5.0":
-                return new BigDecimal("1.0");
+                return "0.8";
+            case "5":
+                return "1.0";
             case "5.1":
-                return new BigDecimal("1.2");
+                return "1.2";
             case "5.2":
-                return new BigDecimal("1.5");
+                return "1.5";
             case "5.3":
-                return new BigDecimal("2.0");
+                return "2.0";
             default:
                 return null;
         }

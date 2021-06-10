@@ -57,7 +57,7 @@ public class GovDeptController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     @GetMapping("/list")
-    public List<GovDept> getGovDeptList(GovDept queryParam) throws IOException {
+    public List<GovDept> getGovDeptList(GovDept queryParam) {
         Assert.notNull(queryParam.getDistrictId(), "行政区ID不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "非平台管理员，没有访问权限");
         List<GovDept> govDeptList = govDeptService.findByListOrderByIdDesc(queryParam);
@@ -149,7 +149,7 @@ public class GovDeptController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.GovDept>
      **/
     @GetMapping("/superior/{districtId}")
-    public List<GovDept> getSuperiorDept(@PathVariable("districtId") @NotNull(message = "行政区ID不能为空") String districtId) throws IOException {
+    public List<GovDept> getSuperiorDept(@PathVariable("districtId") @NotNull(message = "行政区ID不能为空") String districtId) {
         District district = districtService.getById(districtId);
         if (Objects.isNull(district)) {
             throw new ValidationException("不存在该行政区");

@@ -30,4 +30,6 @@ public interface OrgCooperationHospitalMapper extends BaseMapper<OrgCooperationH
     Integer getSuggestHospital(@Param("screeningOrgId") Integer screeningOrgId);
 
     List<OrgCooperationHospital> getListByScreeningOrgId(@Param("screeningOrgId") Integer screeningOrgId);
+
+    void deletedByHospitalId(@Param("hospitalId") Integer hospitalId);
 }
