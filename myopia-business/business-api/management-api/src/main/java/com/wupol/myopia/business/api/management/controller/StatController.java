@@ -63,6 +63,7 @@ public class StatController {
      * @param schoolAge       学龄代码
      * @return
      */
+    @Deprecated
     @GetMapping("/exportContrast")
     public void exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
                                             @RequestParam(value = "nid2", required = false) Integer notificationId2,
@@ -130,29 +131,28 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataContrastYear")
-    public List<Integer> getDataContrastYear(@RequestParam("cType") Integer contrastType) {
+    public List<Integer> getDataContrastYear(@RequestParam("ctype") Integer contrastType) {
         return statService.getDataContrastYear(contrastType);
     }
 
     /**
-     * 返回数据对比的筛查项
+     * 返回数据对比的筛查项以及结果数据
      *
      * @param contrastType 对比项类型
      * @param contrastId   对比项ID
      * @return
      */
     @GetMapping("/dataContrastFilter")
-    public DataContrastFilterDTO getDataContrastFilter(
+    public Map<String, Object> getDataContrastFilter(
             @RequestParam("ctype") Integer contrastType,
             @RequestParam("cid") Integer contrastId,
             @RequestParam(value = "districtId", required = false) Integer districtId,
             @RequestParam(value = "schoolAge", required = false) Integer schoolAge,
             @RequestParam(value = "schoolId", required = false) Integer schoolId,
-            @RequestParam(value = "schoolGradeId", required = false) Integer schoolGradeId,
-            @RequestParam(value = "schoolClassId", required = false) Integer schoolClassId
+            @RequestParam(value = "schoolGradeCode", required = false) String schoolGradeCode,
+            @RequestParam(value = "schoolClass", required = false) String schoolClass
     ) throws IOException {
         return statService.getDataContrastFilter(contrastType, contrastId, districtId,
-                schoolAge, schoolId, schoolGradeId, schoolClassId);
+                schoolAge, schoolId, schoolGradeCode, schoolClass);
     }
-
 }

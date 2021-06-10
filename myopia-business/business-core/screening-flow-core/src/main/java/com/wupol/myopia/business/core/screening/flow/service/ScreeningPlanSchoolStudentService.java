@@ -214,7 +214,40 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据筛查任务Id获取筛查学校所在层级的计划筛查学生总数
+     *
+     * @param taskId
+     * @return
+     */
+    public Map<Integer, Long> getDistrictPlanStudentCountByScreeningTaskId(Integer taskId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId);
+        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
+     * 根据筛查计划Id获取筛查学校所在层级的计划筛查学生总数
+     *
+     * @param planId
+     * @return
+     */
+    public Map<Integer, Long> getDistrictPlanStudentCountByScreeningPlanId(Integer planId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId);
+        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(results)) {
+            return Collections.emptyMap();
+        }
+        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
      * 根据实体查找数据
+     *
      * @param screeningPlanSchoolStudent
      * @return
      */
