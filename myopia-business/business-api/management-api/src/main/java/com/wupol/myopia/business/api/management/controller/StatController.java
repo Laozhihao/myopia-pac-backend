@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -55,17 +56,18 @@ public class StatController {
 
     /**
      * 导出筛查对比数据
+     *
      * @param notificationId1 1号通知ID
      * @param notificationId2 2号通知ID
-     * @param districtId 区域ID
-     * @param schoolAge 学龄代码
+     * @param districtId      区域ID
+     * @param schoolAge       学龄代码
      * @return
      */
     @GetMapping("/exportContrast")
     public void exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-            @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolAge) throws IOException, UtilException {
-            statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
+                                            @RequestParam(value = "nid2", required = false) Integer notificationId2,
+                                            Integer districtId, Integer schoolAge) throws IOException, UtilException {
+        statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
     }
 
     /**
@@ -114,6 +116,7 @@ public class StatController {
      * @param notificationId2
      * @return
      */
+    @Deprecated
     @GetMapping("/dataContrastDistrictTree")
     public List<District> getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
                                                       @RequestParam(value = "nid2", required = false) Integer notificationId2) throws IOException {
@@ -129,6 +132,27 @@ public class StatController {
     @GetMapping("/dataContrastYear")
     public List<Integer> getDataContrastYear(@RequestParam("cType") Integer contrastType) {
         return statService.getDataContrastYear(contrastType);
+    }
+
+    /**
+     * 返回数据对比的筛查项
+     *
+     * @param contrastType 对比项类型
+     * @param contrastId   对比项ID
+     * @return
+     */
+    @GetMapping("/dataContrastFilter")
+    public DataContrastFilterDTO getDataContrastFilter(
+            @RequestParam("ctype") Integer contrastType,
+            @RequestParam("cid") Integer contrastId,
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "schoolAge", required = false) Integer schoolAge,
+            @RequestParam(value = "schoolId", required = false) Integer schoolId,
+            @RequestParam(value = "schoolGradeId", required = false) Integer schoolGradeId,
+            @RequestParam(value = "schoolClassId", required = false) Integer schoolClassId
+    ) throws IOException {
+        return statService.getDataContrastFilter(contrastType, contrastId, districtId,
+                schoolAge, schoolId, schoolGradeId, schoolClassId);
     }
 
 }
