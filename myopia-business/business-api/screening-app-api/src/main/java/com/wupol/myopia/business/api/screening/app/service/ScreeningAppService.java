@@ -415,14 +415,9 @@ public class ScreeningAppService {
                 .setSno(appStudentDTO.getStudentNo())
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
-                .setAddress(appStudentDTO.getAddress())
                 .setParentPhone(appStudentDTO.getStudentPhone())
                 .setStatus(0);
-        student.setProvinceCode(school.getProvinceCode());
-        student.setCityCode(school.getCityCode());
-        student.setTownCode(school.getTownCode());
         return student;
-
     }
 
     /**
