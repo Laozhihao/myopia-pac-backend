@@ -110,7 +110,8 @@ public class WxController {
                     WxBusinessExceptionCodeEnum.OK.getCode(),
                     loginInfo.getTokenInfo().getAccessToken(),
                     loginInfo.getTokenInfo().getRefreshToken(),
-                    loginInfo.getTokenInfo().getExpiresIn());
+                    loginInfo.getTokenInfo().getExpiresIn(),
+                    state);
         } catch (Exception e) {
             logger.error("微信登录失败", e);
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode(), state);
