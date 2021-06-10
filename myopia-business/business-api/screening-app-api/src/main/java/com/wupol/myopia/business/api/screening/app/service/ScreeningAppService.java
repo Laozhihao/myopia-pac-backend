@@ -431,7 +431,7 @@ public class ScreeningAppService {
      * @param currentUser
      * @return
      */
-    public AppUserInfo getUserInfoByUser(CurrentUser currentUser) throws IOException {
+    public AppUserInfo getUserInfoByUser(CurrentUser currentUser) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
         AppUserInfo appUserInfo = new AppUserInfo();
         appUserInfo.setUsername(currentUser.getUsername());

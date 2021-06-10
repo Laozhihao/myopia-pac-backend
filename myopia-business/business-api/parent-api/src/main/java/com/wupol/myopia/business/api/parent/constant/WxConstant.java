@@ -25,7 +25,7 @@ public interface WxConstant {
     /**
      * 家长端前端地址，带登录token相关信息
      **/
-    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/middle-transform?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d";
+    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/middle-transform?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d&state=%s";
 
     /**
      * 微信api返回数据 - accessToken字段名
