@@ -50,7 +50,7 @@ public class StatConclusionTest {
     private SchoolGradeService schoolGradeService;
 
     @Test
-    public void testInsert() throws IOException {
+    public void testInsert() {
         VisionScreeningResult query = new VisionScreeningResult();
         query.setTaskId(1);
         List<VisionScreeningResult> list = visionScreeningResultService.findByList(query);

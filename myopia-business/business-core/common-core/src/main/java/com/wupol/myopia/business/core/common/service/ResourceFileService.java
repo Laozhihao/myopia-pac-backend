@@ -7,7 +7,10 @@ import com.wupol.myopia.business.core.common.util.S3Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,6 +45,9 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
      * @return
      */
     public List<String> getBatchResourcePath(List<Integer> fileIdList) {
+        if (CollectionUtils.isEmpty(fileIdList)) {
+            return Collections.emptyList();
+        }
         return fileIdList.stream().map(this::getResourcePath).collect(Collectors.toList());
     }
 

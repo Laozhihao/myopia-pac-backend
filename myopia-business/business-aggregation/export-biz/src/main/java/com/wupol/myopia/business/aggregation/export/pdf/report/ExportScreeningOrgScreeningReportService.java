@@ -56,7 +56,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+    public void validateBeforeExport(ExportCondition exportCondition) {
         int total = statConclusionService.count(new StatConclusion().setPlanId(exportCondition.getPlanId()));
         if (total == 0) {
             throw new BusinessException("暂无筛查数据，无法导出筛查报告");

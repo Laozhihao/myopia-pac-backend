@@ -140,7 +140,7 @@ public class WxService {
      *
      * @param wxLoginInfo 手机信息
      **/
-    public void bindPhoneToParent(WxLoginInfo wxLoginInfo) throws IOException {
+    public void bindPhoneToParent(WxLoginInfo wxLoginInfo) {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
         Assert.notNull(parent, "当前用户不存在");

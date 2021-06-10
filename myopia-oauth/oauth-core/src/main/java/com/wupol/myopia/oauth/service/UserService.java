@@ -46,11 +46,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     public User getByUsername(String username, Integer systemCode) {
-        try {
-            return findOne(new User().setUsername(username).setSystemCode(systemCode));
-        } catch (IOException e) {
-            throw new BusinessException("获取用户异常", e);
-        }
+        return findOne(new User().setUsername(username).setSystemCode(systemCode));
     }
 
     /**
@@ -113,7 +109,7 @@ public class UserService extends BaseService<UserMapper, User> {
         return userDTO.setId(user.getId());
     }
 
-    private void validateParam(String phone, Integer systemCode) throws IOException {
+    private void validateParam(String phone, Integer systemCode) {
         Assert.notNull(SystemCode.getByCode(systemCode), "系统编号为空或无效");
         if (StringUtils.isEmpty(phone)) {
             return;
@@ -129,7 +125,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User addMultiSystemUser(UserDTO userDTO) throws IOException {
+    public User addMultiSystemUser(UserDTO userDTO) {
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户
         User user = new User();
@@ -187,7 +183,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.UserWithRole
      **/
     @Transactional(rollbackFor = Exception.class)
-    public UserWithRole updateUser(UserDTO user) throws IOException {
+    public UserWithRole updateUser(UserDTO user) {
         Integer userId = user.getId();
         User existUser = getById(userId);
         Assert.notNull(existUser, "该用户不存在");
