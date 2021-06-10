@@ -24,10 +24,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
@@ -693,6 +690,35 @@ public class StatService {
             default:
         }
         return Collections.emptyList();
+    }
+
+    private void composeContrastTypeFilter() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<ScreeningNotice> noticeList = screeningNoticeBizService.getRelatedNoticeByUser(currentUser);
+        SortedSet set = new TreeSet();
+        for (ScreeningNotice notice : noticeList) {
+            int id = notice.getId();
+            String title = notice.getTitle();
+            Long startTime = notice.getStartTime().getTime();
+            Long endTime = notice.getEndTime().getTime();
+        }
+
+        List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
+        for (ScreeningPlan plan : planList) {
+            int id = plan.getId();
+            String title = plan.getTitle();
+            Long startTime = plan.getStartTime().getTime();
+            Long endTime = plan.getEndTime().getTime();
+        }
+
+        //TODO: get task list by user
+        List<ScreeningTask> taskList = Collections.emptyList();
+        for (ScreeningTask task : taskList) {
+            int id = task.getId();
+            String title = task.getTitle();
+            Long startTime = task.getStartTime().getTime();
+            Long endTime = task.getEndTime().getTime();
+        }
     }
 
     /**
