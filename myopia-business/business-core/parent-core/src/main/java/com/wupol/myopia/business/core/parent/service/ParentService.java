@@ -29,7 +29,7 @@ public class ParentService extends BaseService<ParentMapper, Parent> {
      * @param openId 用户的唯一标识
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
-    public Parent getParentByOpenId(String openId) throws IOException {
+    public Parent getParentByOpenId(String openId) {
         if (StringUtils.isEmpty(openId)) {
             return null;
         }
@@ -42,7 +42,7 @@ public class ParentService extends BaseService<ParentMapper, Parent> {
      * @param userId 用户ID
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
-    public Parent getParentByUserId(Integer userId) throws IOException {
+    public Parent getParentByUserId(Integer userId) {
         Assert.notNull(userId, "用户ID不能为空");
         Parent parent = findOne(new Parent().setUserId(userId));
         if (Objects.isNull(parent)) {

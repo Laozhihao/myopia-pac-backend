@@ -33,7 +33,7 @@ public class DistrictCache implements CommandLineRunner {
     private RedisUtil redisUtil;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         // 缓存全国行政区域-列表结构
         if (!redisUtil.hasKey(DistrictCacheKey.DISTRICT_ALL_LIST)) {
             logger.info("...缓存全国行政区域-列表结构");

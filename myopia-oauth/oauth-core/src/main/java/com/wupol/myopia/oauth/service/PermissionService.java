@@ -80,7 +80,7 @@ public class PermissionService extends BaseService<PermissionMapper, Permission>
      * @param param 参数
      * @return void
      **/
-    public void validateParam(Permission param) throws IOException {
+    public void validateParam(Permission param) {
         if (!StringUtils.isEmpty(param.getMenuBtnName())) {
             List<Permission> exist = findByList(new Permission().setMenuBtnName(param.getMenuBtnName()));
             Assert.isTrue(CollectionUtils.isEmpty(exist), "该页面或按钮name已经存在");

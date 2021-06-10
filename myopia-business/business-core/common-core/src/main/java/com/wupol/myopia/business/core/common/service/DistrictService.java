@@ -467,12 +467,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.nonNull(districtCache)) {
             return JSONObject.parseObject(JSON.toJSONString(districtCache), District.class);
         }
-        District district;
-        try {
-            district = findOne(new District().setCode(districtCode));
-        } catch (IOException e) {
-            throw new BusinessException("存在多个行政区域的code=" + districtCode, e);
-        }
+        District district = findOne(new District().setCode(districtCode));
         redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
         return district;
     }
@@ -745,12 +740,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
-        District district = null;
-        try {
-            district = findOne(new District().setId(districtId));
-        } catch (IOException e) {
-            log.info("检查行政区域Id异常", e);
-        }
+        District district = findOne(new District().setId(districtId));
         if (Objects.isNull(district)) {
             throw new BusinessException("未找到该行政区域");
         }

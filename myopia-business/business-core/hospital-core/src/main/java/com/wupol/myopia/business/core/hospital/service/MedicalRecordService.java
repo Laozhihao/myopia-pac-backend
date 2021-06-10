@@ -154,7 +154,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      * @param hospitalId 医院id
      * @throws IOException
      */
-    public List<Integer> getTodayLastThreeStudentList(Integer hospitalId) throws IOException {
+    public List<Integer> getTodayLastThreeStudentList(Integer hospitalId) {
         // 今天建档的患者姓名【前3名】
         return findByPage(new MedicalRecord().setHospitalId(hospitalId), 0, 3)
                 .getRecords().stream()

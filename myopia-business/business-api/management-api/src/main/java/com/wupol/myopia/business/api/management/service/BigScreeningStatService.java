@@ -209,7 +209,7 @@ public class BigScreeningStatService {
      * @param noticeId
      * @return
      */
-    public List<BigScreenStatDataDTO> getByNoticeIdAndDistrictIds(Integer noticeId) throws IOException {
+    public List<BigScreenStatDataDTO> getByNoticeIdAndDistrictIds(Integer noticeId) {
         List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setSrcScreeningNoticeId(noticeId).setIsRescreen(false));
         return this.getBigScreenStatDataDTOList(statConclusionList);
     }
