@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.api.management.domain.dto.StatWholeResultDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -102,10 +103,8 @@ public class StatController {
      * @return
      */
     @GetMapping("/getAllSchoolReport")
-    public Map<String, Object> getSchoolReportByPlanId(@RequestParam Integer planId) {
-
-
-        return null;
+    public StatWholeResultDTO getSchoolReportByPlanId(@RequestParam Integer planId) {
+        return statReportService.getPlanStatData(planId);
     }
 
     /**

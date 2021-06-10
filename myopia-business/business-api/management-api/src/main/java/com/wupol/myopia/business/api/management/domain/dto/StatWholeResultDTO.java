@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.business.common.utils.constant.RatioEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import lombok.Builder;
 import lombok.Data;
@@ -35,23 +36,11 @@ public class StatWholeResultDTO {
     /**
      * 学段学校分布
      */
-    private Map<String, Integer> schoolAgeDistribution;
+    private Map<String, Long> schoolAgeDistribution;
 
-    /**
-     * 平均视力
-     */
-    private Float averageVision;
-
-    private NumAndRatio myopia;
-    private NumAndRatio lowVision;
-    private NumAndRatio w;
-    private NumAndRatio d;
-    private NumAndRatio q;
-    private NumAndRatio z;
-    private NumAndRatio l0;
-    private NumAndRatio l1;
-    private NumAndRatio l2;
-    private NumAndRatio l3;
+    private List<TypeRatioDTO> myopia;
+    private List<TypeRatioDTO> visionCorrection;
+    private List<TypeRatioDTO> warnLevel;
 
     /**
      * 学校举例
@@ -71,7 +60,7 @@ public class StatWholeResultDTO {
     /**
      * 性别近视情况
      */
-    private StatGenderMyopiaDTO genderMyopia;
+    private List<TypeRatioDTO> genderMyopia;
 
     /**
      * 学段近视统计
@@ -95,17 +84,31 @@ public class StatWholeResultDTO {
         schoolAgeDistribution.put("PRIMARY", 367L);
         schoolAgeDistribution.put("JUNIOR", 685L);
         schoolAgeDistribution.put("HIGH", 1234L);
-        schoolAgeDistribution.put("VOCATIONAL_HIGH", 1234L);
+        schoolAgeDistribution.put("VOCATIONAL_HIGH", 1234l);
+
+        List<TypeRatioDTO> ratios = new ArrayList<>();
+        ratios.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), 23, 23.88f));
+        ratios.add(TypeRatioDTO.getInstance(RatioEnum.LOW_VISION.name(), 47, 29.88f));
+        ratios.add(TypeRatioDTO.getInstance(RatioEnum.AVERAGE_VISION.name(), null, 73.88f));
+
+        List<TypeRatioDTO> visionCorrection = new ArrayList<>();
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNCORRECTED.name(), 789, 4.88f));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.WEARING_RATIO.name(), 39, 5.8f));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNDER_CORRECTED.name(), 178, 24f));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.ENOUGH_CORRECTED.name(), 389, 47f));
+
+        List<TypeRatioDTO> warnLevel = new ArrayList<>();
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), 36, 36f));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), 5, 5f));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), 4, 4f));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), 1, 1f));
 
         StatSchoolPersonnelDTO aa = (StatSchoolPersonnelDTO)new StatSchoolPersonnelDTO().setName("某学校").setPlanScreeningNum(200).setActualScreeningNum(100).setValidFirstScreeningNum(50);
         StatSchoolAgePersonnelDTO bb = (StatSchoolAgePersonnelDTO) new StatSchoolAgePersonnelDTO().setSchoolAge("KINDERGARTEN").setPlanScreeningNum(200).setActualScreeningNum(100).setValidFirstScreeningNum(50);
-        StatGenderMyopiaDTO genderMyopia = new StatGenderMyopiaDTO();
-        genderMyopia.setFemale(NumAndRatio.getInstance(20,10.00f))
-                .setMale(NumAndRatio.getInstance(30, 23.23f));
 
-        MyopiaDTO m1 = (MyopiaDTO) new MyopiaDTO().setName("KINDERGARTEN").setSchoolNum(5).setStatNum(200).setNum(20).setRatio(20.00f);
-        MyopiaDTO m2 = (MyopiaDTO) new MyopiaDTO().setName("清化幼儿园").setStatNum(200).setNum(20).setRatio(20.00f);
-        MyopiaDTO m3 = (MyopiaDTO) new MyopiaDTO().setName("ONE_KINDERGARTEN").setStatNum(200).setNum(20).setRatio(20.00f);
+        MyopiaDTO m1 = (MyopiaDTO) new MyopiaDTO().setSchoolNum(5L).setStatNum(200).setKey("KINDERGARTEN").setNum(20).setRatio(20.00f);
+        MyopiaDTO m2 = (MyopiaDTO) new MyopiaDTO().setStatNum(200).setNum(20).setKey("清化幼儿园").setRatio(20.00f);
+        MyopiaDTO m3 = (MyopiaDTO) new MyopiaDTO().setStatNum(200).setNum(20).setKey("ONE_KINDERGARTEN").setRatio(20.00f);
 
         ScreeningPlan screeningPlan = new ScreeningPlan();
         screeningPlan.setId(1)
@@ -125,20 +128,13 @@ public class StatWholeResultDTO {
                 .validFirstScreeningNum(500L)
                 .validRatio(50.00F)
                 .schoolAgeDistribution(schoolAgeDistribution)
-                .averageVision(23.89f)
-                .myopia(NumAndRatio.getInstance(245, 22.78f))
-                .lowVision(NumAndRatio.getInstance(245, 22.78f))
-                .w(NumAndRatio.getInstance(245, 22.78f))
-                .q(NumAndRatio.getInstance(216, 42.78f))
-                .z(NumAndRatio.getInstance(445, 22.78f))
-                .l0(NumAndRatio.getInstance(456, 28.78f))
-                .l1(NumAndRatio.getInstance(245, 22.78f))
-                .l2(NumAndRatio.getInstance(245, 22.78f))
-                .l3(NumAndRatio.getInstance(245, 22.11f))
+                .myopia(ratios)
+                .visionCorrection(visionCorrection)
+                .warnLevel(warnLevel)
                 .schoolExamples(Arrays.asList("中华好学校", "第二学校", "第三学校"))
                 .schoolPersonnel(Arrays.asList(aa))
                 .schoolAgePersonnel(Arrays.asList(bb))
-                .genderMyopia(genderMyopia)
+                .genderMyopia(null)
                 .schoolAgeMyopia(Arrays.asList(m1))
                 .schoolMyopia(Arrays.asList(m2))
                 .gradeMyopia(Arrays.asList(m3))

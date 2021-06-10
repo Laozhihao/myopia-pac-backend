@@ -9,12 +9,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class MyopiaDTO extends NumAndRatio {
-
-    /**
-     * 统计维度，学校名或学段名/年级名的key值
-     */
-    private String name;
+public class MyopiaDTO extends TypeRatioDTO {
 
     /**
      * 人数
@@ -22,8 +17,23 @@ public class MyopiaDTO extends NumAndRatio {
     private Integer statNum;
 
     /**
-     * 学校数量，仅在name为学段时有用
+     * 学校数量，仅在学段时有用
      */
-    private Integer schoolNum;
+    private Long schoolNum;
+
+    /**
+     * 排名,仅在学校时有用
+     */
+    private Integer ranking;
+
+    public static MyopiaDTO getInstance(Integer statNum, Long schoolNum, String key, Number num, Float ratio) {
+        MyopiaDTO myopiaDTO = new MyopiaDTO();
+        myopiaDTO.setStatNum(statNum).setSchoolNum(schoolNum).setKey(key).setNum(num).setRatio(ratio);
+        return myopiaDTO;
+    }
+
+    public static MyopiaDTO getInstance(Integer statNum, String key, Number num, Float ratio) {
+        return getInstance(statNum, null, key, num, ratio);
+    }
 
 }

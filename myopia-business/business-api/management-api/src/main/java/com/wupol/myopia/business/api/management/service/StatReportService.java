@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -199,6 +200,7 @@ public class StatReportService {
         List<Map<String, Object>> schoolGenderTable = this.createSchoolGenderTable(validConclusions, schools);
 
         Map<String, List<StatConclusion>> schoolAgeMap = businessSchoolAge.getValidSchoolAgeMap();
+        Map<String, Integer> validSchoolAgeNumMap = businessSchoolAge.getValidSchoolAgeNumMap();
 
         List<Map<String, Object>> schoolAgeGenderTable = this.createSchoolAgeGenderTable(schoolAgeMap);
 
@@ -241,13 +243,13 @@ public class StatReportService {
         result.put("planScreeningNum", planScreeningNum);
         result.put("actualScreeningNum", totalFirstScreeningNum);
         result.put("validFirstScreeningNum", validConclusions.size());
-        result.put("kindergartenScreeningNum", businessSchoolAge.getKindergarten().size());
-        result.put("primaryScreeningNum", businessSchoolAge.getPrimary().size());
-        result.put("juniorScreeningNum", businessSchoolAge.getJunior().size());
-        result.put("highScreeningNum", businessSchoolAge.getHigh().size());
+        result.put("kindergartenScreeningNum", validSchoolAgeNumMap.get(SchoolAge.KINDERGARTEN.name()));
+        result.put("primaryScreeningNum", validSchoolAgeNumMap.get(SchoolAge.PRIMARY.name()));
+        result.put("juniorScreeningNum", validSchoolAgeNumMap.get(SchoolAge.JUNIOR.name()));
+        result.put("highScreeningNum", validSchoolAgeNumMap.get(SchoolAge.HIGH.name()));
         result.put("maleNum", statGender.getMale().size());
         result.put("femaleNum", statGender.getFemale().size());
-        result.put("vocationalHighScreeningNum", businessSchoolAge.getVocationalHigh().size());
+        result.put("vocationalHighScreeningNum", validSchoolAgeNumMap.get(SchoolAge.VOCATIONAL_HIGH.name()));
         result.put("schoolGenderTable", schoolGenderTable);
         result.put("schoolAgeGenderTable", schoolAgeGenderTable);
         result.put("schoolAgeLowVisionLevelDesc", composeSchoolAgeLowVisionLevelDesc(schoolAgeLowVisionLevelTable));
@@ -659,18 +661,57 @@ public class StatReportService {
         // 组装各学龄段信息
         StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
 
-        // 各学校筛查人员信息
-        List<StatSchoolPersonnelDTO> schoolPersonnelDTOS = schools.stream().map(school -> {
+        StatWholeResultDTO whole = StatWholeResultDTO.builder()
+                .plan(sp)
+                .schoolCount(schools.size())
+                .planStudentNum(planStudentNum)
+                .actualScreeningNum(actualScreeningNum)
+                .validFirstScreeningNum(validFirstScreeningNum)
+                .validRatio(convertToPercentage(validFirstScreeningNum * 1f / actualScreeningNum))
+                .schoolAgeDistribution(businessSchoolAge.getValidSchoolAgeDistributionMap())
+                .schoolExamples(schoolExamples)
+                .schoolPersonnel(getSchoolPersonnel(schools, planSchoolStudentMap, schoolFirstScreenMap, schoolValidMap))
+                .schoolAgePersonnel(getSchoolAgePersonne(planSchoolAgeStudentMap, businessSchoolAge))
+                .myopia(getMyopiaRatio(statBase.getValid()))
+                .visionCorrection(getVisionCorrection(statBase.getValid()))
+                .warnLevel(getWarnLevel(statBase.getValid()))
+                .genderMyopia(getGenderMyopia(new StatGenderDTO(statBase.getValid())))
+                .schoolAgeMyopia(getSchoolAgeMyopia(businessSchoolAge))
+                .schoolMyopia(getSchoolMyopia(schools, schoolValidMap))
+                .gradeMyopia(getGradeMyopia(statBase.getValid()))
+                .build();
+        return whole;
+    }
+
+    /**
+     * 获取各学校筛查人员信息
+     * @param schools
+     * @param planSchoolStudentMap
+     * @param schoolFirstScreenMap
+     * @param schoolValidMap
+     * @return
+     */
+    private List<StatSchoolPersonnelDTO> getSchoolPersonnel(List<School> schools, Map<Integer, Long> planSchoolStudentMap,
+                                                            Map<Integer, List<StatConclusion>> schoolFirstScreenMap, Map<Integer, List<StatConclusion>> schoolValidMap) {
+        return schools.stream().map(school -> {
             StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
             persionnel.setName(school.getName())
                     .setPlanScreeningNum(planSchoolStudentMap.get(school.getId()))
                     .setActualScreeningNum(schoolFirstScreenMap.get(school.getId()).size())
                     .setValidFirstScreeningNum(schoolValidMap.get(school.getId()).size());
             return persionnel;
-        }).collect(Collectors.toList());
+        })
+        .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
+        .collect(Collectors.toList());
+    }
 
-        // 各学段筛查人员信息
-        List<StatSchoolAgePersonnelDTO> schoolAgePersonnelDTOS = planSchoolAgeStudentMap.keySet().stream().sorted().map(gradeType -> {
+    /**
+     * 获取各学段筛查人员信息
+     * @return
+     */
+    private List<StatSchoolAgePersonnelDTO> getSchoolAgePersonne(Map<Integer, Long> planSchoolAgeStudentMap, StatBusinessSchoolAgeDTO businessSchoolAge) {
+
+        return planSchoolAgeStudentMap.keySet().stream().sorted().map(gradeType -> {
             StatSchoolAgePersonnelDTO persionnel = new StatSchoolAgePersonnelDTO();
             String schoolAgeName = SchoolAge.get(gradeType).name();
             persionnel.setSchoolAge(schoolAgeName)
@@ -679,45 +720,132 @@ public class StatReportService {
                     .setValidFirstScreeningNum(businessSchoolAge.getValidSchoolAgeNumMap().get(schoolAgeName));
             return persionnel;
         }).collect(Collectors.toList());
-
-
-
-        StatWholeResultDTO whole = StatWholeResultDTO.builder()
-                .plan(sp)
-                .schoolCount(schools.size())
-                .planStudentNum(planStudentNum)
-                .actualScreeningNum(actualScreeningNum)
-                .validFirstScreeningNum(validFirstScreeningNum)
-                .validRatio(convertToPercentage(validFirstScreeningNum * 1f / actualScreeningNum))
-                .schoolAgeDistribution(businessSchoolAge.getValidSchoolAgeNumMap())
-                .averageVision(23.89f)
-                .myopia(NumAndRatio.getInstance(245, 22.78f))
-                .lowVision(NumAndRatio.getInstance(245, 22.78f))
-                .w(NumAndRatio.getInstance(245, 22.78f))
-                .q(NumAndRatio.getInstance(216, 42.78f))
-                .z(NumAndRatio.getInstance(445, 22.78f))
-                .l0(NumAndRatio.getInstance(456, 28.78f))
-                .l1(NumAndRatio.getInstance(245, 22.78f))
-                .l2(NumAndRatio.getInstance(245, 22.78f))
-                .l3(NumAndRatio.getInstance(245, 22.11f))
-                .schoolExamples(schoolExamples)
-                .schoolPersonnel(schoolPersonnelDTOS)
-                .schoolAgePersonnel(schoolAgePersonnelDTOS)
-                .genderMyopia(genderMyopia)
-                .schoolAgeMyopia(Arrays.asList(m1))
-                .schoolMyopia(Arrays.asList(m2))
-                .gradeMyopia(Arrays.asList(m3))
-                .build();
-
-
-        return whole;
     }
+
+    /**
+     * 获取近视率、视力低下率、平均视力
+     * @return
+     */
+    private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
+        List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
+        Long myopiaNum = validConclusions.stream().map(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        Long lowVisionNum = validConclusions.stream().map(x -> x.getIsLowVision() ).count();
+        Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
+        int countNum = validConclusions.size();
+        myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
+        myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.LOW_VISION.name(), lowVisionNum, convertToPercentage(lowVisionNum * 1f / countNum)));
+        myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.AVERAGE_VISION.name(), round2Digits(vision / (countNum * 2)), null));
+        return myopiaRatio;
+    }
+
+    /**
+     * 获取未矫率、戴镜率、欠矫率、足矫率
+     * @return
+     */
+    private List<TypeRatioDTO> getVisionCorrection(List<StatConclusion> validConclusions) {
+        List<TypeRatioDTO> visionCorrection = new ArrayList<>();
+        Long uncorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection())).count();
+        Long wearingNum = validConclusions.stream().map(x -> x.getGlassesType() > 0).count();
+        Long underCorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        Long enoughCorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        int countNum = validConclusions.size();
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNCORRECTED.name(), uncorrectedNum, convertToPercentage(uncorrectedNum * 1f / countNum)));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNDER_CORRECTED.name(), wearingNum,  convertToPercentage(wearingNum * 1f / countNum)));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.WEARING_RATIO.name(), underCorrectedNum, convertToPercentage(underCorrectedNum * 1f / countNum)));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.ENOUGH_CORRECTED.name(), enoughCorrectedNum, convertToPercentage(enoughCorrectedNum * 1f / countNum)));
+        return visionCorrection;
+    }
+
+    /**
+     * 获取未矫率、戴镜率、欠矫率、足矫率
+     * @return
+     */
+    private List<TypeRatioDTO> getWarnLevel(List<StatConclusion> validConclusions) {
+        List<TypeRatioDTO> warnLevel = new ArrayList<>();
+        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getMyopiaWarningLevel, Collectors.counting()));
+        int countNum = validConclusions.size();
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.get(WarningLevel.ZERO.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.ZERO.code) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.get(WarningLevel.ONE.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.ONE.code) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), myopiaWarningLevelMap.get(WarningLevel.TWO.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.TWO.code) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), myopiaWarningLevelMap.get(WarningLevel.THREE.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.THREE.code) * 1f / countNum)));
+        return warnLevel;
+    }
+
+    /**
+     * 获取男女近视信息
+     * @param statGenderDTO
+     * @return
+     */
+    private List<TypeRatioDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
+        Long maleMyopiaNum = statGenderDTO.getMale().stream().map(x -> x.getIsMyopia()).count();
+        Long femaleMyopiaNum = statGenderDTO.getFemale().stream().map(x -> x.getIsMyopia()).count();
+        return Arrays.asList(
+                TypeRatioDTO.getInstance(GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
+                TypeRatioDTO.getInstance(GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
+        );
+    }
+
+    /**
+     * 获取学段近视信息
+     * @param businessSchoolAge
+     * @return
+     */
+    private List<MyopiaDTO> getSchoolAgeMyopia(StatBusinessSchoolAgeDTO businessSchoolAge) {
+        return businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
+                .map(x -> {
+                    List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().get(x);
+                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().get(x),
+                            x, myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
+                }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学校近视信息
+     * @param schools
+     * @param schoolValidMap
+     * @return
+     */
+    private List<MyopiaDTO> getSchoolMyopia(List<School> schools, Map<Integer, List<StatConclusion>> schoolValidMap) {
+        List<MyopiaDTO> schoolMyopia = schools.stream()
+                .filter(school -> CollectionUtils.isNotEmpty(schoolValidMap.get(school.getId())))
+                .map(x -> {
+                    List<StatConclusion> stat = schoolValidMap.get(x.getId());
+                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    return MyopiaDTO.getInstance(stat.size(), x.getName(),
+                            myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
+                })
+                .sorted(Comparator.comparing(MyopiaDTO::getRatio).reversed())
+                .collect(Collectors.toList());
+        // 设置排名
+        for (int i = 0; i < schoolMyopia.size(); i++) {
+            schoolMyopia.get(i).setRanking(i+1);
+        }
+        return schoolMyopia;
+    }
+
+    /**
+     * 获取年级近视信息
+     * @param validConclusions
+     * @return
+     */
+    private List<MyopiaDTO> getGradeMyopia(List<StatConclusion> validConclusions) {
+        Map<String, List<StatConclusion>> gradeMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        return gradeMap.keySet().stream()
+                .map(x -> {
+                    List<StatConclusion> stat = gradeMap.get(x);
+                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    return MyopiaDTO.getInstance(stat.size(), GradeCodeEnum.getByCode(x).name(),
+                            myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
+                }).collect(Collectors.toList());
+    }
+
 
     /**
      * 获取学校筛查报告数据
      *
      * @param srcScreeningNoticeId 通知ID
-     * @param planId               计划ID
+     * @param planId               计划IDmz
      * @param schoolId             学校ID
      * @return
      */

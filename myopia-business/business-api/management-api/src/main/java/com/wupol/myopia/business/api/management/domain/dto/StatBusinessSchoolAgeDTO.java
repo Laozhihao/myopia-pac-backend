@@ -20,6 +20,10 @@ public class StatBusinessSchoolAgeDTO {
     private Map<String, Integer> firstScreenSchoolAgeNumMap;
     private Map<String, List<StatConclusion>> validSchoolAgeMap;
     private Map<String, Integer> validSchoolAgeNumMap;
+    /**
+     * 各学段学校数
+     */
+    private Map<String, Long> validSchoolAgeDistributionMap;
 
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase) {
 
@@ -32,6 +36,7 @@ public class StatBusinessSchoolAgeDTO {
         validSchoolAgeNumMap = new LinkedHashMap();
         for (String schoolAge : validSchoolAgeMap.keySet()) {
             validSchoolAgeNumMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).size());
+            validSchoolAgeDistributionMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).stream().map(x -> x.getSchoolId()).distinct().count());
         }
 
     }

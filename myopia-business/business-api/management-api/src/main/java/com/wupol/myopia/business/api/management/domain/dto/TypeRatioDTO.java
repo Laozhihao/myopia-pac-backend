@@ -7,19 +7,20 @@ import lombok.experimental.Accessors;
 
 /**
  * @Author wulizhou
- * @Date 2021/6/9 11:30
+ * @Date 2021/6/10 10:54
  */
 @Data
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class NumAndRatio {
+public class TypeRatioDTO {
 
-    private Integer num;
+    private String key;
+    private Number num;
     private Float ratio;
 
-    public static NumAndRatio getInstance(Integer num, Float ratio) {
-        return new NumAndRatio(num, ratio);
+    public static TypeRatioDTO getInstance(String key, Number num, Float ratio) {
+        return new TypeRatioDTO(key, num, ratio);
     }
 
 }
