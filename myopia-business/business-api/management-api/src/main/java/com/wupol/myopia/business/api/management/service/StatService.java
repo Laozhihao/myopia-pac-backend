@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
 import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterDTO;
 import com.wupol.myopia.business.api.management.domain.dto.FilterParamsDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
@@ -161,6 +162,7 @@ public class StatService {
      * @param notificationId2 筛查通知ID_2
      * @param districtId      区域ID
      * @param schoolAge       学龄段
+     * @deprecated
      */
     @Deprecated
     public Map<String, ScreeningDataContrast> getScreeningDataContrast(
@@ -392,6 +394,7 @@ public class StatService {
      * @param schoolAge       学龄
      * @throws IOException
      * @throws UtilException
+     * @deprecated
      */
     @Deprecated
     public void exportStatContrast(Integer notificationId1, Integer notificationId2,
@@ -674,51 +677,91 @@ public class StatService {
     }
 
     /**
-     * 返回当前用户权限范围内的年度数据
+     * 获取用户相关的历年通知、任务、计划用户统计对比筛选项
      *
-     * @param contrastType 对比项类型
      * @return
      */
-    public List<Integer> getDataContrastYear(Integer contrastType) {
-        switch (ContrastTypeEnum.get(contrastType)) {
-            case NOTIFICATION:
-                return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedNoticeByUser(CurrentUserUtil.getCurrentUser()));
-            case PLAN:
-                return screeningPlanService.getYears(managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser()));
-            case TASK:
-                //TODO?
-            default:
-        }
-        return Collections.emptyList();
-    }
-
-    private void composeContrastTypeFilter() {
+    public Map<Integer, List<ContrastTypeYearItemsDTO>> composeContrastTypeFilter() {
+        Map<Integer, List<ContrastTypeYearItemsDTO>> contrastTypeFilterMap = new HashMap<>();
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+
+        // Notification list
         List<ScreeningNotice> noticeList = screeningNoticeBizService.getRelatedNoticeByUser(currentUser);
-        SortedSet set = new TreeSet();
+        Map<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> yearNoticeMap = new HashMap<>();
         for (ScreeningNotice notice : noticeList) {
+            Date startTimeDate = notice.getStartTime();
+            Date endTimeDate = notice.getEndTime();
+            if (startTimeDate == null || endTimeDate == null) {
+                continue;
+            }
             int id = notice.getId();
             String title = notice.getTitle();
-            Long startTime = notice.getStartTime().getTime();
-            Long endTime = notice.getEndTime().getTime();
+            Integer startYear = DateUtil.getYear(startTimeDate);
+            long startTime = startTimeDate.getTime();
+            long endTime = endTimeDate.getTime();
+            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
+            if (yearNoticeMap.containsKey(startYear)) {
+                yearNoticeMap.get(startYear).add(yearItemDTO);
+            } else {
+                yearNoticeMap.put(startYear, new ArrayList(Collections.singletonList(yearItemDTO)));
+            }
         }
+        List<ContrastTypeYearItemsDTO> contrastTypeYearNotificationList = yearNoticeMap.keySet().stream().sorted()
+                .map(x -> new ContrastTypeYearItemsDTO(x, yearNoticeMap.get(x))).collect(Collectors.toList());
+        contrastTypeFilterMap.put(ContrastTypeEnum.NOTIFICATION.code, contrastTypeYearNotificationList);
 
+        // Plan List
         List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
+        Map<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> yearPlanMap = new HashMap<>();
         for (ScreeningPlan plan : planList) {
+            Date startTimeDate = plan.getStartTime();
+            Date endTimeDate = plan.getEndTime();
+            if (startTimeDate == null || endTimeDate == null) {
+                continue;
+            }
             int id = plan.getId();
             String title = plan.getTitle();
-            Long startTime = plan.getStartTime().getTime();
-            Long endTime = plan.getEndTime().getTime();
+            Integer startYear = DateUtil.getYear(startTimeDate);
+            long startTime = startTimeDate.getTime();
+            long endTime = endTimeDate.getTime();
+            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
+            if (yearPlanMap.containsKey(startYear)) {
+                yearPlanMap.get(startYear).add(yearItemDTO);
+            } else {
+                yearPlanMap.put(startYear, new ArrayList(Collections.singletonList(yearItemDTO)));
+            }
         }
+        List<ContrastTypeYearItemsDTO> contrastTypeYearPlanList = yearPlanMap.keySet().stream().sorted()
+                .map(x -> new ContrastTypeYearItemsDTO(x, yearPlanMap.get(x))).collect(Collectors.toList());
+        contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, contrastTypeYearPlanList);
 
+        // Task List
         //TODO: get task list by user
         List<ScreeningTask> taskList = Collections.emptyList();
+        Map<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> yearTaskMap = new HashMap<>();
         for (ScreeningTask task : taskList) {
+            Date startTimeDate = task.getStartTime();
+            Date endTimeDate = task.getEndTime();
+            if (startTimeDate == null || endTimeDate == null) {
+                continue;
+            }
             int id = task.getId();
             String title = task.getTitle();
-            Long startTime = task.getStartTime().getTime();
-            Long endTime = task.getEndTime().getTime();
+            Integer startYear = DateUtil.getYear(startTimeDate);
+            long startTime = startTimeDate.getTime();
+            long endTime = endTimeDate.getTime();
+            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
+            if (yearTaskMap.containsKey(startYear)) {
+                yearTaskMap.put(startYear, new ArrayList(Collections.singletonList(yearItemDTO)));
+            } else {
+                yearTaskMap.put(startYear, Collections.singletonList(yearItemDTO));
+            }
         }
+        List<ContrastTypeYearItemsDTO> contrastTypeYearTaskList = yearTaskMap.keySet().stream().sorted()
+                .map(x -> new ContrastTypeYearItemsDTO(x, yearTaskMap.get(x))).collect(Collectors.toList());
+        contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, contrastTypeYearTaskList);
+
+        return contrastTypeFilterMap;
     }
 
     /**

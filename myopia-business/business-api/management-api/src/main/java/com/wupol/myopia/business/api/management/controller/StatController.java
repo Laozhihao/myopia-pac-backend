@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterDTO;
+import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -41,12 +41,15 @@ public class StatController {
 
     /**
      * 获取筛查对比数据
+     *
      * @param notificationId1 1号通知ID
      * @param notificationId2 2号通知ID
-     * @param districtId 区域ID
-     * @param schoolAge 学龄代码
+     * @param districtId      区域ID
+     * @param schoolAge       学龄代码
      * @return
+     * @deprecated
      */
+    @Deprecated
     @GetMapping("/dataContrast")
     public Map<String, ScreeningDataContrast> getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
                                                                        @RequestParam(value = "nid2", required = false) Integer notificationId2,
@@ -125,14 +128,13 @@ public class StatController {
     }
 
     /**
-     * 返回当前用户权限范围内的年度数据
+     * 获取用户相关的历年通知、任务、计划用户统计对比筛选项
      *
-     * @param contrastType 对比项类型
      * @return
      */
     @GetMapping("/dataContrastYear")
-    public List<Integer> getDataContrastYear(@RequestParam("ctype") Integer contrastType) {
-        return statService.getDataContrastYear(contrastType);
+    public Map<Integer, List<ContrastTypeYearItemsDTO>> getDataContrastYear() {
+        return statService.composeContrastTypeFilter();
     }
 
     /**
