@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -25,9 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +53,8 @@ public class ScreeningTaskBizService {
     private ScreeningNoticeService screeningNoticeService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
 
     /**
      * 新增或更新
@@ -130,6 +132,28 @@ public class ScreeningTaskBizService {
         screeningNoticeService.save(screeningNotice);
         //3. 为筛查机构创建通知
         return screeningTaskOrgBizService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
+    }
+
+    public List<ScreeningTask> getScreeningPlanByUser(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
+        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
+        return this.getScreeningTaskByNoticeIdsAndUser(screeningNoticeIds, user);
+    }
+
+    public List<ScreeningTask> getScreeningTaskByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
+        if (CollectionUtils.isEmpty(noticeIds)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<ScreeningTask> screeningTaskLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            throw new BusinessException("筛查机构无权限获取任务信息");
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningTaskLambdaQueryWrapper.in(ScreeningTask::getGovDeptId, allGovDeptIds);
+        }
+        screeningTaskLambdaQueryWrapper.in(ScreeningTask::getScreeningNoticeId, noticeIds).eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        return screeningTaskService.list(screeningTaskLambdaQueryWrapper);
     }
 
 }

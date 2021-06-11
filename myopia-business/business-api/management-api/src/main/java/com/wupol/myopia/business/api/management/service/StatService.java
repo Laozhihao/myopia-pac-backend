@@ -89,13 +89,9 @@ public class StatService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-    @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
-    private ScreeningTaskService screeningTaskService;
+    private ScreeningTaskBizService screeningTaskBizService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -736,8 +732,7 @@ public class StatService {
         contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, contrastTypeYearPlanList);
 
         // Task List
-        //TODO: get task list by user
-        List<ScreeningTask> taskList = Collections.emptyList();
+        List<ScreeningTask> taskList = screeningTaskBizService.getScreeningPlanByUser(currentUser);
         Map<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> yearTaskMap = new HashMap<>();
         for (ScreeningTask task : taskList) {
             Date startTimeDate = task.getStartTime();
