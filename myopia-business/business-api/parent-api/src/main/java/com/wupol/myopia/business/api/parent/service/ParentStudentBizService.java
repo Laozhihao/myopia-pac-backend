@@ -195,10 +195,9 @@ public class ParentStudentBizService {
      * @param student     学生
      * @param currentUser 当前登录用户
      * @return 学生ID
-     * @throws IOException IO异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(Student student, CurrentUser currentUser) throws IOException {
+    public Integer saveStudent(Student student, CurrentUser currentUser) {
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
