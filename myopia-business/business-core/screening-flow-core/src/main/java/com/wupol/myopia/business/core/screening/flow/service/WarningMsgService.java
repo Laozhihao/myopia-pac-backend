@@ -10,18 +10,26 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.MsgTemplateEnum;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.WarningMsgMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg.STATUS_READY_TO_SEND;
+import static com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg.STATUS_SEND_CANCEL;
 
 /**
  * @Author jacob
@@ -43,7 +51,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      */
     public Set<WarningMsg> needNoticeMsg() {
         Date todayDate = DateUtil.getTodayDate(new Date());
-        return warningMsgMapper.selectNeedToNotice(todayDate.getTime(), STATUS_READY_TO_SEND);
+        return warningMsgMapper.selectNeedToNotice(null,todayDate.getTime(), STATUS_READY_TO_SEND);
     }
 
     /**
@@ -144,4 +152,59 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
             }
         });
     }
+
+    /**
+     * 取消短信 分步操作,尽量走索引,避免全表扫描
+     * @param studentId
+     */
+    public void cancelMsg(Integer studentId) {
+        if (studentId == null) {
+            return;
+        }
+        Set<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,null,STATUS_READY_TO_SEND);
+        if (CollectionUtils.isEmpty(warningMsgs)) {
+            return;
+        }
+        List<WarningMsg> updateWarningMsgList = warningMsgs.stream().filter(warningMsg -> warningMsg.getSendTime()
+                .after(DateUtil.getTodayDate(new Date())))
+                .map(warningMsg -> warningMsg.setSendStatus(STATUS_SEND_CANCEL)).collect(Collectors.toList());
+        updateBatchById(updateWarningMsgList);
+    }
+
+    /**
+     * 处理预警短信的新增或者取消问题
+     * @param visionScreeningResultStatConclusionTwoTuple
+     * @throws IOException
+     */
+    @Async
+    public void dealMsg(TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple) throws IOException {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultStatConclusionTwoTuple.getFirst();
+        StatConclusion statConclusion = visionScreeningResultStatConclusionTwoTuple.getSecond();
+        synchronized (WarningMsgService.class) {
+            if ((statConclusion.getVisionL() <= 4.9 || statConclusion.getVisionR() <= 4.9) && statConclusion.getAge() >=6 ) {
+                //如果视力过低的话,就通知
+                createAndInsertNewOne(visionScreeningResult.getStudentId());
+            } else {
+                //视力检查正常的话,将当天之后(不包含当天)的所有通知都取消
+                cancelMsg(visionScreeningResult.getStudentId());
+            }
+        }
+    }
+
+    /**
+     * 为该学生当天的检查创建一条隔天待发送的短信
+     * @param studentId
+     */
+    private void createAndInsertNewOne(Integer studentId) {
+        Date currentDateTime = new Date();
+        WarningMsg warningMsg = new WarningMsg();
+        Date tmrDate = DateUtil.getOffsetDays(currentDateTime, 1);
+        warningMsg.setCreateTime(currentDateTime)
+                .setStudentId(studentId)
+                .setSendTime(tmrDate)
+                .setSendStatus(STATUS_READY_TO_SEND)
+                .setMsgTemplateId(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION.getMsgCode());
+        saveOrUpdate(warningMsg, new LambdaQueryWrapper<WarningMsg>().eq(WarningMsg::getStudentId,studentId).eq(WarningMsg::getSendTime,tmrDate));
+    }
+
 }

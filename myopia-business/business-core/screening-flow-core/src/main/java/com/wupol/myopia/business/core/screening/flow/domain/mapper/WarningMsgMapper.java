@@ -21,5 +21,5 @@ public interface WarningMsgMapper extends BaseMapper<WarningMsg> {
      * @param sendStatus 状态 发送的状态
      * @return
      */
-    Set<WarningMsg> selectNeedToNotice(Long sendDate, Integer sendStatus);
+    Set<WarningMsg> selectNeedToNotice(Integer studentId, Long sendDate, Integer sendStatus);
 }

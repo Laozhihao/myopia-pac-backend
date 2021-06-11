@@ -18,6 +18,7 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -29,8 +30,11 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.WarningMsgService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +82,8 @@ public class ScreeningAppController {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private ScreeningPlanBizService screeningPlanBizService;
+    @Autowired
+    private WarningMsgService warningMsgService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -248,7 +254,9 @@ public class ScreeningAppController {
      */
     @PostMapping(value = {"/eye/addVision"})
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
+        TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
+        //异步处理警告短信
+        warningMsgService.dealMsg(visionScreeningResultStatConclusionTwoTuple);
     }
 
     /**

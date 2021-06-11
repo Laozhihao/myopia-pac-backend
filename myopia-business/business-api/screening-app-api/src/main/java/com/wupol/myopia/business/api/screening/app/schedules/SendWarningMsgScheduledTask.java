@@ -38,8 +38,7 @@ public class SendWarningMsgScheduledTask {
     /**
      * 定时任务发送
      */
-    //@Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
-    @Scheduled(fixedDelay = 1000000, zone = "GMT+8:00")
+    @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
     public void sendWarningMsg() {
         //找出需要发送短信的数据
         Set<WarningMsg> warningMsgs = warningMsgService.needNoticeMsg();

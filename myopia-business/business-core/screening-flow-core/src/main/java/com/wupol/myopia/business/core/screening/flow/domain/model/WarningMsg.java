@@ -34,24 +34,18 @@ public class WarningMsg implements Serializable {
      * 发送成功
      */
     public final static Integer STATUS_SEND_SUCCESS = 1;
+    /**
+     * 取消发送
+     */
+    public final static Integer STATUS_SEND_CANCEL = 2;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 通知id
-     */
-    private Integer noticeId;
-
-    /**
      * 学生id
      */
     private Integer studentId;
-
-    /**
-     * 计划id
-     */
-    private Integer planId;
 
     /**
      * 短信模板id
@@ -62,11 +56,6 @@ public class WarningMsg implements Serializable {
      * 电话号码(发送的时候才记录)
      */
     private String phoneNumbers;
-
-    /**
-     * 短信参数
-     */
-    private String msgParams;
 
     /**
      * 发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送
