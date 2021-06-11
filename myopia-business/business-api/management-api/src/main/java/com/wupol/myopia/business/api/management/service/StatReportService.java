@@ -65,6 +65,7 @@ public class StatReportService {
     private final static String TABLE_LABEL_AVERAGE_VISION = "averageVision";
     private final static String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
     private final static String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
+    private final static String TOTAL_CHINESE = "合计";
 
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件
@@ -644,6 +645,9 @@ public class StatReportService {
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setPlanId(planId);
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        if (statConclusions == null || statConclusions.size() == 0) {
+            return null;
+        }
         List<Integer> schoolIds =
                 statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
         List<School> schools = schoolService.getByIds(schoolIds);
@@ -693,7 +697,7 @@ public class StatReportService {
      */
     private List<StatSchoolPersonnelDTO> getSchoolPersonnel(List<School> schools, Map<Integer, Long> planSchoolStudentMap,
                                                             Map<Integer, List<StatConclusion>> schoolFirstScreenMap, Map<Integer, List<StatConclusion>> schoolValidMap) {
-        return schools.stream().map(school -> {
+        List<StatSchoolPersonnelDTO> schoolPersonnels = schools.stream().map(school -> {
             StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
             persionnel.setName(school.getName())
                     .setPlanScreeningNum(planSchoolStudentMap.get(school.getId()))
@@ -701,8 +705,18 @@ public class StatReportService {
                     .setValidFirstScreeningNum(schoolValidMap.get(school.getId()).size());
             return persionnel;
         })
-        .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
-        .collect(Collectors.toList());
+                .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
+                .collect(Collectors.toList());
+        // 添加合计
+        StatSchoolPersonnelDTO total = new StatSchoolPersonnelDTO();
+        total.setName(TOTAL_CHINESE);
+        for(StatSchoolPersonnelDTO persionnel : schoolPersonnels) {
+            total.setPlanScreeningNum(total.getPlanScreeningNum() + persionnel.getPlanScreeningNum());
+            total.setActualScreeningNum(total.getActualScreeningNum() + persionnel.getActualScreeningNum());
+            total.setValidFirstScreeningNum(total.getValidFirstScreeningNum() + persionnel.getValidFirstScreeningNum());
+        }
+        schoolPersonnels.add(total);
+        return schoolPersonnels;
     }
 
     /**
@@ -764,10 +778,10 @@ public class StatReportService {
         List<TypeRatioDTO> warnLevel = new ArrayList<>();
         Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getMyopiaWarningLevel, Collectors.counting()));
         int countNum = validConclusions.size();
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.get(WarningLevel.ZERO.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.ZERO.code) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.get(WarningLevel.ONE.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.ONE.code) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), myopiaWarningLevelMap.get(WarningLevel.TWO.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.TWO.code) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), myopiaWarningLevelMap.get(WarningLevel.THREE.code), convertToPercentage(myopiaWarningLevelMap.get(WarningLevel.THREE.code) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L) * 1f / countNum)));
         return warnLevel;
     }
 

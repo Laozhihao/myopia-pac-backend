@@ -34,6 +34,7 @@ public class StatBusinessSchoolAgeDTO {
         }
         validSchoolAgeMap = statBase.getValid().stream().collect(Collectors.groupingBy(x -> SchoolAge.get(x.getSchoolAge()).name()));
         validSchoolAgeNumMap = new LinkedHashMap();
+        validSchoolAgeDistributionMap = new LinkedHashMap<>();
         for (String schoolAge : validSchoolAgeMap.keySet()) {
             validSchoolAgeNumMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).size());
             validSchoolAgeDistributionMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).stream().map(x -> x.getSchoolId()).distinct().count());
