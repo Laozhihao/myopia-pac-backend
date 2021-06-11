@@ -4,9 +4,7 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +38,15 @@ public class StatBusinessSchoolAgeDTO {
             validSchoolAgeDistributionMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).stream().map(x -> x.getSchoolId()).distinct().count());
         }
 
+    }
+
+    public Map<String, Long> getSortedDistributionMap() {
+        Map sortDistributionMap = new LinkedHashMap<>();
+        List<String> sorted = Arrays.asList(SchoolAge.PRIMARY.name(), SchoolAge.JUNIOR.name(), SchoolAge.HIGH.name(), SchoolAge.VOCATIONAL_HIGH.name(), SchoolAge.KINDERGARTEN.name());
+        for (String sort : sorted) {
+            sortDistributionMap.put(sort, validSchoolAgeDistributionMap.getOrDefault(sort, 0L));
+        }
+        return sortDistributionMap;
     }
 
 }

@@ -672,7 +672,7 @@ public class StatReportService {
                 .actualScreeningNum(actualScreeningNum)
                 .validFirstScreeningNum(validFirstScreeningNum)
                 .validRatio(convertToPercentage(validFirstScreeningNum * 1f / actualScreeningNum))
-                .schoolAgeDistribution(businessSchoolAge.getValidSchoolAgeDistributionMap())
+                .schoolAgeDistribution(businessSchoolAge.getSortedDistributionMap())
                 .schoolExamples(schoolExamples)
                 .schoolPersonnel(getSchoolPersonnel(schools, planSchoolStudentMap, schoolFirstScreenMap, schoolValidMap))
                 .schoolAgePersonnel(getSchoolAgePersonne(planSchoolAgeStudentMap, businessSchoolAge))
@@ -742,8 +742,8 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
-        Long myopiaNum = validConclusions.stream().map(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
-        Long lowVisionNum = validConclusions.stream().map(x -> x.getIsLowVision() ).count();
+        Long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        Long lowVisionNum = validConclusions.stream().filter(x -> x.getIsLowVision() ).count();
         Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
         int countNum = validConclusions.size();
         myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
@@ -758,10 +758,10 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getVisionCorrection(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> visionCorrection = new ArrayList<>();
-        Long uncorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection())).count();
-        Long wearingNum = validConclusions.stream().map(x -> x.getGlassesType() > 0).count();
-        Long underCorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection())).count();
-        Long enoughCorrectedNum = validConclusions.stream().map(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        Long uncorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection())).count();
+        Long wearingNum = validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+        Long underCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        Long enoughCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
         int countNum = validConclusions.size();
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNCORRECTED.name(), uncorrectedNum, convertToPercentage(uncorrectedNum * 1f / countNum)));
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNDER_CORRECTED.name(), wearingNum,  convertToPercentage(wearingNum * 1f / countNum)));
@@ -790,12 +790,12 @@ public class StatReportService {
      * @param statGenderDTO
      * @return
      */
-    private List<TypeRatioDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
-        Long maleMyopiaNum = statGenderDTO.getMale().stream().map(x -> x.getIsMyopia()).count();
-        Long femaleMyopiaNum = statGenderDTO.getFemale().stream().map(x -> x.getIsMyopia()).count();
+    private List<MyopiaDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
+        Long maleMyopiaNum = statGenderDTO.getMale().stream().filter(x -> x.getIsMyopia()).count();
+        Long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(x -> x.getIsMyopia()).count();
         return Arrays.asList(
-                TypeRatioDTO.getInstance(GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
-                TypeRatioDTO.getInstance(GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
+                MyopiaDTO.getInstance(statGenderDTO.getMale().size(), GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
+                MyopiaDTO.getInstance(statGenderDTO.getFemale().size(), GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
         );
     }
 
