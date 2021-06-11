@@ -759,7 +759,7 @@ public class StatService {
         }
         List<ContrastTypeYearItemsDTO> contrastTypeYearTaskList = yearTaskMap.keySet().stream().sorted()
                 .map(x -> new ContrastTypeYearItemsDTO(x, yearTaskMap.get(x))).collect(Collectors.toList());
-        contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, contrastTypeYearTaskList);
+        contrastTypeFilterMap.put(ContrastTypeEnum.TASK.code, contrastTypeYearTaskList);
 
         return contrastTypeFilterMap;
     }
