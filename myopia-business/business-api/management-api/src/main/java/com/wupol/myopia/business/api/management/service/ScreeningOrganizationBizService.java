@@ -6,10 +6,12 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -404,18 +406,40 @@ public class ScreeningOrganizationBizService {
     /**
      * 筛查机构合作医院列表查询
      *
-     * @param currentUser 当前用户
-     * @param name        名称
+     * @param orgId 筛查机构ID
+     * @param name  名称
      * @return IPage<HospitalResponseDTO>
      */
-    public List<HospitalResponseDTO> getHospitalList(CurrentUser currentUser, String name) {
-        Integer codePre = null;
+    public List<HospitalResponseDTO> getHospitalList(Integer orgId, String name) {
         // 筛查角色的只能看到全省
-        if (currentUser.isScreeningUser()) {
-            ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
-            ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
+        ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(orgId);
+        ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
+        Integer codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
+
+        List<HospitalResponseDTO> hospitalList = hospitalBizService.getHospitalByName(name, codePre);
+        // 查询当前筛查机构下已经添加的合作医院
+        List<OrgCooperationHospital> cooperationHospitalList = orgCooperationHospitalService.getCooperationHospitalList(orgId);
+        if (CollectionUtils.isEmpty(cooperationHospitalList)) {
+            return hospitalList;
         }
-        return hospitalBizService.getHospitalByName(name, codePre);
+        List<Integer> hospitalIds = cooperationHospitalList.stream().map(OrgCooperationHospital::getHospitalId).collect(Collectors.toList());
+        hospitalList.forEach(h -> {
+            if (hospitalIds.contains(h.getId())) {
+                h.setIsAdd(true);
+            }
+        });
+        return hospitalList;
+    }
+
+    /**
+     * 获取筛查机构的行政区域
+     *
+     * @param orgId 筛查机构Id
+     * @return List<District>
+     */
+    public List<District> getDistrictTree(Integer orgId) {
+        ScreeningOrganization organization = screeningOrganizationService.getById(orgId);
+        District district = districtService.getById(organization.getDistrictId());
+        return Collections.singletonList(districtService.getProvinceDistrictTreePriorityCache(district.getCode()));
     }
 }

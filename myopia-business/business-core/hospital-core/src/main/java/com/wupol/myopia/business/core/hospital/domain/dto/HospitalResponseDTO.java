@@ -37,4 +37,9 @@ public class HospitalResponseDTO extends Hospital {
      * 头像Url
      */
     private String avatarUrl;
+
+    /**
+     * 是否已经添加合作医院 true-是 false-否
+     */
+    private Boolean isAdd = false;
 }

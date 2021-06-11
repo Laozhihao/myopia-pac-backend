@@ -38,6 +38,9 @@ public class HospitalStudent implements Serializable {
     /** 医院id */
     private Integer hospitalId;
 
+    /** 学号 */
+    private String sno;
+
     /** 创建人ID */
     private Integer createUserId;
 
@@ -104,11 +107,9 @@ public class HospitalStudent implements Serializable {
     private Integer status;
 
     /** 创建时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /** 更新时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
 

@@ -12,12 +12,12 @@ public interface WxConstant {
     /**
      * 获取微信用户个人信息授权地址
      **/
-    String WX_AUTHORIZE_USER_INFO_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/userInfo&response_type=code&scope=snsapi_userinfo&state=state#wechat_redirect";
+    String WX_AUTHORIZE_USER_INFO_FULL_URL = "%s?appid=%s&redirect_uri=%s/parent/wx/callback/userInfo&response_type=code&scope=snsapi_userinfo&state=%s#wechat_redirect";
 
     /**
      * 家长端前端地址
      **/
-    String WX_H5_CLIENT_URL = "%s/#/middle-transform?code=%s";
+    String WX_H5_CLIENT_URL = "%s/#/middle-transform?code=%s&state=%s";
     /**
      * 家长端前端地址，带openId
      **/
@@ -25,7 +25,7 @@ public interface WxConstant {
     /**
      * 家长端前端地址，带登录token相关信息
      **/
-    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/middle-transform?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d";
+    String WX_H5_CLIENT_URL_WITH_TOKEN = "%s/#/middle-transform?code=%s&accessToken=%s&refreshToken=%s&expiresIn=%d&state=%s";
 
     /**
      * 微信api返回数据 - accessToken字段名

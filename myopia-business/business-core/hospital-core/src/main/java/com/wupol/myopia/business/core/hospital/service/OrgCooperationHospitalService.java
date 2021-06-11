@@ -115,4 +115,13 @@ public class OrgCooperationHospitalService extends BaseService<OrgCooperationHos
     public Integer getSuggestHospital(Integer screeningOrgId) {
         return baseMapper.getSuggestHospital(screeningOrgId);
     }
+
+    /**
+     * 通过医院Id删除数据
+     *
+     * @param hospitalId 医院Id
+     */
+    public void deletedHospital(Integer hospitalId) {
+        baseMapper.deletedByHospitalId(hospitalId);
+    }
 }

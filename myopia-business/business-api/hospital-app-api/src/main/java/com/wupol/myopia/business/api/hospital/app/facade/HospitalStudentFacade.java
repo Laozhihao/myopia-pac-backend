@@ -169,6 +169,7 @@ public class HospitalStudentFacade {
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setStudentId(studentId);
         }
+
         // 如果是新增学生，则将创建时间与更新时间设置成当前
         if (Objects.isNull(studentVo.getId())) {
             Date now = new Date();
@@ -220,6 +221,7 @@ public class HospitalStudentFacade {
             return getHospitalStudentFromManagement(studentId, idCard, name);
         }
         BeanUtils.copyProperties(student, studentVO);
+        studentVO.setStudentId(studentId);
 
         // 地区Maps
         Map<Integer, District> districtMaps = getDistrictMapByDistrictId(Lists.newArrayList(student));

@@ -47,7 +47,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
     }
 
     /** 校验学生与医院关系 */
-    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) throws IOException {
+    public Boolean existHospitalAndStudentRelationship(Integer hospitalId, Integer studentId) {
         HospitalStudent student = findOne(new HospitalStudent(hospitalId, studentId));
         return Objects.nonNull(student);
     }
@@ -62,7 +62,7 @@ public class HospitalStudentService extends BaseService<HospitalStudentMapper, H
      * @param idCard 身份证
      * @return Student
      */
-    public HospitalStudent getByIdCard(String idCard) throws IOException {
+    public HospitalStudent getByIdCard(String idCard) {
         return findOne(new HospitalStudent().setIdCard(idCard));
     }
 }
