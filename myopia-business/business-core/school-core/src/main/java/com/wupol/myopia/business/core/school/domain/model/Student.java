@@ -245,4 +245,14 @@ public class Student extends AddressCode implements Serializable {
         }
         return result.toString();
     }
+
+    /**
+     * 生日是否超出限制
+     *
+     * @return true-是 false-否
+     */
+    public boolean checkBirthdayExceedLimit() {
+        Date checkDate = new Date(-28800000L);
+        return Objects.nonNull(birthday) && birthday.before(checkDate);
+    }
 }
