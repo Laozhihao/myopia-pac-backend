@@ -252,6 +252,7 @@ public class Student extends AddressCode implements Serializable {
      * @return true-是 false-否
      */
     public boolean checkBirthdayExceedLimit() {
+        // 1970-01-01 毫秒时间戳
         Date checkDate = new Date(-28800000L);
         return Objects.nonNull(birthday) && birthday.before(checkDate);
     }
