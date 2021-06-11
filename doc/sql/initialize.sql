@@ -948,13 +948,37 @@ INSERT INTO `m_government_department`(id, `name`, `pid`, `district_id`, `create_
 INSERT INTO m_template (id, type, name) VALUES (1, 1, '学生档案卡-模板1');
 INSERT INTO m_template (id, type, name) VALUES (2, 1, '学生档案卡-模板2');
 INSERT INTO m_template (id, type, name) VALUES (3, 1, '学生档案卡-模板3');
-INSERT INTO m_template (id, type, name) VALUES (4, 1, '学生档案卡-模板4');
-INSERT INTO m_template (id, type, name) VALUES (5, 2, '筛查报告-模板1');
-INSERT INTO m_template (id, type, name) VALUES (6, 2, '筛查报告-模板2');
-INSERT INTO m_template (id, type, name) VALUES (7, 2, '筛查报告-模板3');
-INSERT INTO m_template (id, type, name) VALUES (8, 2, '筛查报告-模板4');
+INSERT INTO m_template (id, type, name)
+VALUES (4, 1, '学生档案卡-模板4');
+INSERT INTO m_template (id, type, name)
+VALUES (5, 2, '筛查报告-模板1');
+INSERT INTO m_template (id, type, name)
+VALUES (6, 2, '筛查报告-模板2');
+INSERT INTO m_template (id, type, name)
+VALUES (7, 2, '筛查报告-模板3');
+INSERT INTO m_template (id, type, name)
+VALUES (8, 2, '筛查报告-模板4');
 
 -- 初始化“其他”学校
-INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, type, status) VALUES (1, '1234567890', 1, 1, -1, '', '其他', 2, '其他', 7, 0);
-INSERT INTO m_school_grade (id, create_user_id, school_id, grade_code, name, status) VALUES (1, 1, 1, '90', '其他', 0);
-INSERT INTO m_school_class (grade_id, create_user_id, school_id, name, seat_count, status) VALUES (1, 1, 1, '其他', 30, 0);
+INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc,
+                      type, status)
+VALUES (1, '1234567890', 1, 1, -1, '', '其他', 2, '其他', 7, 0);
+INSERT INTO m_school_grade (id, create_user_id, school_id, grade_code, name, status)
+VALUES (1, 1, 1, '90', '其他', 0);
+INSERT INTO m_school_class (grade_id, create_user_id, school_id, name, seat_count, status)
+VALUES (1, 1, 1, '其他', 30, 0);
+
+--- 视力预警表
+DROP TABLE IF EXISTS `m_warning_msg`;
+CREATE TABLE `m_warning_msg`
+(
+    `id`              int unsigned NOT NULL AUTO_INCREMENT,
+    `student_id`      int unsigned NOT NULL COMMENT '学生id',
+    `msg_template_id` int unsigned NOT NULL COMMENT '短信模板id',
+    `phone_numbers`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '电话号码(发送的时候才记录)',
+    `send_status`     tinyint unsigned NOT NULL DEFAULT '0' COMMENT '发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送',
+    `send_time`       timestamp NOT NULL COMMENT '待发送的时间',
+    `update_time`     timestamp NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_time`     timestamp NOT NULL   DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
