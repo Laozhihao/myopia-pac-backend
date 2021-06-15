@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastExportParamsDTO;
 import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterDTO;
 import com.wupol.myopia.business.api.management.domain.dto.FilterParamsDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
@@ -196,9 +197,55 @@ public class StatService {
     }
 
     /**
+     * 获取统计对比数据
+     *
+     * @param contrastType
+     * @param contrastId
+     * @param districtId
+     * @param schoolAge
+     * @param schoolId
+     * @param schoolGradeCode
+     * @param schoolClass
+     * @return
+     */
+    public ScreeningDataContrast getScreeningDataContrast(
+            Integer contrastType, Integer contrastId, Integer districtId, Integer schoolAge,
+            Integer schoolId, String schoolGradeCode, String schoolClass) {
+        if (contrastId == null || contrastId < 0) {
+            return null;
+        }
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        ContrastTypeEnum contrastTypeEnum = ContrastTypeEnum.get(contrastType);
+        switch (contrastTypeEnum) {
+            case NOTIFICATION:
+                query.setSrcScreeningNoticeId(contrastId);
+                break;
+            case TASK:
+                query.setTaskId(contrastId);
+                break;
+            case PLAN:
+                query.setPlanId(contrastId);
+                break;
+            default:
+                return null;
+        }
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
+        query.setDistrictIds(validDistrictIds);
+        query.setSchoolAge(schoolAge);
+        query.setSchoolId(schoolId);
+        query.setSchoolGradeCode(schoolGradeCode);
+        query.setSchoolClassName(schoolClass);
+        return composeScreeningDataContrast(statConclusionService.listByQuery(query),
+                getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
+                        , schoolAge, schoolId, schoolGradeCode, schoolClass));
+    }
+
+    /**
      * 获取用户有效的区域Id列表
+     *
      * @param notificationId 筛查通知ID
-     * @param currentUser 当前用户
+     * @param currentUser    当前用户
      * @return
      * @throws IOException
      */
@@ -317,7 +364,6 @@ public class StatService {
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         int planScreeningNum = getPlanScreeningStudentNum(notificationId, validDistrictIds);
-
         return ScreeningClassStat.builder().notificationId(notificationId)
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
@@ -353,32 +399,41 @@ public class StatService {
     }
 
     /**
-     * 获取区域学生计划划筛查数量
+     * 获取学生计划划筛查数量
      *
      * @param contrastId       通知ID
      * @param validDistrictIds 筛选区域ID
      * @return
      */
-    private Integer getScreeningStudentNum(int contrastId, ContrastTypeEnum contrastTypeEnum, List<Integer> validDistrictIds) {
-        Map<Integer, Long> planDistrictStudentMap;
-        int planStudentNum = 0;
-        switch (contrastTypeEnum) {
-            case NOTIFICATION:
-                planDistrictStudentMap = screeningPlanSchoolStudentService.getDistrictPlanStudentCountBySrcScreeningNoticeId(contrastId);
-                break;
-            case PLAN:
-                planDistrictStudentMap = screeningPlanSchoolStudentService.getDistrictPlanStudentCountByScreeningPlanId(contrastId);
-                break;
-            case TASK:
-                planDistrictStudentMap = screeningPlanSchoolStudentService.getDistrictPlanStudentCountByScreeningTaskId(contrastId);
-                break;
-            default:
-                return planStudentNum;
+    private Integer getPlanScreeningStudentNum(int contrastId, ContrastTypeEnum contrastTypeEnum, List<Integer> validDistrictIds
+            , Integer schoolAge, Integer schoolId, String schoolGradeCode, String schoolClass) {
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList =
+                screeningPlanSchoolStudentService.getPlanStudentCountByScreeningItemId(contrastId, contrastTypeEnum);
+        if (CollectionUtils.isNotEmpty(validDistrictIds)) {
+            planSchoolStudentList = planSchoolStudentList.stream()
+                    .filter(x -> validDistrictIds.contains(x.getSchoolDistrictId())).collect(Collectors.toList());
         }
-        if (CollectionUtils.isEmpty(validDistrictIds)) {
-            return (int) planDistrictStudentMap.entrySet().stream().mapToLong(Map.Entry::getValue).sum();
+        if (schoolAge != null) {
+            planSchoolStudentList = planSchoolStudentList.stream()
+                    .filter(x -> schoolAge.equals(x.getGradeType())).collect(Collectors.toList());
         }
-        return planDistrictStudentMap.entrySet().stream().filter(x -> validDistrictIds.contains(x.getKey())).mapToInt(x -> x.getValue().intValue()).sum();
+        if (schoolId != null) {
+            planSchoolStudentList = planSchoolStudentList.stream()
+                    .filter(x -> schoolId.equals(x.getSchoolId())).collect(Collectors.toList());
+        }
+        if (StringUtils.isNotEmpty(schoolGradeCode)) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+            if (gradeCodeEnum == null) {
+                return 0;
+            }
+            planSchoolStudentList = planSchoolStudentList.stream()
+                    .filter(x -> gradeCodeEnum.getName().equals(x.getGradeName())).collect(Collectors.toList());
+        }
+        if (StringUtils.isNotEmpty(schoolClass)) {
+            planSchoolStudentList = planSchoolStudentList.stream()
+                    .filter(x -> schoolClass.equals(x.getClassName())).collect(Collectors.toList());
+        }
+        return planSchoolStudentList.size();
     }
 
     /**
@@ -777,10 +832,13 @@ public class StatService {
         if (contrastId == null) {
             return null;
         }
+        ContrastTypeEnum contrastTypeEnum = ContrastTypeEnum.get(contrastType);
+        if (contrastTypeEnum == null) {
+            return null;
+        }
 
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         StatConclusionQueryDTO query;
-        switch (ContrastTypeEnum.get(contrastType)) {
+        switch (contrastTypeEnum) {
             case NOTIFICATION:
                 query = new StatConclusionQueryDTO();
                 query.setSrcScreeningNoticeId(contrastId);
@@ -797,9 +855,10 @@ public class StatService {
                 return null;
         }
 
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
-        Integer planScreeningStudentNum = getScreeningStudentNum(contrastId, ContrastTypeEnum.get(contrastType), validDistrictIds);
-
+        Integer planScreeningStudentNum = getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
+                , schoolAge, schoolId, schoolGradeCode, schoolClass);
         query.setDistrictIds(validDistrictIds)
                 .setSchoolAge(schoolAge)
                 .setSchoolId(schoolId)
@@ -860,6 +919,33 @@ public class StatService {
             }
         }
         return dataContrastFilterDTO;
+    }
+
+    /**
+     * 导出统计对比数据
+     *
+     * @param dataContrastExportParams
+     * @throws IOException
+     * @throws UtilException
+     */
+    public void exportStatContrast(DataContrastExportParamsDTO dataContrastExportParams) throws IOException, UtilException {
+        Integer contrastType = dataContrastExportParams.getContrastType();
+        List<DataContrastExportParamsDTO.Params> paramsList = dataContrastExportParams.getParams();
+        List<ScreeningDataContrastDTO> exportList = new ArrayList<>();
+        for (int i = 0; i < paramsList.size(); i++) {
+            DataContrastExportParamsDTO.Params params = paramsList.get(i);
+            Integer contrastId = params.getContrastId();
+            if (contrastId == null) {
+                exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1),
+                        composeScreeningDataContrast(Collections.emptyList(), 0)));
+                continue;
+            }
+            ScreeningDataContrast screeningDataContrast = getScreeningDataContrast(contrastType, contrastId, params.getDistrictId(),
+                    params.getSchoolAge(), params.getSchoolId(), params.getSchoolGradeCode(), params.getSchoolClass());
+            exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1), screeningDataContrast));
+        }
+        excelFacade.exportStatContrast(CurrentUserUtil.getCurrentUser().getId(), exportList,
+                exportStatContrastTemplate.getInputStream());
     }
 
 

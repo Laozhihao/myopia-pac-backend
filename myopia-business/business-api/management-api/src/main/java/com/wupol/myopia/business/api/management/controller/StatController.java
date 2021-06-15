@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastExportParamsDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -51,27 +52,22 @@ public class StatController {
      */
     @Deprecated
     @GetMapping("/dataContrast")
-    public Map<String, ScreeningDataContrast> getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-                                                                       @RequestParam(value = "nid2", required = false) Integer notificationId2,
-                                                                       Integer districtId, Integer schoolAge) throws IOException {
+    public Map<String, ScreeningDataContrast> getScreeningDataContrast(
+            @RequestParam("nid1") Integer notificationId1,
+            @RequestParam(value = "nid2", required = false) Integer notificationId2,
+            Integer districtId, Integer schoolAge) throws IOException {
         return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
     }
 
     /**
      * 导出筛查对比数据
      *
-     * @param notificationId1 1号通知ID
-     * @param notificationId2 2号通知ID
-     * @param districtId      区域ID
-     * @param schoolAge       学龄代码
-     * @return
+     * @param dataContrastExportParams
      */
-    @Deprecated
-    @GetMapping("/exportContrast")
-    public void exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-                                            @RequestParam(value = "nid2", required = false) Integer notificationId2,
-                                            Integer districtId, Integer schoolAge) throws IOException, UtilException {
-        statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
+    @PostMapping("/exportContrast")
+    public void exportScreeningDataContrast(@RequestBody DataContrastExportParamsDTO dataContrastExportParams)
+            throws UtilException, IOException {
+        statService.exportStatContrast(dataContrastExportParams);
     }
 
     /**

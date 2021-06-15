@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -204,13 +205,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Long> getDistrictPlanStudentCountBySrcScreeningNoticeId(Integer screeningNoticeId) {
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, screeningNoticeId);
-        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(screeningNoticeId, ContrastTypeEnum.NOTIFICATION);
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 
     /**
@@ -220,13 +221,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Long> getDistrictPlanStudentCountByScreeningTaskId(Integer taskId) {
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId);
-        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(taskId, ContrastTypeEnum.TASK);
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 
     /**
@@ -236,13 +237,39 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Long> getDistrictPlanStudentCountByScreeningPlanId(Integer planId) {
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId);
-        List<ScreeningPlanSchoolStudent> results = baseMapper.selectList(lambdaQueryWrapper);
+        List<ScreeningPlanSchoolStudent> results =
+                this.getPlanStudentCountByScreeningItemId(planId, ContrastTypeEnum.PLAN);
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        return results.stream().collect(
+                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+    }
+
+    /**
+     * 根据通知、任务或者计划获取计划筛查学生记录
+     *
+     * @param itemId
+     * @param itemType
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getPlanStudentCountByScreeningItemId(
+            Integer itemId, ContrastTypeEnum itemType) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        switch (itemType) {
+            case NOTIFICATION:
+                lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, itemId);
+                break;
+            case PLAN:
+                lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, itemId);
+                break;
+            case TASK:
+                lambdaQueryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningTaskId, itemId);
+                break;
+            default:
+                return Collections.emptyList();
+        }
+        return baseMapper.selectList(lambdaQueryWrapper);
     }
 
     /**
@@ -256,4 +283,5 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         queryWrapper.setEntity(screeningPlanSchoolStudent);
         return baseMapper.selectList(queryWrapper);
     }
+
 }
