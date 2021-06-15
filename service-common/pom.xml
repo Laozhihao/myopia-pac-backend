@@ -5,7 +5,7 @@
     <parent>
         <artifactId>myopia-pac-backend</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>2.0.0-split</version>
+        <version>MP-2.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -102,6 +102,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- Sentry -->
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-log4j2</artifactId>
+            <version>${sentry.version}</version>
+        </dependency>
 
         <!-- HuTool -->
         <dependency>
@@ -135,7 +141,7 @@
         <dependency>
             <groupId>com.vistel</groupId>
             <artifactId>utils</artifactId>
-            <version>3.3.0-RELEASE</version>
+            <version>${vistel.utils.version}</version>
         </dependency>
     </dependencies>
 

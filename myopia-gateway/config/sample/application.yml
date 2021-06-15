@@ -101,6 +101,7 @@ white-list:
   # 筛查报告数据接口（内网访问）
   - "/management/stat/getDistrictReport"
   - "/management/stat/getSchoolReport"
+  - "/management/stat/getAllSchoolReport"
   # 档案卡报告接口（内网访问）
   - "/management/screeningResult/list-result"
   # 健康检查接口
