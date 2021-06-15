@@ -22,4 +22,9 @@ public interface RedisConstant {
      * 用户授权token，auth:user:authorization:{userId}，如：auth:user:authorization:24
      */
     String USER_AUTHORIZATION_KEY = "auth:user:authorization:%d";
+
+    /**
+     * 学生二维码过期时间
+     */
+    Integer TOKEN_EXPIRE_TIME = 3600;
 }
