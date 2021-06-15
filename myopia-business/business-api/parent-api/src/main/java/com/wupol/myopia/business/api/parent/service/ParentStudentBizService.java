@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -195,10 +196,9 @@ public class ParentStudentBizService {
      * @param student     学生
      * @param currentUser 当前登录用户
      * @return 学生ID
-     * @throws IOException IO异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveStudent(Student student, CurrentUser currentUser) throws IOException {
+    public Integer saveStudent(Student student, CurrentUser currentUser) {
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
@@ -389,8 +389,7 @@ public class ParentStudentBizService {
         }
         String md5 = QrCodeCacheKey.PARENT_STUDENT_PREFIX + StringUtils.upperCase(SecureUtil.md5(student.getIdCard() + studentId + IdUtil.simpleUUID()));
         String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, md5);
-//        if (!redisUtil.set(key, studentId, 3600)) {
-        if (!redisUtil.set(key, studentId, 60)) {
+        if (!redisUtil.set(key, studentId, RedisConstant.TOKEN_EXPIRE_TIME)) {
             throw new BusinessException("获取学生授权二维码失败");
         }
         return md5;

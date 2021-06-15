@@ -1,1 +1,0 @@
-ALTER TABLE `h_hospital_student` ADD COLUMN `sno` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '学号';
