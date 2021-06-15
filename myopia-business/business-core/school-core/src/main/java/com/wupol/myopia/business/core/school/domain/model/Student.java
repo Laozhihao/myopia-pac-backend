@@ -39,7 +39,7 @@ public class Student extends AddressCode implements Serializable {
      * 如studentId = 1 ,则生成的结果是:
      * SA_0000000000000000000001
      */
-    public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA_%032d";
+    public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA@%032d";
     /**
      * id
      */
