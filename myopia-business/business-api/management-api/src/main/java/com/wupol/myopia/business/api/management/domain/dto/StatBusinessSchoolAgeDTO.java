@@ -25,6 +25,9 @@ public class StatBusinessSchoolAgeDTO {
 
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase) {
 
+        if (Objects.isNull(statBase)) {
+            return ;
+        }
         firstScreenSchoolAgeMap = statBase.getFirstScreen().stream().collect(Collectors.groupingBy(x -> SchoolAge.get(x.getSchoolAge()).name()));
         firstScreenSchoolAgeNumMap = new LinkedHashMap();
         for (String schoolAge : firstScreenSchoolAgeMap.keySet()) {
