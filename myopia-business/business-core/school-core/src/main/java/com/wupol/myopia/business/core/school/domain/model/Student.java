@@ -32,7 +32,14 @@ import java.util.Objects;
 public class Student extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    /**
+     * 二维码生成规则: "SA@" + 32位"学生id",不足使用0补充
+     * 如studentId = 123 ,则生成的结果是:
+     * SA@0000000000000000000123
+     * 如studentId = 1 ,则生成的结果是:
+     * SA@0000000000000000000001
+     */
+    public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA@%032d";
     /**
      * id
      */
@@ -244,5 +251,16 @@ public class Student extends AddressCode implements Serializable {
             result.append("散光");
         }
         return result.toString();
+    }
+
+    /**
+     * 生日是否超出限制
+     *
+     * @return true-是 false-否
+     */
+    public boolean checkBirthdayExceedLimit() {
+        // 1970-01-01 毫秒时间戳
+        Date checkDate = new Date(-28800000L);
+        return Objects.nonNull(birthday) && birthday.before(checkDate);
     }
 }

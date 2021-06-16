@@ -4,6 +4,7 @@ import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
 import com.wupol.myopia.business.api.management.domain.dto.DataContrastExportParamsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.StatWholeResultDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -96,6 +97,16 @@ public class StatController {
             @RequestParam(name = "planId", required = false) Integer planId,
             @RequestParam("schoolId") Integer schoolId) {
         return statReportService.getSchoolStatData(notificationId, planId, schoolId);
+    }
+
+    /**
+     * 获取计划下学校统计数据
+     * @param planId
+     * @return
+     */
+    @GetMapping("/getAllSchoolReport")
+    public StatWholeResultDTO getSchoolReportByPlanId(@RequestParam Integer planId) {
+        return statReportService.getPlanStatData(planId);
     }
 
     /**

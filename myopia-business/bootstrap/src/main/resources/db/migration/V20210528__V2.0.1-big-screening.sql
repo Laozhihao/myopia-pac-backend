@@ -1,1 +1,0 @@
-alter table `m_district_big_screen_statistic` drop `mapData`;
