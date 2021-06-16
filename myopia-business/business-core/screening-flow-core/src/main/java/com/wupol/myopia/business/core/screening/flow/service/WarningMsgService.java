@@ -30,6 +30,7 @@ import static com.wupol.myopia.business.core.screening.flow.domain.model.Warning
 import static com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg.STATUS_SEND_CANCEL;
 
 /**
+ * 视力警告信息
  * @Author jacob
  * @Date 2021-06-08
  */
@@ -48,33 +49,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * @return
      */
     public List<WarningMsg> needNoticeMsg() {
-        Date todayDate = DateUtil.getTodayDate(new Date());
-        //todo 等下一起修改
-        return warningMsgMapper.selectNeedToNotice(null,todayDate.getTime(), STATUS_READY_TO_SEND);
-    }
-
-    /**
-     * 更新发送的状态
-     *
-     * @return
-     * @throws IOException
-     */
-    public List<WarningMsg> updateStatus() throws IOException {
-        LambdaQueryWrapper<WarningMsg> warningMsgLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        WarningMsg warningMsg = new WarningMsg();
-        warningMsg.setSendStatus(STATUS_READY_TO_SEND);
-        warningMsgLambdaQueryWrapper.setEntity(warningMsg);
-        return findByList(warningMsg);
-    }
-
-    /**
-     * 更新状态
-     *
-     * @param id
-     * @param sendStatus
-     */
-    public void updateStatus(Integer id, Integer sendStatus) {
-        updateById(new WarningMsg().setSendStatus(sendStatus).setId(id));
+        return warningMsgMapper.selectNeedToNotice(null,DateUtil.getDayOfYear(new Date(),0), STATUS_READY_TO_SEND);
     }
 
     /**
@@ -83,10 +58,9 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * @param warningMsgs
      */
     public void addNewOne(List<WarningMsg> warningMsgs) {
-        warningMsgs.stream().forEach(warningMsgNextTime -> warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date()).setSendTime(new Date()));
+        warningMsgs.stream().forEach(warningMsgNextTime -> warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date()));
         saveBatch(warningMsgs);
     }
-
 
     /**
      * 发送并更新状态
@@ -112,19 +86,16 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * 取消短信 分步操作,尽量走索引,避免全表扫描
      * @param studentId
      */
-    public void cancelMsg(Integer studentId,Date tmrDate) {
+    public void cancelMsg(Integer studentId) {
         if (studentId == null) {
             return;
         }
-        List<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,tmrDate.getTime(),STATUS_READY_TO_SEND);
+        List<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,DateUtil.getDayOfYear(new Date(),1),STATUS_READY_TO_SEND);
         if (CollectionUtils.isEmpty(warningMsgs)) {
             //明天没有数据
             return;
         }
-        List<WarningMsg> updateWarningMsgList = warningMsgs.stream().filter(warningMsg -> warningMsg.getSendTime()
-                .after(DateUtil.getTodayDate(new Date())))
-                .map(warningMsg -> warningMsg.setSendStatus(STATUS_SEND_CANCEL)).collect(Collectors.toList());
-
+        List<WarningMsg> updateWarningMsgList = warningMsgs.stream().map(warningMsg -> warningMsg.setSendStatus(STATUS_SEND_CANCEL)).collect(Collectors.toList());
         updateBatchById(updateWarningMsgList);
     }
 
@@ -138,14 +109,13 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         VisionScreeningResult visionScreeningResult = visionScreeningResultStatConclusionTwoTuple.getFirst();
         StatConclusion statConclusion = visionScreeningResultStatConclusionTwoTuple.getSecond();
         Date currentDateTime = new Date();
-        Date tmrDate = DateUtil.getOffsetDays(currentDateTime, 1);
         synchronized (WarningMsgService.class) {
             if (statConclusion.getIsVisionWarning() !=null && statConclusion.getIsVisionWarning()) {
                 //如果视力过低的话,就通知
-                createAndInsertNewOne(visionScreeningResult.getStudentId(),currentDateTime,tmrDate);
+                createAndInsertNewOne(visionScreeningResult.getStudentId(),currentDateTime);
             } else {
                 //视力检查正常的话,将明天的数据关闭
-                cancelMsg(visionScreeningResult.getStudentId(),tmrDate);
+                cancelMsg(visionScreeningResult.getStudentId());
             }
         }
     }
@@ -154,15 +124,15 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * 为该学生当天的检查创建一条隔天待发送的短信
      * @param studentId
      */
-    private void createAndInsertNewOne(Integer studentId,Date currentDateTime,Date tmrDate) {
+    private void createAndInsertNewOne(Integer studentId,Date currentDateTime) {
+        String tmrDayOfYear = DateUtil.getDayOfYear(currentDateTime, 1);
         WarningMsg warningMsg = new WarningMsg();
         warningMsg.setStudentId(studentId)
                 .setUpdateTime(currentDateTime)
-                .setSendTime(tmrDate)
-                .setSendDayOfYear(DateUtil.getDayOfYear(tmrDate,0))
+                .setSendDayOfYear(tmrDayOfYear)
                 .setSendStatus(STATUS_READY_TO_SEND)
                 .setMsgTemplateId(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION.getMsgCode());
-        saveOrUpdate(warningMsg, new LambdaQueryWrapper<WarningMsg>().eq(WarningMsg::getStudentId,studentId).eq(WarningMsg::getSendTime,tmrDate));
+        saveOrUpdate(warningMsg, new LambdaQueryWrapper<WarningMsg>().eq(WarningMsg::getStudentId,studentId).eq(WarningMsg::getSendDayOfYear,tmrDayOfYear));
     }
 
     /**

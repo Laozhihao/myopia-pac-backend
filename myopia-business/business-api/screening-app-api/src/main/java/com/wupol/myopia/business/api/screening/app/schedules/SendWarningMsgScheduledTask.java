@@ -43,7 +43,6 @@ public class SendWarningMsgScheduledTask {
      * 昨天的异常vision,今天进行短信提醒;
      */
     @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
-    //@Scheduled(fixedDelay = 10000000, zone = "GMT+8:00")
     public void sendWarningMsg() {
         // 找出需要发送短信的数据
         List<WarningMsg> warningMsgs = warningMsgService.needNoticeMsg();
@@ -108,6 +107,8 @@ public class SendWarningMsgScheduledTask {
             //发送短信
             boolean isFail = warningMsgService.sendMsg(content, phoneNums);
             warningMsg.setSendStatus(isFail ? WarningMsg.STATUS_SEND_FAILURE : WarningMsg.STATUS_SEND_SUCCESS);
+            //发送日期: 有发送的,无论发送失败或者都有发送日志
+            warningMsg.setSendTime(new Date());
         }
     }
 

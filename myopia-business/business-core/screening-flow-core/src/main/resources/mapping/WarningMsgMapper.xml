@@ -34,8 +34,8 @@
             <if test="studentId != null">
                 student_id = #{studentId}
             </if>
-            <if test="sendDate != null">
-              and  UNIX_TIMESTAMP(send_time) * 1000 = ${sendDate}
+            <if test="sendDayOfYear != null">
+              and  send_day_of_year = ${sendDayOfYear}
             </if>
             <if test="sendStatus != null">
                 and send_status = ${sendStatus}
