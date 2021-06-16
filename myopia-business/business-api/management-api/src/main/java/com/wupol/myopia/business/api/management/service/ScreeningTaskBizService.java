@@ -134,7 +134,7 @@ public class ScreeningTaskBizService {
         return screeningTaskOrgBizService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
     }
 
-    public List<ScreeningTask> getScreeningPlanByUser(CurrentUser user) {
+    public List<ScreeningTask> getScreeningTaskByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
         return this.getScreeningTaskByNoticeIdsAndUser(screeningNoticeIds, user);

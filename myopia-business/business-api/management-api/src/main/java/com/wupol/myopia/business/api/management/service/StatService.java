@@ -787,7 +787,7 @@ public class StatService {
         contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, contrastTypeYearPlanList);
 
         // Task List
-        List<ScreeningTask> taskList = screeningTaskBizService.getScreeningPlanByUser(currentUser);
+        List<ScreeningTask> taskList = screeningTaskBizService.getScreeningTaskByUser(currentUser);
         Map<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> yearTaskMap = new HashMap<>();
         for (ScreeningTask task : taskList) {
             Date startTimeDate = task.getStartTime();

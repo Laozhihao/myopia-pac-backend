@@ -24,14 +24,14 @@ public class ScreeningTaskBizServiceTest {
     private ScreeningTaskBizService screeningTaskBizService;
 
     @Test
-    public void testGetScreeningPlanByUser() {
+    public void testGetScreeningTaskByUser() {
         CurrentUser user = new CurrentUser();
         user.setId(5);
         user.setOrgId(1);
         user.setSystemCode(1);
         user.setUsername("wlz");
         user.setRoleTypes(Arrays.asList(0));
-        List<ScreeningTask> tasks = screeningTaskBizService.getScreeningPlanByUser(user);
+        List<ScreeningTask> tasks = screeningTaskBizService.getScreeningTaskByUser(user);
         System.out.println(tasks);
     }
 
