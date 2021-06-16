@@ -10,7 +10,7 @@
     <groupId>com.wupol.myopia</groupId>
     <artifactId>myopia-pac-backend</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0-split</version>
+    <version>MP-2.0.1</version>
     <description>近视防控系统</description>
 
     <modules>
@@ -31,6 +31,8 @@
         <mybatis-plus-generator.version>3.4.1</mybatis-plus-generator.version>
         <easyexcel.version>2.2.6</easyexcel.version>
         <flyway.version>6.5.7</flyway.version>
+        <sentry.version>1.7.16</sentry.version>
+        <vistel.utils.version>3.3.0-RELEASE</vistel.utils.version>
     </properties>
 
     <dependencyManagement>
