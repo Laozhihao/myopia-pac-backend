@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class DataContrastExportParamsDTO {
+public class DataContrastFilterParamsDTO {
     private Integer contrastType;
     private List<Params> params;
 

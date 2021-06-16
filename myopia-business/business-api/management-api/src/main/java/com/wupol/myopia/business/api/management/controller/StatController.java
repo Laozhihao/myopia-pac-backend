@@ -2,14 +2,14 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
-import com.wupol.myopia.business.api.management.domain.dto.DataContrastExportParamsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterParamsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterResultDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatWholeResultDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningClassStat;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrast;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,26 +38,7 @@ public class StatController {
      */
     @GetMapping("warningList")
     public WarningInfo getWarningList() {
-        return statService.getWarningList();
-    }
-
-    /**
-     * 获取筛查对比数据
-     *
-     * @param notificationId1 1号通知ID
-     * @param notificationId2 2号通知ID
-     * @param districtId      区域ID
-     * @param schoolAge       学龄代码
-     * @return
-     * @deprecated
-     */
-    @Deprecated
-    @GetMapping("/dataContrast")
-    public Map<String, ScreeningDataContrast> getScreeningDataContrast(
-            @RequestParam("nid1") Integer notificationId1,
-            @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolAge) throws IOException {
-        return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
+        return statService.getWarningList(CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -66,9 +47,9 @@ public class StatController {
      * @param dataContrastExportParams
      */
     @PostMapping("/exportContrast")
-    public void exportScreeningDataContrast(@RequestBody DataContrastExportParamsDTO dataContrastExportParams)
+    public void exportScreeningDataContrast(@RequestBody DataContrastFilterParamsDTO dataContrastExportParams)
             throws UtilException, IOException {
-        statService.exportStatContrast(dataContrastExportParams);
+        statService.exportStatContrast(dataContrastExportParams, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -117,21 +98,7 @@ public class StatController {
      */
     @GetMapping("/dataClass")
     public ScreeningClassStat getScreeningClassStat(@RequestParam("nid") Integer notificationId) throws IOException {
-        return  statService.getScreeningClassStat(notificationId);
-    }
-
-    /**
-     * 获取用户对应权限的可对比区域ID
-     *
-     * @param notificationId1
-     * @param notificationId2
-     * @return
-     */
-    @Deprecated
-    @GetMapping("/dataContrastDistrictTree")
-    public List<District> getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
-                                                      @RequestParam(value = "nid2", required = false) Integer notificationId2) throws IOException {
-        return statService.getDataContrastDistrictTree(notificationId1, notificationId2);
+        return statService.getScreeningClassStat(notificationId, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -141,7 +108,7 @@ public class StatController {
      */
     @GetMapping("/dataContrastYear")
     public Map<Integer, List<ContrastTypeYearItemsDTO>> getDataContrastYear() {
-        return statService.composeContrastTypeFilter();
+        return statService.composeContrastTypeFilter(CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -152,7 +119,7 @@ public class StatController {
      * @return
      */
     @GetMapping("/dataContrastFilter")
-    public Map<String, Object> getDataContrastFilter(
+    public DataContrastFilterResultDTO getDataContrastFilter(
             @RequestParam("ctype") Integer contrastType,
             @RequestParam("cid") Integer contrastId,
             @RequestParam(value = "districtId", required = false) Integer districtId,
@@ -161,7 +128,13 @@ public class StatController {
             @RequestParam(value = "schoolGradeCode", required = false) String schoolGradeCode,
             @RequestParam(value = "schoolClass", required = false) String schoolClass
     ) throws IOException {
-        return statService.getDataContrastFilter(contrastType, contrastId, districtId,
-                schoolAge, schoolId, schoolGradeCode, schoolClass);
+        DataContrastFilterParamsDTO.Params params = new DataContrastFilterParamsDTO.Params();
+        params.setContrastId(contrastId);
+        params.setDistrictId(districtId);
+        params.setSchoolAge(schoolAge);
+        params.setSchoolId(schoolId);
+        params.setSchoolGradeCode(schoolGradeCode);
+        params.setSchoolClass(schoolClass);
+        return statService.getDataContrastFilter(contrastType, params, CurrentUserUtil.getCurrentUser());
     }
 }
