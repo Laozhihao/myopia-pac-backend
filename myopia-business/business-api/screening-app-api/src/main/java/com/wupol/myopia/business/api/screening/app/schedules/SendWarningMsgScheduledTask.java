@@ -43,6 +43,7 @@ public class SendWarningMsgScheduledTask {
      * 昨天的异常vision,今天进行短信提醒;
      */
     @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
+    //@Scheduled(fixedDelay = 10000000, zone = "GMT+8:00")
     public void sendWarningMsg() {
         // 找出需要发送短信的数据
         List<WarningMsg> warningMsgs = warningMsgService.needNoticeMsg();
@@ -65,7 +66,6 @@ public class SendWarningMsgScheduledTask {
         List<Student> studentList = studentService.getByIds(studentIdList);
         Map<Integer, StatConclusion> studentIdStatconclusion = statConclusionService.getByStudentIds(studentIdList);
         //todo warningMsgs进行过滤掉已经正常的.
-
         // 处理短信事宜
         dealMsg(warningMsgs);
         // 这里是发送过程完才新增一条呢
@@ -87,6 +87,7 @@ public class SendWarningMsgScheduledTask {
         //查找学生名字及对应的电话号码
         Map<Integer, StudentBasicInfoDTO> studentPhonesMap = studentService.getPhonesMap(warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toSet()));
         for (WarningMsg warningMsg : warningMsgs) {
+            warningMsg.setUpdateTime(new Date());
             //先设置今天的天数
             warningMsg.setSendDayOfYear(DateUtil.getDayOfYear(new Date(), 0));
             StudentBasicInfoDTO studentBasicInfoDTO = studentPhonesMap.get(warningMsg.getStudentId());

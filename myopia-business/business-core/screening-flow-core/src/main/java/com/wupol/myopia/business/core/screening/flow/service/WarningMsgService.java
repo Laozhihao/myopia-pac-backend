@@ -51,6 +51,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      */
     public List<WarningMsg> needNoticeMsg() {
         Date todayDate = DateUtil.getTodayDate(new Date());
+        //todo 等下一起修改
         return warningMsgMapper.selectNeedToNotice(null,todayDate.getTime(), STATUS_READY_TO_SEND);
     }
 
