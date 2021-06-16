@@ -86,6 +86,9 @@ public class StatConclusion implements Serializable {
     /** 筛查计划学生ID */
     private Integer screeningPlanSchoolStudentId;
 
+    /** 筛查学生ID */
+    private Integer studentId;
+
     /** 创建时间 */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
@@ -117,4 +120,10 @@ public class StatConclusion implements Serializable {
      * 筛查计划--指定的筛查机构id
      */
     private Integer screeningOrgId;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
 }

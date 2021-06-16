@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.SimpleDateFormat;
@@ -327,5 +328,14 @@ public class DateUtil {
         return instance.getTime();
     }
 
+    /**
+     * 获取多少天前后的 yyyyD格式的日期
+     * @param date
+     * @return
+     */
+    public static String getDayOfYear(Date date,int offsetDay) {
+        Date date30DaysAgo = DateUtils.addDays(date, offsetDay);
+        return DateFormatUtils.format(date30DaysAgo, "yyyyD");
+    };
 
 }

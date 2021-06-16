@@ -100,6 +100,7 @@ public class StatConclusionBuilder {
      */
     private void setBasicData() {
         statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
+        statConclusion.setStudentId(screeningPlanSchoolStudent.getStudentId());
         statConclusion.setResultId(currentVisionScreeningResult.getId());
         statConclusion.setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId());
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());

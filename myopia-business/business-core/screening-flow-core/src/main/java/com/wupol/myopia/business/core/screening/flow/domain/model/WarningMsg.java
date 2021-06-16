@@ -66,7 +66,10 @@ public class WarningMsg implements Serializable {
      * 待发送的时间
      */
     private Date sendTime;
-
+    /**
+     * 是在一年的第几天发送
+     */
+    private String sendDayOfYear;
     /**
      * 更新时间
      */

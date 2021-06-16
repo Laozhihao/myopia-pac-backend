@@ -4,6 +4,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,5 +22,5 @@ public interface WarningMsgMapper extends BaseMapper<WarningMsg> {
      * @param sendStatus 状态 发送的状态
      * @return
      */
-    Set<WarningMsg> selectNeedToNotice(Integer studentId, Long sendDate, Integer sendStatus);
+    List<WarningMsg> selectNeedToNotice(Integer studentId, Long sendDate, Integer sendStatus);
 }

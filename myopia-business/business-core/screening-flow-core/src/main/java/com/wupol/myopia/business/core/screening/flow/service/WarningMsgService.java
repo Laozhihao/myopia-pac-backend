@@ -49,7 +49,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      *
      * @return
      */
-    public Set<WarningMsg> needNoticeMsg() {
+    public List<WarningMsg> needNoticeMsg() {
         Date todayDate = DateUtil.getTodayDate(new Date());
         return warningMsgMapper.selectNeedToNotice(null,todayDate.getTime(), STATUS_READY_TO_SEND);
     }
@@ -123,8 +123,8 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      *
      * @param warningMsgs
      */
-    public void addNewOne(Set<WarningMsg> warningMsgs) {
-        warningMsgs.stream().forEach(warningMsgNextTime -> warningMsgNextTime.setSendStatus(STATUS_READY_TO_SEND).setUpdateTime(new Date()).setCreateTime(new Date()).setSendTime(DateUtil.getOffsetDays(new Date(), 30)));
+    public void addNewOne(List<WarningMsg> warningMsgs) {
+        warningMsgs.stream().forEach(warningMsgNextTime -> warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date()).setSendTime(new Date()));
         saveBatch(warningMsgs);
     }
 
@@ -153,6 +153,27 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         });
     }
 
+
+    /**
+     * 发送并更新状态
+     *
+     * @param content
+     * @param phoneNums
+     */
+    public boolean sendMsg(String content, List<String> phoneNums) {
+        Set<Boolean> resultSet = phoneNums.stream().map(phoneNum -> {
+            MsgData msgData = new MsgData(phoneNum, "+86", content);
+            //发送短信
+            SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+            log.info("发送学生视力预警短信{}，发送内容:{}", smsResult.isSuccessful() ? "成功" : "失败", JSONObject.toJSONString(msgData));
+            return smsResult.isSuccessful();
+        }).collect(Collectors.toSet());
+        return resultSet.contains(false);
+    }
+
+
+
+
     /**
      * 取消短信 分步操作,尽量走索引,避免全表扫描
      * @param studentId
@@ -161,7 +182,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         if (studentId == null) {
             return;
         }
-        Set<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,null,STATUS_READY_TO_SEND);
+        List<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,null,STATUS_READY_TO_SEND);
         if (CollectionUtils.isEmpty(warningMsgs)) {
             return;
         }
@@ -177,7 +198,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * @throws IOException
      */
     @Async
-    public void dealMsg(TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple) throws IOException {
+    public void dealMsg(TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultStatConclusionTwoTuple.getFirst();
         StatConclusion statConclusion = visionScreeningResultStatConclusionTwoTuple.getSecond();
         synchronized (WarningMsgService.class) {
@@ -205,6 +226,17 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
                 .setSendStatus(STATUS_READY_TO_SEND)
                 .setMsgTemplateId(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION.getMsgCode());
         saveOrUpdate(warningMsg, new LambdaQueryWrapper<WarningMsg>().eq(WarningMsg::getStudentId,studentId).eq(WarningMsg::getSendTime,tmrDate));
+    }
+
+    /**
+     *  需要重复推送的短信(目前的周期是30天)
+     * @return
+     */
+    public List<WarningMsg> needRepeatNoticeMsg(int offsetDays) {
+        String dayOfYear = DateUtil.getDayOfYear(new Date(),offsetDays);
+        LambdaQueryWrapper<WarningMsg> warningMsgLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        warningMsgLambdaQueryWrapper.eq(WarningMsg::getSendDayOfYear,dayOfYear);//.eq(WarningMsg::getSendStatus,WarningMsg.STATUS_SEND_SUCCESS);
+        return list(warningMsgLambdaQueryWrapper);
     }
 
 }
