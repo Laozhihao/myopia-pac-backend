@@ -27,6 +27,13 @@ public class SchoolMonitorStatisticBizService {
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
+    /**
+     * 通过通知id和机构id获取统计数据
+     * @param noticeId
+     * @param user
+     * @param districtIds
+     * @return
+     */
     public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Set<Integer> districtIds) {
         if (ObjectsUtil.hasNull(noticeId, user)) {
             return Collections.emptyList();
@@ -43,6 +50,12 @@ public class SchoolMonitorStatisticBizService {
         return this.getStatisticDtoByPlansAndOrgId(screeningPlans, districtIds);
     }
 
+    /**
+     * 通过计划和机构id查找统计数据
+     * @param plans
+     * @param districtIds
+     * @return
+     */
     public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, Set<Integer> districtIds) {
         if (CollectionUtils.isEmpty(plans)) {
             return new ArrayList<>();
