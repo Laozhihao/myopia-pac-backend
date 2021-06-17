@@ -148,7 +148,7 @@ public class StatManagementController {
     }
 
     /**
-     * 根据地区id获取学校情况 todo 可能不用
+     * 根据地区id获取学校情况
      *
      * @param
      * @return

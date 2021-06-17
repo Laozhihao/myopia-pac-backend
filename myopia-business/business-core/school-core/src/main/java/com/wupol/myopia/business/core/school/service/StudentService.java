@@ -231,12 +231,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 检查学生身份证号码是否重复
      *
-     * @param IdCard 身份证号码
+     * @param idCard 身份证号码
      * @param id     学生ID
      * @return 是否重复
      */
-    public Boolean checkIdCard(String IdCard, Integer id) {
-        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
+    public boolean checkIdCard(String idCard, Integer id) {
+        return baseMapper.getByIdCardNeIdAndStatus(idCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -246,21 +246,21 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return List<Student>
      */
     public List<Student> getByIdCards(List<String> idCardList) {
-        StudentQueryDTO StudentQueryDTO = new StudentQueryDTO();
+        StudentQueryDTO studentQueryDTO = new StudentQueryDTO();
         return Lists.partition(idCardList, 50).stream().map(list -> {
-            StudentQueryDTO.setIdCardList(list);
-            return baseMapper.getByQuery(StudentQueryDTO);
+            studentQueryDTO.setIdCardList(list);
+            return baseMapper.getByQuery(studentQueryDTO);
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     /**
      * 批量检查学生身份证号码是否重复
      *
-     * @param IdCards 身份证号码
+     * @param idCards 身份证号码
      * @return 是否重复
      */
-    public Boolean checkIdCards(List<String> IdCards) {
-        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
+    public Boolean checkIdCards(List<String> idCards) {
+        return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -398,6 +398,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
                     .collect(Collectors.toList());
         }
-        return  StringUtils.isBlank(parentPhone) ? Collections.EMPTY_LIST : Arrays.asList(parentPhone);
+        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Arrays.asList(parentPhone);
     }
 }

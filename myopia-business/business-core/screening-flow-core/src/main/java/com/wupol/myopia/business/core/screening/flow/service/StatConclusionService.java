@@ -165,20 +165,30 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
 
     /**
      * 根据学生id获取所有筛查结果
+     *
      * @param studentIdList
      */
-    public Map<Integer, StatConclusion>  getByStudentIds(List<Integer> studentIdList) {
+    public Map<Integer, Boolean> getByStudentIds(List<Integer> studentIdList) {
         if (CollectionUtils.isEmpty(studentIdList)) {
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId,studentIdList);
-        List<StatConclusion> statConclusions =  list(statConclusionLambdaQueryWrapper);
+        statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId, studentIdList);
+        List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
         if (CollectionUtils.isEmpty(statConclusions)) {
             return Collections.emptyMap();
         }
         // 根据studentId进行分组
-        return  statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)), Optional::get)));
+        return statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
+                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)),
+                        statConclusionOptional -> {
+                            if (statConclusionOptional.isPresent()) {
+                                Boolean isVisionWarning = statConclusionOptional.get().getIsVisionWarning();
+                                return isVisionWarning != null && isVisionWarning;
+                            } else {
+                                return false;
+                            }
+                        })));
     }
 }
 

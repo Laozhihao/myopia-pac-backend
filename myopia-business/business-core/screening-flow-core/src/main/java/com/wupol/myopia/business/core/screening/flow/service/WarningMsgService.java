@@ -53,7 +53,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     }
 
     /**
-     * 为下一次增加一条
+     * 增加一条数据
      *
      * @param warningMsgs
      */
@@ -72,9 +72,14 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         Set<Boolean> resultSet = phoneNums.stream().map(phoneNum -> {
             MsgData msgData = new MsgData(phoneNum, "+86", content);
             //发送短信
-            SmsResult smsResult = vistelToolsService.sendMsg(msgData);
-            log.info("发送学生视力预警短信{}，发送内容:{}", (smsResult.isSuccessful() != null && smsResult.isSuccessful()) ? "成功" : "失败", JSON.toJSONString(msgData));
-            return smsResult.isSuccessful();
+            try {
+                SmsResult smsResult = vistelToolsService.sendMsg(msgData);
+                log.info("发送学生视力预警短信{}，发送内容:{}", (smsResult.isSuccessful() != null && smsResult.isSuccessful()) ? "成功" : "失败", JSON.toJSONString(msgData));
+                return smsResult.isSuccessful();
+            } catch (Exception exception) {
+                log.error("发送学生视力预警短信时,短信服务器异常,发送内容:{}", JSON.toJSONString(msgData), exception);
+                return false;
+            }
         }).collect(Collectors.toSet());
         return resultSet.contains(false);
     }
@@ -90,12 +95,14 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         if (studentId == null) {
             return;
         }
+        //找出明天所有待发送的短信
         List<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,DateUtil.getDayOfYear(new Date(),1),STATUS_READY_TO_SEND);
         if (CollectionUtils.isEmpty(warningMsgs)) {
             //明天没有数据
             return;
         }
-        List<WarningMsg> updateWarningMsgList = warningMsgs.stream().map(warningMsg -> warningMsg.setSendStatus(STATUS_SEND_CANCEL)).collect(Collectors.toList());
+        //更改状态
+        List<WarningMsg> updateWarningMsgList = warningMsgs.stream().map(warningMsg -> warningMsg.setSendStatus(STATUS_SEND_CANCEL).setUpdateTime(new Date())).collect(Collectors.toList());
         updateBatchById(updateWarningMsgList);
     }
 
@@ -108,11 +115,10 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     public void dealMsg(TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultStatConclusionTwoTuple.getFirst();
         StatConclusion statConclusion = visionScreeningResultStatConclusionTwoTuple.getSecond();
-        Date currentDateTime = new Date();
         synchronized (WarningMsgService.class) {
             if (statConclusion.getIsVisionWarning() !=null && statConclusion.getIsVisionWarning()) {
                 //如果视力过低的话,就通知
-                createAndInsertNewOne(visionScreeningResult.getStudentId(),currentDateTime);
+                createAndInsertNewOne(visionScreeningResult.getStudentId());
             } else {
                 //视力检查正常的话,将明天的数据关闭
                 cancelMsg(visionScreeningResult.getStudentId());
@@ -124,7 +130,8 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * 为该学生当天的检查创建一条隔天待发送的短信
      * @param studentId
      */
-    private void createAndInsertNewOne(Integer studentId,Date currentDateTime) {
+    private void createAndInsertNewOne(Integer studentId) {
+        Date currentDateTime = new Date();
         String tmrDayOfYear = DateUtil.getDayOfYear(currentDateTime, 1);
         WarningMsg warningMsg = new WarningMsg();
         warningMsg.setStudentId(studentId)

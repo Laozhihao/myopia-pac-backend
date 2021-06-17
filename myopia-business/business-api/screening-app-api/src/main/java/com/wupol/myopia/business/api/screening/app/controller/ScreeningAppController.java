@@ -337,7 +337,7 @@ public class ScreeningAppController {
      * @param
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET, path = "/student/findReviewRandom")
+    @GetMapping("/student/findReviewRandom")
     public List<SysStudent> findAllNameReview(
             @RequestParam(value = "deptId") Integer deptId,
             @RequestParam(value = "schoolId") Integer schoolId,
