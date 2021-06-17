@@ -31,7 +31,7 @@ public class SendWarningMsgScheduledTask {
     /**
      * 每天检查30天前接受到异常提醒的学生的数据是否需要重新推送
      */
-    @Scheduled(cron = "0 20 10 * * *", zone = "GMT+8:00")
+    @Scheduled(cron = "0 30 10 * * *", zone = "GMT+8:00")
     public void repeatNoticeWarningMsg() {
         screeningVisionMsgService.repeatNoticeWarningMsg();
     }

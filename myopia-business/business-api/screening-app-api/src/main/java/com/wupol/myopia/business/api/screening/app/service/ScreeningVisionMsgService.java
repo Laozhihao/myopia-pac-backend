@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 筛查端App接口
+ * 筛查视力预警短信
  *
  * @Author Jacob
  * @Date 2021-06-15
@@ -75,17 +75,6 @@ public class ScreeningVisionMsgService {
     }
 
     /**
-     * 过滤掉正常视力的数据
-     * @param warningMsgs
-     * @return
-     */
-    private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs) {
-        List<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toList());
-        Map<Integer, Boolean> studentIdVisionWarningMap = statConclusionService.getByStudentIds(studentIdList);
-        return warningMsgs.stream().filter(warningMsg -> studentIdVisionWarningMap.get(warningMsg.getStudentId())).collect(Collectors.toList());
-    }
-
-    /**
      * 处理短信
      *
      * @param warningMsgs
@@ -120,4 +109,16 @@ public class ScreeningVisionMsgService {
             warningMsg.setSendTime(new Date());
         }
     }
+
+    /**
+     * 过滤掉正常视力的数据
+     * @param warningMsgs
+     * @return
+     */
+    private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs) {
+        List<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toList());
+        Map<Integer, Boolean> studentIdVisionWarningMap = statConclusionService.getByStudentIds(studentIdList);
+        return warningMsgs.stream().filter(warningMsg -> studentIdVisionWarningMap.get(warningMsg.getStudentId())).collect(Collectors.toList());
+    }
+
 }

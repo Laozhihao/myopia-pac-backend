@@ -63,7 +63,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     }
 
     /**
-     * 发送并更新状态
+     * 发送短信
      *
      * @param content
      * @param phoneNums
@@ -83,9 +83,6 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
         }).collect(Collectors.toSet());
         return resultSet.contains(false);
     }
-
-
-
 
     /**
      * 取消短信 分步操作,尽量走索引,避免全表扫描

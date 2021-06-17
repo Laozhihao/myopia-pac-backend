@@ -14,7 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class StudentBasicInfoDTO {
     /**
-     * 年级名称
+     * 学生姓名
      */
     private String studentName;
 

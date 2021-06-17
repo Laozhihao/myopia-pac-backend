@@ -126,7 +126,6 @@ public class StatConclusion implements Serializable {
      */
     private Date updateTime;
 
-
     /**
      * Vision异常(6岁及以上,4.0及以下)
      */
