@@ -12,10 +12,12 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
@@ -23,7 +25,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -247,12 +248,23 @@ public class ScreeningOrganizationController {
     /**
      * 获取医院（筛查机构只能看到全省）
      *
-     * @param name 名称
+     * @param orgId 筛查机构Id
+     * @param name  名称
      * @return IPage<HospitalResponseDTO>
      */
     @GetMapping("/getOrgCooperationHospitalList")
-    public Object getOrgCooperationHospitalList(String name) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningOrganizationBizService.getHospitalList(currentUser, name);
+    public List<HospitalResponseDTO> getOrgCooperationHospitalList(Integer orgId, String name) {
+        return screeningOrganizationBizService.getHospitalList(orgId, name);
+    }
+
+    /**
+     * 获取筛查机构的行政区域
+     *
+     * @param orgId 筛查机构Id
+     * @return List<District>
+     */
+    @GetMapping("/getDistrictTree/{orgId}")
+    public List<District> getDistrictTree(@PathVariable("orgId") Integer orgId) {
+        return screeningOrganizationBizService.getDistrictTree(orgId);
     }
 }

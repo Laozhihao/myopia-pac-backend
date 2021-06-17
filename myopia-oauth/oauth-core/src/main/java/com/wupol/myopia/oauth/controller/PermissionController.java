@@ -50,7 +50,7 @@ public class PermissionController {
     }
 
     @PutMapping()
-    public Permission modifyPermission(@RequestBody @Valid Permission param) throws IOException {
+    public Permission modifyPermission(@RequestBody @Valid Permission param) {
         if (!StringUtils.isEmpty(param.getMenuBtnName())) {
             List<Permission> exist = permissionService.findByList(new Permission().setMenuBtnName(param.getMenuBtnName()));
             Assert.isTrue(CollectionUtils.isEmpty(exist) || exist.get(0).getId().equals(param.getId()), "该页面或按钮name已经存在");

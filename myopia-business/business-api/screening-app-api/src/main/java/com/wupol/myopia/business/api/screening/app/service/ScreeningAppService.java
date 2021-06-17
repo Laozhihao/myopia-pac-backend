@@ -417,14 +417,9 @@ public class ScreeningAppService {
                 .setSno(appStudentDTO.getStudentNo())
                 .setIdCard(appStudentDTO.getIdCard())
                 .setCreateUserId(currentUser.getId())
-                .setAddress(appStudentDTO.getAddress())
                 .setParentPhone(appStudentDTO.getStudentPhone())
                 .setStatus(0);
-        student.setProvinceCode(school.getProvinceCode());
-        student.setCityCode(school.getCityCode());
-        student.setTownCode(school.getTownCode());
         return student;
-
     }
 
     /**
@@ -433,7 +428,7 @@ public class ScreeningAppService {
      * @param currentUser
      * @return
      */
-    public AppUserInfo getUserInfoByUser(CurrentUser currentUser) throws IOException {
+    public AppUserInfo getUserInfoByUser(CurrentUser currentUser) {
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
         AppUserInfo appUserInfo = new AppUserInfo();
         appUserInfo.setUsername(currentUser.getUsername());

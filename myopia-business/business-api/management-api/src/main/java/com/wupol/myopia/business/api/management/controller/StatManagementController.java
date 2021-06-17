@@ -201,7 +201,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice);
+        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -218,7 +218,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice);
+        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
 
 

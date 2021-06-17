@@ -9,6 +9,8 @@ package com.wupol.myopia.business.common.utils.constant;
  * @Date 2020-12-22
  */
 public interface QrCodeCacheKey {
+
+    String PARENT_STUDENT_PREFIX = "PA@";
     /**
      * 获取学生二维码
      */

@@ -104,7 +104,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (StringUtils.isBlank(districtDetail)) {
             return name.toString();
         }
-        List<District> list = JSONObject.parseObject(districtDetail, new TypeReference<List<District>>() {
+        List<District> list = JSON.parseObject(districtDetail, new TypeReference<List<District>>() {
         });
         if (CollectionUtils.isEmpty(list)) {
             return name.toString();
@@ -191,7 +191,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
         if (Objects.nonNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {
             });
         }
         // 缓存没有，则从rootCode所属的省份中遍历查找
@@ -216,7 +216,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String provincePrefix = String.valueOf(districtCode).substring(0, 2);
         Object cache = redisUtil.hget(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, provincePrefix);
         if (!Objects.isNull(cache)) {
-            return JSONObject.parseObject(JSON.toJSONString(cache), District.class);
+            return JSON.parseObject(JSON.toJSONString(cache), District.class);
         }
         // 查库，获取对应省的行政区域树，110000000、410000000
         District provinceDistrictTree = getDistrictTree(Long.parseLong(provincePrefix) * 10000000);
@@ -318,8 +318,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public List<District> getWholeCountryDistrictTreePriorityCache() {
         Object cacheList = redisUtil.get(DistrictCacheKey.DISTRICT_ALL_TREE);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {
-            });
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
         List<District> districts = getWholeCountryDistrictTree();
         redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districts);
@@ -346,7 +345,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
         List<District> districts = findByList(new District().setParentCode(parentCode));
         redisUtil.set(key, districts);
@@ -391,7 +390,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_POSITION_DETAIL, districtCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSONObject.parseObject(JSONObject.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
         }
         List<District> districtList = new ArrayList<>();
         searchParentDistrictDetail(districtList, getDistrictByCode(districtCode));
@@ -465,14 +464,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String codeStr = String.valueOf(districtCode);
         Object districtCache = redisUtil.hget(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr);
         if (Objects.nonNull(districtCache)) {
-            return JSONObject.parseObject(JSON.toJSONString(districtCache), District.class);
+            return JSON.parseObject(JSON.toJSONString(districtCache), District.class);
         }
-        District district;
-        try {
-            district = findOne(new District().setCode(districtCode));
-        } catch (IOException e) {
-            throw new BusinessException("存在多个行政区域的code=" + districtCode, e);
-        }
+        District district = findOne(new District().setCode(districtCode));
         redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
         return district;
     }
@@ -745,12 +739,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
-        District district = null;
-        try {
-            district = findOne(new District().setId(districtId));
-        } catch (IOException e) {
-            log.info("检查行政区域Id异常", e);
-        }
+        District district = findOne(new District().setId(districtId));
         if (Objects.isNull(district)) {
             throw new BusinessException("未找到该行政区域");
         }

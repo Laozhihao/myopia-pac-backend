@@ -101,6 +101,11 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student) {
 
+        // 检查学生年龄
+        if (student.checkBirthdayExceedLimit()) {
+            throw new BusinessException("学生年龄太大");
+        }
+
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
@@ -313,7 +318,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         String key = String.format(QrCodeCacheKey.PARENT_STUDENT_QR_CODE, token);
         Integer studentId = (Integer) redisUtil.get(key);
         if (Objects.isNull(studentId)) {
-            throw new BusinessException("学生二维码已经失效！");
+            throw new BusinessException("该二维码已失效，请重新刷新二维码。");
         }
         return studentId;
     }
@@ -335,6 +340,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 学生实体
      */
     public StudentDTO updateStudent(Student student) {
+
+        // 检查学生年龄
+        if (student.checkBirthdayExceedLimit()) {
+            throw new BusinessException("学生年龄太大");
+        }
+
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());

@@ -178,7 +178,7 @@ public class DistributionDTO implements Serializable {
          * 设置年龄数据
          */
         public void setAgeData() {
-            Map<String, Double> ageDemoRatioMap = new HashMap<>();
+            Map<String, Double> ageDemoRatioMap = new LinkedHashMap<>();
             ageDemoRatioMap.put("0-3",null);
             ageDemoRatioMap.put("4-6",null);
             ageDemoRatioMap.put("7-9",null);

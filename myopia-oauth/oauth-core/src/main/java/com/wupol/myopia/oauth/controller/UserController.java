@@ -169,7 +169,7 @@ public class UserController {
      * @return java.lang.Integer
      **/
     @GetMapping("/count")
-    public Integer count(UserDTO queryParam) throws IOException {
+    public Integer count(UserDTO queryParam) {
         return userService.count(queryParam);
     }
 

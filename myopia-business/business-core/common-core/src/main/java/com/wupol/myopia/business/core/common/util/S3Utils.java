@@ -79,6 +79,9 @@ public final class S3Utils {
         String bucket = uploadConfig.getBucketName();
         String prefix = uploadConfig.getStaticPrefix();
         String key = String.format(S3_STATIC_KEY_FORMAT, prefix, fileName);
+        if (key.startsWith("/")) {
+            key = key.substring(1);
+        }
         File file = new File(fileTempPath);
         s3Client.uploadFile(bucket, key, file);
         String host = uploadConfig.getStaticHost();
@@ -89,7 +92,6 @@ public final class S3Utils {
         }
         return String.format("%s/%s", host, key);
     }
-
 
     /**
      * 上传文件到S3并保存到resourceFile表
