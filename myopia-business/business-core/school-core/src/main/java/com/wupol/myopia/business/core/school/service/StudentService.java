@@ -409,6 +409,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
                     .collect(Collectors.toList());
         }
-        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Arrays.asList(parentPhone);
+        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
     }
 }

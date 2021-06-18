@@ -58,7 +58,9 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * @param warningMsgs
      */
     public void addNewOne(List<WarningMsg> warningMsgs) {
-        warningMsgs.stream().forEach(warningMsgNextTime -> warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date()));
+        for (WarningMsg warningMsgNextTime : warningMsgs) {
+            warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date());
+        }
         saveBatch(warningMsgs);
     }
 
