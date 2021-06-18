@@ -764,19 +764,19 @@ public class StatReportService {
         Long enoughCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
         int countNum = validConclusions.size();
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNCORRECTED.name(), uncorrectedNum, convertToPercentage(uncorrectedNum * 1f / countNum)));
-        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNDER_CORRECTED.name(), wearingNum,  convertToPercentage(wearingNum * 1f / countNum)));
-        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.WEARING_RATIO.name(), underCorrectedNum, convertToPercentage(underCorrectedNum * 1f / countNum)));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.WEARING_RATIO.name(), wearingNum, convertToPercentage(wearingNum * 1f / countNum)));
+        visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNDER_CORRECTED.name(), underCorrectedNum,  convertToPercentage(underCorrectedNum * 1f / countNum)));
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.ENOUGH_CORRECTED.name(), enoughCorrectedNum, convertToPercentage(enoughCorrectedNum * 1f / countNum)));
         return visionCorrection;
     }
 
     /**
-     * 获取未矫率、戴镜率、欠矫率、足矫率
+     * 获取预警率
      * @return
      */
     private List<TypeRatioDTO> getWarnLevel(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> warnLevel = new ArrayList<>();
-        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getNakedVisionWarningLevel, Collectors.counting()));
+        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         int countNum = validConclusions.size();
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
