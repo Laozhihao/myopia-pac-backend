@@ -776,7 +776,7 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getWarnLevel(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> warnLevel = new ArrayList<>();
-        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getMyopiaWarningLevel, Collectors.counting()));
+        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getNakedVisionWarningLevel, Collectors.counting()));
         int countNum = validConclusions.size();
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
         warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
