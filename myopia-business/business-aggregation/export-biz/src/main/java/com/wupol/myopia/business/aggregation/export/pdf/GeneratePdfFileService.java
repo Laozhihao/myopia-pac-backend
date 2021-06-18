@@ -120,10 +120,8 @@ public class GeneratePdfFileService {
     public void generateScreeningPlanReportPdfFile(String saveDirectory, Integer planId) {
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "该计划不存在");
-        log.info("生成筛查计划总报告：{}", plan.getTitle());
         String reportFileName = String.format(PDFFileNameConstant.PLAN_REPORT_PDF_FILE_NAME, DateUtil.getYear(plan.getStartTime()));
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_HTML_URL_WITH_PLAN_ID, htmlUrlHost, planId);
-        log.info("即将进行报告生成：{}， {}", reportFileName, schoolPdfHtmlUrl);
         Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, reportFileName + ".pdf").toString()), "【生成计划报告PDF文件异常】：" + plan.getTitle());
     }
 
