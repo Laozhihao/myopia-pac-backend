@@ -776,12 +776,12 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getWarnLevel(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> warnLevel = new ArrayList<>();
-        Map<Integer, Long> myopiaWarningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        Map<Integer, Long> warningLevelMap = validConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
         int countNum = validConclusions.size();
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L) * 1f / countNum)));
-        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), myopiaWarningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L), convertToPercentage(myopiaWarningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_0.name(), warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_1.name(), warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_2.name(), warningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L) * 1f / countNum)));
+        warnLevel.add(TypeRatioDTO.getInstance(RatioEnum.WARNING_LEVEL_3.name(), warningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L), convertToPercentage(warningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L) * 1f / countNum)));
         return warnLevel;
     }
 
