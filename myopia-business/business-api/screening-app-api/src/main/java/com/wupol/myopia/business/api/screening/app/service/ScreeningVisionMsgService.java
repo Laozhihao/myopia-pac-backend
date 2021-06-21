@@ -96,6 +96,7 @@ public class ScreeningVisionMsgService {
 
             String content = MsgContentUtil.getMsgContent(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION, studentBasicInfoDTO.getStudentName());
             List<String> phoneNums = studentBasicInfoDTO.getPhoneNums();
+            warningMsg.setPhoneNumbers(phoneNums.toString());
             if (CollectionUtils.isEmpty(phoneNums)) {
                 log.warn("发送视力预警短信的时候没有找到该学生的电话号码,studentId = {}", warningMsg.getStudentId());
                 warningMsg.setSendStatus(WarningMsg.STATUS_SEND_CANCEL);
@@ -120,5 +121,4 @@ public class ScreeningVisionMsgService {
         Map<Integer, Boolean> studentIdVisionWarningMap = statConclusionService.getByStudentIds(studentIdList);
         return warningMsgs.stream().filter(warningMsg -> studentIdVisionWarningMap.get(warningMsg.getStudentId())).collect(Collectors.toList());
     }
-
 }
