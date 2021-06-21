@@ -36,7 +36,7 @@ public class SchoolVisionStatisticBizService {
      * @param user     用户
      * @return List<SchoolVisionStatistic>
      */
-    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Set<Integer> districtIds) {
+    public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, List<Integer> districtIds) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
@@ -59,7 +59,7 @@ public class SchoolVisionStatisticBizService {
      * @param districtIds
      * @return
      */
-    public List<SchoolVisionStatistic> getStatisticDtoByPlanIdsAndOrgId(List<ScreeningPlan> screeningPlans, Set<Integer> districtIds) {
+    public List<SchoolVisionStatistic> getStatisticDtoByPlanIdsAndOrgId(List<ScreeningPlan> screeningPlans, List<Integer> districtIds) {
         List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());
         List<Integer> planIds = screeningPlans.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningOrgIds)) {
