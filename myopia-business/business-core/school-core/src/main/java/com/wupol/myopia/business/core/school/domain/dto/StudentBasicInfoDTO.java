@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.domain.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class StudentBasicInfoDTO {
     /**
      * 相关联系人的电话
      */
-    private List<String> phoneNums;
+    private List<String> phoneNums = new ArrayList<>();
     /**
      * 学生id
      */
