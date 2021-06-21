@@ -59,7 +59,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @param ids id列表
      * @return List<Student>
      */
-    public List<Student> getByIds(List<Integer> ids) {
+    public List<Student> getByIds(Collection<Integer> ids) {
         return baseMapper.selectBatchIds(ids);
     }
 
@@ -236,12 +236,12 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     /**
      * 检查学生身份证号码是否重复
      *
-     * @param IdCard 身份证号码
+     * @param idCard 身份证号码
      * @param id     学生ID
      * @return 是否重复
      */
-    public Boolean checkIdCard(String IdCard, Integer id) {
-        return baseMapper.getByIdCardNeIdAndStatus(IdCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
+    public boolean checkIdCard(String idCard, Integer id) {
+        return baseMapper.getByIdCardNeIdAndStatus(idCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -251,21 +251,21 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return List<Student>
      */
     public List<Student> getByIdCards(List<String> idCardList) {
-        StudentQueryDTO StudentQueryDTO = new StudentQueryDTO();
+        StudentQueryDTO studentQueryDTO = new StudentQueryDTO();
         return Lists.partition(idCardList, 50).stream().map(list -> {
-            StudentQueryDTO.setIdCardList(list);
-            return baseMapper.getByQuery(StudentQueryDTO);
+            studentQueryDTO.setIdCardList(list);
+            return baseMapper.getByQuery(studentQueryDTO);
         }).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     /**
      * 批量检查学生身份证号码是否重复
      *
-     * @param IdCards 身份证号码
+     * @param idCards 身份证号码
      * @return 是否重复
      */
-    public Boolean checkIdCards(List<String> IdCards) {
-        return baseMapper.getByIdCardsAndStatus(IdCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
+    public Boolean checkIdCards(List<String> idCards) {
+        return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
     }
 
     /**
@@ -375,5 +375,40 @@ public class StudentService extends BaseService<StudentMapper, Student> {
             resultStudent.setAvatar(resourceFileService.getResourcePath(resultStudent.getAvatarFileId()));
         }
         return resultStudent;
+    }
+
+    /**
+     * 获取学生联系人电话
+     * @param studentIds
+     * @return
+     */
+    public Map<Integer, StudentBasicInfoDTO> getPhonesMap(Set<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return Collections.emptyMap();
+        }
+        List<Student> warnStudentList = getByIds(studentIds);
+        if(CollectionUtils.isEmpty(warnStudentList)) {
+            return Collections.emptyMap();
+        }
+         return warnStudentList.stream().collect(Collectors.toMap(Student::getId, student -> {
+            List<String> phoneNumList = getPhones(student.getMpParentPhone(), student.getParentPhone());
+            StudentBasicInfoDTO studentBasicInfoDTO = new StudentBasicInfoDTO();
+            studentBasicInfoDTO.setStudentId(student.getId()).setStudentName(student.getName()).setPhoneNums(phoneNumList);
+            return studentBasicInfoDTO;
+        }));
+    }
+
+    /**
+     * 获取电话
+     * @param mpParentPhonesStr
+     * @param parentPhone
+     * @return
+     */
+    public List<String> getPhones(String mpParentPhonesStr, String parentPhone) {
+        if (StringUtils.isNotBlank(mpParentPhonesStr)) {
+            return Arrays.stream(mpParentPhonesStr.split(",")).map(String::valueOf)
+                    .collect(Collectors.toList());
+        }
+        return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
     }
 }

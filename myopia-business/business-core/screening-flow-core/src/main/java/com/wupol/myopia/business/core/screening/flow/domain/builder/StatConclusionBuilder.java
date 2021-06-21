@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.builder;
 
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.business.common.utils.constant.GlassesType;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -78,6 +79,8 @@ public class StatConclusionBuilder {
         // 如果新增的话，设置基本的数据
         if (!isUpdate) {
             this.setBasicData();
+        } else {
+            statConclusion.setUpdateTime(new Date());
         }
         // 设置视力相关的数据
         if (currentVisionScreeningResult.getVisionData() != null) {
@@ -91,7 +94,20 @@ public class StatConclusionBuilder {
         this.setWarningLevel();
         this.setValid();
         this.setRescreenErrorNum();
+        this.setWarningVision();
         return statConclusion;
+    }
+
+    /**
+     * 设置是否视力出现警告
+     * 规则:
+     * 视力大于5岁,视力小于5.0的时候
+     */
+    private void setWarningVision() {
+        boolean isLeftEyeVisionWarning = statConclusion.getVisionL() != null && statConclusion.getVisionL() <= 4.9;
+        boolean isRightEyeVisionWarning = statConclusion.getVisionR() != null && statConclusion.getVisionR() <= 4.9;
+        boolean isVisionWarning = (isLeftEyeVisionWarning || isRightEyeVisionWarning ) && statConclusion.getAge() >=6 ;
+        statConclusion.setIsVisionWarning(isVisionWarning);
     }
 
     /**
@@ -99,6 +115,7 @@ public class StatConclusionBuilder {
      */
     private void setBasicData() {
         statConclusion.setScreeningPlanSchoolStudentId(screeningPlanSchoolStudent.getId());
+        statConclusion.setStudentId(screeningPlanSchoolStudent.getStudentId());
         statConclusion.setResultId(currentVisionScreeningResult.getId());
         statConclusion.setScreeningOrgId(screeningPlanSchoolStudent.getScreeningOrgId());
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());
@@ -183,9 +200,9 @@ public class StatConclusionBuilder {
      * 设置预警级别
      */
     private void setWarningLevel() {
-        // 特殊处理
-        if (basicData.glassesType != null && basicData.glassesType == 3) {
-            statConclusion.setWarningLevel(2);
+        // 特殊处理 角膜塑型镜特殊处理
+        if (basicData.glassesType != null && basicData.glassesType.equals(GlassesType.ORTHOKERATOLOGY.code)) {
+            statConclusion.setWarningLevel(WarningLevel.NORMAL.code);
             return;
         }
         List<WarningLevel> warningLevelList = Arrays.asList(

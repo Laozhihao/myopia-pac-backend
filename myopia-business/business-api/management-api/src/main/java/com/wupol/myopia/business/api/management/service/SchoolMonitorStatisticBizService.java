@@ -11,7 +11,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,14 @@ public class SchoolMonitorStatisticBizService {
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
-    public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Integer districtId) throws IOException {
+    /**
+     * 通过通知id和机构id获取统计数据
+     * @param noticeId
+     * @param user
+     * @param districtIds
+     * @return
+     */
+    public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Set<Integer> districtIds) {
         if (ObjectsUtil.hasNull(noticeId, user)) {
             return Collections.emptyList();
         }
@@ -41,10 +47,16 @@ public class SchoolMonitorStatisticBizService {
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-        return this.getStatisticDtoByPlansAndOrgId(screeningPlans,districtId);
+        return this.getStatisticDtoByPlansAndOrgId(screeningPlans, districtIds);
     }
 
-    public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, Integer districtId) throws IOException {
+    /**
+     * 通过计划和机构id查找统计数据
+     * @param plans
+     * @param districtIds
+     * @return
+     */
+    public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, Set<Integer> districtIds) {
         if (CollectionUtils.isEmpty(plans)) {
             return new ArrayList<>();
         }
@@ -53,7 +65,7 @@ public class SchoolMonitorStatisticBizService {
         List<SchoolMonitorStatistic> statistics = new ArrayList<>();
         Lists.partition(screeningOrgIds, 100).forEach(screeningOrgIdList -> {
             LambdaQueryWrapper<SchoolMonitorStatistic> query = new LambdaQueryWrapper<>();
-            query.eq(Objects.nonNull(districtId), SchoolMonitorStatistic::getDistrictId, districtId);
+            query.in(CollectionUtils.isNotEmpty(districtIds), SchoolMonitorStatistic::getDistrictId, districtIds);
             query.in(SchoolMonitorStatistic::getScreeningPlanId, planIds);
             query.in(SchoolMonitorStatistic::getScreeningOrgId, screeningOrgIdList);
             statistics.addAll(schoolMonitorStatisticService.list(query));
