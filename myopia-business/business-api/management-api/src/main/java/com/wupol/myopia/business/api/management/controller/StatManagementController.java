@@ -229,10 +229,10 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/school/screening-vision-result")
-    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
+    public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        Set<Integer> childDistrictIdsByDistrictId = districtService.getChildDistrictIdsByDistrictId(districtId);
+        List<Integer> childDistrictIdsByDistrictId = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         childDistrictIdsByDistrictId.add(districtId);
         List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), childDistrictIdsByDistrictId);
         return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
@@ -333,7 +333,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), new HashSet<>(districtId));
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), Arrays.asList(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
     }
 
