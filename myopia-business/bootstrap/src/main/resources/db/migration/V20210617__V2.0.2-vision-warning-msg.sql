@@ -1,17 +1,17 @@
 DROP TABLE IF EXISTS `m_warning_msg`;
 CREATE TABLE `m_warning_msg` (
-                                 `id` int unsigned NOT NULL AUTO_INCREMENT,
-                                 `student_id` int unsigned NOT NULL COMMENT '学生id',
-                                 `msg_template_id` int unsigned NOT NULL COMMENT '短信模板id',
-                                 `phone_numbers` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '电话号码(发送的时候才记录)',
-                                 `send_status` tinyint NOT NULL DEFAULT '0' COMMENT '发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送',
-                                 `send_time` timestamp NULL DEFAULT NULL COMMENT '待发送的时间',
-                                 `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                                 `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                 `send_day_of_year` char(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '发送时间(yyyyD)',
-                                 PRIMARY KEY (`id`),
-                                 KEY `idx_send_day` (`send_day_of_year`) USING BTREE COMMENT '发送日期的索引',
-                                 KEY `idx_student_id` (`student_id`) USING BTREE COMMENT '学生id索引'
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` int unsigned NOT NULL COMMENT '学生id',
+  `msg_template_id` int unsigned NOT NULL COMMENT '短信模板id',
+  `phone_numbers` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '电话号码(发送的时候才记录)',
+  `send_status` tinyint NOT NULL DEFAULT '0' COMMENT '发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送',
+  `send_time` timestamp NULL DEFAULT NULL COMMENT '待发送的时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `send_day_of_year` char(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '发送时间(yyyyD)',
+  PRIMARY KEY (`id`),
+  KEY `idx_send_day` (`send_day_of_year`) USING BTREE COMMENT '发送日期的索引',
+  KEY `idx_student_id` (`student_id`) USING BTREE COMMENT '学生id索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
