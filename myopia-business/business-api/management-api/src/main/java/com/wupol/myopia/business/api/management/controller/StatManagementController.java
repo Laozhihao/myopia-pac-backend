@@ -117,7 +117,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/plan")
-    public Set<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
+    public List<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
         return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
