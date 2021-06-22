@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author Jacob
@@ -164,5 +163,32 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getPlanSchoolByDate(date, true);
     }
 
+    /**
+     * 根据学生id获取所有筛查结果
+     *
+     * @param studentIdList
+     */
+    public Map<Integer, Boolean> getByStudentIds(List<Integer> studentIdList) {
+        if (CollectionUtils.isEmpty(studentIdList)) {
+            return Collections.emptyMap();
+        }
+        LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId, studentIdList);
+        List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(statConclusions)) {
+            return Collections.emptyMap();
+        }
+        // 根据studentId进行分组
+        return statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
+                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)),
+                        statConclusionOptional -> {
+                            if (statConclusionOptional.isPresent()) {
+                                Boolean isVisionWarning = statConclusionOptional.get().getIsVisionWarning();
+                                return isVisionWarning != null && isVisionWarning;
+                            } else {
+                                return false;
+                            }
+                        })));
+    }
 }
 

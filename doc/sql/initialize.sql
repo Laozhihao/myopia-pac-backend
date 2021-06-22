@@ -820,12 +820,15 @@ CREATE TABLE `m_stat_conclusion`  (
   `is_hyperopia` tinyint(1) DEFAULT NULL COMMENT '是否远视',
   `is_astigmatism` tinyint(1) DEFAULT NULL COMMENT '是否散光',
   `is_wearing_glasses` tinyint(1) DEFAULT NULL COMMENT '是否戴镜',
+  `is_warning_msg` tinyint(1) DEFAULT NULL COMMENT '是否视力警告',
   `is_recommend_visit` tinyint(1) DEFAULT NULL COMMENT '是否建议就诊',
   `is_rescreen` tinyint(1) NOT NULL COMMENT '是否复测',
   `rescreen_error_num` int(11) NOT NULL COMMENT '复测错误项次',
   `is_valid` tinyint(1) NOT NULL COMMENT '是否有效数据',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `screening_plan_school_student_id` int(11) NOT NULL COMMENT '筛查计划学生ID',
+  `student_id` int(11) NOT NULL COMMENT '学生id',
   `school_grade_code` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '学校年级代码',
   `school_id` int(10) UNSIGNED DEFAULT NULL,
   `school_class_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '学校班级名称',
@@ -938,6 +941,24 @@ CREATE TABLE `m_vision_screening_result`  (
   INDEX `m_vision_screening_result_is_double_screen_student_id_index`(`is_double_screen`, `student_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '筛查结果表' ROW_FORMAT = Dynamic;
 
+-- 异常警告表
+DROP TABLE IF EXISTS `m_warning_msg`;
+CREATE TABLE `m_warning_msg` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` int unsigned NOT NULL COMMENT '学生id',
+  `msg_template_id` int unsigned NOT NULL COMMENT '短信模板id',
+  `phone_numbers` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '电话号码(发送的时候才记录)',
+  `send_status` tinyint NOT NULL DEFAULT '0' COMMENT '发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送',
+  `send_time` timestamp NULL DEFAULT NULL COMMENT '待发送的时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `send_day_of_year` char(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '发送时间(yyyyD)',
+  PRIMARY KEY (`id`),
+  KEY `idx_send_day` (`send_day_of_year`) USING BTREE COMMENT '发送日期的索引',
+  KEY `idx_student_id` (`student_id`) USING BTREE COMMENT '学生id索引'
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 
@@ -958,3 +979,4 @@ INSERT INTO m_template (id, type, name) VALUES (8, 2, '筛查报告-模板4');
 INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, type, status) VALUES (1, '1234567890', 1, 1, -1, '', '其他', 2, '其他', 7, 0);
 INSERT INTO m_school_grade (id, create_user_id, school_id, grade_code, name, status) VALUES (1, 1, 1, '90', '其他', 0);
 INSERT INTO m_school_class (grade_id, create_user_id, school_id, name, seat_count, status) VALUES (1, 1, 1, '其他', 30, 0);
+
