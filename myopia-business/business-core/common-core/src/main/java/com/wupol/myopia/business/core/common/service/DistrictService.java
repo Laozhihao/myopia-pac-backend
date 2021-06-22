@@ -757,18 +757,4 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return new TwoTuple<>(null, Integer.valueOf(pre));
     }
 
-    /**
-     * 获取当前区域及子区域
-     * @param districtId
-     * @return
-     */
-    public List<Integer> getRootAndChildDistrict(Integer districtId) {
-        if (Objects.isNull(districtId)) {
-            return Collections.emptyList();
-        }
-        List<Integer> childDistrictIdsByDistrictId = this.getSpecificDistrictTreeAllDistrictIds(districtId);
-        childDistrictIdsByDistrictId.add(districtId);
-        return childDistrictIdsByDistrictId;
-    }
-
 }
