@@ -34,7 +34,7 @@ public class SchoolMonitorStatisticBizService {
      * @param districtIds
      * @return
      */
-    public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, Set<Integer> districtIds) {
+    public List<SchoolMonitorStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, List<Integer> districtIds) {
         if (ObjectsUtil.hasNull(noticeId, user)) {
             return Collections.emptyList();
         }
@@ -56,7 +56,7 @@ public class SchoolMonitorStatisticBizService {
      * @param districtIds
      * @return
      */
-    public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, Set<Integer> districtIds) {
+    public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(plans)) {
             return new ArrayList<>();
         }

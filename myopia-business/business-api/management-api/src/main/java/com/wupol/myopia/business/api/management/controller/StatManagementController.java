@@ -119,7 +119,14 @@ public class StatManagementController {
     @GetMapping("/plan")
     public Set<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
-        return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
+        Set<ScreeningPlanNameDTO> screeningPlanNameDTOs = screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
+        //按时间倒叙
+        return screeningPlanNameDTOs.stream().sorted(Comparator.comparing(ScreeningPlanNameDTO::getScreeningStartTime).reversed()).collect(Collectors.toSet());
+    }
+
+
+    public static void main(String[] args) {
+
     }
 
     /**
@@ -252,7 +259,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        Set<Integer> childDistrictIdsByDistrictId = districtService.getChildDistrictIdsByDistrictId(districtId);
+        List<Integer> childDistrictIdsByDistrictId = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         childDistrictIdsByDistrictId.add(districtId);
         List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), childDistrictIdsByDistrictId);
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
@@ -350,7 +357,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), new HashSet<>(districtId));
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), Arrays.asList(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
