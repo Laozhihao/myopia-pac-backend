@@ -31,8 +31,4 @@ public class ScreeningPlanNameDTO {
      * 计划名称
      */
     private String planName;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
 }

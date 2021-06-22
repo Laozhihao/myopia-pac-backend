@@ -119,14 +119,7 @@ public class StatManagementController {
     @GetMapping("/plan")
     public Set<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
-        Set<ScreeningPlanNameDTO> screeningPlanNameDTOs = screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
-        //按时间倒叙
-        return screeningPlanNameDTOs.stream().sorted(Comparator.comparing(ScreeningPlanNameDTO::getScreeningStartTime).reversed()).collect(Collectors.toSet());
-    }
-
-
-    public static void main(String[] args) {
-
+        return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
 
     /**
