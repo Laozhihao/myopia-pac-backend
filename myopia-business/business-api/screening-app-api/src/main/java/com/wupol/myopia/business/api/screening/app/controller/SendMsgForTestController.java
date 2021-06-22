@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.screening.app.schedules.SendWarningMsgScheduledTask;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +30,9 @@ public class SendMsgForTestController {
      * @return
      */
     @GetMapping("/today")
-    public Object sendWarningMsg() {
+    public ApiResult sendWarningMsg() {
         sendWarningMsgScheduledTask.sendWarningMsg();
-        return "触发成功";
+        return ApiResult.success("触发成功");
     }
 
     /**
@@ -40,9 +41,9 @@ public class SendMsgForTestController {
      * @return
      */
     @GetMapping("/30days")
-    public Object repeatNoticeWarningMsg() {
+    public ApiResult repeatNoticeWarningMsg() {
         sendWarningMsgScheduledTask.repeatNoticeWarningMsg();
-        return "触发成功";
+        return ApiResult.success("触发成功");
     }
 
 }
