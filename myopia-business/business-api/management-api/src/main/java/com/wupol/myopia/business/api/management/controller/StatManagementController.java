@@ -232,9 +232,7 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<Integer> childDistrictIdsByDistrictId = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        childDistrictIdsByDistrictId.add(districtId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), childDistrictIdsByDistrictId);
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getRootAndChildDistrict(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
     }
 
@@ -252,9 +250,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        List<Integer> childDistrictIdsByDistrictId = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        childDistrictIdsByDistrictId.add(districtId);
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), childDistrictIdsByDistrictId);
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getRootAndChildDistrict(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
@@ -333,7 +329,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), getRootAndChildDistrict(districtId));
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), districtService.getRootAndChildDistrict(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
     }
 
@@ -350,7 +346,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), getRootAndChildDistrict(districtId));
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtService.getRootAndChildDistrict(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
@@ -369,20 +365,6 @@ public class StatManagementController {
         Map<Integer, String> schoolIdDistrictNameMap = districtService.getByIds(schoolDistrictIdList);
         //获取数据
         return ScreeningSchoolVisionStatisticVO.getInstance(schoolVisionStatistics, schoolIdDistrictNameMap, notice);
-    }
-
-    /**
-     * 获取当前区域及子区域
-     * @param districtId
-     * @return
-     */
-    private List<Integer> getRootAndChildDistrict(Integer districtId) {
-        if (Objects.isNull(districtId)) {
-            return Collections.emptyList();
-        }
-        List<Integer> childDistrictIdsByDistrictId = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        childDistrictIdsByDistrictId.add(districtId);
-        return childDistrictIdsByDistrictId;
     }
 
 }

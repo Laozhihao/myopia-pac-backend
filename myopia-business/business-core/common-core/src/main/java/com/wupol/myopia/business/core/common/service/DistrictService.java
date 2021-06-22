@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.common.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -757,4 +756,19 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String pre = String.valueOf(district.getCode()).substring(0, 2);
         return new TwoTuple<>(null, Integer.valueOf(pre));
     }
+
+    /**
+     * 获取当前区域及子区域
+     * @param districtId
+     * @return
+     */
+    public List<Integer> getRootAndChildDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            return Collections.emptyList();
+        }
+        List<Integer> childDistrictIdsByDistrictId = this.getSpecificDistrictTreeAllDistrictIds(districtId);
+        childDistrictIdsByDistrictId.add(districtId);
+        return childDistrictIdsByDistrictId;
+    }
+
 }
