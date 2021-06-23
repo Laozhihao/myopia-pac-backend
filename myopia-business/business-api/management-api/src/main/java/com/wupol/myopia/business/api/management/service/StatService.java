@@ -623,18 +623,21 @@ public class StatService {
      */
     public Map<Integer, List<ContrastTypeYearItemsDTO>> composeContrastTypeFilter(CurrentUser currentUser) {
         Map<Integer, List<ContrastTypeYearItemsDTO>> contrastTypeFilterMap = new HashMap<>();
+        boolean isPlatformAdmin = currentUser.isPlatformAdminUser();
+        if (currentUser.isScreeningUser() || isPlatformAdmin) {
+            List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
+            contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, getYearPlanList(planList));
+        }
+        if (currentUser.isGovDeptUser() || isPlatformAdmin) {
+            List<ScreeningNotice> noticeList = screeningNoticeBizService.getRelatedNoticeByUser(currentUser);
+            contrastTypeFilterMap.put(ContrastTypeEnum.NOTIFICATION.code, getYearNotificationList(noticeList));
 
-        List<ScreeningNotice> noticeList = screeningNoticeBizService.getRelatedNoticeByUser(currentUser);
-        contrastTypeFilterMap.put(ContrastTypeEnum.NOTIFICATION.code, getYearNotificationList(noticeList));
-
-        List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
-        contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, getYearPlanList(planList));
-
-        List<ScreeningTask> taskList = screeningTaskBizService.getScreeningTaskByUser(currentUser);
-        contrastTypeFilterMap.put(ContrastTypeEnum.TASK.code, getYearTaskList(taskList));
-
+            List<ScreeningTask> taskList = screeningTaskBizService.getScreeningTaskByUser(currentUser);
+            contrastTypeFilterMap.put(ContrastTypeEnum.TASK.code, getYearTaskList(taskList));
+        }
         return contrastTypeFilterMap;
     }
+
 
     /**
      * 返回历年任务列表
@@ -653,16 +656,24 @@ public class StatService {
             int id = task.getId();
             String title = task.getTitle();
             Integer startYear = DateUtil.getYear(startTimeDate);
+            Integer endYear = DateUtil.getYear(endTimeDate);
             long startTime = startTimeDate.getTime();
             long endTime = endTimeDate.getTime();
-            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
-            if (yearTaskMap.containsKey(startYear)) {
-                yearTaskMap.put(startYear, new ArrayList<>(Collections.singletonList(yearItemDTO)));
-            } else {
-                yearTaskMap.put(startYear, Collections.singletonList(yearItemDTO));
+            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.
+                    YearItemDTO(id, title, startTime, endTime);
+            for (int i = startYear; i <= endYear; i++) {
+                if (yearTaskMap.containsKey(i)) {
+                    yearTaskMap.get(i).add(yearItemDTO);
+                } else {
+                    yearTaskMap.put(i, new ArrayList<>(Collections.singletonList(yearItemDTO)));
+                }
             }
         }
-        return yearTaskMap.keySet().stream().sorted()
+        for (Map.Entry<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> entry : yearTaskMap.entrySet()) {
+            entry.setValue(entry.getValue().stream().sorted(
+                    Comparator.comparing(ContrastTypeYearItemsDTO.YearItemDTO::getStartTime).reversed()).collect(Collectors.toList()));
+        }
+        return yearTaskMap.keySet().stream().sorted(Comparator.reverseOrder())
                 .map(x -> new ContrastTypeYearItemsDTO(x, yearTaskMap.get(x))).collect(Collectors.toList());
     }
 
@@ -683,16 +694,23 @@ public class StatService {
             int id = plan.getId();
             String title = plan.getTitle();
             Integer startYear = DateUtil.getYear(startTimeDate);
+            Integer endYear = DateUtil.getYear(endTimeDate);
             long startTime = startTimeDate.getTime();
             long endTime = endTimeDate.getTime();
             ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
-            if (yearPlanMap.containsKey(startYear)) {
-                yearPlanMap.get(startYear).add(yearItemDTO);
-            } else {
-                yearPlanMap.put(startYear, new ArrayList<>(Collections.singletonList(yearItemDTO)));
+            for (int i = startYear; i <= endYear; i++) {
+                if (yearPlanMap.containsKey(i)) {
+                    yearPlanMap.get(i).add(yearItemDTO);
+                } else {
+                    yearPlanMap.put(i, new ArrayList<>(Collections.singletonList(yearItemDTO)));
+                }
             }
         }
-        return yearPlanMap.keySet().stream().sorted()
+        for (Map.Entry<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> entry : yearPlanMap.entrySet()) {
+            entry.setValue(entry.getValue().stream().sorted(
+                    Comparator.comparing(ContrastTypeYearItemsDTO.YearItemDTO::getStartTime).reversed()).collect(Collectors.toList()));
+        }
+        return yearPlanMap.keySet().stream().sorted(Comparator.reverseOrder())
                 .map(x -> new ContrastTypeYearItemsDTO(x, yearPlanMap.get(x))).collect(Collectors.toList());
     }
 
@@ -713,16 +731,24 @@ public class StatService {
             int id = notice.getId();
             String title = notice.getTitle();
             Integer startYear = DateUtil.getYear(startTimeDate);
+            Integer endYear = DateUtil.getYear(endTimeDate);
             long startTime = startTimeDate.getTime();
             long endTime = endTimeDate.getTime();
-            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO = new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
-            if (yearNoticeMap.containsKey(startYear)) {
-                yearNoticeMap.get(startYear).add(yearItemDTO);
-            } else {
-                yearNoticeMap.put(startYear, new ArrayList<>(Collections.singletonList(yearItemDTO)));
+            ContrastTypeYearItemsDTO.YearItemDTO yearItemDTO =
+                    new ContrastTypeYearItemsDTO.YearItemDTO(id, title, startTime, endTime);
+            for (int i = startYear; i <= endYear; i++) {
+                if (yearNoticeMap.containsKey(i)) {
+                    yearNoticeMap.get(i).add(yearItemDTO);
+                } else {
+                    yearNoticeMap.put(i, new ArrayList<>(Collections.singletonList(yearItemDTO)));
+                }
             }
         }
-        return yearNoticeMap.keySet().stream().sorted()
+        for (Map.Entry<Integer, List<ContrastTypeYearItemsDTO.YearItemDTO>> entry : yearNoticeMap.entrySet()) {
+            entry.setValue(entry.getValue().stream().sorted(
+                    Comparator.comparing(ContrastTypeYearItemsDTO.YearItemDTO::getStartTime).reversed()).collect(Collectors.toList()));
+        }
+        return yearNoticeMap.keySet().stream().sorted(Comparator.reverseOrder())
                 .map(x -> new ContrastTypeYearItemsDTO(x, yearNoticeMap.get(x))).collect(Collectors.toList());
     }
 
@@ -776,8 +802,7 @@ public class StatService {
         query.setDistrictIds(validDistrictIds)
                 .setSchoolAge(schoolAge)
                 .setSchoolId(schoolId)
-                .setIsValid(true)
-                .setIsRescreen(false);
+                .setIsValid(true);
         if (schoolId != null) {
             if (schoolClass != null) {
                 query.setSchoolClassName(schoolClass);
