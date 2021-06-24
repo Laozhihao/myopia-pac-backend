@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Service
+//@Service
 public class DeviceReportTemplateService extends BaseService<DeviceReportTemplateMapper, DeviceReportTemplate> {
 
     /**

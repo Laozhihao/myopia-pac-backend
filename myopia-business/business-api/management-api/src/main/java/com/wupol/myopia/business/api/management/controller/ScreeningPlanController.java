@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,10 +47,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -394,10 +393,11 @@ public class ScreeningPlanController {
      * 导出筛查计划的学生二维码信息
      *
      * @param schoolClassInfo 参与筛查计划的学生
+     * @param type            1-二维码 2-VS666
      * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
-    public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+    public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         try {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
@@ -408,7 +408,16 @@ public class ScreeningPlanController {
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
+            students.forEach(student -> {
+                student.setGenderDesc(GenderEnum.getName(student.getGender()));
+                String content;
+                if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
+                    content = String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
+                } else {
+                    content = setVs666QrCodeRule(student);
+                }
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            });
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -421,6 +430,50 @@ public class ScreeningPlanController {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    /**
+     * 获取VS666格式所需要的二维码
+     *
+     * @param student 学生信息
+     * @return 二维码
+     */
+    private String setVs666QrCodeRule(ScreeningStudentDTO student) {
+        return String.format(Student.VS666_QR_CODE_CONTENT_FORMAT_RULE,
+                student.getId(),
+                student.getName(),
+                getVs666GenderDesc(student.getGender()),
+                getStudentAge(student.getBirthday()),
+                StringUtils.isEmpty(student.getParentPhone()) ? "null" : student.getParentPhone(),
+                StringUtils.isEmpty(student.getSchoolName()) ? "null" : student.getSchoolName(),
+                StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
+                StringUtils.isEmpty(student.getIdCard()) ? "null" : student.getIdCard());
+    }
+
+    /**
+     * 格式化成VS666需要的
+     *
+     * @param gender 性别
+     * @return M-男 FM-女
+     */
+    private String getVs666GenderDesc(Integer gender) {
+        if (Objects.isNull(gender)) {
+            throw new BusinessException("格式化成VS666二维码的性别异常");
+        }
+        return gender.equals(GenderEnum.MALE.type) ? "M" : "FM";
+    }
+
+    /**
+     * 格式化成VS666需要的年龄
+     *
+     * @param birthday 生日
+     * @return 年龄
+     */
+    private String getStudentAge(Date birthday) {
+        if (Objects.isNull(birthday)) {
+            throw new BusinessException("格式化成VS666二维码的年龄异常");
+        }
+        return String.valueOf(cn.hutool.core.date.DateUtil.ageOfNow(birthday));
     }
 
     /**

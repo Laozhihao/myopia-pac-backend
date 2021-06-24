@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Service
+//@Service
 public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOrgBindDeviceReportMapper, ScreeningOrgBindDeviceReport> {
 
     /**

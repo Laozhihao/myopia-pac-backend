@@ -129,4 +129,14 @@ public class CommonConst {
      * 导出消息通知内容-失败
      */
     public String SEND_SMS_TO_PARENT_MESSAGE = "【近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
+
+    /**
+     * 导出二维码
+     */
+    public Integer EXPORT_QRCODE = 1;
+
+    /**
+     * 导出VS666专属二维码
+     */
+    public Integer EXPORT_VS666_QRCODE = 2;
 }
