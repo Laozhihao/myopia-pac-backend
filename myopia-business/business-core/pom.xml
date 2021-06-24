@@ -23,6 +23,7 @@
         <module>government-core</module>
         <module>system-core</module>
         <module>common-core</module>
+        <module>device-core</module>
     </modules>
 
     <dependencies>
