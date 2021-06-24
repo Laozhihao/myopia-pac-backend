@@ -700,9 +700,9 @@ public class StatReportService {
         List<StatSchoolPersonnelDTO> schoolPersonnels = schools.stream().map(school -> {
             StatSchoolPersonnelDTO persionnel = new StatSchoolPersonnelDTO();
             persionnel.setName(school.getName())
-                    .setPlanScreeningNum(planSchoolStudentMap.get(school.getId()))
-                    .setActualScreeningNum(schoolFirstScreenMap.get(school.getId()).size())
-                    .setValidFirstScreeningNum(schoolValidMap.get(school.getId()).size());
+                    .setPlanScreeningNum(planSchoolStudentMap.getOrDefault(school.getId(), 0L))
+                    .setActualScreeningNum(schoolFirstScreenMap.getOrDefault(school.getId(), Collections.emptyList()).size())
+                    .setValidFirstScreeningNum(schoolValidMap.getOrDefault(school.getId(), Collections.emptyList()).size());
             return persionnel;
         })
                 .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
@@ -729,9 +729,9 @@ public class StatReportService {
             StatSchoolAgePersonnelDTO persionnel = new StatSchoolAgePersonnelDTO();
             String schoolAgeName = SchoolAge.get(gradeType).name();
             persionnel.setSchoolAge(schoolAgeName)
-                    .setPlanScreeningNum(planSchoolAgeStudentMap.get(gradeType))
-                    .setActualScreeningNum(businessSchoolAge.getFirstScreenSchoolAgeNumMap().get(schoolAgeName))
-                    .setValidFirstScreeningNum(businessSchoolAge.getValidSchoolAgeNumMap().get(schoolAgeName));
+                    .setPlanScreeningNum(planSchoolAgeStudentMap.getOrDefault(gradeType, 0L))
+                    .setActualScreeningNum(businessSchoolAge.getFirstScreenSchoolAgeNumMap().getOrDefault(schoolAgeName, 0))
+                    .setValidFirstScreeningNum(businessSchoolAge.getValidSchoolAgeNumMap().getOrDefault(schoolAgeName, 0));
             return persionnel;
         }).collect(Collectors.toList());
     }
@@ -807,9 +807,9 @@ public class StatReportService {
     private List<MyopiaDTO> getSchoolAgeMyopia(StatBusinessSchoolAgeDTO businessSchoolAge) {
         return businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
-                    List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().get(x);
+                    List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
                     Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
-                    return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().get(x),
+                    return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L),
                             x, myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());
     }
