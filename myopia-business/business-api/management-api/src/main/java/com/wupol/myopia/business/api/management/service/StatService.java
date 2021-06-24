@@ -569,7 +569,21 @@ public class StatService {
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        return ScreeningDataContrast.builder().screeningNum(planScreeningNum).actualScreeningNum(totalFirstScreeningNum).validScreeningNum(validFirstScreeningNum).averageVisionLeft(averageVision.getAverageVisionLeft()).averageVisionRight(averageVision.getAverageVisionRight()).lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum)).refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum)).wearingGlassesRatio(convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum)).myopiaNum(myopiaNum).myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum)).focusTargetsNum(warning0Num + warning1Num + warning2Num + warning3Num).warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum)).warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum)).warningLevelTwoRatio(convertToPercentage(warning2Num * 1f / validFirstScreeningNum)).warningLevelThreeRatio(convertToPercentage(warning3Num * 1f / validFirstScreeningNum)).recommendVisitNum(recommendVisitNum).screeningFinishedRatio(convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum)).rescreenStat(rescreenStat).build();
+        return ScreeningDataContrast.builder().screeningNum(planScreeningNum).actualScreeningNum(totalFirstScreeningNum).
+                validScreeningNum(validFirstScreeningNum).averageVisionLeft(averageVision.getAverageVisionLeft()).
+                averageVisionRight(averageVision.getAverageVisionRight())
+                .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
+                .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
+                .wearingGlassesRatio(convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
+                .myopiaNum(myopiaNum).myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
+                .focusTargetsNum(warning0Num + warning1Num + warning2Num + warning3Num)
+                .warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
+                .warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
+                .warningLevelTwoRatio(convertToPercentage(warning2Num * 1f / validFirstScreeningNum))
+                .warningLevelThreeRatio(convertToPercentage(warning3Num * 1f / validFirstScreeningNum))
+                .recommendVisitNum(recommendVisitNum)
+                .screeningFinishedRatio(convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
+                .rescreenStat(rescreenStat).build();
     }
 
     /**
@@ -771,8 +785,7 @@ public class StatService {
                 , schoolAge, schoolId, schoolGradeCode, schoolClass);
         query.setDistrictIds(validDistrictIds)
                 .setSchoolAge(schoolAge)
-                .setSchoolId(schoolId)
-                .setIsValid(true);
+                .setSchoolId(schoolId);
         if (schoolId != null) {
             if (schoolClass != null) {
                 query.setSchoolClassName(schoolClass);
