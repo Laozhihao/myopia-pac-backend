@@ -964,7 +964,7 @@ CREATE TABLE `device_screening_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一主键',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '数据归属的机构id',
   `device_sn` varchar(32) NOT NULL COMMENT '设备编码',
-  `data_id` varchar(32) NOT NULL COMMENT '数据唯一idID',
+  `data_id` varchar(32) NOT NULL COMMENT '数据唯一id',
   `patient_name` varchar(20) NOT NULL DEFAULT '' COMMENT '受检者名字',
   `patient_age_group` tinyint(1) NOT NULL DEFAULT -1 COMMENT '受检者年龄段(未知=-1,其他待定)',
   `patient_gender` tinyint(1) NOT NULL DEFAULT -1 COMMENT '受检者性别(性别 男=0  女=1  未知 = -1)',
@@ -987,10 +987,10 @@ CREATE TABLE `device_screening_data`  (
   `do_check` tinyint(1) NOT NULL DEFAULT -1 COMMENT '是否筛查( 是：1 * 否：0',
   `left_axsi_v` int NULL DEFAULT NULL COMMENT '左垂直⽅向斜视度数',
   `right_axsi_v` int NULL DEFAULT NULL COMMENT '右垂直⽅向斜视度数',
-  `right_axsi_h` int NULL DEFAULT NULL COMMENT '右⽔平⽅向斜视度数',
   `left_axsi_h` int NULL DEFAULT NULL COMMENT '左⽔平⽅向斜视度数',
-  `red_reflect_right` int NULL DEFAULT NULL COMMENT '红光反射右眼',
+  `right_axsi_h` int NULL DEFAULT NULL COMMENT '右⽔平⽅向斜视度数',
   `red_reflect_left` int NULL DEFAULT NULL COMMENT '红光反射左眼',
+  `red_reflect_right` int NULL DEFAULT NULL COMMENT '红光反射右眼',
   `screening_time` timestamp(0) NULL DEFAULT NULL COMMENT '筛查时间',
   `update_time` timestamp(0) NULL COMMENT '更新时间',
   `create_time` timestamp(0) NULL COMMENT '创建时间',
@@ -1008,7 +1008,7 @@ CREATE TABLE `device_src_data`  (
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `src_data` varchar(512) NULL COMMENT '原始数据',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '筛查机构id',
-  `screening_time` timestamp(0) NOT NULL COMMENT '绑定设备详情id',
+  `screening_time` timestamp(0) NOT NULL COMMENT '筛查时间',
   `create_time` timestamp(0) NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`)
 );
@@ -1017,7 +1017,7 @@ CREATE TABLE `device_src_data`  (
 DROP TABLE IF EXISTS `devices_binding`;
 CREATE TABLE `devices_binding`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-  `device_sn` varchar(32) NOT NULL COMMENT '设备唯一网络标识码',
+  `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `device_code` varchar(32) NOT NULL COMMENT '设备编码',
   `salesperson_name` varchar(20) NOT NULL DEFAULT '' COMMENT '销售名字',
   `salesperson_phone` char(11) NOT NULL DEFAULT '' COMMENT '销售电话',
