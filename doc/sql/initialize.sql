@@ -963,7 +963,7 @@ DROP TABLE IF EXISTS `m_device_screening_data`;
 CREATE TABLE `device_screening_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一主键',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '数据归属的机构id',
-  `device_sn` varchar(32) NOT NULL COMMENT '设备编码',
+  `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `patient_id` varchar(32) NOT NULL COMMENT '患者id',
   `patient_name` varchar(20) NOT NULL DEFAULT '' COMMENT '受检者名字',
   `patient_age_group` tinyint(1) NOT NULL DEFAULT -1 COMMENT '受检者年龄段(未知=-1,1=(0M,12M] 2=(12M,36M], 3=(3y,6Y], 4=(6Y-20Y], 5=(20Y,100Y])',
