@@ -1,7 +1,7 @@
-package com.wupol.myopia.device.core.domain.mapper;
+package com.wupol.myopia.business.core.device.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wupol.myopia.device.core.domain.model.DeviceReportTemplate;
+import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 
 import java.util.List;
 

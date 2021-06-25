@@ -1,8 +1,8 @@
-package com.wupol.myopia.device.core.service;
+package com.wupol.myopia.business.core.device.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.device.core.domain.mapper.ScreeningOrgBindDeviceReportMapper;
-import com.wupol.myopia.device.core.domain.model.ScreeningOrgBindDeviceReport;
+import com.wupol.myopia.business.core.device.domain.mapper.ScreeningOrgBindDeviceReportMapper;
+import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-//@Service
+@Service
 public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOrgBindDeviceReportMapper, ScreeningOrgBindDeviceReport> {
 
     /**

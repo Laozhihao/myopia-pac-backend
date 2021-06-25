@@ -1,4 +1,4 @@
-package com.wupol.myopia.device.core.domain.model;
+package com.wupol.myopia.business.core.device.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

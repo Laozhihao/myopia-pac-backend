@@ -1,8 +1,8 @@
-package com.wupol.myopia.device.core.service;
+package com.wupol.myopia.business.core.device.service;
 
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.device.core.domain.mapper.DeviceReportTemplateMapper;
-import com.wupol.myopia.device.core.domain.model.DeviceReportTemplate;
+import com.wupol.myopia.business.core.device.domain.mapper.DeviceReportTemplateMapper;
+import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-//@Service
+@Service
 public class DeviceReportTemplateService extends BaseService<DeviceReportTemplateMapper, DeviceReportTemplate> {
 
     /**
