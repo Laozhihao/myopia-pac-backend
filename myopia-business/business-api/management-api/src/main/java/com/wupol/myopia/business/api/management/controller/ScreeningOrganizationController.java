@@ -68,7 +68,7 @@ public class ScreeningOrganizationController {
         if (user.isGovDeptUser()) {
             screeningOrganization.setConfigType(0);
         }
-        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.saveScreeningOrganization(screeningOrganization);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationBizService.saveScreeningOrganization(screeningOrganization);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
             usernameAndPasswordDTO.setNoDisplay();

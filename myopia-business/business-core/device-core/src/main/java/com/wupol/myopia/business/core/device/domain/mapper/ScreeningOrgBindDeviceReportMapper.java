@@ -14,4 +14,8 @@ import java.util.List;
 public interface ScreeningOrgBindDeviceReportMapper extends BaseMapper<ScreeningOrgBindDeviceReport> {
 
     List<ScreeningOrgBindDeviceReport> getByTemplateId(@Param("templateId") Integer templateId);
+
+    void updateTemplateByOrgId(@Param("templateId") Integer templateId, @Param("orgId") Integer orgId);
+
+    void orgBindReportTemplate(@Param("templateId") Integer templateId, @Param("orgId") Integer orgId, @Param("name") String name);
 }

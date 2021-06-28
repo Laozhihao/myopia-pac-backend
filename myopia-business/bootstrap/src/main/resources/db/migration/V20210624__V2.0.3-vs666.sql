@@ -101,3 +101,8 @@ CREATE TABLE `m_device_binding`
     UNIQUE INDEX `uni_device_uid` (`device_sn`) USING BTREE COMMENT '设备唯一标识码索引',
     INDEX `idx_binding_screening_org_id` (`binding_screening_org_id`) USING BTREE COMMENT '绑定机构的普通索引'
 );
+
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (335, '获取设备报告模板列表', 'managementDeviceList', 'get:/management/device/list', 0, 0, 1, 333, 1, '2021-06-28 11:54:21', '2021-06-28 11:54:21');
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (336, '获取模板Id获取筛查机构', 'managementDeviceGetOrgList', 'get:/management/device/getOrgList/**', 0, 0, 1, 333, 1, '2021-06-28 11:54:58', '2021-06-28 11:54:58');
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (337, '配置机构', 'managementDeviceConfiguration', 'post:/management/device/configuration', 0, 0, 1, 333, 1, '2021-06-28 11:55:28', '2021-06-28 11:55:28');
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (338, '通过名称获取筛查机构', 'managementDeviceGetOrg', 'get:/management/device/getOrg/**', 0, 0, 1, 333, 1, '2021-06-28 11:56:02', '2021-06-28 11:56:02');

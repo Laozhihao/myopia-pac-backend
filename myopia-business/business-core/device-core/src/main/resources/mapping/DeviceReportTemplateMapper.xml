@@ -31,4 +31,11 @@
         from m_device_report_template
         order by id
     </select>
+
+    <select id="getSortFirstTemplate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_device_report_template
+        order by id limit 1
+    </select>
 </mapper>

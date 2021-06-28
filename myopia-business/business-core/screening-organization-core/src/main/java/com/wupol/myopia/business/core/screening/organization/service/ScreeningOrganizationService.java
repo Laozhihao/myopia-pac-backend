@@ -19,7 +19,6 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,34 +43,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     private OauthServiceClient oauthServiceClient;
 
     /**
-     * 保存筛查机构
-     *
-     * @param screeningOrganization 筛查机构
-     * @return UsernameAndPasswordDTO 账号密码
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
-
-        String name = screeningOrganization.getName();
-        if (StringUtils.isBlank(name)) {
-            throw new BusinessException("名字不能为空");
-        }
-
-        if (checkScreeningOrgName(name, null)) {
-            throw new BusinessException("筛查机构名称不能重复");
-        }
-
-        baseMapper.insert(screeningOrganization);
-        return generateAccountAndPassword(screeningOrganization);
-    }
-
-    /**
      * 生成账号密码
      *
      * @param org 筛查机构
      * @return 账号密码
      */
-    private UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = org.getName();
 

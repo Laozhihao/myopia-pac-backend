@@ -23,4 +23,8 @@ public class DeviceReportTemplateService extends BaseService<DeviceReportTemplat
     public List<DeviceReportTemplate> getTemplateList() {
         return baseMapper.getTemplateList();
     }
+
+    public DeviceReportTemplate getSortFirstTemplate() {
+        return baseMapper.getSortFirstTemplate();
+    }
 }

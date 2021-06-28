@@ -32,4 +32,15 @@
         where template_id = #{templateId}
         order by create_time desc
     </select>
+
+    <update id="updateTemplateByOrgId">
+        update m_screening_org_bind_device_report
+        set template_id = #{templateId}
+        where screening_org_id = #{orgId}
+    </update>
+
+    <insert id="orgBindReportTemplate">
+        insert into m_screening_org_bind_device_report(template_id, screening_org_id, screening_org_name)
+        values (#{templateId}, #{orgId}, #{name})
+    </insert>
 </mapper>

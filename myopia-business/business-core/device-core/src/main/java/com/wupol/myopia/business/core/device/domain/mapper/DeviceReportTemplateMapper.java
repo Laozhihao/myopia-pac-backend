@@ -14,4 +14,6 @@ public interface DeviceReportTemplateMapper extends BaseMapper<DeviceReportTempl
 
     List<DeviceReportTemplate> getTemplateList();
 
+    DeviceReportTemplate getSortFirstTemplate();
+
 }
