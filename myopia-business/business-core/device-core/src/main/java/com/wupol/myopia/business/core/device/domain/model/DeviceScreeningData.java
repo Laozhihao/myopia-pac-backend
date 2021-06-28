@@ -146,6 +146,16 @@ public class DeviceScreeningData implements Serializable {
     private BigDecimal rightPa;
 
     /**
+     * 左眼球镜
+     */
+    private BigDecimal leftSph;
+
+    /**
+     * 右眼球镜
+     */
+    private BigDecimal rightSph;
+
+    /**
      * 瞳距
      */
     private BigDecimal pd;

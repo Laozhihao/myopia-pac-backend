@@ -18,8 +18,8 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_device_src_data")
-public class DeviceSrcData implements Serializable {
+@TableName("m_device_source_data")
+public class DeviceSourceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
