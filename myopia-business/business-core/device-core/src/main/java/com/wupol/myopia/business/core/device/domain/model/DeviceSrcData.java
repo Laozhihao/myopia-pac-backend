@@ -40,6 +40,11 @@ public class DeviceSrcData implements Serializable {
     private Integer patientId;
 
     /**
+     * 设备id
+     */
+    private Integer deviceId;
+
+    /**
      * 设备编码
      */
     private String deviceCode;

@@ -13,6 +13,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(deviceType)">and `device_type` = #{deviceType}</if>
                 <if test="@Ognl@isNotEmpty(patientId)">and `patient_id` = #{patientId}</if>
+                <if test="@Ognl@isNotEmpty(deviceId)">and `device_id` = #{deviceId}</if>
                 <if test="@Ognl@isNotEmpty(deviceCode)">and `device_code` = #{deviceCode}</if>
                 <if test="@Ognl@isNotEmpty(deviceSn)">and `device_sn` = #{deviceSn}</if>
                 <if test="@Ognl@isNotEmpty(srcData)">and `src_data` = #{srcData}</if>
@@ -25,7 +26,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, device_type, patient_id, device_code, device_sn, src_data, screening_org_id, screening_time, create_time
+        id, device_type, patient_id, device_id, device_code, device_sn, src_data, screening_org_id, screening_time, create_time
     </sql>
 
 </mapper>

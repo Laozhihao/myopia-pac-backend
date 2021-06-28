@@ -963,6 +963,7 @@ DROP TABLE IF EXISTS `m_device_screening_data`;
 CREATE TABLE `m_device_screening_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一主键',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '数据归属的机构id',
+  `device_id` int UNSIGNED  NOT NULL COMMENT '设备表id',
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `patient_id` varchar(32) NOT NULL COMMENT '患者id',
   `patient_name` varchar(20) NOT NULL DEFAULT '' COMMENT '受检者名字',
@@ -1005,6 +1006,7 @@ CREATE TABLE `m_device_src_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `device_type` tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '设备类型(0=默认设备,1=vs666)',
   `patient_id` int UNSIGNED NOT NULL COMMENT '患者id',
+  `device_id`  int UNSIGNED  NOT NULL COMMENT '设备表id',
   `device_code` varchar(32) NOT NULL DEFAULT '' COMMENT '设备编码',
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `src_data` varchar(512) NOT NULL COMMENT '原始数据',
@@ -1015,8 +1017,8 @@ CREATE TABLE `m_device_src_data`  (
 );
 
 -- 设备绑定表
-DROP TABLE IF EXISTS `m_device_binding`;
-CREATE TABLE `m_device_binding`  (
+DROP TABLE IF EXISTS `m_device`;
+CREATE TABLE `m_device`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `device_code` varchar(32) NOT NULL COMMENT '设备编码',
