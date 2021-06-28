@@ -28,6 +28,7 @@ CREATE TABLE `m_device_screening_data`
 (
     `id`                int UNSIGNED  NOT NULL AUTO_INCREMENT COMMENT '唯一主键',
     `screening_org_id`  int UNSIGNED  NOT NULL COMMENT '数据归属的机构id',
+    `device_id`         int UNSIGNED  NOT NULL COMMENT '设备表id',
     `device_sn`         varchar(32)   NOT NULL COMMENT '设备唯一id',
     `patient_id`        varchar(32)   NOT NULL COMMENT '患者id',
     `patient_name`      varchar(20)   NOT NULL DEFAULT '' COMMENT '受检者名字',
@@ -49,6 +50,8 @@ CREATE TABLE `m_device_screening_data`
     `right_pr`          decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼瞳孔半径',
     `left_pa`           decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼等效球镜度',
     `right_pa`          decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼等效球镜度',
+    `left_sph`          decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼球镜',
+    `right_sph`         decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼球镜',
     `pd`                decimal(4, 2) NULL     DEFAULT NULL COMMENT '瞳距',
     `do_check`          tinyint(1)    NOT NULL DEFAULT -1 COMMENT '是否筛查(-1=未知,1=是,0=否)',
     `left_axsi_v`       int           NULL     DEFAULT NULL COMMENT '左垂直⽅向斜视度数',
@@ -65,12 +68,13 @@ CREATE TABLE `m_device_screening_data`
 );
 
 -- 设备上传的原始数据
-DROP TABLE IF EXISTS `m_device_src_data`;
-CREATE TABLE `m_device_src_data`
+DROP TABLE IF EXISTS `m_device_source_data`;
+CREATE TABLE `m_device_source_data`
 (
     `id`               int UNSIGNED     NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `device_type`      tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '设备类型(0=默认设备,1=vs666)',
     `patient_id`       int UNSIGNED     NOT NULL COMMENT '患者id',
+    `device_id`        int UNSIGNED     NOT NULL COMMENT '设备表id',
     `device_code`      varchar(32)      NOT NULL DEFAULT '' COMMENT '设备编码',
     `device_sn`        varchar(32)      NOT NULL COMMENT '设备唯一id',
     `src_data`         varchar(512)     NOT NULL COMMENT '原始数据',
@@ -80,9 +84,9 @@ CREATE TABLE `m_device_src_data`
     PRIMARY KEY (`id`)
 );
 
--- 设备绑定表
-DROP TABLE IF EXISTS `m_device_binding`;
-CREATE TABLE `m_device_binding`
+-- 设备表
+DROP TABLE IF EXISTS `m_device`;
+CREATE TABLE `m_device`
 (
     `id`                       int UNSIGNED NOT NULL AUTO_INCREMENT,
     `device_sn`                varchar(32)  NOT NULL COMMENT '设备唯一id',
@@ -94,7 +98,7 @@ CREATE TABLE `m_device_binding`
     `customer_phone`           char(11)     NOT NULL DEFAULT '' COMMENT '客户电话',
     `sale_date`                timestamp(0) NOT NULL COMMENT '销售时间',
     `remark`                   varchar(500) NOT NULL DEFAULT '' COMMENT '备注',
-    `status`                   tinyint      NOT NULL COMMENT '状态: 启用1 禁用(删除) -1',
+    `status`                   tinyint      NOT NULL COMMENT '状态: 启用1、停用0',
     `update_time`              timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
     `create_time`              timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
     PRIMARY KEY (`id`),
