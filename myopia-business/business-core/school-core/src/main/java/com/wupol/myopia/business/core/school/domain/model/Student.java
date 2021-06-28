@@ -40,6 +40,11 @@ public class Student extends AddressCode implements Serializable {
      * SA@0000000000000000000001
      */
     public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA@%032d";
+
+    /**
+     * [ID,name,sex,age,phone,0,schoolName,gradeName&className,idCard]
+     */
+    public static final String VS666_QR_CODE_CONTENT_FORMAT_RULE= "[%s,%s,%s,%s,%s,0,%s,%s,%s]";
     /**
      * id
      */
