@@ -1032,7 +1032,7 @@ CREATE TABLE `devices_binding`  (
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `uni_device_uid`(`device_sn`) USING BTREE COMMENT '设备唯一标识码索引',
-  INDEX `idx_binding_org_id`(`binding_org_id`) USING BTREE COMMENT '绑定机构的普通索引'
+  INDEX `idx_binding_screening_org_id`(`binding_screening_org_id`) USING BTREE COMMENT '绑定机构的普通索引'
 );
 
 
