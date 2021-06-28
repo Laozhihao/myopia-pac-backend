@@ -18,31 +18,13 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_device_src_data")
-public class DeviceSrcData implements Serializable {
+@TableName("m_device")
+public class Device implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键id
-     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-
-    /**
-     * 设备类型(0=默认设备,1=vs666)
-     */
-    private Integer deviceType;
-
-    /**
-     * 患者id
-     */
-    private Integer patientId;
-
-    /**
-     * 设备编码
-     */
-    private String deviceCode;
 
     /**
      * 设备唯一id
@@ -50,20 +32,56 @@ public class DeviceSrcData implements Serializable {
     private String deviceSn;
 
     /**
-     * 原始数据
+     * 设备编码
      */
-    private String srcData;
+    private String deviceCode;
 
     /**
-     * 筛查机构id
+     * 销售名字
      */
-    private Integer screeningOrgId;
+    private String salespersonName;
 
     /**
-     * 筛查时间
+     * 销售电话
+     */
+    private String salespersonPhone;
+
+    /**
+     * 绑定机构id
+     */
+    private Integer bindingScreeningOrgId;
+
+    /**
+     * 客户名字
+     */
+    private String customerName;
+
+    /**
+     * 客户电话
+     */
+    private String customerPhone;
+
+    /**
+     * 销售时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date screeningTime;
+    private Date saleDate;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    /**
+     * 状态: 启用1 禁用(删除) -1
+     */
+    private Integer status;
+
+    /**
+     * 更新时间
+     */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
 
     /**
      * 创建时间

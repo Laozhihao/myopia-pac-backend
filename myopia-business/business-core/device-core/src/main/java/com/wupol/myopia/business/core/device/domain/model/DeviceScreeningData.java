@@ -36,6 +36,11 @@ public class DeviceScreeningData implements Serializable {
     private Integer screeningOrgId;
 
     /**
+     * 设备表id
+     */
+    private Integer deviceId;
+
+    /**
      * 设备唯一id
      */
     private String deviceSn;
@@ -139,6 +144,16 @@ public class DeviceScreeningData implements Serializable {
      * 右眼等效球镜度
      */
     private BigDecimal rightPa;
+
+    /**
+     * 左眼球镜
+     */
+    private BigDecimal leftSph;
+
+    /**
+     * 右眼球镜
+     */
+    private BigDecimal rightSph;
 
     /**
      * 瞳距
