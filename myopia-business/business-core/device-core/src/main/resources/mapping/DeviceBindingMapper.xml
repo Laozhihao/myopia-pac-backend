@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.device.domain.mapper.DeviceBindingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.device.domain.model.DeviceBinding">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(deviceSn)">and `device_sn` = #{deviceSn}</if>
+                <if test="@Ognl@isNotEmpty(deviceCode)">and `device_code` = #{deviceCode}</if>
+                <if test="@Ognl@isNotEmpty(salespersonName)">and `salesperson_name` = #{salespersonName}</if>
+                <if test="@Ognl@isNotEmpty(salespersonPhone)">and `salesperson_phone` = #{salespersonPhone}</if>
+                <if test="@Ognl@isNotEmpty(bindingScreeningOrgId)">and `binding_screening_org_id` = #{bindingScreeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(customerName)">and `customer_name` = #{customerName}</if>
+                <if test="@Ognl@isNotEmpty(customerPhone)">and `customer_phone` = #{customerPhone}</if>
+                <if test="@Ognl@isNotEmpty(saleDate)">and `sale_date` = #{saleDate}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, device_sn, device_code, salesperson_name, salesperson_phone, binding_screening_org_id, customer_name, customer_phone, sale_date, remark, status, update_time, create_time
+    </sql>
+
+</mapper>

@@ -960,7 +960,7 @@ CREATE TABLE `m_warning_msg` (
 
 -- 设备上传的筛查数据
 DROP TABLE IF EXISTS `m_device_screening_data`;
-CREATE TABLE `device_screening_data`  (
+CREATE TABLE `m_device_screening_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一主键',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '数据归属的机构id',
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
@@ -1001,7 +1001,7 @@ CREATE TABLE `device_screening_data`  (
 
 -- 设备上传的原始数据
 DROP TABLE IF EXISTS `m_device_src_data`;
-CREATE TABLE `device_src_data`  (
+CREATE TABLE `m_device_src_data`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `device_type` tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '设备类型(0=默认设备,1=vs666)',
   `patient_id` int UNSIGNED NOT NULL COMMENT '患者id',
@@ -1016,7 +1016,7 @@ CREATE TABLE `device_src_data`  (
 
 -- 设备绑定表
 DROP TABLE IF EXISTS `m_device_binding`;
-CREATE TABLE `devices_binding`  (
+CREATE TABLE `m_device_binding`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `device_sn` varchar(32) NOT NULL COMMENT '设备唯一id',
   `device_code` varchar(32) NOT NULL COMMENT '设备编码',
