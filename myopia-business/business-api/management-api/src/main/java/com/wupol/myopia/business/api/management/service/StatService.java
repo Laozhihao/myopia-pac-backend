@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
@@ -87,6 +88,12 @@ public class StatService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
 
@@ -404,18 +411,24 @@ public class StatService {
                 .validScreeningNum(contrast.getValidScreeningNum())
                 .averageVisionLeft(contrast.getAverageVisionLeft())
                 .averageVisionRight(contrast.getAverageVisionRight())
-                .lowVisionRatio(contrast.getLowVisionRatio() + "%")
-                .refractiveErrorRatio(contrast.getRefractiveErrorRatio() + "%")
-                .wearingGlassesRatio(contrast.getWearingGlassesRatio() + "%")
+                .lowVisionNum(contrast.getLowVisionNum())
+                .lowVisionRatio(nullToRatio(contrast.getLowVisionRatio()))
+                .wearingGlassesNum(contrast.getWearingGlassesNum())
+                .wearingGlassesRatio(nullToRatio(contrast.getWearingGlassesRatio()))
                 .myopiaNum(contrast.getMyopiaNum())
-                .myopiaRatio(contrast.getMyopiaRatio() + "%")
+                .myopiaRatio(nullToRatio(contrast.getMyopiaRatio()))
                 .focusTargetsNum(contrast.getFocusTargetsNum())
-                .warningLevelZeroRatio(contrast.getWarningLevelZeroRatio() + "%")
-                .warningLevelOneRatio(contrast.getWarningLevelOneRatio() + "%")
-                .warningLevelTwoRatio(contrast.getWarningLevelTwoRatio() + "%")
-                .warningLevelThreeRatio(contrast.getWarningLevelThreeRatio() + "%")
+                .focusTargetsRatio(nullToRatio(contrast.getFocusTargetsRatio()))
+                .warningLevelZeroNum(contrast.getWarningLevelZeroNum())
+                .warningLevelZeroRatio(nullToRatio(contrast.getWarningLevelZeroRatio()))
+                .warningLevelOneNum(contrast.getWarningLevelOneNum())
+                .warningLevelOneRatio(nullToRatio(contrast.getWarningLevelOneRatio()))
+                .warningLevelTwoNum(contrast.getWarningLevelTwoNum())
+                .warningLevelTwoRatio(nullToRatio(contrast.getWarningLevelTwoRatio()))
+                .warningLevelThreeNum(contrast.getWarningLevelThreeNum())
+                .warningLevelThreeRatio(nullToRatio(contrast.getWarningLevelThreeRatio()))
                 .recommendVisitNum(contrast.getRecommendVisitNum())
-                .screeningFinishedRatio(contrast.getScreeningFinishedRatio() + "%")
+                .recommendVisitRatio(nullToRatio(contrast.getRecommendVisitRatio()))
                 .rescreenNum(rs.getRescreenNum())
                 .wearingGlassesRescreenNum(rs.getWearingGlassesRescreenNum())
                 .wearingGlassesRescreenIndexNum(rs.getWearingGlassesRescreenIndexNum())
@@ -423,8 +436,18 @@ public class StatService {
                 .withoutGlassesRescreenIndexNum(rs.getWithoutGlassesRescreenIndexNum())
                 .rescreenItemNum(rs.getRescreenItemNum())
                 .incorrectItemNum(rs.getIncorrectItemNum())
-                .incorrectRatio(rs.getIncorrectRatio() + "%")
+                .incorrectRatio(nullToRatio(rs.getIncorrectRatio()))
                 .build();
+    }
+
+    /**
+     * 将null转换为0占比
+     *
+     * @param ratio
+     * @return
+     */
+    private String nullToRatio(Float ratio) {
+        return (ratio == null ? 0f : ratio) + "%";
     }
 
     /**
@@ -564,24 +587,37 @@ public class StatService {
                 validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
         long warning3Num =
                 validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
+        long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        return ScreeningDataContrast.builder().screeningNum(planScreeningNum).actualScreeningNum(totalFirstScreeningNum).
-                validScreeningNum(validFirstScreeningNum).averageVisionLeft(averageVision.getAverageVisionLeft()).
-                averageVisionRight(averageVision.getAverageVisionRight())
+        return ScreeningDataContrast.builder()
+                .screeningNum(planScreeningNum)
+                .actualScreeningNum(totalFirstScreeningNum)
+                .validScreeningNum(validFirstScreeningNum)
+                .averageVisionLeft(averageVision.getAverageVisionLeft())
+                .averageVisionRight(averageVision.getAverageVisionRight())
+                .lowVisionNum(lowVisionNum)
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
                 .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
+                .wearingGlassesNum(wearingGlassesNum)
                 .wearingGlassesRatio(convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
-                .myopiaNum(myopiaNum).myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
-                .focusTargetsNum(warning0Num + warning1Num + warning2Num + warning3Num)
+                .myopiaNum(myopiaNum)
+                .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
+                .focusTargetsNum(focusTargetsNum)
+                .focusTargetsRatio(convertToPercentage(focusTargetsNum * 1f / validFirstScreeningNum))
+                .warningLevelZeroNum(warning0Num)
                 .warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
+                .warningLevelOneNum(warning1Num)
                 .warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
+                .warningLevelTwoNum(warning2Num)
                 .warningLevelTwoRatio(convertToPercentage(warning2Num * 1f / validFirstScreeningNum))
+                .warningLevelThreeNum(warning3Num)
                 .warningLevelThreeRatio(convertToPercentage(warning3Num * 1f / validFirstScreeningNum))
                 .recommendVisitNum(recommendVisitNum)
+                .recommendVisitRatio(convertToPercentage(recommendVisitNum * 1f / validFirstScreeningNum))
                 .screeningFinishedRatio(convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
                 .rescreenStat(rescreenStat).build();
     }
@@ -860,16 +896,84 @@ public class StatService {
         for (int i = 0; i < paramsList.size(); i++) {
             DataContrastFilterParamsDTO.Params params = paramsList.get(i);
             Integer contrastId = params.getContrastId();
+            StringBuilder title = new StringBuilder();
+            title.append(i == 0 ? "被对比项：" : "对比项" + i + "：");
+            composeFilterTitle(title, contrastType, params);
             if (contrastId == null) {
-                exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1),
+                exportList.add(composeScreeningDataContrastDTO(title.toString(),
                         composeScreeningDataContrast(Collections.emptyList(), 0)));
                 continue;
             }
             ScreeningDataContrast screeningDataContrast = getScreeningDataContrast(contrastType, params, currentUser);
-            exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1), screeningDataContrast));
+            exportList.add(composeScreeningDataContrastDTO(title.toString(), screeningDataContrast));
         }
         excelFacade.exportStatContrast(currentUser.getId(), exportList,
                 exportStatContrastTemplate.getInputStream());
+    }
+
+    private void composeFilterTitle(StringBuilder buf, Integer contrastType,
+                                    DataContrastFilterParamsDTO.Params filterParams) {
+        Integer contrastId = filterParams.getContrastId();
+        switch (ContrastTypeEnum.get(contrastType)) {
+            case NOTIFICATION:
+                ScreeningNotice notice = screeningNoticeService.getById(contrastId);
+                buf.append(composeContrastParams(notice.getTitle(), notice.getStartTime(), notice.getEndTime()));
+                break;
+            case TASK:
+                ScreeningTask task = screeningTaskService.getById(contrastId);
+                buf.append(composeContrastParams(task.getTitle(), task.getStartTime(), task.getEndTime()));
+                break;
+            case PLAN:
+                ScreeningPlan plan = screeningPlanService.getById(contrastId);
+                buf.append(composeContrastParams(plan.getTitle(), plan.getStartTime(), plan.getEndTime()));
+                break;
+            default:
+                return;
+        }
+
+        Integer districtId = filterParams.getDistrictId();
+        if (districtId != null) {
+            District district = districtService.getById(districtId);
+            if (district != null) {
+                buf.append("，").append(district.getName());
+            }
+        }
+
+        Integer schoolAgeCode = filterParams.getSchoolAge();
+        if (schoolAgeCode != null) {
+            SchoolAge schoolAge = SchoolAge.get(schoolAgeCode);
+            if (schoolAge != null) {
+                buf.append("，").append(schoolAge.desc);
+            }
+        }
+
+        Integer schoolId = filterParams.getSchoolId();
+        if (schoolId != null) {
+            School school = schoolService.getById(schoolId);
+            if (school != null) {
+                buf.append("，").append(school.getName());
+            }
+        }
+
+        String schoolGradeCode = filterParams.getSchoolGradeCode();
+        if (StringUtils.isNotEmpty(schoolGradeCode)) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+            if (gradeCodeEnum != null) {
+                buf.append("，").append(gradeCodeEnum.getName());
+            }
+        }
+
+        String schoolClass = filterParams.getSchoolClass();
+        if (StringUtils.isNotEmpty(schoolClass)) {
+            buf.append("，").append(schoolClass);
+        }
+
+    }
+
+    private String composeContrastParams(String title, Date startTime, Date endTime) {
+        String startDate = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_ONLY_DATE);
+        String endDate = DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_ONLY_DATE);
+        return title + "，" + startDate + "至" + endDate;
     }
 
 
