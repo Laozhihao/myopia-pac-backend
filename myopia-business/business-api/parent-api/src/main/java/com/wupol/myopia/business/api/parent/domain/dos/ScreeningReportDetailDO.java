@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.parent.domain.dos;
 
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricItems;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.RefractoryResultItems;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionItems;
