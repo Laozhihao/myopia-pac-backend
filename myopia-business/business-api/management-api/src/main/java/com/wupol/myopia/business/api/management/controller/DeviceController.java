@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
@@ -32,6 +34,9 @@ public class DeviceController {
 
     @Resource
     private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private DeviceBizService deviceBizService;
 
     /**
      * 获取设备报告模板列表
@@ -73,5 +78,17 @@ public class DeviceController {
     @GetMapping("getOrg/{name}")
     public List<ScreeningOrganization> getOrgList(@PathVariable("name") String name) {
         return screeningOrganizationService.getByNameLike(name);
+    }
+
+
+    /**
+     * 获取打印需要的信息
+     *
+     * @param ids ids
+     * @return List<DeviceReportPrintResponseDTO>
+     */
+    @GetMapping("reportPrint")
+    public List<DeviceReportPrintResponseDTO> getPrintReportInfo(List<Integer> ids) {
+        return deviceBizService.getPrintReportInfo(ids);
     }
 }
