@@ -43,7 +43,7 @@ public class DeviceController {
      *
      * @return List<DeviceReportTemplate>
      */
-    @GetMapping("list")
+    @GetMapping("/template/list")
     public List<DeviceReportTemplate> list() {
         return deviceReportTemplateService.getTemplateList();
     }
@@ -54,7 +54,7 @@ public class DeviceController {
      * @param templateId 模板Id
      * @return List<ScreeningOrgBindDeviceReport>
      */
-    @GetMapping("getOrgList/{templateId}")
+    @GetMapping("/template/getOrgList/{templateId}")
     public List<ScreeningOrgBindDeviceReport> getOrgList(@PathVariable("templateId") Integer templateId) {
         return screeningOrgBindDeviceReportService.getOrgByTemplateId(templateId);
     }
@@ -64,7 +64,7 @@ public class DeviceController {
      *
      * @param requestDTO 请求入参
      */
-    @PostMapping("configuration")
+    @PostMapping("/template/configuration")
     public void configuration(@RequestBody ConfigurationReportRequestDTO requestDTO) {
         screeningOrgBindDeviceReportService.configurationReport(requestDTO);
     }
@@ -75,11 +75,10 @@ public class DeviceController {
      * @param name 名称
      * @return List<ScreeningOrganization>
      */
-    @GetMapping("getOrg/{name}")
+    @GetMapping("/template/getOrg/{name}")
     public List<ScreeningOrganization> getOrgList(@PathVariable("name") String name) {
         return screeningOrganizationService.getByNameLike(name);
     }
-
 
     /**
      * 获取打印需要的信息
