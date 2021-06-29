@@ -1,16 +1,14 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
-import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
-import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 设备管理
@@ -24,7 +22,7 @@ public class DeviceBizService {
     private DeviceScreeningDataService deviceScreeningDataService;
 
     @Resource
-    private OrgCooperationHospitalService orgCooperationHospitalService;
+    private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
 
     /**
      * 获取打印需要的信息
@@ -39,7 +37,8 @@ public class DeviceBizService {
         List<DeviceReportPrintResponseDTO> responseDTOS = deviceScreeningDataService.getPrintReportInfo(ids);
 
         responseDTOS.forEach(r -> {
-            Integer suggestHospital = orgCooperationHospitalService.getSuggestHospital(r.getScreeningOrgId());
+            r.setSuggestHospitalDO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
+            r.setDoctorAdvice("");
         });
         return responseDTOS;
     }
