@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author wulizhou
@@ -13,7 +14,23 @@ import java.util.Date;
 @Data
 public class DeviceScreeningDataQueryDTO extends DeviceScreeningData {
 
-    private String orgName;
+    /**
+     * 筛查机构
+     */
+    private String screeningOrgNameSearch;
+    /**
+     * id
+     */
+    private String patientIdSearch;
+    /**
+     * 设备唯一号
+     */
+    private String deviceSnSearch;
+    /**
+     * 单位
+     */
+    private String patientOrgSearch;
+
     private Date screeningTimeStart;
     private Date screeningTimeEnd;
     /**
@@ -33,5 +50,10 @@ public class DeviceScreeningDataQueryDTO extends DeviceScreeningData {
      * 柱镜结束
      */
     private BigDecimal cylEnd;
+
+    /**
+     * 机构ids集
+     */
+    private List<Integer> screeningOrgIds;
 
 }

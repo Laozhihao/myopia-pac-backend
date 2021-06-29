@@ -12,6 +12,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
 
-    private String orgName;
+    private String screeningOrgName;
 
 }
