@@ -40,7 +40,7 @@ public class DeviceBizService {
 
         responseDTOS.forEach(r -> {
             r.setSuggestHospitalDO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
-            r.setDoctorAdvice("");
+            r.setDoctorAdvice(getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl()));
         });
         return responseDTOS;
     }
@@ -88,7 +88,7 @@ public class DeviceBizService {
      */
     private boolean checkSingleEyeIsMyopia(BigDecimal pa) {
         if (Objects.isNull(pa)) {
-            return false;
+            return true;
         }
         return pa.compareTo(new BigDecimal("-0.5")) < 0;
     }
@@ -114,7 +114,7 @@ public class DeviceBizService {
      */
     private boolean checkSingleEyeIsFarsightedness(Integer patientAge, BigDecimal pa) {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
-            return false;
+            return true;
         }
         switch (patientAge) {
             case 0:
@@ -160,7 +160,7 @@ public class DeviceBizService {
      */
     private boolean checkSingleEyeIsAstigmatism(BigDecimal cyl) {
         if (Objects.isNull(cyl)) {
-            return false;
+            return true;
         }
         return cyl.abs().compareTo(new BigDecimal("0.5")) < 0;
     }
@@ -186,11 +186,11 @@ public class DeviceBizService {
      */
     private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, BigDecimal pa) {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
-            return false;
+            return true;
         }
         if (patientAge >= 0 && patientAge <= 8) {
             return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
         }
-        return false;
+        return true;
     }
 }
