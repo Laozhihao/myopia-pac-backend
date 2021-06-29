@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -30,15 +31,15 @@ public class WarningMsg implements Serializable {
     /**
      * 可以准备发送
      */
-    public final static Integer STATUS_READY_TO_SEND = 0;
+    public static final  Integer STATUS_READY_TO_SEND = 0;
     /**
      * 发送失败
      */
-    public final static Integer STATUS_SEND_FAILURE = -1;
+    public static final Integer STATUS_SEND_FAILURE = -1;
     /**
      * 发送成功
      */
-    public final static Integer STATUS_SEND_SUCCESS = 1;
+    public static final Integer STATUS_SEND_SUCCESS = 1;
     /**
      * 取消发送
      */
@@ -60,7 +61,7 @@ public class WarningMsg implements Serializable {
     /**
      * 电话号码(发送的时候才记录)
      */
-    private String phoneNumbers;
+    private List<String> phoneNumbers;
 
     /**
      * 发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送

@@ -53,19 +53,6 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     }
 
     /**
-     * 增加一条数据
-     *
-     * @param warningMsgs
-     */
-    public void addNewOne(List<WarningMsg> warningMsgs) {
-        for (WarningMsg warningMsgNextTime : warningMsgs) {
-            // 目前只有定时任务使用这个方法,不存在并发时的更新丢失情况, 如若避免更新丢失,可以加上where send_times = @lastTimes
-            warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date()).setSendTimes(warningMsgNextTime.getSendTimes() + 1);
-        }
-        saveBatch(warningMsgs);
-    }
-
-    /**
      * 发送短信
      *
      * @param content
@@ -143,13 +130,14 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     }
 
     /**
-     *  需要重复推送的短信(目前的周期是30天) 限制次数是5次
+     *   查找可能需要重复推送的短信
      * @return
      */
     public List<WarningMsg> needRepeatNoticeMsg(int offsetDays) {
         String dayOfYear = DateUtil.getDayOfYear(new Date(),offsetDays);
         LambdaQueryWrapper<WarningMsg> warningMsgLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        warningMsgLambdaQueryWrapper.between(WarningMsg::getSendTimes,1,5);
+        //todo 魔数注意
+        warningMsgLambdaQueryWrapper.between(WarningMsg::getSendTimes,0,4);
         warningMsgLambdaQueryWrapper.eq(WarningMsg::getSendDayOfYear,dayOfYear);
         return list(warningMsgLambdaQueryWrapper);
     }
