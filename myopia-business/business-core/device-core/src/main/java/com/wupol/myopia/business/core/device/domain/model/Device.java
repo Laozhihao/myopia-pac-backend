@@ -73,7 +73,7 @@ public class Device implements Serializable {
     private String remark;
 
     /**
-     * 状态: 启用1 禁用(删除) -1
+     * 状态: 启用1、禁用0
      */
     private Integer status;
 
