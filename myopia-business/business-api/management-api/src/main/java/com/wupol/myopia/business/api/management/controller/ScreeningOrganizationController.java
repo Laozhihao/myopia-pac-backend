@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -266,5 +267,17 @@ public class ScreeningOrganizationController {
     @GetMapping("/getDistrictTree/{orgId}")
     public List<District> getDistrictTree(@PathVariable("orgId") Integer orgId) {
         return screeningOrganizationBizService.getDistrictTree(orgId);
+    }
+
+    /**
+     * 根据名称模糊查询
+     *
+     * @param name 筛查机构名称
+     * @return List<ScreeningOrganization>
+     */
+    @GetMapping("getByName")
+    public List<ScreeningOrganization> getByName(String name) {
+        Assert.notNull(name,"筛查机构名称不能为空");
+        return screeningOrganizationService.getByNameLike(name);
     }
 }
