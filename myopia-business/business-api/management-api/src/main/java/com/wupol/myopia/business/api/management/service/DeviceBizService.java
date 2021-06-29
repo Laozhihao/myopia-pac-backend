@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
+import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import org.springframework.stereotype.Service;
@@ -58,13 +59,13 @@ public class DeviceBizService {
     private String getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
-            return "请到医疗机构接受检查，明确诊断并及时采取措施。";
+            return DoctorConclusion.DEVICE_REFRACTIVE_ERROR;
         } else {
             // 屈光正常还需判断是否远视储备不足情况
             if (checkIsInsufficientFarsightedReserves(patientAge, leftPa, rightPa)) {
-                return "请6~12个月，带孩子到正规医疗机构进行视力检查，了解是否可能发展为近视平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+                return DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR;
             } else {
-                return "每隔6~12个月，带孩子到正规医疗机构进行视力检查平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+                return DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL;
             }
         }
     }
