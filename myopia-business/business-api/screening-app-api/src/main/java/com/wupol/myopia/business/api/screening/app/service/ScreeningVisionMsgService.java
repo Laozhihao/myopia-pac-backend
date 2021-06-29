@@ -13,9 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,16 +40,37 @@ public class ScreeningVisionMsgService {
      */
     public void sendWarningMsg() {
         // 找出需要发送短信的数据
-        List<WarningMsg> warningMsgs = warningMsgService.needNoticeMsg();
-        if (CollectionUtils.isEmpty(warningMsgs)) {
+        Set<Integer> studentIdSet = statConclusionService.getNeedToSendWarningMsg();
+        //List<WarningMsg> warningMsgs = warningMsgService.needNoticeMsg();
+        if (CollectionUtils.isEmpty(studentIdSet)) {
             //没有发送消息的任务
             log.info("{} 没有学生的警告短信需要重新发送.", DateUtil.getNowDateTimeStr());
             return;
         }
+        // 新建多条数据
+        List<WarningMsg> warningMsgs = getInitWarningMsgList(studentIdSet);
         // 处理短信
         dealMsg(warningMsgs);
         // 更新状态
-        warningMsgService.updateBatchById(warningMsgs);
+        warningMsgService.saveBatch(warningMsgs);
+    }
+
+    /**
+     * 视力警告数据
+     * @param studentIdSet
+     */
+    private List<WarningMsg> getInitWarningMsgList(Set<Integer> studentIdSet) {
+        if (CollectionUtils.isEmpty(studentIdSet)) {
+            return Collections.emptyList();
+        }
+        List<WarningMsg> warningMsgList = new ArrayList<WarningMsg>(studentIdSet.size());
+        for (Integer studentId: studentIdSet) {
+            WarningMsg warningMsg = new WarningMsg();
+            warningMsg.setStudentId(studentId);
+            warningMsg.setSendTimes(0);
+            warningMsgList.add(warningMsg);
+        }
+        return warningMsgList;
     }
 
 
@@ -83,6 +102,8 @@ public class ScreeningVisionMsgService {
         //查找学生名字及对应的电话号码
         Map<Integer, StudentBasicInfoDTO> studentPhonesMap = studentService.getPhonesMap(warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toSet()));
         for (WarningMsg warningMsg : warningMsgs) {
+            //模板待修改
+            warningMsg.setMsgTemplateId(1);
             warningMsg.setUpdateTime(new Date());
             //先设置今天的天数
             warningMsg.setSendDayOfYear(DateUtil.getDayOfYear(new Date(), 0));
@@ -93,7 +114,6 @@ public class ScreeningVisionMsgService {
                 warningMsg.setSendStatus(WarningMsg.STATUS_SEND_CANCEL);
                 continue;
             }
-
             String content = MsgContentUtil.getMsgContent(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION, studentBasicInfoDTO.getStudentName());
             List<String> phoneNums = studentBasicInfoDTO.getPhoneNums();
             warningMsg.setPhoneNumbers(phoneNums.toString());
@@ -108,7 +128,20 @@ public class ScreeningVisionMsgService {
             warningMsg.setSendStatus(isFail ? WarningMsg.STATUS_SEND_FAILURE : WarningMsg.STATUS_SEND_SUCCESS);
             //发送日期: 有发送的,无论发送失败或者都有发送日期
             warningMsg.setSendTime(new Date());
+            //设置发送次数
+            //setSendTimes(warningMsg);
         }
+    }
+
+    /**
+     * 设置发送的次数
+     */
+    private void setSendTimes(WarningMsg warningMsg) {
+        Integer sendTimes = warningMsg.getSendTimes();
+        if (sendTimes == null) {
+            //报错还是跳过?
+        }
+        warningMsg.setSendTimes(warningMsg.getSendTimes() + 1);
     }
 
     /**

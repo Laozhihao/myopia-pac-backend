@@ -23,7 +23,8 @@ public class SendWarningMsgScheduledTask {
     /**
      * 昨天的异常vision,今天进行短信提醒;
      */
-    @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
+   // @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
+    @Scheduled(fixedRate = 1000000000 )
     public void sendWarningMsg() {
         screeningVisionMsgService.sendWarningMsg();
     }
@@ -31,7 +32,7 @@ public class SendWarningMsgScheduledTask {
     /**
      * 每天检查30天前接受到异常提醒的学生的数据是否需要重新推送
      */
-    @Scheduled(cron = "0 30 10 * * *", zone = "GMT+8:00")
+    //@Scheduled(cron = "0 30 10 * * *", zone = "GMT+8:00")
     public void repeatNoticeWarningMsg() {
         screeningVisionMsgService.repeatNoticeWarningMsg();
     }

@@ -1,13 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 
@@ -20,6 +21,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("m_warning_msg")
 public class WarningMsg implements Serializable {
+    /**
+     * 限制次数
+     */
+    private static final long LIMIT_TIMES = 5;
 
     private static final long serialVersionUID = 1L;
     /**
@@ -74,6 +79,11 @@ public class WarningMsg implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 发送的次数
+     */
+    private Integer sendTimes;
 
     /**
      * 创建时间

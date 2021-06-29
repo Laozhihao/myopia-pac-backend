@@ -190,5 +190,50 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                             }
                         })));
     }
+
+    /**
+     * 获取需要发送的短信的studentId
+     * @return
+     */
+    public Set<Integer> getNeedToSendWarningMsg() {
+        LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //今天10点到昨天10点
+        Date yesterdayDateTime = getTimeCondition(-1, 1,10);
+        Date todayDateTime = getTimeCondition(0, 0,10);
+        statConclusionLambdaQueryWrapper.select(StatConclusion::getStudentId, StatConclusion::getIsVisionWarning, StatConclusion::getVisionWarningUpdateTime)
+                .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
+        List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
+        //每个studentId排序取最新的状态进行判断getValidDistrictTree
+        Map<Integer, Boolean> studentIdVisionWarnMsgMap = statConclusions.stream().filter(statConclusion -> statConclusion.getStudentId() != null).collect(
+                Collectors.groupingBy(StatConclusion::getStudentId, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime))
+                        , statConclusionOptional -> {
+                            if (statConclusionOptional.isPresent()) {
+                                Boolean isVisionWarning = statConclusionOptional.get().getIsVisionWarning();
+                                return isVisionWarning != null && isVisionWarning;
+                            }
+                            return false;
+                        }))
+        );
+        return studentIdVisionWarnMsgMap.keySet().stream().filter(studentId-> studentIdVisionWarnMsgMap.get(studentId)).collect(Collectors.toSet());
+    }
+
+
+
+        /**
+     * 获取时间条件
+     * @param dayOffset
+     * @param hourOfDay
+     * @return
+     */
+    private Date getTimeCondition(int dayOffset,int secondOffset, int hourOfDay) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH,dayOffset);
+        calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,secondOffset);
+        calendar.set(Calendar.MILLISECOND,0);
+        return calendar.getTime();
+    }
+
 }
 

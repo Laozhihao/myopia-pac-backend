@@ -256,7 +256,7 @@ public class ScreeningAppController {
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
         //异步处理警告短信
-        warningMsgService.dealMsg(visionScreeningResultStatConclusionTwoTuple);
+        //warningMsgService.dealMsg(visionScreeningResultStatConclusionTwoTuple);
     }
 
     /**

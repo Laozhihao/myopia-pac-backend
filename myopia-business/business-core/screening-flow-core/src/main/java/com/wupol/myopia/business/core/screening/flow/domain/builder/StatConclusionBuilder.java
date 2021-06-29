@@ -108,6 +108,7 @@ public class StatConclusionBuilder {
         boolean isRightEyeVisionWarning = statConclusion.getVisionR() != null && statConclusion.getVisionR() <= 4.9;
         boolean isVisionWarning = (isLeftEyeVisionWarning || isRightEyeVisionWarning ) && statConclusion.getAge() >=6 ;
         statConclusion.setIsVisionWarning(isVisionWarning);
+        statConclusion.setVisionWarningUpdateTime(new Date());
     }
 
     /**
