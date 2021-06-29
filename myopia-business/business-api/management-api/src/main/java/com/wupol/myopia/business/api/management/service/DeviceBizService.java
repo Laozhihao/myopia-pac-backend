@@ -46,6 +46,30 @@ public class DeviceBizService {
     }
 
     /**
+     * 获取医生建议
+     *
+     * @param patientAge 患者年龄
+     * @param leftPa     左眼等效球镜
+     * @param rightPa    右眼等效球镜
+     * @param leftCyl    左眼柱镜
+     * @param rightCyl   右眼柱镜
+     * @return 医生建议
+     */
+    private String getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
+        // 判断是否近视、散光、远视。其中一项满足则是屈光不正
+        if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
+            return "请到医疗机构接受检查，明确诊断并及时采取措施。";
+        } else {
+            // 屈光正常还需判断是否远视储备不足情况
+            if (checkIsInsufficientFarsightedReserves(patientAge, leftPa, rightPa)) {
+                return "请6~12个月，带孩子到正规医疗机构进行视力检查，了解是否可能发展为近视平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+            } else {
+                return "每隔6~12个月，带孩子到正规医疗机构进行视力检查平时注意眼睛休息避免劳累熬夜，尽量少玩手机上网，多户外，多远近交替看东西避免眼睛疲劳，读书学习姿势要端正光线要充足，养成做眼睛保健操的习惯！";
+            }
+        }
+    }
+
+    /**
      * 判断是否近视
      *
      * @param leftPa  左眼等效球镜
