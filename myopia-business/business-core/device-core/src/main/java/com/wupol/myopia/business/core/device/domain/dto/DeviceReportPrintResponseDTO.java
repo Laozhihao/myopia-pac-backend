@@ -23,4 +23,9 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
      * 建议医院
      */
     private SuggestHospitalDO suggestHospitalDO;
+
+    /**
+     * 模板类型 1-VS666模板1
+     */
+    private Integer templateType;
 }

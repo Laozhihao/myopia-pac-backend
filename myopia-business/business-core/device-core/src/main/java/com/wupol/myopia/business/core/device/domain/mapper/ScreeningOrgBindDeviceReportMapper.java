@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.device.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
+import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface ScreeningOrgBindDeviceReportMapper extends BaseMapper<Screening
     void updateTemplateByOrgId(@Param("templateId") Integer templateId, @Param("orgId") Integer orgId);
 
     void orgBindReportTemplate(@Param("templateId") Integer templateId, @Param("orgId") Integer orgId, @Param("name") String name);
+
+    List<DeviceReportTemplateVO> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
 }

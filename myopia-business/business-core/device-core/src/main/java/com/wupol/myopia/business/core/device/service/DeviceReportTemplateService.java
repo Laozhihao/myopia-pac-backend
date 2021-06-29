@@ -24,6 +24,11 @@ public class DeviceReportTemplateService extends BaseService<DeviceReportTemplat
         return baseMapper.getTemplateList();
     }
 
+    /**
+     * 获取排序第一的模板
+     *
+     * @return 模板
+     */
     public DeviceReportTemplate getSortFirstTemplate() {
         return baseMapper.getSortFirstTemplate();
     }

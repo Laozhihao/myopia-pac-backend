@@ -4,6 +4,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.mapper.ScreeningOrgBindDeviceReportMapper;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
+import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,5 +48,15 @@ public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOr
     @Transactional(rollbackFor = Exception.class)
     public void orgBindReportTemplate(Integer templateId, Integer orgId, String name) {
         baseMapper.orgBindReportTemplate(templateId, orgId, name);
+    }
+
+    /**
+     * 通过筛查机构Id获取模板
+     *
+     * @param orgIds 筛查机构Ids
+     * @return 模板列表
+     */
+    public List<DeviceReportTemplateVO> getByOrgIds(List<Integer> orgIds) {
+        return baseMapper.getByOrgIds(orgIds);
     }
 }

@@ -43,4 +43,14 @@
         insert into m_screening_org_bind_device_report(template_id, screening_org_id, screening_org_name)
         values (#{templateId}, #{orgId}, #{name})
     </insert>
+
+    <select id="getByOrgIds" resultType="com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO">
+        select report.screening_org_id as screeningOrgId, template.template_type as templateType
+        from m_screening_org_bind_device_report report
+                     left join m_device_report_template template on report.template_id = template.id where
+                report.screening_org_id in
+        <foreach collection="orgIds" item="orgId" index="index" open="(" close=")" separator=",">
+            #{orgId}
+        </foreach>
+    </select>
 </mapper>

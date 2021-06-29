@@ -4,14 +4,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
+import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 设备管理
@@ -27,6 +32,9 @@ public class DeviceBizService {
     @Resource
     private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
 
+    @Resource
+    private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+
     /**
      * 获取打印需要的信息
      *
@@ -38,10 +46,17 @@ public class DeviceBizService {
             throw new BusinessException("id不能为空");
         }
         List<DeviceReportPrintResponseDTO> responseDTOS = deviceScreeningDataService.getPrintReportInfo(ids);
-
+        if (CollectionUtils.isEmpty(responseDTOS)) {
+            return responseDTOS;
+        }
+        // 获取模板
+        List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
+        Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
+                .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
             r.setSuggestHospitalDO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             r.setDoctorAdvice(getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl()));
+            r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
         });
         return responseDTOS;
     }
