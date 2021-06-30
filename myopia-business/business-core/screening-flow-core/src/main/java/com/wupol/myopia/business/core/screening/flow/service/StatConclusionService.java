@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -168,27 +169,33 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      *
      * @param studentIdList
      */
-    public Map<Integer, Boolean> getByStudentIds(List<Integer> studentIdList) {
+    public Set<Integer> getHasNormalVisionStudentIds(Set<Integer> studentIdList) {
         if (CollectionUtils.isEmpty(studentIdList)) {
-            return Collections.emptyMap();
+            return Collections.emptySet();
         }
         LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
         statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId, studentIdList);
         List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
         if (CollectionUtils.isEmpty(statConclusions)) {
-            return Collections.emptyMap();
+            return Collections.emptySet();
         }
         // 根据studentId进行分组
-        return statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
+
+        Map<Integer, Boolean> studentVisionExceptionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
                 Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)),
                         statConclusionOptional -> {
                             if (statConclusionOptional.isPresent()) {
-                                Boolean isVisionWarning = statConclusionOptional.get().getIsVisionWarning();
-                                return isVisionWarning != null && isVisionWarning;
+                                return statConclusionOptional.get().getIsVisionWarning();
                             } else {
                                 return false;
                             }
                         })));
+
+       return studentVisionExceptionMap.keySet().stream().filter(studentId -> {
+            Boolean isVisionException = studentVisionExceptionMap.get(studentId);
+            return isVisionException == null || !isVisionException;
+        }).collect(Collectors.toSet());
+
     }
 
     /**
@@ -209,8 +216,9 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     private List<StatConclusion> getStatConclusionByDateTimeRange() {
         LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //今天10点到昨天10点
-        Date yesterdayDateTime = getTimeCondition(-1, 1,10);
-        Date todayDateTime = getTimeCondition(0, 0,10);
+        //todo 待验证
+        Date yesterdayDateTime = DateUtil.getTimeCondition(-1, 1,10);
+        Date todayDateTime = DateUtil.getTimeCondition(0, 0,10);
         statConclusionLambdaQueryWrapper.select(StatConclusion::getStudentId, StatConclusion::getIsVisionWarning, StatConclusion::getVisionWarningUpdateTime)
                 .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
         return list(statConclusionLambdaQueryWrapper);
@@ -234,23 +242,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                         }))
         );
         return studentIdVisionWarnMsgMap.keySet().stream().filter(studentId-> studentIdVisionWarnMsgMap.get(studentId)).collect(Collectors.toSet());
-    }
-
-
-    /**
-     * 获取时间条件
-     * @param dayOffset
-     * @param hourOfDay
-     * @return
-     */
-    private Date getTimeCondition(int dayOffset,int secondOffset, int hourOfDay) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_MONTH,dayOffset);
-        calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,secondOffset);
-        calendar.set(Calendar.MILLISECOND,0);
-        return calendar.getTime();
     }
 
 }

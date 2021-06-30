@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.screening.app.service;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.MsgTemplateEnum;
 import com.wupol.myopia.business.common.utils.util.MsgContentUtil;
+import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentBasicInfoDTO;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg;
@@ -31,8 +32,9 @@ public class ScreeningVisionMsgService {
     @Autowired
     private StudentService studentService;
     @Autowired
+    private MedicalRecordService medicalRecordService;
+    @Autowired
     private StatConclusionService statConclusionService;
-
     /**
      * 每天发送警告短信
      */
@@ -142,12 +144,21 @@ public class ScreeningVisionMsgService {
      * @return
      */
     private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs) {
-        List<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toList());
-        Map<Integer, Boolean> studentIdVisionWarningMap = statConclusionService.getByStudentIds(studentIdList);
-        return warningMsgs.stream().filter(warningMsg -> studentIdVisionWarningMap.get(warningMsg.getStudentId())).collect(Collectors.toList());
+        Set<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toSet());
+        //找到这段时间有就诊记录的数据 todo 魔数
+        Date todayTime = DateUtil.getTodayTime(10, 30);
+        Date thirdtyDaysAgoTime = DateUtil.offsetDay(todayTime,-30);
+        //过滤掉有就诊记录的数据
+        Set<Integer> medicalRecordStudentIds = medicalRecordService.getMedicalRecordStudentIds(studentIdList, todayTime, thirdtyDaysAgoTime);
+        studentIdList.removeAll(medicalRecordStudentIds);
+        //过滤掉已经正常的数据
+        Set<Integer> hasNormalVisionStudentIds = statConclusionService.getHasNormalVisionStudentIds(studentIdList);
+        studentIdList.removeAll(hasNormalVisionStudentIds);
+        if (CollectionUtils.isEmpty(studentIdList)) {
+            return Collections.emptyList();
+        }
+        return warningMsgs.stream().filter(warningMsg -> studentIdList.contains(warningMsg.getStudentId())).collect(Collectors.toList());
     }
-
-
 
     /**
      * 视力警告数据

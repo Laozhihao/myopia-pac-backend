@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +33,21 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     @Autowired
     private ResourceFileService resourceFileService;
 
+    /**
+     * 查找某段时候内, studentIds是否存在就诊记录.
+     * @param studentIds
+     * @return 返回的结果中, null是代表没有存在记录, true代表有存在记录. 方便判断
+     */
+    public  Set<Integer> getMedicalRecordStudentIds(Set<Integer> studentIds, Date startDate, Date endDate) {
+        if (CollectionUtils.isEmpty(studentIds)|| startDate == null || endDate == null) {
+            return Collections.emptySet();
+        }
+        LambdaQueryWrapper<MedicalRecord> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.le(MedicalRecord::getUpdateTime,startDate).gt(MedicalRecord::getUpdateTime,endDate);
+        lambdaQueryWrapper.in(MedicalRecord::getStudentId,studentIds);
+        List<MedicalRecord> medicalRecords = list(lambdaQueryWrapper);
+        return medicalRecords.stream().map(MedicalRecord::getStudentId).collect(Collectors.toSet());
+    }
 
     /**
      * 获取检查单信息，包含数据对比的内容

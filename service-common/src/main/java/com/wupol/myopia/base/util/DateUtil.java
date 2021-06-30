@@ -1,5 +1,7 @@
 package com.wupol.myopia.base.util;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -19,7 +21,7 @@ import java.util.Map;
  * @Date 2020/12/20
  */
 @UtilityClass
-public class DateUtil {
+public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     public static final String UTC_8 = "UTC+8";
     public static final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
@@ -306,4 +308,57 @@ public class DateUtil {
         return DateFormatUtils.format(date30DaysAgo, "yyyyD");
     };
 
+    /**
+     * 获取时间条件
+     * @param dayOffset
+     * @param hourOfDay
+     * @return
+     */
+    public Date getTimeCondition(int dayOffset,int secondOffset, int hourOfDay) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH,dayOffset);
+        calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,secondOffset);
+        calendar.set(Calendar.MILLISECOND,0);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取今天特定的时分
+     * @param hourOfDay
+     * @param mins
+     * @return
+     */
+    public static Date getTodayTime(int hourOfDay,int mins) {
+        return getSpecialDateTime(hourOfDay,mins,0);
+    }
+
+    /**
+     * 获取特定日期以及日期的时分
+     * @param hourOfDay
+     * @param mins
+     * @param offsetDays
+     * @return
+     */
+    public static Date getSpecialDateTime(int hourOfDay,int mins,int offsetDays) {
+         return getSpecialDateTime(hourOfDay,mins,0,offsetDays);
+    }
+
+    /**
+     * 获取特定日期以及日期的时分秒
+     * @param hourOfDay
+     * @param mins
+     * @param seconds
+     * @param offsetDays
+     * @return
+     */
+    public static Date getSpecialDateTime(int hourOfDay,int mins,int seconds, int offsetDays) {
+        DateTime dateTime = cn.hutool.core.date.DateUtil.beginOfDay(new Date());
+        dateTime = cn.hutool.core.date.DateUtil.offsetDay(dateTime, offsetDays);
+        dateTime.setField(DateField.HOUR_OF_DAY,hourOfDay);
+        dateTime.setField(DateField.SECOND,seconds);
+        dateTime.setField(DateField.MINUTE,mins);
+        return dateTime;
+    }
 }

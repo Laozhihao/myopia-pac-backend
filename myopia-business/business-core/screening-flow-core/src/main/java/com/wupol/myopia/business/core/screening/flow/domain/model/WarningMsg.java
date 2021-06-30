@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -61,6 +63,7 @@ public class WarningMsg implements Serializable {
     /**
      * 电话号码(发送的时候才记录)
      */
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> phoneNumbers;
 
     /**

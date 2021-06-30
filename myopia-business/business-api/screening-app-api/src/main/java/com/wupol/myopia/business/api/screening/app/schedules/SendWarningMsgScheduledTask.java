@@ -27,7 +27,7 @@ public class SendWarningMsgScheduledTask {
     /**
      * 昨天的异常vision,今天进行短信提醒;
      */
-    @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
+    //@Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
     public void sendWarningMsg() {
         screeningVisionMsgService.sendWarningMsg();
     }
