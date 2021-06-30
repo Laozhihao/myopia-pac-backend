@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -31,7 +32,10 @@ public class DeviceScreeningDataQueryDTO extends DeviceScreeningData {
      */
     private String patientOrgSearch;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date screeningTimeStart;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date screeningTimeEnd;
     /**
      * 球镜开始

@@ -8,6 +8,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.ObjectUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
 /**
  * @Author wulizhou
  * @Date 2021/6/29 17:39
@@ -23,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/device")
+@RequestMapping("/management/device/data")
 public class DeviceScreeningDataController {
 
     @Autowired
@@ -31,6 +35,7 @@ public class DeviceScreeningDataController {
 
     @GetMapping("/list")
     public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, PageRequest pageRequest) {
+        checkAndHandleParam(query);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isScreeningUser()) {
             query.setScreeningOrgId(user.getOrgId());
@@ -38,6 +43,24 @@ public class DeviceScreeningDataController {
             throw new BusinessException("政府人员无权查看", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
         }
         return deviceScreeningDataBizService.getPage(query, pageRequest);
+    }
+
+    private void checkAndHandleParam(DeviceScreeningDataQueryDTO query) {
+        if (ObjectUtil.hasSomeNull(query.getCylStart(), query.getCylEnd()) || ObjectUtil.hasSomeNull(query.getSphStart(), query.getSphEnd())) {
+            throw new BusinessException("参数异常");
+        }
+        // 排序柱镜
+        if (Objects.nonNull(query.getCylStart()) && (query.getCylStart().compareTo(query.getCylEnd()) > 0)) {
+            BigDecimal temp = query.getCylStart();
+            query.setCylStart(query.getCylEnd());
+            query.setCylEnd(temp);
+        }
+        // 排序球镜
+        if (Objects.nonNull(query.getSphStart()) && (query.getSphStart().compareTo(query.getSphEnd()) > 0)) {
+            BigDecimal temp = query.getSphStart();
+            query.setSphStart(query.getSphEnd());
+            query.setSphEnd(temp);
+        }
     }
 
 }
