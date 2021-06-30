@@ -7,6 +7,7 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -881,10 +882,9 @@ public class StatReportService {
             startDate = sp.getStartTime();
             endDate = sp.getEndTime();
             planStudentNum = screeningPlanSchoolStudentService.getByScreeningPlanId(planId)
-                                     .stream()
-                                     .filter(x -> x.getSchoolId() == schoolId)
-                                     .count();
-
+                    .stream()
+                    .filter(x -> x.getSchoolId() == schoolId)
+                    .count();
         } else {
             throw new ParameterNotFoundException("Parameters not illegal");
         }
@@ -894,6 +894,39 @@ public class StatReportService {
         }
         School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
+        /** 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他 */
+        Integer schoolType = school.getType();
+        List<GradeCodeEnum> gradeCodeEnumList;
+        switch (SchoolEnum.getByType(schoolType)) {
+            case TYPE_PRIMARY:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
+                break;
+            case TYPE_MIDDLE:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList());
+                break;
+            case TYPE_HIGH:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList());
+                break;
+            case TYPE_INTEGRATED_MIDDLE:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList());
+                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList()));
+                break;
+            case TYPE_9:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
+                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList()));
+                break;
+            case TYPE_12:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
+                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList()));
+                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList()));
+                break;
+            case TYPE_VOCATIONAL:
+                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
+                break;
+            case TYPE_OTHER:
+            default:
+                return null;
+        }
 
         StatBaseDTO statBase = new StatBaseDTO(statConclusions);
         List<StatConclusion> validConclusions = statBase.getValid();
