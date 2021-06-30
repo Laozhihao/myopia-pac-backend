@@ -60,12 +60,12 @@ public class ScreeningVisionMsgService {
      * 短信重新提醒的条件:
      *  1.无医院就诊记录
      *  2.最新的一次筛查结果视力达到短信提醒视力异常的标准
-     * @param dayOfYear 一年的第几天
+     * @param dayOffset 一年的第几天
      */
-    public void repeatNoticeWarningMsg(int dayOfYear) {
-        List<WarningMsg> warningMsgs = warningMsgService.needRepeatNoticeMsg(dayOfYear);
+    public void repeatNoticeWarningMsg(int dayOffset) {
+        List<WarningMsg> warningMsgs = warningMsgService.needRepeatNoticeMsg(dayOffset);
         // 过滤掉正常的数据,过滤掉正常数据后,不会插入到warningMsg表中,这意味着,该学生这段时间检查的异常短信发送的生命周期结束
-        warningMsgs = filterNormalVision(warningMsgs);
+        warningMsgs = filterNormalVision(warningMsgs,dayOffset);
         if (CollectionUtils.isEmpty(warningMsgs)) {
             //没有发送消息的任务
             log.info("今天{}没有学生需要重复警告短信需要重新发送.", DateUtil.getNowDateTimeStr());
@@ -106,7 +106,7 @@ public class ScreeningVisionMsgService {
             // 获取学生数据
             StudentBasicInfoDTO studentBasicInfoDTO = studentPhonesMap.get(warningMsg.getStudentId());
             // 设置短信内容
-            String content = MsgContentUtil.getMsgContent(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION, studentBasicInfoDTO.getStudentName());
+            String content = MsgContentUtil.getMsgContent(MsgTemplateEnum.getTemplateByCode(warningMsg.getMsgTemplateId()), studentBasicInfoDTO.getStudentName());
             // 设置短信号码
             warningMsg.setPhoneNumbers(studentBasicInfoDTO.getPhoneNums());
             // 发送短信并记录
@@ -143,11 +143,11 @@ public class ScreeningVisionMsgService {
      * @param warningMsgs
      * @return
      */
-    private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs) {
+    private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs,int dayOffset) {
         Set<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toSet());
         //找到这段时间有就诊记录的数据 todo 魔数
         Date todayTime = DateUtil.getTodayTime(10, 30);
-        Date thirdtyDaysAgoTime = DateUtil.offsetDay(todayTime,-30);
+        Date thirdtyDaysAgoTime = DateUtil.offsetDay(todayTime,dayOffset);
         //过滤掉有就诊记录的数据
         Set<Integer> medicalRecordStudentIds = medicalRecordService.getMedicalRecordStudentIds(studentIdList, todayTime, thirdtyDaysAgoTime);
         studentIdList.removeAll(medicalRecordStudentIds);
@@ -172,7 +172,7 @@ public class ScreeningVisionMsgService {
         for (Integer studentId: studentIdSet) {
             WarningMsg warningMsg = new WarningMsg();
             //模板待修改
-            warningMsg.setMsgTemplateId(1);
+            warningMsg.setMsgTemplateId(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION.getMsgCode());
             warningMsg.setStudentId(studentId);
             warningMsg.setSendTimes(0);
             warningMsgList.add(warningMsg);

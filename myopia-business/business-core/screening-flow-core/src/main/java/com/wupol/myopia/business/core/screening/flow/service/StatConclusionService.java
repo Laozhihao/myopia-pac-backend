@@ -210,15 +210,14 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
     /**
-     *
+     * 获取门口个筛查时间范围的统计数据
      * @return
      */
     private List<StatConclusion> getStatConclusionByDateTimeRange() {
         LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //今天10点到昨天10点
-        //todo 待验证
-        Date yesterdayDateTime = DateUtil.getTimeCondition(-1, 1,10);
-        Date todayDateTime = DateUtil.getTimeCondition(0, 0,10);
+        Date yesterdayDateTime = DateUtil.getSpecialDateTime(10,0,-1);
+        Date todayDateTime = DateUtil.getTodayTime(10, 0);
         statConclusionLambdaQueryWrapper.select(StatConclusion::getStudentId, StatConclusion::getIsVisionWarning, StatConclusion::getVisionWarningUpdateTime)
                 .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
         return list(statConclusionLambdaQueryWrapper);

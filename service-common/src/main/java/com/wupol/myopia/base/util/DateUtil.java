@@ -309,22 +309,6 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     };
 
     /**
-     * 获取时间条件
-     * @param dayOffset
-     * @param hourOfDay
-     * @return
-     */
-    public Date getTimeCondition(int dayOffset,int secondOffset, int hourOfDay) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_MONTH,dayOffset);
-        calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,secondOffset);
-        calendar.set(Calendar.MILLISECOND,0);
-        return calendar.getTime();
-    }
-
-    /**
      * 获取今天特定的时分
      * @param hourOfDay
      * @param mins
