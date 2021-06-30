@@ -60,7 +60,7 @@ public class ScreeningVisionMsgService {
      * 短信重新提醒的条件:
      *  1.无医院就诊记录
      *  2.最新的一次筛查结果视力达到短信提醒视力异常的标准
-     * @param dayOffset 一年的第几天
+     * @param dayOffset 日期偏移量
      */
     public void repeatNoticeWarningMsg(int dayOffset) {
         List<WarningMsg> warningMsgs = warningMsgService.needRepeatNoticeMsg(dayOffset);
