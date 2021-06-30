@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceTemplateListDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
@@ -24,7 +25,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/device/")
-public class DeviceController {
+public class DeviceReportTemplateController {
 
     @Resource
     private DeviceReportTemplateService deviceReportTemplateService;
@@ -44,7 +45,7 @@ public class DeviceController {
      * @return List<DeviceReportTemplate>
      */
     @GetMapping("/template/list")
-    public List<DeviceReportTemplate> list() {
+    public List<DeviceTemplateListDTO> list() {
         return deviceReportTemplateService.getTemplateList();
     }
 

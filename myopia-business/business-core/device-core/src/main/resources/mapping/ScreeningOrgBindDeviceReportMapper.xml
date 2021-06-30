@@ -33,6 +33,14 @@
         order by create_time desc
     </select>
 
+    <select id="getByTemplateId11" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_org_bind_device_report
+        where template_id = #{templateId}
+        order by create_time desc limit 11
+    </select>
+
     <update id="updateTemplateByOrgId">
         update m_screening_org_bind_device_report
         set template_id = #{templateId}
