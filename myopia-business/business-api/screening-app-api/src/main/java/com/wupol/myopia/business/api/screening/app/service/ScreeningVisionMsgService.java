@@ -145,7 +145,6 @@ public class ScreeningVisionMsgService {
      */
     private List<WarningMsg> filterNormalVision(List<WarningMsg> warningMsgs,int dayOffset) {
         Set<Integer> studentIdList = warningMsgs.stream().map(WarningMsg::getStudentId).collect(Collectors.toSet());
-        //找到这段时间有就诊记录的数据 todo 魔数
         Date todayTime = DateUtil.getTodayTime(10, 30);
         Date thirdtyDaysAgoTime = DateUtil.offsetDay(todayTime,dayOffset);
         //过滤掉有就诊记录的数据

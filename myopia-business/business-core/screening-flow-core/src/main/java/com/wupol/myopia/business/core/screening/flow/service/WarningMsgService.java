@@ -37,7 +37,14 @@ import static com.wupol.myopia.business.core.screening.flow.domain.model.Warning
 @Service
 @Slf4j
 public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg> {
-
+    /**
+     * 最大次数
+     */
+    private static final int MAX_TIMES = 5;
+    /**
+     * 最小次数
+     */
+    private static final int MIN_TIMES = 1;
     @Autowired
     private WarningMsgMapper warningMsgMapper;
     @Autowired
@@ -136,8 +143,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     public List<WarningMsg> needRepeatNoticeMsg(int offsetDays) {
         String dayOfYear = DateUtil.getDayOfYear(new Date(),offsetDays);
         LambdaQueryWrapper<WarningMsg> warningMsgLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        //todo 魔数注意
-        warningMsgLambdaQueryWrapper.between(WarningMsg::getSendTimes,0,4);
+        warningMsgLambdaQueryWrapper.ge(WarningMsg::getSendTimes,MIN_TIMES).lt(WarningMsg::getSendTimes,MAX_TIMES);
         warningMsgLambdaQueryWrapper.eq(WarningMsg::getSendDayOfYear,dayOfYear);
         return list(warningMsgLambdaQueryWrapper);
     }

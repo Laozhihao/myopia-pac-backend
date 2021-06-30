@@ -24,8 +24,6 @@ public enum MsgTemplateEnum{
      */
     TO_PARENTS_WARING_KIDS_VISION(1001,"【青少年近视防控】%s同学，你的裸眼视力下降，视功能可能异常。建议：请到医疗机构接受检查，明确诊断并及时采取措施。 ");
 
-
-
     /**
      * 短信编码
      */

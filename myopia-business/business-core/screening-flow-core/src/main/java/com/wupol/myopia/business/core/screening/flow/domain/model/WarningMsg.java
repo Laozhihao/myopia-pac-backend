@@ -45,7 +45,7 @@ public class WarningMsg implements Serializable {
     /**
      * 取消发送
      */
-    public final static Integer STATUS_SEND_CANCEL = 2;
+    public static final Integer STATUS_SEND_CANCEL = 2;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;

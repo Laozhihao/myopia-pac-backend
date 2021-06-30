@@ -18,7 +18,6 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -30,8 +29,6 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.WarningMsgService;
@@ -254,9 +251,7 @@ public class ScreeningAppController {
      */
     @PostMapping(value = {"/eye/addVision"})
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
-        TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
-        //异步处理警告短信
-        //warningMsgService.dealMsg(visionScreeningResultStatConclusionTwoTuple);
+        screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
 
     /**

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SendWarningMsgScheduledTask {
     /**
-     * 重新检查视力异常短信的时间间隔
+     * 重新检查视力异常短信的时间间隔的天数
      */
     private static final int BEFORE_30_DAYS = -30;
 
@@ -27,8 +27,7 @@ public class SendWarningMsgScheduledTask {
     /**
      * 昨天的异常vision,今天进行短信提醒;
      */
-    //@Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
-    @Scheduled(fixedRate = 10000000)
+    @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
     public void sendWarningMsg() {
         screeningVisionMsgService.sendWarningMsg();
     }

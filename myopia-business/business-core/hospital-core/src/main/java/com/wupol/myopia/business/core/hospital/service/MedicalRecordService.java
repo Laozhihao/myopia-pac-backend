@@ -38,7 +38,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      * @param studentIds
      * @return 返回的结果中, null是代表没有存在记录, true代表有存在记录. 方便判断
      */
-    public  Set<Integer> getMedicalRecordStudentIds(Set<Integer> studentIds, Date startDate, Date endDate) {
+    public Set<Integer> getMedicalRecordStudentIds(Set<Integer> studentIds, Date startDate, Date endDate) {
         if (CollectionUtils.isEmpty(studentIds)|| startDate == null || endDate == null) {
             return Collections.emptySet();
         }

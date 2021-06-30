@@ -240,7 +240,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                             return false;
                         }))
         );
-        return studentIdVisionWarnMsgMap.keySet().stream().filter(studentId-> studentIdVisionWarnMsgMap.get(studentId)).collect(Collectors.toSet());
+        return studentIdVisionWarnMsgMap.keySet().stream().filter(studentIdVisionWarnMsgMap::get).collect(Collectors.toSet());
     }
 
 }
