@@ -30,7 +30,7 @@
         <include refid="Base_Column_List"/>
         from m_screening_org_bind_device_report
         where template_id = #{templateId}
-        order by create_time desc
+        order by update_time desc
     </select>
 
     <select id="getByTemplateId11" resultMap="BaseResultMap">
@@ -38,7 +38,7 @@
         <include refid="Base_Column_List"/>
         from m_screening_org_bind_device_report
         where template_id = #{templateId}
-        order by create_time desc limit 11
+        order by update_time desc limit 11
     </select>
 
     <update id="updateTemplateByOrgId">
