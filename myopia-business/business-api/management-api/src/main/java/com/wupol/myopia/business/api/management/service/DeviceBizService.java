@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
@@ -55,7 +56,9 @@ public class DeviceBizService {
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
             r.setSuggestHospitalDO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
-            r.setDoctorAdvice(getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl()));
+            TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
+            r.setDoctorConclusion(doctorAdvice.getFirst());
+            r.setDoctorAdvice(doctorAdvice.getSecond());
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
         });
         return responseDTOS;
@@ -69,18 +72,18 @@ public class DeviceBizService {
      * @param rightPa    右眼等效球镜
      * @param leftCyl    左眼柱镜
      * @param rightCyl   右眼柱镜
-     * @return 医生建议
+     * @return left-医生结论 rigjt医生建议
      */
-    private String getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
+    private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
-            return DoctorConclusion.DEVICE_REFRACTIVE_ERROR;
+            return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_ERROR);
         } else {
             // 屈光正常还需判断是否远视储备不足情况
             if (checkIsInsufficientFarsightedReserves(patientAge, leftPa, rightPa)) {
-                return DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR;
+                return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR);
             } else {
-                return DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL;
+                return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL);
             }
         }
     }

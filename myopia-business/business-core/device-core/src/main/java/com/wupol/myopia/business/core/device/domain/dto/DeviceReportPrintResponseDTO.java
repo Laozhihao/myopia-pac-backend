@@ -20,6 +20,11 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
     private String doctorAdvice;
 
     /**
+     * 医生结论
+     */
+    private String doctorConclusion;
+
+    /**
      * 建议医院
      */
     private SuggestHospitalDO suggestHospitalDO;
