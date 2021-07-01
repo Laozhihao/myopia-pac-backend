@@ -182,7 +182,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         // 根据studentId进行分组
 
         Map<Integer, Boolean> studentVisionExceptionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
-                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)),
+                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime)),
                         statConclusionOptional -> {
                             if (statConclusionOptional.isPresent()) {
                                 return statConclusionOptional.get().getIsVisionWarning();

@@ -31,7 +31,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.WarningMsgService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,8 +78,6 @@ public class ScreeningAppController {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private ScreeningPlanBizService screeningPlanBizService;
-    @Autowired
-    private WarningMsgService warningMsgService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
