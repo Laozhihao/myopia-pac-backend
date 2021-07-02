@@ -442,25 +442,12 @@ public class ScreeningPlanController {
         return String.format(Student.VS666_QR_CODE_CONTENT_FORMAT_RULE,
                 student.getPlanId() + "_" + student.getPlanStudentId(),
                 student.getName(),
-                getVs666GenderDesc(student.getGender()),
+                GenderEnum.getEnGenderDesc(student.getGender()),
                 student.getAge(),
-                StringUtils.isEmpty(student.getParentPhone()) ? "null" : student.getParentPhone(),
-                StringUtils.isEmpty(student.getSchoolName()) ? "null" : student.getSchoolName(),
-                StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
-                StringUtils.isEmpty(student.getIdCard()) ? "null" : student.getIdCard());
-    }
-
-    /**
-     * 格式化成VS666需要的
-     *
-     * @param gender 性别
-     * @return M-男 FM-女
-     */
-    private String getVs666GenderDesc(Integer gender) {
-        if (Objects.isNull(gender)) {
-            throw new BusinessException("格式化成VS666二维码的性别异常");
-        }
-        return gender.equals(GenderEnum.MALE.type) ? "M" : "FM";
+                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getParentPhone(),"null"),
+                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getSchoolName(),"null"),
+                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getGradeName(),"null"),
+                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getIdCard(),"null"));
     }
 
     /**

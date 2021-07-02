@@ -1,5 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.wupol.myopia.base.exception.BusinessException;
+
+import java.util.Objects;
+
 /**
  * 性别
  *
@@ -8,7 +12,10 @@ package com.wupol.myopia.business.common.utils.constant;
  **/
 public enum GenderEnum {
     MALE(0, "男"),
-    FEMALE(1, "女");
+    FEMALE(1, "女"),
+
+    ENMALE(2,"M"),
+    ENFEMALE(3,"FM");
 
     /** 类型 **/
     public final Integer type;
@@ -32,5 +39,18 @@ public enum GenderEnum {
         if (MALE.desc.equals(name)) return MALE.type;
         if (FEMALE.desc.equals(name)) return FEMALE.type;
         return -1;
+    }
+
+    /**
+     * 格式化成VS666需要的
+     *
+     * @param gender 性别
+     * @return M-男 FM-女
+     */
+    public static String getEnGenderDesc(Integer gender) {
+        if (Objects.isNull(gender)) {
+            throw new BusinessException("格式化成VS666二维码的性别异常");
+        }
+        return gender.equals(GenderEnum.MALE.type) ? ENMALE.desc : ENFEMALE.desc;
     }
 }
