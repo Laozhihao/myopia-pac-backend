@@ -82,4 +82,14 @@
                      left join h_medical_report report on record.id = report.medical_record_id
                 where record.student_id = #{studentId}
     </select>
+    <select id="selectBatchQuerys" resultType="Integer">
+        select student_id from h_medical_record
+        <where>
+            <foreach collection="medicalRecordQueries" open="(" close=")" index="" item="item" separator=",">
+                student_id = #{item.studentId}
+                and update_time &gt;= #{item.startDate}
+                and update_time &lt;= #{item.endDate}
+            </foreach>
+        </where>
+    </select>
 </mapper>

@@ -3,9 +3,12 @@ package com.wupol.myopia.business.api.screening.app.service;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.MsgTemplateEnum;
 import com.wupol.myopia.business.common.utils.util.MsgContentUtil;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentBasicInfoDTO;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.WarningMsgService;
@@ -40,7 +43,7 @@ public class ScreeningVisionMsgService {
      */
     public void sendWarningMsg() {
         // 找出需要发送短信的数据
-        Set<Integer> studentIdSet = statConclusionService.getNeedToSendWarningMsgStudentIds();
+        Set<Integer> studentIdSet = getNeedToSendWarningMsgStudentIds();
         if (CollectionUtils.isEmpty(studentIdSet)) {
             //没有短信消息需要发送
             log.info("{} 没有学生的警告短信需要重新发送.", DateUtil.getNowDateTimeStr());
@@ -52,6 +55,65 @@ public class ScreeningVisionMsgService {
         dealMsg(warningMsgs);
         // 更新状态
         warningMsgService.saveBatch(warningMsgs);
+    }
+
+    private Set<Integer> getNeedToSendWarningMsgStudentIds() {
+            //今天10点到昨天10点
+            Date yesterdayDateTime = DateUtil.getSpecialDateTime(10,0,-1);
+            Date todayDateTime = DateUtil.getTodayTime(10, 0);
+            //获取特定时间的statconclusions
+            List<StatConclusion> statConclusions = statConclusionService.getStatConclusionByDateTimeRange(yesterdayDateTime,todayDateTime);
+            //选择出视力异常的数据
+            return getVisionExceptionStudentIds(statConclusions,todayDateTime);
+    }
+
+    /**
+     * 获取视力异常的学生id
+     * @param statConclusions
+     * @param todayDateTime
+     * @return
+     */
+    private Set<Integer> getVisionExceptionStudentIds(List<StatConclusion> statConclusions, Date todayDateTime) {
+        //每个studentId排序取最新的状态进行判断getValidDistrictTree
+        Map<Integer, Date> studentIdVisionWarnMsgDateMap = this.getStudentNeedWarningMsgMap(statConclusions);
+        //过滤掉不需要视力警告
+        Set<MedicalRecordQuery> medicalRecordQueries = new HashSet<>();
+        studentIdVisionWarnMsgDateMap.forEach((studentId,visionWarningUpdateTime) -> {
+            if (visionWarningUpdateTime != null) {
+                MedicalRecordQuery MedicalRecordQuery = new MedicalRecordQuery();
+                MedicalRecordQuery.setStudentId(studentId);
+                MedicalRecordQuery.setStartDate(visionWarningUpdateTime);
+                MedicalRecordQuery.setEndDate(todayDateTime);
+                medicalRecordQueries.add(MedicalRecordQuery);
+            }
+        });
+        Set<Integer> studentIds = medicalRecordQueries.stream().map(MedicalRecord::getStudentId).collect(Collectors.toSet());
+        //查找studentId在出现异常时间 到 现在 是否具有就诊记录
+        Set<Integer> medicalRecordStudentIds = medicalRecordService.getMedicalRecordStudentIds(medicalRecordQueries);
+        studentIds.removeAll(medicalRecordStudentIds);
+        return studentIds;
+    }
+
+    /**
+     * 获取studentId是否需要通知短信的Map, key = studentId, value = 视力异常的更新时间
+     * @param statConclusions
+     * @return
+     */
+    private Map<Integer, Date> getStudentNeedWarningMsgMap(List<StatConclusion> statConclusions) {
+        return statConclusions.stream().filter(statConclusion -> statConclusion.getStudentId() != null).collect(
+                Collectors.groupingBy(StatConclusion::getStudentId, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime))
+                        , statConclusionOptional -> {
+                            if (!statConclusionOptional.isPresent()) {
+                                return null;
+                            }
+                            StatConclusion statConclusion = statConclusionOptional.get();
+                            Boolean isVisionWarning = statConclusion.getIsVisionWarning();
+                            if (isVisionWarning != null && isVisionWarning) {
+                                return statConclusion.getVisionWarningUpdateTime();
+                            }
+                            return null;
+                        }))
+        );
     }
 
 

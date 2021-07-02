@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class MedicalRecordService extends BaseService<MedicalRecordMapper, MedicalRecord> {
 
-
+    @Autowired
+    private MedicalRecordMapper medicalRecordMapper;
     @Autowired
     private MedicalReportService medicalReportService;
     @Autowired
@@ -47,6 +48,18 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         lambdaQueryWrapper.in(MedicalRecord::getStudentId,studentIds);
         List<MedicalRecord> medicalRecords = list(lambdaQueryWrapper);
         return medicalRecords.stream().map(MedicalRecord::getStudentId).collect(Collectors.toSet());
+    }
+
+    /**
+     * 获取拥有诊断记录的学生id
+     * @param medicalRecordQueries
+     * @return
+     */
+    public Set<Integer> getMedicalRecordStudentIds(Set<MedicalRecordQuery> medicalRecordQueries) {
+        if (CollectionUtils.isEmpty(medicalRecordQueries)) {
+            return Collections.emptySet();
+        }
+        return medicalRecordMapper.selectBatchQuerys(medicalRecordQueries);
     }
 
     /**
