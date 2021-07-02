@@ -32,10 +32,11 @@ public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOr
      * 获取模板Id获取筛查机构(11条)
      *
      * @param templateId 模板Id
+     * @param limit      条数
      * @return List<ScreeningOrgBindDeviceReport>
      */
-    public List<ScreeningOrgBindDeviceReport> getOrgByTemplateIdLimit11(Integer templateId) {
-        return baseMapper.getByTemplateId11(templateId);
+    public List<ScreeningOrgBindDeviceReport> getOrgByTemplateIdLimit(Integer templateId, Integer limit) {
+        return baseMapper.getByTemplateIdLimit(templateId, limit);
     }
 
     /**

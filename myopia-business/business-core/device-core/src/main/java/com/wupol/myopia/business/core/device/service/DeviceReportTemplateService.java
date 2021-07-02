@@ -21,6 +21,11 @@ import java.util.stream.Collectors;
 @Service
 public class DeviceReportTemplateService extends BaseService<DeviceReportTemplateMapper, DeviceReportTemplate> {
 
+    /**
+     * 获取模板下的筛查机构，数量限制
+     */
+    private static final Integer SCREENING_ORG_LIMIT_NUM = 11;
+
     @Resource
     private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
 
@@ -40,7 +45,7 @@ public class DeviceReportTemplateService extends BaseService<DeviceReportTemplat
             DeviceTemplateListDTO listDTO = new DeviceTemplateListDTO();
             listDTO.setId(t.getId());
             listDTO.setName(t.getName());
-            List<ScreeningOrgBindDeviceReport> orgBindDeviceList = screeningOrgBindDeviceReportService.getOrgByTemplateIdLimit11(t.getId());
+            List<ScreeningOrgBindDeviceReport> orgBindDeviceList = screeningOrgBindDeviceReportService.getOrgByTemplateIdLimit(t.getId(), SCREENING_ORG_LIMIT_NUM);
             listDTO.setReports(orgBindDeviceList.stream().limit(10).collect(Collectors.toList()));
             listDTO.setHaveMore(orgBindDeviceList.size() > 10);
             responseList.add(listDTO);

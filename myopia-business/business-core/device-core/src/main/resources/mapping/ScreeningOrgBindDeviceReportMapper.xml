@@ -33,12 +33,12 @@
         order by update_time desc
     </select>
 
-    <select id="getByTemplateId11" resultMap="BaseResultMap">
+    <select id="getByTemplateIdLimit" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_org_bind_device_report
         where template_id = #{templateId}
-        order by update_time desc limit 11
+        order by update_time desc limit #{limit}
     </select>
 
     <update id="updateTemplateByOrgId">

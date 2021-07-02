@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -12,6 +13,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -20,7 +22,10 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.model.*;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -37,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,8 +51,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -96,6 +102,8 @@ public class ScreeningPlanController {
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
+
+
 
     /**
      * 新增
@@ -412,7 +420,7 @@ public class ScreeningPlanController {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
                 if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
-                    content = String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
+                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
                 } else {
                     content = setVs666QrCodeRule(student);
                 }
@@ -439,15 +447,15 @@ public class ScreeningPlanController {
      * @return 二维码
      */
     private String setVs666QrCodeRule(ScreeningStudentDTO student) {
-        return String.format(Student.VS666_QR_CODE_CONTENT_FORMAT_RULE,
-                "VS@" + student.getPlanId() + "_" + student.getPlanStudentId(),
+        return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
+                String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
                 student.getName(),
                 GenderEnum.getEnGenderDesc(student.getGender()),
                 student.getAge(),
-                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getParentPhone(),"null"),
-                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getSchoolName(),"null"),
-                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getGradeName(),"null"),
-                com.wupol.framework.core.util.StringUtils.getDefaultIfBlank(student.getIdCard(),"null"));
+                StringUtils.getDefaultIfBlank(student.getParentPhone(), "null"),
+                StringUtils.getDefaultIfBlank(student.getSchoolName(), "null"),
+                StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
+                StringUtils.getDefaultIfBlank(student.getIdCard(), "null"));
     }
 
     /**
@@ -471,7 +479,7 @@ public class ScreeningPlanController {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);

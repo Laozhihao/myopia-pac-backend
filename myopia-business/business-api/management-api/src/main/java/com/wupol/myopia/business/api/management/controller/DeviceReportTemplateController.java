@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceTemplateListDTO;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +22,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -74,7 +76,7 @@ public class DeviceReportTemplateController {
      * @return List<DeviceReportPrintResponseDTO>
      */
     @GetMapping("/print")
-    public List<DeviceReportPrintResponseDTO> getPrintReportInfo(@RequestParam("ids") @NotEmpty List<Integer> ids) {
+    public List<DeviceReportPrintResponseDTO> getPrintReportInfo(@RequestParam("ids") @NotEmpty(message = "Id不能为空") List<Integer> ids) {
         return deviceBizService.getPrintReportInfo(ids);
     }
 }

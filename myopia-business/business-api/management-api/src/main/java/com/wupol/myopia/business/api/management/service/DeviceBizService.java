@@ -78,13 +78,12 @@ public class DeviceBizService {
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
             return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_ERROR);
+        }
+        // 屈光正常还需判断是否远视储备不足情况
+        if (checkIsInsufficientFarsightedReserves(patientAge, leftPa, rightPa)) {
+            return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR);
         } else {
-            // 屈光正常还需判断是否远视储备不足情况
-            if (checkIsInsufficientFarsightedReserves(patientAge, leftPa, rightPa)) {
-                return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_ERROR);
-            } else {
-                return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL);
-            }
+            return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL, DoctorConclusion.DEVICE_REFRACTIVE_NORMAL_INSUFFICIENT_FARSIGHTED_RESERVES_NORMAL);
         }
     }
 
