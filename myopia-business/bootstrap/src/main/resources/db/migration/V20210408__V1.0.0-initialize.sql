@@ -941,31 +941,6 @@ CREATE TABLE `m_vision_screening_result`  (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
-create table m_device_report_template
-(
-    id            int auto_increment comment 'id'
-        primary key,
-    name          varchar(32)                         not null comment '模板名称',
-    device_type   tinyint                             not null comment '设备类型 1-VS666',
-    template_type tinyint                             not null comment '模板类型 1-VS666模板1',
-    create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-)
-    comment '设备报告模板表';
-
-create table m_screening_org_bind_device_report
-(
-    id                 int auto_increment comment 'id'
-        primary key,
-    template_id        int                                 not null comment '模板表id',
-    screening_org_id   int                                 not null comment '筛查机构Id',
-    screening_org_name varchar(32)                         not null comment '筛查机构名称',
-    create_time        timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time        timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-)
-    comment '筛查机构绑定设备报告模板表';
-
-
 -- 初始化部门表
 INSERT INTO `m_government_department`(id, `name`, `pid`, `district_id`, `create_user_id`) VALUES (1, '运行中心', -1, -1, -1);
 
@@ -983,5 +958,3 @@ INSERT INTO m_template (id, type, name) VALUES (8, 2, '筛查报告-模板4');
 INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, type, status) VALUES (1, '1234567890', 1, 1, -1, '', '其他', 2, '其他', 7, 0);
 INSERT INTO m_school_grade (id, create_user_id, school_id, grade_code, name, status) VALUES (1, 1, 1, '90', '其他', 0);
 INSERT INTO m_school_class (grade_id, create_user_id, school_id, name, seat_count, status) VALUES (1, 1, 1, '其他', 30, 0);
-
-INSERT INTO m_device_report_template (name, device_type, template_type) VALUES ('VS666报告-标准模板', 1, 1);

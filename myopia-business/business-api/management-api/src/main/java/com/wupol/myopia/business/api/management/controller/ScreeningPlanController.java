@@ -440,7 +440,7 @@ public class ScreeningPlanController {
      */
     private String setVs666QrCodeRule(ScreeningStudentDTO student) {
         return String.format(Student.VS666_QR_CODE_CONTENT_FORMAT_RULE,
-                student.getPlanId() + "_" + student.getPlanStudentId(),
+                "VS@" + student.getPlanId() + "_" + student.getPlanStudentId(),
                 student.getName(),
                 GenderEnum.getEnGenderDesc(student.getGender()),
                 student.getAge(),
