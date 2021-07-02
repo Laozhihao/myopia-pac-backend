@@ -13,6 +13,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -37,6 +38,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 
 @Service
 public class StatReportService {
@@ -894,39 +896,6 @@ public class StatReportService {
         }
         School school = schoolService.getById(schoolId);
         String schoolName = school.getName();
-        /** 学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他 */
-        Integer schoolType = school.getType();
-        List<GradeCodeEnum> gradeCodeEnumList;
-        switch (SchoolEnum.getByType(schoolType)) {
-            case TYPE_PRIMARY:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
-                break;
-            case TYPE_MIDDLE:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList());
-                break;
-            case TYPE_HIGH:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList());
-                break;
-            case TYPE_INTEGRATED_MIDDLE:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList());
-                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList()));
-                break;
-            case TYPE_9:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
-                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList()));
-                break;
-            case TYPE_12:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.PRIMARY.code)).collect(Collectors.toList());
-                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.JUNIOR.code)).collect(Collectors.toList()));
-                gradeCodeEnumList.addAll(Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.HIGH.code)).collect(Collectors.toList()));
-                break;
-            case TYPE_VOCATIONAL:
-                gradeCodeEnumList = Arrays.stream(GradeCodeEnum.values()).filter(x -> x.getType().equals(SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
-                break;
-            case TYPE_OTHER:
-            default:
-                return null;
-        }
 
         StatBaseDTO statBase = new StatBaseDTO(statConclusions);
         List<StatConclusion> validConclusions = statBase.getValid();
@@ -953,6 +922,7 @@ public class StatReportService {
                 round2Digits((averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
         List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
+
         List<StatConclusionReportDTO> statConclusionReportDTOs =
                 statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<>();
@@ -981,33 +951,19 @@ public class StatReportService {
         basicStatParamsList.add(new BasicStatParams("warning3",
                 convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                 warning3Num));
+        List<GradeCodeEnum> gradeCodeEnumList = SchoolUtil.getGradeCodeEnumListBySchoolType(SchoolEnum.getByType(school.getType()));
         resultMap.put("warningLevelStat", basicStatParamsList);
         resultMap.put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
-        resultMap.put("schoolGradeLowVisionLevelDesc",
-                composeSchoolGradeLowVisionLevelDesc(validConclusions));
-        resultMap.put("schoolGradeMyopiaLevelDesc",
-                composeSchoolGradeMyopiaLevelDesc(validConclusions));
-        resultMap.put("schoolGradeClassLowVisionLevelTable",
-                composeSchoolGradeClassLowVisionLevelTable(
-                        schoolGradeItems, validConclusions));
-        resultMap.put("schoolGradeClassMyopiaLevelTable",
-                composeSchoolGradeClassMyopiaLevelTable(
-                        schoolGradeItems, validConclusions));
+        resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, gradeCodeEnumList));
+        resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, gradeCodeEnumList));
+        resultMap.put("schoolGradeClassLowVisionLevelTable", composeSchoolGradeClassLowVisionLevelTable(schoolGradeItems, validConclusions));
+        resultMap.put("schoolGradeClassMyopiaLevelTable", composeSchoolGradeClassMyopiaLevelTable(schoolGradeItems, validConclusions));
         resultMap.put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
-        resultMap.put("schoolGradeWearingTypeDesc",
-                composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
-        resultMap.put("schoolGradeGenderUncorrectedDesc",
-                composeSchoolGradeGenderUncorrectedDesc(
-                        schoolGradeItems, validConclusions));
-        resultMap.put("schoolGradeGenderUnderCorrectedDesc",
-                composeSchoolGradeGenderUnderCorrectedDesc(
-                        schoolGradeItems, validConclusions));
-        resultMap.put("schoolGradeWarningLevelDesc",
-                composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
-
-        resultMap.put("schoolClassStudentStatList",
-                composeSchoolClassStudentStatList(
-                        schoolGradeItems, statConclusionReportDTOs));
+        resultMap.put("schoolGradeWearingTypeDesc", composeSchoolGradeWearingTypeDesc(schoolGradeItems, validConclusions));
+        resultMap.put("schoolGradeGenderUncorrectedDesc", composeSchoolGradeGenderUncorrectedDesc(schoolGradeItems, validConclusions));
+        resultMap.put("schoolGradeGenderUnderCorrectedDesc", composeSchoolGradeGenderUnderCorrectedDesc(schoolGradeItems, validConclusions));
+        resultMap.put("schoolGradeWarningLevelDesc", composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
+        resultMap.put("schoolClassStudentStatList", composeSchoolClassStudentStatList(schoolGradeItems, statConclusionReportDTOs));
         resultMap.put("startDate", startDate.getTime());
         resultMap.put("endDate", endDate.getTime());
         resultMap.put("planStudentNum", planStudentNum);
@@ -1016,6 +972,7 @@ public class StatReportService {
 
     /**
      * 构建 学校每个班级的学生详情
+     *
      * @param schoolGradeItemList 学校班级列表
      * @return
      */
@@ -1235,14 +1192,16 @@ public class StatReportService {
 
     /**
      * 构建 年级 视力低下 统计
+     *
      * @param statConclusions
+     * @param gradeCodeEnumList
      * @return
      */
     private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(
-            List<StatConclusion> statConclusions) {
+            List<StatConclusion> statConclusions, List<GradeCodeEnum> gradeCodeEnumList) {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+        for (GradeCodeEnum gradeCode : gradeCodeEnumList) {
             Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
                     statConclusions.stream()
                             .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
@@ -1264,14 +1223,16 @@ public class StatReportService {
 
     /**
      * 构建 年级 视力低下 统计
+     *
      * @param statConclusions
+     * @param gradeCodeEnumList
      * @return
      */
     private Map<String, Object> composeSchoolGradeLowVisionLevelDesc(
-            List<StatConclusion> statConclusions) {
+            List<StatConclusion> statConclusions, List<GradeCodeEnum> gradeCodeEnumList) {
         List<BasicStatParams> schoolGradeLowVisionRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : GradeCodeEnum.values()) {
+        for (GradeCodeEnum gradeCode : gradeCodeEnumList) {
             Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.name(),
                     statConclusions.stream()
                             .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
@@ -1292,6 +1253,7 @@ public class StatReportService {
 
     /**
      * 构建 年级 班级 视力低下 统计
+     *
      * @param statConclusions
      * @return
      */
@@ -1308,16 +1270,13 @@ public class StatReportService {
             if (schoolGradeItem == null) {
                 continue;
             }
-
             List<SchoolClass> schoolClasses = schoolGradeItem.getChild();
             for (SchoolClass schoolClass : schoolClasses) {
                 Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(
                         schoolClass.getName(),
                         statConclusions.stream()
-                                .filter(x
-                                        -> schoolClass.getName().equals(x.getSchoolClassName())
-                                                && gradeCode.getCode().equals(
-                                                        x.getSchoolGradeCode()))
+                                .filter(x -> schoolClass.getName().equals(x.getSchoolClassName())
+                                        && gradeCode.getCode().equals(x.getSchoolGradeCode()))
                                 .collect(Collectors.toList()));
                 lowVisionLevelStat.put("rowKey", ++rowKey);
                 lowVisionLevelStat.put("grade", gradeCode.name());

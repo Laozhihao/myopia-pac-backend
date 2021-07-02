@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
@@ -189,7 +190,7 @@ public class StatService {
         String schoolGradeCode = params.getSchoolGradeCode();
         String schoolClass = params.getSchoolClass();
 
-        List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
+        List<Integer> validDistrictIds = this.getValidDistrictIds(contrastTypeEnum, contrastId, districtId, currentUser);
         query.setDistrictIds(validDistrictIds);
         query.setSchoolAge(schoolAge);
         query.setSchoolId(schoolId);
@@ -209,7 +210,7 @@ public class StatService {
      * @throws IOException
      */
     public List<Integer> getValidDistrictIdsByNotificationId(
-            int notificationId, CurrentUser currentUser) throws IOException {
+            int notificationId, CurrentUser currentUser) {
         List<ScreeningPlan> screeningPlans =
                 managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
@@ -232,8 +233,7 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser)
-            throws IOException {
+    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) {
         List<Integer> validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
 
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
@@ -378,16 +378,16 @@ public class StatService {
      * @param currentUser 当前用户
      * @return
      */
-    private List<Integer> getValidDistrictIds(Integer districtId, CurrentUser currentUser) {
-        List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
+    private List<Integer> getValidDistrictIds(ContrastTypeEnum contrastTypeEnum, Integer contrastId, Integer districtId, CurrentUser currentUser) {
+        Set<Integer> userDistrictSet = getDistrictIdsByContrastType(contrastTypeEnum, contrastId, currentUser);
         if (districtId != null && districtId >= 0) {
             List<Integer> selectDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            if (CollectionUtils.isNotEmpty(userDistrictIds)) {
-                selectDistrictIds.retainAll(userDistrictIds);
+            if (CollectionUtils.isNotEmpty(userDistrictSet)) {
+                selectDistrictIds.retainAll(userDistrictSet);
             }
             return selectDistrictIds;
         } else {
-            return userDistrictIds;
+            return userDistrictSet.stream().collect(Collectors.toList());
         }
     }
 
@@ -457,12 +457,18 @@ public class StatService {
      * @return
      */
     private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) {
-        if (currentUser.isPlatformAdminUser() || currentUser.getOrgId() == null) {
-            return Collections.emptyList();
+        //TODO: 机构用户是否有权限调用此接口？
+        if (currentUser.isScreeningUser()) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+            District userDistrict = districtService.getById(screeningOrganization.getDistrictId());
+            return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
         }
-        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-        District userDistrict = districtService.getById(govDept.getDistrictId());
-        return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
+        if (currentUser.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+            District userDistrict = districtService.getById(govDept.getDistrictId());
+            return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -816,7 +822,7 @@ public class StatService {
         String schoolGradeCode = params.getSchoolGradeCode();
         String schoolClass = params.getSchoolClass();
 
-        List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
+        List<Integer> validDistrictIds = this.getValidDistrictIds(contrastTypeEnum, contrastId, districtId, currentUser);
         Integer planScreeningStudentNum = getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
                 , schoolAge, schoolId, schoolGradeCode, schoolClass);
         query.setDistrictIds(validDistrictIds)
@@ -836,6 +842,29 @@ public class StatService {
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
     }
 
+    private Set<Integer> getDistrictIdsByContrastType(ContrastTypeEnum contrastTypeEnum, Integer contrastId, CurrentUser currentUser) {
+        Set<Integer> districtIdList;
+        switch (contrastTypeEnum) {
+            case NOTIFICATION:
+                districtIdList = getDistrictIdList(managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(contrastId, currentUser));
+                break;
+            case TASK:
+                districtIdList = getDistrictIdList(managementScreeningPlanBizService.getScreeningPlanByTaskIdAndUser(contrastId, currentUser));
+                break;
+            case PLAN:
+                districtIdList = getDistrictIdList(Collections.singletonList(screeningPlanService.getById(contrastId)));
+                break;
+            default:
+                return Collections.emptySet();
+        }
+        return districtIdList;
+    }
+
+    private Set<Integer> getDistrictIdList(List<ScreeningPlan> screeningPlanList) {
+        return schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlanList.stream()
+                .map(ScreeningPlan::getId).collect(Collectors.toList()));
+    }
+
     /**
      * 获取对比统计过滤参数
      *
@@ -847,8 +876,7 @@ public class StatService {
      * @throws IOException
      */
     public DataContrastFilterDTO getDataContrastFilter(
-            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser)
-            throws IOException {
+            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 

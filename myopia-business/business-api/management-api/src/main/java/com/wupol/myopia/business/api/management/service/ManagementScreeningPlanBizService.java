@@ -136,4 +136,41 @@ public class ManagementScreeningPlanBizService {
         return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
     }
 
+    /**
+     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
+     *
+     * @param taskIds
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByTaskIdsAndUser(Set<Integer> taskIds, CurrentUser user) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (user.isScreeningUser()) {
+            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getOrgId());
+        } else if (user.isGovDeptUser()) {
+            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
+            allGovDeptIds.add(user.getOrgId());
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        if (CollectionUtils.isEmpty(taskIds)) {
+            return Collections.emptyList();
+        }
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningTaskId, taskIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        return screeningPlanService.list(screeningPlanLambdaQueryWrapper);
+    }
+
+    /**
+     * @param taskId
+     * @param user
+     * @return
+     */
+    public List<ScreeningPlan> getScreeningPlanByTaskIdAndUser(Integer taskId, CurrentUser user) {
+        if (ObjectsUtil.hasNull(taskId, user)) {
+            return new ArrayList<>();
+        }
+        Set<Integer> taskSet = new HashSet<>();
+        taskSet.add(taskId);
+        return getScreeningPlanByTaskIdsAndUser(taskSet, user);
+    }
+
 }

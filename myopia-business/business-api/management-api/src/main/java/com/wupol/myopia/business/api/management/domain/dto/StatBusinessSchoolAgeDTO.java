@@ -26,21 +26,25 @@ public class StatBusinessSchoolAgeDTO {
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase) {
 
         if (Objects.isNull(statBase)) {
-            return ;
+            return;
         }
         firstScreenSchoolAgeMap = statBase.getFirstScreen().stream().collect(Collectors.groupingBy(x -> SchoolAge.get(x.getSchoolAge()).name()));
         firstScreenSchoolAgeNumMap = new LinkedHashMap();
-        for (String schoolAge : firstScreenSchoolAgeMap.keySet()) {
-            firstScreenSchoolAgeNumMap.put(schoolAge, firstScreenSchoolAgeMap.get(schoolAge).size());
+
+        for (SchoolAge schoolAge : SchoolAge.values()) {
+            String schoolAgeName = schoolAge.name();
+            List<StatConclusion> statConclusionList = firstScreenSchoolAgeMap.get(schoolAgeName);
+            firstScreenSchoolAgeNumMap.put(schoolAgeName, statConclusionList == null ? 0 : statConclusionList.size());
         }
         validSchoolAgeMap = statBase.getValid().stream().collect(Collectors.groupingBy(x -> SchoolAge.get(x.getSchoolAge()).name()));
         validSchoolAgeNumMap = new LinkedHashMap();
         validSchoolAgeDistributionMap = new LinkedHashMap<>();
-        for (String schoolAge : validSchoolAgeMap.keySet()) {
-            validSchoolAgeNumMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).size());
-            validSchoolAgeDistributionMap.put(schoolAge, validSchoolAgeMap.get(schoolAge).stream().map(x -> x.getSchoolId()).distinct().count());
+        for (SchoolAge schoolAge : SchoolAge.values()) {
+            String schoolAgeName = schoolAge.name();
+            List<StatConclusion> statConclusionList = validSchoolAgeMap.get(schoolAgeName);
+            validSchoolAgeNumMap.put(schoolAgeName, statConclusionList == null ? 0 : statConclusionList.size());
+            validSchoolAgeDistributionMap.put(schoolAgeName, statConclusionList == null ? 0 : statConclusionList.stream().map(x -> x.getSchoolId()).distinct().count());
         }
-
     }
 
     public Map<String, Long> getSortedDistributionMap() {
