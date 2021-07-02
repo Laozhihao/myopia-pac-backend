@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -65,10 +64,9 @@ public class MedicalRecordFacade {
         medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, hospitalId, -1, doctorId, studentId);
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
-            //TODO Chikong。上生产环境时打开
-//            if (redisUtil.hasKey(cacheKey)) {
-//                return;
-//            }
+        if (redisUtil.hasKey(cacheKey)) {
+            return;
+        }
         if (hospitalStudentService.count(new HospitalStudent().setStudentId(studentId).setHospitalId(hospitalId)) != 0) {
             // 设置标识，一天内只通过缓存查询患者信息
             redisUtil.set(cacheKey, "", TimeUnit.DAYS.toSeconds(1));
