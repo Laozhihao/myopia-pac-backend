@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.flow.service.WarningMsgService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,10 +41,12 @@ public class ScreeningVisionMsgService {
     private StatConclusionService statConclusionService;
     /**
      * 每天发送警告短信
+     * @param yesterdayDateTime
+     * @param todayDateTime
      */
-    public void sendWarningMsg() {
+    public void sendWarningMsg(Date yesterdayDateTime, Date todayDateTime) {
         // 找出需要发送短信的数据
-        Set<Integer> studentIdSet = getNeedToSendWarningMsgStudentIds();
+        Set<Integer> studentIdSet = getNeedToSendWarningMsgStudentIds(yesterdayDateTime, todayDateTime);
         if (CollectionUtils.isEmpty(studentIdSet)) {
             //没有短信消息需要发送
             log.info("{} 没有学生的警告短信需要重新发送.", DateUtil.getNowDateTimeStr());
@@ -53,19 +56,21 @@ public class ScreeningVisionMsgService {
         List<WarningMsg> warningMsgs = getInitWarningMsgList(studentIdSet);
         // 处理短信
         dealMsg(warningMsgs);
-        // 更新状态
-        warningMsgService.saveBatch(warningMsgs);
+        // 更新状态(分批插入,避免语句过长)
+        ListUtils.partition(warningMsgs,500).forEach(warningMsgsPart->warningMsgService.saveBatch(warningMsgs));
     }
 
-    private Set<Integer> getNeedToSendWarningMsgStudentIds() {
-            //今天10点到昨天10点
-            Date yesterdayDateTime = DateUtil.getSpecialDateTime(10,0,-1);
-            Date todayDateTime = DateUtil.getTodayTime(10, 0);
+    /**
+     * 获取需要发送视力警告短信的学生id
+     * @return
+     */
+    private Set<Integer> getNeedToSendWarningMsgStudentIds(Date yesterdayDateTime, Date todayDateTime) {
             //获取特定时间的statconclusions
             List<StatConclusion> statConclusions = statConclusionService.getStatConclusionByDateTimeRange(yesterdayDateTime,todayDateTime);
             //选择出视力异常的数据
             return getVisionExceptionStudentIds(statConclusions,todayDateTime);
     }
+
 
     /**
      * 获取视力异常的学生id
@@ -76,15 +81,25 @@ public class ScreeningVisionMsgService {
     private Set<Integer> getVisionExceptionStudentIds(List<StatConclusion> statConclusions, Date todayDateTime) {
         //每个studentId排序取最新的状态进行判断getValidDistrictTree
         Map<Integer, Date> studentIdVisionWarnMsgDateMap = this.getStudentNeedWarningMsgMap(statConclusions);
-        //过滤掉不需要视力警告
+        //过滤掉有就诊记录的学生id
+        return filterHasMedicalRecordStudentId(todayDateTime, studentIdVisionWarnMsgDateMap);
+    }
+
+    /**
+     * 过滤具有就诊记录的学生id
+     * @param todayDateTime
+     * @param studentIdVisionWarnMsgDateMap
+     * @return
+     */
+    private Set<Integer> filterHasMedicalRecordStudentId(Date todayDateTime, Map<Integer, Date> studentIdVisionWarnMsgDateMap) {
         Set<MedicalRecordQuery> medicalRecordQueries = new HashSet<>();
-        studentIdVisionWarnMsgDateMap.forEach((studentId,visionWarningUpdateTime) -> {
+        studentIdVisionWarnMsgDateMap.forEach((studentId, visionWarningUpdateTime) -> {
             if (visionWarningUpdateTime != null) {
-                MedicalRecordQuery MedicalRecordQuery = new MedicalRecordQuery();
-                MedicalRecordQuery.setStudentId(studentId);
-                MedicalRecordQuery.setStartDate(visionWarningUpdateTime);
-                MedicalRecordQuery.setEndDate(todayDateTime);
-                medicalRecordQueries.add(MedicalRecordQuery);
+                MedicalRecordQuery medicalRecordQuery = new MedicalRecordQuery();
+                medicalRecordQuery.setStudentId(studentId);
+                medicalRecordQuery.setStartDate(visionWarningUpdateTime);
+                medicalRecordQuery.setEndDate(todayDateTime);
+                medicalRecordQueries.add(medicalRecordQuery);
             }
         });
         Set<Integer> studentIds = medicalRecordQueries.stream().map(MedicalRecord::getStudentId).collect(Collectors.toSet());
@@ -134,10 +149,10 @@ public class ScreeningVisionMsgService {
             return;
         }
         // 设置基础数据
-        this.setWarningMsg(warningMsgs);
+        setWarningMsg(warningMsgs);
         // 处理短信事宜
         dealMsg(warningMsgs);
-        // 保存
+        // 批量保存
         warningMsgService.saveBatch(warningMsgs);
     }
 
