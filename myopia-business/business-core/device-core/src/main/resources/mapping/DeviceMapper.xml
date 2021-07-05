@@ -35,31 +35,29 @@
     <select id="getPageByLikeQuery" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
         from m_device
-        <where>
-            <trim prefixOverrides="and">
-                <if test="query.deviceSn != null and query.deviceSn != ''">
-                    and device_sn like CONCAT('%', #{query.deviceSn}, '%')
-                </if>
-                <if test="query.deviceCode != null and query.deviceCode != ''">
-                    and device_code like CONCAT('%', #{query.deviceCode}, '%')
-                </if>
-                <if test="query.salespersonName != null and query.salespersonName != ''">
-                    and salesperson_name like CONCAT('%', #{query.salespersonName}, '%')
-                </if>
-                <if test="query.customerName != null and query.customerName != ''">
-                    and customer_name like CONCAT('%', #{query.customerName}, '%')
-                </if>
-                <if test="query.screeningOrgIds != null and query.screeningOrgIds.size() != 0">
-                    and binding_screening_org_id in
-                    <foreach collection="query.screeningOrgIds" item="id" index="index" open="(" close=")" separator=",">
-                        #{id}
-                    </foreach>
-                </if>
-                <if test="query.startSaleDate != null and query.endSaleDate != null">
-                    and DATE(sale_date) between DATE(#{query.startSaleDate}) and DATE(#{query.endSaleDate})
-                </if>
-            </trim>
-        </where>
+        <trim prefix="where" prefixOverrides="and">
+            <if test="query.deviceSn != null and query.deviceSn != ''">
+                and device_sn like CONCAT('%', #{query.deviceSn}, '%')
+            </if>
+            <if test="query.deviceCode != null and query.deviceCode != ''">
+                and device_code like CONCAT('%', #{query.deviceCode}, '%')
+            </if>
+            <if test="query.salespersonName != null and query.salespersonName != ''">
+                and salesperson_name like CONCAT('%', #{query.salespersonName}, '%')
+            </if>
+            <if test="query.customerName != null and query.customerName != ''">
+                and customer_name like CONCAT('%', #{query.customerName}, '%')
+            </if>
+            <if test="query.screeningOrgIds != null and query.screeningOrgIds.size() != 0">
+                and binding_screening_org_id in
+                <foreach collection="query.screeningOrgIds" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="query.startSaleDate != null and query.endSaleDate != null">
+                and DATE(sale_date) between DATE(#{query.startSaleDate}) and DATE(#{query.endSaleDate})
+            </if>
+        </trim>
         order by id desc
     </select>
 

@@ -1,22 +1,25 @@
 package com.wupol.myopia.base.constant;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 状态常量
  *
  * @Author HaoHao
  * @Date 2021/7/5
  **/
+@UtilityClass
 public class StatusConstant {
     /**
      * 删除
      **/
-    public static final int DELETE = -1;
+    public final int DELETE = -1;
     /**
      * 启用
      **/
-    public static final int ENABLE = 0;
+    public final int ENABLE = 0;
     /**
      * 停用
      **/
-    public static final int DISABLE = 1;
+    public final int DISABLE = 1;
 }

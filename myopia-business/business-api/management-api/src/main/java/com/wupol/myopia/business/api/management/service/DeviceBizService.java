@@ -237,12 +237,12 @@ public class DeviceBizService {
      *
      * @param deviceDTO 查询条件
      * @param pageRequest 分页参数
-     * @return com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.wupol.myopia.business.api.management.domain.vo.DeviceVO>
+     * @return {@link com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.wupol.myopia.business.api.management.domain.vo.DeviceVO> }
      **/
     public Page<DeviceVO> getDeviceListByPage(DeviceDTO deviceDTO, PageRequest pageRequest) {
         Assert.notNull(pageRequest, "分页参数为空");
         // 获取指定名称的筛查机构集
-        if (Objects.nonNull(deviceDTO) && StringUtils.hasLength(deviceDTO.getBindingScreeningOrgName())) {
+        if (Objects.nonNull(deviceDTO) && StringUtils.hasText(deviceDTO.getBindingScreeningOrgName())) {
             List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByNameLike(deviceDTO.getBindingScreeningOrgName());
             List<Integer> ids = screeningOrgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(ids)) {
@@ -257,10 +257,23 @@ public class DeviceBizService {
             return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         }
         // 填充筛查机构的名称和行政区域名称
+        return new Page<DeviceVO>(devicePage.getCurrent(), devicePage.getSize(), devicePage.getTotal()).setRecords(fillScreeningOrgNameAndDistrictName(deviceList));
+    }
+
+    /**
+     * 填充筛查机构的名称和行政区域名称
+     *
+     * @param deviceList 设备列表
+     * @return {@link java.util.List<com.wupol.myopia.business.api.management.domain.vo.DeviceVO>}
+     **/
+    private List<DeviceVO> fillScreeningOrgNameAndDistrictName(List<DeviceVO> deviceList) {
+        if (CollectionUtils.isEmpty(deviceList)) {
+            return deviceList;
+        }
         List<Integer> screeningOrgIdList = deviceList.stream().map(Device::getBindingScreeningOrgId).distinct().collect(Collectors.toList());
         List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(screeningOrgIdList);
         Map<Integer, ScreeningOrganization> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
-        List<DeviceVO> deviceVOList = deviceList.stream().map(deviceVO -> {
+        return deviceList.stream().map(deviceVO -> {
             ScreeningOrganization screeningOrg = screeningOrgNameMap.get(deviceVO.getBindingScreeningOrgId());
             if (Objects.isNull(screeningOrg)) {
                 return deviceVO;
@@ -269,6 +282,5 @@ public class DeviceBizService {
             deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
             return deviceVO;
         }).collect(Collectors.toList());
-        return new Page<DeviceVO>(devicePage.getCurrent(), devicePage.getSize(), devicePage.getTotal()).setRecords(deviceVOList);
     }
 }
