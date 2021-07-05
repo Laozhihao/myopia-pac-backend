@@ -61,7 +61,7 @@ public class DeviceController {
         try {
             return deviceService.save(deviceDTO.toDevice());
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("唯一标识码重复，请重新填写");
+            throw new BusinessException("唯一标识码重复，请重新填写", e);
         }
     }
 
