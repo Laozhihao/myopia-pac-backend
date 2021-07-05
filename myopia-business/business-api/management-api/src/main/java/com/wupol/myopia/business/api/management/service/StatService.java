@@ -788,7 +788,7 @@ public class StatService {
      * @throws IOException
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
+            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
         Integer contrastId = params.getContrastId();
         if (contrastId == null) {
             return null;
@@ -939,21 +939,21 @@ public class StatService {
                 exportStatContrastTemplate.getInputStream());
     }
 
-    private void composeFilterTitle(StringBuilder buf, Integer contrastType,
+    private void composeFilterTitle(StringBuilder builder, Integer contrastType,
                                     DataContrastFilterParamsDTO.Params filterParams) {
         Integer contrastId = filterParams.getContrastId();
         switch (ContrastTypeEnum.get(contrastType)) {
             case NOTIFICATION:
                 ScreeningNotice notice = screeningNoticeService.getById(contrastId);
-                buf.append(composeContrastParams(notice.getTitle(), notice.getStartTime(), notice.getEndTime()));
+                builder.append(composeContrastParams(notice.getTitle(), notice.getStartTime(), notice.getEndTime()));
                 break;
             case TASK:
                 ScreeningTask task = screeningTaskService.getById(contrastId);
-                buf.append(composeContrastParams(task.getTitle(), task.getStartTime(), task.getEndTime()));
+                builder.append(composeContrastParams(task.getTitle(), task.getStartTime(), task.getEndTime()));
                 break;
             case PLAN:
                 ScreeningPlan plan = screeningPlanService.getById(contrastId);
-                buf.append(composeContrastParams(plan.getTitle(), plan.getStartTime(), plan.getEndTime()));
+                builder.append(composeContrastParams(plan.getTitle(), plan.getStartTime(), plan.getEndTime()));
                 break;
             default:
                 return;
@@ -963,7 +963,7 @@ public class StatService {
         if (districtId != null) {
             District district = districtService.getById(districtId);
             if (district != null) {
-                buf.append("，").append(district.getName());
+                builder.append("，").append(district.getName());
             }
         }
 
@@ -971,7 +971,7 @@ public class StatService {
         if (schoolAgeCode != null) {
             SchoolAge schoolAge = SchoolAge.get(schoolAgeCode);
             if (schoolAge != null) {
-                buf.append("，").append(schoolAge.desc);
+                builder.append("，").append(schoolAge.desc);
             }
         }
 
@@ -979,7 +979,7 @@ public class StatService {
         if (schoolId != null) {
             School school = schoolService.getById(schoolId);
             if (school != null) {
-                buf.append("，").append(school.getName());
+                builder.append("，").append(school.getName());
             }
         }
 
@@ -987,13 +987,13 @@ public class StatService {
         if (StringUtils.isNotEmpty(schoolGradeCode)) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
             if (gradeCodeEnum != null) {
-                buf.append("，").append(gradeCodeEnum.getName());
+                builder.append("，").append(gradeCodeEnum.getName());
             }
         }
 
         String schoolClass = filterParams.getSchoolClass();
         if (StringUtils.isNotEmpty(schoolClass)) {
-            buf.append("，").append(schoolClass);
+            builder.append("，").append(schoolClass);
         }
 
     }
@@ -1001,7 +1001,7 @@ public class StatService {
     private String composeContrastParams(String title, Date startTime, Date endTime) {
         String startDate = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_ONLY_DATE);
         String endDate = DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_ONLY_DATE);
-        return title + "，" + startDate + "至" + endDate;
+        return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
 
