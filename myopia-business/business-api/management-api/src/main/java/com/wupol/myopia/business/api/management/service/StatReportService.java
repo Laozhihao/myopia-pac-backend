@@ -199,7 +199,7 @@ public class StatReportService {
         // 组装性别信息
         StatGenderDTO statGender = new StatGenderDTO(validConclusions);
         // 组装各学龄段信息
-        StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
+        StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase, true);
 
         List<Map<String, Object>> schoolGenderTable = this.createSchoolGenderTable(validConclusions, schools);
 

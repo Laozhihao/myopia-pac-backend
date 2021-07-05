@@ -28,7 +28,6 @@ public class StatBusinessSchoolAgeDTO {
     }
 
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase, Boolean isAllAge) {
-
         if (Objects.isNull(statBase)) {
             return;
         }
