@@ -58,4 +58,19 @@ public class ScreeningStudentDTO extends StudentDO {
      * token
      */
     private String token;
+
+    /**
+     * 筛查计划Id
+     */
+    private Integer planId;
+
+    /**
+     * 筛查计划学生Id
+     */
+    private Integer planStudentId;
+
+    /**
+     * 学生年龄
+     */
+    private Integer age;
 }

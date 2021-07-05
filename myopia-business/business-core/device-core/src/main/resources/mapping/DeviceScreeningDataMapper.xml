@@ -112,6 +112,15 @@
         id, screening_org_id, device_id, device_sn, patient_id, patient_name, patient_age_group, patient_gender, patient_age, patient_org, patient_cid, patient_dept, patient_pno, check_mode, check_result, check_type, left_cyl, right_cyl, left_axsi, right_axsi, left_pr, right_pr, left_pa, right_pa, pd, do_check, left_axsi_v, right_axsi_v, left_axsi_h, right_axsi_h, red_reflect_left, red_reflect_right, left_sph, right_sph, screening_time, update_time, create_time
     </sql>
 
+    <select id="getByIds" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_device_screening_data where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="selectPageByQuery" resultMap="DataAndOrgNameMap">
         SELECT
         <include refid="Base_Column_List"/>

@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -110,16 +109,9 @@ public class DistrictBizService {
             return districts;
         }
 
-        List<District> districtTree = getCurrentUserDistrictTree(user);
-        districts = districtService.filterDistrictTree(districtTree, districtIds);
-        if (user.isPlatformAdminUser()) {
-            return districts;
-        }
-        if (CollectionUtils.isEmpty(districts)) {
-            District currentDistrict = getNotPlatformAdminUserDistrict(user);
-            districts.add(currentDistrict);
-        }
-        return districts;
+        List<District> districtTree = getCurrentUserProvinceTree(user);
+        return districtService.filterDistrictTree(districtTree, districtIds);
+
     }
 
 

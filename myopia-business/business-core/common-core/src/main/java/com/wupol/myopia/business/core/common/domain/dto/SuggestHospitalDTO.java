@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.parent.domain.dos;
+package com.wupol.myopia.business.core.common.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SuggestHospitalDO {
+public class SuggestHospitalDTO {
 
     /**
      * 头像

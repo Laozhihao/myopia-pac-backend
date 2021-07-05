@@ -105,3 +105,5 @@ CREATE TABLE `m_device`
     UNIQUE INDEX `uni_device_uid` (`device_sn`) USING BTREE COMMENT '设备唯一标识码索引',
     INDEX `idx_binding_screening_org_id` (`binding_screening_org_id`) USING BTREE COMMENT '绑定机构的普通索引'
 );
+
+INSERT INTO m_device_report_template (name, device_type, template_type) VALUES ('VS666报告-标准模板', 1, 1);
