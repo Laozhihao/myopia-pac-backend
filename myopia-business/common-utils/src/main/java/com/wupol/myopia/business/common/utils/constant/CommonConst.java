@@ -133,10 +133,5 @@ public class CommonConst {
     /**
      * 导出二维码
      */
-    public Integer EXPORT_QRCODE = 1;
-
-    /**
-     * 导出VS666专属二维码
-     */
-    public Integer EXPORT_VS666_QRCODE = 2;
+    public static final Integer EXPORT_QRCODE = 1;
 }

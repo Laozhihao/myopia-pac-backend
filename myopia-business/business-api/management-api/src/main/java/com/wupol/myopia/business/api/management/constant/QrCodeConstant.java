@@ -25,4 +25,7 @@ public class QrCodeConstant {
      * 生成VS666筛查专属二维码Id
      */
     public static final String GENERATE_VS666_ID = "VS@%s_%s";
+
+    private QrCodeConstant() {
+    }
 }
