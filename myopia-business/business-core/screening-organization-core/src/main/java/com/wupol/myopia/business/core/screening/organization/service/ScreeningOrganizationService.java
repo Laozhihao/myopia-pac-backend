@@ -211,7 +211,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 是否重复
      */
     public Boolean checkScreeningOrgName(String name, Integer id) {
-        return baseMapper.getByNameAndNeId(name, id).isEmpty();
+        return !baseMapper.getByNameAndNeId(name, id).isEmpty();
     }
 
     /**
