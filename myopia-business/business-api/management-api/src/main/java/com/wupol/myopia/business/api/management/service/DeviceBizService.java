@@ -1,22 +1,38 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
+import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
+import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
 import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
+import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,12 +45,16 @@ public class DeviceBizService {
 
     @Resource
     private DeviceScreeningDataService deviceScreeningDataService;
-
     @Resource
     private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
-
     @Resource
     private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+    @Autowired
+    private DeviceService deviceService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 获取打印需要的信息
@@ -210,5 +230,45 @@ public class DeviceBizService {
             return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
         }
         return true;
+    }
+
+    /**
+     * 获取设备列表（分页）
+     *
+     * @param deviceDTO 查询条件
+     * @param pageRequest 分页参数
+     * @return com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.wupol.myopia.business.api.management.domain.vo.DeviceVO>
+     **/
+    public Page<DeviceVO> getDeviceListByPage(DeviceDTO deviceDTO, PageRequest pageRequest) {
+        Assert.notNull(pageRequest, "分页参数为空");
+        // 获取指定名称的筛查机构集
+        if (Objects.nonNull(deviceDTO) && StringUtils.hasLength(deviceDTO.getBindingScreeningOrgName())) {
+            List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByNameLike(deviceDTO.getBindingScreeningOrgName());
+            List<Integer> ids = screeningOrgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(ids)) {
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+            }
+            deviceDTO.setScreeningOrgIds(ids);
+        }
+        // 分页查询
+        IPage<Device> devicePage = deviceService.getPageByLikeQuery(pageRequest, Objects.nonNull(deviceDTO) ? deviceDTO.toDeviceQuery() : new DeviceQuery());
+        List<DeviceVO> deviceList = JSON.parseArray(JSON.toJSONString(devicePage.getRecords()), DeviceVO.class);
+        if (CollectionUtils.isEmpty(deviceList)) {
+            return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+        }
+        // 填充筛查机构的名称和行政区域名称
+        List<Integer> screeningOrgIdList = deviceList.stream().map(Device::getBindingScreeningOrgId).distinct().collect(Collectors.toList());
+        List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(screeningOrgIdList);
+        Map<Integer, ScreeningOrganization> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+        List<DeviceVO> deviceVOList = deviceList.stream().map(deviceVO -> {
+            ScreeningOrganization screeningOrg = screeningOrgNameMap.get(deviceVO.getBindingScreeningOrgId());
+            if (Objects.isNull(screeningOrg)) {
+                return deviceVO;
+            }
+            deviceVO.setBindingScreeningOrgName(screeningOrg.getName());
+            deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
+            return deviceVO;
+        }).collect(Collectors.toList());
+        return new Page<DeviceVO>(devicePage.getCurrent(), devicePage.getSize(), devicePage.getTotal()).setRecords(deviceVOList);
     }
 }

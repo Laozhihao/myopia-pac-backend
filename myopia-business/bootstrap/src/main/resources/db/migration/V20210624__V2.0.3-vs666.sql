@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `m_device_report_template`;
 create table m_device_report_template
 (
     id            int auto_increment comment 'id'
@@ -10,6 +11,7 @@ create table m_device_report_template
 )
     comment '设备报告模板表';
 
+DROP TABLE IF EXISTS `m_screening_org_bind_device_report`;
 create table m_screening_org_bind_device_report
 (
     id                 int auto_increment comment 'id'
@@ -45,7 +47,7 @@ CREATE TABLE `m_device_screening_data`
     `left_cyl`          decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼柱镜',
     `right_cyl`         decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼柱镜',
     `left_axsi`         decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼轴位',
-    `right_axsi`        decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼柱位',
+    `right_axsi`        decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼轴位',
     `left_pr`           decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼瞳孔半径',
     `right_pr`          decimal(4, 2) NULL     DEFAULT NULL COMMENT '右眼瞳孔半径',
     `left_pa`           decimal(4, 2) NULL     DEFAULT NULL COMMENT '左眼等效球镜度',
@@ -80,7 +82,7 @@ CREATE TABLE `m_device_source_data`
     `src_data`         varchar(512)     NOT NULL COMMENT '原始数据',
     `screening_org_id` int UNSIGNED     NOT NULL COMMENT '筛查机构id',
     `screening_time`   timestamp(0)     NOT NULL COMMENT '筛查时间',
-    `create_time`      timestamp(0)     NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+    `create_time`      timestamp(0)     NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
     PRIMARY KEY (`id`)
 );
 
@@ -92,13 +94,13 @@ CREATE TABLE `m_device`
     `device_sn`                varchar(32)  NOT NULL COMMENT '设备唯一id',
     `device_code`              varchar(32)  NOT NULL COMMENT '设备编码',
     `salesperson_name`         varchar(20)  NOT NULL DEFAULT '' COMMENT '销售名字',
-    `salesperson_phone`        char(11)     NOT NULL DEFAULT '' COMMENT '销售电话',
+    `salesperson_phone`        char(11)     NULL DEFAULT NULL COMMENT '销售电话',
     `binding_screening_org_id` int UNSIGNED NOT NULL COMMENT '绑定机构id',
     `customer_name`            varchar(20)  NOT NULL DEFAULT '' COMMENT '客户名字',
-    `customer_phone`           char(11)     NOT NULL DEFAULT '' COMMENT '客户电话',
-    `sale_date`                timestamp(0) NOT NULL COMMENT '销售时间',
+    `customer_phone`           char(11)     NULL DEFAULT NULL COMMENT '客户电话',
+    `sale_date`                timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '销售时间',
     `remark`                   varchar(500) NOT NULL DEFAULT '' COMMENT '备注',
-    `status`                   tinyint      NOT NULL COMMENT '状态: 启用1、停用0',
+    `status`                   tinyint      NOT NULL DEFAULT 0 COMMENT '状态: 0-启用、1-停用',
     `update_time`              timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
     `create_time`              timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
     PRIMARY KEY (`id`),

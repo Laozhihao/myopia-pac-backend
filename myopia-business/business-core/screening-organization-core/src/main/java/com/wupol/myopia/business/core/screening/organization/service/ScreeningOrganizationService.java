@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
@@ -19,6 +20,8 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +41,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
 
     @Resource
     private ScreeningOrganizationAdminService screeningOrganizationAdminService;
-
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private DistrictService districtService;
+
 
     /**
      * 生成账号密码
@@ -193,7 +198,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return List<ScreeningOrganization>
      */
     public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike) {
-        return baseMapper.getByName(screeningOrgNameLike);
+        List<ScreeningOrganization> orgList = baseMapper.getByName(screeningOrgNameLike);
+        orgList.forEach(org -> org.setDistrictDetailName(districtService.getDistrictName(org.getDistrictDetail())));
+        return orgList;
     }
 
     /**
@@ -204,7 +211,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @return 是否重复
      */
     public Boolean checkScreeningOrgName(String name, Integer id) {
-        return baseMapper.getByNameAndNeId(name, id).size() > 0;
+        return baseMapper.getByNameAndNeId(name, id).isEmpty();
     }
 
     /**
