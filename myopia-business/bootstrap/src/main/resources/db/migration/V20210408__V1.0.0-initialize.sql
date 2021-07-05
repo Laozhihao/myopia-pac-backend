@@ -941,7 +941,6 @@ CREATE TABLE `m_vision_screening_result`  (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
-
 -- 初始化部门表
 INSERT INTO `m_government_department`(id, `name`, `pid`, `district_id`, `create_user_id`) VALUES (1, '运行中心', -1, -1, -1);
 

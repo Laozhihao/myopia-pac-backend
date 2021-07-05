@@ -30,6 +30,35 @@
         <include refid="Base_Column_List"/>
         from m_screening_org_bind_device_report
         where template_id = #{templateId}
-        order by create_time desc
+        order by update_time desc
+    </select>
+
+    <select id="getByTemplateIdLimit" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_org_bind_device_report
+        where template_id = #{templateId}
+        order by update_time desc limit #{limit}
+    </select>
+
+    <update id="updateTemplateByOrgId">
+        update m_screening_org_bind_device_report
+        set template_id = #{templateId}
+        where screening_org_id = #{orgId}
+    </update>
+
+    <insert id="orgBindReportTemplate">
+        insert into m_screening_org_bind_device_report(template_id, screening_org_id, screening_org_name)
+        values (#{templateId}, #{orgId}, #{name})
+    </insert>
+
+    <select id="getByOrgIds" resultType="com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO">
+        select report.screening_org_id as screeningOrgId, template.template_type as templateType
+        from m_screening_org_bind_device_report report
+                     left join m_device_report_template template on report.template_id = template.id where
+                report.screening_org_id in
+        <foreach collection="orgIds" item="orgId" index="index" open="(" close=")" separator=",">
+            #{orgId}
+        </foreach>
     </select>
 </mapper>
