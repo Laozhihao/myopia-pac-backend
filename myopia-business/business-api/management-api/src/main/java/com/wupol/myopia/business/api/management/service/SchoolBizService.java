@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -28,6 +27,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
@@ -91,15 +91,17 @@ public class SchoolBizService {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Autowired
+    private StatRescreenService statRescreenService;
+
     /**
      * 更新学校
      *
      * @param school      学校实体类
-     * @param currentUser 当前登录用户
      * @return 学校实体类
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolResponseDTO updateSchool(School school, CurrentUser currentUser) {
+    public SchoolResponseDTO updateSchool(School school) {
 
         if (schoolService.checkSchoolName(school.getName(), school.getId())) {
             throw new BusinessException("学校名称重复，请确认");
@@ -115,12 +117,7 @@ public class SchoolBizService {
 
         // 名字更新重置密码
         if (!StringUtils.equals(checkSchool.getName(), school.getName())) {
-            dto.setUpdatePassword(Boolean.TRUE);
             dto.setUsername(school.getName());
-            // 重置密码
-            String password = PasswordGenerator.getSchoolAdminPwd();
-            oauthServiceClient.resetPwd(admin.getUserId(), password);
-            dto.setPassword(password);
         }
         District district = districtService.getById(school.getDistrictId());
         school.setDistrictProvinceCode(Integer.valueOf(String.valueOf(district.getCode()).substring(0, 2)));
@@ -133,7 +130,7 @@ public class SchoolBizService {
         dto.setAddressDetail(districtService.getAddressDetails(
                 s.getProvinceCode(), s.getCityCode(), s.getAreaCode(), s.getTownCode(), s.getAddress()));
         // 判断是否能更新
-        dto.setCanUpdate(s.getGovDeptId().equals(currentUser.getOrgId()));
+        dto.setCanUpdate(s.getGovDeptId().equals(school.getGovDeptId()));
         dto.setStudentCount(school.getStudentCount())
                 .setScreeningCount(school.getScreeningCount())
                 .setCreateUser(school.getCreateUser());
@@ -221,6 +218,9 @@ public class SchoolBizService {
             Map<Integer, String> orgMaps = orgLists.stream()
                     .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
 
+            // 获取计划对应的学校信息
+            Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
+
             // 封装DTO
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
@@ -229,7 +229,11 @@ public class SchoolBizService {
                     plan.setItems(new ArrayList<>());
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
+                    ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
                     BeanUtils.copyProperties(schoolVisionStatistic, item);
+                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), schoolVisionStatistic.getSchoolId()));
+                    item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
+                    item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
                     plan.setItems(Lists.newArrayList(item));
                 }
             });
@@ -328,26 +332,12 @@ public class SchoolBizService {
             // 只能看到所属的省级数据
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            return getTwoTuple(org.getDistrictId());
+            return districtService.getTwoTuple(org.getDistrictId());
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-            return getTwoTuple(govDept.getDistrictId());
+            return districtService.getTwoTuple(govDept.getDistrictId());
         }
         return new TwoTuple<>(districtId, null);
-    }
-
-    /**
-     * 获取前缀
-     *
-     * @param districtId 行政区域ID
-     * @return TwoTuple<Integer, Integer>
-     */
-    private TwoTuple<Integer, Integer> getTwoTuple(Integer districtId) {
-        District district = districtService
-                .getProvinceDistrictTreePriorityCache(districtService
-                        .getById(districtId).getCode());
-        String pre = String.valueOf(district.getCode()).substring(0, 2);
-        return new TwoTuple<>(null, Integer.valueOf(pre));
     }
 
     /**

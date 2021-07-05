@@ -53,12 +53,6 @@ public class HospitalStudentController {
         return hospitalStudentFacade.getStudentById(user.getOrgId(), id);
     }
 
-    @GetMapping("/recentList")
-    public List<HospitalStudentVO> getRecentList() throws IOException {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalStudentFacade.getRecentList(user.getOrgId());
-    }
-
     @GetMapping("/list")
     public List<HospitalStudentVO> getStudentVOList(String nameLike) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();

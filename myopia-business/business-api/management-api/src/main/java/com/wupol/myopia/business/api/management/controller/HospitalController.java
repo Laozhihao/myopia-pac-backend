@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.HospitalBizService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -17,9 +18,11 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -34,16 +37,13 @@ import java.io.IOException;
 @RequestMapping("/management/hospital")
 public class HospitalController {
 
-    @Autowired
+    @Resource
     private HospitalService hospitalService;
 
-    @Autowired
-    private ExcelFacade excelFacade;
-
-    @Autowired
+    @Resource
     private HospitalBizService hospitalBizService;
 
-    @Autowired
+    @Resource
     private ExportStrategy exportStrategy;
 
     /**
@@ -57,7 +57,16 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        return hospitalService.saveHospital(hospital);
+        // 非平台管理员默认状态为停用
+        if (!user.isPlatformAdminUser()) {
+            hospital.setStatus(CommonConst.STATUS_BAN);
+        }
+        UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
+        // 非平台管理员屏蔽账号密码信息
+        if (!user.isPlatformAdminUser()) {
+            usernameAndPasswordDTO.setNoDisplay();
+        }
+        return usernameAndPasswordDTO;
     }
 
     /**
@@ -71,7 +80,12 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        return hospitalBizService.updateHospital(hospital);
+        HospitalResponseDTO hospitalResponseDTO = hospitalBizService.updateHospital(hospital);
+        // 若为平台管理员且修改了用户名，则回显账户名
+        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(hospitalResponseDTO.getUsername())) {
+            hospitalResponseDTO.setDisplayUsername(true);
+        }
+        return hospitalResponseDTO;
     }
 
     /**
@@ -136,7 +150,6 @@ public class HospitalController {
      * 导出医院
      *
      * @param districtId 行政区域ID
-     * @return 是否导出成功
      * @see ExcelFacade
      */
     @GetMapping("/export")

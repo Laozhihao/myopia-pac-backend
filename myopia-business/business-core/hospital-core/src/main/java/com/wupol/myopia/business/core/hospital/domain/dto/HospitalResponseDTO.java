@@ -24,17 +24,22 @@ public class HospitalResponseDTO extends Hospital {
     private String addressDetail;
 
     /**
-     * 是否重置密码
-     */
-    private Boolean updatePassword = false;
-
-    /**
      * 账号
      */
     private String username;
 
     /**
-     * 密码
+     * 是否回显账号
      */
-    private String password;
+    private boolean displayUsername = false;
+
+    /**
+     * 头像Url
+     */
+    private String avatarUrl;
+
+    /**
+     * 是否已经添加合作医院 true-是 false-否
+     */
+    private Boolean isAdd = false;
 }

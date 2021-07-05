@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.parent.domain.dto;
+package com.wupol.myopia.business.aggregation.hospital.domain.dto;
 
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import lombok.Data;

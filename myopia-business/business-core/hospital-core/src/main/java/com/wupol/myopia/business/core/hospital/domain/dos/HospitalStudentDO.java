@@ -20,9 +20,6 @@ public class HospitalStudentDO extends HospitalStudent {
     private String hospitalName;
     /** 影像列表 */
     private List<String> imageUrlList;
-    /** 最后一次就诊时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date lastVisitDate;
     /** 就诊次数 */
     private Integer numOfVisits;
 }

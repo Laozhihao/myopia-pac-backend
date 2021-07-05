@@ -101,7 +101,7 @@ public class DistributionDTO implements Serializable {
          * @return
          */
         public DistributionDTO build() {
-            if (CollectionUtils.isEmpty(bigScreenStatDataDTOList) || screeningStudentNum == null || screeningStudentNum < 0) {
+            if (bigScreenStatDataDTOList== null || screeningStudentNum == null || screeningStudentNum < 0) {
                 throw new BusinessException("构建对象DistributionDTO失败，部分构建参数为空");
             }
             //设置总数的比例
@@ -179,7 +179,7 @@ public class DistributionDTO implements Serializable {
          * 设置年龄数据
          */
         public void setAgeData() {
-            Map<String, Double> ageDemoRatioMap = new HashMap<>();
+            Map<String, Double> ageDemoRatioMap = new LinkedHashMap<>();
             ageDemoRatioMap.put("0-3",null);
             ageDemoRatioMap.put("4-6",null);
             ageDemoRatioMap.put("7-9",null);

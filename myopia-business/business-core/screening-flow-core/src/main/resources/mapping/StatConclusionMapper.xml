@@ -17,6 +17,9 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
+    <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -59,7 +62,7 @@
                 </if>
                 <if test="@Ognl@isNotEmpty(endTime)">
                     and `create_time`
-                    <![CDATA[<=]]>
+                    <![CDATA[<]]>
                     #{endTime}
                 </if>
                 <if test="districtIds != null and districtIds.size() != 0">
@@ -197,4 +200,14 @@
     <select id="selectSchoolIdByPlanId" resultType="int" parameterType="integer">
         select distinct school_id from m_stat_conclusion where plan_id = #{planId}
     </select>
+
+    <select id="getPlanSchoolByDate" resultMap="PlanAndSchoolMap">
+        select plan_id, school_id from m_stat_conclusion
+        where DATE(create_time) = DATE(#{date}) and is_valid = 1
+        <if test="@Ognl@isNotEmpty(isRescreen)">
+            and is_rescreen = #{isRescreen}
+        </if>
+        group by plan_id, school_id
+    </select>
+
 </mapper>

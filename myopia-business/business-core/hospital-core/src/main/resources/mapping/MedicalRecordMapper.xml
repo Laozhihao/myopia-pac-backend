@@ -13,6 +13,8 @@
 
     <resultMap id="MedicalRecordDO" type="com.wupol.myopia.business.core.hospital.domain.dos.MedicalRecordDO">
     </resultMap>
+    <resultMap id="MedicalRecordDate" type="com.wupol.myopia.business.core.hospital.domain.model.MedicalRecordDate">
+    </resultMap>
 
 
     <!-- 通用查询条件 -->
@@ -63,6 +65,15 @@
         where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId} and date(mr.create_time) = CURDATE()
         order by id desc
         limit 1
+    </select>
+
+    <select id="getMedicalRecordDateList" resultMap="MedicalRecordDate">
+        select mr.id as medicalRecordId, mr.create_time
+        from h_medical_record mr
+        where mr.student_id = #{studentId} and mr.hospital_id = #{hospitalId}
+        order by id desc
+        limit 6
+        offset 1
     </select>
 
     <select id="getByStudentId" resultType="com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO">

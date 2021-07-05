@@ -34,7 +34,7 @@ public abstract class BaseController<M extends BaseService, T> {
 	@GetMapping("page")
     public IPage queryInfo(T entity,
                            @RequestParam(defaultValue = "1") Integer pageNum,
-                           @RequestParam(defaultValue = "10") Integer pageSize) throws IOException {
+                           @RequestParam(defaultValue = "10") Integer pageSize) {
 		return baseService.findByPage(entity, pageNum, pageSize);
     }
 
@@ -56,7 +56,7 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * @return Object
 	 */
 	@GetMapping("/list")
-    public Object getList(T entity) throws IOException {
+    public Object getList(T entity) {
         return baseService.findByList(entity);
     }
 
@@ -67,7 +67,7 @@ public abstract class BaseController<M extends BaseService, T> {
 	 * @return Object
 	 */
 	@GetMapping("detail")
-	public Object getOne(T entity) throws IOException {
+	public Object getOne(T entity) {
 		return baseService.findOne(entity);
 	}
 

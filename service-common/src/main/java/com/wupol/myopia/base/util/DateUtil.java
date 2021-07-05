@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -18,6 +19,9 @@ import java.util.Map;
  */
 @UtilityClass
 public class DateUtil {
+
+    public static final String UTC_8 = "UTC+8";
+    public static final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
 
     /**
      * 获取当前时间的年与上一个月,若当前是1月,则取得上年12月
@@ -157,9 +161,27 @@ public class DateUtil {
      * @return long
      **/
     public static Date getYesterdayStartTime() {
+        return getStartTime(DateUtils.addDays(new Date(), -1));
+    }
+
+    public static Date getStartTime(Date date) {
         Calendar cal=Calendar.getInstance();
-        cal.add(Calendar.DATE,-1);
+        cal.setTime(date);
         cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        return cal.getTime();
+    }
+
+    /**
+     * 获取指定日期的中午时间（12点整）
+     * @param date
+     * @return
+     */
+    public static Date getMidday(Date date) {
+        Calendar cal=Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR, 12);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         return cal.getTime();
@@ -260,4 +282,17 @@ public class DateUtil {
         calendar.setTime(date);
         return calendar.get(Calendar.YEAR);
     }
+
+    /**
+     * Date to LocalDate
+     * @param date 日期
+     * @param zoneId 时区ID
+     * @return
+     */
+    public static LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zdt = instant.atZone(zoneId);
+        return zdt.toLocalDate();
+    }
+
 }

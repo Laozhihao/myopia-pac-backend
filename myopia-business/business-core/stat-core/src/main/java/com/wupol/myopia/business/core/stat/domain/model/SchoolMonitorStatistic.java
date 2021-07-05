@@ -67,6 +67,11 @@ public class SchoolMonitorStatistic implements Serializable {
      * 监测情况--关联的任务id
      */
     private Integer screeningTaskId;
+
+    /**
+     * 监测情况--关联的筛查计划id
+     */
+    private Integer screeningPlanId;
     /**
      * 监测情况--所属的地区id（筛查范围）
      */

@@ -1,54 +1,54 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.domain.vo.BigScreeningVO;
 import com.wupol.myopia.business.api.management.domain.vo.DistrictScreeningMonitorStatisticVO;
 import com.wupol.myopia.business.api.management.domain.vo.FocusObjectsStatisticVO;
+import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningVisionStatisticVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
-import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,9 +81,11 @@ public class StatService {
     @Autowired
     private DistrictMonitorStatisticService districtMonitorStatisticService;
     @Autowired
-    private ScreeningNoticeService screeningNoticeService;
+    private StatRescreenService statRescreenService;
     @Autowired
-    private DistrictBigScreenStatisticService districtBigScreenStatisticService;
+    private SchoolService schoolService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -105,7 +107,7 @@ public class StatService {
             return WarningInfo.builder().build();
         }
         ZoneId zoneId = ZoneId.of("UTC+8");
-        LocalDate endDate = convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
+        LocalDate endDate = DateUtil.convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
         StatConclusionQueryDTO warningListQuery = new StatConclusionQueryDTO();
         warningListQuery.setStartTime(startDate)
@@ -284,24 +286,16 @@ public class StatService {
         long validFirstScreeningNum = validConclusions.size();
 
         List<ClassStat> tabGender = new ArrayList<>();
-        tabGender.add(composeGenderClassStat(
-                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-        tabGender.add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum,
-                refractiveErrorConclusions));
-        tabGender.add(composeGenderClassStat(
-                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-        tabGender.add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum,
-                wearingGlassesConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum, refractiveErrorConclusions));
+        tabGender.add(composeGenderClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum, wearingGlassesConclusions));
 
         List<ClassStat> tabSchoolAge = new ArrayList<>();
-        tabSchoolAge.add(composeSchoolAgeClassStat(
-                StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR,
-                validFirstScreeningNum, refractiveErrorConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(
-                StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
-        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES,
-                validFirstScreeningNum, wearingGlassesConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.MYOPIA, validFirstScreeningNum, myopiaConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.LOW_VISION, validFirstScreeningNum, lowVisionConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.REFRACTIVE_ERROR, validFirstScreeningNum, refractiveErrorConclusions));
+        tabSchoolAge.add(composeSchoolAgeClassStat(StatClassLabel.WEARING_GLASSES, validFirstScreeningNum, wearingGlassesConclusions));
 
         List<StatConclusion> rescreenConclusions =
                 statConclusions.stream()
@@ -527,7 +521,7 @@ public class StatService {
      * @param rescreenConclusions 复查统计记录
      * @return
      */
-    private RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
+    public RescreenStat composeRescreenConclusion(List<StatConclusion> rescreenConclusions) {
         long totalScreeningNum = rescreenConclusions.size();
         long wearingGlassesNum =
                 rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
@@ -624,18 +618,6 @@ public class StatService {
         float avgVisionL = round2Digits(sumVisionL / size);
         float avgVisionR = round2Digits(sumVisionR / size);
         return AverageVision.builder().averageVisionLeft(avgVisionL).averageVisionRight(avgVisionR).build();
-    }
-
-    /**
-     * Date to LocalDate
-     * @param date 日期
-     * @param zoneId 时区ID
-     * @return
-     */
-    private LocalDate convertToLocalDate(Date date, ZoneId zoneId) {
-        Instant instant = date.toInstant();
-        ZonedDateTime zdt = instant.atZone(zoneId);
-        return zdt.toLocalDate();
     }
 
     /** 平均视力 */
@@ -764,28 +746,72 @@ public class StatService {
     }
 
     /**
-     * 获取最新的数据
-     *
-     * @param currentUser
+     * 获取复测报告信息
+     * @param planId
+     * @param schoolId
+     * @param qualityControllerName
+     * @param qualityControllerCommander
+     * @return
      */
-    public BigScreeningVO getLatestData(CurrentUser currentUser) {
-        //根据角色获取当前的id
-        District district = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
-        if (district == null) {
-            throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
+    public List<RescreenReportVO> getRescreenStatInfo(Integer planId, Integer schoolId, String qualityControllerName, String qualityControllerCommander) {
+        List<RescreenReportVO> rrvos = new ArrayList<>();
+        List<StatRescreen> rescreens = statRescreenService.getList(planId, schoolId);
+        if (CollectionUtils.isEmpty(rescreens)) {
+            return rrvos;
         }
-        //查找最新的noticeId
-        ScreeningNotice screeningNotice = screeningNoticeService.getLatestNoticeByUser(currentUser);
-        if (screeningNotice == null) {
-            return BigScreeningVO.getImmutableEmptyInstance();
-        }
-        //根据noticeId 和 districtId 查找数据
-        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district.getId());
-        if (districtBigScreenStatistic == null) {
-            return BigScreeningVO.getImmutableEmptyInstance();
-        }
-        //对数据进行整合
-        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName());
+        String orgName = screeningOrganizationService.getNameById(rescreens.get(0).getScreeningOrgId());
+        String schoolName = schoolService.getNameById(schoolId);
+        rescreens.forEach(rescreen -> {
+            RescreenReportVO rrvo = new RescreenReportVO();
+            BeanUtils.copyProperties(rescreen, rrvo);
+            rrvo.setQualityControllerName(qualityControllerName)
+                    .setQualityControllerCommander(qualityControllerCommander)
+                    .setOrgName(orgName)
+                    .setSchoolName(schoolName);
+            rrvos.add(rrvo);
+        });
+        return rrvos;
+    }
+
+    @Transactional
+    public int rescreenStat(Date screeningTime) {
+        List<StatRescreen> statRescreens = new ArrayList<>();
+        // 获取昨日有进行复测的计划及学校信息
+        List<ScreenPlanSchoolDTO> rescreenInfo = statConclusionService.getRescreenPlanSchoolByTime(screeningTime);
+        // 按计划 + 学校统计复测数据
+        rescreenInfo.forEach(rescreen -> {
+            List<StatConclusion> rescreenInfoByTime = getRescreenInfo(screeningTime, rescreen.getPlanId(), rescreen.getSchoolId());
+            if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(rescreenInfoByTime)) {
+                // 组建统计数据
+                StatRescreen statRescreen = new StatRescreen();
+                StatConclusion conclusion = rescreenInfoByTime.get(0);
+                statRescreen.setScreeningOrgId(conclusion.getScreeningOrgId())
+                        .setSrcScreeningNoticeId(conclusion.getSrcScreeningNoticeId())
+                        .setTaskId(conclusion.getTaskId())
+                        .setPlanId(conclusion.getPlanId())
+                        .setSchoolId(conclusion.getSchoolId())
+                        .setScreeningTime(screeningTime);
+                RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
+                BeanUtils.copyProperties(rescreenStat, statRescreen);
+                statRescreens.add(statRescreen);
+            }
+        });
+        statRescreenService.deleteByScreeningTime(screeningTime);
+        statRescreenService.saveBatch(statRescreens);
+        return statRescreens.size();
+    }
+
+    private List<StatConclusion> getRescreenInfo(Date screeningTime, Integer planId, Integer schoolId) {
+        LocalDate startDate = DateUtil.convertToLocalDate(DateUtil.getStartTime(screeningTime), DateUtil.ZONE_UTC_8);
+        LocalDate endDate = startDate.plusDays(1l);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setStartTime(startDate)
+                .setEndTime(endDate)
+                .setIsRescreen(true)
+                .setIsValid(true)
+                .setPlanId(planId)
+                .setSchoolId(schoolId);
+        return statConclusionService.listByQuery(query);
     }
 
 }

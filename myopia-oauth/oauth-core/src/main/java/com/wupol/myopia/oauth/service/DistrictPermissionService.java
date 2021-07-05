@@ -45,7 +45,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
      * @return boolean
      **/
     @Transactional(rollbackFor = Exception.class)
-    public boolean updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) throws IOException {
+    public boolean updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
         Assert.notNull(permissionIds, "模板的权限不能为null");
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());

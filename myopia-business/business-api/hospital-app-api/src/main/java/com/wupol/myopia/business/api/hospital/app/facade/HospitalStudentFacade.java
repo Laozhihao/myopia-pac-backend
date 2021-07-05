@@ -94,34 +94,7 @@ public class HospitalStudentFacade {
         if (Objects.isNull(studentDTO)) {
             throw new BusinessException("未找到该学生");
         }
-        // 设置最后的就诊日期
-        MedicalReport medicalReport = medicalReportService.getLastOneByStudentId(studentDTO.getId());
-        if (Objects.nonNull(medicalReport)) {
-            studentDTO.setLastVisitDate(medicalReport.getCreateTime());
-        }
-
         return studentDTO;
-    }
-
-    /**
-     * 获取最近6条的学生信息.
-     * 今天建档的患者姓名【前3名】+今天眼健康检查【前3名】的患者姓名，最新时间排在最前面 。最多显示6个。
-     *
-     * @param hospitalId 医院id
-     * @return
-     */
-    public List<HospitalStudentVO> getRecentList(Integer hospitalId) throws IOException {
-        // 今天建档的患者姓名【前3名】
-        List<Integer> idList = hospitalStudentService.findByPage(new HospitalStudent().setHospitalId(hospitalId), 0, 3)
-                .getRecords().stream()
-                .filter(item -> DateUtils.isSameDay(item.getCreateTime(), new Date()))
-                .map(HospitalStudent::getStudentId).collect(Collectors.toList());
-
-        // 今天眼健康检查【前3名】的患者
-        idList.addAll(medicalRecordService.getTodayLastThreeStudentList(hospitalId));
-        HospitalStudentQuery query = new HospitalStudentQuery();
-        query.setStudentIdList(idList).setHospitalId(hospitalId);
-        return CollectionUtils.isEmpty(idList) ? Collections.emptyList() : getHospitalStudentVoList(query);
     }
 
     /**
@@ -195,9 +168,8 @@ public class HospitalStudentFacade {
             }
             Integer studentId = studentService.saveStudent(tmpStudent);
             studentVo.setStudentId(studentId);
-        } else {
-            studentVo.setStudentId(oldStudent.getId());
         }
+
         // 如果是新增学生，则将创建时间与更新时间设置成当前
         if (Objects.isNull(studentVo.getId())) {
             Date now = new Date();

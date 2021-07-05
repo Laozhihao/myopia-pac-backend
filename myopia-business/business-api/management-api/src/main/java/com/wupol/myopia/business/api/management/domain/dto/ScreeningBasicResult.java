@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Description
@@ -39,6 +40,9 @@ public class ScreeningBasicResult {
      * @param screeningNotice
      */
     public void setDataByScreeningNotice(ScreeningNotice screeningNotice) {
+        if (Objects.isNull(screeningNotice)) {
+            return ;
+        }
         this.title = screeningNotice.getTitle();
         this.screeningNoticeId = screeningNotice.getId();
         this.screeningEndTime = screeningNotice.getEndTime();

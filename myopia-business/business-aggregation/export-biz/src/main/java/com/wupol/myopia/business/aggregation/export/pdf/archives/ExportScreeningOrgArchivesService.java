@@ -56,7 +56,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
     }
 
     @Override
-    public void validateBeforeExport(ExportCondition exportCondition) throws IOException {
+    public void validateBeforeExport(ExportCondition exportCondition) {
         int total = visionScreeningResultService.count(new VisionScreeningResult().setScreeningOrgId(exportCondition.getScreeningOrgId()).setPlanId(exportCondition.getPlanId()).setIsDoubleScreen(Boolean.FALSE));
         if (total == 0) {
             throw new BusinessException("该计划下暂无筛查学生数据，无法导出档案卡");

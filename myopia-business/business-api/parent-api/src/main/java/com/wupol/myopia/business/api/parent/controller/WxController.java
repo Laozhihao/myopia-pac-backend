@@ -66,16 +66,18 @@ public class WxController {
      * 家长端入口，访问微信api获取授权code
      **/
     @GetMapping("/index")
-    public String getCode() {
-        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost);
+    public String getCode(String state) {
+        logger.info("家长端入口，访问微信api获取授权code，获取state:{}", state);
+        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
     /**
      * 唤起获取微信头像、昵称、地区和性别信息授权页面地址
      **/
     @GetMapping("/authorize")
-    public String authorize() {
-        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost);
+    public String authorize(String state) {
+        logger.info("唤起获取微信头像、昵称、地区和性别信息授权页面地址，获取state:{}", state);
+        return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_USER_INFO_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
     /**
@@ -85,22 +87,22 @@ public class WxController {
      * @return java.lang.String
      **/
     @GetMapping("/callback/login")
-    public String wxCallbackToLogin(String code) {
-        logger.debug("【微信回调-login】code = {}", code);
+    public String wxCallbackToLogin(String code, String state) {
+        logger.info("微信授权回调-检查是否授权登录、绑定手机号码，获取state:{}", state);
         try {
             // 获取openId
             String openId = wxService.getOpenId(code);
             // 根据openId判断用户是否授权，未授权则跳到“用户协议”页面
             Parent parent = parentService.getParentByOpenId(openId);
             if (Objects.isNull(parent)) {
-                logger.debug("重定向到协议页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode()));
-                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode());
+                logger.debug("重定向到协议页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode(), state));
+                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode(), state);
             }
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
             User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
-                logger.debug("重定向到绑定手机页面页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey()));
-                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
+                logger.debug("重定向到绑定手机页面页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state));
+                return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state);
             }
             // 自动登录
             LoginInfo loginInfo = oauthServiceClient.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
@@ -108,10 +110,11 @@ public class WxController {
                     WxBusinessExceptionCodeEnum.OK.getCode(),
                     loginInfo.getTokenInfo().getAccessToken(),
                     loginInfo.getTokenInfo().getRefreshToken(),
-                    loginInfo.getTokenInfo().getExpiresIn());
+                    loginInfo.getTokenInfo().getExpiresIn(),
+                    state);
         } catch (Exception e) {
             logger.error("微信登录失败", e);
-            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode(), state);
         }
     }
 
@@ -122,8 +125,8 @@ public class WxController {
      * @return java.lang.String
      **/
     @GetMapping("/callback/userInfo")
-    public String wxCallbackToCreateUser(String code) {
-        logger.debug("【微信回调-userInfo】code = {}", code);
+    public String wxCallbackToCreateUser(String code, String state) {
+        logger.info("微信回调-获取微信用户个人信息，获取state:{}", state);
         try {
             // 获取 accessToken 和 openId
             WxAuthorizationInfo accessTokenAndOpenId = wxService.getAccessTokenAndOpenId(code);
@@ -132,10 +135,10 @@ public class WxController {
             // 创建家长和用户
             Parent parent = wxService.addParentAndUser(wxUserInfo);
             // 跳到“绑定手机”页面
-            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey());
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state);
         } catch (Exception e) {
             logger.error("获取微信用户个人信息失败", e);
-            return "redirect:"+ String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode());
+            return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.INTERNAL_ERROR.getCode(), state);
         }
     }
 

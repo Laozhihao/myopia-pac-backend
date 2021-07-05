@@ -20,10 +20,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.domain.model.*;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -134,7 +131,7 @@ public class ScreeningPlanController {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
-            // 用户自己新建的筛查计划需设置districtId
+            // 用户自己新建的筛查计划需设置districtIdmanagement/screeningNotice
             ScreeningOrganization organization = screeningOrganizationService.getById(user.getOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
@@ -256,6 +253,17 @@ public class ScreeningPlanController {
         // 任务状态判断
         validateExist(screeningPlanId);
         return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
+    }
+
+    /**
+     * 获取指定计划下学校信息
+     * @param screeningPlanId
+     * @param schoolId
+     * @return
+     */
+    @GetMapping("schools/{screeningPlanId}/{schoolId}")
+    public ScreeningPlanSchool getPlanSchool(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        return screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
@@ -400,7 +408,7 @@ public class ScreeningPlanController {
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
+            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -436,7 +444,7 @@ public class ScreeningPlanController {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format("%010d", student.getId()), config, "jpg")));
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);

@@ -466,12 +466,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.nonNull(districtCache)) {
             return JSON.parseObject(JSON.toJSONString(districtCache), District.class);
         }
-        District district;
-        try {
-            district = findOne(new District().setCode(districtCode));
-        } catch (IOException e) {
-            throw new BusinessException("存在多个行政区域的code=" + districtCode, e);
-        }
+        District district = findOne(new District().setCode(districtCode));
         redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
         return district;
     }
@@ -523,8 +518,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return name;
         }
         // 为空，从数据库查询
-        District district = baseMapper.selectOne(new QueryWrapper<District>()
-                .eq("code", code));
+        District district = baseMapper.getByCode(code);
         if (null == district) {
             return "";
         }
@@ -541,9 +535,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 名字
      */
     private String getName(String name, Long code) {
-        District district = baseMapper
-                .selectOne(new QueryWrapper<District>()
-                        .eq("code", code));
+        District district = baseMapper.getByCode(code);
         if (null == district) {
             return name;
         }
@@ -562,14 +554,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 全名称
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
+        return getAddressByCode(provinceCode, cityCode, areaCode, townCode) + " " + StringUtils.defaultString(address);
+    }
+
+    /**
+     * 通过code拼接详细地址(不包含详细地址)
+     *
+     * @param provinceCode 省代码
+     * @param cityCode     市代码
+     * @param areaCode     区代码
+     * @param townCode     镇代码
+     * @return 全名称
+     * @see #getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) 包含详细地址
+     */
+    public String getAddressByCode(Long provinceCode, Long cityCode, Long areaCode, Long townCode) {
         if (null != townCode) {
-            return getTopDistrictName(townCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(townCode);
         } else if (null != areaCode) {
-            return getTopDistrictName(areaCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(areaCode);
         } else if (null != cityCode) {
-            return getTopDistrictName(cityCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(cityCode);
         } else if (null != provinceCode) {
-            return getTopDistrictName(provinceCode) + "  " + StringUtils.defaultString(address);
+            return getTopDistrictName(provinceCode);
         }
         return "";
     }
@@ -733,15 +739,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
-        District district = null;
-        try {
-            district = findOne(new District().setId(districtId));
-        } catch (IOException e) {
-            log.info("检查行政区域Id异常", e);
-        }
+        District district = findOne(new District().setId(districtId));
         if (Objects.isNull(district)) {
             throw new BusinessException("未找到该行政区域");
         }
         return district;
+    }
+
+    /**
+     * 获取前缀
+     *
+     * @param districtId 行政区域ID
+     * @return TwoTuple<Integer, Integer>
+     */
+    public TwoTuple<Integer, Integer> getTwoTuple(Integer districtId) {
+        District district = getProvinceDistrictTreePriorityCache(getById(districtId).getCode());
+        String pre = String.valueOf(district.getCode()).substring(0, 2);
+        return new TwoTuple<>(null, Integer.valueOf(pre));
     }
 }

@@ -11,8 +11,10 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -47,6 +49,8 @@ public class ManagementScreeningPlanBizService {
     private DistrictService districtService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
 
     /**
      * 分页查询
@@ -83,6 +87,16 @@ public class ManagementScreeningPlanBizService {
         return screeningPlanIPage;
     }
 
+    public List<ScreeningPlan> getScreeningPlanByUser(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
+        Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
+        // 筛查机构可以直接创建计划，不需要有通知下发
+        if (user.isScreeningUser()) {
+            screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
+        }
+        return this.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
+    }
+
     /**
      * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
      *
@@ -98,6 +112,9 @@ public class ManagementScreeningPlanBizService {
             List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
+        }
+        if (CollectionUtils.isEmpty(noticeIds)) {
+            return Collections.emptyList();
         }
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
         return screeningPlanService.list(screeningPlanLambdaQueryWrapper);

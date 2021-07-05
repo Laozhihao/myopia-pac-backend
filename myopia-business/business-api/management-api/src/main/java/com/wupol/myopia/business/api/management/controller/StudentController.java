@@ -8,13 +8,13 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.school.constant.VisionLabels;
 import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -24,8 +24,6 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +56,9 @@ public class StudentController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
     /**
      * 新增学生
@@ -208,13 +209,11 @@ public class StudentController {
     /**
      * 就诊卡（报告详情）
      *
-     * @param hospitalId 医院Id
-     * @param reportId   报告Id
-     * @return StudentReportResponseDTO
+     * @param reportId 报告Id
+     * @return StudentVisitReportResponseDTO
      */
-    @GetMapping("/report/detail/{hospitalId}/{reportId}")
-    public StudentReportResponseDTO getReportDetail(@PathVariable("hospitalId") Integer hospitalId,
-                                                    @PathVariable("reportId") Integer reportId) {
-        return studentBizService.gerReportDetail(hospitalId, reportId);
+    @GetMapping("/report/detail/{reportId}")
+    public StudentVisitReportResponseDTO getReportDetail(@PathVariable("reportId") Integer reportId) {
+        return medicalReportBizService.getStudentVisitReport(reportId);
     }
 }

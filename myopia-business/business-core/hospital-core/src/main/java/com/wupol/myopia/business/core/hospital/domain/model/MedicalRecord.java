@@ -65,10 +65,8 @@ public class MedicalRecord implements Serializable {
     @TableField(typeHandler = ToscaMedicalRecordTypeHandler.class)
     private ToscaMedicalRecord tosca;
     /** 创建时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
     /** 更新时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     /** 检查单是否已经完成 */

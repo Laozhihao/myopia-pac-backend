@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecord;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalRecordDate;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +27,6 @@ public interface MedicalRecordMapper extends BaseMapper<MedicalRecord> {
     MedicalRecord getTodayLastMedicalRecord(Integer hospitalId, Integer studentId);
 
     List<ReportAndRecordDO> getByStudentId(@Param("studentId") Integer studentId);
+    List<MedicalRecordDate> getMedicalRecordDateList(Integer hospitalId, Integer studentId);
+
 }

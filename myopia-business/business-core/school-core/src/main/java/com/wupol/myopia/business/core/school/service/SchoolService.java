@@ -430,4 +430,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 schoolQueryDTO.getSchoolNo(), schoolQueryDTO.getType(),
                 resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond(), districtCode);
     }
+
+    public String getNameById(Integer id) {
+        School school = getById(id);
+        return Objects.nonNull(school) ? school.getName() : "";
+    }
+
 }

@@ -5,7 +5,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
@@ -20,6 +19,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,9 +43,6 @@ public class SchoolController {
     private SchoolService schoolService;
 
     @Resource
-    private ExcelFacade excelFacade;
-
-    @Resource
     private SchoolBizService schoolBizService;
 
     @Resource
@@ -62,7 +59,12 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolService.saveSchool(school);
+        UsernameAndPasswordDTO nameAndpassword = schoolService.saveSchool(school);
+        // 非平台管理员屏蔽账号密码信息
+        if (!user.isPlatformAdminUser()) {
+            nameAndpassword.setNoDisplay();
+        }
+        return nameAndpassword;
     }
 
     /**
@@ -76,7 +78,12 @@ public class SchoolController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         school.setCreateUserId(user.getId());
         school.setGovDeptId(user.getOrgId());
-        return schoolBizService.updateSchool(school, user);
+        SchoolResponseDTO schoolResponseDTO = schoolBizService.updateSchool(school);
+        // 若为平台管理员且修改了用户名，则回显账户名
+        if (user.isPlatformAdminUser() && StringUtils.isNotBlank(schoolResponseDTO.getUsername())) {
+            schoolResponseDTO.setDisplayUsername(true);
+        }
+        return schoolResponseDTO;
     }
 
     /**

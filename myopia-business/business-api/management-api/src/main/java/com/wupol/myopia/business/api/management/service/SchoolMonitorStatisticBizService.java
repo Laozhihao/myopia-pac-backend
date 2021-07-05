@@ -41,15 +41,20 @@ public class SchoolMonitorStatisticBizService {
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
-        List<Integer> screeningOrgIds = screeningPlans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());//todo @jacob?
-        if (CollectionUtils.isEmpty(screeningOrgIds)) {
+        return this.getStatisticDtoByPlansAndOrgId(screeningPlans,districtId);
+    }
+
+    public List<SchoolMonitorStatistic> getStatisticDtoByPlansAndOrgId(List<ScreeningPlan> plans, Integer districtId) throws IOException {
+        if (CollectionUtils.isEmpty(plans)) {
             return new ArrayList<>();
         }
+        List<Integer> screeningOrgIds = plans.stream().map(ScreeningPlan::getScreeningOrgId).distinct().collect(Collectors.toList());
+        List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
         List<SchoolMonitorStatistic> statistics = new ArrayList<>();
         Lists.partition(screeningOrgIds, 100).forEach(screeningOrgIdList -> {
             LambdaQueryWrapper<SchoolMonitorStatistic> query = new LambdaQueryWrapper<>();
-            query.eq(SchoolMonitorStatistic::getScreeningNoticeId, noticeId);
-            query.eq(SchoolMonitorStatistic::getDistrictId, districtId);
+            query.eq(Objects.nonNull(districtId), SchoolMonitorStatistic::getDistrictId, districtId);
+            query.in(SchoolMonitorStatistic::getScreeningPlanId, planIds);
             query.in(SchoolMonitorStatistic::getScreeningOrgId, screeningOrgIdList);
             statistics.addAll(schoolMonitorStatisticService.list(query));
         });
