@@ -1,5 +1,6 @@
-INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (339, '报告打印', 'ManagementDeviceReportPrint', 'get:/management/device/report/print', 0, 0, 1, 332, 1, '2021-06-29 14:34:37', '2021-07-01 14:54:34');
-INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (337, '配置机构', 'managementDeviceConfiguration', 'post:/management/device/report/template/configuration', 0, 0, 1, 333, 1, '2021-06-28 11:55:28', '2021-07-01 14:54:08');
-INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (336, '通过模板Id获取筛查机构', 'managementDeviceGetOrgList', 'get:/management/device/report/template/getOrgList/**', 0, 0, 1, 333, 1, '2021-06-28 11:54:58', '2021-07-01 14:53:57');
-INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (335, '获取设备报告模板列表', 'managementDeviceList', 'get:/management/device/report/template/list', 0, 0, 1, 333, 1, '2021-06-28 11:54:21', '2021-07-01 14:53:38');
-INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (341, '通过筛查名称获取机构', 'managementScreeningOrganizationGetByName', 'get:/management/screeningOrganization/getByName', 0, 0, 1, 333, 1, '2021-07-01 14:46:41', '2021-07-01 14:46:41');
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code)
+VALUES (339, '报告打印', 'ManagementDeviceReportPrint', 'get:/management/device/report/print', 0, 0, 1, 332, 1),
+       (337, '配置机构', 'managementDeviceConfiguration', 'post:/management/device/report/template/configuration', 0, 0, 1,333, 1),
+       (336, '通过模板Id获取筛查机构', 'managementDeviceGetOrgList', 'get:/management/device/report/template/getOrgList/**', 0, 0, 1, 333, 1),
+       (335, '获取设备报告模板列表', 'managementDeviceList', 'get:/management/device/report/template/list', 0, 0, 1, 333, 1),
+       (341, '通过筛查名称获取机构', 'managementScreeningOrganizationGetByName','get:/management/screeningOrganization/getByName', 0, 0, 1, 333, 1);

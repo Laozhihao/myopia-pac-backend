@@ -53,6 +53,9 @@ public enum GenderEnum {
         if (Objects.isNull(gender)) {
             throw new BusinessException("性别不能为空");
         }
-        return gender.equals(GenderEnum.MALE.type) ? MALE.enDesc : FEMALE.enDesc;
+        if (gender.equals(MALE.type) || gender.equals(FEMALE.type)) {
+            return gender.equals(MALE.type) ? MALE.enDesc : FEMALE.enDesc;
+        }
+        return UNKONE.enDesc;
     }
 }
