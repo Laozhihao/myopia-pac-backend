@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.aggregation.hospital.service;
 
-import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDO;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -38,8 +38,8 @@ public class OrgCooperationHospitalBizService {
      * @param screeningOrgId 筛查机构Id
      * @return SuggestHospitalDO
      */
-    public SuggestHospitalDO packageSuggestHospital(Integer screeningOrgId) {
-        SuggestHospitalDO hospitalDO = new SuggestHospitalDO();
+    public SuggestHospitalDTO packageSuggestHospital(Integer screeningOrgId) {
+        SuggestHospitalDTO hospitalDO = new SuggestHospitalDTO();
         Integer hospitalId = orgCooperationHospitalService.getSuggestHospital(screeningOrgId);
         if (Objects.isNull(hospitalId)) {
             return hospitalDO;
@@ -52,21 +52,21 @@ public class OrgCooperationHospitalBizService {
     /**
      * 封装医院信息
      *
-     * @param suggestHospitalDO 推荐医院
+     * @param suggestHospitalDTO 推荐医院
      * @param hospital          医院实体
      */
-    public void packageHospitalInfo(SuggestHospitalDO suggestHospitalDO, Hospital hospital) {
+    public void packageHospitalInfo(SuggestHospitalDTO suggestHospitalDTO, Hospital hospital) {
         if (Objects.nonNull(hospital.getAvatarFileId())) {
-            suggestHospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
+            suggestHospitalDTO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
         }
-        suggestHospitalDO.setName(hospital.getName());
+        suggestHospitalDTO.setName(hospital.getName());
         // 行政区域名称
         String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
                 hospital.getAreaCode(), hospital.getTownCode());
         if (StringUtils.isNotBlank(address)) {
-            suggestHospitalDO.setAddress(address);
+            suggestHospitalDTO.setAddress(address);
         } else {
-            suggestHospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
+            suggestHospitalDTO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
         }
     }
 }

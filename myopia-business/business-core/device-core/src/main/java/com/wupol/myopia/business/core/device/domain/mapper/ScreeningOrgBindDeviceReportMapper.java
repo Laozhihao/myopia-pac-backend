@@ -2,7 +2,7 @@ package com.wupol.myopia.business.core.device.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
-import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
+import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

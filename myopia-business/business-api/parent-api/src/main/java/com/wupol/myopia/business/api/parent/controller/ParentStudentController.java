@@ -7,7 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
-import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDO;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest;
@@ -235,7 +235,7 @@ public class ParentStudentController {
      * @return 推荐医院列表
      */
     @GetMapping("/getCooperationHospital/{screeningOrgId}")
-    public List<SuggestHospitalDO> getCooperationHospital(@PathVariable("screeningOrgId") Integer screeningOrgId) {
+    public List<SuggestHospitalDTO> getCooperationHospital(@PathVariable("screeningOrgId") Integer screeningOrgId) {
         return parentStudentBizService.getCooperationHospital(screeningOrgId);
     }
 }

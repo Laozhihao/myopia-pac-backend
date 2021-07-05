@@ -4,7 +4,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.mapper.ScreeningOrgBindDeviceReportMapper;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
-import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
+import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

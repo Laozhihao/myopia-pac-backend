@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.device.domain.dto;
 
-import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDO;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +27,7 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
     /**
      * 建议医院
      */
-    private SuggestHospitalDO suggestHospitalDO;
+    private SuggestHospitalDTO suggestHospitalDTO;
 
     /**
      * 模板类型 1-VS666模板1

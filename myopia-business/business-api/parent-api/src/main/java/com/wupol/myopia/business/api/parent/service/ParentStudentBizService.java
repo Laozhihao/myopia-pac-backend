@@ -19,7 +19,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDO;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -448,17 +448,17 @@ public class ParentStudentBizService {
      * @param screeningOrgId 筛查机构Id
      * @return 推荐医院列表
      */
-    public List<SuggestHospitalDO> getCooperationHospital(Integer screeningOrgId) {
-        List<SuggestHospitalDO> responseDTO = new ArrayList<>();
+    public List<SuggestHospitalDTO> getCooperationHospital(Integer screeningOrgId) {
+        List<SuggestHospitalDTO> responseDTO = new ArrayList<>();
         List<OrgCooperationHospital> cooperationHospitalList = orgCooperationHospitalService.getCooperationHospitalList(screeningOrgId);
         if (cooperationHospitalList.isEmpty()) {
             return responseDTO;
         }
         cooperationHospitalList.forEach(c -> {
-            SuggestHospitalDO suggestHospitalDO = new SuggestHospitalDO();
+            SuggestHospitalDTO suggestHospitalDTO = new SuggestHospitalDTO();
             Hospital hospital = hospitalService.getById(c.getHospitalId());
-            orgCooperationHospitalBizService.packageHospitalInfo(suggestHospitalDO, hospital);
-            responseDTO.add(suggestHospitalDO);
+            orgCooperationHospitalBizService.packageHospitalInfo(suggestHospitalDTO, hospital);
+            responseDTO.add(suggestHospitalDTO);
         });
         return responseDTO;
     }

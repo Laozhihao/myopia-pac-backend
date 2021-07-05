@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SuggestHospitalDO {
+public class SuggestHospitalDTO {
 
     /**
      * 头像

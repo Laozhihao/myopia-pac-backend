@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.device.domain.vos;
+package com.wupol.myopia.business.core.device.domain.vo;
 
 import lombok.Getter;
 import lombok.Setter;

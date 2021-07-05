@@ -11,34 +11,36 @@ import java.util.Objects;
  * @Date 2020/12/21
  **/
 public enum GenderEnum {
-    MALE(0, "男"),
-    FEMALE(1, "女"),
 
-    ENMALE(2,"M"),
-    ENFEMALE(3,"FM");
+    UNKONE(-1,"未知","UNKONE"),
+    MALE(0, "男","M"),
+    FEMALE(1, "女", "FM");
 
     /** 类型 **/
     public final Integer type;
     /** 描述 **/
     public final String desc;
+    /** 英文描述*/
+    public final String enDesc;
 
-    GenderEnum(Integer type, String desc) {
+    GenderEnum(Integer type, String desc, String enDesc) {
         this.type = type;
         this.desc = desc;
+        this.enDesc = enDesc;
     }
 
     /** 获取性别名称 */
     public static String getName(Integer type) {
         if (MALE.type.equals(type)) return MALE.desc;
         if (FEMALE.type.equals(type)) return FEMALE.desc;
-        return "未知";
+        return UNKONE.desc;
     }
 
     /** 获取性别对应数值 */
     public static Integer getType(String name) {
         if (MALE.desc.equals(name)) return MALE.type;
         if (FEMALE.desc.equals(name)) return FEMALE.type;
-        return -1;
+        return UNKONE.type;
     }
 
     /**
@@ -49,8 +51,8 @@ public enum GenderEnum {
      */
     public static String getEnGenderDesc(Integer gender) {
         if (Objects.isNull(gender)) {
-            throw new BusinessException("格式化成VS666二维码的性别异常");
+            throw new BusinessException("性别不能为空");
         }
-        return gender.equals(GenderEnum.MALE.type) ? ENMALE.desc : ENFEMALE.desc;
+        return gender.equals(GenderEnum.MALE.type) ? MALE.enDesc : FEMALE.enDesc;
     }
 }

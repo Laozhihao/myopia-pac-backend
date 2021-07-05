@@ -6,7 +6,7 @@ import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
-import com.wupol.myopia.business.core.device.domain.vos.DeviceReportTemplateVO;
+import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class DeviceBizService {
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
-            r.setSuggestHospitalDO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
+            r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
             r.setDoctorConclusion(doctorAdvice.getFirst());
             r.setDoctorAdvice(doctorAdvice.getSecond());
