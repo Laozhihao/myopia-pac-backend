@@ -52,6 +52,15 @@ public enum SchoolEnum {
         this.name = name;
     }
 
+    /**
+     * 根据type获取对象
+     *
+     * @param type
+     * @return
+     */
+    public static SchoolEnum getByType(Integer type) {
+        return SchoolEnum.schoolType.stream().filter(x -> x.type.equals(type)).findFirst().orElse(null);
+    }
 
     /**
      * 根据类型获取描述
