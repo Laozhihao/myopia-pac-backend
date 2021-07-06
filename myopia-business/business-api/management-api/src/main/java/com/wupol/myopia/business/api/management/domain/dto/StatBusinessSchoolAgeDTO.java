@@ -24,7 +24,7 @@ public class StatBusinessSchoolAgeDTO {
     private Map<String, Long> validSchoolAgeDistributionMap;
 
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase) {
-        new StatBusinessSchoolAgeDTO(statBase, null);
+        this(statBase, null);
     }
 
     public StatBusinessSchoolAgeDTO(StatBaseDTO statBase, Boolean isAllAge) {
