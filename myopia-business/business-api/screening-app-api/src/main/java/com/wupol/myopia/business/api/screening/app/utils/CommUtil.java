@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.api.screening.app.utils;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Log4j2
+@UtilityClass
 public class CommUtil {
 
     /**
