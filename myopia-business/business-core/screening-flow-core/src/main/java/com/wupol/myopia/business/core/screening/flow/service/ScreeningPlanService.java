@@ -234,7 +234,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<Integer> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
-        return screeningPlanSchools.stream().map(screeningPlanSchool -> screeningPlanSchool.getSchoolId()).collect(Collectors.toList());
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
     }
 
     /**

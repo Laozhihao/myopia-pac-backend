@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.screening.organization;
+package com.wupol.myopia.business.core.screening.organization.constant;
 
 
 import java.util.Arrays;

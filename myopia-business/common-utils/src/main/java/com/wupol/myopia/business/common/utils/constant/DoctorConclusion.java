@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 医生结论
  *
  * @author Simple4H
  */
+@UtilityClass
 public class DoctorConclusion {
 
     /**
