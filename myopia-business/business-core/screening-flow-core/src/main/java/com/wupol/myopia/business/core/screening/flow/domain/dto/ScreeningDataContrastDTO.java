@@ -25,11 +25,17 @@ public class ScreeningDataContrastDTO {
     @ExcelProperty("平均视力(右)")
     private Float averageVisionRight;
 
+    @ExcelProperty("视力低下人数")
+    private long lowVisionNum;
+
     @ExcelProperty("视力低下率")
     private String lowVisionRatio;
 
     @ExcelProperty("屈光不正率")
     private String refractiveErrorRatio;
+
+    @ExcelProperty("戴镜人数")
+    private long wearingGlassesNum;
 
     @ExcelProperty("戴镜率")
     private String wearingGlassesRatio;
@@ -43,20 +49,38 @@ public class ScreeningDataContrastDTO {
     @ExcelProperty("重点视力对象数量")
     private long focusTargetsNum;
 
+    @ExcelProperty("重点视力对象占比")
+    private String focusTargetsRatio;
+
     @ExcelProperty("0级预警率")
     private String warningLevelZeroRatio;
+
+    @ExcelProperty("0级预警数")
+    private long warningLevelZeroNum;
 
     @ExcelProperty("1级预警率")
     private String warningLevelOneRatio;
 
+    @ExcelProperty("1级预警数")
+    private long warningLevelOneNum;
+
     @ExcelProperty("2级预警率")
     private String warningLevelTwoRatio;
+
+    @ExcelProperty("2级预警数")
+    private long warningLevelTwoNum;
 
     @ExcelProperty("3级预警率")
     private String warningLevelThreeRatio;
 
+    @ExcelProperty("3级预警数")
+    private long warningLevelThreeNum;
+
     @ExcelProperty("建议就诊数")
     private long recommendVisitNum;
+
+    @ExcelProperty("建议就诊数占比")
+    private String recommendVisitRatio;
 
     @ExcelProperty("视力筛查完成率")
     private String screeningFinishedRatio;
