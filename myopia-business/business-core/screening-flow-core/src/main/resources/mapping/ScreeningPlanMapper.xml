@@ -136,7 +136,6 @@
         from m_screening_plan msp
         where screening_org_id = #{orgId}
           and release_status = 1
-          and create_time &lt;= CURDATE()
     </select>
 
     <select id="countByTaskIdAndOrgId" resultType="java.lang.Integer">
