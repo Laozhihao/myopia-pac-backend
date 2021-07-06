@@ -30,6 +30,8 @@ public class PermissionController {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    private static final String NO_ACCESS = "没有访问权限";
+
     /**
      * 获取权限资料列表
      *
@@ -38,7 +40,7 @@ public class PermissionController {
      **/
     @GetMapping("/list")
     public List<Permission> getPermissionList(PermissionQueryDTO param) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
         return oauthServiceClient.getPermissionList(param.convertToPermissionDTO());
     }
 
@@ -50,7 +52,7 @@ public class PermissionController {
      **/
     @PostMapping()
     public Permission addPermission(@RequestBody @Validated(value = PermissionAddValidatorGroup.class) PermissionQueryDTO param) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
         Assert.isTrue(param.getIsPage() == 1 || !StringUtils.isEmpty(param.getApiUrl()), "功能接口url不能为空");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
@@ -66,7 +68,7 @@ public class PermissionController {
      **/
     @PutMapping()
     public Permission updatePermission(@RequestBody @Validated(value = PermissionUpdateValidatorGroup.class) PermissionQueryDTO param) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
         Assert.isTrue(param.getIsPage() == 1 || RegExpUtil.isApiUrl(param.getApiUrl()), "功能接口url参数格式错误");
         // 非页面时，必为非菜单
         param.setIsMenu(param.getIsPage() == 0 ? 0 : param.getIsMenu());
@@ -82,7 +84,7 @@ public class PermissionController {
      **/
     @DeleteMapping("/{permissionId}")
     public boolean deletePermission(@PathVariable("permissionId") Integer permissionId) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
         return oauthServiceClient.deletePermission(permissionId);
     }
 

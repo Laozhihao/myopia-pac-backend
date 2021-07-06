@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -167,5 +166,6 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
+        // 不需要校验
     }
 }

@@ -12,8 +12,6 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 /**
  * 导出筛查机构的筛查报告
  *

@@ -52,6 +52,10 @@ public class ExcelStudentService {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    private static final String GRADE_CLASS_NAME_FORMAT = "%s-%s";
+
+    private static final String DISTRICT_NAME_FORMAT = "%s-%s-%s-%s";
+
     /**
      * 处理上传的筛查学生数据
      *
@@ -70,7 +74,7 @@ public class ExcelStudentService {
         genBaseInfoFromUploadData(listMap, idCardSet, gradeNameSet, gradeClassNameSet, districtNameCodeMap);
         Map<Boolean, List<ScreeningPlanSchoolStudent>> alreadyExistOrNotStudents = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(screeningPlan.getId(), schoolId).stream().collect(Collectors.groupingBy(planStudent -> idCardSet.contains(planStudent.getIdCard())));
         Map<String, Integer> gradeNameIdMap = schoolGradeService.getBySchoolId(schoolId).stream().collect(Collectors.toMap(SchoolGrade::getName, SchoolGrade::getId));
-        Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format("%s-%s", schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
+        Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format(GRADE_CLASS_NAME_FORMAT, schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
         //4. 校验上传筛查学生数据是否合法
         checkExcelDataLegal(idCardSet, snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false));
         //5. 根据身份证号分批获取已有的学生
@@ -103,9 +107,9 @@ public class ExcelStudentService {
             String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
             idCardSet.add(idCard);
             gradeNameSet.add(gradeName);
-            gradeClassNameSet.add(String.format("%s-%s", gradeName, className));
+            gradeClassNameSet.add(String.format(GRADE_CLASS_NAME_FORMAT, gradeName, className));
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
-                districtNameCodeMap.put(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
+                districtNameCodeMap.put(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
             }
         });
     }
@@ -343,7 +347,7 @@ public class ExcelStudentService {
                     .setNation(StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex())))
                     .setSchoolNo(schoolNo)
                     .setGradeId(gradeNameIdMap.get(item.get(ImportExcelEnum.GRADE.getIndex())))
-                    .setClassId(gradeClassNameClassIdMap.get(String.format("%s-%s", item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
+                    .setClassId(gradeClassNameClassIdMap.get(String.format(GRADE_CLASS_NAME_FORMAT, item.get(ImportExcelEnum.GRADE.getIndex()), item.get(ImportExcelEnum.CLASS.getIndex()))))
                     .setSno(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.STUDENT_NO.getIndex()), null))
                     .setIdCard(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.ID_CARD.getIndex()), null))
                     .setParentPhone(StringUtils.getDefaultIfBlank(item.get(ImportExcelEnum.PHONE.getIndex()), null))
@@ -353,7 +357,7 @@ public class ExcelStudentService {
             String areaName = item.getOrDefault(ImportExcelEnum.AREA.getIndex(), null);
             String townName = item.getOrDefault(ImportExcelEnum.TOWN.getIndex(), null);
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
-                List<Long> codeList = districtNameCodeMap.get(String.format("%s-%s-%s-%s", provinceName, cityName, areaName, townName));
+                List<Long> codeList = districtNameCodeMap.get(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName));
                 if (CollectionUtils.hasLength(codeList)) {
                     student.setProvinceCode(codeList.get(0));
                     student.setCityCode(codeList.get(1));
