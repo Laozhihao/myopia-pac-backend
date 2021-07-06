@@ -37,7 +37,7 @@ public class DeviceSourceData implements Serializable {
     /**
      * 患者id
      */
-    private Integer patientId;
+    private String patientId;
 
     /**
      * 设备id
@@ -76,5 +76,24 @@ public class DeviceSourceData implements Serializable {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-
+    /**
+     * 构建一个新
+     * @param device
+     * @param srcData
+     * @param patientId
+     * @return
+     */
+    public static DeviceSourceData getNewInstance(Device device, String srcData, String patientId) {
+        DeviceSourceData deviceSourceData = new DeviceSourceData();
+        deviceSourceData.deviceType = 1;
+        deviceSourceData.deviceCode = device.getDeviceCode();
+        deviceSourceData.deviceId = device.getId();
+        deviceSourceData.deviceSn = device.getDeviceSn();
+        deviceSourceData.patientId = patientId;
+        deviceSourceData.screeningOrgId = device.getBindingScreeningOrgId();
+        deviceSourceData.srcData = srcData;
+        deviceSourceData.createTime = new Date();
+        deviceSourceData.screeningTime = new Date();
+        return deviceSourceData;
+    }
 }

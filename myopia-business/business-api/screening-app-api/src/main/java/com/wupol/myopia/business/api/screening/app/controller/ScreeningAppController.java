@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -19,6 +21,8 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizServi
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.device.domain.model.Device;
+import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -84,7 +88,8 @@ public class ScreeningAppController {
     private ScreeningPlanBizService screeningPlanBizService;
     @Autowired
     private WarningMsgService warningMsgService;
-
+    @Autowired
+    private DeviceService deviceService;
     /**
      * 模糊查询某个筛查机构下的学校的
      *
@@ -464,5 +469,31 @@ public class ScreeningAppController {
         }
         return null;
     }
+
+
+    /**
+     * 上传数据
+     * @param deviceUploadDto
+     * @return
+     */
+    @PostMapping(value = "vs/uploadData", params = "v=1")
+    public void uploadReport(@Valid @RequestBody DeviceUploadDto deviceUploadDto)     {
+        //先查找设备编码是否存在
+        Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
+        //如果不存在报错
+        if (device == null) {
+            throw new BusinessException("无法找到该筛查机构");
+        }
+        //判断id是否是特殊设备扫描出来的(如vs666)
+        List<DeviceScreenDataDTO> deviceScreenDataDTOList = JSON.parseArray(deviceUploadDto.getData(), DeviceScreenDataDTO.class);
+        if (org.springframework.util.CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
+            throw new BusinessException("无法找到筛查数据");
+        }
+        // 保存Source数据
+        screeningAppService.saveDeviceSourceDataList(device, deviceScreenDataDTOList);
+        return;
+    }
+
+
 
 }

@@ -12,4 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class DeviceService extends BaseService<DeviceMapper, Device> {
 
+    /**
+     *  检查是否存在
+     * @param deviceSn
+     * @return
+     */
+    public Device getDeviceByDeviceSn(String deviceSn) {
+        //todo 等合 治豪 的状态
+        Device device = new Device().setDeviceSn(deviceSn).setStatus(1);
+        return super.findOne(device);
+    }
 }
