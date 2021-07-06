@@ -13,15 +13,15 @@ public class PDFFileNameConstant {
     /**
      * PDF报告文件名
      */
-    public String REPORT_PDF_FILE_NAME = "%s筛查报告";
+    public static final String REPORT_PDF_FILE_NAME = "%s筛查报告";
     /**
      * PDF档案卡文件名
      */
-    public String ARCHIVES_PDF_FILE_NAME = "%s档案卡";
+    public static final String ARCHIVES_PDF_FILE_NAME = "%s档案卡";
 
     /**
      * PDF 计划总报告文件名
      */
-    public String PLAN_REPORT_PDF_FILE_NAME = "%s年学生近视筛查结果报告";
+    public static final String PLAN_REPORT_PDF_FILE_NAME = "%s年学生近视筛查结果报告";
 
 }

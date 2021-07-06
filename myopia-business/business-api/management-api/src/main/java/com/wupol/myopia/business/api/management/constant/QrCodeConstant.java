@@ -17,15 +17,15 @@ public class QrCodeConstant {
      * 如studentId = 1 ,则生成的结果是:
      * SA@0000000000000000000001
      */
-    public String QR_CODE_CONTENT_FORMAT_RULE = "SA@%032d";
+    public static final String QR_CODE_CONTENT_FORMAT_RULE = "SA@%032d";
 
     /**
      * [ID,name,sex,age,phone,0,schoolName,gradeName&className,idCard]
      */
-    public String VS666_QR_CODE_CONTENT_FORMAT_RULE = "[%s,%s,%s,%s,%s,0,%s,%s,%s]";
+    public static final String VS666_QR_CODE_CONTENT_FORMAT_RULE = "[%s,%s,%s,%s,%s,0,%s,%s,%s]";
 
     /**
      * 生成VS666筛查专属二维码Id
      */
-    public String GENERATE_VS666_ID = "VS@%s_%s";
+    public static final String GENERATE_VS666_ID = "VS@%s_%s";
 }

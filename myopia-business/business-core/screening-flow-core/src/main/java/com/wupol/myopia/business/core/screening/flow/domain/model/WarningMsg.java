@@ -1,13 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 
@@ -25,19 +26,19 @@ public class WarningMsg implements Serializable {
     /**
      * 可以准备发送
      */
-    public final static Integer STATUS_READY_TO_SEND = 0;
+    public static final Integer STATUS_READY_TO_SEND = 0;
     /**
      * 发送失败
      */
-    public final static Integer STATUS_SEND_FAILURE = -1;
+    public static final Integer STATUS_SEND_FAILURE = -1;
     /**
      * 发送成功
      */
-    public final static Integer STATUS_SEND_SUCCESS = 1;
+    public static final Integer STATUS_SEND_SUCCESS = 1;
     /**
      * 取消发送
      */
-    public final static Integer STATUS_SEND_CANCEL = 2;
+    public static final Integer STATUS_SEND_CANCEL = 2;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;

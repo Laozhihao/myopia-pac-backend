@@ -42,7 +42,7 @@ public class DeviceScreeningDataBizService {
         // 如果筛查条件有机构名称，转化为id
         if (StringUtils.isNotBlank(query.getScreeningOrgNameSearch())) {
             List<ScreeningOrganization> byNameLike = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameSearch());
-            List<Integer> orgIds = byNameLike.stream().map(x -> x.getId()).collect(Collectors.toList());
+            List<Integer> orgIds = byNameLike.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
@@ -50,9 +50,7 @@ public class DeviceScreeningDataBizService {
         }
         IPage<DeviceScreeningDataAndOrgDTO> datas = deviceScreeningDataService.selectPageByQuery(page, query);
         // 查询机构名称
-        datas.getRecords().forEach(x -> {
-            x.setScreeningOrgName(screeningOrganizationService.getNameById(x.getScreeningOrgId()));
-        });
+        datas.getRecords().forEach(x -> x.setScreeningOrgName(screeningOrganizationService.getNameById(x.getScreeningOrgId())));
         return datas;
     }
 
