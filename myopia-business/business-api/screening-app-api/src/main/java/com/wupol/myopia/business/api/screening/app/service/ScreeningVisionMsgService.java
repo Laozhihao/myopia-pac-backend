@@ -250,7 +250,7 @@ public class ScreeningVisionMsgService {
             //模板待修改
             warningMsg.setMsgTemplateId(MsgTemplateEnum.TO_PARENTS_WARING_KIDS_VISION.getMsgCode());
             warningMsg.setStudentId(studentId);
-            warningMsg.setSendTimes(0);
+            warningMsg.setSendTimes(1);
             warningMsgList.add(warningMsg);
         }
         return warningMsgList;
