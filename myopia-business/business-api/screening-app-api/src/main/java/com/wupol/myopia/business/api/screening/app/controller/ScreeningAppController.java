@@ -457,10 +457,8 @@ public class ScreeningAppController {
             }
         }
         //设置出生日期
-        if (StringUtils.isBlank(appStudentDTO.getBirthday())) {
-            if (StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
-                appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
-            }
+        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
+            appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
         }
         return null;
     }

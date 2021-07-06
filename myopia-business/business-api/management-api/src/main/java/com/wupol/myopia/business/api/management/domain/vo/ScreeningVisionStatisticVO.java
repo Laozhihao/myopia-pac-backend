@@ -4,6 +4,7 @@ import com.wupol.myopia.business.api.management.domain.dto.ScreeningBasicResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
 
     /**
