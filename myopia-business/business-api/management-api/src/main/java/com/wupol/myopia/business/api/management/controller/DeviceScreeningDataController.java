@@ -12,6 +12,7 @@ import com.wupol.myopia.business.common.utils.util.ObjectUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class DeviceScreeningDataController {
     private DeviceScreeningDataBizService deviceScreeningDataBizService;
 
     @GetMapping("/list")
-    public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, PageRequest pageRequest) {
+    public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, @Validated  PageRequest pageRequest) {
         checkAndHandleParam(query);
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isScreeningUser()) {

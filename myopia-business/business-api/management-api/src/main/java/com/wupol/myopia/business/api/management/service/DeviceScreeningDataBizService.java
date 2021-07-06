@@ -44,7 +44,7 @@ public class DeviceScreeningDataBizService {
             List<ScreeningOrganization> byNameLike = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameSearch());
             List<Integer> orgIds = byNameLike.stream().map(x -> x.getId()).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
-                return new Page<>();
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
             query.setScreeningOrgIds(orgIds);
         }
