@@ -179,7 +179,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
             return Collections.emptySet();
         }
         // 根据studentId进行分组
-
         Map<Integer, Boolean> studentVisionExceptionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
                 Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime)),
                         statConclusionOptional -> {
@@ -189,12 +188,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
                                 return false;
                             }
                         })));
-
-       return studentVisionExceptionMap.keySet().stream().filter(studentId -> {
-            Boolean isVisionException = studentVisionExceptionMap.get(studentId);
-            return isVisionException == null || !isVisionException;
-        }).collect(Collectors.toSet());
-
+       return studentVisionExceptionMap.keySet().stream().filter(studentId -> !Boolean.TRUE.equals(studentVisionExceptionMap.get(studentId))).collect(Collectors.toSet());
     }
 
     /**

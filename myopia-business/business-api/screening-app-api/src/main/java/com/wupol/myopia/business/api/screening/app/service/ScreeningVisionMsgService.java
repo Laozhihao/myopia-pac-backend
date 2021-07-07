@@ -64,6 +64,8 @@ public class ScreeningVisionMsgService {
      * 获取需要发送视力警告短信的学生id
      * @return
      */
+    //todo 可能因为每天数据量太大而导致内存吃力, 后期可对statConclusionService.getStatConclusionByDateTimeRange进行分批处理,或者将部分数据过滤转移到Mysql中进行 (如在数据库中
+    //todo 对数据进行排序取学生最新的筛查记录)
     private Set<Integer> getNeedToSendWarningMsgStudentIds(Date yesterdayDateTime, Date todayDateTime) {
             //获取特定时间的statconclusions
             List<StatConclusion> statConclusions = statConclusionService.getStatConclusionByDateTimeRange(yesterdayDateTime,todayDateTime);
@@ -117,17 +119,7 @@ public class ScreeningVisionMsgService {
     private Map<Integer, Date> getStudentNeedWarningMsgMap(List<StatConclusion> statConclusions) {
         return statConclusions.stream().filter(statConclusion -> statConclusion.getStudentId() != null).collect(
                 Collectors.groupingBy(StatConclusion::getStudentId, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime))
-                        , statConclusionOptional -> {
-                            if (!statConclusionOptional.isPresent()) {
-                                return null;
-                            }
-                            StatConclusion statConclusion = statConclusionOptional.get();
-                            Boolean isVisionWarning = statConclusion.getIsVisionWarning();
-                            if (isVisionWarning != null && isVisionWarning) {
-                                return statConclusion.getVisionWarningUpdateTime();
-                            }
-                            return null;
-                        }))
+                        , statConclusionOptional -> statConclusionOptional.filter(x -> Boolean.TRUE.equals(x.getIsVisionWarning())).map(StatConclusion::getVisionWarningUpdateTime).orElse(null)))
         );
     }
 
