@@ -3,7 +3,6 @@ package com.wupol.myopia.base.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.base.constant.RoleType;
 import lombok.Data;
-import lombok.experimental.UtilityClass;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.List;
  * @Date 2020/12/26
  **/
 @Data
-@UtilityClass
 public class CurrentUser {
 
     /**
