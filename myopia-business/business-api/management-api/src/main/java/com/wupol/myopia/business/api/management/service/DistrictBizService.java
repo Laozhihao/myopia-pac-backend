@@ -99,11 +99,11 @@ public class DistrictBizService {
     /**
      * 获取当前用户地区树 与 districts 的交集
      *
-     * @param user 当前用户
+     * @param user        当前用户
      * @param districtIds 待求交集的行政区域ID集
      * @return
      */
-    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+    public List<District> getValidDistrictTree(CurrentUser user, Set<Integer> districtIds) {
         List<District> districts = new ArrayList<>();
         if (user == null) {
             return districts;
