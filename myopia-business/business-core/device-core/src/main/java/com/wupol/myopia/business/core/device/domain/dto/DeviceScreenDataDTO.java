@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -53,27 +52,27 @@ public class DeviceScreenDataDTO implements Serializable {
     /*** 是否已经上传 */
     public Integer doUploaded;
     /*** 左眼球径 */
-    public Float leftSph;
+    public Double leftSph;
     /*** 左眼柱径 */
-    public Float leftCyl;
+    public Double leftCyl;
     /*** 左眼轴位 */
-    public Float leftAxsi;
+    public Double leftAxsi;
     /*** 左眼瞳孔半径 */
-    public Float leftPR;
+    public Double leftPR;
     /*** 右眼球径 */
-    public Float rightSph;
+    public Double rightSph;
     /*** 右眼球柱径 */
-    public Float rightCyl;
+    public Double rightCyl;
     /*** 右眼球轴位 */
-    public Float rightAxsi;
+    public Double rightAxsi;
     /*** 右眼瞳孔半径 */
-    public Float rightPR;
+    public Double rightPR;
     /*** 瞳距 */
-    public Float PD;
+    public Double PD;
     /*** 右眼等效球镜度 */
-    public Float rightPa;
+    public Double rightPa;
     /*** 左眼等效球镜度 */
-    public Float leftPa;
+    public Double leftPa;
     /*** 右垂直⽅向斜视度数 */
     public Integer rightAxsiV;
     /*** 右⽔平⽅向斜视度数 */
@@ -99,7 +98,7 @@ public class DeviceScreenDataDTO implements Serializable {
         deviceScreeningData.setCreateTime(new Date());
         deviceScreeningData.setPatientAge(patientAge);
         deviceScreeningData.setPatientCid(patientCID);
-        deviceScreeningData.setPd(BigDecimal.valueOf(PD));
+        deviceScreeningData.setPd(PD);
         deviceScreeningData.setPatientGender(GenderEnum.getType(patientGender));
         deviceScreeningData.setScreeningOrgId(device.getBindingScreeningOrgId());
         deviceScreeningData.setPatientAgeGroup(PatientAgeUtil.getPatientAgeRange(patientAge));

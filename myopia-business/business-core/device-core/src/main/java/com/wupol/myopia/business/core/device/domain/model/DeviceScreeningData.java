@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -108,57 +107,57 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 左眼柱镜
      */
-    private BigDecimal leftCyl;
+    private Double leftCyl;
 
     /**
      * 右眼柱镜
      */
-    private BigDecimal rightCyl;
+    private Double rightCyl;
 
     /**
      * 左眼轴位
      */
-    private BigDecimal leftAxsi;
+    private Double leftAxsi;
 
     /**
      * 右眼柱位
      */
-    private BigDecimal rightAxsi;
+    private Double rightAxsi;
 
     /**
      * 左眼瞳孔半径
      */
-    private BigDecimal leftPr;
+    private Double leftPr;
 
     /**
      * 右眼瞳孔半径
      */
-    private BigDecimal rightPr;
+    private Double rightPr;
 
     /**
      * 左眼等效球镜度
      */
-    private BigDecimal leftPa;
+    private Double leftPa;
 
     /**
      * 右眼等效球镜度
      */
-    private BigDecimal rightPa;
+    private Double rightPa;
 
     /**
      * 左眼球镜
      */
-    private BigDecimal leftSph;
+    private Double leftSph;
 
     /**
      * 右眼球镜
      */
-    private BigDecimal rightSph;
+    private Double rightSph;
 
     /**
      * 瞳距
      */
-    private BigDecimal pd;
+    private Double pd;
 
     /**
      * 是否筛查(-1=未知,1=是,0=否)

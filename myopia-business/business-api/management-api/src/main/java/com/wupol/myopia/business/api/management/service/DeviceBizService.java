@@ -74,7 +74,7 @@ public class DeviceBizService {
      * @param rightCyl   右眼柱镜
      * @return left-医生结论 rigjt医生建议
      */
-    private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
+    private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, Double leftPa, Double rightPa, Double leftCyl, Double rightCyl) {
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
             return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_ERROR);
@@ -94,7 +94,7 @@ public class DeviceBizService {
      * @param rightPa 右眼等效球镜
      * @return 是否近视
      */
-    private boolean checkIsMyopia(BigDecimal leftPa, BigDecimal rightPa) {
+    private boolean checkIsMyopia(Double leftPa, Double rightPa) {
         return checkSingleEyeIsMyopia(leftPa) || checkSingleEyeIsMyopia(rightPa);
     }
 
@@ -104,11 +104,11 @@ public class DeviceBizService {
      * @param pa 等效球镜
      * @return 是否近视
      */
-    private boolean checkSingleEyeIsMyopia(BigDecimal pa) {
+    private boolean checkSingleEyeIsMyopia(Double pa) {
         if (Objects.isNull(pa)) {
             return true;
         }
-        return pa.compareTo(new BigDecimal("-0.5")) < 0;
+        return BigDecimal.valueOf(pa).compareTo(new BigDecimal("-0.5")) < 0;
     }
 
     /**
@@ -119,7 +119,7 @@ public class DeviceBizService {
      * @param rightPa    右眼等效球镜
      * @return 是否远视
      */
-    private boolean checkIsFarsightedness(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa) {
+    private boolean checkIsFarsightedness(Integer patientAge, Double leftPa, Double rightPa) {
         return checkSingleEyeIsFarsightedness(patientAge, leftPa) || checkSingleEyeIsFarsightedness(patientAge, rightPa);
     }
 
@@ -130,32 +130,33 @@ public class DeviceBizService {
      * @param pa         等效球镜
      * @return 是否远视
      */
-    private boolean checkSingleEyeIsFarsightedness(Integer patientAge, BigDecimal pa) {
+    private boolean checkSingleEyeIsFarsightedness(Integer patientAge, Double pa) {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
+        BigDecimal paBigDecimal = BigDecimal.valueOf(pa);
         switch (patientAge) {
             case 0:
             case 1:
             case 2:
             case 3:
-                return pa.compareTo(new BigDecimal("3.5")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("3.5")) > 0;
             case 4:
             case 5:
-                return pa.compareTo(new BigDecimal("2.5")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("2.5")) > 0;
             case 6:
             case 7:
-                return pa.compareTo(new BigDecimal("2.0")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("2.0")) > 0;
             case 8:
-                return pa.compareTo(new BigDecimal("1.5")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("1.5")) > 0;
             case 9:
-                return pa.compareTo(new BigDecimal("1.25")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("1.25")) > 0;
             case 10:
-                return pa.compareTo(new BigDecimal("1.0")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("1.0")) > 0;
             case 11:
-                return pa.compareTo(new BigDecimal("0.75")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("0.75")) > 0;
             default:
-                return pa.compareTo(new BigDecimal("0.50")) > 0;
+                return paBigDecimal.compareTo(new BigDecimal("0.50")) > 0;
         }
     }
 
@@ -166,7 +167,7 @@ public class DeviceBizService {
      * @param rightCyl 右眼柱镜
      * @return 是否散光
      */
-    private boolean checkIsAstigmatism(BigDecimal leftCyl, BigDecimal rightCyl) {
+    private boolean checkIsAstigmatism(Double leftCyl, Double rightCyl) {
         return checkSingleEyeIsAstigmatism(leftCyl) || checkSingleEyeIsAstigmatism(rightCyl);
     }
 
@@ -176,11 +177,11 @@ public class DeviceBizService {
      * @param cyl 柱镜
      * @return 是否散光
      */
-    private boolean checkSingleEyeIsAstigmatism(BigDecimal cyl) {
+    private boolean checkSingleEyeIsAstigmatism(Double cyl) {
         if (Objects.isNull(cyl)) {
             return true;
         }
-        return cyl.abs().compareTo(new BigDecimal("0.5")) < 0;
+        return BigDecimal.valueOf(cyl).abs().compareTo(new BigDecimal("0.5")) < 0;
     }
 
     /**
@@ -191,7 +192,7 @@ public class DeviceBizService {
      * @param rightPa    右眼等效球镜
      * @return 是否远视储备不足
      */
-    private boolean checkIsInsufficientFarsightedReserves(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa) {
+    private boolean checkIsInsufficientFarsightedReserves(Integer patientAge, Double leftPa, Double rightPa) {
         return checkSingleEyeIsInsufficientFarsightedReserves(patientAge, leftPa) || checkSingleEyeIsInsufficientFarsightedReserves(patientAge, rightPa);
     }
 
@@ -202,12 +203,13 @@ public class DeviceBizService {
      * @param pa         等效球镜
      * @return 是否远视储备不足
      */
-    private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, BigDecimal pa) {
+    private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, Double pa) {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
         if (patientAge >= 0 && patientAge <= 8) {
-            return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
+            BigDecimal paBigDecimal = BigDecimal.valueOf(pa);
+            return paBigDecimal.compareTo(BigDecimal.valueOf(0)) >= 0 && paBigDecimal.compareTo(BigDecimal.valueOf(1)) <= 0;
         }
         return true;
     }
