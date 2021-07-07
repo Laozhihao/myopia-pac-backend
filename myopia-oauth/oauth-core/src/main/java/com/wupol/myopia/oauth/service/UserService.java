@@ -21,7 +21,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ValidationException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -83,7 +82,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @Transactional(rollbackFor = Exception.class)
-    public User addUser(UserDTO userDTO) throws IOException {
+    public User addUser(UserDTO userDTO) {
         // 校验参数
         validateParam(userDTO.getPhone(), userDTO.getSystemCode());
         // 创建用户

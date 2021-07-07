@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PermissionService extends BaseService<PermissionMapper, Permission> {
-    private static final Logger logger = LoggerFactory.getLogger(PermissionService.class);
 
     /**
      * 根据用户ID获取用户的所有权限
