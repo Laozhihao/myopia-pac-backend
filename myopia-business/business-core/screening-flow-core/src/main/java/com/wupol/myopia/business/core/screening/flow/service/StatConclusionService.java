@@ -168,27 +168,38 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      *
      * @param studentIdList
      */
-    public Map<Integer, Boolean> getByStudentIds(List<Integer> studentIdList) {
+    public Set<Integer> getHasNormalVisionStudentIds(Set<Integer> studentIdList) {
         if (CollectionUtils.isEmpty(studentIdList)) {
-            return Collections.emptyMap();
+            return Collections.emptySet();
         }
         LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
         statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId, studentIdList);
         List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
         if (CollectionUtils.isEmpty(statConclusions)) {
-            return Collections.emptyMap();
+            return Collections.emptySet();
         }
         // 根据studentId进行分组
-        return statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
-                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getUpdateTime)),
+        Map<Integer, Boolean> studentVisionExceptionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
+                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime)),
                         statConclusionOptional -> {
                             if (statConclusionOptional.isPresent()) {
-                                Boolean isVisionWarning = statConclusionOptional.get().getIsVisionWarning();
-                                return isVisionWarning != null && isVisionWarning;
+                                return statConclusionOptional.get().getIsVisionWarning();
                             } else {
                                 return false;
                             }
                         })));
+       return studentVisionExceptionMap.keySet().stream().filter(studentId -> !Boolean.TRUE.equals(studentVisionExceptionMap.get(studentId))).collect(Collectors.toSet());
+    }
+
+    /**
+     * 获取门口个筛查时间范围的统计数据
+     * @return
+     */
+    public List<StatConclusion> getStatConclusionByDateTimeRange(Date yesterdayDateTime,Date todayDateTime) {
+        LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        statConclusionLambdaQueryWrapper.select(StatConclusion::getStudentId, StatConclusion::getIsVisionWarning, StatConclusion::getVisionWarningUpdateTime)
+                .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
+        return list(statConclusionLambdaQueryWrapper);
     }
 }
 

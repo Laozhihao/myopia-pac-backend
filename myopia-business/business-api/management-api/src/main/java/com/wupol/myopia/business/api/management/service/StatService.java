@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
@@ -24,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
@@ -87,6 +89,12 @@ public class StatService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
 
@@ -182,7 +190,7 @@ public class StatService {
         String schoolGradeCode = params.getSchoolGradeCode();
         String schoolClass = params.getSchoolClass();
 
-        List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
+        List<Integer> validDistrictIds = this.getValidDistrictIds(contrastTypeEnum, contrastId, districtId, currentUser);
         query.setDistrictIds(validDistrictIds);
         query.setSchoolAge(schoolAge);
         query.setSchoolId(schoolId);
@@ -202,7 +210,7 @@ public class StatService {
      * @throws IOException
      */
     public List<Integer> getValidDistrictIdsByNotificationId(
-            int notificationId, CurrentUser currentUser) throws IOException {
+            int notificationId, CurrentUser currentUser) {
         List<ScreeningPlan> screeningPlans =
                 managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
@@ -225,8 +233,7 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser)
-            throws IOException {
+    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) {
         List<Integer> validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
 
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
@@ -371,16 +378,16 @@ public class StatService {
      * @param currentUser 当前用户
      * @return
      */
-    private List<Integer> getValidDistrictIds(Integer districtId, CurrentUser currentUser) {
-        List<Integer> userDistrictIds = getCurrentUserDistrictIds(currentUser);
+    private List<Integer> getValidDistrictIds(ContrastTypeEnum contrastTypeEnum, Integer contrastId, Integer districtId, CurrentUser currentUser) {
+        Set<Integer> userDistrictSet = getDistrictIdsByContrastType(contrastTypeEnum, contrastId, currentUser);
         if (districtId != null && districtId >= 0) {
             List<Integer> selectDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            if (CollectionUtils.isNotEmpty(userDistrictIds)) {
-                selectDistrictIds.retainAll(userDistrictIds);
+            if (CollectionUtils.isNotEmpty(userDistrictSet)) {
+                selectDistrictIds.retainAll(userDistrictSet);
             }
             return selectDistrictIds;
         } else {
-            return userDistrictIds;
+            return userDistrictSet.stream().collect(Collectors.toList());
         }
     }
 
@@ -404,18 +411,24 @@ public class StatService {
                 .validScreeningNum(contrast.getValidScreeningNum())
                 .averageVisionLeft(contrast.getAverageVisionLeft())
                 .averageVisionRight(contrast.getAverageVisionRight())
-                .lowVisionRatio(contrast.getLowVisionRatio() + "%")
-                .refractiveErrorRatio(contrast.getRefractiveErrorRatio() + "%")
-                .wearingGlassesRatio(contrast.getWearingGlassesRatio() + "%")
+                .lowVisionNum(contrast.getLowVisionNum())
+                .lowVisionRatio(nullToRatio(contrast.getLowVisionRatio()))
+                .wearingGlassesNum(contrast.getWearingGlassesNum())
+                .wearingGlassesRatio(nullToRatio(contrast.getWearingGlassesRatio()))
                 .myopiaNum(contrast.getMyopiaNum())
-                .myopiaRatio(contrast.getMyopiaRatio() + "%")
+                .myopiaRatio(nullToRatio(contrast.getMyopiaRatio()))
                 .focusTargetsNum(contrast.getFocusTargetsNum())
-                .warningLevelZeroRatio(contrast.getWarningLevelZeroRatio() + "%")
-                .warningLevelOneRatio(contrast.getWarningLevelOneRatio() + "%")
-                .warningLevelTwoRatio(contrast.getWarningLevelTwoRatio() + "%")
-                .warningLevelThreeRatio(contrast.getWarningLevelThreeRatio() + "%")
+                .focusTargetsRatio(nullToRatio(contrast.getFocusTargetsRatio()))
+                .warningLevelZeroNum(contrast.getWarningLevelZeroNum())
+                .warningLevelZeroRatio(nullToRatio(contrast.getWarningLevelZeroRatio()))
+                .warningLevelOneNum(contrast.getWarningLevelOneNum())
+                .warningLevelOneRatio(nullToRatio(contrast.getWarningLevelOneRatio()))
+                .warningLevelTwoNum(contrast.getWarningLevelTwoNum())
+                .warningLevelTwoRatio(nullToRatio(contrast.getWarningLevelTwoRatio()))
+                .warningLevelThreeNum(contrast.getWarningLevelThreeNum())
+                .warningLevelThreeRatio(nullToRatio(contrast.getWarningLevelThreeRatio()))
                 .recommendVisitNum(contrast.getRecommendVisitNum())
-                .screeningFinishedRatio(contrast.getScreeningFinishedRatio() + "%")
+                .recommendVisitRatio(nullToRatio(contrast.getRecommendVisitRatio()))
                 .rescreenNum(rs.getRescreenNum())
                 .wearingGlassesRescreenNum(rs.getWearingGlassesRescreenNum())
                 .wearingGlassesRescreenIndexNum(rs.getWearingGlassesRescreenIndexNum())
@@ -423,8 +436,18 @@ public class StatService {
                 .withoutGlassesRescreenIndexNum(rs.getWithoutGlassesRescreenIndexNum())
                 .rescreenItemNum(rs.getRescreenItemNum())
                 .incorrectItemNum(rs.getIncorrectItemNum())
-                .incorrectRatio(rs.getIncorrectRatio() + "%")
+                .incorrectRatio(nullToRatio(rs.getIncorrectRatio()))
                 .build();
+    }
+
+    /**
+     * 将null转换为0占比
+     *
+     * @param ratio
+     * @return
+     */
+    private String nullToRatio(Float ratio) {
+        return (ratio == null ? 0f : ratio) + "%";
     }
 
     /**
@@ -434,12 +457,18 @@ public class StatService {
      * @return
      */
     private List<Integer> getCurrentUserDistrictIds(CurrentUser currentUser) {
-        if (currentUser.isPlatformAdminUser() || currentUser.getOrgId() == null) {
-            return Collections.emptyList();
+        //TODO: 机构用户是否有权限调用此接口？
+        if (currentUser.isScreeningUser()) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+            District userDistrict = districtService.getById(screeningOrganization.getDistrictId());
+            return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
         }
-        GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-        District userDistrict = districtService.getById(govDept.getDistrictId());
-        return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
+        if (currentUser.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(currentUser.getOrgId());
+            District userDistrict = districtService.getById(govDept.getDistrictId());
+            return districtService.getSpecificDistrictTreeAllDistrictIds(userDistrict.getId());
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -564,12 +593,39 @@ public class StatService {
                 validConclusions.stream().filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel())).count();
         long warning3Num =
                 validConclusions.stream().filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel())).count();
+        long focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
 
         List<StatConclusion> rescreenConclusions =
                 resultConclusion.stream().filter(x -> x.getIsRescreen() && x.getIsValid()).collect(Collectors.toList());
         AverageVision averageVision = this.calculateAverageVision(validConclusions);
         RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenConclusions);
-        return ScreeningDataContrast.builder().screeningNum(planScreeningNum).actualScreeningNum(totalFirstScreeningNum).validScreeningNum(validFirstScreeningNum).averageVisionLeft(averageVision.getAverageVisionLeft()).averageVisionRight(averageVision.getAverageVisionRight()).lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum)).refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum)).wearingGlassesRatio(convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum)).myopiaNum(myopiaNum).myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum)).focusTargetsNum(warning0Num + warning1Num + warning2Num + warning3Num).warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum)).warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum)).warningLevelTwoRatio(convertToPercentage(warning2Num * 1f / validFirstScreeningNum)).warningLevelThreeRatio(convertToPercentage(warning3Num * 1f / validFirstScreeningNum)).recommendVisitNum(recommendVisitNum).screeningFinishedRatio(convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum)).rescreenStat(rescreenStat).build();
+        return ScreeningDataContrast.builder()
+                .screeningNum(planScreeningNum)
+                .actualScreeningNum(totalFirstScreeningNum)
+                .validScreeningNum(validFirstScreeningNum)
+                .averageVisionLeft(averageVision.getAverageVisionLeft())
+                .averageVisionRight(averageVision.getAverageVisionRight())
+                .lowVisionNum(lowVisionNum)
+                .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
+                .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
+                .wearingGlassesNum(wearingGlassesNum)
+                .wearingGlassesRatio(convertToPercentage(wearingGlassesNum * 1f / validFirstScreeningNum))
+                .myopiaNum(myopiaNum)
+                .myopiaRatio(convertToPercentage(myopiaNum * 1f / validFirstScreeningNum))
+                .focusTargetsNum(focusTargetsNum)
+                .focusTargetsRatio(convertToPercentage(focusTargetsNum * 1f / validFirstScreeningNum))
+                .warningLevelZeroNum(warning0Num)
+                .warningLevelZeroRatio(convertToPercentage(warning0Num * 1f / validFirstScreeningNum))
+                .warningLevelOneNum(warning1Num)
+                .warningLevelOneRatio(convertToPercentage(warning1Num * 1f / validFirstScreeningNum))
+                .warningLevelTwoNum(warning2Num)
+                .warningLevelTwoRatio(convertToPercentage(warning2Num * 1f / validFirstScreeningNum))
+                .warningLevelThreeNum(warning3Num)
+                .warningLevelThreeRatio(convertToPercentage(warning3Num * 1f / validFirstScreeningNum))
+                .recommendVisitNum(recommendVisitNum)
+                .recommendVisitRatio(convertToPercentage(recommendVisitNum * 1f / validFirstScreeningNum))
+                .screeningFinishedRatio(convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum))
+                .rescreenStat(rescreenStat).build();
     }
 
     /**
@@ -732,7 +788,7 @@ public class StatService {
      * @throws IOException
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
+            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
         Integer contrastId = params.getContrastId();
         if (contrastId == null) {
             return null;
@@ -766,13 +822,12 @@ public class StatService {
         String schoolGradeCode = params.getSchoolGradeCode();
         String schoolClass = params.getSchoolClass();
 
-        List<Integer> validDistrictIds = this.getValidDistrictIds(districtId, currentUser);
+        List<Integer> validDistrictIds = this.getValidDistrictIds(contrastTypeEnum, contrastId, districtId, currentUser);
         Integer planScreeningStudentNum = getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
                 , schoolAge, schoolId, schoolGradeCode, schoolClass);
         query.setDistrictIds(validDistrictIds)
                 .setSchoolAge(schoolAge)
-                .setSchoolId(schoolId)
-                .setIsValid(true);
+                .setSchoolId(schoolId);
         if (schoolId != null) {
             if (schoolClass != null) {
                 query.setSchoolClassName(schoolClass);
@@ -787,6 +842,29 @@ public class StatService {
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
     }
 
+    private Set<Integer> getDistrictIdsByContrastType(ContrastTypeEnum contrastTypeEnum, Integer contrastId, CurrentUser currentUser) {
+        Set<Integer> districtIdList;
+        switch (contrastTypeEnum) {
+            case NOTIFICATION:
+                districtIdList = getDistrictIdList(managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(contrastId, currentUser));
+                break;
+            case TASK:
+                districtIdList = getDistrictIdList(managementScreeningPlanBizService.getScreeningPlanByTaskIdAndUser(contrastId, currentUser));
+                break;
+            case PLAN:
+                districtIdList = getDistrictIdList(Collections.singletonList(screeningPlanService.getById(contrastId)));
+                break;
+            default:
+                return Collections.emptySet();
+        }
+        return districtIdList;
+    }
+
+    private Set<Integer> getDistrictIdList(List<ScreeningPlan> screeningPlanList) {
+        return schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlanList.stream()
+                .map(ScreeningPlan::getId).collect(Collectors.toList()));
+    }
+
     /**
      * 获取对比统计过滤参数
      *
@@ -798,8 +876,7 @@ public class StatService {
      * @throws IOException
      */
     public DataContrastFilterDTO getDataContrastFilter(
-            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser)
-            throws IOException {
+            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 
@@ -847,16 +924,84 @@ public class StatService {
         for (int i = 0; i < paramsList.size(); i++) {
             DataContrastFilterParamsDTO.Params params = paramsList.get(i);
             Integer contrastId = params.getContrastId();
+            StringBuilder title = new StringBuilder();
+            title.append(i == 0 ? "被对比项：" : "对比项" + i + "：");
+            composeFilterTitle(title, contrastType, params);
             if (contrastId == null) {
-                exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1),
+                exportList.add(composeScreeningDataContrastDTO(title.toString(),
                         composeScreeningDataContrast(Collections.emptyList(), 0)));
                 continue;
             }
             ScreeningDataContrast screeningDataContrast = getScreeningDataContrast(contrastType, params, currentUser);
-            exportList.add(composeScreeningDataContrastDTO("对比项" + (i + 1), screeningDataContrast));
+            exportList.add(composeScreeningDataContrastDTO(title.toString(), screeningDataContrast));
         }
         excelFacade.exportStatContrast(currentUser.getId(), exportList,
                 exportStatContrastTemplate.getInputStream());
+    }
+
+    private void composeFilterTitle(StringBuilder builder, Integer contrastType,
+                                    DataContrastFilterParamsDTO.Params filterParams) {
+        Integer contrastId = filterParams.getContrastId();
+        switch (ContrastTypeEnum.get(contrastType)) {
+            case NOTIFICATION:
+                ScreeningNotice notice = screeningNoticeService.getById(contrastId);
+                builder.append(composeContrastParams(notice.getTitle(), notice.getStartTime(), notice.getEndTime()));
+                break;
+            case TASK:
+                ScreeningTask task = screeningTaskService.getById(contrastId);
+                builder.append(composeContrastParams(task.getTitle(), task.getStartTime(), task.getEndTime()));
+                break;
+            case PLAN:
+                ScreeningPlan plan = screeningPlanService.getById(contrastId);
+                builder.append(composeContrastParams(plan.getTitle(), plan.getStartTime(), plan.getEndTime()));
+                break;
+            default:
+                return;
+        }
+
+        Integer districtId = filterParams.getDistrictId();
+        if (districtId != null) {
+            District district = districtService.getById(districtId);
+            if (district != null) {
+                builder.append("，").append(district.getName());
+            }
+        }
+
+        Integer schoolAgeCode = filterParams.getSchoolAge();
+        if (schoolAgeCode != null) {
+            SchoolAge schoolAge = SchoolAge.get(schoolAgeCode);
+            if (schoolAge != null) {
+                builder.append("，").append(schoolAge.desc);
+            }
+        }
+
+        Integer schoolId = filterParams.getSchoolId();
+        if (schoolId != null) {
+            School school = schoolService.getById(schoolId);
+            if (school != null) {
+                builder.append("，").append(school.getName());
+            }
+        }
+
+        String schoolGradeCode = filterParams.getSchoolGradeCode();
+        if (StringUtils.isNotEmpty(schoolGradeCode)) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+            if (gradeCodeEnum != null) {
+                builder.append("，").append(gradeCodeEnum.getName());
+            }
+        }
+
+        String schoolClass = filterParams.getSchoolClass();
+        if (StringUtils.isNotEmpty(schoolClass)) {
+            builder.append("，").append(schoolClass);
+        }
+
+    }
+
+    private String composeContrastParams(String title, Date startTime, Date endTime) {
+        String startDate = DateFormatUtil.format(startTime, DateFormatUtil.FORMAT_ONLY_DATE);
+        String endDate = DateFormatUtil.format(endTime, DateFormatUtil.FORMAT_ONLY_DATE);
+        return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
 

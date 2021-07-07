@@ -1,14 +1,18 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import java.util.List;
 
 /**
  * 
@@ -21,6 +25,10 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("m_warning_msg")
 public class WarningMsg implements Serializable {
+    /**
+     * 限制次数
+     */
+    private static final long LIMIT_TIMES = 5;
 
     private static final long serialVersionUID = 1L;
     /**
@@ -56,7 +64,8 @@ public class WarningMsg implements Serializable {
     /**
      * 电话号码(发送的时候才记录)
      */
-    private String phoneNumbers;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> phoneNumbers;
 
     /**
      * 发送状态,-1发送失败,0准备发送,1是发送成功,2是取消发送
@@ -75,6 +84,11 @@ public class WarningMsg implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 发送的次数
+     */
+    private Integer sendTimes;
 
     /**
      * 创建时间
