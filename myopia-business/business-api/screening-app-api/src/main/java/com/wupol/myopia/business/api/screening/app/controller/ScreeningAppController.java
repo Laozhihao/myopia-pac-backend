@@ -186,7 +186,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/findAllEyeDisease")
     public List<EyeDiseaseVO> getAllEyeDisease() {
         List<String> eyeDiseaseList = EyeDiseasesEnum.eyeDiseaseList;
-        List<EyeDiseaseVO> LeftEyeDiseaseVO = eyeDiseaseList.stream().map(eyeDiseas -> {
+        List<EyeDiseaseVO> leftEyeDiseaseVO = eyeDiseaseList.stream().map(eyeDiseas -> {
             EyeDiseaseVO eyeDiseaseVO = new EyeDiseaseVO();
             eyeDiseaseVO.setEye("L");
             eyeDiseaseVO.setName(eyeDiseas);
@@ -205,7 +205,7 @@ public class ScreeningAppController {
         }).collect(Collectors.toList());
         List<EyeDiseaseVO> allEyeDiseaseVos = new ArrayList<>();
         allEyeDiseaseVos.addAll(rightEyeDiseaseVO);
-        allEyeDiseaseVos.addAll(LeftEyeDiseaseVO);
+        allEyeDiseaseVos.addAll(leftEyeDiseaseVO);
         return allEyeDiseaseVos;
     }
 
@@ -326,9 +326,8 @@ public class ScreeningAppController {
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent, page, size);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
-        Page<StudentVO> sysStudents = new PageImpl<StudentVO>(studentVOs, pageable, studentVOs.size());
-        return sysStudents;
+        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
+        return new PageImpl<>(studentVOs, pageable, studentVOs.size());
     }
 
     /**
@@ -350,8 +349,7 @@ public class ScreeningAppController {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
-        return sysStudentList;
+        return screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
     }
 
     /**
@@ -413,8 +411,7 @@ public class ScreeningAppController {
         ScreeningResultSearchDTO screeningResultSearchDTO = new ScreeningResultSearchDTO();
         screeningResultSearchDTO.setClazzName(clazzName);
         screeningResultSearchDTO.setGradeName(gradeName).setSchoolId(schoolId).setDepId(deptId);
-        List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
-        return allReviewResult;
+        return screeningAppService.getAllReviewResult(screeningResultSearchDTO);
     }
 
 

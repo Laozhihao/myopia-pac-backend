@@ -304,6 +304,6 @@ public class DateUtil {
     public static String getDayOfYear(Date date,int offsetDay) {
         Date date30DaysAgo = DateUtils.addDays(date, offsetDay);
         return DateFormatUtils.format(date30DaysAgo, "yyyyD");
-    };
+    }
 
 }

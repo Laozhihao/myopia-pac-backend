@@ -70,7 +70,7 @@ public class MedicalRecord implements Serializable {
 
     /** 检查单是否已经完成 */
     @JsonIgnore
-    public Boolean isFinish() {
+    public boolean isFinish() {
         return Objects.nonNull(status) && STATUS_FINISH.equals(status);
     }
 

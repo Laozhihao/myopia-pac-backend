@@ -6,6 +6,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.constant.ErrorMsg;
 import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisticDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
@@ -132,7 +133,7 @@ public class StatManagementController {
     public List<District> getDistrictByNoticeId(@RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(ErrorMsg.CAN_NOT_FIND_NOTICE);
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         //查看该通知所有筛查学校的层级的 地区树
@@ -199,7 +200,7 @@ public class StatManagementController {
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(ErrorMsg.CAN_NOT_FIND_NOTICE);
         }
         return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
@@ -216,7 +217,7 @@ public class StatManagementController {
         //查找notice
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(ErrorMsg.CAN_NOT_FIND_NOTICE);
         }
         return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
@@ -248,7 +249,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(ErrorMsg.CAN_NOT_FIND_NOTICE);
         }
         List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {

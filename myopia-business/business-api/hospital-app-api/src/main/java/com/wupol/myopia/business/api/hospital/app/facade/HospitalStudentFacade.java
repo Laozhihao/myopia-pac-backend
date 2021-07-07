@@ -106,10 +106,10 @@ public class HospitalStudentFacade {
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
                 studentService.getById(studentVo.getStudentId()) :
                 studentService.getByIdCard(studentVo.getIdCard());
-        if (Objects.nonNull(oldStudent) && isCheckNameAndIDCard) {
-            if (!(oldStudent.getIdCard().equals(studentVo.getIdCard()) && oldStudent.getName().equals(studentVo.getName()))) {
-                throw new BusinessException("学生的身份证与姓名不匹配");
-            }
+        if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
+                && (!(oldStudent.getIdCard().equals(studentVo.getIdCard())
+                && oldStudent.getName().equals(studentVo.getName())))) {
+            throw new BusinessException("学生的身份证与姓名不匹配");
         }
 
         // 设置学校信息

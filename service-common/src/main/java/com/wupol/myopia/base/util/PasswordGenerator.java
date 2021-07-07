@@ -2,6 +2,7 @@ package com.wupol.myopia.base.util;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ValidationException;
@@ -12,6 +13,7 @@ import javax.validation.ValidationException;
  * @Author HaoHao
  * @Date 2020/12/29
  **/
+@UtilityClass
 public class PasswordGenerator {
 
     /** 筛查人员密码截取长度 */
