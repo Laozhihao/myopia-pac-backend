@@ -98,7 +98,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningPlanDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
+    public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
         screeningPlanDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningPlanDTO)) {
