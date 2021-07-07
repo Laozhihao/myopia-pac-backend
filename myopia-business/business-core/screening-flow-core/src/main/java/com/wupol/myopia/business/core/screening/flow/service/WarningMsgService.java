@@ -37,7 +37,14 @@ import static com.wupol.myopia.business.core.screening.flow.domain.model.Warning
 @Service
 @Slf4j
 public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg> {
-
+    /**
+     * 最大次数
+     */
+    private static final int MAX_TIMES = 5;
+    /**
+     * 最小次数
+     */
+    private static final int MIN_TIMES = 1;
     @Autowired
     private WarningMsgMapper warningMsgMapper;
     @Autowired
@@ -50,18 +57,6 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      */
     public List<WarningMsg> needNoticeMsg() {
         return warningMsgMapper.selectNeedToNotice(null,DateUtil.getDayOfYear(new Date(),0), STATUS_READY_TO_SEND);
-    }
-
-    /**
-     * 增加一条数据
-     *
-     * @param warningMsgs
-     */
-    public void addNewOne(List<WarningMsg> warningMsgs) {
-        for (WarningMsg warningMsgNextTime : warningMsgs) {
-            warningMsgNextTime.setUpdateTime(new Date()).setCreateTime(new Date());
-        }
-        saveBatch(warningMsgs);
     }
 
     /**
@@ -142,12 +137,13 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
     }
 
     /**
-     *  需要重复推送的短信(目前的周期是30天)
+     *   查找可能需要重复推送的短信
      * @return
      */
     public List<WarningMsg> needRepeatNoticeMsg(int offsetDays) {
         String dayOfYear = DateUtil.getDayOfYear(new Date(),offsetDays);
         LambdaQueryWrapper<WarningMsg> warningMsgLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        warningMsgLambdaQueryWrapper.ge(WarningMsg::getSendTimes,MIN_TIMES).lt(WarningMsg::getSendTimes,MAX_TIMES);
         warningMsgLambdaQueryWrapper.eq(WarningMsg::getSendDayOfYear,dayOfYear);
         return list(warningMsgLambdaQueryWrapper);
     }

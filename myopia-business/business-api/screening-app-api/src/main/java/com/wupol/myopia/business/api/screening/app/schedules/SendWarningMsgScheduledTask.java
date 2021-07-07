@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.api.screening.app.schedules;
 
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningVisionMsgService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 
 /**
@@ -16,6 +19,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class SendWarningMsgScheduledTask {
+    /**
+     * 重新检查视力异常短信的时间间隔的天数
+     */
+    private static final int BEFORE_30_DAYS = -30;
 
     @Autowired
     private ScreeningVisionMsgService screeningVisionMsgService;
@@ -25,7 +32,10 @@ public class SendWarningMsgScheduledTask {
      */
     @Scheduled(cron = "0 0 10 * * *", zone = "GMT+8:00")
     public void sendWarningMsg() {
-        screeningVisionMsgService.sendWarningMsg();
+        //昨天10点 到 今天10点
+        Date yesterdayDateTime = DateUtil.getSpecialDateTime(10,0,-1);
+        Date todayDateTime = DateUtil.getTodayTime(10, 0);
+        screeningVisionMsgService.sendWarningMsg(yesterdayDateTime, todayDateTime);
     }
 
     /**
@@ -33,6 +43,6 @@ public class SendWarningMsgScheduledTask {
      */
     @Scheduled(cron = "0 30 10 * * *", zone = "GMT+8:00")
     public void repeatNoticeWarningMsg() {
-        screeningVisionMsgService.repeatNoticeWarningMsg();
+        screeningVisionMsgService.repeatNoticeWarningMsg(BEFORE_30_DAYS);
     }
 }
