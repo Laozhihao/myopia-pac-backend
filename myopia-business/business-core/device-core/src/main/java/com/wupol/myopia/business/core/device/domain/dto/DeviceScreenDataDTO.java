@@ -99,6 +99,9 @@ public class DeviceScreenDataDTO implements Serializable {
         deviceScreeningData.setPatientAge(patientAge);
         deviceScreeningData.setPatientCid(patientCID);
         deviceScreeningData.setPd(PD);
+        deviceScreeningData.setLeftPr(leftPR);
+        deviceScreeningData.setRightPr(rightPR);
+        deviceScreeningData.setPatientPno(patientPhoneNumber);
         deviceScreeningData.setPatientGender(GenderEnum.getType(patientGender));
         deviceScreeningData.setScreeningOrgId(device.getBindingScreeningOrgId());
         deviceScreeningData.setPatientAgeGroup(PatientAgeUtil.getPatientAgeRange(patientAge));
