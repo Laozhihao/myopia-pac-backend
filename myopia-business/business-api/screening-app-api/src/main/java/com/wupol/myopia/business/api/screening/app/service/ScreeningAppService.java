@@ -11,7 +11,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
-import com.wupol.myopia.business.api.screening.app.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
@@ -25,8 +24,11 @@ import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
+import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
+import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -106,6 +108,8 @@ public class ScreeningAppService {
     private RedisUtil redisUtil;
     @Autowired
     private DeviceSourceDataService deviceSourceDataService;
+    @Autowired
+    private DeviceScreeningDataService deviceScreeningDataService;
 
     /**
      * 获取学生复测数据
@@ -487,5 +491,26 @@ public class ScreeningAppService {
      */
     private List<DeviceSourceData> getDeviceSourceDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
       return deviceScreenDataDTOList.stream().map(deviceScreenDataDTO -> DeviceSourceData.getNewInstance(device, JSON.toJSONString(deviceScreenDataDTO), deviceScreenDataDTO.getPatientId())).collect(Collectors.toList());
+    }
+
+    /**
+     * 保存设备筛查数据
+     * @param device
+     * @param deviceScreenDataDTOList
+     */
+    public void saveDeviceScreeningDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+        List<DeviceScreeningData> deviceScreeningDataList = getDeviceScreeningDataList(device, deviceScreenDataDTOList);
+        //保存到src表中
+        deviceScreeningDataService.saveBatch(deviceScreeningDataList);
+    }
+
+    /**
+     * 获取设备筛查数据list
+     * @param device
+     * @param deviceScreenDataDTOList
+     * @return
+     */
+    private List<DeviceScreeningData> getDeviceScreeningDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+       return  deviceScreenDataDTOList.stream().map(deviceScreenDataDTO->deviceScreenDataDTO.newDeviceScreeningDataInstance(device)).collect(Collectors.toList());
     }
 }

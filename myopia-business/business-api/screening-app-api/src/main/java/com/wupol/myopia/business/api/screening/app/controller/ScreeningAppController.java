@@ -21,6 +21,7 @@ import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizServi
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -491,9 +492,9 @@ public class ScreeningAppController {
         }
         // 保存Source数据
         screeningAppService.saveDeviceSourceDataList(device, deviceScreenDataDTOList);
+        // 保存设备数据
+        screeningAppService.saveDeviceScreeningDataList(device,deviceScreenDataDTOList);
         return;
     }
-
-
 
 }

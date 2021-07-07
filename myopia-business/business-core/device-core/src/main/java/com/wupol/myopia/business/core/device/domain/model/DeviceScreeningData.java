@@ -66,7 +66,7 @@ public class DeviceScreeningData implements Serializable {
     private Integer patientGender;
 
     /**
-     * 受检者年龄/月龄
+     * 受检者月龄
      */
     private Integer patientAge;
 
@@ -212,6 +212,5 @@ public class DeviceScreeningData implements Serializable {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 
 }
