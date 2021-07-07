@@ -29,6 +29,7 @@ import org.springframework.security.web.server.authorization.ServerAccessDeniedH
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author HaoHao
@@ -69,7 +70,7 @@ public class ResourceServerConfig {
             response.getHeaders().set("Access-Control-Allow-Origin", "*");
             response.getHeaders().set("Cache-Control", "no-cache");
             String body = JSONUtil.toJsonStr(ApiResult.failure(ResultCode.USER_ACCESS_UNAUTHORIZED.getCode(), ResultCode.USER_ACCESS_UNAUTHORIZED.getMessage()));
-            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
+            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(buffer)).doOnError(error -> DataBufferUtils.release(buffer));
         });
     }
@@ -86,7 +87,7 @@ public class ResourceServerConfig {
             response.getHeaders().set("Cache-Control", "no-cache");
             String body = JSONUtil.toJsonStr(ApiResult.failure(ResultCode.TOKEN_INVALID_OR_EXPIRED.getCode(),
                     ResultCode.TOKEN_INVALID_OR_EXPIRED.getMessage()));
-            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
+            DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(buffer)).doOnError(error -> DataBufferUtils.release(buffer));
         });
     }

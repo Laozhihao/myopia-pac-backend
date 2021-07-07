@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +28,8 @@ public class DistrictPermissionController {
     @Autowired
     private PermissionService permissionService;
 
+    private static final String TEMPLATE_TYPE_NOT_EMPTY = "模板类型不能为空";
+
     /**
      * 根据模板类型获取模板权限-树结构
      *
@@ -37,7 +38,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/{templateType}")
     public List<Permission> getPermissionTemplate(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         return districtPermissionService.selectTemplatePermissionTree(templateType);
     }
 
@@ -49,7 +50,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/list/{templateType}")
     public List<Integer> getPermissionTemplateList(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         if (PermissionTemplateType.ALL.getType().equals(templateType)) {
             return permissionService.findByList(new Permission()).stream().map(Permission::getId).collect(Collectors.toList());
         }
@@ -64,8 +65,8 @@ public class DistrictPermissionController {
      * @return boolean
      **/
     @PutMapping("/{templateType}")
-    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody List<Integer> permissionIds) throws IOException {
-        Assert.notNull(templateType, "模板类型不能为空");
+    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody List<Integer> permissionIds) {
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         Assert.notNull(permissionIds, "模板权限不能为空");
         return districtPermissionService.updatePermissionTemplate(templateType, permissionIds);
     }

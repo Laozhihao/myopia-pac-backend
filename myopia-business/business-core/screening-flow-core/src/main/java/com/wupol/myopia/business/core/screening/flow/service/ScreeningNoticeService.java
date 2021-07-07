@@ -198,9 +198,9 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         return screeningNotices.stream().filter(screeningNotice ->
                 year.equals(DateUtil.getYear(screeningNotice.getStartTime())) || year.equals(DateUtil.getYear(screeningNotice.getEndTime()))
         ).map(screeningNotice -> {
-            ScreeningNoticeNameDTO ScreeningNoticeNameDTO = new ScreeningNoticeNameDTO();
-            ScreeningNoticeNameDTO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
-            return ScreeningNoticeNameDTO;
+            ScreeningNoticeNameDTO screeningNoticeNameDTO = new ScreeningNoticeNameDTO();
+            screeningNoticeNameDTO.setNoticeTitle(screeningNotice.getTitle()).setNoticeId(screeningNotice.getId()).setScreeningStartTime(screeningNotice.getStartTime()).setScreeningEndTime(screeningNotice.getEndTime());
+            return screeningNoticeNameDTO;
         }).collect(Collectors.toList());
     }
 
