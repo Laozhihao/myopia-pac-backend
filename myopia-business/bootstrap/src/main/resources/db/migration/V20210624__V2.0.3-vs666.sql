@@ -109,3 +109,6 @@ CREATE TABLE `m_device`
 );
 
 INSERT INTO m_device_report_template (name, device_type, template_type) VALUES ('VS666报告-标准模板', 1, 1);
+
+alter table m_hospital
+    add telephone varchar(32) null comment '固定电话' after level_desc;

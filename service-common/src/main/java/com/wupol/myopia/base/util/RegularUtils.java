@@ -13,11 +13,20 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class RegularUtils {
 
-    // 手机正则
+    /**
+     * 手机正则
+     */
     public final String REGULAR_MOBILE = "^(1[3-9]([0-9]{9}))$";
 
-    // 身份证正则
+    /**
+     * 身份证正则
+     */
     public final String REGULAR_ID_CARD = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}$)";
+
+    /**
+     * 固定电话正则
+     */
+    public final String REGULAR_TELEPHONE = "(0\\d{2,3}-[1-9]\\d{6,7})";
 
     /**
      * 校验手机号
