@@ -245,7 +245,7 @@ public class DeviceBizService {
         if (isLeftBetween(age, 0, 9)) {
             return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
         }
-        return true;
+        return false;
     }
 
     /**
