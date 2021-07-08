@@ -16,7 +16,9 @@ public class BizMsgConstant {
 
     public final String PLAN_ID_IS_EMPTY = "筛查计划ID为空";
 
-    public static final String VALIDATION_START_TIME_ERROR = "筛查开始时间不能早于今天";
+    public final String VALIDATION_START_TIME_ERROR = "筛查开始时间不能早于今天";
 
-    public static final String CAN_NOT_FIND_NOTICE = "找不到该notice";
+    public final String CAN_NOT_FIND_NOTICE = "找不到该notice";
+
+    public final String NO_ACCESS = "非平台管理员，没有访问权限";
 }

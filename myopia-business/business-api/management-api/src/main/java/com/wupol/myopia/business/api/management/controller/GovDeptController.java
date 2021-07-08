@@ -6,6 +6,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.UserService;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
@@ -49,8 +50,6 @@ public class GovDeptController {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
-    private static final String NO_ACCESS = "非平台管理员，没有访问权限";
-
     /**
      * 获取部门列表
      *
@@ -60,7 +59,7 @@ public class GovDeptController {
     @GetMapping("/list")
     public List<GovDept> getGovDeptList(GovDept queryParam) {
         Assert.notNull(queryParam.getDistrictId(), "行政区ID不能为空");
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), BizMsgConstant.NO_ACCESS);
         List<GovDept> govDeptList = govDeptService.findByListOrderByIdDesc(queryParam);
         // 填充创建人姓名、部门人数
         List<Integer> userIds = govDeptList.stream().map(GovDept::getCreateUserId).distinct().collect(Collectors.toList());
@@ -116,7 +115,7 @@ public class GovDeptController {
      **/
     @PutMapping()
     public GovDept updateGovDept(@RequestBody @Validated(value = GovDeptUpdateValidatorGroup.class) GovDept govDept) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), BizMsgConstant.NO_ACCESS);
         govDeptService.updateById(govDept);
         return govDept;
     }
@@ -175,7 +174,7 @@ public class GovDeptController {
      **/
     @PutMapping("/{govDeptId}/{status}")
     public boolean updateStatus(@PathVariable @NotNull(message = "部门ID不能为空") Integer govDeptId, @PathVariable @NotNull(message = "状态不能为空") Integer status) {
-        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), NO_ACCESS);
+        Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), BizMsgConstant.NO_ACCESS);
         return govDeptService.updateById(new GovDept().setId(govDeptId).setStatus(status));
     }
 
