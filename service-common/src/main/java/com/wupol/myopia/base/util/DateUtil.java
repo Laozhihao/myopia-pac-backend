@@ -23,8 +23,8 @@ import java.util.Map;
 @UtilityClass
 public class DateUtil extends cn.hutool.core.date.DateUtil {
 
-    public static final String UTC_8 = "UTC+8";
-    public static final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
+    public final String UTC_8 = "UTC+8";
+    public final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
 
     /**
      * 获取当前时间的年与上一个月,若当前是1月,则取得上年12月

@@ -13,11 +13,11 @@ public class CommUtil {
     /**
      * 15位身份证号
      */
-    private static final Integer FIFTEEN_ID_CARD = 15;
+    private final Integer FIFTEEN_ID_CARD = 15;
     /**
      * 18位身份证号
      */
-    private static final Integer EIGHTEEN_ID_CARD = 18;
+    private final Integer EIGHTEEN_ID_CARD = 18;
 
     /**
      * 是否为手机号

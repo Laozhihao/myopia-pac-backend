@@ -17,18 +17,18 @@ import javax.validation.ValidationException;
 public class PasswordGenerator {
 
     /** 筛查人员密码截取长度 */
-    private static final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
+    private final int SCREENING_ADMIN_PWD_SUB_LENGTH = 4;
     /** 密码后缀随机数长度 */
-    private static final int PASSWORD_SUFFIX_RANDOM_LENGTH = 11;
+    private final int PASSWORD_SUFFIX_RANDOM_LENGTH = 11;
 
     /** 管理端用户密码前缀 */
-    private static final String MANAGEMENT_USER_PWD_PREFIX = "g";
+    private final String MANAGEMENT_USER_PWD_PREFIX = "g";
     /** 学校端管理员用户密码前缀 */
-    private static final String SCHOOL_ADMIN_PWD_PREFIX = "x";
+    private final String SCHOOL_ADMIN_PWD_PREFIX = "x";
     /** 医院端管理员用户密码前缀 */
-    private static final String HOSPITAL_ADMIN_PWD_PREFIX = "y";
+    private final String HOSPITAL_ADMIN_PWD_PREFIX = "y";
     /** 筛查机构管理端的管理员用户密码前缀 */
-    private static final String SCREENING_ORG_ADMIN_PWD_PREFIX = "s";
+    private final String SCREENING_ORG_ADMIN_PWD_PREFIX = "s";
 
     /**
      * 管理端用户密码

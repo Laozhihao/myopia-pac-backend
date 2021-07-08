@@ -13,25 +13,25 @@ public class ExportExcelServiceNameConstant {
     /**
      * 筛查机构
      */
-    public static final String SCREENING_ORGANIZATION_EXCEL_SERVICE = "screeningOrganizationExcelService";
+    public final String SCREENING_ORGANIZATION_EXCEL_SERVICE = "screeningOrganizationExcelService";
 
     /**
      * 筛查人员
      */
-    public static final String SCREENING_ORGANIZATION_STAFF_EXCEL_SERVICE = "screeningOrganizationStaffExcelService";
+    public final String SCREENING_ORGANIZATION_STAFF_EXCEL_SERVICE = "screeningOrganizationStaffExcelService";
 
     /**
      * 医院
      */
-    public static final String HOSPITAL_EXCEL_SERVICE = "hospitalExcelService";
+    public final String HOSPITAL_EXCEL_SERVICE = "hospitalExcelService";
 
     /**
      * 学校
      */
-    public static final String SCHOOL_EXCEL_SERVICE = "schoolExcelService";
+    public final String SCHOOL_EXCEL_SERVICE = "schoolExcelService";
 
     /**
      * 学生
      */
-    public static final String STUDENT_EXCEL_SERVICE = "studentExcelService";
+    public final String STUDENT_EXCEL_SERVICE = "studentExcelService";
 }
