@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.device.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -107,56 +108,67 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 左眼柱镜
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal leftCyl;
 
     /**
      * 右眼柱镜
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal rightCyl;
 
     /**
      * 左眼轴位
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal leftAxsi;
 
     /**
      * 右眼轴位
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal rightAxsi;
 
     /**
      * 左眼瞳孔半径
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal leftPr;
 
     /**
      * 右眼瞳孔半径
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal rightPr;
 
     /**
      * 左眼等效球镜度
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal leftPa;
 
     /**
      * 右眼等效球镜度
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal rightPa;
 
     /**
      * 左眼球镜
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal leftSph;
 
     /**
      * 右眼球镜
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal rightSph;
 
     /**
      * 瞳距
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal pd;
 
     /**
