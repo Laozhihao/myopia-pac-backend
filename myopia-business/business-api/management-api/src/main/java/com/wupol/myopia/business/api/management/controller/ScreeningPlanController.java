@@ -14,10 +14,10 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
-import com.wupol.myopia.business.api.management.constant.ErrorMsg;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -123,7 +123,7 @@ public class ScreeningPlanController {
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
-            throw new ValidationException(ErrorMsg.VALIDATION_START_TIME_ERROR);
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
@@ -166,7 +166,7 @@ public class ScreeningPlanController {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
-            throw new ValidationException(ErrorMsg.VALIDATION_START_TIME_ERROR);
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
@@ -327,7 +327,7 @@ public class ScreeningPlanController {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
-            throw new ValidationException(ErrorMsg.VALIDATION_START_TIME_ERROR);
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 没有学校，直接报错
         List<ScreeningPlanSchool> schoolListsByPlanId = screeningPlanSchoolService.getSchoolListsByPlanId(id);
