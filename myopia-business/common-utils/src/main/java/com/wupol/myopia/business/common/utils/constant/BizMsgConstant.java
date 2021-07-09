@@ -20,5 +20,7 @@ public class BizMsgConstant {
 
     public final String CAN_NOT_FIND_NOTICE = "找不到该notice";
 
-    public final String NO_ACCESS = "非平台管理员，没有访问权限";
+    public final String NOT_ADMIN_NO_ACCESS = "非平台管理员，没有访问权限";
+
+    public final String NO_ACCESS = "没有访问权限";
 }

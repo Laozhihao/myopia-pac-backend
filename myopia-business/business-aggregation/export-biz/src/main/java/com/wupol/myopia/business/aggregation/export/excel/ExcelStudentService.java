@@ -52,8 +52,14 @@ public class ExcelStudentService {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    /**
+     * 年级-班级 格式化
+     */
     private static final String GRADE_CLASS_NAME_FORMAT = "%s-%s";
 
+    /**
+     * 省-市-区-镇 格式化
+     */
     private static final String DISTRICT_NAME_FORMAT = "%s-%s-%s-%s";
 
     /**
