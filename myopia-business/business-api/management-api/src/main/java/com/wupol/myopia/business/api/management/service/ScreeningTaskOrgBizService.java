@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
@@ -12,7 +11,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDept
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -34,10 +32,6 @@ public class ScreeningTaskOrgBizService {
 
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-    @Autowired
-    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
-    @Autowired
-    private NoticeService noticeService;
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
