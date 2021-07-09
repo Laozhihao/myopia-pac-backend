@@ -1,4 +1,3 @@
-
 -- 家长端功能相关
 INSERT INTO o_permission (`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES 
 (298, '筛查机构管理-医院配置', 'multiPortOrganizationHospitalConfig', null, 1, 1, 1, 2, 1),
@@ -31,3 +30,8 @@ INSERT INTO `o_permission` (`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`,
 (316, '获取计划地区信息', 'getPlanDistrict', 'get:/management/screening-statistic/plan-district', '0', '0', '1', '30', '1'),
 (317, '计划下学校视力情况', 'planScreeningVisionResult', 'get:/management/screening-statistic/plan/school/screening-vision-result', '0', '0', '1', '30', '1'),
 (318, '计划下学校监控统计情况', 'planScreeningMonitorResult', 'get:/management/screening-statistic/plan/school/screening-monitor-result', '0', '0', '1', '30', '1');
+
+-- 医院配置-给筛查机构绑定医院的弹窗中
+INSERT INTO `o_permission` (`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`) VALUES 
+(319, '新增医院', 'addHospital', 'post:/management/hospital', '0', '0', '6', '299', '1'),
+(320, '新增医院', 'addHospitalInBindingDialog', 'post:/management/hospital', '0', '0', '6', '298', '1');
