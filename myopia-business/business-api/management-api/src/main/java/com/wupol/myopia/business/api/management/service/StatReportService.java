@@ -33,6 +33,8 @@ import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -812,13 +814,31 @@ public class StatReportService {
      * @return
      */
     private List<MyopiaDTO> getSchoolAgeMyopia(StatBusinessSchoolAgeDTO businessSchoolAge) {
-        return businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
+        AtomicInteger allHighStatNum = new AtomicInteger();
+        AtomicLong allHighSchoolNum = new AtomicLong();
+        AtomicLong allHighMyopiaNum = new AtomicLong();
+        List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
                     long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
-                    return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L),
-                            x, myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
+                    int statNum = stat.size();
+                    Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
+                    Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
+                    if (x.equals(SchoolAge.HIGH.name()) || x.equals(SchoolAge.VOCATIONAL_HIGH.name())) {
+                        allHighStatNum.addAndGet(statNum);
+                        allHighSchoolNum.addAndGet(schoolNum);
+                        allHighMyopiaNum.addAndGet(myopiaNum);
+                    }
+                    return MyopiaDTO.getInstance(statNum, schoolNum, x, myopiaNum, ratio);
                 }).collect(Collectors.toList());
+        MyopiaDTO allHighMyopia =  new MyopiaDTO();
+        allHighMyopia.setStatNum(allHighStatNum.get());
+        allHighMyopia.setSchoolNum(allHighSchoolNum.get());
+        allHighMyopia.setKey("ALL_HIGH");
+        allHighMyopia.setNum(allHighMyopiaNum);
+        allHighMyopia.setRatio(convertToPercentage(allHighMyopiaNum.get() * 1f / allHighStatNum.get()));
+        schoolAgeList.add(allHighMyopia);
+        return schoolAgeList;
     }
 
     /**
