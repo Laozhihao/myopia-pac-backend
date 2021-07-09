@@ -270,7 +270,7 @@ public class ScreeningAppService {
      * 保存学生眼镜信息
      *
      * @param screeningResultBasicData
-     * @return
+     * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
@@ -284,6 +284,11 @@ public class ScreeningAppService {
         StatConclusion statConclusion = statConclusionBizService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
+        //返回最近一次的statConclusion
+        TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
+        visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
+        visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
+        return visionScreeningResultStatConclusionTwoTuple;
     }
 
     /**
