@@ -81,9 +81,10 @@ public class DeviceSourceData implements Serializable {
      * @param device
      * @param srcData
      * @param patientId
+     * @param screeningTime
      * @return
      */
-    public static DeviceSourceData getNewInstance(Device device, String srcData, String patientId) {
+    public static DeviceSourceData getNewInstance(Device device, String srcData, String patientId, Date screeningTime) {
         DeviceSourceData deviceSourceData = new DeviceSourceData();
         deviceSourceData.deviceType = 1;
         deviceSourceData.deviceCode = device.getDeviceCode();
@@ -93,7 +94,7 @@ public class DeviceSourceData implements Serializable {
         deviceSourceData.screeningOrgId = device.getBindingScreeningOrgId();
         deviceSourceData.srcData = srcData;
         deviceSourceData.createTime = new Date();
-        deviceSourceData.screeningTime = new Date();
+        deviceSourceData.screeningTime = screeningTime;
         return deviceSourceData;
     }
 }

@@ -20,6 +20,6 @@ public class DeviceService extends BaseService<DeviceMapper, Device> {
     public Device getDeviceByDeviceSn(String deviceSn) {
         //todo 等合 治豪 的状态
         Device device = new Device().setDeviceSn(deviceSn).setStatus(1);
-        return super.findOne(device);
+        return findOne(device);
     }
 }

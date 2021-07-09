@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.framework.core.util.CollectionUtils;
@@ -24,12 +23,6 @@ import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
-import com.wupol.myopia.business.core.device.domain.model.Device;
-import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
-import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
-import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
-import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -59,7 +52,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -73,8 +65,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ScreeningAppService {
-
-    private static final String DEVICE_PATIENTID_PREFIX = "VS@";
 
     @Autowired
     private SchoolService schoolService;
@@ -106,10 +96,6 @@ public class ScreeningAppService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private DeviceSourceDataService deviceSourceDataService;
-    @Autowired
-    private DeviceScreeningDataService deviceScreeningDataService;
 
     /**
      * 获取学生复测数据
@@ -287,7 +273,7 @@ public class ScreeningAppService {
      * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
-    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
@@ -458,59 +444,5 @@ public class ScreeningAppService {
         String resourcePath = resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
         appUserInfo.setAutImage(resourcePath);
         return appUserInfo;
-    }
-
-    /**
-     * 检查patientId是否来自设备近视防控系统
-     * @param patientId
-     */
-    public boolean checkIsDevicePatientId(String patientId) {
-        if (StringUtils.isBlank(patientId)) {
-            return false;
-        }
-       return patientId.startsWith(DEVICE_PATIENTID_PREFIX);
-    }
-
-    /**
-     * 保存设备上传的原始数据(目前只有vs666)
-     * @param device
-     * @param deviceScreenDataDTOList
-     */
-    public void saveDeviceSourceDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        // screeningAppService.checkIsDevicePatientId(deviceScreenDataDTO.getPatientId());
-        List<DeviceSourceData> deviceSourceDataList = this.getDeviceSourceDataList(device, deviceScreenDataDTOList);
-        //保存到src表中
-        deviceSourceDataService.saveBatch(deviceSourceDataList);
-    }
-
-    /**
-     * 获取DeviceSourceData 的 List
-     * @param device
-     * @param deviceScreenDataDTOList
-     * @return
-     */
-    private List<DeviceSourceData> getDeviceSourceDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-      return deviceScreenDataDTOList.stream().map(deviceScreenDataDTO -> DeviceSourceData.getNewInstance(device, JSON.toJSONString(deviceScreenDataDTO), deviceScreenDataDTO.getPatientId())).collect(Collectors.toList());
-    }
-
-    /**
-     * 保存设备筛查数据
-     * @param device
-     * @param deviceScreenDataDTOList
-     */
-    public void saveDeviceScreeningDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        List<DeviceScreeningData> deviceScreeningDataList = getDeviceScreeningDataList(device, deviceScreenDataDTOList);
-        //保存到src表中
-        deviceScreeningDataService.saveBatch(deviceScreeningDataList);
-    }
-
-    /**
-     * 获取设备筛查数据list
-     * @param device
-     * @param deviceScreenDataDTOList
-     * @return
-     */
-    private List<DeviceScreeningData> getDeviceScreeningDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-       return  deviceScreenDataDTOList.stream().map(deviceScreenDataDTO->deviceScreenDataDTO.newDeviceScreeningDataInstance(device)).collect(Collectors.toList());
     }
 }

@@ -284,4 +284,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 根据计划学生查找数据
+     * @param planStudentIdSet
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByIds(Set<String> planStudentIdSet) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getId,planStudentIdSet);
+        return baseMapper.selectList(queryWrapper);
+    }
 }
