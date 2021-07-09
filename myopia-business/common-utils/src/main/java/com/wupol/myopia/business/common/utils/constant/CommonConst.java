@@ -131,7 +131,7 @@ public class CommonConst {
     public String SEND_SMS_TO_PARENT_MESSAGE = "【近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
 
     /**
-     * 合作医院
+     * 合作医院 0-非合作医院 1-合作医院
      */
     public Integer IS_COOPERATION = 1;
 }
