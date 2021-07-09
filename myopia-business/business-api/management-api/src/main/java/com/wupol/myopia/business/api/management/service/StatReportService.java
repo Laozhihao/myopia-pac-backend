@@ -711,7 +711,8 @@ public class StatReportService {
                     .setValidFirstScreeningNum(schoolValidMap.getOrDefault(school.getId(), Collections.emptyList()).size());
             return persionnel;
         })
-                .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
+                .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed()
+                        .thenComparing(StatSchoolPersonnelDTO::getPlanScreeningNum,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
         // 添加合计
         StatSchoolPersonnelDTO total = new StatSchoolPersonnelDTO();
