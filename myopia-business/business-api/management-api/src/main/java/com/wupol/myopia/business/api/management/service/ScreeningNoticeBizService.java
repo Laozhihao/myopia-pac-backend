@@ -90,16 +90,6 @@ public class ScreeningNoticeBizService {
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
         //2. 为下属部门创建通知
         screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-        // 3. 为消息中心创建通知
-        List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(govOrgIds)) {
-            return;
-        }
-        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
-        List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(toUserIds)) {
-            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
-        }
     }
 
     /**
