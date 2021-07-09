@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
@@ -17,12 +18,14 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -43,6 +46,8 @@ public class ScreeningNoticeBizService {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private NoticeService noticeService;
 
     /**
      * 分页查询
@@ -85,6 +90,16 @@ public class ScreeningNoticeBizService {
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
         //2. 为下属部门创建通知
         screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+        // 3. 为消息中心创建通知
+        List<Integer> govOrgIds = govDepts.stream().map(GovDept::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(govOrgIds)) {
+            return;
+        }
+        List<User> userBatchByOrgIds = oauthServiceClient.getUserBatchByOrgIds(govOrgIds, SystemCode.MANAGEMENT_CLIENT.getCode());
+        List<Integer> toUserIds = userBatchByOrgIds.stream().map(User::getId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(toUserIds)) {
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_NOTICE, notice.getTitle(), notice.getTitle(), notice.getStartTime(), notice.getEndTime());
+        }
     }
 
     /**

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
@@ -11,6 +12,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDept
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -32,6 +34,10 @@ public class ScreeningTaskOrgBizService {
 
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
+    @Autowired
+    private NoticeService noticeService;
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
@@ -97,7 +103,16 @@ public class ScreeningTaskOrgBizService {
     private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
         List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        return screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+        boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
+
+        // 查找org的userId
+        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList()));
+        if (!org.springframework.util.CollectionUtils.isEmpty(adminLists)) {
+            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+            // 为消息中心创建通知
+            noticeService.batchCreateScreeningNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+        }
+        return result;
     }
 
     /**

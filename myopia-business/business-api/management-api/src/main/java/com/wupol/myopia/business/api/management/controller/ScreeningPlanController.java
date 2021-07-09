@@ -21,6 +21,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.*;
+import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -31,6 +32,7 @@ import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -48,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 筛查计划相关接口
@@ -86,6 +89,10 @@ public class ScreeningPlanController {
     private ExcelFacade excelFacade;
     @Autowired
     private S3Utils s3Utils;
+    @Autowired
+    private NoticeService noticeService;
+    @Autowired
+    private SchoolAdminService schoolAdminService;
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
@@ -322,6 +329,14 @@ public class ScreeningPlanController {
             throw new ValidationException("无筛查的学校");
         }
         validateSchoolLegal(screeningPlan, schoolListsByPlanId);
+        // 查询学校的userId
+        List<SchoolAdmin> schoolAdmins = schoolAdminService.getBySchoolIds(schoolListsByPlanId.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
+
+        if (!CollectionUtils.isEmpty(schoolAdmins)) {
+            // 为消息中心创建通知
+            List<Integer> toUserIds = schoolAdmins.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+            noticeService.batchCreateScreeningNotice(user.getId(), id, toUserIds, CommonConst.NOTICE_SCREENING_PLAN, screeningPlan.getTitle(), screeningPlan.getTitle(), screeningPlan.getStartTime(), screeningPlan.getEndTime());
+        }
         screeningPlanService.release(id, CurrentUserUtil.getCurrentUser());
     }
 
