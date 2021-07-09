@@ -57,7 +57,10 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        hospital.setIsCooperation(CommonConst.IS_COOPERATION);
+        // 非平台管理员默认为合作医院
+        if (!user.isPlatformAdminUser()) {
+            hospital.setIsCooperation(CommonConst.IS_COOPERATION);
+        }
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
