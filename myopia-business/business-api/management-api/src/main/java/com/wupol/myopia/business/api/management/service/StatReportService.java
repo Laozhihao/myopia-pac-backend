@@ -24,10 +24,10 @@ import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.Collator;
@@ -750,7 +750,7 @@ public class StatReportService {
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
         Long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
-        Long lowVisionNum = validConclusions.stream().filter(x -> x.getIsLowVision() ).count();
+        Long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
         int countNum = validConclusions.size();
         myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
@@ -815,7 +815,7 @@ public class StatReportService {
         return businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
-                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
                     return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L),
                             x, myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());
@@ -829,14 +829,18 @@ public class StatReportService {
      */
     private List<MyopiaDTO> getSchoolMyopia(List<School> schools, Map<Integer, List<StatConclusion>> schoolValidMap) {
         List<MyopiaDTO> schoolMyopia = schools.stream()
-                .filter(school -> CollectionUtils.isNotEmpty(schoolValidMap.get(school.getId())))
                 .map(x -> {
                     List<StatConclusion> stat = schoolValidMap.get(x.getId());
-                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    if (CollectionUtils.isEmpty(stat)) {
+                        return MyopiaDTO.getInstance(0, x.getName(),
+                                0, 0.00f);
+                    }
+                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
                     return MyopiaDTO.getInstance(stat.size(), x.getName(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 })
-                .sorted(Comparator.comparing(MyopiaDTO::getRatio).reversed())
+                .sorted(Comparator.comparing(MyopiaDTO::getRatio).reversed()
+                        .thenComparing(MyopiaDTO::getStatNum,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
         // 设置排名
         for (int i = 0; i < schoolMyopia.size(); i++) {
