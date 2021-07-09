@@ -800,8 +800,8 @@ public class StatReportService {
      * @return
      */
     private List<MyopiaDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
-        Long maleMyopiaNum = statGenderDTO.getMale().stream().filter(x -> x.getIsMyopia()).count();
-        Long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(x -> x.getIsMyopia()).count();
+        long maleMyopiaNum = statGenderDTO.getMale().stream().filter(StatConclusion::getIsMyopia).count();
+        long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
         return Arrays.asList(
                 MyopiaDTO.getInstance(statGenderDTO.getMale().size(), GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
                 MyopiaDTO.getInstance(statGenderDTO.getFemale().size(), GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
