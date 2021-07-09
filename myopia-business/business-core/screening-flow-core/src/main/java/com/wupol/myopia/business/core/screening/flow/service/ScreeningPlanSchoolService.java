@@ -166,4 +166,19 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
         return baseMapper.getScreeningSchoolsByOrgId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
+
+    /**
+     * 获取除当前学校外的学校
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Ids
+     * @return 学校Ids
+     */
+    public List<Integer> getByPlanIdNotInSchoolIds(Integer planId, List<Integer> schoolIds) {
+        List<Integer> otherSchoolIds = baseMapper.getByPlanIdNotInSchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(otherSchoolIds)) {
+            return new ArrayList<>();
+        }
+        return otherSchoolIds;
+    }
 }

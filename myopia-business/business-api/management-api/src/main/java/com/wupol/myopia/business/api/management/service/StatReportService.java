@@ -20,10 +20,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
@@ -62,6 +59,9 @@ public class StatReportService {
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     private final static String TABLE_LABEL_TOTAL = "total";
     private final static String TABLE_LABEL_ROW_TOTAL = "rowTotal";
@@ -643,7 +643,7 @@ public class StatReportService {
         Map<Integer, Long> planSchoolAgeStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType, Collectors.counting()));
 
         // 预计需要筛查的学生数
-        long planStudentNum = screenPlanSchoolStudent.stream().count();
+        long planStudentNum = screenPlanSchoolStudent.size();
         // 通过筛查数据进行统计
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setPlanId(planId);
@@ -651,8 +651,12 @@ public class StatReportService {
         if (statConclusions == null || statConclusions.size() == 0) {
             return null;
         }
-        List<Integer> schoolIds =
-                statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        List<Integer> schoolIds = statConclusions.stream()
+                .map(StatConclusion::getSchoolId)
+                .distinct()
+                .collect(Collectors.toList());
+        // 将空学校也添加
+        schoolIds.addAll(screeningPlanSchoolService.getByPlanIdNotInSchoolIds(planId, schoolIds));
         List<School> schools = schoolService.getByIds(schoolIds);
         // 按拼音获取前三个学校名
         List<String> schoolExamples = schools.stream().map(School::getName).sorted(Collator.getInstance(java.util.Locale.CHINA)).limit(3).collect(Collectors.toList());
@@ -668,7 +672,7 @@ public class StatReportService {
         // 组装各学龄段信息
         StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
 
-        StatWholeResultDTO whole = StatWholeResultDTO.builder()
+        return StatWholeResultDTO.builder()
                 .plan(sp)
                 .schoolCount(schools.size())
                 .planStudentNum(planStudentNum)
@@ -687,7 +691,6 @@ public class StatReportService {
                 .schoolMyopia(getSchoolMyopia(schools, schoolValidMap))
                 .gradeMyopia(getGradeMyopia(statBase.getValid()))
                 .build();
-        return whole;
     }
 
     /**
