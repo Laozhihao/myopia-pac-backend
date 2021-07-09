@@ -126,4 +126,10 @@ public class ScreeningOrganization extends AddressCode implements Serializable, 
     @TableField(exist = false)
     private Long screeningTime;
 
+    /**
+     * 行政区域详细名称
+     */
+    @TableField(exist = false)
+    private String districtDetailName;
+
 }

@@ -39,6 +39,11 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
+            <artifactId>hospital-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
             <artifactId>device-core</artifactId>
             <version>${project.version}</version>
         </dependency>

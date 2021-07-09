@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.device.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -120,7 +119,7 @@ public class DeviceScreeningData implements Serializable {
     private Double leftAxsi;
 
     /**
-     * 右眼柱位
+     * 右眼轴位
      */
     private Double rightAxsi;
 
@@ -162,7 +161,7 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 是否筛查(-1=未知,1=是,0=否)
      */
-    private Boolean doCheck;
+    private Integer doCheck;
 
     /**
      * 左垂直⽅向斜视度数
@@ -197,19 +196,16 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 筛查时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date screeningTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     /**
      * 创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
 }
