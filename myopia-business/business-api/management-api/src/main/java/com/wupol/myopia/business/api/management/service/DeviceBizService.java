@@ -154,7 +154,7 @@ public class DeviceBizService {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
-        // 年龄转换成年龄
+        // 月龄转换成年龄
         double age = patientAge / 12d;
 
         if (isLeftBetween(age, 0, 4)) {
@@ -240,7 +240,7 @@ public class DeviceBizService {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
-        // 年龄转换成年龄
+        // 月龄转换成年龄
         double age = patientAge / 12d;
         if (isLeftBetween(age, 0, 9)) {
             return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
