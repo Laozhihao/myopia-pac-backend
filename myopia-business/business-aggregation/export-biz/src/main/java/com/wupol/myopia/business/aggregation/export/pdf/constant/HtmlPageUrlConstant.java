@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.pdf.constant;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @Author HaoHao
  * @Date 2021/3/24
  **/
+@UtilityClass
 public class HtmlPageUrlConstant {
     /**
      * 行政区域报告HTML页面地址

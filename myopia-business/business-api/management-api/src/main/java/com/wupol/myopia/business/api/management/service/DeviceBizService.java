@@ -87,7 +87,7 @@ public class DeviceBizService {
     /**
      * 获取医生建议
      *
-     * @param patientAge 患者年龄
+     * @param patientAge 患者月龄
      * @param leftPa     左眼等效球镜
      * @param rightPa    右眼等效球镜
      * @param leftCyl    左眼柱镜
@@ -134,7 +134,7 @@ public class DeviceBizService {
     /**
      * 判断是否远视
      *
-     * @param patientAge 患者年龄
+     * @param patientAge 患者月龄
      * @param leftPa     左眼等效球镜
      * @param rightPa    右眼等效球镜
      * @return 是否远视
@@ -146,7 +146,7 @@ public class DeviceBizService {
     /**
      * 单眼是否远视
      *
-     * @param patientAge 患者年龄
+     * @param patientAge 患者月龄
      * @param pa         等效球镜
      * @return 是否远视
      */
@@ -154,29 +154,43 @@ public class DeviceBizService {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
-        switch (patientAge) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-                return pa.compareTo(new BigDecimal("3.5")) > 0;
-            case 4:
-            case 5:
-                return pa.compareTo(new BigDecimal("2.5")) > 0;
-            case 6:
-            case 7:
-                return pa.compareTo(new BigDecimal("2.0")) > 0;
-            case 8:
-                return pa.compareTo(new BigDecimal("1.5")) > 0;
-            case 9:
-                return pa.compareTo(new BigDecimal("1.25")) > 0;
-            case 10:
-                return pa.compareTo(new BigDecimal("1.0")) > 0;
-            case 11:
-                return pa.compareTo(new BigDecimal("0.75")) > 0;
-            default:
-                return pa.compareTo(new BigDecimal("0.50")) > 0;
+        // 月龄转换成年龄
+        double age = patientAge / 12d;
+
+        if (isLeftBetween(age, 0, 4)) {
+            return pa.compareTo(new BigDecimal("3.5")) > 0;
         }
+        if (isLeftBetween(age, 4, 6)) {
+            return pa.compareTo(new BigDecimal("2.5")) > 0;
+        }
+        if (isLeftBetween(age, 6, 8)) {
+            return pa.compareTo(new BigDecimal("2.0")) > 0;
+        }
+        if (isLeftBetween(age, 8, 9)) {
+            return pa.compareTo(new BigDecimal("1.5")) > 0;
+        }
+        if (isLeftBetween(age, 9, 10)) {
+            return pa.compareTo(new BigDecimal("1.25")) > 0;
+        }
+        if (isLeftBetween(age, 10, 11)) {
+            return pa.compareTo(new BigDecimal("1.0")) > 0;
+        }
+        if (isLeftBetween(age, 11, 12)) {
+            return pa.compareTo(new BigDecimal("0.75")) > 0;
+        }
+        return pa.compareTo(new BigDecimal("0.50")) > 0;
+    }
+
+    /**
+     * 是否在两个值的中间（左闭由开）
+     *
+     * @param target 目标
+     * @param var1   值1
+     * @param var2   值2
+     * @return boolean
+     */
+    private boolean isLeftBetween(double target, double var1, double var2) {
+        return target >= var1 && target < var2;
     }
 
     /**
@@ -206,7 +220,7 @@ public class DeviceBizService {
     /**
      * 判断是否远视储备不足
      *
-     * @param patientAge 患者年龄
+     * @param patientAge 患者月龄
      * @param leftPa     左眼等效球镜
      * @param rightPa    右眼等效球镜
      * @return 是否远视储备不足
@@ -218,7 +232,7 @@ public class DeviceBizService {
     /**
      * 单眼是否远视储备不足
      *
-     * @param patientAge 患者年龄
+     * @param patientAge 患者月龄
      * @param pa         等效球镜
      * @return 是否远视储备不足
      */
@@ -226,16 +240,18 @@ public class DeviceBizService {
         if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
             return true;
         }
-        if (patientAge >= 0 && patientAge <= 8) {
+        // 月龄转换成年龄
+        double age = patientAge / 12d;
+        if (isLeftBetween(age, 0, 9)) {
             return pa.compareTo(new BigDecimal("0")) >= 0 && pa.compareTo(new BigDecimal("1")) <= 0;
         }
-        return true;
+        return false;
     }
 
     /**
      * 获取设备列表（分页）
      *
-     * @param deviceDTO 查询条件
+     * @param deviceDTO   查询条件
      * @param pageRequest 分页参数
      * @return {@link com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.wupol.myopia.business.api.management.domain.vo.DeviceVO> }
      **/

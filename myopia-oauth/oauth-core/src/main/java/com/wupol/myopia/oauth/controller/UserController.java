@@ -12,7 +12,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping()
-    public User addUser(@RequestBody UserDTO userDTO) throws IOException {
+    public User addUser(@RequestBody UserDTO userDTO) {
         return userService.addUser(userDTO);
     }
 
@@ -58,7 +57,7 @@ public class UserController {
      * @return java.lang.Object
      **/
     @PutMapping()
-    public UserWithRole updateUser(@RequestBody UserDTO user) throws Exception {
+    public UserWithRole updateUser(@RequestBody UserDTO user) {
         return userService.updateUser(user);
     }
 
@@ -80,7 +79,7 @@ public class UserController {
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
     @PostMapping("/multi/system")
-    public User addMultiSystemUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) throws IOException {
+    public User addMultiSystemUser(@RequestBody @Validated(value = UserValidatorGroup.class) UserDTO userDTO) {
         return userService.addMultiSystemUser(userDTO);
     }
 

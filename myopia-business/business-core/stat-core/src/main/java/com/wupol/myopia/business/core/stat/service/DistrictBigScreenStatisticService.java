@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.stat.domain.mapper.DistrictBigScreenStatisticMapper;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

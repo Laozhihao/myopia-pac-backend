@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -7,6 +9,7 @@ import java.util.Objects;
  * @Author wulizhou
  * @Date 2021/6/30 18:11
  */
+@UtilityClass
 public class ObjectUtil {
 
     /**

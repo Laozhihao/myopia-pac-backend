@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +10,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -73,6 +75,12 @@ public class Hospital extends AddressCode implements Serializable {
      * 等级描述
      */
     private String levelDesc;
+
+    /**
+     * 医院固定电话
+     */
+    @Pattern(regexp = RegularUtils.REGULAR_TELEPHONE, message = "固定电话格式错误")
+    private String telephone;
 
     /**
      * 医院类型 0-定点医院 1-非定点医院

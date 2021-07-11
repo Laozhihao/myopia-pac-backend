@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.business.core.hospital.domain.handler.*;
 import lombok.Getter;
@@ -71,7 +70,7 @@ public class MedicalRecord implements Serializable {
 
     /** 检查单是否已经完成 */
     @JsonIgnore
-    public Boolean isFinish() {
+    public boolean isFinish() {
         return Objects.nonNull(status) && STATUS_FINISH.equals(status);
     }
 

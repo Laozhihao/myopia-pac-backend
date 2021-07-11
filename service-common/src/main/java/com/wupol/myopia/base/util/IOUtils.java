@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
@@ -25,7 +26,7 @@ public class IOUtils {
         if (tempDir.exists() && tempDir.isDirectory() && tempDir.canWrite()) {
             return tmpdir;
         } else {
-            throw new RuntimeException("系统临时目录不存在或不可写");
+            throw new BusinessException("系统临时目录不存在或不可写");
         }
     }
 }

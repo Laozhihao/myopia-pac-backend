@@ -44,7 +44,7 @@ public class ScreeningNoticeDeptOrgBizService {
         List<Integer> allGovDeptIds = screeningNoticeIPage.getRecords().stream().filter(vo -> ScreeningNotice.TYPE_GOV_DEPT.equals(vo.getType())).map(ScreeningNoticeDTO::getAcceptOrgId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         // 设置地址信息
-        IPage<ScreeningNoticeVO> screeningNoticeVOIPage = screeningNoticeIPage.convert(dto -> {
+        return screeningNoticeIPage.convert(dto -> {
             ScreeningNoticeVO vo = new ScreeningNoticeVO(dto);
             List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(vo.getDistrictId());
             vo.setDistrictDetail(districtPositionDetailById).setDistrictName(districtService.getDistrictNameByDistrictPositionDetail(districtPositionDetailById));
@@ -53,7 +53,6 @@ public class ScreeningNoticeDeptOrgBizService {
             }
             return vo;
         });
-        return screeningNoticeVOIPage;
     }
 
 }

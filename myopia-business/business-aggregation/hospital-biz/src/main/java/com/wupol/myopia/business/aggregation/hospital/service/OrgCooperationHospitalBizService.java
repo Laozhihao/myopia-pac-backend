@@ -60,6 +60,7 @@ public class OrgCooperationHospitalBizService {
             suggestHospitalDTO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
         }
         suggestHospitalDTO.setName(hospital.getName());
+        suggestHospitalDTO.setTelephone(hospital.getTelephone());
         // 行政区域名称
         String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
                 hospital.getAreaCode(), hospital.getTownCode());

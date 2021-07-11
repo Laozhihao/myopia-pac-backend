@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.oauth.domain.mapper.UserRoleMapper;
@@ -30,7 +31,7 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
      * @return  是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean updateByRoleIds(Integer userId, List<Integer> newRoleIds) throws Exception {
+    public Boolean updateByRoleIds(Integer userId, List<Integer> newRoleIds) throws BusinessException {
         if (Objects.isNull(newRoleIds)) {
             return true;
         }
@@ -44,12 +45,12 @@ public class UserRoleService extends BaseService<UserRoleMapper, UserRole> {
         List<Integer> addRoleIds = BeanCopyUtil.deepCopyListProperties(newRoleIds, Integer.class);
         addRoleIds.removeAll(sameRoleList);
         if (!CollectionUtils.isEmpty(existRoleList) && !baseMapper.deleteByRoleIds(userId, existRoleList)) {
-            throw new Exception("删除该用户的角色失败");
+            throw new BusinessException("删除该用户的角色失败");
         }
         if (!CollectionUtils.isEmpty(addRoleIds)) {
             List<UserRole> userRoleList = addRoleIds.stream().map(item -> new UserRole(userId, item)).collect(Collectors.toList());
             if (!baseMapper.insertBatch(userRoleList))
-            throw new Exception("增加该用户的角色失败");
+                throw new BusinessException("增加该用户的角色失败");
         }
         return true;
     }

@@ -186,13 +186,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return 年级列表
      */
     public List<SchoolGrade> getBySchoolName(String schoolName) {
-        SchoolQueryDTO SchoolQueryDTO = new SchoolQueryDTO();
-        SchoolQueryDTO.setName(schoolName);
-        Integer schoolId = schoolService.getBy(SchoolQueryDTO).stream()
+        SchoolQueryDTO schoolQueryDTO = new SchoolQueryDTO();
+        schoolQueryDTO.setName(schoolName);
+        Integer schoolId = schoolService.getBy(schoolQueryDTO).stream()
                 .findFirst().orElseThrow(() -> new BusinessException("未找到该学校")).getId();
-        SchoolGradeQueryDTO SchoolGradeQueryDTO = new SchoolGradeQueryDTO();
-        SchoolGradeQueryDTO.setSchoolId(schoolId);
-        return getBy(SchoolGradeQueryDTO);
+        SchoolGradeQueryDTO schoolGradeQueryDTO = new SchoolGradeQueryDTO();
+        schoolGradeQueryDTO.setSchoolId(schoolId);
+        return getBy(schoolGradeQueryDTO);
     }
 
     /**
@@ -245,11 +245,11 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return SchoolGrade
      */
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
-        LambdaQueryWrapper<SchoolGrade> SchoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<SchoolGrade> schoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setSchoolId(schoolId).setName(gradeName);
-        SchoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
-        return baseMapper.selectOne(SchoolGradeExportDTOLambdaQueryWrapper);
+        schoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
+        return baseMapper.selectOne(schoolGradeExportDTOLambdaQueryWrapper);
     }
 
     public String getGradeNameById(Integer id) {
