@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.aggregation.export.pdf.constant;
+
+import lombok.experimental.UtilityClass;
+
 /**
  * 文件名常量
  *
  * @Author HaoHao
  * @Date 2021/3/26
  **/
+@UtilityClass
 public class PDFFileNameConstant {
     /**
      * PDF报告文件名

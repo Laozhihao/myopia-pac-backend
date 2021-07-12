@@ -4,6 +4,7 @@ import com.wupol.myopia.business.api.management.domain.dto.ScreeningBasicResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
 
     /**
@@ -87,20 +89,18 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<Item> subordinateItemSet = districtVisionStatistics.stream().map(districtVisionStatistic -> {
-            Integer districtId = districtVisionStatistic.getDistrictId();
-            String rangeName = "";
+        this.subordinateDatas = districtVisionStatistics.stream().map(districtVisionStatistic -> {
+            Integer visionStatisticDistrictId = districtVisionStatistic.getDistrictId();
+            String itemRangeName;
             //是合计数据
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
-                rangeName = "合计";
-                ScreeningVisionStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
-                totalData = item;
+                itemRangeName = "合计";
+                totalData = this.getItem(visionStatisticDistrictId, itemRangeName, districtVisionStatistic);
                 return null;
             }
-            rangeName = districtIdNameMap.get(districtId);
-            return this.getItem(districtId, rangeName, districtVisionStatistic);
+            itemRangeName = districtIdNameMap.get(visionStatisticDistrictId);
+            return this.getItem(visionStatisticDistrictId, itemRangeName, districtVisionStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.subordinateDatas = subordinateItemSet;
     }
 
     private Item getItem(Integer districtId, String rangeName, DistrictVisionStatistic districtVisionStatistic) {

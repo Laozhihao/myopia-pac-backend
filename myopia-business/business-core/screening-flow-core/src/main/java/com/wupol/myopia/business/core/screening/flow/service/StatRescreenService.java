@@ -21,7 +21,7 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         StatRescreen statRescreen = new StatRescreen();
         statRescreen.setPlanId(planId)
                 .setSchoolId(schoolId);
-        return super.list(new QueryWrapper(statRescreen));
+        return super.list(new QueryWrapper<>(statRescreen));
     }
 
     /**

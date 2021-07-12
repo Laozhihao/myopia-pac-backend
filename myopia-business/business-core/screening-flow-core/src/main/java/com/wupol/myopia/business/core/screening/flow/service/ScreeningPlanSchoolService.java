@@ -57,7 +57,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 删除掉已有的不存在的学校信息
-        List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.EMPTY_LIST : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.emptyList() : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
         if (!CollectionUtils.isEmpty(screeningSchools)) {
             saveOrUpdateBatchByPlanId(screeningPlanId, screeningOrgId, screeningSchools);
@@ -165,5 +165,23 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
         return baseMapper.getScreeningSchoolsByOrgId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
+    }
+
+    /**
+     * 获取除当前学校外的学校
+     *
+     * @param planId    计划Id
+     * @param schoolIds 学校Ids
+     * @return 学校Ids
+     */
+    public List<Integer> getByPlanIdNotInSchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
+        List<Integer> otherSchoolIds = baseMapper.getByPlanIdNotInSchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(otherSchoolIds)) {
+            return new ArrayList<>();
+        }
+        return otherSchoolIds;
     }
 }

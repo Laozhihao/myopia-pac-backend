@@ -309,6 +309,7 @@ CREATE TABLE `m_hospital`  (
   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '医院名称',
   `level` tinyint(4) NOT NULL COMMENT '等级 0-一甲,1-一乙,2-一丙,3-二甲,4-二乙,5-二丙,6-三特,7-三甲,8-三乙,9-三丙 10-其他',
   `level_desc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '等级描述',
+  `telephone` varchar(32) null comment '固定电话',
   `type` tinyint(4) NOT NULL COMMENT '医院类型 0-定点医院 1-非定点医院',
   `kind` tinyint(4) NOT NULL COMMENT '医院性质 0-公立 1-私立',
   `province_code` bigint(20) DEFAULT NULL COMMENT '省代码',

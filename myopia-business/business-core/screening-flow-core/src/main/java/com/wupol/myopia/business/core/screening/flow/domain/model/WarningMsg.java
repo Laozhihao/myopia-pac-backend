@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public class WarningMsg implements Serializable {
     /**
      * 可以准备发送
      */
-    public static final  Integer STATUS_READY_TO_SEND = 0;
+    public static final Integer STATUS_READY_TO_SEND = 0;
     /**
      * 发送失败
      */

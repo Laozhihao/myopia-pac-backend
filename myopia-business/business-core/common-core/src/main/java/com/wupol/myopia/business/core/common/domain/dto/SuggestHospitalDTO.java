@@ -26,4 +26,9 @@ public class SuggestHospitalDTO {
      * 地址
      */
     private String address;
+
+    /**
+     * 固定电话
+     */
+    private String telephone;
 }

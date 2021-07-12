@@ -1,8 +1,5 @@
 package com.wupol.myopia.business.core.device.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import lombok.Getter;
 import lombok.Setter;

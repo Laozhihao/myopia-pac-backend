@@ -104,7 +104,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         Hospital hospital = new Hospital()
                 .setId(hospitalId)
                 .setStatus(status);
-        // 从合作医院中移除
+        // 禁用医院，从合作医院中移除
         if (CommonConst.STATUS_BAN.equals(status)) {
             orgCooperationHospitalService.deletedHospital(hospitalId);
         }

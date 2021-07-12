@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -57,9 +56,9 @@ public class HospitalController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         hospital.setCreateUserId(user.getId());
         hospital.setGovDeptId(user.getOrgId());
-        // 非平台管理员默认状态为停用
+        // 非平台管理员默认为合作医院
         if (!user.isPlatformAdminUser()) {
-            hospital.setStatus(CommonConst.STATUS_BAN);
+            hospital.setIsCooperation(CommonConst.IS_COOPERATION);
         }
         UsernameAndPasswordDTO usernameAndPasswordDTO = hospitalService.saveHospital(hospital);
         // 非平台管理员屏蔽账号密码信息

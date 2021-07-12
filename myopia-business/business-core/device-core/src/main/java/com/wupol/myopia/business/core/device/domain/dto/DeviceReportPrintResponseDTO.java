@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false)
 public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
 
     /**

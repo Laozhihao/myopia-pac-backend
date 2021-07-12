@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.device.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -106,57 +107,68 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 左眼柱镜
      */
-    private Double leftCyl;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal leftCyl;
 
     /**
      * 右眼柱镜
      */
-    private Double rightCyl;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal rightCyl;
 
     /**
      * 左眼轴位
      */
-    private Double leftAxsi;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal leftAxsi;
 
     /**
      * 右眼轴位
      */
-    private Double rightAxsi;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal rightAxsi;
 
     /**
      * 左眼瞳孔半径
      */
-    private Double leftPr;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal leftPr;
 
     /**
      * 右眼瞳孔半径
      */
-    private Double rightPr;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal rightPr;
 
     /**
      * 左眼等效球镜度
      */
-    private Double leftPa;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal leftPa;
 
     /**
      * 右眼等效球镜度
      */
-    private Double rightPa;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal rightPa;
 
     /**
      * 左眼球镜
      */
-    private Double leftSph;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal leftSph;
 
     /**
      * 右眼球镜
      */
-    private Double rightSph;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal rightSph;
 
     /**
      * 瞳距
      */
-    private Double pd;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal pd;
 
     /**
      * 是否筛查(-1=未知,1=是,0=否)

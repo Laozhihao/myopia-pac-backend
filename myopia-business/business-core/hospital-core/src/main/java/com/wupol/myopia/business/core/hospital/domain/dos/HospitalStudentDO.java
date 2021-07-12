@@ -1,11 +1,9 @@
 package com.wupol.myopia.business.core.hospital.domain.dos;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
 import java.util.List;
 
 /**
