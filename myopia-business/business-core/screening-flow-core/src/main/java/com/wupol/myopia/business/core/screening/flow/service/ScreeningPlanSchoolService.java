@@ -175,6 +175,9 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @return 学校Ids
      */
     public List<Integer> getByPlanIdNotInSchoolIds(Integer planId, List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ArrayList<>();
+        }
         List<Integer> otherSchoolIds = baseMapper.getByPlanIdNotInSchoolIds(planId, schoolIds);
         if (CollectionUtils.isEmpty(otherSchoolIds)) {
             return new ArrayList<>();
