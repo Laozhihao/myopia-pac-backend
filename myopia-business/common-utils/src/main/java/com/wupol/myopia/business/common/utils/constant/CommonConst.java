@@ -134,4 +134,14 @@ public class CommonConst {
      * 导出二维码
      */
     public final Integer EXPORT_QRCODE = 1;
+
+    /**
+     * 合作医院 1-合作医院
+     */
+    public final Integer IS_COOPERATION = 1;
+
+    /**
+     * 合作医院 0-非合作医院
+     */
+    public final Integer NOT_COOPERATION = 0;
 }

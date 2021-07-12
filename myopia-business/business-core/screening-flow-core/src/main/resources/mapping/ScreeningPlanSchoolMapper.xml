@@ -142,4 +142,13 @@
         </foreach>
     </select>
 
+    <select id="getByPlanIdNotInSchoolIds" resultType="java.lang.Integer">
+        SELECT school_id
+        FROM m_screening_plan_school
+                WHERE screening_plan_id = #{screeningPlanId}
+                  and school_id not in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+    </select>
 </mapper>
