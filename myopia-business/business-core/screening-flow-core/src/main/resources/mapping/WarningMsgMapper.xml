@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.WarningMsgMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(msgTemplateId)">and `msg_template_id` = #{msgTemplateId}</if>
+                <if test="@Ognl@isNotEmpty(phoneNumbers)">and `phone_numbers` = #{phoneNumbers}</if>
+                <if test="@Ognl@isNotEmpty(sendStatus)">and `send_status` = #{sendStatus}</if>
+                <if test="@Ognl@isNotEmpty(sendDayOfYear)">and `send_day_of_year` = #{sendDayOfYear}</if>
+                <if test="@Ognl@isNotEmpty(sendTime)">and  UNIX_TIMESTAMP(`send_time`) * 1000  = #{sendTime}</if>
+                <if test="@Ognl@isNotEmpty(sendTimes)">and  `send_times` = #{sendTimes}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, student_id, msg_template_id, send_times, phone_numbers, send_day_of_year, send_status, send_time, update_time, create_time
+    </sql>
+
+    <select id="selectNeedToNotice" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg">
+        select * from m_warning_msg
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="sendDayOfYear != null">
+              and  send_day_of_year = ${sendDayOfYear}
+            </if>
+            <if test="sendStatus != null">
+                and send_status = ${sendStatus}
+            </if>
+
+        </where>
+
+    </select>
+
+</mapper>

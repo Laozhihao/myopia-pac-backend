@@ -2,11 +2,14 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItemsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterParamsDTO;
+import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterResultDTO;
+import com.wupol.myopia.business.api.management.domain.dto.StatWholeResultDTO;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningClassStat;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningDataContrast;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,37 +38,18 @@ public class StatController {
      */
     @GetMapping("warningList")
     public WarningInfo getWarningList() {
-        return statService.getWarningList();
-    }
-
-    /**
-     * 获取筛查对比数据
-     * @param notificationId1 1号通知ID
-     * @param notificationId2 2号通知ID
-     * @param districtId 区域ID
-     * @param schoolAge 学龄代码
-     * @return
-     */
-    @GetMapping("/dataContrast")
-    public Map<String, ScreeningDataContrast> getScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-                                                                       @RequestParam(value = "nid2", required = false) Integer notificationId2,
-                                                                       Integer districtId, Integer schoolAge) throws IOException {
-        return statService.getScreeningDataContrast(notificationId1, notificationId2, districtId, schoolAge);
+        return statService.getWarningList(CurrentUserUtil.getCurrentUser());
     }
 
     /**
      * 导出筛查对比数据
-     * @param notificationId1 1号通知ID
-     * @param notificationId2 2号通知ID
-     * @param districtId 区域ID
-     * @param schoolAge 学龄代码
-     * @return
+     *
+     * @param dataContrastExportParams
      */
-    @GetMapping("/exportContrast")
-    public void exportScreeningDataContrast(@RequestParam("nid1") Integer notificationId1,
-            @RequestParam(value = "nid2", required = false) Integer notificationId2,
-            Integer districtId, Integer schoolAge) throws IOException, UtilException {
-            statService.exportStatContrast(notificationId1, notificationId2, districtId, schoolAge);
+    @PostMapping("/exportContrast")
+    public void exportScreeningDataContrast(@RequestBody DataContrastFilterParamsDTO dataContrastExportParams)
+            throws UtilException, IOException {
+        statService.exportStatContrast(dataContrastExportParams, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -97,6 +81,16 @@ public class StatController {
     }
 
     /**
+     * 获取计划下学校统计数据
+     * @param planId
+     * @return
+     */
+    @GetMapping("/getAllSchoolReport")
+    public StatWholeResultDTO getSchoolReportByPlanId(@RequestParam Integer planId) {
+        return statReportService.getPlanStatData(planId);
+    }
+
+    /**
      * 分类统计数据
      *
      * @param notificationId 通知ID
@@ -104,19 +98,43 @@ public class StatController {
      */
     @GetMapping("/dataClass")
     public ScreeningClassStat getScreeningClassStat(@RequestParam("nid") Integer notificationId) throws IOException {
-        return  statService.getScreeningClassStat(notificationId);
+        return statService.getScreeningClassStat(notificationId, CurrentUserUtil.getCurrentUser());
     }
 
     /**
-     * 获取用户对应权限的可对比区域ID
+     * 获取用户相关的历年通知、任务、计划用户统计对比筛选项
      *
-     * @param notificationId1
-     * @param notificationId2
      * @return
      */
-    @GetMapping("/dataContrastDistrictTree")
-    public List<District> getDataContrastDistrictTree(@RequestParam("nid1") Integer notificationId1,
-                                                      @RequestParam(value = "nid2", required = false) Integer notificationId2) throws IOException {
-        return statService.getDataContrastDistrictTree(notificationId1, notificationId2);
+    @GetMapping("/dataContrastYear")
+    public Map<Integer, List<ContrastTypeYearItemsDTO>> getDataContrastYear() {
+        return statService.composeContrastTypeFilter(CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 返回数据对比的筛查项以及结果数据
+     *
+     * @param contrastType 对比项类型
+     * @param contrastId   对比项ID
+     * @return
+     */
+    @GetMapping("/dataContrastFilter")
+    public DataContrastFilterResultDTO getDataContrastFilter(
+            @RequestParam("ctype") Integer contrastType,
+            @RequestParam("cid") Integer contrastId,
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "schoolAge", required = false) Integer schoolAge,
+            @RequestParam(value = "schoolId", required = false) Integer schoolId,
+            @RequestParam(value = "schoolGradeCode", required = false) String schoolGradeCode,
+            @RequestParam(value = "schoolClass", required = false) String schoolClass
+    ) throws IOException {
+        DataContrastFilterParamsDTO.Params params = new DataContrastFilterParamsDTO.Params();
+        params.setContrastId(contrastId);
+        params.setDistrictId(districtId);
+        params.setSchoolAge(schoolAge);
+        params.setSchoolId(schoolId);
+        params.setSchoolGradeCode(schoolGradeCode);
+        params.setSchoolClass(schoolClass);
+        return statService.getDataContrastFilter(contrastType, params, CurrentUserUtil.getCurrentUser());
     }
 }

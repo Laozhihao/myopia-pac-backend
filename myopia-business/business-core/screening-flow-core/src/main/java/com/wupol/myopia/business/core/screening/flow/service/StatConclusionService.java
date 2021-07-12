@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author Jacob
@@ -164,5 +163,43 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getPlanSchoolByDate(date, true);
     }
 
+    /**
+     * 根据学生id获取所有筛查结果
+     *
+     * @param studentIdList
+     */
+    public Set<Integer> getHasNormalVisionStudentIds(Set<Integer> studentIdList) {
+        if (CollectionUtils.isEmpty(studentIdList)) {
+            return Collections.emptySet();
+        }
+        LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        statConclusionLambdaQueryWrapper.in(StatConclusion::getStudentId, studentIdList);
+        List<StatConclusion> statConclusions = list(statConclusionLambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(statConclusions)) {
+            return Collections.emptySet();
+        }
+        // 根据studentId进行分组
+        Map<Integer, Boolean> studentVisionExceptionMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getStudentId,
+                Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(StatConclusion::getVisionWarningUpdateTime)),
+                        statConclusionOptional -> {
+                            if (statConclusionOptional.isPresent()) {
+                                return statConclusionOptional.get().getIsVisionWarning();
+                            } else {
+                                return false;
+                            }
+                        })));
+       return studentVisionExceptionMap.keySet().stream().filter(studentId -> !Boolean.TRUE.equals(studentVisionExceptionMap.get(studentId))).collect(Collectors.toSet());
+    }
+
+    /**
+     * 获取门口个筛查时间范围的统计数据
+     * @return
+     */
+    public List<StatConclusion> getStatConclusionByDateTimeRange(Date yesterdayDateTime,Date todayDateTime) {
+        LambdaQueryWrapper<StatConclusion> statConclusionLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        statConclusionLambdaQueryWrapper.select(StatConclusion::getStudentId, StatConclusion::getIsVisionWarning, StatConclusion::getVisionWarningUpdateTime)
+                .gt(StatConclusion::getVisionWarningUpdateTime, yesterdayDateTime).le(StatConclusion::getVisionWarningUpdateTime, todayDateTime);
+        return list(statConclusionLambdaQueryWrapper);
+    }
 }
 

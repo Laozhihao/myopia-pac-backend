@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultB
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 /**
@@ -21,6 +22,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
      * 佩戴眼镜的类型： @{link com.wupol.myopia.business.common.constant.WearingGlassesSituation}
      */
     @JsonProperty("glasses")
+    @NotBlank
     private String glassesType;
     /**
      * 右眼矫正视力

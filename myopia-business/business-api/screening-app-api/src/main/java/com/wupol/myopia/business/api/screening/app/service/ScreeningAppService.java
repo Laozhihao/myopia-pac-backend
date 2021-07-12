@@ -281,7 +281,7 @@ public class ScreeningAppService {
         allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
-        //更新vision_result表
+        //更新statConclusion表
         StatConclusion statConclusion = statConclusionBizService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);

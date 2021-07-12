@@ -10,6 +10,7 @@ import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 医院-检查单，Mapper接口
@@ -29,4 +30,10 @@ public interface MedicalRecordMapper extends BaseMapper<MedicalRecord> {
     List<ReportAndRecordDO> getByStudentId(@Param("studentId") Integer studentId);
     List<MedicalRecordDate> getMedicalRecordDateList(Integer hospitalId, Integer studentId);
 
+    /**
+     * 批量查询特定条件下,学生是否存在筛查记录
+     * @param medicalRecordQueries 查询条件集,请在使用前确保集合里的每个对象,每个参数都不能为空
+     * @return 返回存在的学生id
+     */
+    Set<Integer> selectBatchQuerys(Set<MedicalRecordQuery> medicalRecordQueries);
 }

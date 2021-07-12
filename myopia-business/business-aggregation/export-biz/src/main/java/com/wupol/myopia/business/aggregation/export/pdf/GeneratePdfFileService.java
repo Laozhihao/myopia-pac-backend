@@ -1,14 +1,18 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ import java.util.Objects;
  * @Date 2021/3/26
  **/
 @Service
+@Slf4j
 public class GeneratePdfFileService {
 
     @Value("${report.html.url-host}")
@@ -38,6 +43,8 @@ public class GeneratePdfFileService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
     private DistrictService districtService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 生成筛查报告PDF文件 - 行政区域
@@ -98,7 +105,24 @@ public class GeneratePdfFileService {
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
         Assert.notEmpty(schoolIdList, "学校ID集为空");
+        // 生成一个总的报告文件
+        if (Objects.nonNull(planId)) {
+            generateScreeningPlanReportPdfFile(saveDirectory, planId);
+        }
         schoolIdList.forEach(schoolId -> generateSchoolScreeningReportPdfFile(saveDirectory, noticeId, planId, schoolId));
+    }
+
+    /**
+     * 生成筛查计划总报告
+     * @param saveDirectory
+     * @param planId
+     */
+    public void generateScreeningPlanReportPdfFile(String saveDirectory, Integer planId) {
+        ScreeningPlan plan = screeningPlanService.getById(planId);
+        Assert.notNull(plan, "该计划不存在");
+        String reportFileName = String.format(PDFFileNameConstant.PLAN_REPORT_PDF_FILE_NAME, DateUtil.getYear(plan.getStartTime()));
+        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_HTML_URL_WITH_PLAN_ID, htmlUrlHost, planId);
+        Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, reportFileName + ".pdf").toString()), "【生成计划报告PDF文件异常】：" + plan.getTitle());
     }
 
     /**

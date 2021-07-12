@@ -117,7 +117,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/plan")
-    public Set<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
+    public List<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
         return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
@@ -148,7 +148,7 @@ public class StatManagementController {
     }
 
     /**
-     * 根据地区id获取学校情况 todo 可能不用
+     * 根据地区id获取学校情况
      *
      * @param
      * @return
@@ -201,7 +201,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice);
+        return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
 
     /**
@@ -218,7 +218,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice);
+        return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
 
 
@@ -232,7 +232,7 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtId);
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
     }
 
@@ -250,7 +250,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new BusinessException("找不到该notice");
         }
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtId);
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
@@ -329,23 +329,24 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), districtId);
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
     }
 
-   /**
+    /**
      * 获取学校监控统计
+     *
      * @param districtId
      * @param planId
      * @return
      * @throws IOException
      */
     @GetMapping("/plan/school/screening-monitor-result")
-    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) throws IOException {
+    public SchoolScreeningMonitorStatisticVO getSchoolMonitorStatisticByPlan(@RequestParam(required = false) Integer districtId, @RequestParam Integer planId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtId);
+        List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByPlansAndOrgId(Arrays.asList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {
             return SchoolScreeningMonitorStatisticVO.getEmptyInstance();
         }
