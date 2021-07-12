@@ -20,22 +20,21 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,6 +61,9 @@ public class StatReportService {
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     private final static String TABLE_LABEL_TOTAL = "total";
     private final static String TABLE_LABEL_ROW_TOTAL = "rowTotal";
@@ -643,7 +645,7 @@ public class StatReportService {
         Map<Integer, Long> planSchoolAgeStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType, Collectors.counting()));
 
         // 预计需要筛查的学生数
-        long planStudentNum = screenPlanSchoolStudent.stream().count();
+        long planStudentNum = screenPlanSchoolStudent.size();
         // 通过筛查数据进行统计
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setPlanId(planId);
@@ -651,8 +653,12 @@ public class StatReportService {
         if (statConclusions == null || statConclusions.size() == 0) {
             return null;
         }
-        List<Integer> schoolIds =
-                statConclusions.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        List<Integer> schoolIds = statConclusions.stream()
+                .map(StatConclusion::getSchoolId)
+                .distinct()
+                .collect(Collectors.toList());
+        // 将空学校也添加
+        schoolIds.addAll(screeningPlanSchoolService.getByPlanIdNotInSchoolIds(planId, schoolIds));
         List<School> schools = schoolService.getByIds(schoolIds);
         // 按拼音获取前三个学校名
         List<String> schoolExamples = schools.stream().map(School::getName).sorted(Collator.getInstance(java.util.Locale.CHINA)).limit(3).collect(Collectors.toList());
@@ -668,7 +674,7 @@ public class StatReportService {
         // 组装各学龄段信息
         StatBusinessSchoolAgeDTO businessSchoolAge = new StatBusinessSchoolAgeDTO(statBase);
 
-        StatWholeResultDTO whole = StatWholeResultDTO.builder()
+        return StatWholeResultDTO.builder()
                 .plan(sp)
                 .schoolCount(schools.size())
                 .planStudentNum(planStudentNum)
@@ -687,7 +693,6 @@ public class StatReportService {
                 .schoolMyopia(getSchoolMyopia(schools, schoolValidMap))
                 .gradeMyopia(getGradeMyopia(statBase.getValid()))
                 .build();
-        return whole;
     }
 
     /**
@@ -708,7 +713,8 @@ public class StatReportService {
                     .setValidFirstScreeningNum(schoolValidMap.getOrDefault(school.getId(), Collections.emptyList()).size());
             return persionnel;
         })
-                .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed())
+                .sorted(Comparator.comparing(StatSchoolPersonnelDTO::getActualScreeningNum).reversed()
+                        .thenComparing(StatSchoolPersonnelDTO::getPlanScreeningNum,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
         // 添加合计
         StatSchoolPersonnelDTO total = new StatSchoolPersonnelDTO();
@@ -746,7 +752,7 @@ public class StatReportService {
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
         Long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
-        Long lowVisionNum = validConclusions.stream().filter(x -> x.getIsLowVision() ).count();
+        Long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
         int countNum = validConclusions.size();
         myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
@@ -794,8 +800,8 @@ public class StatReportService {
      * @return
      */
     private List<MyopiaDTO> getGenderMyopia(StatGenderDTO statGenderDTO) {
-        Long maleMyopiaNum = statGenderDTO.getMale().stream().filter(x -> x.getIsMyopia()).count();
-        Long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(x -> x.getIsMyopia()).count();
+        long maleMyopiaNum = statGenderDTO.getMale().stream().filter(StatConclusion::getIsMyopia).count();
+        long femaleMyopiaNum = statGenderDTO.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
         return Arrays.asList(
                 MyopiaDTO.getInstance(statGenderDTO.getMale().size(), GenderEnum.MALE.name(), maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1f / statGenderDTO.getMale().size())),
                 MyopiaDTO.getInstance(statGenderDTO.getFemale().size(), GenderEnum.FEMALE.name(), femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1f / statGenderDTO.getFemale().size()))
@@ -808,13 +814,31 @@ public class StatReportService {
      * @return
      */
     private List<MyopiaDTO> getSchoolAgeMyopia(StatBusinessSchoolAgeDTO businessSchoolAge) {
-        return businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
+        AtomicInteger allHighStatNum = new AtomicInteger();
+        AtomicLong allHighSchoolNum = new AtomicLong();
+        AtomicLong allHighMyopiaNum = new AtomicLong();
+        List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
-                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
-                    return MyopiaDTO.getInstance(stat.size(), businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L),
-                            x, myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
+                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
+                    int statNum = stat.size();
+                    Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
+                    Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
+                    if (x.equals(SchoolAge.HIGH.name()) || x.equals(SchoolAge.VOCATIONAL_HIGH.name())) {
+                        allHighStatNum.addAndGet(statNum);
+                        allHighSchoolNum.addAndGet(schoolNum);
+                        allHighMyopiaNum.addAndGet(myopiaNum);
+                    }
+                    return MyopiaDTO.getInstance(statNum, schoolNum, x, myopiaNum, ratio);
                 }).collect(Collectors.toList());
+        MyopiaDTO allHighMyopia =  new MyopiaDTO();
+        allHighMyopia.setStatNum(allHighStatNum.get());
+        allHighMyopia.setSchoolNum(allHighSchoolNum.get());
+        allHighMyopia.setKey("ALL_HIGH");
+        allHighMyopia.setNum(allHighMyopiaNum);
+        allHighMyopia.setRatio(convertToPercentage(allHighMyopiaNum.get() * 1f / allHighStatNum.get()));
+        schoolAgeList.add(allHighMyopia);
+        return schoolAgeList;
     }
 
     /**
@@ -825,14 +849,18 @@ public class StatReportService {
      */
     private List<MyopiaDTO> getSchoolMyopia(List<School> schools, Map<Integer, List<StatConclusion>> schoolValidMap) {
         List<MyopiaDTO> schoolMyopia = schools.stream()
-                .filter(school -> CollectionUtils.isNotEmpty(schoolValidMap.get(school.getId())))
                 .map(x -> {
                     List<StatConclusion> stat = schoolValidMap.get(x.getId());
-                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    if (CollectionUtils.isEmpty(stat)) {
+                        return MyopiaDTO.getInstance(0, x.getName(),
+                                0, 0.00f);
+                    }
+                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
                     return MyopiaDTO.getInstance(stat.size(), x.getName(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 })
-                .sorted(Comparator.comparing(MyopiaDTO::getRatio).reversed())
+                .sorted(Comparator.comparing(MyopiaDTO::getRatio).reversed()
+                        .thenComparing(MyopiaDTO::getStatNum,Comparator.reverseOrder()))
                 .collect(Collectors.toList());
         // 设置排名
         for (int i = 0; i < schoolMyopia.size(); i++) {

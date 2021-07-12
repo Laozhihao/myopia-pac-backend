@@ -42,4 +42,6 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     List<ScreeningPlanSchool> getByPlanIds(@Param("screeningPlanIds") List<Integer> screeningPlanIds);
 
+    List<Integer> getByPlanIdNotInSchoolIds(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolIds") List<Integer> schoolIds);
+
 }
