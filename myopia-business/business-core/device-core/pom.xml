@@ -5,7 +5,7 @@
     <parent>
         <artifactId>business-core</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.0.2</version>
+        <version>MP-2.0.3</version>
     </parent>
 
     <artifactId>device-core</artifactId>
