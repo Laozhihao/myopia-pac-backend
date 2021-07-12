@@ -147,13 +147,14 @@ public class DeviceBizService {
      * 单眼是否远视
      *
      * @param patientAge 患者月龄
-     * @param pa         等效球镜
+     * @param paDoubleValue         等效球镜
      * @return 是否远视
      */
-    private boolean checkSingleEyeIsFarsightedness(Integer patientAge, Double pa) {
-        if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
+    private boolean checkSingleEyeIsFarsightedness(Integer patientAge, Double paDoubleValue) {
+        if (Objects.isNull(patientAge) || Objects.isNull(paDoubleValue)) {
             return true;
         }
+        BigDecimal pa = BigDecimal.valueOf(paDoubleValue);
         // 月龄转换成年龄
         double age = patientAge / 12d;
 
@@ -233,13 +234,14 @@ public class DeviceBizService {
      * 单眼是否远视储备不足
      *
      * @param patientAge 患者月龄
-     * @param pa         等效球镜
+     * @param paDoubleValue         等效球镜
      * @return 是否远视储备不足
      */
-    private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, Double pa) {
-        if (Objects.isNull(patientAge) || Objects.isNull(pa)) {
+    private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, Double paDoubleValue) {
+        if (Objects.isNull(patientAge) || Objects.isNull(paDoubleValue)) {
             return true;
         }
+        BigDecimal pa = BigDecimal.valueOf(paDoubleValue);
         // 月龄转换成年龄
         double age = patientAge / 12d;
         if (isLeftBetween(age, 0, 9)) {
