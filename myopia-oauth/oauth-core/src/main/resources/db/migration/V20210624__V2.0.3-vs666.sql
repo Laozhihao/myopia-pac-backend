@@ -3,7 +3,7 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 (323, 'VS666管理', 'equipment', NULL, 1, 1, 10, 0, 1),
 (324, '设备管理', 'equipmentManage', NULL, 1, 1, 1, 323, 1),
 (325, '数据管理', 'informationManage', NULL, 1, 1, 2, 323, 1),
-(326, '报告管理', 'reportManage', 'get:/abc', 1, 1, 3, 323, 1);
+(326, '报告管理', 'reportManage', NULL, 1, 1, 3, 323, 1);
 
 -- 打印设备报告 & 设备报告模板
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code) VALUES
