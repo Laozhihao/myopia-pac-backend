@@ -95,6 +95,9 @@ public class DeviceBizService {
      * @return left-医生结论 rigjt医生建议
      */
     private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
+        if (Objects.isNull(leftPa) && Objects.isNull(rightPa) && Objects.isNull(leftCyl) && Objects.isNull(rightCyl)) {
+            return new TwoTuple<>();
+        }
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
             return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_ERROR);
