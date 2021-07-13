@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
@@ -95,7 +96,8 @@ public class DeviceBizService {
      * @return left-医生结论 rigjt医生建议
      */
     private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, BigDecimal leftPa, BigDecimal rightPa, BigDecimal leftCyl, BigDecimal rightCyl) {
-        if (Objects.isNull(leftPa) && Objects.isNull(rightPa) && Objects.isNull(leftCyl) && Objects.isNull(rightCyl)) {
+
+        if (ObjectsUtil.allNull(leftPa, rightPa, leftCyl, rightCyl)) {
             return new TwoTuple<>();
         }
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
