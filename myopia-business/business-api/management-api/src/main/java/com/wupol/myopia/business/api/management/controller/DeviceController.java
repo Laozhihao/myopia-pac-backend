@@ -75,7 +75,7 @@ public class DeviceController {
     @PutMapping()
     public Boolean updateDevice(@RequestBody @Validated(value = {DeviceUpdateValidatorGroup.class, Default.class}) DeviceDTO deviceDTO) {
         Device device = deviceService.findOne(new Device().setDeviceSn(deviceDTO.getDeviceSn()));
-        Assert.isTrue(Objects.isNull(device) || deviceDTO.getId().equals(device.getId()), "唯一标识码重复，请重新填写");
+        Assert.isTrue(Objects.isNull(device) || device.getId().equals(deviceDTO.getId()), "唯一标识码重复，请重新填写");
         return deviceService.updateById(deviceDTO.toDevice());
     }
 
