@@ -76,8 +76,12 @@ public class DeviceBizService {
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
-            r.setLeftAxsi(r.getLeftAxsi().setScale(0, BigDecimal.ROUND_DOWN));
-            r.setRightAxsi(r.getRightAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            if(Objects.nonNull(r.getLeftAxsi())) {
+                r.setLeftAxsi(r.getLeftAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
+            if (Objects.nonNull(r.getRightAxsi())) {
+                r.setRightAxsi(r.getRightAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
             r.setDoctorConclusion(doctorAdvice.getFirst());
