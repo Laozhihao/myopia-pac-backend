@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +52,15 @@ public class DeviceScreeningDataBizService {
         }
         IPage<DeviceScreeningDataAndOrgDTO> datas = deviceScreeningDataService.selectPageByQuery(page, query);
         // 查询机构名称
-        datas.getRecords().forEach(x -> x.setScreeningOrgName(screeningOrganizationService.getNameById(x.getScreeningOrgId())));
+        datas.getRecords().forEach(x -> {
+            x.setScreeningOrgName(screeningOrganizationService.getNameById(x.getScreeningOrgId()));
+            if (Objects.nonNull(x.getLeftAxsi())) {
+                x.setLeftAxsi(x.getLeftAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
+            if (Objects.nonNull(x.getRightAxsi())) {
+                x.setRightAxsi(x.getRightAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
+        });
         return datas;
     }
 

@@ -271,13 +271,12 @@ public class ScreeningSchoolVisionStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(List<SchoolVisionStatistic> schoolVisionStatistics, Map<Integer, String> schoolIdDistrictNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<Item> items = schoolVisionStatistics.stream().map(schoolVisionStatistic -> {
+        contents = schoolVisionStatistics.stream().map(schoolVisionStatistic -> {
             Integer districtId = schoolVisionStatistic.getDistrictId();
             String schoolDistrictName = schoolIdDistrictNameMap.get(districtId);
             return Item.getInstance(schoolVisionStatistic,schoolDistrictName,getScreeningNoticeId());
                 }
         ).collect(Collectors.toSet());
-        contents = items;
     }
 
 

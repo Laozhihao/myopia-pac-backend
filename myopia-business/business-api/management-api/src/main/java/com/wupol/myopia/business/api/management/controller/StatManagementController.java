@@ -233,7 +233,9 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
+                CurrentUserUtil.getCurrentUser(),
+                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
     }
 
