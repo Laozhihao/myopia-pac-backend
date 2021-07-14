@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -39,7 +38,6 @@ public class ReportConclusion {
         private String no;
         private Integer glassesSituation;
         private String medicalContent;
-        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date createTime;
         private List<Integer> imageIdList;
     }
