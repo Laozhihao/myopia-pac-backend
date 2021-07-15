@@ -44,6 +44,7 @@ public class SchoolVisionStatisticBizService {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }
+        // 政府人员走新的逻辑
         if (user.isGovDeptUser()) {
             List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
             return getStatisticDtoByPlanIdsAndOrgId(screeningPlans, districtIds);
