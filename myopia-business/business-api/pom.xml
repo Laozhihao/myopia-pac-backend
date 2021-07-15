@@ -19,6 +19,7 @@
         <module>management-api</module>
         <module>parent-api</module>
         <module>screening-app-api</module>
+        <module>device-api</module>
     </modules>
 
 </project>

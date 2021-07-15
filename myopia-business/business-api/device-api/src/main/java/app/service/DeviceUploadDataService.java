@@ -1,8 +1,9 @@
-package com.wupol.myopia.business.api.screening.app.service;
+package app.service;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
@@ -24,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 设备上传数据
+ * 设备数据上传
  *
  * @Author Jacob
  * @Date 2021-07-15 15:01:19
@@ -42,7 +43,7 @@ public class DeviceUploadDataService {
     @Autowired
     private DeviceService deviceService;
     @Autowired
-    private ScreeningAppService screeningAppService;
+    private VisionScreeningBizService visionScreeningBizService;
     @Autowired
     private DeviceScreeningDataService deviceScreeningDataService;
 
@@ -64,7 +65,7 @@ public class DeviceUploadDataService {
         deviceScreenDataDTOList.forEach(deviceScreenDataDTO -> {
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planStudentMap.get(Integer.valueOf(deviceScreenDataDTO.getPatientId()));
             ComputerOptometryDTO computerOptometryDTO = getComputerOptometryDTO(deviceScreenDataDTO, screeningPlanSchoolStudent);
-            screeningAppService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
         });
     }
 
@@ -150,8 +151,3 @@ public class DeviceUploadDataService {
     }
 
 }
-
-
-
-
-

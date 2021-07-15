@@ -1,8 +1,8 @@
-package com.wupol.myopia.business.api.screening.app.controller;
+package app.controller;
 
+import app.service.DeviceUploadDataService;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.screening.app.domain.dto.DeviceUploadDTO;
-import com.wupol.myopia.business.api.screening.app.service.DeviceUploadDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
+
 
 /**
  * 设备上传接口

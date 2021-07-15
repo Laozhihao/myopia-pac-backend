@@ -15,12 +15,18 @@ import java.io.Serializable;
  * @Version
  */
 @Data
-public class DeviceUploadDto implements Serializable {
+public class DeviceUploadDTO implements Serializable {
 
+    /**
+     * 设备编号
+     */
     @NotBlank
     @Length(max = 32)
     private String imei;
 
+    /**
+     * 数据
+     */
     @NotBlank
     @Length(max = 65535)
     private String data;

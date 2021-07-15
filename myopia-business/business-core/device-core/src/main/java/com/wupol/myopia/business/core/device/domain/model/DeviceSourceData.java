@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.device.domain.DeviceTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -86,7 +87,7 @@ public class DeviceSourceData implements Serializable {
      */
     public static DeviceSourceData getNewInstance(Device device, String srcData, String patientId, Date screeningTime) {
         DeviceSourceData deviceSourceData = new DeviceSourceData();
-        deviceSourceData.deviceType = 1;
+        deviceSourceData.deviceType = DeviceTypeEnum.DEVICE_VS666.getDeviceType();
         deviceSourceData.deviceCode = device.getDeviceCode();
         deviceSourceData.deviceId = device.getId();
         deviceSourceData.deviceSn = device.getDeviceSn();

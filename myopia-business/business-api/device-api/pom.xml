@@ -3,14 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>business-aggregation</artifactId>
+        <artifactId>business-api</artifactId>
         <groupId>com.wupol.myopia</groupId>
         <version>MP-2.0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>screening-biz</artifactId>
-    <description>通用筛查数据逻辑</description>
+    <artifactId>/device-api</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
@@ -19,10 +18,19 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>school-core</artifactId>
+            <artifactId>device-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
 
 </project>

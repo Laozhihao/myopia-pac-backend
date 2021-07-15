@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.device.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.device.domain.mapper.DeviceMapper;
@@ -32,8 +33,7 @@ public class DeviceService extends BaseService<DeviceMapper, Device> {
      * @return
      */
     public Device getDeviceByDeviceSn(String deviceSn) {
-        //todo 等合 治豪 的状态
-        Device device = new Device().setDeviceSn(deviceSn).setStatus(1);
+        Device device = new Device().setDeviceSn(deviceSn).setStatus(StatusConstant.ENABLE);
         return findOne(device);
     }
 }
