@@ -144,7 +144,7 @@ public class StatManagementController {
             Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
             return districtBizService.getValidDistrictTree(currentUser, districts);
         }
-        // 非政府人员走新逻辑
+        // 政府人员走新逻辑
         return districtBizService.getChildDistrictValidDistrictTree(currentUser, districtVisionStatisticService.getDistrictIdByNoticeId(noticeId));
     }
 
