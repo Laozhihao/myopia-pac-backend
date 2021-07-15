@@ -116,7 +116,7 @@ public class StatController {
      *
      * @param contrastType 对比项类型
      * @param contrastId   对比项ID
-     * @return
+     * @return DataContrastFilterResultDTO
      */
     @GetMapping("/dataContrastFilter")
     public DataContrastFilterResultDTO getDataContrastFilter(

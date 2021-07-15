@@ -784,11 +784,11 @@ public class StatService {
      * @param contrastType 对比类型
      * @param params       对比参数
      * @param currentUser  当前用户
-     * @return
-     * @throws IOException
+     * @return DataContrastFilterResultDTO
+     * @throws IOException io异常
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
+            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
         Integer contrastId = params.getContrastId();
         if (contrastId == null) {
             return null;
@@ -872,15 +872,16 @@ public class StatService {
      * @param schoolId           学校id
      * @param schoolGradeCode    年级code
      * @param currentUser        当前用户
-     * @return
-     * @throws IOException
+     * @return DataContrastFilterDTO
+     * @throws IOException io异常
      */
     public DataContrastFilterDTO getDataContrastFilter(
-            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) {
+            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) throws IOException {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 
-        List<District> districtList = districtBizService.getValidDistrictTree(currentUser, districtIds);
+        // 获取当前用户与districts下行政区域的交集
+        List<District> districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
         List<Integer> schoolIds = statConclusionList.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
         List<FilterParamsDTO<Integer, String>> schoolFilterList = Collections.emptyList();
         if (CollectionUtils.isNotEmpty(schoolIds)) {
