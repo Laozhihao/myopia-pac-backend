@@ -666,7 +666,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public List<District> filterDistrictTree(List<District> districtTree, Set<Integer> districts) {
         if (CollectionUtils.isEmpty(districtTree) || CollectionUtils.isEmpty(districts)) {
-            return new ArrayList<>();
+            // 前端特意要null，用来特殊处理
+            return null;
         }
         return districtTree.stream().map(district ->
                 filterDistrict(district, districts)
