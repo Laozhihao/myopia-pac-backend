@@ -23,12 +23,12 @@ public class DeviceQuery extends Device {
     /**
      * 开始-销售时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startSaleDate;
 
     /**
      * 结束-销售时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endSaleDate;
 }

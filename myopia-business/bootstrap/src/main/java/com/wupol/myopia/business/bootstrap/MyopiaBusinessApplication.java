@@ -8,8 +8,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.TimeZone;
-
 @EnableAsync
 @MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
 @EnableDiscoveryClient
@@ -19,7 +17,7 @@ import java.util.TimeZone;
 public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        //TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
         SpringApplication.run(MyopiaBusinessApplication.class, args);
     }
 
