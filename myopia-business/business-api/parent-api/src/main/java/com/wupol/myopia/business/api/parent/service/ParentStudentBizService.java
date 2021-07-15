@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.parent.domain.dos.*;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningReportResponseDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ScreeningVisionTrendsResponseDTO;
@@ -18,7 +19,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.VisitsReportDetailRequest
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -50,7 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -86,9 +86,9 @@ public class ParentStudentBizService {
     @Resource
     private HospitalService hospitalService;
     @Resource
-    private DistrictService districtService;
-    @Resource
     private MedicalReportBizService medicalReportBizService;
+    @Resource
+    private OrgCooperationHospitalBizService orgCooperationHospitalBizService;
 
     /**
      * 孩子统计、孩子列表
@@ -96,7 +96,7 @@ public class ParentStudentBizService {
      * @param currentUser 当前用户
      * @return CountParentStudentResponseDTO 家长端-统计家长绑定学生
      */
-    public CountParentStudentResponseDTO countParentStudent(CurrentUser currentUser) throws IOException {
+    public CountParentStudentResponseDTO countParentStudent(CurrentUser currentUser) {
         CountParentStudentResponseDTO responseDTO = new CountParentStudentResponseDTO();
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         List<Integer> studentIds = parentStudentService.getStudentIdByParentId(parent.getId());
@@ -175,10 +175,9 @@ public class ParentStudentBizService {
      * @param currentUser 当前用户
      * @param student     学生
      * @return StudentDTO
-     * @throws IOException io异常
      */
     @Transactional(rollbackFor = Exception.class)
-    public StudentDTO updateStudent(CurrentUser currentUser, Student student) throws IOException {
+    public StudentDTO updateStudent(CurrentUser currentUser, Student student) {
         // 查找家长ID
         Parent parent = parentService.getParentByUserId(currentUser.getId());
         if (null == parent) {
@@ -438,7 +437,7 @@ public class ParentStudentBizService {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
         }
-        responseDTO.setSuggestHospital(packageSuggestHospital(screeningOrgId));
+        responseDTO.setSuggestHospital(orgCooperationHospitalBizService.packageSuggestHospital(screeningOrgId));
         response.setDetail(responseDTO);
         return response;
     }
@@ -449,57 +448,18 @@ public class ParentStudentBizService {
      * @param screeningOrgId 筛查机构Id
      * @return 推荐医院列表
      */
-    public List<SuggestHospitalDO> getCooperationHospital(Integer screeningOrgId) {
-        List<SuggestHospitalDO> responseDTO = new ArrayList<>();
+    public List<SuggestHospitalDTO> getCooperationHospital(Integer screeningOrgId) {
+        List<SuggestHospitalDTO> responseDTO = new ArrayList<>();
         List<OrgCooperationHospital> cooperationHospitalList = orgCooperationHospitalService.getCooperationHospitalList(screeningOrgId);
         if (cooperationHospitalList.isEmpty()) {
             return responseDTO;
         }
         cooperationHospitalList.forEach(c -> {
-            SuggestHospitalDO suggestHospitalDO = new SuggestHospitalDO();
+            SuggestHospitalDTO suggestHospitalDTO = new SuggestHospitalDTO();
             Hospital hospital = hospitalService.getById(c.getHospitalId());
-            packageHospitalInfo(suggestHospitalDO, hospital);
-            responseDTO.add(suggestHospitalDO);
+            orgCooperationHospitalBizService.packageHospitalInfo(suggestHospitalDTO, hospital);
+            responseDTO.add(suggestHospitalDTO);
         });
         return responseDTO;
-    }
-
-
-    /**
-     * 封装推荐医院
-     *
-     * @param screeningOrgId 筛查机构Id
-     * @return SuggestHospitalDO
-     */
-    private SuggestHospitalDO packageSuggestHospital(Integer screeningOrgId) {
-        SuggestHospitalDO hospitalDO = new SuggestHospitalDO();
-        Integer hospitalId = orgCooperationHospitalService.getSuggestHospital(screeningOrgId);
-        if (Objects.isNull(hospitalId)) {
-            return hospitalDO;
-        }
-        Hospital hospital = hospitalService.getById(hospitalId);
-        packageHospitalInfo(hospitalDO, hospital);
-        return hospitalDO;
-    }
-
-    /**
-     * 封装医院信息
-     *
-     * @param suggestHospitalDO 推荐医院
-     * @param hospital          医院实体
-     */
-    private void packageHospitalInfo(SuggestHospitalDO suggestHospitalDO, Hospital hospital) {
-        if (Objects.nonNull(hospital.getAvatarFileId())) {
-            suggestHospitalDO.setAvatarFile(resourceFileService.getResourcePath(hospital.getAvatarFileId()));
-        }
-        suggestHospitalDO.setName(hospital.getName());
-        // 行政区域名称
-        String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
-                hospital.getAreaCode(), hospital.getTownCode());
-        if (StringUtils.isNotBlank(address)) {
-            suggestHospitalDO.setAddress(address);
-        } else {
-            suggestHospitalDO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
-        }
     }
 }

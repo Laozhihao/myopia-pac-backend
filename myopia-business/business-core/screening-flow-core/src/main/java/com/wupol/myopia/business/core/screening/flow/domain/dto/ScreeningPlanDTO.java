@@ -19,5 +19,5 @@ public class ScreeningPlanDTO extends ScreeningPlan {
     /**
      * 筛查计划中的学校列表
      */
-    List<ScreeningPlanSchool> schools;
+    private List<ScreeningPlanSchool> schools;
 }

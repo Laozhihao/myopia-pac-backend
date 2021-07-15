@@ -32,14 +32,7 @@ import java.util.Objects;
 public class Student extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 二维码生成规则: "SA@" + 32位"学生id",不足使用0补充
-     * 如studentId = 123 ,则生成的结果是:
-     * SA@0000000000000000000123
-     * 如studentId = 1 ,则生成的结果是:
-     * SA@0000000000000000000001
-     */
-    public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA@%032d";
+
     /**
      * id
      */

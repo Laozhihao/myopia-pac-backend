@@ -7,7 +7,6 @@ import com.wupol.myopia.business.core.hospital.constant.HospitalCacheKey;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +23,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class MedicalRecordFacade {
 
-
-    @Autowired
-    private StudentService studentService;
     @Autowired
     private MedicalRecordService medicalRecordService;
     @Autowired

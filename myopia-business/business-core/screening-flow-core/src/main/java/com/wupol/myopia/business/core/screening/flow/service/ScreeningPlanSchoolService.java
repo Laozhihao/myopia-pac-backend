@@ -57,7 +57,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
         // 删除掉已有的不存在的学校信息
-        List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.EMPTY_LIST : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        List<Integer> excludeSchoolIds = CollectionUtils.isEmpty(screeningSchools) ? Collections.emptyList() : screeningSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         deleteByPlanIdAndExcludeSchoolIds(screeningPlanId, excludeSchoolIds);
         if (!CollectionUtils.isEmpty(screeningSchools)) {
             saveOrUpdateBatchByPlanId(screeningPlanId, screeningOrgId, screeningSchools);

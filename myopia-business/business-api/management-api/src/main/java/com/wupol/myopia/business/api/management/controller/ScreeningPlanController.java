@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.framework.utils.FreemarkerUtil;
 import com.wupol.framework.utils.PdfUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -12,15 +13,20 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.model.*;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -117,7 +123,7 @@ public class ScreeningPlanController {
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
@@ -160,7 +166,7 @@ public class ScreeningPlanController {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanDTO.getId(), CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningPlanDTO.setScreeningOrgId(screeningPlan.getScreeningOrgId());
@@ -321,7 +327,7 @@ public class ScreeningPlanController {
         ScreeningPlan screeningPlan = validateExistAndAuthorize(id, CommonConst.STATUS_RELEASE);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 没有学校，直接报错
         List<ScreeningPlanSchool> schoolListsByPlanId = screeningPlanSchoolService.getSchoolListsByPlanId(id);
@@ -394,10 +400,11 @@ public class ScreeningPlanController {
      * 导出筛查计划的学生二维码信息
      *
      * @param schoolClassInfo 参与筛查计划的学生
+     * @param type            1-二维码 2-VS666
      * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
-    public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo) {
+    public Map<String, String> downloadQRCodeFile(@Valid ScreeningPlanSchoolStudent schoolClassInfo, Integer type) {
         try {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
@@ -408,7 +415,16 @@ public class ScreeningPlanController {
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setGenderDesc(GenderEnum.getName(student.getGender())).setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
+            students.forEach(student -> {
+                student.setGenderDesc(GenderEnum.getName(student.getGender()));
+                String content;
+                if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
+                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
+                } else {
+                    content = setVs666QrCodeRule(student);
+                }
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            });
             // 3. 处理pdf报告参数
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
@@ -421,6 +437,24 @@ public class ScreeningPlanController {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    /**
+     * 获取VS666格式所需要的二维码
+     *
+     * @param student 学生信息
+     * @return 二维码
+     */
+    private String setVs666QrCodeRule(ScreeningStudentDTO student) {
+        return String.format(QrCodeConstant.VS666_QR_CODE_CONTENT_FORMAT_RULE,
+                String.format(QrCodeConstant.GENERATE_VS666_ID, student.getPlanId(), student.getPlanStudentId()),
+                student.getName(),
+                GenderEnum.getEnGenderDesc(student.getGender()),
+                student.getAge(),
+                StringUtils.getDefaultIfBlank(student.getParentPhone(), "null"),
+                StringUtils.getDefaultIfBlank(student.getSchoolName(), "null"),
+                StringUtils.isEmpty(student.getGradeName()) ? "null" : student.getGradeName() + student.getClassName(),
+                StringUtils.getDefaultIfBlank(student.getIdCard(), "null"));
     }
 
     /**
@@ -444,7 +478,7 @@ public class ScreeningPlanController {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(Student.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
+            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);
