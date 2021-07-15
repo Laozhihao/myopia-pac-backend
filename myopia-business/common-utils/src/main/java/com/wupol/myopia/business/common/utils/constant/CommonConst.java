@@ -128,7 +128,7 @@ public class CommonConst {
     /**
      * 导出消息通知内容-失败
      */
-    public String SEND_SMS_TO_PARENT_MESSAGE = "【近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
+    public String SEND_SMS_TO_PARENT_MESSAGE = "【青少年近视防控】%s近视筛查结果：左眼%s，右眼%s，%s";
 
     /**
      * 合作医院 1-合作医院
