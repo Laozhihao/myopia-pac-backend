@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.screening.app.domain.dto;
+package com.wupol.myopia.business.api.device.domain.dto;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

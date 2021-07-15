@@ -36,7 +36,7 @@ public class DeviceSourceDataService extends BaseService<DeviceSourceDataMapper,
         // 将存在的数据的唯一索引组成String Set
         Set<String> existSet = existDeviceScreeningDataDTO.stream().map(DeviceScreenDataDTO::getUnikeyString).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(existSet)) {
-            return existDeviceScreeningDataDTO;
+            return deviceScreenDataDTOList;
         }
         // 排除已经存在的数据
         return deviceScreenDataDTOList.stream().filter(deviceScreenDataDTO -> {
