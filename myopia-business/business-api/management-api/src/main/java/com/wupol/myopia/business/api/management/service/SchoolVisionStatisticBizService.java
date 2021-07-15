@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,6 +30,9 @@ public class SchoolVisionStatisticBizService {
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
     /**
      * 根据条件查找所有数据
      *
@@ -39,6 +43,10 @@ public class SchoolVisionStatisticBizService {
     public List<SchoolVisionStatistic> getStatisticDtoByNoticeIdAndOrgId(Integer noticeId, CurrentUser user, List<Integer> districtIds) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
+        }
+        if (user.isGovDeptUser()) {
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            return getStatisticDtoByPlanIdsAndOrgId(screeningPlans, districtIds);
         }
         if (user.isScreeningUser()) {
             LambdaQueryWrapper<SchoolVisionStatistic> queryWrapper = new LambdaQueryWrapper<>();
