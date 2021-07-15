@@ -339,7 +339,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param parentCode 行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) {
         Assert.notNull(parentCode, "行政区域代码编号不能为空");
         String key = String.format(DistrictCacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);

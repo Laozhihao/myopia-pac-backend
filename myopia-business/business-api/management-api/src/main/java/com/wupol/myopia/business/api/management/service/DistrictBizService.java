@@ -124,9 +124,12 @@ public class DistrictBizService {
         if (user == null) {
             return districts;
         }
-        // 当前用户的
+        // 当前用户的行政区域
         District district = getNotPlatformAdminUserDistrict(user);
-        return Collections.singletonList(district.setChild(districtService.filterDistrictTree(districtService.getChildDistrictByParentIdPriorityCache(district.getId()), districtIds)));
+        // 获取下属的行政区域
+        List<District> childDistrictTree = districtService.getSpecificDistrictTreePriorityCache(district.getCode());
+        // 过滤该地区树没在districts
+        return districtService.filterDistrictTree(childDistrictTree, districtIds);
     }
 
 
