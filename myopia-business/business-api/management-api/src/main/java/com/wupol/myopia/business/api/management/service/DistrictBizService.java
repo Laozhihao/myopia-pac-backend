@@ -8,14 +8,12 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author HaoHao
@@ -112,6 +110,23 @@ public class DistrictBizService {
         List<District> districtTree = getCurrentUserProvinceTree(user);
         return districtService.filterDistrictTree(districtTree, districtIds);
 
+    }
+
+    /**
+     * 获取当前用户地区树 与 districts 的交集
+     *
+     * @param user        当前用户
+     * @param districtIds 待求交集的行政区域ID集
+     * @return List<District>
+     */
+    public List<District> getChildDistrictValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+        List<District> districts = new ArrayList<>();
+        if (user == null) {
+            return districts;
+        }
+        // 当前用户的
+        District district = getNotPlatformAdminUserDistrict(user);
+        return Collections.singletonList(district.setChild(districtService.filterDistrictTree(districtService.getChildDistrictByParentIdPriorityCache(district.getId()), districtIds)));
     }
 
 
