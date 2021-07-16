@@ -30,6 +30,7 @@ public class HtmlToPdfUtil {
      * @return boolean
      **/
     public static boolean convert(String htmlSrcPath, String pdfFilePath) {
+        log.info("[html convert to pdf]{}, {}", htmlSrcPath, pdfFilePath);
         File file = new File(pdfFilePath);
         File parent = file.getParentFile();
         // 如果pdf保存路径不存在，则创建路径
