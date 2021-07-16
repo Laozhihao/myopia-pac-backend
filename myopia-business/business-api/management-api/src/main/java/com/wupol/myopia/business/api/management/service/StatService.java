@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -305,8 +306,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(averageVision.getAverageVisionLeft())
-                .averageVisionRight(averageVision.getAverageVisionRight())
+                .averageVisionLeft(BigDecimal.valueOf(averageVision.getAverageVisionLeft()).setScale(1,BigDecimal.ROUND_HALF_DOWN).floatValue())
+                .averageVisionRight(BigDecimal.valueOf(averageVision.getAverageVisionRight()).setScale(1,BigDecimal.ROUND_HALF_DOWN).floatValue())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
