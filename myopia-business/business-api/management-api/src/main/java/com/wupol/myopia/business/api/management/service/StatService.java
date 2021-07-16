@@ -880,17 +880,28 @@ public class StatService {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 
-        // 获取当前用户与districts下行政区域的交集
-        List<District> districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
-        Set<Integer> allDistrictId = districtService.getAllId(new HashSet<>(), districtList);
-        List<Integer> schoolIds = statConclusionList.stream().filter(s-> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        List<District> districtList;
+        List<Integer> schoolIds;
+        List<Integer> schoolAgeList;
+
+        // 政府人员的逻辑需要新的逻辑
+        if (currentUser.isGovDeptUser()) {
+            // 获取当前用户与districts下行政区域的交集
+            districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
+            Set<Integer> allDistrictId = districtService.getAllId(new HashSet<>(), districtList);
+            schoolIds = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+            schoolAgeList = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolAge).distinct().sorted().collect(Collectors.toList());
+        } else {
+            districtList = districtBizService.getValidDistrictTree(currentUser, districtIds);
+            schoolIds = statConclusionList.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+            schoolAgeList = statConclusionList.stream().map(StatConclusion::getSchoolAge)
+                    .distinct().sorted().collect(Collectors.toList());
+        }
         List<FilterParamsDTO<Integer, String>> schoolFilterList = Collections.emptyList();
         if (CollectionUtils.isNotEmpty(schoolIds)) {
             List<School> schoolList = schoolService.getByIds(schoolIds);
             schoolFilterList = schoolList.stream().map(x -> new FilterParamsDTO<>(x.getId(), x.getName())).collect(Collectors.toList());
         }
-        List<Integer> schoolAgeList = statConclusionList.stream().filter(s-> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolAge)
-                .distinct().sorted().collect(Collectors.toList());
         List<FilterParamsDTO<Integer, String>> schoolAgeFilterList = schoolAgeList.stream().map(x -> new FilterParamsDTO<>(x, SchoolAge.get(x).desc)).collect(Collectors.toList());
 
         DataContrastFilterDTO dataContrastFilterDTO = new DataContrastFilterDTO();
