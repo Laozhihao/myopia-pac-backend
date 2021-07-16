@@ -32,6 +32,8 @@ public class HtmlToPdfUtil {
     public static boolean convert(String htmlSrcPath, String pdfFilePath) {
         log.info("[html convert to pdf]{}, {}", htmlSrcPath, pdfFilePath);
         File file = new File(pdfFilePath);
+        System.out.println(file.exists());
+        log.info("文件是否存在：{}", file.exists());
         File parent = file.getParentFile();
         // 如果pdf保存路径不存在，则创建路径
         if(!parent.exists()){
@@ -49,7 +51,7 @@ public class HtmlToPdfUtil {
             br = new BufferedReader(reader);
             String line;
             while ((line = br.readLine()) != null) {
-                log.debug(line);
+                log.info(line);
                 if (line.contains("Error")) {
                     log.error("【HTML转PDF异常】：" + line);
                     process.destroy();
@@ -57,7 +59,9 @@ public class HtmlToPdfUtil {
                 }
             }
             int exitCode = process.waitFor();
-            log.debug("exitCode = "+exitCode);
+            log.info("exitCode = "+exitCode);
+            log.info("文件是否存在：{}", file.exists());
+            System.out.println(file.exists());
         } catch (IOException | InterruptedException e) {
             log.error("【HTML转PDF异常】", e);
             Thread.currentThread().interrupt();
@@ -76,4 +80,5 @@ public class HtmlToPdfUtil {
         }
         return true;
     }
+
 }
