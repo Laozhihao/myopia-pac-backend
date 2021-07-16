@@ -209,10 +209,9 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public List<Integer> getValidDistrictIdsByNotificationId(
-            int notificationId, CurrentUser currentUser) {
-        List<ScreeningPlan> screeningPlans =
-                managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
+    public List<Integer> getValidDistrictIdsByNotificationId(int notificationId, CurrentUser currentUser) {
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService
+                .getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (currentUser.isPlatformAdminUser()) {
@@ -233,9 +232,14 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) {
-        List<Integer> validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
-
+    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) throws IOException {
+        List<Integer> validDistrictIds;
+        if (currentUser.isGovDeptUser()) {
+            // 获取以当前政府人员所属行政区域为根节点的行政区域树
+            validDistrictIds = new ArrayList<>(districtService.getAllId(new HashSet<>(), districtBizService.getCurrentUserDistrictTree(currentUser)));
+        } else {
+            validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
+        }
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
