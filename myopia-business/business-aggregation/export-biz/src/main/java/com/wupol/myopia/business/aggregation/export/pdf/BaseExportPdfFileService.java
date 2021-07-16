@@ -63,6 +63,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
             Integer fileId = uploadFile(file);
             // 7.发送成功通知
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), fileName, fileId);
+            log.info("导出成功：{}", file.getName());
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成报告异常】{}", requestData, e);
@@ -159,6 +160,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
         if (StringUtils.isEmpty(directoryPath)) {
             return;
         }
+        log.info("开始删除文件：{}", directoryPath);
         FileUtils.deleteQuietly(new File(directoryPath));
     }
 
