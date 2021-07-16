@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.device.service;
 
-import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
@@ -103,12 +102,12 @@ public class DeviceUploadDataService {
             throw new BusinessException("无效找到设备");
         }
         //判断id是否是特殊设备扫描出来的(如vs666)
-        List<DeviceScreenDataDTO> deviceScreenDataDTOList = null;
-        try {
+        List<DeviceScreenDataDTO> deviceScreenDataDTOList = deviceUploadDto.getData();
+   /*     try {
             deviceScreenDataDTOList = JSON.parseArray(deviceUploadDto.getData(), DeviceScreenDataDTO.class);
         } catch (Exception e) {
             throw new BusinessException("数据转换异常",e);
-        }
+        }*/
 
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             throw new BusinessException("无法找到筛查数据");

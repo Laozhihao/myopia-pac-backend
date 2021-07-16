@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.api.device.domain.dto;
 
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Classname DeviceUploadDto
@@ -27,8 +29,6 @@ public class DeviceUploadDTO implements Serializable {
     /**
      * 数据
      */
-    @NotBlank
-    @Length(max = 65535)
-    private String data;
+    private List<DeviceScreenDataDTO> data;
 
 }
