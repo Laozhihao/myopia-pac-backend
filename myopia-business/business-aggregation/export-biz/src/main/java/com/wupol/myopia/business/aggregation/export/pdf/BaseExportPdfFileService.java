@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -104,6 +105,9 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * @return java.io.File
      **/
     public File compressFile(String fileSavePath, String fileName) {
+        String[] ext = {"pdf"};
+        Collection<File> files = FileUtils.listFiles(new File(fileSavePath), ext, false);
+        files.forEach(x -> log.info(x.getName()));
         return ZipUtil.zip(fileSavePath);
     }
 
