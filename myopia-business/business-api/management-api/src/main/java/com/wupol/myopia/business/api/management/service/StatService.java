@@ -166,6 +166,9 @@ public class StatService {
      */
     public ScreeningDataContrast getScreeningDataContrast(
             Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
+        if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
+            params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
+        }
         Integer contrastId = params.getContrastId();
         if (contrastId == null || contrastId < 0) {
             return null;
@@ -794,7 +797,6 @@ public class StatService {
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
             Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
-
         if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
             params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
         }
