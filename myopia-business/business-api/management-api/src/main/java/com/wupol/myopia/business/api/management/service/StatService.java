@@ -882,13 +882,14 @@ public class StatService {
 
         // 获取当前用户与districts下行政区域的交集
         List<District> districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
-        List<Integer> schoolIds = statConclusionList.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        Set<Integer> allDistrictId = districtService.getAllId(new HashSet<>(), districtList);
+        List<Integer> schoolIds = statConclusionList.stream().filter(s-> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
         List<FilterParamsDTO<Integer, String>> schoolFilterList = Collections.emptyList();
         if (CollectionUtils.isNotEmpty(schoolIds)) {
             List<School> schoolList = schoolService.getByIds(schoolIds);
             schoolFilterList = schoolList.stream().map(x -> new FilterParamsDTO<>(x.getId(), x.getName())).collect(Collectors.toList());
         }
-        List<Integer> schoolAgeList = statConclusionList.stream().map(StatConclusion::getSchoolAge)
+        List<Integer> schoolAgeList = statConclusionList.stream().filter(s-> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolAge)
                 .distinct().sorted().collect(Collectors.toList());
         List<FilterParamsDTO<Integer, String>> schoolAgeFilterList = schoolAgeList.stream().map(x -> new FilterParamsDTO<>(x, SchoolAge.get(x).desc)).collect(Collectors.toList());
 
