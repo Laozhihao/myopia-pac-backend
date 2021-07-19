@@ -50,7 +50,7 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
         log.info("汇总PDF生成完成，planId={}", exportCondition.getPlanId());
         printFileName(fileSavePath);
         // 各个学校详情
-//        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
+        generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
     }
 
     private void printFileName(String fileSavePath) {
