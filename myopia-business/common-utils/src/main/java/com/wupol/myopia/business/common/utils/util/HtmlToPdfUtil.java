@@ -30,9 +30,12 @@ public class HtmlToPdfUtil {
      * @return boolean
      **/
     public static boolean convert(String htmlSrcPath, String pdfFilePath) {
-        log.info("[html convert to pdf]{}, {}", htmlSrcPath, pdfFilePath);
+        return convert(htmlSrcPath, pdfFilePath, 0);
+    }
+
+    public static boolean convert(String htmlSrcPath, String pdfFilePath, int retryCount) {
+        log.info("[html convert to pdf] {}, {}", htmlSrcPath, pdfFilePath);
         File file = new File(pdfFilePath);
-        System.out.println(file.exists());
         log.info("文件是否存在：{}", file.exists());
         File parent = file.getParentFile();
         // 如果pdf保存路径不存在，则创建路径
@@ -40,7 +43,7 @@ public class HtmlToPdfUtil {
             parent.mkdirs();
         }
         // "--window-status 1" 允许js异步请求
-        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath);
+        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--debug-javascript", "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath);
         log.debug(processBuilder.command().toString());
         processBuilder.redirectErrorStream(true);
         BufferedReader br = null;
@@ -59,9 +62,12 @@ public class HtmlToPdfUtil {
                 }
             }
             int exitCode = process.waitFor();
-            log.info("exitCode = "+exitCode);
+            if (exitCode != 0 && retryCount <= 5) {
+                log.info("重试：{}", retryCount + 1);
+                convert(htmlSrcPath, pdfFilePath, retryCount + 1);
+            }
+            log.info("exitCode = " + exitCode);
             log.info("文件是否存在：{}", file.exists());
-            System.out.println(file.exists());
         } catch (IOException | InterruptedException e) {
             log.error("【HTML转PDF异常】", e);
             Thread.currentThread().interrupt();
