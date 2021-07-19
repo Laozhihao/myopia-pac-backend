@@ -7,7 +7,6 @@ import com.wupol.myopia.business.api.management.domain.dto.ContrastTypeYearItems
 import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterParamsDTO;
 import com.wupol.myopia.business.api.management.domain.dto.DataContrastFilterResultDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatWholeResultDTO;
-import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.StatReportService;
 import com.wupol.myopia.business.api.management.service.StatService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningClassStat;
@@ -31,9 +30,6 @@ public class StatController {
 
     @Autowired
     private StatReportService statReportService;
-
-    @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 获取预警信息
@@ -140,10 +136,5 @@ public class StatController {
         params.setSchoolGradeCode(schoolGradeCode);
         params.setSchoolClass(schoolClass);
         return statService.getDataContrastFilter(contrastType, params, CurrentUserUtil.getCurrentUser());
-    }
-
-    @GetMapping("/sendMsg")
-    public void sendMsg() {
-        scheduledTasksExecutor.sendSMSNotice();
     }
 }
