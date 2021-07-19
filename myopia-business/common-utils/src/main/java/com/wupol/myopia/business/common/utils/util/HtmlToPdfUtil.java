@@ -43,7 +43,7 @@ public class HtmlToPdfUtil {
             parent.mkdirs();
         }
         // "--window-status 1" 允许js异步请求
-        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--debug-javascript", "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath);
+        ProcessBuilder processBuilder = new ProcessBuilder(HTML_TO_PDF_TOOL_COMMAND, "--load-media-error-handling", "ignore", "--load-error-handling", "ignore", "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath);
         log.debug(processBuilder.command().toString());
         processBuilder.redirectErrorStream(true);
         BufferedReader br = null;
@@ -62,12 +62,13 @@ public class HtmlToPdfUtil {
                 }
             }
             int exitCode = process.waitFor();
-            if (exitCode != 0 && retryCount <= 5) {
-                log.info("重试：{}", retryCount + 1);
-                convert(htmlSrcPath, pdfFilePath, retryCount + 1);
-            }
             log.info("exitCode = " + exitCode);
             log.info("文件是否存在：{}", file.exists());
+            retryCount += 1;
+            if (exitCode != 0 && retryCount <= 5) {
+                log.info("重试：{}", retryCount);
+                convert(htmlSrcPath, pdfFilePath, retryCount);
+            }
         } catch (IOException | InterruptedException e) {
             log.error("【HTML转PDF异常】", e);
             Thread.currentThread().interrupt();
