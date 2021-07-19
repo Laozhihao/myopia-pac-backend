@@ -160,7 +160,6 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
         if (StringUtils.isEmpty(directoryPath)) {
             return;
         }
-        log.info("开始删除文件：{}", directoryPath);
         FileUtils.deleteQuietly(new File(directoryPath));
     }
 

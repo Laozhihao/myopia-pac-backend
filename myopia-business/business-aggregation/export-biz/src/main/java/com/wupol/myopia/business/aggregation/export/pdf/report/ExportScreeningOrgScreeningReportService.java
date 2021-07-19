@@ -10,13 +10,8 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
 
 /**
  * 导出筛查机构的筛查报告
@@ -47,16 +42,8 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         // 所有学校汇总
         generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
-        log.info("汇总PDF生成完成，planId={}", exportCondition.getPlanId());
-        printFileName(fileSavePath);
         // 各个学校详情
         generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
-    }
-
-    private void printFileName(String fileSavePath) {
-        String[] ext = {"pdf"};
-        Collection<File> files = FileUtils.listFiles(new File(fileSavePath), ext, false);
-        files.forEach(x -> log.info(x.getName()));
     }
 
     /**
