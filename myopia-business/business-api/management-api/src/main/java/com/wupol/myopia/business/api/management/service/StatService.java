@@ -915,7 +915,21 @@ public class StatService {
             schoolFilterList = schoolList.stream().map(x -> new FilterParamsDTO<>(x.getId(), x.getName())).collect(Collectors.toList());
         }
         List<FilterParamsDTO<Integer, String>> schoolAgeFilterList = schoolAgeList.stream().map(x -> new FilterParamsDTO<>(x, SchoolAge.get(x).desc)).collect(Collectors.toList());
+        return getDataContrastFilterDTO(statConclusionList, schoolId, schoolGradeCode, districtList, schoolFilterList, schoolAgeFilterList);
+    }
 
+    /**
+     * 封装DataContrastFilterDTO
+     *
+     * @param statConclusionList  筛查数据结论
+     * @param schoolId            学校Id
+     * @param schoolGradeCode     年级编码
+     * @param districtList        行政区域List
+     * @param schoolFilterList    学校过滤参数
+     * @param schoolAgeFilterList 学龄段过滤参数
+     * @return DataContrastFilterDTO
+     */
+    private DataContrastFilterDTO getDataContrastFilterDTO(List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, List<District> districtList, List<FilterParamsDTO<Integer, String>> schoolFilterList, List<FilterParamsDTO<Integer, String>> schoolAgeFilterList) {
         DataContrastFilterDTO dataContrastFilterDTO = new DataContrastFilterDTO();
         dataContrastFilterDTO.setDistrictList(districtList);
         dataContrastFilterDTO.setSchoolList(schoolFilterList);
