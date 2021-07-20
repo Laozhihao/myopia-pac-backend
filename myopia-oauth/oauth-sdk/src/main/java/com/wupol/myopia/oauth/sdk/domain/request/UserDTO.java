@@ -23,22 +23,22 @@ public class UserDTO extends User {
     /**
      * 开始创建时间（不为空时，endCreateTime也不能为空，且不能比endCreateTime大）
      **/
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startCreateTime;
     /**
      * 结束创建时间（不为空时，startCreateTime也不能为空，且不能比startCreateTime小）
      **/
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endCreateTime;
     /**
      * 开始最后登录时间（不为空时，endLastLoginTime也不能为空，且不能比endLastLoginTime大）
      **/
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startLastLoginTime;
     /**
      * 结束最后登录时间（不为空时，startLastLoginTime也不能为空，且不能比startLastLoginTime小）
      **/
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endLastLoginTime;
     /**
      * 角色名

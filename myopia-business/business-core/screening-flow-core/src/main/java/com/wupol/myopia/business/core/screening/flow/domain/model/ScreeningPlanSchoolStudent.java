@@ -120,7 +120,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
@@ -151,7 +151,7 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     /**
      * 筛查计划--创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**

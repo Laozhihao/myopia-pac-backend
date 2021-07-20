@@ -31,7 +31,7 @@ public class VisionMedicalRecord {
     /** 是否佩镜 */
     private Boolean glassesSituation;
     /** 旧镜验镜时间，选择是否佩镜后必填 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date oldGlassTime;
     /** 右眼裸眼视力 */
     private String rightRawVision;

@@ -335,7 +335,7 @@ public class RescreeningResultVO {
         /**
          * firstTime
          */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 
         private Date firstTime;
         /**
@@ -357,7 +357,7 @@ public class RescreeningResultVO {
         /**
          * 复检时间
          */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date reviewTime;
         /**
          * 矫正视力
