@@ -106,10 +106,6 @@ public class GeneratePdfFileService {
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
         Assert.notEmpty(schoolIdList, "学校ID集为空");
-        // 生成一个总的报告文件
-        if (Objects.nonNull(planId)) {
-            generateScreeningPlanReportPdfFile(saveDirectory, planId);
-        }
         schoolIdList.forEach(schoolId -> generateSchoolScreeningReportPdfFile(saveDirectory, noticeId, planId, schoolId));
     }
 
@@ -119,6 +115,7 @@ public class GeneratePdfFileService {
      * @param planId
      */
     public void generateScreeningPlanReportPdfFile(String saveDirectory, Integer planId) {
+        log.info("生成筛查计划总报告, planId={}", planId);
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "该计划不存在");
         String reportFileName = String.format(PDFFileNameConstant.PLAN_REPORT_PDF_FILE_NAME, DateUtil.getYear(plan.getStartTime()));
