@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,6 +28,9 @@ public class SchoolMonitorStatisticBizService {
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
 
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
     /**
      * 通过通知id和机构id获取统计数据
      * @param noticeId
@@ -46,6 +50,11 @@ public class SchoolMonitorStatisticBizService {
         }
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
+        // 政府人员走新的逻辑
+        if (user.isGovDeptUser()) {
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            return this.getStatisticDtoByPlansAndOrgId(screeningPlans, districtIds);
+        }
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
         return this.getStatisticDtoByPlansAndOrgId(screeningPlans, districtIds);
     }

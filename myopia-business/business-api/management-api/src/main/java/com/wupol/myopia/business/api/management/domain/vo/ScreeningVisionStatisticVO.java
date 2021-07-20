@@ -87,20 +87,18 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        Set<Item> subordinateItemSet = districtVisionStatistics.stream().map(districtVisionStatistic -> {
-            Integer districtId = districtVisionStatistic.getDistrictId();
-            String rangeName = "";
+        this.subordinateDatas = districtVisionStatistics.stream().map(districtVisionStatistic -> {
+            Integer statDistrictId = districtVisionStatistic.getDistrictId();
+            String statRangeName;
             //是合计数据
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
-                rangeName = "合计";
-                ScreeningVisionStatisticVO.Item item = this.getItem(districtId, rangeName, districtVisionStatistic);
-                totalData = item;
+                statRangeName = "合计";
+                totalData = this.getItem(statDistrictId, statRangeName, districtVisionStatistic);
                 return null;
             }
-            rangeName = districtIdNameMap.get(districtId);
-            return this.getItem(districtId, rangeName, districtVisionStatistic);
+            statRangeName = districtIdNameMap.get(statDistrictId);
+            return this.getItem(statDistrictId, statRangeName, districtVisionStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.subordinateDatas = subordinateItemSet;
     }
 
     private Item getItem(Integer districtId, String rangeName, DistrictVisionStatistic districtVisionStatistic) {
@@ -108,8 +106,8 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
         item.setFocusTargetsNum(districtVisionStatistic.getKeyWarningNumbers())
                 .setActualScreeningNum(districtVisionStatistic.getRealScreeningNumbers())
                 .setValidScreeningNum(districtVisionStatistic.getValidScreeningNumbers())
-                .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision())
-                .setAverageVisionRight(districtVisionStatistic.getAvgRightVision())
+                .setAverageVisionLeft(districtVisionStatistic.getAvgLeftVision().setScale(1,BigDecimal.ROUND_HALF_UP))
+                .setAverageVisionRight(districtVisionStatistic.getAvgRightVision().setScale(1,BigDecimal.ROUND_HALF_UP))
                 .setLowVisionNum(districtVisionStatistic.getLowVisionNumbers())
                 .setLowVisionRatio(districtVisionStatistic.getLowVisionRatio())
                 .setMyopiaNum(districtVisionStatistic.getMyopiaNumbers())
