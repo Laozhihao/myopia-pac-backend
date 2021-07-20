@@ -309,8 +309,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(BigDecimal.valueOf(averageVision.getAverageVisionLeft()).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
-                .averageVisionRight(BigDecimal.valueOf(averageVision.getAverageVisionRight()).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
+                .averageVisionLeft(new BigDecimal(String.valueOf(averageVision.getAverageVisionLeft())).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
+                .averageVisionRight(new BigDecimal(String.valueOf(averageVision.getAverageVisionRight())).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
