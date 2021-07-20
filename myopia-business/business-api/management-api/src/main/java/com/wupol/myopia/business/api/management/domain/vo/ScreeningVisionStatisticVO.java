@@ -88,16 +88,16 @@ public class ScreeningVisionStatisticVO extends ScreeningBasicResult {
     private void setItemData(Integer currentDistrictId, List<DistrictVisionStatistic> districtVisionStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
         this.subordinateDatas = districtVisionStatistics.stream().map(districtVisionStatistic -> {
-            Integer districtId1 = districtVisionStatistic.getDistrictId();
-            String rangeName1;
+            Integer statDistrictId = districtVisionStatistic.getDistrictId();
+            String statRangeName;
             //是合计数据
             if (currentDistrictId.equals(districtVisionStatistic.getDistrictId())) {
-                rangeName1 = "合计";
-                totalData = this.getItem(districtId1, rangeName1, districtVisionStatistic);
+                statRangeName = "合计";
+                totalData = this.getItem(statDistrictId, statRangeName, districtVisionStatistic);
                 return null;
             }
-            rangeName1 = districtIdNameMap.get(districtId1);
-            return this.getItem(districtId1, rangeName1, districtVisionStatistic);
+            statRangeName = districtIdNameMap.get(statDistrictId);
+            return this.getItem(statDistrictId, statRangeName, districtVisionStatistic);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
