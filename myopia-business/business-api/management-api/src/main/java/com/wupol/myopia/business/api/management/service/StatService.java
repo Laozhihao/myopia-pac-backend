@@ -929,7 +929,10 @@ public class StatService {
      * @param schoolAgeFilterList 学龄段过滤参数
      * @return DataContrastFilterDTO
      */
-    private DataContrastFilterDTO getDataContrastFilterDTO(List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, List<District> districtList, List<FilterParamsDTO<Integer, String>> schoolFilterList, List<FilterParamsDTO<Integer, String>> schoolAgeFilterList) {
+    private DataContrastFilterDTO getDataContrastFilterDTO(List<StatConclusion> statConclusionList, Integer schoolId,
+                                                           String schoolGradeCode, List<District> districtList,
+                                                           List<FilterParamsDTO<Integer, String>> schoolFilterList,
+                                                           List<FilterParamsDTO<Integer, String>> schoolAgeFilterList) {
         DataContrastFilterDTO dataContrastFilterDTO = new DataContrastFilterDTO();
         dataContrastFilterDTO.setDistrictList(districtList);
         dataContrastFilterDTO.setSchoolList(schoolFilterList);
