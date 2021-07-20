@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.screening.app.schedules;
 
-import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningVisionMsgService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +46,4 @@ public class SendWarningMsgScheduledTask {
         screeningVisionMsgService.repeatNoticeWarningMsg(BEFORE_30_DAYS);
     }
 
-
-    @Scheduled(fixedDelay = 1000000)
-    public void testTimeZone() {
-        System.out.println("--------------------------------------");
-        System.out.println(DateFormatUtil.format(new Date(),DateFormatUtil.FORMAT_DETAIL_TIME));
-        screeningVisionMsgService.repeatNoticeWarningMsg(BEFORE_30_DAYS);
-    }
 }
