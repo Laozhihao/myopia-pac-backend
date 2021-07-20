@@ -42,7 +42,7 @@ spring:
   datasource:
     druid:
       ### 数据库配置
-      url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?useUnicode=true&characterEncoding=${DATABASE_CHARSET}&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?zeroDateTimeBehavior=CONVERT_TO_NULL&useUnicode=true&characterEncoding=${DATABASE_CHARSET}&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: ${DATABASE_USER}
       password: ${DATABASE_PASSWORD}

@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -165,6 +166,9 @@ public class StatService {
      */
     public ScreeningDataContrast getScreeningDataContrast(
             Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
+        if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
+            params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
+        }
         Integer contrastId = params.getContrastId();
         if (contrastId == null || contrastId < 0) {
             return null;
@@ -209,10 +213,9 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public List<Integer> getValidDistrictIdsByNotificationId(
-            int notificationId, CurrentUser currentUser) {
-        List<ScreeningPlan> screeningPlans =
-                managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
+    public List<Integer> getValidDistrictIdsByNotificationId(int notificationId, CurrentUser currentUser) {
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService
+                .getScreeningPlanByNoticeIdAndUser(notificationId, currentUser);
         Set<Integer> districtIds = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(
                 screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (currentUser.isPlatformAdminUser()) {
@@ -233,9 +236,14 @@ public class StatService {
      * @return
      * @throws IOException
      */
-    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) {
-        List<Integer> validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
-
+    public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) throws IOException {
+        List<Integer> validDistrictIds = new ArrayList<>();
+        if (currentUser.isGovDeptUser()) {
+            // 获取以当前政府人员所属行政区域为根节点的行政区域树
+            districtService.getAllIds(validDistrictIds, districtBizService.getCurrentUserDistrictTree(currentUser));
+        } else {
+            validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
+        }
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
@@ -301,8 +309,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(averageVision.getAverageVisionLeft())
-                .averageVisionRight(averageVision.getAverageVisionRight())
+                .averageVisionLeft(BigDecimal.valueOf(averageVision.getAverageVisionLeft()).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
+                .averageVisionRight(BigDecimal.valueOf(averageVision.getAverageVisionRight()).setScale(1,BigDecimal.ROUND_HALF_UP).floatValue())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
@@ -784,11 +792,14 @@ public class StatService {
      * @param contrastType 对比类型
      * @param params       对比参数
      * @param currentUser  当前用户
-     * @return
-     * @throws IOException
+     * @return DataContrastFilterResultDTO
+     * @throws IOException io异常
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
+            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
+        if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
+            params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
+        }
         Integer contrastId = params.getContrastId();
         if (contrastId == null) {
             return null;
@@ -872,25 +883,56 @@ public class StatService {
      * @param schoolId           学校id
      * @param schoolGradeCode    年级code
      * @param currentUser        当前用户
-     * @return
-     * @throws IOException
+     * @return DataContrastFilterDTO
+     * @throws IOException io异常
      */
     public DataContrastFilterDTO getDataContrastFilter(
-            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) {
+            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) throws IOException {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 
-        List<District> districtList = districtBizService.getValidDistrictTree(currentUser, districtIds);
-        List<Integer> schoolIds = statConclusionList.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+        List<District> districtList;
+        List<Integer> schoolIds;
+        List<Integer> schoolAgeList;
+
+        // 政府人员的逻辑需要新的逻辑
+        if (currentUser.isGovDeptUser()) {
+            // 获取当前用户与districts下行政区域的交集
+            districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
+            List<Integer> allDistrictId = new ArrayList<>();
+            districtService.getAllIds(allDistrictId, districtList);
+            schoolIds = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+            schoolAgeList = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolAge).distinct().sorted().collect(Collectors.toList());
+        } else {
+            districtList = districtBizService.getValidDistrictTree(currentUser, districtIds);
+            schoolIds = statConclusionList.stream().map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
+            schoolAgeList = statConclusionList.stream().map(StatConclusion::getSchoolAge)
+                    .distinct().sorted().collect(Collectors.toList());
+        }
         List<FilterParamsDTO<Integer, String>> schoolFilterList = Collections.emptyList();
         if (CollectionUtils.isNotEmpty(schoolIds)) {
             List<School> schoolList = schoolService.getByIds(schoolIds);
             schoolFilterList = schoolList.stream().map(x -> new FilterParamsDTO<>(x.getId(), x.getName())).collect(Collectors.toList());
         }
-        List<Integer> schoolAgeList = statConclusionList.stream().map(StatConclusion::getSchoolAge)
-                .distinct().sorted().collect(Collectors.toList());
         List<FilterParamsDTO<Integer, String>> schoolAgeFilterList = schoolAgeList.stream().map(x -> new FilterParamsDTO<>(x, SchoolAge.get(x).desc)).collect(Collectors.toList());
+        return getDataContrastFilterDTO(statConclusionList, schoolId, schoolGradeCode, districtList, schoolFilterList, schoolAgeFilterList);
+    }
 
+    /**
+     * 封装DataContrastFilterDTO
+     *
+     * @param statConclusionList  筛查数据结论
+     * @param schoolId            学校Id
+     * @param schoolGradeCode     年级编码
+     * @param districtList        行政区域List
+     * @param schoolFilterList    学校过滤参数
+     * @param schoolAgeFilterList 学龄段过滤参数
+     * @return DataContrastFilterDTO
+     */
+    private DataContrastFilterDTO getDataContrastFilterDTO(List<StatConclusion> statConclusionList, Integer schoolId,
+                                                           String schoolGradeCode, List<District> districtList,
+                                                           List<FilterParamsDTO<Integer, String>> schoolFilterList,
+                                                           List<FilterParamsDTO<Integer, String>> schoolAgeFilterList) {
         DataContrastFilterDTO dataContrastFilterDTO = new DataContrastFilterDTO();
         dataContrastFilterDTO.setDistrictList(districtList);
         dataContrastFilterDTO.setSchoolList(schoolFilterList);
