@@ -17,8 +17,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeviceUploadResult {
-
+    /**
+     * 成功
+     */
     public static final  DeviceUploadResult SUCCESS = new DeviceUploadResult(true,"请求成功",null);
+    /**
+     * 失败
+     */
     public static final  DeviceUploadResult FAILURE = new DeviceUploadResult(false,"请求错误",null);
 
 
@@ -34,6 +39,15 @@ public class DeviceUploadResult {
      * 数据 (todo 类型未知,目前用不上)
      */
     private Object data;
+
+    /**
+     * 失败
+     * @param message 失败消息
+     * @return
+     */
+    public static DeviceUploadResult FAILURE(String message) {
+        return new DeviceUploadResult(true,message,null);
+    }
 
 }
 

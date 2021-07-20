@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
@@ -37,7 +38,9 @@ public class DeviceUploadDataController {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (Exception e) {
             log.error("设备上传数据失败,错误msg={},数据 = {}",e.getMessage(),JSON.toJSONString(deviceUploadDto));
-            //todo 暂时不把message 返回,1是现在的设备端也处理不了,2是现在处理有点麻烦,后面考虑统一处理
+            if (e instanceof BusinessException) {
+                return DeviceUploadResult.FAILURE(e.getMessage());
+            }
             return DeviceUploadResult.FAILURE;
         }
         return DeviceUploadResult.SUCCESS;

@@ -4,6 +4,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
+import com.wupol.myopia.business.api.device.util.CheckTypeUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -12,6 +13,8 @@ import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +48,8 @@ public class DeviceUploadDataService {
     private VisionScreeningBizService visionScreeningBizService;
     @Autowired
     private DeviceScreeningDataService deviceScreeningDataService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
 
     /**
@@ -101,13 +106,15 @@ public class DeviceUploadDataService {
         if (device == null) {
             throw new BusinessException("无效找到设备");
         }
+        //查询筛查机构是否过期
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        if (screeningOrganization == null) {
+            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
+        }
+        //设置检查结果
+        this.setCheckResult(deviceUploadDto.getData());
         //判断id是否是特殊设备扫描出来的(如vs666)
         List<DeviceScreenDataDTO> deviceScreenDataDTOList = deviceUploadDto.getData();
-   /*     try {
-            deviceScreenDataDTOList = JSON.parseArray(deviceUploadDto.getData(), DeviceScreenDataDTO.class);
-        } catch (Exception e) {
-            throw new BusinessException("数据转换异常",e);
-        }*/
 
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             throw new BusinessException("无法找到筛查数据");
@@ -126,6 +133,14 @@ public class DeviceUploadDataService {
         saveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
     }
 
+    /**
+     * 设置检查结果
+     * @param deviceScreenDataDTOList
+     */
+    private void setCheckResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+        deviceScreenDataDTOList.forEach(deviceScreenDataDTO ->
+            CheckTypeUtil.getCheckResult(deviceScreenDataDTO));
+    }
 
 
     /**
