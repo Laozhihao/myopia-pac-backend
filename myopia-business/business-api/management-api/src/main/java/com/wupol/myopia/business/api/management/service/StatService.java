@@ -237,10 +237,10 @@ public class StatService {
      * @throws IOException
      */
     public ScreeningClassStat getScreeningClassStat(Integer notificationId, CurrentUser currentUser) throws IOException {
-        List<Integer> validDistrictIds;
+        List<Integer> validDistrictIds = new ArrayList<>();
         if (currentUser.isGovDeptUser()) {
             // 获取以当前政府人员所属行政区域为根节点的行政区域树
-            validDistrictIds = new ArrayList<>(districtService.getAllId(new HashSet<>(), districtBizService.getCurrentUserDistrictTree(currentUser)));
+            districtService.getAllIds(validDistrictIds, districtBizService.getCurrentUserDistrictTree(currentUser));
         } else {
             validDistrictIds = this.getValidDistrictIdsByNotificationId(notificationId, currentUser);
         }
@@ -899,7 +899,8 @@ public class StatService {
         if (currentUser.isGovDeptUser()) {
             // 获取当前用户与districts下行政区域的交集
             districtList = districtBizService.getChildDistrictValidDistrictTree(currentUser, districtIds);
-            Set<Integer> allDistrictId = districtService.getAllId(new HashSet<>(), districtList);
+            List<Integer> allDistrictId = new ArrayList<>();
+            districtService.getAllIds(allDistrictId, districtList);
             schoolIds = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolId).distinct().collect(Collectors.toList());
             schoolAgeList = statConclusionList.stream().filter(s -> allDistrictId.contains(s.getDistrictId())).map(StatConclusion::getSchoolAge).distinct().sorted().collect(Collectors.toList());
         } else {

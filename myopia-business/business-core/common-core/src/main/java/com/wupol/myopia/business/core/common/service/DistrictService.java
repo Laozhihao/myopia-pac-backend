@@ -757,25 +757,4 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String pre = String.valueOf(district.getCode()).substring(0, 2);
         return new TwoTuple<>(null, Integer.valueOf(pre));
     }
-
-    /**
-     * 获取当前行政区域树的所有ID
-     *
-     * @param set       初始化Set，为空即可
-     * @param districts 行政区域
-     * @return 行政区域Id
-     */
-    public Set<Integer> getAllId(HashSet<Integer> set, List<District> districts) {
-        if (CollectionUtils.isEmpty(districts)) {
-            return set;
-        }
-        for (District district : districts) {
-            set.add(district.getId());
-            if (!CollectionUtils.isEmpty(district.getChild())) {
-                getAllId(set, district.getChild());
-            }
-        }
-        return set;
-    }
-
 }
