@@ -22,7 +22,8 @@ public enum PermissionTemplateType {
     CITY(2, "市级权限集合包"),
     COUNTY(3, "县/区级权限集合包"),
     TOWN(4, "镇/乡/街道级权限集合包"),
-    ALL(5, "平台管理员权限集合包");
+    ALL(5, "超级管理员"),
+    PLATFORM_ADMIN(6,"平台管理员权限集合包");
 
     /**
      * 类型
@@ -75,5 +76,16 @@ public enum PermissionTemplateType {
             case 6: return COUNTY.type;
             default: return TOWN.type;
         }
+    }
+
+    /**
+     * 是否政府人员类型
+     *
+     * @param type 类型
+     * @return 是否政府人员
+     */
+    public static boolean isGovUser(Integer type) {
+        return PROVINCE.type.equals(type) || CITY.type.equals(type)
+                || COUNTY.type.equals(type) || TOWN.type.equals(type);
     }
 }

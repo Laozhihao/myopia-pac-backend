@@ -112,4 +112,15 @@
             </foreach>
         </if>
     </select>
+
+    <select id="getByPid" resultType="com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO">
+        select gd.*, md.code
+        from m_government_department gd
+                     left join m_district md on gd.district_id = md.id
+                where gd.status = 0
+                  and gd.pid in
+        <foreach collection="pids" item="pid" index="index" open="(" close=")" separator=",">
+            #{pid}
+        </foreach>
+    </select>
 </mapper>

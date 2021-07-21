@@ -242,4 +242,7 @@ public interface OauthServiceClient {
      **/
     @PostMapping("/login")
     LoginInfo login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
+
+    @PostMapping("/oauth/role/update/permission/{roleId}/{templateType}")
+    void updatePermission(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionId);
 }
