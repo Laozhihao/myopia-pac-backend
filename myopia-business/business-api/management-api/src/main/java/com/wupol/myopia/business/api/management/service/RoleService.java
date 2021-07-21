@@ -27,10 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -131,7 +128,39 @@ public class RoleService {
             param.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
         }
         param.setSystemCode(currentUser.getSystemCode()).setCreateUserId(currentUser.getId());
-        return oauthServiceClient.addRole(param.convertToOauthRoleDTO());
+        Role role = oauthServiceClient.addRole(param.convertToOauthRoleDTO());
+        initRolePermission(role.getId(), getRolePermissionTree(role.getId()));
+        return role;
+    }
+
+    /**
+     * 初始化角色权限
+     *
+     * @param roleId      角色ID
+     * @param permissions 权限
+     */
+    private void initRolePermission(Integer roleId, List<Permission> permissions) {
+        assignRolePermission(roleId, getPermissionIds(new ArrayList<>(), permissions));
+    }
+
+    /**
+     * 获取权限树的所有Id
+     *
+     * @param permissionIds 权限Ids
+     * @param permissions   权限树
+     * @return 权限Ids
+     */
+    private List<Integer> getPermissionIds(List<Integer> permissionIds, List<Permission> permissions) {
+        if (CollectionUtils.isEmpty(permissions)) {
+            return permissionIds;
+        }
+        permissionIds.addAll(permissions.stream().map(Permission::getId).collect(Collectors.toList()));
+        permissions.forEach(p -> {
+            if (!CollectionUtils.isEmpty(p.getChild())) {
+                getPermissionIds(permissionIds, p.getChild());
+            }
+        });
+        return permissionIds;
     }
     
     /**

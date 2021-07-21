@@ -22,7 +22,8 @@ public enum PermissionTemplateType {
     CITY(2, "市级权限集合包"),
     COUNTY(3, "县/区级权限集合包"),
     TOWN(4, "镇/乡/街道级权限集合包"),
-    ALL(5, "平台管理员权限集合包");
+    ALL(5, "超级管理员"),
+    PLATFORM_ADMIN(6,"平台管理员权限集合包");
 
     /**
      * 类型
