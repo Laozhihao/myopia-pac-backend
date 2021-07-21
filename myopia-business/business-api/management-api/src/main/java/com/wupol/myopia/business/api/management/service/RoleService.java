@@ -114,7 +114,7 @@ public class RoleService {
     public Role addRole(RoleQueryDTO param, CurrentUser currentUser) {
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(param.getRoleType(), "角色类型为空");
-            if (!RoleType.SUPER_ADMIN.getType().equals(param.getRoleType())) {
+            if (RoleType.GOVERNMENT_DEPARTMENT.getType().equals(param.getRoleType()) || RoleType.SCREENING_ORGANIZATION.getType().equals(param.getRoleType())) {
                 // 创建非平台角色
                 Assert.notNull(param.getOrgId(), "所属部门ID为空");
                 // 非平台角色的部门不能为运营中心部门
@@ -174,7 +174,8 @@ public class RoleService {
         Role role = oauthServiceClient.getRoleById(param.getId());
         Assert.notNull(role, "该角色不存在");
         // 平台管理员用户，创建非平台角色
-        if (currentUser.isPlatformAdminUser() && !RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+        if (currentUser.isPlatformAdminUser()
+                && (RoleType.GOVERNMENT_DEPARTMENT.getType().equals(role.getRoleType()) || RoleType.SCREENING_ORGANIZATION.getType().equals(role.getRoleType()))) {
             Assert.notNull(param.getOrgId(), "所属部门ID不能为空");
             role.setOrgId(param.getOrgId());
             // 非平台角色的部门不能为运营中心部门
@@ -230,9 +231,13 @@ public class RoleService {
         validatePermission(roleId);
         // 根据角色所属部门所在行政区拿获取权限模板类型
         Role role = oauthServiceClient.getRoleById(roleId);
-        // 平台角色
+        // 超级管理员角色
         if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
             return oauthServiceClient.getRolePermissionTree(roleId, PermissionTemplateType.ALL.getType());
+        }
+        // 平台角色
+        if (RoleType.PLATFORM_ADMIN.getType().equals(role.getRoleType())) {
+            return oauthServiceClient.getRolePermissionTree(roleId, PermissionTemplateType.PLATFORM_ADMIN.getType());
         }
         // 非平台角色
         return oauthServiceClient.getRolePermissionTree(roleId, getPermissionTemplateTypeByGovDeptId(role.getOrgId()));
@@ -264,6 +269,9 @@ public class RoleService {
         Assert.notNull(role, "角色不存在");
         if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
             return PermissionTemplateType.ALL.getType();
+        }
+        if (RoleType.PLATFORM_ADMIN.getType().equals(role.getRoleType())) {
+            return PermissionTemplateType.PLATFORM_ADMIN.getType();
         }
         return getPermissionTemplateTypeByGovDeptId(role.getOrgId());
     }
