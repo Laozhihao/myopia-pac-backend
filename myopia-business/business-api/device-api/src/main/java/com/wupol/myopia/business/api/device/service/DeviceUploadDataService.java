@@ -4,7 +4,7 @@ import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
-import com.wupol.myopia.business.api.device.util.CheckTypeUtil;
+import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -139,7 +139,7 @@ public class DeviceUploadDataService {
      */
     private void setCheckResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
         deviceScreenDataDTOList.forEach(deviceScreenDataDTO ->
-            CheckTypeUtil.getCheckResult(deviceScreenDataDTO));
+            CheckResultUtil.getCheckResult(deviceScreenDataDTO));
     }
 
 
