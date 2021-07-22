@@ -77,15 +77,4 @@ public enum PermissionTemplateType {
             default: return TOWN.type;
         }
     }
-
-    /**
-     * 是否政府人员类型
-     *
-     * @param type 类型
-     * @return 是否政府人员
-     */
-    public static boolean isGovUser(Integer type) {
-        return PROVINCE.type.equals(type) || CITY.type.equals(type)
-                || COUNTY.type.equals(type) || TOWN.type.equals(type);
-    }
 }

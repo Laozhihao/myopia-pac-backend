@@ -135,6 +135,13 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         return userIds.stream().distinct().collect(Collectors.toList());
     }
 
+    /**
+     * 更新角色权限
+     *
+     * @param roleId        角色Id
+     * @param templateType  类型
+     * @param permissionIds 权限集合
+     */
     @Transactional(rollbackFor = Exception.class)
     public void updateRolePermission(Integer roleId, Integer templateType, List<Integer> permissionIds) {
 

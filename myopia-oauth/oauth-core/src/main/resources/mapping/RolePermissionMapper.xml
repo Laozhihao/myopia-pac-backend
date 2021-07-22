@@ -29,13 +29,6 @@
         </foreach>
     </insert>
 
-    <select id="getByRoleId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from o_role_permission
-        where role_id = #{roleId}
-    </select>
-
     <delete id="deletedRolePermissionBatch">
         delete
         from o_role_permission

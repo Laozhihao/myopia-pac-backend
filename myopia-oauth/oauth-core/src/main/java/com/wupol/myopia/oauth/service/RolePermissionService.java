@@ -14,14 +14,22 @@ import java.util.List;
 @Service
 public class RolePermissionService extends BaseService<RolePermissionMapper, RolePermission> {
 
-    public List<RolePermission> getByRoleId(Integer roleId) {
-        return baseMapper.getByRoleId(roleId);
-    }
-
+    /**
+     * 批量插入集合
+     *
+     * @param roleId        角色Id
+     * @param permissionIds 权限集合
+     */
     public void batchInsert(Integer roleId, List<Integer> permissionIds) {
         baseMapper.insertRolePermissionBatch(roleId, permissionIds);
     }
 
+    /**
+     * 批量删除
+     *
+     * @param roleId        角色Id
+     * @param permissionIds 权限集合
+     */
     public void batchDeleted(Integer roleId, List<Integer> permissionIds) {
         baseMapper.deletedRolePermissionBatch(roleId, permissionIds);
     }

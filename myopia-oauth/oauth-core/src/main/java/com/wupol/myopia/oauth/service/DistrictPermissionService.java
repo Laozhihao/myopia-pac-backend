@@ -57,6 +57,12 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         return success;
     }
 
+    /**
+     * 通过类型获取模版权限集合
+     *
+     * @param templateType 类型
+     * @return List<DistrictPermission>
+     */
     public List<DistrictPermission> getByTemplateType(Integer templateType) {
         return baseMapper.getByTemplateType(templateType);
     }

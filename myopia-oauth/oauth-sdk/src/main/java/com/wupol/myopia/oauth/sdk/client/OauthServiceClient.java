@@ -243,6 +243,13 @@ public interface OauthServiceClient {
     @PostMapping("/login")
     LoginInfo login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
 
+    /**
+     * 更新角色权限
+     *
+     * @param roleId       角色Id
+     * @param templateType 模版类型
+     * @param permissionId 权限集合
+     */
     @PostMapping("/oauth/role/update/permission/{roleId}/{templateType}")
     void updatePermission(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionId);
 }
