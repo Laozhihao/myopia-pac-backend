@@ -381,7 +381,7 @@ public class RoleService {
     private void updateGovRolePermission(List<Integer> permissionIds, List<GovDistrictDTO> govList, Integer templateType) {
         // 通过govId获取Role
         List<Role> roleList = getByOrgIds(govList.stream().filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType)).collect(Collectors.toList()).stream().map(GovDept::getId).collect(Collectors.toList()));
-        roleList.forEach(r -> oauthServiceClient.assignRolePermission(r.getId(), permissionIds));
+        roleList.forEach(r -> oauthServiceClient.updatePermission(r.getId(), templateType, permissionIds));
     }
 
     /**

@@ -128,8 +128,8 @@ public class RoleController {
      * @param roleId       角色ID
      * @param permissionId 权限ID集合
      **/
-    @PostMapping("/update/permission/{roleId}")
-    public void updateRolePermission(@PathVariable("roleId") Integer roleId, @RequestBody List<Integer> permissionId) {
-        roleService.updateRolePermission(roleId, permissionId);
+    @PostMapping("/update/permission/{roleId}/{templateType}")
+    public void updateRolePermission(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionId) {
+        roleService.updateRolePermission(roleId, templateType, permissionId);
     }
 }

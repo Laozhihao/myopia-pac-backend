@@ -6,6 +6,7 @@ import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
+import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.RolePermission;
@@ -29,6 +30,8 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     private PermissionService permissionService;
     @Autowired
     private RolePermissionService rolePermissionService;
+    @Autowired
+    private DistrictPermissionService districtPermissionService;
 
     /**
      * 获取角色列表
@@ -133,12 +136,13 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateRolePermission(Integer roleId, List<Integer> permissionIds) {
-        List<RolePermission> originLists = rolePermissionService.getByRoleId(roleId);
+    public void updateRolePermission(Integer roleId, Integer templateType, List<Integer> permissionIds) {
 
+        List<DistrictPermission> originLists = districtPermissionService.getByTemplateType(templateType);
+        // 新增的
         List<Integer> addList = permissionIds.stream()
                 .filter(item -> !originLists.stream()
-                        .map(RolePermission::getPermissionId)
+                        .map(DistrictPermission::getPermissionId)
                         .collect(Collectors.toList())
                         .contains(item))
                 .collect(Collectors.toList());
@@ -148,12 +152,11 @@ public class RoleService extends BaseService<RoleMapper, Role> {
 
         // 同理，取删除的
         List<Integer> deletedLists = originLists.stream()
-                .map(RolePermission::getPermissionId)
+                .map(DistrictPermission::getPermissionId)
                 .filter(permissionId -> !permissionIds.contains(permissionId))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(deletedLists)) {
             rolePermissionService.batchDeleted(roleId, deletedLists);
         }
     }
-
 }

@@ -58,10 +58,7 @@ public class PermissionTemplateController {
         Assert.notNull(templateType, "模板类型不能为空");
         Assert.notNull(permissionIds, "模板权限不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        Boolean result = oauthServiceClient.updatePermissionTemplate(templateType, permissionIds);
-        if (result) {
-            roleService.updateRolePermission(templateType, permissionIds);
-        }
-        return result;
+        roleService.updateRolePermission(templateType, permissionIds);
+        return oauthServiceClient.updatePermissionTemplate(templateType, permissionIds);
     }
 }
