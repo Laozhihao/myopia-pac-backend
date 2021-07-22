@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.commons.collections4.CollectionUtils;
@@ -211,11 +212,63 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * 获取所有的省级部门
      * @return
      */
-    public List<GovDept> getProviceGovDept(){
+    public List<GovDept> getProvinceGovDept(){
         LambdaQueryWrapper<GovDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(GovDept::getPid,1);//省级部门
         queryWrapper.eq(GovDept::getStatus,0);//启用
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 获取所有的省级部门
+     *
+     * @return List<GovDistrictDTO>
+     */
+    public List<GovDistrictDTO> getProvinceGov() {
+        return baseMapper.getByPid(Lists.newArrayList(1));
+    }
+
+    /**
+     * 获取所有的市级部门
+     *
+     * @return List<GovDept>
+     */
+    public List<GovDistrictDTO> getCityGov() {
+        List<GovDistrictDTO> provinceGov = getProvinceGov();
+        return getGovList(provinceGov);
+    }
+
+    /**
+     * 获取所有的区级部门
+     *
+     * @return List<GovDistrictDTO>
+     */
+    public List<GovDistrictDTO> getAreaGov() {
+        List<GovDistrictDTO> cityGovDept = getCityGov();
+        return getGovList(cityGovDept);
+    }
+
+    /**
+     * 获取所有的镇级部门
+     *
+     * @return List<GovDistrictDTO>
+     */
+    public List<GovDistrictDTO> getTownGov() {
+        List<GovDistrictDTO> areaGovDept = getAreaGov();
+        return getGovList(areaGovDept);
+    }
+
+    /**
+     * 获取政府部门
+     *
+     * @param govDeptList 政府部门
+     * @return List<GovDept>
+     */
+    private List<GovDistrictDTO> getGovList(List<GovDistrictDTO> govDeptList) {
+        if (CollectionUtils.isEmpty(govDeptList)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByPid(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
     }
 
     public String getNameById(Integer id) {

@@ -13,6 +13,7 @@ import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -20,6 +21,7 @@ import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
 import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import com.wupol.myopia.oauth.sdk.domain.response.RolePermission;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
  * @Date 2020-12-23
  */
 @Service
+@Slf4j
 public class RoleService {
 
     @Resource
@@ -287,5 +290,108 @@ public class RoleService {
         GovDept govDept = govDeptService.getById(govDeptId);
         District district = districtService.getById(govDept.getDistrictId());
         return PermissionTemplateType.getTypeByDistrictCode(district.getCode());
+    }
+
+
+    /**
+     * 通过roleType获取Role
+     *
+     * @param type 类型
+     * @return List<Role>
+     */
+    public List<Role> getByRoleType(Integer type) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setRoleType(type);
+        return oauthServiceClient.getRoleList(roleDTO);
+    }
+
+    /**
+     * 通过orgIds获取Role
+     *
+     * @param orgIds 部门Id
+     * @return List<Role>
+     */
+    public List<Role> getByOrgIds(List<Integer> orgIds) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setOrgIds(orgIds);
+        return oauthServiceClient.getRoleList(roleDTO);
+    }
+
+    /**
+     * 更新权限
+     *
+     * @param templateType  类型
+     * @param permissionIds 权限
+     */
+    public void updateRolePermission(Integer templateType, List<Integer> permissionIds) {
+
+        // 省-政府人员
+        if (PermissionTemplateType.PROVINCE.getType().equals(templateType)) {
+            // 获取省部门
+            List<GovDistrictDTO> provinceGov = govDeptService.getProvinceGov();
+            if (CollectionUtils.isEmpty(provinceGov)) {
+                return;
+            }
+            updateGovRolePermission(permissionIds, provinceGov, templateType);
+        }
+
+        // 市-政府人员
+        if (PermissionTemplateType.CITY.getType().equals(templateType)) {
+            // 获取市部门
+            List<GovDistrictDTO> cityGovDept = govDeptService.getCityGov();
+
+            if (CollectionUtils.isEmpty(cityGovDept)) {
+                return;
+            }
+            updateGovRolePermission(permissionIds, cityGovDept, templateType);
+        }
+
+        // 区-政府人员
+        if (PermissionTemplateType.COUNTY.getType().equals(templateType)) {
+            // 获取区部门
+            List<GovDistrictDTO> areaGovDept = govDeptService.getAreaGov();
+            if (CollectionUtils.isEmpty(areaGovDept)) {
+                return;
+            }
+            updateGovRolePermission(permissionIds, areaGovDept, templateType);
+        }
+
+        // 镇-政府人员
+        if (PermissionTemplateType.TOWN.getType().equals(templateType)) {
+            // 获取省部门
+            List<GovDistrictDTO> townGovDept = govDeptService.getTownGov();
+            if (CollectionUtils.isEmpty(townGovDept)) {
+                return;
+            }
+            updateGovRolePermission(permissionIds, townGovDept, templateType);
+        }
+        // 平台管理员
+        if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
+            batchUpdateRolePermission(RoleType.PLATFORM_ADMIN.getType(), permissionIds);
+        }
+    }
+
+    /**
+     * 更新政府人员权限
+     *
+     * @param permissionIds 权限
+     * @param govList       政府人员List
+     * @param templateType  模版类型
+     */
+    private void updateGovRolePermission(List<Integer> permissionIds, List<GovDistrictDTO> govList, Integer templateType) {
+        // 通过govId获取Role
+        List<Role> roleList = getByOrgIds(govList.stream().filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType)).collect(Collectors.toList()).stream().map(GovDept::getId).collect(Collectors.toList()));
+        roleList.forEach(r -> assignRolePermission(r.getId(), permissionIds));
+    }
+
+    /**
+     * 批量更新用户权限
+     *
+     * @param type          类型
+     * @param permissionIds 权限ids
+     */
+    private void batchUpdateRolePermission(Integer type, List<Integer> permissionIds) {
+        List<Role> roleList = getByRoleType(type);
+        roleList.forEach(r -> assignRolePermission(r.getId(), permissionIds));
     }
 }
