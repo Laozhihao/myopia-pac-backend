@@ -140,7 +140,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
 
         List<DistrictPermission> originLists = districtPermissionService.getByTemplateType(templateType);
         // 新增的
-        List<Integer> addList = permissionIds.stream()
+        List<Integer> addList = permissionIds.stream().distinct()
                 .filter(item -> !originLists.stream()
                         .map(DistrictPermission::getPermissionId)
                         .collect(Collectors.toList())
@@ -151,7 +151,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         }
 
         // 同理，取删除的
-        List<Integer> deletedLists = originLists.stream()
+        List<Integer> deletedLists = originLists.stream().distinct()
                 .map(DistrictPermission::getPermissionId)
                 .filter(permissionId -> !permissionIds.contains(permissionId))
                 .collect(Collectors.toList());

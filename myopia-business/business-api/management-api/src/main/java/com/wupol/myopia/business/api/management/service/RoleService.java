@@ -392,6 +392,6 @@ public class RoleService {
      */
     private void batchUpdateRolePermission(Integer type, List<Integer> permissionIds) {
         List<Role> roleList = getByRoleType(type);
-        roleList.forEach(r -> assignRolePermission(r.getId(), permissionIds));
+        roleList.forEach(r -> oauthServiceClient.updatePermission(r.getId(),PermissionTemplateType.TOWN.getType(), permissionIds));
     }
 }
