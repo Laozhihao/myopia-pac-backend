@@ -25,7 +25,24 @@
         insert into o_role_permission (role_id, permission_id)
                 values
         <foreach collection="permissionIds" item="permissionId" separator=",">
-            (#{roleId},#{permissionId})
+            (#{roleId}, #{permissionId})
         </foreach>
     </insert>
+
+    <select id="getByRoleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from o_role_permission
+        where role_id = #{roleId}
+    </select>
+
+    <delete id="deletedRolePermissionBatch">
+        delete
+        from o_role_permission
+                where role_id = #{roleId}
+                  and permission_id in
+        <foreach collection="permissionIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

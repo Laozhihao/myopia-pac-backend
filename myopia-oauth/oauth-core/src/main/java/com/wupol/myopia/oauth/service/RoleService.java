@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,7 +71,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     /**
      * 获取指定行政区下的角色权限树
      *
-     * @param roleId 角色ID
+     * @param roleId       角色ID
      * @param templateType 模板类型
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
@@ -131,6 +130,30 @@ public class RoleService extends BaseService<RoleMapper, Role> {
             return userIds;
         }
         return userIds.stream().distinct().collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRolePermission(Integer roleId, List<Integer> permissionIds) {
+        List<RolePermission> originLists = rolePermissionService.getByRoleId(roleId);
+
+        List<Integer> addList = permissionIds.stream()
+                .filter(item -> !originLists.stream()
+                        .map(RolePermission::getPermissionId)
+                        .collect(Collectors.toList())
+                        .contains(item))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(addList)) {
+            rolePermissionService.batchInsert(roleId, addList);
+        }
+
+        // 同理，取删除的
+        List<Integer> deletedLists = originLists.stream()
+                .map(RolePermission::getPermissionId)
+                .filter(permissionId -> !permissionIds.contains(permissionId))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(deletedLists)) {
+            rolePermissionService.batchDeleted(roleId, deletedLists);
+        }
     }
 
 }
