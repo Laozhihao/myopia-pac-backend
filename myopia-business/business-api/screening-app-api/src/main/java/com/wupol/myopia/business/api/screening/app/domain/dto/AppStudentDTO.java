@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
-
+@Accessors(chain = true)
 @Data
 public class AppStudentDTO {
 

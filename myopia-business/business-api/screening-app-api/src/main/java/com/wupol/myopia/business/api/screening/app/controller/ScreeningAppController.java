@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import cn.hutool.core.util.IdcardUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -45,6 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -357,7 +361,7 @@ public class ScreeningAppController {
     }
 
     /**
-     * 保存学生信息
+     * 保存学生信息  TODO：加事务
      *
      * @return
      */
@@ -455,6 +459,22 @@ public class ScreeningAppController {
             }
         }
         return null;
+    }
+
+    @PostMapping("/generate/presentation/data")
+    public void generatePresentationData() throws JsonProcessingException {
+        String token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mbyI6eyJpZCI6Miwib3JnSWQiOjEsInVzZXJuYW1lIjoiaGFvaGFvIiwic3lzdGVtQ29kZSI6MSwicm9sZVR5cGVzIjpbMF0sInBsYXRmb3JtQWRtaW5Vc2VyIjp0cnVlfSwiZXhwIjoxNjI1MDQyNjk3LCJ1c2VyX25hbWUiOiJoYW9oYW8iLCJqdGkiOiIzOTc3YTFjOC1mZTIxLTRjYWItYTE1NS02YjAwMDc3OTNmZDIiLCJjbGllbnRfaWQiOiIxIiwic2NvcGUiOlsiYWxsIl19.FCuhwlWF5-uub11s_Kz4SH3R66ibzhxfnfJ_LbJNLv3DqtJMIF5Qs_9cV-756PDAraMeZgFOvfW7FZUV-aWBEZS5-Hf3i9iFwujABEA5R9gMvUSXbECPbGXTTi-mlgXRRmRl_fzS45_Hhs7zLk_1WiygQWkaFj9o-EOLIAi5h06fnqtuhJ4QMzXCS_Cr49x0PadQR7lJBS2JYeWdJ7vvAVkgPnrK3wL1v9uIqOsZCSjJpYMgURpE5iatv_5w5NLP-q2qbfVwgK7qTojSOBWUdVe7VTW8uRcscpqQhMekB6T9F53Tdy_JYgI7DPSiLrVkSYOCsG5-ccszXrUe6AppUQ";
+        VisionDataDTO visionDataDTO = new VisionDataDTO();
+        visionDataDTO.setStudentId("").setCreateUserId(1).setSchoolId("").setStudentId("");
+        visionDataDTO.setLeftCorrectedVision(RandomUtil.randomBigDecimal(BigDecimal.valueOf(3.0), BigDecimal.valueOf(5.2)))
+                .setRightCorrectedVision(RandomUtil.randomBigDecimal(BigDecimal.valueOf(3.0), BigDecimal.valueOf(5.2)))
+                .setLeftNakedVision(RandomUtil.randomBigDecimal(BigDecimal.valueOf(3.0), BigDecimal.valueOf(5.2)))
+                .setRightNakedVision(RandomUtil.randomBigDecimal(BigDecimal.valueOf(3.0), BigDecimal.valueOf(5.2)))
+                .setGlassesType(RandomUtil.randomString("0123", 1));
+        String response = HttpRequest.post("https://t-myopia-pac-mgmt.tulab.cn/app/screening/eye/addVision")
+                .header("Authorization", token)
+                .body(new ObjectMapper().writeValueAsString(visionDataDTO)).execute().body();
+        System.out.println(response);
     }
 
 }

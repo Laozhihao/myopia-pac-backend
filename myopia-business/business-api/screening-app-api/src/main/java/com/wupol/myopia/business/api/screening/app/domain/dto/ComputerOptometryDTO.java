@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@Accessors(chain = true)
 @Data
 public class ComputerOptometryDTO extends ScreeningResultBasicData {
 
