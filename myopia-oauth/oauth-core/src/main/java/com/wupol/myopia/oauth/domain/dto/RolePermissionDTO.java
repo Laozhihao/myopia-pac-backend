@@ -1,8 +1,8 @@
 package com.wupol.myopia.oauth.domain.dto;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RolePermissionDTO {
 
     /**
@@ -25,9 +25,4 @@ public class RolePermissionDTO {
      * 权限Id
      */
     private List<Integer> permissionIds;
-
-    public RolePermissionDTO(List<Integer> govIds, List<Integer> permissionIds) {
-        this.govIds = govIds;
-        this.permissionIds = permissionIds;
-    }
 }

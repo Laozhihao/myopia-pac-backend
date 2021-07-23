@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +22,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
+
+    /**
+     * 运营中心部门ID
+     **/
+    private static final Integer OPERATION_CENTER_DEPT_ID = 1;
 
     /**
      * 获取指定部门及其下面的所有部门的数据树
@@ -151,16 +155,6 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
     }
 
     /**
-     * 通过ID获取实体
-     *
-     * @param id id
-     * @return GovDept
-     */
-    public GovDept getGovDeptById(Integer id) {
-        return baseMapper.selectById(id);
-    }
-
-    /**
      * 获取政府部门（带有行政区域）
      *
      * @param ids 部门ID集
@@ -216,22 +210,11 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     public List<GovDept> getProvinceGovDept(){
         LambdaQueryWrapper<GovDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GovDept::getPid,1);//省级部门
-        queryWrapper.eq(GovDept::getStatus,0);//启用
+        // 省级部门
+        queryWrapper.eq(GovDept::getPid,1);
+        // 启用
+        queryWrapper.eq(GovDept::getStatus,0);
         return baseMapper.selectList(queryWrapper);
-    }
-
-    /**
-     * 获取政府部门
-     *
-     * @param govDeptList 政府部门
-     * @return List<GovDept>
-     */
-    private List<GovDistrictDTO> getGovList(List<GovDistrictDTO> govDeptList) {
-        if (CollectionUtils.isEmpty(govDeptList)) {
-            return new ArrayList<>();
-        }
-        return baseMapper.getByPid(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
     }
 
     public String getNameById(Integer id) {
@@ -256,8 +239,8 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      */
     public Integer getTemplateTypeByOrgId(Integer id) {
         GovDistrictDTO govDistrict = baseMapper.getById(id);
-        // 初始化系统的时候，Id为1的，一定是运营部门
-        if (govDistrict.getId().equals(1)) {
+        // 初始化系统的时候，Id为1的，一定是运营中心部门
+        if (OPERATION_CENTER_DEPT_ID.equals(govDistrict.getId())) {
             return PermissionTemplateType.PLATFORM_ADMIN.getType();
         }
         return PermissionTemplateType.getTypeByDistrictCode(govDistrict.getCode());
