@@ -146,16 +146,17 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     @Transactional(rollbackFor = Exception.class)
     public void updateRolePermission(Integer roleId, Integer templateType, List<Integer> permissionIds) {
 
-        List<DistrictPermission> originLists = districtPermissionService.getByTemplateType(templateType);
-        List<Integer> originIds = originLists.stream().map(DistrictPermission::getPermissionId).distinct().collect(Collectors.toList());
+        // 通过templateType获取原先的权限集合（只需要permissionId）
+        List<Integer> originIds = districtPermissionService.getByTemplateType(templateType)
+                .stream().map(DistrictPermission::getPermissionId).distinct().collect(Collectors.toList());
 
-        // 新增的
+        // 取差集，新权限集合与原权限集合比较，结果便是新增的（List1(1,2,3)｜Lists2(3,4,5,6)=>(1,2)）
         List<Integer> addList = ListUtils.subtract(permissionIds, originIds);
         if (!CollectionUtils.isEmpty(addList)) {
             rolePermissionService.batchInsert(roleId, addList);
         }
 
-        // 同理，取删除的
+        // 同理，原权限集合与新权限集合比较,结果便是删除的
         List<Integer> deletedLists = ListUtils.subtract(originIds, permissionIds);
         if (!CollectionUtils.isEmpty(deletedLists)) {
             rolePermissionService.batchDeleted(roleId, deletedLists);

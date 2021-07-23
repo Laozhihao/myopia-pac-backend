@@ -276,7 +276,12 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return Objects.nonNull(govDept) ? govDept.getName() : "";
     }
 
-    public List<GovDistrictDTO> getAll() {
+    /**
+     * 全量获取部门
+     *
+     * @return List<GovDistrictDTO>
+     */
+    public List<GovDistrictDTO> getAllGovDept() {
         return baseMapper.getAll();
     }
 

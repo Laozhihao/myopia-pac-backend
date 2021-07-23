@@ -293,16 +293,19 @@ public class RoleService {
     }
 
     /**
-     * 获取部门Id
+     * 获取指定templateType的政府人员部门Id
      *
      * @param templateType  类型
      */
     public List<Integer> getGovIds(Integer templateType) {
         List<Integer> govIds = new ArrayList<>();
-        // 政府人员
+        // 只有角色为政府人员需要处理
         if (PermissionTemplateType.isGovUser(templateType)) {
-            List<GovDistrictDTO> govList = govDeptService.getAll();
-            govIds = govList.stream().filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType)).collect(Collectors.toList()).stream().map(GovDept::getId).collect(Collectors.toList());
+            List<GovDistrictDTO> govList = govDeptService.getAllGovDept();
+            // 获取属于当前templateType的行政部门（templateType=1，取全省的行政部门）。只需要部门Id
+            govIds = govList.stream()
+                    .filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType))
+                    .map(GovDept::getId).collect(Collectors.toList());
         }
         return govIds;
     }
