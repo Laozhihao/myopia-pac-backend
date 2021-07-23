@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
+import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
@@ -64,7 +65,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         // 平台管理员
         if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setRoleType(templateType);
+            roleDTO.setRoleType(RoleType.PLATFORM_ADMIN.getType());
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
         }
