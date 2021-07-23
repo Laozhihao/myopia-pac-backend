@@ -132,38 +132,18 @@ public class RoleService {
         }
         param.setSystemCode(currentUser.getSystemCode()).setCreateUserId(currentUser.getId());
         Role role = oauthServiceClient.addRole(param.convertToOauthRoleDTO());
-        initRolePermission(role.getId(), getRolePermissionTree(role.getId()));
+        initRolePermission(role);
         return role;
     }
 
     /**
      * 初始化角色权限
      *
-     * @param roleId      角色ID
-     * @param permissions 权限
+     * @param role 角色
      */
-    private void initRolePermission(Integer roleId, List<Permission> permissions) {
-        assignRolePermission(roleId, getPermissionIds(new ArrayList<>(), permissions));
-    }
-
-    /**
-     * 获取权限树的所有Id
-     *
-     * @param permissionIds 权限Ids
-     * @param permissions   权限树
-     * @return 权限Ids
-     */
-    private List<Integer> getPermissionIds(List<Integer> permissionIds, List<Permission> permissions) {
-        if (CollectionUtils.isEmpty(permissions)) {
-            return permissionIds;
-        }
-        permissionIds.addAll(permissions.stream().map(Permission::getId).collect(Collectors.toList()));
-        permissions.forEach(p -> {
-            if (!CollectionUtils.isEmpty(p.getChild())) {
-                getPermissionIds(permissionIds, p.getChild());
-            }
-        });
-        return permissionIds;
+    private void initRolePermission(Role role) {
+        Integer template = govDeptService.getTemplateTypeByOrgId(role.getOrgId());
+        oauthServiceClient.assignRolePermission(role.getId(), oauthServiceClient.getListByTemplateType(template));
     }
     
     /**
@@ -298,15 +278,16 @@ public class RoleService {
      * @param templateType  类型
      */
     public List<Integer> getGovIds(Integer templateType) {
-        List<Integer> govIds = new ArrayList<>();
-        // 只有角色为政府人员需要处理
-        if (PermissionTemplateType.isGovUser(templateType)) {
-            List<GovDistrictDTO> govList = govDeptService.getAllGovDept();
-            // 获取属于当前templateType的行政部门（templateType=1，取全省的行政部门）。只需要部门Id
-            govIds = govList.stream()
-                    .filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType))
-                    .map(GovDept::getId).collect(Collectors.toList());
+
+        if (!PermissionTemplateType.isGovUser(templateType)) {
+            return new ArrayList<>();
         }
-        return govIds;
+        // 只有角色为政府人员需要处理
+        List<GovDistrictDTO> govList = govDeptService.getAllGovDept();
+        // 获取属于当前templateType的行政部门（templateType=1，取全省的行政部门）。只需要部门Id
+        return govList.stream()
+                .filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType))
+                .map(GovDept::getId).collect(Collectors.toList());
+
     }
 }

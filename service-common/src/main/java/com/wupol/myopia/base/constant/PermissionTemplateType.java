@@ -66,6 +66,7 @@ public enum PermissionTemplateType {
      * @return java.lang.Integer
      **/
     public static Integer getTypeByDistrictCode(Long districtCode) {
+        Assert.notNull(districtCode, "districtCode不能为空");
         String prefix = StrUtil.subBefore(String.valueOf(districtCode), "000", false);
         Assert.hasLength(prefix, "无效行政区编号");
         switch (prefix.length()) {

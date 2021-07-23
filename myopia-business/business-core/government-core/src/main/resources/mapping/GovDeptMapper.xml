@@ -131,4 +131,12 @@
         where gd.status = 0
           and gd.id != 1
     </select>
+
+    <select id="getById" resultType="com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO">
+        select gd.*, md.code
+        from m_government_department gd
+                     left join m_district md on gd.district_id = md.id
+        where gd.status = 0
+          and gd.id = #{id}
+    </select>
 </mapper>

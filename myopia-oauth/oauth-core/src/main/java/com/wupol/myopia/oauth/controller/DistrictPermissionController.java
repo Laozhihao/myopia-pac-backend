@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,6 +66,17 @@ public class DistrictPermissionController {
     @PutMapping("/{templateType}")
     public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody RolePermissionDTO rolePermissionDTO) {
         return districtPermissionService.updatePermissionTemplate(templateType, rolePermissionDTO);
+    }
+
+    /**
+     * 通过templateType获取权限集合
+     *
+     * @param templateType 模板类型
+     * @return 权限集合
+     */
+    @GetMapping("/permissionIds/{templateType}")
+    public List<Integer> getListByTemplateType(@PathVariable Integer templateType) {
+        return districtPermissionService.getByTemplateType(templateType).stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
     }
 
 }

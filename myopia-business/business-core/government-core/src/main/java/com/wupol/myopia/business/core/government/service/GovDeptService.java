@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.government.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -220,45 +222,6 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
     }
 
     /**
-     * 获取所有的省级部门
-     *
-     * @return List<GovDistrictDTO>
-     */
-    public List<GovDistrictDTO> getProvinceGov() {
-        return baseMapper.getByPid(Lists.newArrayList(1));
-    }
-
-    /**
-     * 获取所有的市级部门
-     *
-     * @return List<GovDept>
-     */
-    public List<GovDistrictDTO> getCityGov() {
-        List<GovDistrictDTO> provinceGov = getProvinceGov();
-        return getGovList(provinceGov);
-    }
-
-    /**
-     * 获取所有的区级部门
-     *
-     * @return List<GovDistrictDTO>
-     */
-    public List<GovDistrictDTO> getAreaGov() {
-        List<GovDistrictDTO> cityGovDept = getCityGov();
-        return getGovList(cityGovDept);
-    }
-
-    /**
-     * 获取所有的镇级部门
-     *
-     * @return List<GovDistrictDTO>
-     */
-    public List<GovDistrictDTO> getTownGov() {
-        List<GovDistrictDTO> areaGovDept = getAreaGov();
-        return getGovList(areaGovDept);
-    }
-
-    /**
      * 获取政府部门
      *
      * @param govDeptList 政府部门
@@ -285,4 +248,18 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return baseMapper.getAll();
     }
 
+    /**
+     * 通过机构Id获取模板类型
+     *
+     * @param id 机构Id
+     * @return 模板类型 {@link PermissionTemplateType}
+     */
+    public Integer getTemplateTypeByOrgId(Integer id) {
+        GovDistrictDTO govDistrict = baseMapper.getById(id);
+        // 初始化系统的时候，Id为1的，一定是运营部门
+        if (govDistrict.getId().equals(1)) {
+            return PermissionTemplateType.PLATFORM_ADMIN.getType();
+        }
+        return PermissionTemplateType.getTypeByDistrictCode(govDistrict.getCode());
+    }
 }
