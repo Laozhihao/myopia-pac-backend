@@ -292,31 +292,6 @@ public class RoleService {
         return PermissionTemplateType.getTypeByDistrictCode(district.getCode());
     }
 
-
-    /**
-     * 通过roleType获取Role
-     *
-     * @param type 类型
-     * @return List<Role>
-     */
-    public List<Role> getByRoleType(Integer type) {
-        RoleDTO roleDTO = new RoleDTO();
-        roleDTO.setRoleType(type);
-        return oauthServiceClient.getRoleList(roleDTO);
-    }
-
-    /**
-     * 通过orgIds获取Role
-     *
-     * @param orgIds 部门Id
-     * @return List<Role>
-     */
-    public List<Role> getByOrgIds(List<Integer> orgIds) {
-        RoleDTO roleDTO = new RoleDTO();
-        roleDTO.setOrgIds(orgIds);
-        return oauthServiceClient.getRoleList(roleDTO);
-    }
-
     /**
      * 获取部门Id
      *
