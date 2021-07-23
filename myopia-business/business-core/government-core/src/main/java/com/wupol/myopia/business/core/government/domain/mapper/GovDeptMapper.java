@@ -54,4 +54,6 @@ public interface GovDeptMapper extends BaseMapper<GovDept> {
 
     List<GovDistrictDTO> getByPid(@Param("pids") List<Integer> pids);
 
+    List<GovDistrictDTO> getAll();
+
 }

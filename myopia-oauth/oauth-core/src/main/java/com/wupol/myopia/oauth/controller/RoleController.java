@@ -121,15 +121,4 @@ public class RoleController {
     public Role getRoleById(@PathVariable Integer roleId) {
         return roleService.getById(roleId);
     }
-
-    /**
-     * 更新角色权限
-     *
-     * @param roleId       角色ID
-     * @param permissionId 权限ID集合
-     **/
-    @PostMapping("/update/permission/{roleId}/{templateType}")
-    public void updateRolePermission(@PathVariable("roleId") Integer roleId, @PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionId) {
-        roleService.updateRolePermission(roleId, templateType, permissionId);
-    }
 }

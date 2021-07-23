@@ -3,6 +3,8 @@ package com.wupol.myopia.oauth.service;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.oauth.domain.dto.RoleDTO;
+import com.wupol.myopia.oauth.domain.dto.RolePermissionDTO;
 import com.wupol.myopia.oauth.domain.mapper.DistrictPermissionMapper;
 import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
@@ -39,13 +41,34 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
     /**
      * 更新模板权限
      *
-     * @param templateType 模板类型
-     * @param permissionIds 权限集
+     * @param templateType      模板类型
+     * @param rolePermissionDTO 角色权限
      * @return boolean
      **/
     @Transactional(rollbackFor = Exception.class)
-    public boolean updatePermissionTemplate(Integer templateType, List<Integer> permissionIds) {
+    public boolean updatePermissionTemplate(Integer templateType, RolePermissionDTO rolePermissionDTO) {
+        List<Integer> orgIds = rolePermissionDTO.getGovIds();
+        List<Integer> permissionIds = rolePermissionDTO.getPermissionIds();
+
         Assert.notNull(permissionIds, "模板的权限不能为null");
+        Assert.notNull(templateType, "模板类型不能为空");
+
+        // 政府部门
+        if (PermissionTemplateType.isGovUser(templateType)) {
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.setOrgIds(orgIds);
+            List<Role> roleList = roleService.getRoleList(roleDTO);
+            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
+        }
+
+        // 平台管理员
+        if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.setRoleType(templateType);
+            List<Role> roleList = roleService.getRoleList(roleDTO);
+            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
+        }
+
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
         boolean success = saveBatch(permissions);

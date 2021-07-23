@@ -1,14 +1,11 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import com.wupol.myopia.base.constant.PermissionTemplateType;
-import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.RoleService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
-import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
+import com.wupol.myopia.oauth.sdk.domain.request.RolePermissionDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
-import com.wupol.myopia.oauth.sdk.domain.response.Role;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,7 +55,8 @@ public class PermissionTemplateController {
         Assert.notNull(templateType, "模板类型不能为空");
         Assert.notNull(permissionIds, "模板权限不能为空");
         Assert.isTrue(CurrentUserUtil.getCurrentUser().isPlatformAdminUser(), "没有访问权限");
-        roleService.updateRolePermission(templateType, permissionIds);
-        return oauthServiceClient.updatePermissionTemplate(templateType, permissionIds);
+        List<Integer> govIds = roleService.getGovIds(templateType);
+        RolePermissionDTO rolePermissionDTO = new RolePermissionDTO(govIds, permissionIds);
+        return oauthServiceClient.updatePermissionTemplate(templateType, rolePermissionDTO);
     }
 }

@@ -318,80 +318,17 @@ public class RoleService {
     }
 
     /**
-     * 更新权限
+     * 获取部门Id
      *
      * @param templateType  类型
-     * @param permissionIds 权限
      */
-    public void updateRolePermission(Integer templateType, List<Integer> permissionIds) {
-
-        // 省-政府人员
-        if (PermissionTemplateType.PROVINCE.getType().equals(templateType)) {
-            // 获取省部门
-            List<GovDistrictDTO> provinceGov = govDeptService.getProvinceGov();
-            if (CollectionUtils.isEmpty(provinceGov)) {
-                return;
-            }
-            updateGovRolePermission(permissionIds, provinceGov, templateType);
+    public List<Integer> getGovIds(Integer templateType) {
+        List<Integer> govIds = new ArrayList<>();
+        // 政府人员
+        if (PermissionTemplateType.isGovUser(templateType)) {
+            List<GovDistrictDTO> govList = govDeptService.getAll();
+            govIds = govList.stream().filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType)).collect(Collectors.toList()).stream().map(GovDept::getId).collect(Collectors.toList());
         }
-
-        // 市-政府人员
-        if (PermissionTemplateType.CITY.getType().equals(templateType)) {
-            // 获取市部门
-            List<GovDistrictDTO> cityGovDept = govDeptService.getCityGov();
-
-            if (CollectionUtils.isEmpty(cityGovDept)) {
-                return;
-            }
-            updateGovRolePermission(permissionIds, cityGovDept, templateType);
-        }
-
-        // 区-政府人员
-        if (PermissionTemplateType.COUNTY.getType().equals(templateType)) {
-            // 获取区部门
-            List<GovDistrictDTO> areaGovDept = govDeptService.getAreaGov();
-            if (CollectionUtils.isEmpty(areaGovDept)) {
-                return;
-            }
-            updateGovRolePermission(permissionIds, areaGovDept, templateType);
-        }
-
-        // 镇-政府人员
-        if (PermissionTemplateType.TOWN.getType().equals(templateType)) {
-            // 获取省部门
-            List<GovDistrictDTO> townGovDept = govDeptService.getTownGov();
-            if (CollectionUtils.isEmpty(townGovDept)) {
-                return;
-            }
-            updateGovRolePermission(permissionIds, townGovDept, templateType);
-        }
-        // 平台管理员
-        if (PermissionTemplateType.PLATFORM_ADMIN.getType().equals(templateType)) {
-            batchUpdateRolePermission(RoleType.PLATFORM_ADMIN.getType(), permissionIds);
-        }
-    }
-
-    /**
-     * 更新政府人员权限
-     *
-     * @param permissionIds 权限
-     * @param govList       政府人员List
-     * @param templateType  模版类型
-     */
-    private void updateGovRolePermission(List<Integer> permissionIds, List<GovDistrictDTO> govList, Integer templateType) {
-        // 通过govId获取Role
-        List<Role> roleList = getByOrgIds(govList.stream().filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType)).collect(Collectors.toList()).stream().map(GovDept::getId).collect(Collectors.toList()));
-        roleList.forEach(r -> oauthServiceClient.updatePermission(r.getId(), templateType, permissionIds));
-    }
-
-    /**
-     * 批量更新用户权限
-     *
-     * @param type          类型
-     * @param permissionIds 权限ids
-     */
-    private void batchUpdateRolePermission(Integer type, List<Integer> permissionIds) {
-        List<Role> roleList = getByRoleType(type);
-        roleList.forEach(r -> oauthServiceClient.updatePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
+        return govIds;
     }
 }

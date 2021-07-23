@@ -10,6 +10,7 @@ import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.RolePermission;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,22 +147,16 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     public void updateRolePermission(Integer roleId, Integer templateType, List<Integer> permissionIds) {
 
         List<DistrictPermission> originLists = districtPermissionService.getByTemplateType(templateType);
+        List<Integer> originIds = originLists.stream().map(DistrictPermission::getPermissionId).distinct().collect(Collectors.toList());
+
         // 新增的
-        List<Integer> addList = permissionIds.stream().distinct()
-                .filter(item -> !originLists.stream()
-                        .map(DistrictPermission::getPermissionId)
-                        .collect(Collectors.toList())
-                        .contains(item))
-                .collect(Collectors.toList());
+        List<Integer> addList = ListUtils.subtract(permissionIds, originIds);
         if (!CollectionUtils.isEmpty(addList)) {
             rolePermissionService.batchInsert(roleId, addList);
         }
 
         // 同理，取删除的
-        List<Integer> deletedLists = originLists.stream().distinct()
-                .map(DistrictPermission::getPermissionId)
-                .filter(permissionId -> !permissionIds.contains(permissionId))
-                .collect(Collectors.toList());
+        List<Integer> deletedLists = ListUtils.subtract(originIds, permissionIds);
         if (!CollectionUtils.isEmpty(deletedLists)) {
             rolePermissionService.batchDeleted(roleId, deletedLists);
         }

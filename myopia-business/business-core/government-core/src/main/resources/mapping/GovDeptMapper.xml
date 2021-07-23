@@ -123,4 +123,12 @@
             #{pid}
         </foreach>
     </select>
+
+    <select id="getAll" resultType="com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO">
+        select gd.*, md.code
+        from m_government_department gd
+                     left join m_district md on gd.district_id = md.id
+        where gd.status = 0
+          and gd.id != 1
+    </select>
 </mapper>

@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.controller;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.oauth.domain.dto.RolePermissionDTO;
 import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.service.DistrictPermissionService;
@@ -60,14 +61,12 @@ public class DistrictPermissionController {
      * 更新模板权限
      *
      * @param templateType 模板类型
-     * @param permissionIds 权限集
+     * @param rolePermissionDTO 角色权限
      * @return boolean
      **/
     @PutMapping("/{templateType}")
-    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody List<Integer> permissionIds) throws IOException {
-        Assert.notNull(templateType, "模板类型不能为空");
-        Assert.notNull(permissionIds, "模板权限不能为空");
-        return districtPermissionService.updatePermissionTemplate(templateType, permissionIds);
+    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody RolePermissionDTO rolePermissionDTO) {
+        return districtPermissionService.updatePermissionTemplate(templateType, rolePermissionDTO);
     }
 
 }
