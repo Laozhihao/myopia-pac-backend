@@ -475,10 +475,6 @@ public class StatReportService {
                 case PRIMARY:
                 case JUNIOR:
                 case HIGH:
-                    primaryToHighTotalNum += params.getTotal();
-                    primaryToHighCorrectionNum += params.getNum();
-                    primaryToHighCorrectionRatio += params.getRatio();
-                    break;
                 case VOCATIONAL_HIGH:
                     primaryToHighTotalNum += params.getTotal();
                     primaryToHighCorrectionNum += params.getNum();
