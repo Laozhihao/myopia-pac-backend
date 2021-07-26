@@ -480,6 +480,9 @@ public class StatReportService {
                     primaryToHighCorrectionRatio += params.getRatio();
                     break;
                 case VOCATIONAL_HIGH:
+                    primaryToHighTotalNum += params.getTotal();
+                    primaryToHighCorrectionNum += params.getNum();
+                    primaryToHighCorrectionRatio += params.getRatio();
                     break;
                 default:
             }
