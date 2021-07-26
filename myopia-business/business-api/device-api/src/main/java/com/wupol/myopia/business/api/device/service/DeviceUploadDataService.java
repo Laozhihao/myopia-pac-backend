@@ -104,7 +104,7 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            throw new BusinessException("无效找到设备");
+            throw new BusinessException("无法找到设备");
         }
         //查询筛查机构是否过期
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.PatientAgeUtil;
@@ -73,7 +74,8 @@ public class DeviceScreenDataDTO implements Serializable {
     /*** 右眼瞳孔半径 */
     private Double rightPR;
     /*** 瞳距 */
-    private Double PD;
+    @JsonProperty("PD")
+    private Double pd;
     /*** 右眼等效球镜度 */
     private Double rightPa;
     /*** 左眼等效球镜度 */
@@ -107,7 +109,7 @@ public class DeviceScreenDataDTO implements Serializable {
         deviceScreeningData.setCreateTime(new Date());
         deviceScreeningData.setPatientAge(patientAge);
         deviceScreeningData.setPatientCid(patientCID);
-        deviceScreeningData.setPd(PD);
+        deviceScreeningData.setPd(pd);
         deviceScreeningData.setLeftPr(leftPR);
         deviceScreeningData.setRightPr(rightPR);
         deviceScreeningData.setPatientPno(patientPhoneNumber);
