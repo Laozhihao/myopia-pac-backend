@@ -5,6 +5,7 @@ import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.oauth.sdk.config.OauthServiceFeignConfig;
 import com.wupol.myopia.oauth.sdk.domain.request.PermissionDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
+import com.wupol.myopia.oauth.sdk.domain.request.RolePermissionDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -215,11 +216,11 @@ public interface OauthServiceClient {
      * 更新模板权限
      *
      * @param templateType 模板类型
-     * @param permissionIds 权限集
+     * @param rolePermissionDTO 角色权限
      * @return boolean
      **/
     @PutMapping("/oauth/districtPermission/{templateType}")
-    Boolean updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody List<Integer> permissionIds);
+    Boolean updatePermissionTemplate(@PathVariable("templateType") Integer templateType, @RequestBody RolePermissionDTO rolePermissionDTO);
 
     /**
      * 根据手机号码批量获取用户
@@ -242,4 +243,14 @@ public interface OauthServiceClient {
      **/
     @PostMapping("/login")
     LoginInfo login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
+
+    /**
+     * 通过templateType获取权限集合
+     *
+     * @param templateType 模板类型
+     * @return 权限集合
+     */
+    @GetMapping("/oauth/districtPermission/permissionIds/{templateType}")
+    List<Integer> getListByTemplateType(@PathVariable Integer templateType);
+
 }

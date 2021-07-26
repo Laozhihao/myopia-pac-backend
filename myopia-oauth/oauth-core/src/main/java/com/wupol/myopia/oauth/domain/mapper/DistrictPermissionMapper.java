@@ -23,4 +23,6 @@ public interface DistrictPermissionMapper extends BaseMapper<DistrictPermission>
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
     List<Permission> selectTemplatePermissionTree(@Param("pid")Integer pid, @Param("templateType")Integer templateType);
+
+    List<DistrictPermission> getByTemplateType(@Param("templateType")Integer templateType);
 }

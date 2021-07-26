@@ -43,7 +43,7 @@ public class CurrentUser {
      * 是否平台管理员
      */
     public boolean isPlatformAdminUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.SUPER_ADMIN.getType());
+        return !CollectionUtils.isEmpty(roleTypes) && (roleTypes.contains(RoleType.SUPER_ADMIN.getType()) || roleTypes.contains(RoleType.PLATFORM_ADMIN.getType()));
     }
 
     /**
