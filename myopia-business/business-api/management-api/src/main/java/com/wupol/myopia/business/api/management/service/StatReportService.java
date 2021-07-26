@@ -468,7 +468,7 @@ public class StatReportService {
             List<TableBasicStatParams> list = (List<TableBasicStatParams>) item.get("list");
             TableBasicStatParams params = list.stream().filter(x -> x.getTitle().equals(TABLE_LABEL_TOTAL)).findFirst().orElseThrow(() -> new BusinessException("统计数据为空"));
             sortedList.add(new BasicStatParams(schoolAgeName, params.getRatio(), null));
-            if (SchoolAge.HIGH.code.equals(schoolAge.code) || SchoolAge.VOCATIONAL_HIGH.code.equals(schoolAge.code)) {
+            if (!SchoolAge.KINDERGARTEN.code.equals(schoolAge.code)) {
                 primaryToHighTotalNum += params.getTotal();
                 primaryToHighCorrectionNum += params.getNum();
             }
