@@ -77,10 +77,10 @@ public class DeviceBizService {
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
             if(Objects.nonNull(r.getLeftAxsi())) {
-                r.setLeftAxsi(r.getLeftAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+                r.setLeftAxsi(new BigDecimal(r.getLeftAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
             }
             if (Objects.nonNull(r.getRightAxsi())) {
-                r.setRightAxsi(r.getRightAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+                r.setRightAxsi(new BigDecimal(r.getRightAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
             }
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
