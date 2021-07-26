@@ -68,7 +68,7 @@ public class DistrictPermissionController {
     @PutMapping("/{templateType}")
     public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody RolePermissionDTO rolePermissionDTO) {
         Assert.notNull(rolePermissionDTO.getPermissionIds(), "模板的权限不能为null");
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         return districtPermissionService.updatePermissionTemplate(templateType, rolePermissionDTO);
     }
 
