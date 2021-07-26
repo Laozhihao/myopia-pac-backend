@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -70,7 +71,12 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return
      */
     @GetMapping("/list-result")
-    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId) {
+    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId, @RequestParam Integer resultId) {
+        // 方便前端模板渲染复用
+        if (Objects.nonNull(resultId)) {
+            VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+            return Lists.newArrayList(studentBizService.getStudentCardResponseDTO(visionScreeningResult));
+        }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         if (screeningPlan == null) {
             throw new BusinessException("无法找到该筛查计划");
