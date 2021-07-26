@@ -58,4 +58,9 @@ public class StudentDTO extends Student {
      * token
      */
     private String token;
+
+    /**
+     * 学校行政区域
+     */
+    private String schoolDistrictName;
 }

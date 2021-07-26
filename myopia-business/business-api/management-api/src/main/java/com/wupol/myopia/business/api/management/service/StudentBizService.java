@@ -19,13 +19,7 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
-import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
@@ -42,6 +36,10 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.constants.TemplateConstants;
+import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -67,15 +65,6 @@ public class StudentBizService {
     private StudentService studentService;
 
     @Resource
-    private SchoolService schoolService;
-
-    @Resource
-    private SchoolGradeService schoolGradeService;
-
-    @Resource
-    private SchoolClassService schoolClassService;
-
-    @Resource
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
@@ -89,6 +78,12 @@ public class StudentBizService {
 
     @Resource
     private VistelToolsService vistelToolsService;
+
+    @Resource
+    private ScreeningOrganizationService screeningOrganizationService;
+
+    @Resource
+    private TemplateDistrictService templateDistrictService;
 
     /**
      * 获取学生列表
@@ -317,45 +312,49 @@ public class StudentBizService {
     public StudentCardResponseVO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseVO responseDTO = new StudentCardResponseVO();
         Integer studentId = visionScreeningResult.getStudentId();
-        Student student = studentService.getById(studentId);
+        StudentDTO studentInfo = studentService.getStudentInfo(studentId);
+
         // 获取学生基本信息
-        CardInfoVO cardInfoVO = getCardInfo(student);
+        CardInfoVO cardInfoVO = getCardInfo(studentInfo);
         cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
         responseDTO.setInfo(cardInfoVO);
 
-        // 获取结果记录
-        responseDTO.setDetails(packageCardDetail(visionScreeningResult));
+        // 筛查是否绑定模板
+        ScreeningOrganization org = screeningOrganizationService.getById(visionScreeningResult.getScreeningOrgId());
+        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+
+        // 是否全国模板
+        if (templateId.equals(TemplateConstants.GLOBAL_TEMPLATE)) {
+            // 获取结果记录
+            CardDetailsVO cardDetailsVO = packageCardDetail(visionScreeningResult);
+            responseDTO.setDetails(cardDetailsVO);
+        } else if (templateId.equals(TemplateConstants.HAI_NAN_TEMPLATE)) {
+
+        }
         return responseDTO;
     }
 
     /**
      * 设置学生基本信息
      *
-     * @param student 学生
+     * @param studentInfo 学生
      * @return CardInfo
      */
-    private CardInfoVO getCardInfo(Student student) {
+    private CardInfoVO getCardInfo(StudentDTO studentInfo) {
         CardInfoVO cardInfoVO = new CardInfoVO();
 
-        cardInfoVO.setName(student.getName());
-        cardInfoVO.setBirthday(student.getBirthday());
-        cardInfoVO.setIdCard(student.getIdCard());
-        cardInfoVO.setGender(student.getGender());
+        cardInfoVO.setName(studentInfo.getName());
+        cardInfoVO.setBirthday(studentInfo.getBirthday());
+        cardInfoVO.setIdCard(studentInfo.getIdCard());
+        cardInfoVO.setGender(studentInfo.getGender());
+        cardInfoVO.setAge(DateUtil.ageOfNow(studentInfo.getBirthday()));
+        cardInfoVO.setSno(studentInfo.getSno());
+        cardInfoVO.setParentPhone(studentInfo.getParentPhone());
 
-        String schoolNo = student.getSchoolNo();
-        if (StringUtils.isNotBlank(schoolNo)) {
-            School school = schoolService.getBySchoolNo(schoolNo);
-            SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
-            SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
-            cardInfoVO.setSchoolName(school.getName());
-            cardInfoVO.setClassName(schoolClass.getName());
-            cardInfoVO.setGradeName(schoolGrade.getName());
-            cardInfoVO.setProvinceName(districtService.getDistrictName(school.getProvinceCode()));
-            cardInfoVO.setCityName(districtService.getDistrictName(school.getCityCode()));
-            cardInfoVO.setAreaName(districtService.getDistrictName(school.getAreaCode()));
-            cardInfoVO.setTownName(districtService.getDistrictName(school.getTownCode()));
-            cardInfoVO.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
-        }
+        cardInfoVO.setSchoolName(studentInfo.getSchoolName());
+        cardInfoVO.setClassName(studentInfo.getClassName());
+        cardInfoVO.setGradeName(studentInfo.getGradeName());
+        cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
         return cardInfoVO;
     }
 
