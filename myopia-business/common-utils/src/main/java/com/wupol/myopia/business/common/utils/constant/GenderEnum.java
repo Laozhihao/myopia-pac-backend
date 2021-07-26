@@ -39,8 +39,8 @@ public enum GenderEnum {
 
     /** 获取性别对应数值 */
     public static Integer getType(String name) {
-        if (MALE.desc.equals(name)) return MALE.type;
-        if (FEMALE.desc.equals(name)) return FEMALE.type;
+        if (MALE.desc.equals(name) || MALE.enDesc.equals(name)) return MALE.type;
+        if (FEMALE.desc.equals(name) || FEMALE.enDesc.equals(name)) return FEMALE.type;
         return UNKONE.type;
     }
 

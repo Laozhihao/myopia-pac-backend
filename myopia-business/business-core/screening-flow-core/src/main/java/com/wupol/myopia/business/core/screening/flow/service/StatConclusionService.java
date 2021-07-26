@@ -20,6 +20,22 @@ import java.util.stream.Collectors;
 public class StatConclusionService extends BaseService<StatConclusionMapper, StatConclusion> {
 
     /**
+     * 保存并更新
+     *
+     * @param statConclusion
+     */
+    public StatConclusion saveOrUpdateStudentScreenData(StatConclusion statConclusion) {
+        if (statConclusion.getId() != null) {
+            //更新
+             updateById(statConclusion);
+        } else {
+            //创建
+             save(statConclusion);
+        }
+        return statConclusion;
+    }
+
+    /**
      * 获取筛查结论列表
      *
      * @param statConclusionQueryDTO

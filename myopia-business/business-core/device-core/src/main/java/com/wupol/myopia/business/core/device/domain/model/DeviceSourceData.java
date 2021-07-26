@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.device.domain.DeviceTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -37,7 +38,7 @@ public class DeviceSourceData implements Serializable {
     /**
      * 患者id
      */
-    private Integer patientId;
+    private String patientId;
 
     /**
      * 设备id
@@ -76,5 +77,25 @@ public class DeviceSourceData implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-
+    /**
+     * 构建一个新
+     * @param device
+     * @param srcData
+     * @param patientId
+     * @param screeningTime
+     * @return
+     */
+    public static DeviceSourceData getNewInstance(Device device, String srcData, String patientId, Date screeningTime) {
+        DeviceSourceData deviceSourceData = new DeviceSourceData();
+        deviceSourceData.deviceType = DeviceTypeEnum.DEVICE_VS666.getDeviceType();
+        deviceSourceData.deviceCode = device.getDeviceCode();
+        deviceSourceData.deviceId = device.getId();
+        deviceSourceData.deviceSn = device.getDeviceSn();
+        deviceSourceData.patientId = patientId;
+        deviceSourceData.screeningOrgId = device.getBindingScreeningOrgId();
+        deviceSourceData.srcData = srcData;
+        deviceSourceData.createTime = new Date();
+        deviceSourceData.screeningTime = screeningTime;
+        return deviceSourceData;
+    }
 }
