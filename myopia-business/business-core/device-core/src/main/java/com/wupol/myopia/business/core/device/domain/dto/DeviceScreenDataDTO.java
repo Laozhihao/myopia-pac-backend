@@ -38,8 +38,8 @@ public class DeviceScreenDataDTO implements Serializable {
     private Integer checkType;
     /*** 筛查模式 * 双眼模式：0 * 左眼模式：1 * 右眼模式：2 */
     private Integer checkMode;
-    /*** 筛查结果 * 优：1 * 良：2 * 差：3 */
-    private Integer checkResult;
+    /*** 筛查结果  */
+    private String checkResult;
     /*** 筛查时间： * 年⽉⽇时分秒：20180920233030 */
     @JsonFormat(pattern = "yyyyMMddHHmmss",timezone="GMT+8")
     private Date checkTime;

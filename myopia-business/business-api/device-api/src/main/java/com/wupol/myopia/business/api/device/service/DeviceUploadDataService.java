@@ -138,8 +138,10 @@ public class DeviceUploadDataService {
      * @param deviceScreenDataDTOList
      */
     private void setCheckResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        deviceScreenDataDTOList.forEach(deviceScreenDataDTO ->
-            CheckResultUtil.getCheckResult(deviceScreenDataDTO));
+        deviceScreenDataDTOList.forEach(deviceScreenDataDTO -> {
+            String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
+            deviceScreenDataDTO.setCheckResult(checkResult);
+        });
     }
 
 
