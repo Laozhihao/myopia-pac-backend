@@ -457,7 +457,6 @@ public class StatReportService {
                 (List<TableBasicStatParams>) totalConclusion.get("list");
         int primaryToHighTotalNum = 0;
         int primaryToHighCorrectionNum = 0;
-        int primaryToHighCorrectionRatio = 0;
         List<BasicStatParams> sortedList = new ArrayList<>();
         for (Map<String, Object> item : schoolAgeGenderVisionCorrectionTable) {
             String schoolAgeName = (String) item.get("name");
@@ -475,10 +474,12 @@ public class StatReportService {
                 case PRIMARY:
                 case JUNIOR:
                 case HIGH:
+                    primaryToHighTotalNum += params.getTotal();
+                    primaryToHighCorrectionNum += params.getNum();
+                    break;
                 case VOCATIONAL_HIGH:
                     primaryToHighTotalNum += params.getTotal();
                     primaryToHighCorrectionNum += params.getNum();
-                    primaryToHighCorrectionRatio += params.getRatio();
                     break;
                 default:
             }
@@ -489,7 +490,7 @@ public class StatReportService {
         conclusionDesc.put("sortedList", sortedList);
         conclusionDesc.put("primaryToHighTotalNum", primaryToHighTotalNum);
         conclusionDesc.put("primaryToHighCorrectionNum", primaryToHighCorrectionNum);
-        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionNum / primaryToHighTotalNum);
+        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionNum * 1f / primaryToHighTotalNum);
         conclusionDesc.put(title, schoolAgeGenderVisionCorrectionTable);
         return conclusionDesc;
     }
