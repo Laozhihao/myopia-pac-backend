@@ -56,7 +56,7 @@ public class BigScreenMap implements Serializable {
     /**
      * 上级行政区代码（省级统一为100000000000）
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
 

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.device.domain.mapper.ScreeningOrgBindDeviceReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(templateId)">and `template_id` = #{templateId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgName)">and `screening_org_name` = #{screeningOrgName}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, template_id, screening_org_id, screening_org_name, create_time, update_time
+    </sql>
+
+    <select id="getByTemplateId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_org_bind_device_report
+        where template_id = #{templateId}
+        order by update_time desc
+    </select>
+
+    <select id="getByTemplateIdLimit" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_org_bind_device_report
+        where template_id = #{templateId}
+        order by update_time desc limit #{limit}
+    </select>
+
+    <update id="updateTemplateByOrgId">
+        update m_screening_org_bind_device_report
+        set template_id = #{templateId}
+        where screening_org_id = #{orgId}
+    </update>
+
+    <insert id="orgBindReportTemplate">
+        insert into m_screening_org_bind_device_report(template_id, screening_org_id, screening_org_name)
+        values (#{templateId}, #{orgId}, #{name})
+    </insert>
+
+    <select id="getByOrgIds" resultType="com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO">
+        select report.screening_org_id as screeningOrgId, template.template_type as templateType
+        from m_screening_org_bind_device_report report
+                     left join m_device_report_template template on report.template_id = template.id where
+                report.screening_org_id in
+        <foreach collection="orgIds" item="orgId" index="index" open="(" close=")" separator=",">
+            #{orgId}
+        </foreach>
+    </select>
+</mapper>

@@ -90,7 +90,7 @@ public class StatConclusion implements Serializable {
     private Integer studentId;
 
     /** 创建时间 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /** --------------------- 新增导出报告所需属性 --------------------- */

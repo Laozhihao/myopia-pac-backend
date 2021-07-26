@@ -119,7 +119,7 @@ public class RescreeningResultVO {
     public void stasticRescreeningData(List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOS) {
         //先过滤一遍
         studentScreeningInfoWithResultDTOS = this.filterIncompletedData(studentScreeningInfoWithResultDTOS);
-        Boolean ifNeedToStatistic = this.checkIfNeedToStatistic(studentScreeningInfoWithResultDTOS);
+        boolean ifNeedToStatistic = this.checkIfNeedToStatistic(studentScreeningInfoWithResultDTOS);
         if (!ifNeedToStatistic) {
             return;
         }
@@ -152,7 +152,7 @@ public class RescreeningResultVO {
      * @param studentScreeningInfoWithResultDTOs
      * @return
      */
-    public Boolean checkIfNeedToStatistic(List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOs) {
+    public boolean checkIfNeedToStatistic(List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOs) {
         //筛查人数是否为0：一条筛查记录都没有
         boolean isNotScreeningNumberZero = studentScreeningInfoWithResultDTOs.stream().anyMatch(studentScreeningInfoWithResultDTO -> studentScreeningInfoWithResultDTO.getUpdateTime() != null);
         if (!isNotScreeningNumberZero) {
@@ -161,7 +161,7 @@ public class RescreeningResultVO {
             return false;
         }
         //进行数据统计
-        Long count = studentScreeningInfoWithResultDTOs.stream().filter(studentScreeningInfoWithResultDTO -> ScreeningConstant.SCREENING_RESCREENING == studentScreeningInfoWithResultDTO.getIsDoubleScreen()).count();
+        long count = studentScreeningInfoWithResultDTOs.stream().filter(studentScreeningInfoWithResultDTO -> ScreeningConstant.SCREENING_RESCREENING == studentScreeningInfoWithResultDTO.getIsDoubleScreen()).count();
         if (count == 0) {
             //复筛未否开始:起码有一个是有复查的
             qualified = RESCREENING_NOT_STARTED;
@@ -306,13 +306,13 @@ public class RescreeningResultVO {
     private TwoTuple<StudentScreeningInfoWithResultDTO, StudentScreeningInfoWithResultDTO> getDataMap(@NonNull List<StudentScreeningInfoWithResultDTO> studentScreeningInfoWithResultDTOS) {
         Map<Integer, List<StudentScreeningInfoWithResultDTO>> collect = studentScreeningInfoWithResultDTOS.stream().collect(Collectors.groupingBy(StudentScreeningInfoWithResultDTO::getIsDoubleScreen));
         List<StudentScreeningInfoWithResultDTO> firstScreeningData = collect.get(0);
-        List<StudentScreeningInfoWithResultDTO> RescreeningData = collect.get(1);
-        if (CollectionUtils.isEmpty(firstScreeningData) || CollectionUtils.isEmpty(RescreeningData)) {
+        List<StudentScreeningInfoWithResultDTO> rescreeningData = collect.get(1);
+        if (CollectionUtils.isEmpty(firstScreeningData) || CollectionUtils.isEmpty(rescreeningData)) {
             throw new ManagementUncheckedException("复筛数据不能为空，studentScreeningInfoWithResultDTOS = " + JSON.toJSONString(studentScreeningInfoWithResultDTOS));
         }
         TwoTuple<StudentScreeningInfoWithResultDTO, StudentScreeningInfoWithResultDTO> twoTupleData = new TwoTuple<>();
         twoTupleData.setFirst(firstScreeningData.get(0));
-        twoTupleData.setSecond(RescreeningData.get(0));
+        twoTupleData.setSecond(rescreeningData.get(0));
         return twoTupleData;
     }
 
@@ -335,7 +335,7 @@ public class RescreeningResultVO {
         /**
          * firstTime
          */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 
         private Date firstTime;
         /**
@@ -357,7 +357,7 @@ public class RescreeningResultVO {
         /**
          * 复检时间
          */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date reviewTime;
         /**
          * 矫正视力

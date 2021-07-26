@@ -29,6 +29,8 @@ public class DistrictPermissionController {
     @Autowired
     private PermissionService permissionService;
 
+    private static final String TEMPLATE_TYPE_NOT_EMPTY = "模板类型不能为空";
+
     /**
      * 根据模板类型获取模板权限-树结构
      *
@@ -37,7 +39,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/{templateType}")
     public List<Permission> getPermissionTemplate(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         return districtPermissionService.selectTemplatePermissionTree(templateType);
     }
 
@@ -49,7 +51,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/list/{templateType}")
     public List<Integer> getPermissionTemplateList(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         if (PermissionTemplateType.ALL.getType().equals(templateType)) {
             return permissionService.findByList(new Permission()).stream().map(Permission::getId).collect(Collectors.toList());
         }

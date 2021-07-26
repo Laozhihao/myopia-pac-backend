@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.constant.GlassesType;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -353,6 +354,7 @@ public class StudentBizService {
             cardInfoVO.setCityName(districtService.getDistrictName(school.getCityCode()));
             cardInfoVO.setAreaName(districtService.getDistrictName(school.getAreaCode()));
             cardInfoVO.setTownName(districtService.getDistrictName(school.getTownCode()));
+            cardInfoVO.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
         }
         return cardInfoVO;
     }
@@ -596,7 +598,7 @@ public class StudentBizService {
             if (nakedVisionResult.getFirst().compareTo(new BigDecimal("4.9")) < 0) {
                 // 是否佩戴眼镜
                 String noticeInfo;
-                if (glassesType >= 1) {
+                if (glassesType >= GlassesType.FRAME_GLASSES.code) {
                     noticeInfo = getSMSNoticeInfo(student.getName(), leftNakedVision, rightNakedVision,
                             getWearingGlassesConclusion(leftCorrectedVision, rightCorrectedVision,
                                     leftNakedVision, rightNakedVision, nakedVisionResult));

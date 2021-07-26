@@ -5,11 +5,24 @@
     <parent>
         <artifactId>business-aggregation</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.0.2</version>
+        <version>MP-2.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>screening-biz</artifactId>
-    <description>通用筛查业务逻辑</description>
+    <description>通用筛查数据逻辑</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-flow-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>school-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

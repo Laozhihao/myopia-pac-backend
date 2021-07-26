@@ -9,8 +9,6 @@ import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -35,7 +33,6 @@ import java.util.Objects;
  **/
 @Component
 public class AuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
-    private static Logger logger = LoggerFactory.getLogger(AuthorizationManager.class);
 
     @Autowired
     private RedisUtil redisUtil;

@@ -66,12 +66,12 @@ public class StatReportService {
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
-    private final static String TABLE_LABEL_TOTAL = "total";
-    private final static String TABLE_LABEL_ROW_TOTAL = "rowTotal";
-    private final static String TABLE_LABEL_AVERAGE_VISION = "averageVision";
-    private final static String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
-    private final static String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
-    private final static String TOTAL_CHINESE = "合计";
+    private static final String TABLE_LABEL_TOTAL = "total";
+    private static final String TABLE_LABEL_ROW_TOTAL = "rowTotal";
+    private static final String TABLE_LABEL_AVERAGE_VISION = "averageVision";
+    private static final String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
+    private static final String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
+    private static final String TOTAL_CHINESE = "合计";
 
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件

@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.common.service;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +21,7 @@ public class DistrictServiceTest {
     @Autowired
     private DistrictService districtService;
 
-    @Test
+    //@Test
     public void testGetProvinceDistrictTreePriorityCache() {
         // 潮阳区所在省份
         District province = districtService.getProvinceDistrictTreePriorityCache(440582000L);

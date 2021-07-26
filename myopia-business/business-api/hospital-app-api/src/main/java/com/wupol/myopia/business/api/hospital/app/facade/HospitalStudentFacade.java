@@ -8,11 +8,8 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.HospitalStudentDO;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
-import com.wupol.myopia.business.core.hospital.service.MedicalRecordService;
-import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -22,14 +19,12 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,10 +42,6 @@ public class HospitalStudentFacade {
     private StudentService studentService;
     @Autowired
     private DistrictService districtService;
-    @Autowired
-    private MedicalRecordService medicalRecordService;
-    @Autowired
-    private MedicalReportService medicalReportService;
     @Autowired
     private HospitalStudentService hospitalStudentService;
     @Autowired
@@ -74,8 +65,8 @@ public class HospitalStudentFacade {
      * 从管理端获取学生信息
      *
      * @param hospitalId 医院Id
-     * @param idCard 学生的身份证
-     * @param name   学生的姓名
+     * @param idCard     学生的身份证
+     * @param name       学生的姓名
      * @return
      */
     public HospitalStudentVO getStudent(Integer hospitalId, String idCard, String name) {
@@ -86,7 +77,7 @@ public class HospitalStudentFacade {
      * 从管理端获取学生信息
      *
      * @param hospitalId 医院Id
-     * @param id 学生id
+     * @param id         学生id
      * @return
      */
     public HospitalStudentVO getStudentById(Integer hospitalId, Integer id) {
@@ -115,10 +106,10 @@ public class HospitalStudentFacade {
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
                 studentService.getById(studentVo.getStudentId()) :
                 studentService.getByIdCard(studentVo.getIdCard());
-        if (Objects.nonNull(oldStudent) && isCheckNameAndIDCard) {
-            if (!(oldStudent.getIdCard().equals(studentVo.getIdCard()) && oldStudent.getName().equals(studentVo.getName()))) {
-                throw new BusinessException("学生的身份证与姓名不匹配");
-            }
+        if ((Objects.nonNull(oldStudent) && isCheckNameAndIDCard)
+                && (!(oldStudent.getIdCard().equals(studentVo.getIdCard())
+                && oldStudent.getName().equals(studentVo.getName())))) {
+            throw new BusinessException("学生的身份证与姓名不匹配");
         }
 
         // 设置学校信息
@@ -196,9 +187,9 @@ public class HospitalStudentFacade {
      * 获取学生详情,先从医院端获取，如果没有，则从管理端获取
      *
      * @param hospitalId 医院Id
-     * @param studentId 学生ID
-     * @param idCard    身份证
-     * @param name      姓名
+     * @param studentId  学生ID
+     * @param idCard     身份证
+     * @param name       姓名
      * @return HospitalStudentDTO
      */
     public HospitalStudentVO getHospitalStudent(Integer hospitalId, Integer studentId, String idCard, String name) {
@@ -351,6 +342,7 @@ public class HospitalStudentFacade {
 
     /**
      * 设置医院端的学生信息的学校及地址信息
+     *
      * @param studentList 学生信息列表
      */
     private List<HospitalStudentVO> updateStudentVoInfo(List<HospitalStudentDO> studentList) {

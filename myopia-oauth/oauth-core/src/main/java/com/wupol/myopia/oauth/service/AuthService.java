@@ -17,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class AuthService {
     public List<Permission> cacheUserPermission(Integer userId, Integer systemCode, long expiresTime) {
         // 只有管理端和筛查管理端的用户需要缓存权限
         if (!SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode) && !SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(systemCode)) {
-            return null;
+            return new ArrayList<>();
         }
         List<Permission> permissions = permissionService.getUserDistinctPermissionByUserId(userId);
         if (CollectionUtils.isEmpty(permissions)) {

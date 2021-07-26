@@ -61,7 +61,7 @@ public class ScreeningTaskBizService {
      *
      * @param screeningTaskDTO
      */
-    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, Boolean needUpdateNoticeStatus) {
+    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
         screeningTaskDTO.setOperatorId(user.getId());
         if (!screeningTaskService.saveOrUpdate(screeningTaskDTO)) {

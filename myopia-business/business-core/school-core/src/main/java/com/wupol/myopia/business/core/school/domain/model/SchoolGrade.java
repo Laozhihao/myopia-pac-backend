@@ -64,13 +64,13 @@ public class SchoolGrade implements Serializable {
     /**
      * 创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     public SchoolGrade(Integer createUserId, @NotNull(message = "学校id不能为空") Integer schoolId, @NotBlank(message = "年级code不能为空") String gradeCode, @NotBlank(message = "年级名称不能为空") String name) {

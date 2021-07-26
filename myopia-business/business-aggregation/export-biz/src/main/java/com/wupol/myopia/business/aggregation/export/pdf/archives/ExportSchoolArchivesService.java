@@ -12,8 +12,6 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 /**
  * 导出学校的档案卡（压缩文件仅包含一个该学校的PDF文件）
  *

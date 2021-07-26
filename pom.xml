@@ -10,7 +10,7 @@
     <groupId>com.wupol.myopia</groupId>
     <artifactId>myopia-pac-backend</artifactId>
     <packaging>pom</packaging>
-    <version>MP-2.0.2</version>
+    <version>MP-2.0.3</version>
     <description>近视防控系统</description>
 
     <modules>

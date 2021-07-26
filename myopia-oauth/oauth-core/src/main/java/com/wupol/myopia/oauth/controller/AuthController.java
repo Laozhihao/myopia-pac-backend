@@ -56,6 +56,8 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    private static final String REFRESH_TOKEN_ERROR = "刷新令牌失败";
+
     /**
      * 登录
      *
@@ -119,11 +121,11 @@ public class AuthController {
             logger.error("无效的刷新令牌", e);
             return ApiResult.failure("无效的刷新令牌");
         } catch (Exception e) {
-            logger.error("刷新令牌失败", e);
-            return ApiResult.failure("刷新令牌失败");
+            logger.error(REFRESH_TOKEN_ERROR, e);
+            return ApiResult.failure(REFRESH_TOKEN_ERROR);
         }
         if (Objects.isNull(oAuthToken)) {
-            return ApiResult.failure("刷新令牌失败");
+            return ApiResult.failure(REFRESH_TOKEN_ERROR);
         }
         // 延长权限缓存过期时间
         authService.delayPermissionCache(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn());

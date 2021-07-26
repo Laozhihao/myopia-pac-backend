@@ -22,6 +22,7 @@
                 <if test="@Ognl@isNotEmpty(name)">and `name` = #{name}</if>
                 <if test="@Ognl@isNotEmpty(level)">and `level` = #{level}</if>
                 <if test="@Ognl@isNotEmpty(levelDesc)">and `level_desc` = #{levelDesc}</if>
+                <if test="@Ognl@isNotEmpty(telephone)">and `telephone` = #{telephone}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(kind)">and `kind` = #{kind}</if>
                 <if test="@Ognl@isNotEmpty(provinceCode)">and `province_code` = #{provinceCode}</if>
@@ -48,7 +49,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, level, level_desc, type, kind, province_code, city_code, area_code, town_code, address, avatar_file_id, remark, is_cooperation, status, create_time, update_time
+        id, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, level, level_desc, telephone, type, kind, province_code, city_code, area_code, town_code, address, avatar_file_id, remark, is_cooperation, status, create_time, update_time
     </sql>
 
     <select id="getHospitalListByCondition" resultMap="BaseResponseMap">

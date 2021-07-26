@@ -98,7 +98,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningPlanDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, Boolean needUpdateNoticeStatus) {
+    public void saveOrUpdateWithSchools(CurrentUser user, ScreeningPlanDTO screeningPlanDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查计划信息
         screeningPlanDTO.setOperatorId(user.getId());
         if (!saveOrUpdate(screeningPlanDTO)) {
@@ -234,7 +234,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     public List<Integer> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
-        return screeningPlanSchools.stream().map(screeningPlanSchool -> screeningPlanSchool.getSchoolId()).collect(Collectors.toList());
+        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
     }
 
     /**

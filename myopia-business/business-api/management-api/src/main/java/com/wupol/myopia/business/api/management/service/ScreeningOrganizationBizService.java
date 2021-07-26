@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
+import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
+import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
@@ -83,6 +87,34 @@ public class ScreeningOrganizationBizService {
     private HospitalBizService hospitalBizService;
     @Resource
     private StatRescreenService statRescreenService;
+    @Resource
+    private DeviceReportTemplateService deviceReportTemplateService;
+    @Resource
+    private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+
+    /**
+     * 保存筛查机构
+     *
+     * @param screeningOrganization 筛查机构
+     * @return UsernameAndPasswordDTO 账号密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization) {
+
+        String name = screeningOrganization.getName();
+        if (StringUtils.isBlank(name)) {
+            throw new BusinessException("名字不能为空");
+        }
+
+        if (screeningOrganizationService.checkScreeningOrgName(name, null)) {
+            throw new BusinessException("筛查机构名称不能重复");
+        }
+        screeningOrganizationService.save(screeningOrganization);
+        // 为筛查机构新增设备报告模板
+        DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
+        screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
+        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization);
+    }
 
     /**
      * 获取筛查记录列表

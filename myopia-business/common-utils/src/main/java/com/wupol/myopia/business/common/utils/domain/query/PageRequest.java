@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 分页基类
  *
@@ -15,8 +17,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PageRequest {
 
+    @NotNull(message = "页码不能为空")
     private Integer current;
 
+    @NotNull(message = "每页条数不能为空")
     private Integer size;
 
     public Page<?> toPage() {
