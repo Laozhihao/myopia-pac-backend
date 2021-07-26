@@ -493,7 +493,7 @@ public class StatReportService {
         conclusionDesc.put("sortedList", sortedList);
         conclusionDesc.put("primaryToHighTotalNum", primaryToHighTotalNum);
         conclusionDesc.put("primaryToHighCorrectionNum", primaryToHighCorrectionNum);
-        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionRatio);
+        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionNum / primaryToHighTotalNum);
         conclusionDesc.put(title, schoolAgeGenderVisionCorrectionTable);
         return conclusionDesc;
     }
