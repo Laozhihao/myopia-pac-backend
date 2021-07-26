@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
@@ -75,6 +76,12 @@ public class DeviceBizService {
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
+            if(Objects.nonNull(r.getLeftAxsi())) {
+                r.setLeftAxsi(r.getLeftAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
+            if (Objects.nonNull(r.getRightAxsi())) {
+                r.setRightAxsi(r.getRightAxsi().setScale(0, BigDecimal.ROUND_DOWN));
+            }
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
             r.setDoctorConclusion(doctorAdvice.getFirst());
@@ -95,6 +102,9 @@ public class DeviceBizService {
      * @return left-医生结论 rigjt医生建议
      */
     private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, Double leftPa, Double rightPa, Double leftCyl, Double rightCyl) {
+        if (ObjectsUtil.allNull(leftPa, rightPa, leftCyl, rightCyl)) {
+            return new TwoTuple<>();
+        }
         // 判断是否近视、散光、远视。其中一项满足则是屈光不正
         if (checkIsMyopia(leftPa, rightPa) || checkIsAstigmatism(leftCyl, rightCyl) || checkIsFarsightedness(patientAge, leftPa, rightPa)) {
             return new TwoTuple<>(DoctorConclusion.CONCLUSION_DEVICE_REFRACTIVE_ERROR, DoctorConclusion.DEVICE_REFRACTIVE_ERROR);

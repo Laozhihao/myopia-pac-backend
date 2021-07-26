@@ -82,7 +82,7 @@ public class DeviceDTO {
     /**
      * 销售时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date saleDate;
 
     /**

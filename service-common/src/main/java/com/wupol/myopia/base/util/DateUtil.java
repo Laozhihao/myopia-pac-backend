@@ -9,10 +9,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 日期工具
@@ -247,7 +244,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
      * @return
      */
     public static boolean isDateBeforeToday(Date date) {
-        return date.getTime() < DateUtil.getTodayStartTime("GMT+8");
+        return date.getTime() < DateUtil.getTodayStartTime(TimeZone.getDefault().getID());
     }
 
     /**

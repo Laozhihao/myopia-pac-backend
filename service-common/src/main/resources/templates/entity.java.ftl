@@ -90,7 +90,7 @@ public class ${entity} implements Serializable {
     </#if>
     <#-- 改动点：格式化日期为yyyy-MM-dd HH:mm:ss -->
     <#if field.propertyType == "Date">
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     </#if>
     private ${field.propertyType} ${field.propertyName};
 </#list>

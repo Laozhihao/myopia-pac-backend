@@ -81,7 +81,7 @@ public class ScheduledTasksExecutor {
     /**
      * 筛查数据统计
      */
-    @Scheduled(cron = "0 5 0 * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 5 0 * * ?")
     public void statistic() {
         //1. 查询出需要统计的通知（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
@@ -313,7 +313,7 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-    @Scheduled(cron = "0 0 9 * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 0 9 * * ?")
     @Transactional(rollbackFor = Exception.class)
     public void sendSMSNotice() {
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
@@ -334,7 +334,7 @@ public class ScheduledTasksExecutor {
     /**
      * 每天凌晨0点30分执行，复测统计
      */
-    @Scheduled(cron = "0 30 0 * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 30 0 * * ?")
     @Transactional(rollbackFor = Exception.class)
     public void rescreenStat() {
         log.info("开始进行复测报告统计");

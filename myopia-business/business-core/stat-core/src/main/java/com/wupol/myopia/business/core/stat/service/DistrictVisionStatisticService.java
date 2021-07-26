@@ -84,4 +84,14 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
         }
         Lists.partition(districtVisionStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
     }
+
+    /**
+     * 通过noticeId获取DistrictId
+     *
+     * @param noticeId 筛查通知Id
+     * @return DistrictId
+     */
+    public Set<Integer> getDistrictIdByNoticeId(Integer noticeId) {
+        return baseMapper.getDistrictIdByNoticeId(noticeId);
+    }
 }

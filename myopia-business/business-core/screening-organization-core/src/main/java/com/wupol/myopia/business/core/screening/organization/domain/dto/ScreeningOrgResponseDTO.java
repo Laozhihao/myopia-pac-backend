@@ -23,7 +23,7 @@ public class ScreeningOrgResponseDTO extends ScreeningOrganization {
     /**
      * 上次统计时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastCountDate;
 
     /**
