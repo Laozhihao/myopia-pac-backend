@@ -91,9 +91,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右/左）"})
     private String axials;
 
-    @ExcelProperty({TOP_HEADER, "等效球镜（右/左）"})
-    private String sphericalEquivalents;
-
     @ExcelProperty({TOP_HEADER, "预警级别", "预警级别"})
     private String warningLevelDesc;
 
