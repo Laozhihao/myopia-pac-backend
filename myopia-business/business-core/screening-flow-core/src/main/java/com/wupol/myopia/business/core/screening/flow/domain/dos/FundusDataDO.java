@@ -23,6 +23,10 @@ public class FundusDataDO implements Serializable {
      */
     private FundusData leftEyeData;
     /**
+     * 备注说明
+     */
+    private String remark;
+    /**
      * 是否配合检查：0-配合、1-不配合
      */
     private Integer isCooperative;
@@ -38,10 +42,6 @@ public class FundusDataDO implements Serializable {
          * 眼底：0-未见异常、1-异常
          */
         private Integer hasAbnormal;
-        /**
-         * 备注说明
-         */
-        private String remark;
     }
 
 }
