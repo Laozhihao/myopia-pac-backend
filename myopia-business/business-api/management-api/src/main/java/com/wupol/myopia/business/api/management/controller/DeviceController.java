@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
+import java.util.Objects;
 
 /**
  * 设备管理接口
@@ -73,6 +74,8 @@ public class DeviceController {
      **/
     @PutMapping()
     public Boolean updateDevice(@RequestBody @Validated(value = {DeviceUpdateValidatorGroup.class, Default.class}) DeviceDTO deviceDTO) {
+        Device device = deviceService.findOne(new Device().setDeviceSn(deviceDTO.getDeviceSn()));
+        Assert.isTrue(Objects.isNull(device) || device.getId().equals(deviceDTO.getId()), "唯一标识码重复，请重新填写");
         return deviceService.updateById(deviceDTO.toDevice());
     }
 

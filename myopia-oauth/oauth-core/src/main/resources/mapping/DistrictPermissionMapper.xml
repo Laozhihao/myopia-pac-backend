@@ -47,4 +47,10 @@
         order by p.`order` ASC, p.update_time DESC
     </select>
 
+    <select id="getByTemplateType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from o_district_permission
+        where district_level = #{templateType}
+    </select>
 </mapper>

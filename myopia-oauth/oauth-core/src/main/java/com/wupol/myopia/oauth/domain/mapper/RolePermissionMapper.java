@@ -14,5 +14,7 @@ import java.util.List;
  */
 public interface RolePermissionMapper extends BaseMapper<RolePermission> {
 
-    Integer insertRolePermissionBatch(@Param("roleId") Integer roleId, @Param("permissionIds") List<Integer> permissionIds);
+    void insertRolePermissionBatch(@Param("roleId") Integer roleId, @Param("permissionIds") List<Integer> permissionIds);
+
+    void deletedRolePermissionBatch(@Param("roleId") Integer roleId, @Param("permissionIds") List<Integer> permissionIds);
 }

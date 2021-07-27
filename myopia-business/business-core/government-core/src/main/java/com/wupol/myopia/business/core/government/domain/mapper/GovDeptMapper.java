@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.government.domain.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.ibatis.annotations.Param;
 
@@ -50,5 +51,11 @@ public interface GovDeptMapper extends BaseMapper<GovDept> {
     GovDept findByIdAndNeStatus(@Param("id") Integer id, @Param("status") Integer status);
 
     List<GovDept> findByPidAndNeStatus(@Param("pids") List<Integer> pids, @Param("status") Integer status);
+
+    List<GovDistrictDTO> getByPid(@Param("pids") List<Integer> pids);
+
+    List<GovDistrictDTO> getAll();
+
+    GovDistrictDTO getById(@Param("id") Integer id);
 
 }

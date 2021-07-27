@@ -63,8 +63,8 @@ CREATE TABLE `m_device_screening_data`
     `red_reflect_left`  int           NULL     DEFAULT NULL COMMENT '红光反射左眼',
     `red_reflect_right` int           NULL     DEFAULT NULL COMMENT '红光反射右眼',
     `screening_time`    timestamp(0)  NOT  NULL     DEFAULT NULL COMMENT '筛查时间',
-    `update_time`       timestamp(0)  NOT  NULL CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `create_time`       timestamp(0)  NOT  NULL CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uni_screeningorgid_devicesn_patientid_screeningtime` (`screening_org_id`, `device_sn`, `patient_id`, `screening_time`) USING BTREE COMMENT '数据id_筛查机构id_筛查时间'
 );

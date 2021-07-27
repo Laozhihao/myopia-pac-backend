@@ -354,6 +354,7 @@ public class StudentBizService {
             cardInfoVO.setCityName(districtService.getDistrictName(school.getCityCode()));
             cardInfoVO.setAreaName(districtService.getDistrictName(school.getAreaCode()));
             cardInfoVO.setTownName(districtService.getDistrictName(school.getTownCode()));
+            cardInfoVO.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
         }
         return cardInfoVO;
     }

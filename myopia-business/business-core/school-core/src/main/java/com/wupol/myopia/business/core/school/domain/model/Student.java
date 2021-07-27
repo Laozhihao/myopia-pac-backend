@@ -87,7 +87,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "出生日期不能为空")
     private Date birthday;
 
@@ -138,7 +138,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 最近筛选次数
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastScreeningTime;
 
     /**
@@ -174,13 +174,13 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     /**

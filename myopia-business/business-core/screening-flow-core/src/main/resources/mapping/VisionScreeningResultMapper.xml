@@ -104,6 +104,7 @@
                      left join m_stat_conclusion msc on mvsr.id = msc.result_id
         where msc.is_valid = 1
           and mvsr.is_double_screen = 0
+          and mvsr.is_notice = false
           and mvsr.update_time &lt;= CURDATE()
     </select>
 </mapper>
