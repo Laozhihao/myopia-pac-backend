@@ -92,9 +92,9 @@ public class ScreeningResultPahtConst {
     public final String PATH_DF_LEFT_HASABNORMAL = "$.fundusData.leftEyeData.hasAbnormal";
 
     // 其他眼病
-    public final String PATH_SYSTEMIC_DISEASE_SYMPTOM = "$.systemicDiseaseSymptom";
-    public final String PATH_OED_RIGHT_EYE_DISEASES = "$.otherEyeDiseases.rightEyeData.eyeDiseases";
     public final String PATH_OED_LEFT_EYE_DISEASES = "$.otherEyeDiseases.leftEyeData.eyeDiseases";
+    public final String PATH_OED_RIGHT_EYE_DISEASES = "$.otherEyeDiseases.rightEyeData.eyeDiseases";
+    public final String PATH_SYSTEMIC_DISEASE_SYMPTOM = "$.systemicDiseaseSymptom";
     public final String PATH_VLLD_RIGHT_LEVEL = "$.visualLossLevelData.rightEyeData.level";
     public final String PATH_VLLD_LEFT_LEVEL = "$.visualLossLevelData.leftEyeData.level";
 
