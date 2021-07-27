@@ -8,9 +8,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
-import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
-import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
-import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
+import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
@@ -208,7 +206,6 @@ public class ScreeningAppController {
         return allEyeDiseaseVos;
     }
 
-
     /**
      * 上传筛查机构用户的签名图片
      *
@@ -230,7 +227,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getUserInfo")
-    public AppUserInfo getUserInfo() throws IOException {
+    public AppUserInfo getUserInfo() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningAppService.getUserInfoByUser(currentUser);
     }
@@ -244,7 +241,6 @@ public class ScreeningAppController {
     public void recognitionFace(Integer deptId, MultipartFile file) {
        // 暂时不用
     }
-
 
     /**
      * 保存视力筛查
@@ -277,7 +273,7 @@ public class ScreeningAppController {
     }
 
     /**
-     * 增加该学生的眼睛疾病
+     * 保存其他眼病
      *
      * @return
      */
@@ -286,6 +282,41 @@ public class ScreeningAppController {
         visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
+    /**
+     * 保存眼位、裂隙灯、眼底检查数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addCompositeExamData")
+    public void addCompositeExamData(@Valid @RequestBody CompositeExamDataDTO compositeExamDataDTO) {
+        Integer isCooperative = compositeExamDataDTO.getIsCooperative();
+        // 眼位
+        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getOcularInspectionData().setIsCooperative(isCooperative));
+        // 裂隙灯
+        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getSlitLampData().setIsCooperative(isCooperative));
+        // 眼位
+        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getFundusData().setIsCooperative(isCooperative));
+    }
+
+    /**
+     * 保存小瞳验光数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addPupilOptometry")
+    public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+    }
+
+    /**
+     * 保存眼压数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addIntraocularPressure")
+    public void addIntraocularPressure(@Valid @RequestBody IntraocularPressureDataDTO intraocularPressureDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(intraocularPressureDataDTO);
+    }
 
     //分割线----------------------
 

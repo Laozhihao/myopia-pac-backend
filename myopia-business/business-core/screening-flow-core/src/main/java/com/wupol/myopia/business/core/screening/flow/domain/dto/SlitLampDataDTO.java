@@ -4,6 +4,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -16,10 +17,10 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SlitLampDataDTO extends ScreeningResultBasicData {
-
     /**
      * 病变异常组织(左眼)
      */
@@ -29,6 +30,21 @@ public class SlitLampDataDTO extends ScreeningResultBasicData {
      * 病变异常组织(右眼)
      */
     private String rightPathologicalTissues;
+
+    /**
+     * 初步诊断结果(左眼)：0-正常、1-（疑似）异常
+     */
+    private Integer leftDiagnosis;
+
+    /**
+     * 初步诊断结果（右眼）：0-正常、1-（疑似）异常
+     */
+    private Integer rightDiagnosis;
+
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
     /**
      * 获取右眼病变组织list
@@ -61,9 +77,9 @@ public class SlitLampDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setPathologicalTissues(getRightPathologicalTissueList()).setLateriality(1);
-        SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setPathologicalTissues(getLeftPathologicalTissueList()).setLateriality(0);
-        SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData);
+        SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(1).setDiagnosis(rightDiagnosis).setPathologicalTissues(getRightPathologicalTissueList());
+        SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(0).setDiagnosis(leftDiagnosis).setPathologicalTissues(getLeftPathologicalTissueList());
+        SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(isCooperative);
         return visionScreeningResult.setSlitLampData(slitLampDataDO);
     }
 
