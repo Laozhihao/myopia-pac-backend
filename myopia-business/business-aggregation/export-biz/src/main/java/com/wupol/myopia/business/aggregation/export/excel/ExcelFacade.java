@@ -450,23 +450,29 @@ public class ExcelFacade {
     }
 
     private void genDate(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
-//        exportDTO.setEsotropia();
+
+//        exportDTO.setEsotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
 //        exportDTO.setExotropia();
 //        exportDTO.setVerticalStrabismus();
 //        exportDTO.setODiagnosis();
+//
 //        exportDTO.setVDiagnosis();
+//
 //        exportDTO.setCDiagnosis();
 //        exportDTO.setCResult();
+//
 //        exportDTO.setSLeftEye();
 //        exportDTO.setSLeftResult();
 //        exportDTO.setSRightEye();
 //        exportDTO.setSRightResult();
+//
 //        exportDTO.setPSph();
 //        exportDTO.setPCyl();
 //        exportDTO.setPAxial();
 //        exportDTO.setPCorrectedVision();
 //        exportDTO.setPDiagnosis();
 //        exportDTO.setPResult();
+//
 //        exportDTO.setDbK1();
 //        exportDTO.setDbK2();
 //        exportDTO.setDbAST();
@@ -478,8 +484,10 @@ public class ExcelFacade {
 //        exportDTO.setDbAD();
 //        exportDTO.setDbLT();
 //        exportDTO.setDbVT();
+//
 //        exportDTO.setIpDate();
 //        exportDTO.setFdDate();
+//
 //        exportDTO.setLeftEyeDiseases();
 //        exportDTO.setRightEyeDiseases();
 //        exportDTO.setSystemicDiseaseSymptom();
