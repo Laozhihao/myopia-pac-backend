@@ -23,7 +23,6 @@ public class OtherEyeDiseasesDO implements Serializable {
      */
     private OtherEyeDiseases leftEyeData;
 
-
     @Data
     @Accessors(chain = true)
     public static class OtherEyeDiseases {
