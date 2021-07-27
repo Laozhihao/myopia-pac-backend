@@ -454,11 +454,11 @@ public class ExcelFacade {
         exportDTO.setEsotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_ESOTROPIA));
         exportDTO.setExotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_EXOTROPIA));
         exportDTO.setVerticalStrabismus((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_VERTICAL_STRABISMUS));
-        exportDTO.setODiagnosis((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_DIAGNOSIS));
+        exportDTO.setODiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_DIAGNOSIS)));
 
-        exportDTO.setVDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VD_DIAGNOSIS));
+        exportDTO.setVDiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VD_DIAGNOSIS)));
 
-        exportDTO.setCDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_CO_diagnosis));
+        exportDTO.setCDiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_CO_diagnosis)));
 //        exportDTO.setCResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
 
         exportDTO.setSLeftEye((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_PATHOLOGICAL_TISSUES));
@@ -470,7 +470,7 @@ public class ExcelFacade {
         exportDTO.setPCyl(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL));
         exportDTO.setPAxial(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL));
         exportDTO.setPCorrectedVision(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION));
-        exportDTO.setPDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS));
+        exportDTO.setPDiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS)));
 //        exportDTO.setPResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
 
         exportDTO.setDbK1(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
@@ -513,6 +513,20 @@ public class ExcelFacade {
                     .setIsRescreenDesc("是");
         }
     }
+
+    private String diagnosis2String(Integer  diagnosis) {
+        if (Objects.isNull(diagnosis)) {
+            return StringUtils.EMPTY;
+        }
+        if (0 == diagnosis) {
+            return "正常";
+        }
+        if (1 == diagnosis) {
+            return "（疑似）异常";
+        }
+        return StringUtils.EMPTY;
+    }
+
 
     /**
      * 组装初筛数据
