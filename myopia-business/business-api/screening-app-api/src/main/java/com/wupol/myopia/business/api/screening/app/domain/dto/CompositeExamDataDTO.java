@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
@@ -8,6 +9,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.SlitLampDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * 复合检查数据（眼位、裂隙灯、眼底）
@@ -15,6 +17,7 @@ import lombok.EqualsAndHashCode;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@Log4j2
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CompositeExamDataDTO extends ScreeningResultBasicData {
@@ -37,6 +40,7 @@ public class CompositeExamDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
+        log.info("复合检查数据：{}", JSON.toJSONString(ocularInspectionData));
         // 33cm眼位
         OcularInspectionDataDO ocularInspectionDataDO = new OcularInspectionDataDO()
                 .setEsotropia(ocularInspectionData.getEsotropia())
@@ -54,6 +58,7 @@ public class CompositeExamDataDTO extends ScreeningResultBasicData {
         FundusDataDO.FundusData leftFundusData = new FundusDataDO.FundusData().setLateriality(0).setHasAbnormal(fundusData.getLeftHasAbnormal());
         FundusDataDO.FundusData rightFundusData = new FundusDataDO.FundusData().setLateriality(1).setHasAbnormal(fundusData.getRightHasAbnormal());
         FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(isCooperative).setRemark(fundusData.getRemark());
+
         return new VisionScreeningResult().setOcularInspectionData(ocularInspectionDataDO).setSlitLampData(slitLampDataDO).setFundusData(fundusDataDO);
     }
 }
