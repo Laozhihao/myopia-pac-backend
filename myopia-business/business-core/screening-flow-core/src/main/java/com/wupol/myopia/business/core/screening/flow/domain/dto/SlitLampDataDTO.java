@@ -1,12 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,10 +14,9 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
-@Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class SlitLampDataDTO extends ScreeningResultBasicData {
+public class SlitLampDataDTO implements Serializable {
+
     /**
      * 病变异常组织(左眼)
      */
@@ -40,11 +36,6 @@ public class SlitLampDataDTO extends ScreeningResultBasicData {
      * 初步诊断结果（右眼）：0-正常、1-（疑似）异常
      */
     private Integer rightDiagnosis;
-
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
 
     /**
      * 获取右眼病变组织list
@@ -73,14 +64,6 @@ public class SlitLampDataDTO extends ScreeningResultBasicData {
         }
         String[] diseaseStringArray = pathologicalTissueStr.split(",");
         return Arrays.asList(diseaseStringArray);
-    }
-
-    @Override
-    public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(1).setDiagnosis(rightDiagnosis).setPathologicalTissues(getRightPathologicalTissueList());
-        SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(0).setDiagnosis(leftDiagnosis).setPathologicalTissues(getLeftPathologicalTissueList());
-        SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(isCooperative);
-        return visionScreeningResult.setSlitLampData(slitLampDataDO);
     }
 
 }
