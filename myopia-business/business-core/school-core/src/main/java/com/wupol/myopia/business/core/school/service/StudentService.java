@@ -411,4 +411,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         return  StringUtils.isBlank(parentPhone) ? Collections.emptyList() : Collections.singletonList(parentPhone);
     }
+
+    /**
+     * 获取学生基本信息
+     *
+     * @param studentId 学生Id
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentInfo(Integer studentId) {
+        return baseMapper.getStudentInfo(studentId);
+    }
 }

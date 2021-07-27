@@ -1197,4 +1197,18 @@ public class ScreeningResultUtil {
         }
         return new TwoTuple<>(leftSE, rightSE);
     }
+
+    /**
+     * 取严重的等级
+     *
+     * @param leftLevel  左眼视力
+     * @param rightLevel 右眼视力
+     * @return 视力
+     */
+    public Integer getSeriousLevel(Integer leftLevel, Integer rightLevel) {
+        return Objects.isNull(leftLevel) ?
+                rightLevel : Objects.isNull(rightLevel) ?
+                leftLevel : leftLevel.compareTo(rightLevel) >= 0 ?
+                rightLevel : leftLevel;
+    }
 }
