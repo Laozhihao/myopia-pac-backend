@@ -14,6 +14,7 @@ import java.util.Date;
 
 /**
  * 筛查数据导出
+ *
  * @author Alix
  * @Date 2021/03/12
  **/
@@ -72,31 +73,31 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("地址")
     private String address;
 
-    @ExcelProperty({TOP_HEADER, "戴镜情况"})
+    @ExcelProperty({TOP_HEADER, "视力检查", "戴镜情况"})
     private String glassesTypeDesc;
 
-    @ExcelProperty({TOP_HEADER, "裸眼（右/左）"})
+    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（右/左）"})
     private String nakedVisions;
 
-    @ExcelProperty({TOP_HEADER, "矫正（右/左）"})
+    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（右/左）"})
     private String correctedVisions;
 
-    @ExcelProperty({TOP_HEADER, "球镜（右/左）"})
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右/左）"})
     private String sphs;
 
-    @ExcelProperty({TOP_HEADER, "柱镜（右/左）"})
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（右/左）"})
     private String cyls;
 
-    @ExcelProperty({TOP_HEADER, "轴位（右/左）"})
+    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右/左）"})
     private String axials;
 
     @ExcelProperty({TOP_HEADER, "等效球镜（右/左）"})
     private String sphericalEquivalents;
 
-    @ExcelProperty({"预警级别", "预警级别"})
+    @ExcelProperty({TOP_HEADER, "预警级别", "预警级别"})
     private String warningLevelDesc;
 
-    @ExcelProperty({"是否复测", "是否复测"})
+    @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
     private String isRescreenDesc;
 
     @ExcelProperty({TOP_HEADER2, "裸眼（右/左）"})
