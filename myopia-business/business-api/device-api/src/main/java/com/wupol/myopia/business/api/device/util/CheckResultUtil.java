@@ -36,40 +36,40 @@ public class CheckResultUtil {
      * @return
      */
     public static String getCheckResult(DeviceScreenDataDTO patient){
-        double LeftSph = patient.getLeftSph();
-        double RightSph = patient.getRightSph();
-        double LeftCyl = patient.getLeftCyl();
-        double RightCyl = patient.getRightCyl();
-        double LeftPR = patient.getLeftPR();
-        double RightPR = patient.getRightPR();
-        double LeftAxsiH = patient.getLeftAxsiH();
-        double LeftAxsiV = patient.getLeftAxsiV();
-        double RightAxsiV = patient.getRightAxsiV();
-        double RightAxsiH = patient.getRightAxsiH();
+        double leftSph = patient.getLeftSph();
+        double rightSph = patient.getRightSph();
+        double leftCyl = patient.getLeftCyl();
+        double rightCyl = patient.getRightCyl();
+        double leftPR = patient.getLeftPR();
+        double rightPR = patient.getRightPR();
+        double leftAxsiH = patient.getLeftAxsiH();
+        double leftAxsiV = patient.getLeftAxsiV();
+        double rightAxsiV = patient.getRightAxsiV();
+        double rightAxsiH = patient.getRightAxsiH();
         int model = patient.getCheckMode();
         int age = patient.getPatientAge();
         String sep = "、";
 
         if (model == 0) {
             //right eye
-            String rightEyeResult = getResult(RightSph, RightCyl, RightAxsiH, RightAxsiV, age, MODEL_NAME_RIGHT_EYE);
+            String rightEyeResult = getResult(rightSph, rightCyl, rightAxsiH, rightAxsiV, age, MODEL_NAME_RIGHT_EYE);
             //left eye
-            String leftEyeResult = getResult(LeftSph, LeftCyl, LeftAxsiH, LeftAxsiV, age, MODEL_NAME_LEFT_EYE);
+            String leftEyeResult = getResult(leftSph, leftCyl, leftAxsiH, leftAxsiV, age, MODEL_NAME_LEFT_EYE);
             //PR
-            String prString = checkPR(LeftPR,RightPR);
+            String prString = checkPR(leftPR,rightPR);
             //anisometropia
-            String ropiaString = checkAnisometropia(age,Math.abs(LeftSph - RightSph),Math.abs(LeftCyl - RightCyl));
+            String ropiaString = checkAnisometropia(age,Math.abs(leftSph - rightSph),Math.abs(leftCyl - rightCyl));
             //gaze ranging
-            String gazeRanging = checkUnequalPupil(LeftAxsiH,RightAxsiH,LeftAxsiV,RightAxsiV);
+            String gazeRanging = checkUnequalPupil(leftAxsiH,rightAxsiH,leftAxsiV,rightAxsiV);
             return Arrays.asList(rightEyeResult,leftEyeResult,prString,ropiaString,gazeRanging).stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(sep));
         }
         //left eye
         if (model == 1) {
-            return getResult(LeftSph, LeftCyl, LeftAxsiH, LeftAxsiV, age, MODEL_NAME_LEFT_EYE);
+            return getResult(leftSph, leftCyl, leftAxsiH, leftAxsiV, age, MODEL_NAME_LEFT_EYE);
         }
         //right eye
         if (model == 2){
-            return getResult(RightSph, RightCyl, RightAxsiH, RightAxsiV, age, MODEL_NAME_RIGHT_EYE);
+            return getResult(rightSph, rightCyl, rightAxsiH, rightAxsiV, age, MODEL_NAME_RIGHT_EYE);
         }
         return "";
     }

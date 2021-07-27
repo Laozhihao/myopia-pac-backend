@@ -104,11 +104,17 @@ public class VisionScreeningBizService {
      */
     public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult){
         //获取VisionScreeningResult以及ScreeningPlanSchoolStudent
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningResultBasicData);
         //构建ScreeningResult
         return new ScreeningResultBuilder().setVisionScreeningResult(visionScreeningResult).setIsDoubleScreen(screeningResultBasicData.getIsState() == 1).setScreeningResultBasicData(screeningResultBasicData).setScreeningPlanSchoolStudent(screeningPlanSchoolStudent).build();
     }
 
+    /**
+     * 取出历史初筛和复筛的数据
+     *
+     * @param screeningResultBasicData 学生基本信息
+     * @return com.wupol.myopia.business.common.utils.util.TwoTuple<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult,com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
+     **/
     public  TwoTuple<VisionScreeningResult, VisionScreeningResult> getAllFirstAndSecondResult(ScreeningResultBasicData screeningResultBasicData) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQueryDTO = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
         //倒叙取出来最新的一条
@@ -127,7 +133,7 @@ public class VisionScreeningBizService {
                 anotherVisionScreeningResult = visionScreeningResult;
             }
         }
-        com.wupol.myopia.business.common.utils.util.TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResultVisionScreeningResultTwoTuple = new com.wupol.myopia.business.common.utils.util.TwoTuple<>();
+        TwoTuple<VisionScreeningResult, VisionScreeningResult> visionScreeningResultVisionScreeningResultTwoTuple = new TwoTuple<>();
         visionScreeningResultVisionScreeningResultTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultVisionScreeningResultTwoTuple.setSecond(anotherVisionScreeningResult);
         return visionScreeningResultVisionScreeningResultTwoTuple;
@@ -141,7 +147,7 @@ public class VisionScreeningBizService {
      * @return ScreeningPlanSchoolStudent
      * @throws IOException 异常
      */
-    public ScreeningPlanSchoolStudent getScreeningResultAndScreeningPlanSchoolStudent(ScreeningResultBasicData screeningResultBasicData) {
+    private ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(ScreeningResultBasicData screeningResultBasicData) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudentQueryDTO = new ScreeningPlanSchoolStudent().setScreeningOrgId(screeningResultBasicData.getDeptId()).setId(screeningResultBasicData.getStudentId());
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(screeningPlanSchoolStudentQueryDTO);
         if (screeningPlanSchoolStudent == null) {

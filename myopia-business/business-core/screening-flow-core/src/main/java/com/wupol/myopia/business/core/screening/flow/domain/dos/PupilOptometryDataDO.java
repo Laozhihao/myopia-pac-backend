@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
@@ -10,22 +9,22 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 电脑验光数据
- * @Description
- * @Date 2021/1/22 16:37
- * @Author by jacob
- */
+ * 小瞳验光数据
+ *
+ * @Author HaoHao
+ * @Date 2021/7/27
+ **/
 @Data
 @Accessors(chain = true)
-public class ComputerOptometryDO implements ScreeningResultStructureInterface<ComputerOptometryDO.ComputerOptometry>, Serializable {
+public class PupilOptometryDataDO implements ScreeningResultStructureInterface<PupilOptometryDataDO.PupilOptometryData>,  Serializable {
     /**
      * 右眼数据
      */
-    private ComputerOptometry rightEyeData;
+    private PupilOptometryData rightEyeData;
     /**
      * 左眼数据
      */
-    private ComputerOptometry leftEyeData;
+    private PupilOptometryData leftEyeData;
     /**
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
@@ -35,17 +34,11 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      */
     private Integer isCooperative;
 
-    /**
-     * 电脑验光具体数据
-     * @Description
-     * @Date 2021/1/22 16:37
-     * @Author by jacob
-     */
     @Data
     @Accessors(chain = true)
-    public static class ComputerOptometry implements ValidResultDataInterface, Serializable {
+    public static class PupilOptometryData implements ValidResultDataInterface, Serializable {
         /**
-         * 0 为左眼 1为右眼
+         * 0 为左眼 1 为右眼
          */
         private Integer lateriality;
         /**
@@ -60,23 +53,15 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
          * 柱镜
          */
         private BigDecimal cyl;
+        /**
+         * 矫正视力
+         */
+        private BigDecimal correctedVision;
 
         @Override
         public boolean judgeValidData() {
             return sph != null;
         }
-
-    }
-
-    /**
-     * 电脑数据是否完整
-     * @return
-     */
-    public boolean valid() {
-        return ObjectsUtil.allNotNull(getLeftEyeData()
-                , getLeftEyeData().getAxial(), getLeftEyeData().getCyl(), getLeftEyeData().getSph()
-                , getRightEyeData(), getRightEyeData().getAxial(), getRightEyeData().getCyl(), getRightEyeData().getSph());
     }
 
 }
-
