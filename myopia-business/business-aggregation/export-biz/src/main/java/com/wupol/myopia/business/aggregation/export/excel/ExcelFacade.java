@@ -444,6 +444,7 @@ public class ExcelFacade {
                     .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
+            genDate(vo, exportVo);
             exportVos.add(exportVo);
         }
         return exportVos;
@@ -451,47 +452,47 @@ public class ExcelFacade {
 
     private void genDate(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
 
-//        exportDTO.setEsotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
-//        exportDTO.setExotropia();
-//        exportDTO.setVerticalStrabismus();
-//        exportDTO.setODiagnosis();
-//
-//        exportDTO.setVDiagnosis();
-//
-//        exportDTO.setCDiagnosis();
-//        exportDTO.setCResult();
-//
-//        exportDTO.setSLeftEye();
-//        exportDTO.setSLeftResult();
-//        exportDTO.setSRightEye();
-//        exportDTO.setSRightResult();
-//
-//        exportDTO.setPSph();
-//        exportDTO.setPCyl();
-//        exportDTO.setPAxial();
-//        exportDTO.setPCorrectedVision();
-//        exportDTO.setPDiagnosis();
-//        exportDTO.setPResult();
-//
-//        exportDTO.setDbK1();
-//        exportDTO.setDbK2();
-//        exportDTO.setDbAST();
-//        exportDTO.setDbN();
-//        exportDTO.setDbPD();
-//        exportDTO.setDbWTW();
-//        exportDTO.setDbAL();
-//        exportDTO.setDbCCT();
-//        exportDTO.setDbAD();
-//        exportDTO.setDbLT();
-//        exportDTO.setDbVT();
-//
-//        exportDTO.setIpDate();
-//        exportDTO.setFdDate();
-//
-//        exportDTO.setLeftEyeDiseases();
-//        exportDTO.setRightEyeDiseases();
-//        exportDTO.setSystemicDiseaseSymptom();
-//        exportDTO.setLevel();
+        exportDTO.setEsotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_ESOTROPIA));
+        exportDTO.setExotropia((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_EXOTROPIA));
+        exportDTO.setVerticalStrabismus((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_VERTICAL_STRABISMUS));
+        exportDTO.setODiagnosis((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_DIAGNOSIS));
+
+        exportDTO.setVDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VD_DIAGNOSIS));
+
+        exportDTO.setCDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_CO_diagnosis));
+//        exportDTO.setCResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
+
+        exportDTO.setSLeftEye((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_PATHOLOGICAL_TISSUES));
+        exportDTO.setSLeftResult((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_DIAGNOSIS));
+        exportDTO.setSRightEye((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_PATHOLOGICAL_TISSUES));
+        exportDTO.setSRightResult((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_DIAGNOSIS));
+
+        exportDTO.setPSph(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN));
+        exportDTO.setPCyl(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL));
+        exportDTO.setPAxial(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL));
+        exportDTO.setPCorrectedVision(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION));
+        exportDTO.setPDiagnosis((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS));
+//        exportDTO.setPResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
+
+        exportDTO.setDbK1(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1));
+        exportDTO.setDbK2(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2));
+        exportDTO.setDbAST(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST));
+//        exportDTO.setDbN(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_n) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD));
+        exportDTO.setDbPD(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD));
+        exportDTO.setDbWTW(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW));
+        exportDTO.setDbAL(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL));
+        exportDTO.setDbCCT(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT));
+        exportDTO.setDbAD(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD));
+        exportDTO.setDbLT(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT));
+        exportDTO.setDbVT(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT));
+
+        exportDTO.setIpDate(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE));
+        exportDTO.setFdDate(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL));
+
+        exportDTO.setLeftEyeDiseases((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES));
+        exportDTO.setRightEyeDiseases((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES));
+        exportDTO.setSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
+        exportDTO.setLevel(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL));
     }
 
     /**
