@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ import java.util.List;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
-
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
 
     /**

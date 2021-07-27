@@ -289,13 +289,7 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addCompositeExamData")
     public void addCompositeExamData(@Valid @RequestBody CompositeExamDataDTO compositeExamDataDTO) {
-        Integer isCooperative = compositeExamDataDTO.getIsCooperative();
-        // 眼位
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getOcularInspectionData().setIsCooperative(isCooperative));
-        // 裂隙灯
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getSlitLampData().setIsCooperative(isCooperative));
-        // 眼位
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getFundusData().setIsCooperative(isCooperative));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO);
     }
 
     /**
