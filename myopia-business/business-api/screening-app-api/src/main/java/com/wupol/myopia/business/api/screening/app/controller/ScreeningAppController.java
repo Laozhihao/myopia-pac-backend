@@ -317,7 +317,7 @@ public class ScreeningAppController {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent
-                .setScreeningOrgId(deptId.intValue())
+                .setScreeningOrgId(deptId)
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
                 .setStudentName(studentName)

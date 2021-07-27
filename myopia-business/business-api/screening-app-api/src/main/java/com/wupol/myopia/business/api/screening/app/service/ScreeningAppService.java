@@ -17,7 +17,6 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
-import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
@@ -30,8 +29,6 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -48,7 +45,6 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -73,13 +69,9 @@ public class ScreeningAppService {
     @Autowired
     private SchoolClassService schoolClassService;
     @Autowired
-    private StudentService studentService;
-    @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private StatConclusionService statConclusionService;
-    @Autowired
-    private StatConclusionBizService statConclusionBizService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
@@ -267,54 +259,6 @@ public class ScreeningAppService {
     }
 
     /**
-     * 保存学生眼镜信息
-     *
-     * @param screeningResultBasicData
-     * @return 返回statconclusion
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
-        TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
-        VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
-        currentVisionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
-        allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
-        //更新vision_result表
-        visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
-        //更新statConclusion表
-        StatConclusion statConclusion = statConclusionBizService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
-        //更新学生表的数据
-        this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
-        //返回最近一次的statConclusion
-        TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
-        visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
-        visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
-        return visionScreeningResultStatConclusionTwoTuple;
-    }
-
-    /**
-     * 更新学生数据
-     * @param visionScreeningResult
-     * @param statConclusion
-     */
-    private void updateStudentVisionData(VisionScreeningResult visionScreeningResult,StatConclusion statConclusion) {
-        //获取学生数据
-        Integer studentId = visionScreeningResult.getStudentId();
-        Student student = studentService.getById(studentId);
-        if (student == null) {
-            throw new ManagementUncheckedException("无法通过id找到student，id = " + studentId);
-        }
-        //填充数据
-        student.setIsAstigmatism(statConclusion.getIsAstigmatism());
-        student.setIsHyperopia(statConclusion.getIsHyperopia());
-        student.setIsMyopia(statConclusion.getIsMyopia());
-        student.setGlassesType(statConclusion.getGlassesType());
-        student.setVisionLabel(statConclusion.getWarningLevel());
-        student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
-        student.setUpdateTime(new Date());
-        studentService.updateStudent(student);
-    }
-
-    /**
      * 获取筛查就机构对应的学校
      *
      * @param screeningOrgId 机构id
@@ -323,29 +267,6 @@ public class ScreeningAppService {
     public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId) {
         List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId);
         return schoolService.getSchoolByIds(schoolIds);
-    }
-
-    /**
-     * 获取学生
-     *
-     * @param id 学生id
-     * @return
-     */
-    public Student getStudentById(Integer id) {
-        return studentService.getById(id);
-    }
-
-
-    /**
-     * 查询学生录入的最新一条数据(慢性病)
-     *
-     * @param studentId      学生id
-     * @param screeningOrgId 机构id
-     * @return
-     */
-    public List<Object> getStudentChronicNewByStudentId(Integer studentId, Integer screeningOrgId) {
-        //TODO 筛查端，待修改
-        return Collections.emptyList();
     }
 
     /**
