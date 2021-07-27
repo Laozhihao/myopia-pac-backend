@@ -15,13 +15,17 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class OcularInspectionDataDO implements Serializable {
     /**
-     * 右眼数据
+     * 内斜
      */
-    private OcularInspectionData rightEyeData;
+    private Integer esotropia;
     /**
-     * 左眼数据
+     * 外斜
      */
-    private OcularInspectionData leftEyeData;
+    private Integer exotropia;
+    /**
+     * 垂直位斜视
+     */
+    private Integer verticalStrabismus;
     /**
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
@@ -30,26 +34,4 @@ public class OcularInspectionDataDO implements Serializable {
      * 是否配合检查：0-配合、1-不配合
      */
     private Integer isCooperative;
-
-    @Data
-    @Accessors(chain = true)
-    public static class OcularInspectionData implements Serializable {
-        /**
-         * 0 为左眼 1 为右眼
-         */
-        private Integer lateriality;
-        /**
-         * 内斜
-         */
-        private Integer esotropia;
-        /**
-         * 外斜
-         */
-        private Integer exotropia;
-        /**
-         * 垂直位斜视
-         */
-        private Integer verticalStrabismus;
-    }
-
 }
