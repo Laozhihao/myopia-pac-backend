@@ -71,32 +71,32 @@ public class HaiNanCardDetail {
     private Boolean isRefractiveError;
 
     /**
-     * 左眼近视信息
+     * 左眼近视级别
      */
     private Integer leftMyopiaInfo;
 
     /**
-     * 右眼近视信息
+     * 右眼近视级别
      */
     private Integer rightMyopiaInfo;
 
     /**
-     * 左眼远视信息
+     * 左眼远视级别
      */
     private Integer leftFarsightednessInfo;
 
     /**
-     * 右眼远视信息
+     * 右眼远视级别 -1-正常 0-轻度
      */
     private Integer rightFarsightednessInfo;
 
     /**
-     * 散光信息
+     * 左眼是否散光
      */
     private Boolean leftAstigmatismInfo;
 
     /**
-     * 散光信息
+     * 右眼是否散光
      */
     private Boolean rightAstigmatismInfo;
 }

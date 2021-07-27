@@ -449,7 +449,42 @@ public class ExcelFacade {
         return exportVos;
     }
 
-    private void gen
+    private void genDate(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
+//        exportDTO.setEsotropia();
+//        exportDTO.setExotropia();
+//        exportDTO.setVerticalStrabismus();
+//        exportDTO.setODiagnosis();
+//        exportDTO.setVDiagnosis();
+//        exportDTO.setCDiagnosis();
+//        exportDTO.setCResult();
+//        exportDTO.setSLeftEye();
+//        exportDTO.setSLeftResult();
+//        exportDTO.setSRightEye();
+//        exportDTO.setSRightResult();
+//        exportDTO.setPSph();
+//        exportDTO.setPCyl();
+//        exportDTO.setPAxial();
+//        exportDTO.setPCorrectedVision();
+//        exportDTO.setPDiagnosis();
+//        exportDTO.setPResult();
+//        exportDTO.setDbK1();
+//        exportDTO.setDbK2();
+//        exportDTO.setDbAST();
+//        exportDTO.setDbN();
+//        exportDTO.setDbPD();
+//        exportDTO.setDbWTW();
+//        exportDTO.setDbAL();
+//        exportDTO.setDbCCT();
+//        exportDTO.setDbAD();
+//        exportDTO.setDbLT();
+//        exportDTO.setDbVT();
+//        exportDTO.setIpDate();
+//        exportDTO.setFdDate();
+//        exportDTO.setLeftEyeDiseases();
+//        exportDTO.setRightEyeDiseases();
+//        exportDTO.setSystemicDiseaseSymptom();
+//        exportDTO.setLevel();
+    }
 
     /**
      * 组装复筛数据

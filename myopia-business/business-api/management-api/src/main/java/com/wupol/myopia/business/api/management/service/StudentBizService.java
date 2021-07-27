@@ -334,7 +334,14 @@ public class StudentBizService {
             CardDetailsVO cardDetailsVO = packageCardDetail(visionScreeningResult);
             responseDTO.setDetails(cardDetailsVO);
         } else if (templateId.equals(TemplateConstants.HAI_NAN_TEMPLATE)) {
-            responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, cardInfoVO.getAge()));
+            Integer age = cardInfoVO.getAge();
+            if (age > 6) {
+                responseDTO.setStatus(1);
+            } else {
+                responseDTO.setStatus(0);
+            }
+            responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, age));
+
         }
         return responseDTO;
     }

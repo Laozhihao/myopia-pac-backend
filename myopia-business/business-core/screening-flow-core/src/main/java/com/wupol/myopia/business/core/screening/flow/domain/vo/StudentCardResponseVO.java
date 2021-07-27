@@ -26,4 +26,9 @@ public class StudentCardResponseVO {
      * 海南省学生眼疾病筛查单
      */
     private HaiNanCardDetail haiNanCardDetail;
+
+    /**
+     * 0-幼儿园 1-中学生
+     */
+    private Integer status;
 }
