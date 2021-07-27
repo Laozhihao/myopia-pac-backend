@@ -134,7 +134,7 @@ public class VisionScreeningResult implements Serializable {
     /**
      * 筛查结果--全身疾病在眼部的表现
      */
-    private String systemicDiseaseOcularManifestation;
+    private String systemicDiseaseSymptom;
 
     /**
      * 筛查结果--是否复筛（0否，1是）
