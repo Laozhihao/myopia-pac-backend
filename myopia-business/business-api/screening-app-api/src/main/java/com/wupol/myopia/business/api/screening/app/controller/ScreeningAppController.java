@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import cn.hutool.core.util.IdcardUtil;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -45,7 +46,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -289,13 +289,8 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addCompositeExamData")
     public void addCompositeExamData(@Valid @RequestBody CompositeExamDataDTO compositeExamDataDTO) {
-        Integer isCooperative = compositeExamDataDTO.getIsCooperative();
-        // 眼位
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getOcularInspectionData().setIsCooperative(isCooperative));
-        // 裂隙灯
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getSlitLampData().setIsCooperative(isCooperative));
-        // 眼位
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO.getFundusData().setIsCooperative(isCooperative));
+        log.info("眼位、裂隙灯、眼底检查数据：{}", JSON.toJSONString(compositeExamDataDTO));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO);
     }
 
     /**

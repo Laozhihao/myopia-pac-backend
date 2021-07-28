@@ -36,8 +36,10 @@ public class OauthServiceFallbackFactory implements FallbackFactory<OauthService
     private static String getMsgFromBodyWidthDefault(String message, String body) {
         try {
             ApiResult result = JSONObject.parseObject(body, ApiResult.class);
-            return Objects.nonNull(result) && !StringUtils.isEmpty(result.getMessage()) ? result.getMessage()
-                    : StringUtils.isEmpty(message) ? SYSTEM_ERROR_MESSAGE : message;
+            if (Objects.nonNull(result) && !StringUtils.isEmpty(result.getMessage())) {
+                return result.getMessage();
+            }
+            return StringUtils.isEmpty(message) ? SYSTEM_ERROR_MESSAGE : message;
         } catch (Exception e) {
             return SYSTEM_ERROR_MESSAGE;
         }
