@@ -1062,7 +1062,7 @@ create table m_screening_org_bind_device_report
 (
     id                 int auto_increment comment 'id'
         primary key,
-    template_id        int                                 not null comment '模板表id',
+    template_id        int       default 1                 not null comment '模板表id',
     screening_org_id   int                                 not null comment '筛查机构Id',
     screening_org_name varchar(32)                         not null comment '筛查机构名称',
     create_time        timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
