@@ -1051,7 +1051,7 @@ create table m_device_report_template
     id            int auto_increment comment 'id'
         primary key,
     name          varchar(32)                         not null comment '模板名称',
-    device_type   tinyint                             not null comment '设备类型 1-VS666',
+    device_type   tinyint   default 1                 not null comment '设备类型 1-VS666',
     template_type tinyint                             not null comment '模板类型 1-VS666模板1',
     create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
