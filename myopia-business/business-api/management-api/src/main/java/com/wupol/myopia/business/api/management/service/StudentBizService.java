@@ -9,6 +9,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.management.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.management.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -24,9 +25,7 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
@@ -322,6 +321,7 @@ public class StudentBizService {
         // 获取学生基本信息
         CardInfoVO cardInfoVO = getCardInfo(studentInfo);
         cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
+        cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
         // 筛查是否绑定模板
@@ -917,5 +917,58 @@ public class StudentBizService {
         }
 
         return (Objects.nonNull(leftEye.getAstigmatism()) && leftEye.getAstigmatism()) || (Objects.nonNull(rightEye.getAstigmatism()) && rightEye.getAstigmatism());
+    }
+
+    /**
+     * 统计学生配合程度
+     *
+     * @param result 筛查结果
+     * @return 统计
+     */
+    private Integer getCountNotCooperate(VisionScreeningResult result) {
+        int total = 0;
+
+        VisionDataDO visionData = result.getVisionData(); // 02
+        if (Objects.nonNull(visionData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(visionData.getIsCooperative())) {
+            total++;
+        }
+        ComputerOptometryDO computerOptometry = result.getComputerOptometry(); // 03
+        if (Objects.nonNull(computerOptometry) && VisionScreeningConst.IS_NOT_COOPERATE.equals(computerOptometry.getIsCooperative())) {
+            total++;
+        }
+
+        PupilOptometryDataDO pupilOptometryData = result.getPupilOptometryData(); // 05
+        if (Objects.nonNull(pupilOptometryData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(pupilOptometryData.getIsCooperative())) {
+            total++;
+        }
+
+        BiometricDataDO biometricData = result.getBiometricData(); //06
+        if (Objects.nonNull(biometricData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(biometricData.getIsCooperative())) {
+            total++;
+        }
+        EyePressureDataDO eyePressureData = result.getEyePressureData(); // 07
+        if (Objects.nonNull(eyePressureData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(eyePressureData.getIsCooperative())) {
+            total++;
+        }
+
+        // 剩下三个特殊处理，只有一个有，就+1
+        boolean spFlag = false;
+
+        FundusDataDO fundusData = result.getFundusData(); // 08
+        if (Objects.nonNull(fundusData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(fundusData.getIsCooperative())) {
+            spFlag = true;
+        }
+        SlitLampDataDO slitLampData = result.getSlitLampData(); // 04
+        if (Objects.nonNull(slitLampData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(slitLampData.getIsCooperative())) {
+            spFlag = true;
+        }
+        OcularInspectionDataDO ocularInspectionData = result.getOcularInspectionData();// 01
+        if (Objects.nonNull(ocularInspectionData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(ocularInspectionData.getIsCooperative())) {
+            spFlag = true;
+        }
+        if (spFlag) {
+            total++;
+        }
+        return total;
     }
 }

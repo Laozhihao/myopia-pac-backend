@@ -73,4 +73,9 @@ public class CardInfoVO {
      * 家长电话
      */
     private String parentPhone;
+
+    /**
+     * 不配合个数
+     */
+    private Integer countNotCooperate;
 }
