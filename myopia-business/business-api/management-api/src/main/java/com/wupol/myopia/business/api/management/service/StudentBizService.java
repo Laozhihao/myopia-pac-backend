@@ -164,6 +164,7 @@ public class StudentBizService {
             }
             item.setResultId(result.getId());
             item.setIsDoubleScreen(result.getIsDoubleScreen());
+            item.setTemplateId(getTemplateId(result.getScreeningOrgId()));
             items.add(item);
         }
         responseDTO.setTotal(resultList.size());
@@ -324,10 +325,7 @@ public class StudentBizService {
         cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
-        // 筛查是否绑定模板
-        ScreeningOrganization org = screeningOrganizationService.getById(visionScreeningResult.getScreeningOrgId());
-        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
-
+        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
         // 是否全国模板
         if (templateId.equals(TemplateConstants.GLOBAL_TEMPLATE)) {
             // 获取结果记录
@@ -344,6 +342,16 @@ public class StudentBizService {
 
         }
         return responseDTO;
+    }
+
+    /**
+     * 获取机构使用的模板
+     * @param screeningOrgId 筛查机构Id
+     * @return 模板Id
+     */
+    private Integer getTemplateId(Integer screeningOrgId) {
+        ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
+        return templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
     }
 
     /**
