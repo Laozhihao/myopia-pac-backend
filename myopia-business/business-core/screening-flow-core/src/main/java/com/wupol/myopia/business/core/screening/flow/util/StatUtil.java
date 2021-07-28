@@ -421,4 +421,9 @@ public class StatUtil {
         }
     }
 
+//    public String abc(Float leftSpn, Float leftCyl, Float rightSpn, Float rightCyl) {
+//        WarningLevel leftLevel = getMyopiaWarningLevel(leftSpn, leftCyl);
+//        WarningLevel rightLevel = getMyopiaWarningLevel(rightSpn, rightCyl);
+//    }
+
 }

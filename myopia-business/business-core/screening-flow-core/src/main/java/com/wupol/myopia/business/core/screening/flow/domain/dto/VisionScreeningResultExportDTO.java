@@ -130,8 +130,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String dbK2;
     @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST"})
     private String dbAST;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜折射率n"})
-    private String dbN;
     @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD"})
     private String dbPD;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW"})
