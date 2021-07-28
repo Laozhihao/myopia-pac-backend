@@ -802,7 +802,8 @@ public class StudentBizService {
         cardDetail.setComputerOptometry(visionScreeningResult.getComputerOptometry());
         cardDetail.setPupilOptometryData(visionScreeningResult.getPupilOptometryData());
         cardDetail.setBiometricData(visionScreeningResult.getBiometricData());
-        cardDetail.setIntraocularPressureData(visionScreeningResult.getIntraocularPressureData());
+        cardDetail.setEyePressureData(visionScreeningResult.getEyePressureData());
+        cardDetail.setFundusData(visionScreeningResult.getFundusData());
         cardDetail.setVisualLossLevelData(visionScreeningResult.getVisualLossLevelData());
         cardDetail.setRemark(Objects.nonNull(visionScreeningResult.getFundusData()) ? visionScreeningResult.getFundusData().getRemark() : "");
 
