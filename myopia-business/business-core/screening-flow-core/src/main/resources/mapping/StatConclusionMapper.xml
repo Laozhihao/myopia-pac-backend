@@ -96,7 +96,7 @@
         mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_no, mspss.school_name, mspss.grade_name, mspss.class_name,
         mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
-        mvsr.ocular_inspection_data,mvsr.intraocular_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,mvsr.systemic_disease_symptom
+        mvsr.ocular_inspection_data,mvsr.intraocular_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,mvsr.systemic_disease_symptom,mvsr.biometric_data
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
