@@ -294,6 +294,14 @@ public class StatUtil {
         return WarningLevel.NORMAL;
     }
 
+    public static Integer getHyperopiaLevel(Float sphere, Float cylinder, Integer age) {
+        WarningLevel hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
+        if (Objects.nonNull(hyperopiaWarningLevel)) {
+            return hyperopiaWarningLevel.code;
+        }
+        return null;
+    }
+
     /**
      * 返回近视预警级别
      *
@@ -311,6 +319,21 @@ public class StatUtil {
         if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO;
         if (se < -6.0f) return WarningLevel.THREE;
         return WarningLevel.NORMAL;
+    }
+
+    /**
+     * 返回近视预警级别Level
+     *
+     * @param sphere   球镜
+     * @param cylinder 柱镜
+     * @return
+     */
+    public static Integer getMyopiaLevel(Float sphere, Float cylinder) {
+        WarningLevel myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder);
+        if (Objects.nonNull(myopiaWarningLevel)) {
+            return myopiaWarningLevel.code;
+        }
+        return null;
     }
 
     /**
@@ -421,9 +444,33 @@ public class StatUtil {
         }
     }
 
-//    public String abc(Float leftSpn, Float leftCyl, Float rightSpn, Float rightCyl) {
-//        WarningLevel leftLevel = getMyopiaWarningLevel(leftSpn, leftCyl);
-//        WarningLevel rightLevel = getMyopiaWarningLevel(rightSpn, rightCyl);
-//    }
+    /**
+     * 获取近视等级描述（严重的眼球）
+     *
+     * @param leftSpn  左眼球镜
+     * @param leftCyl  左眼柱镜
+     * @param rightSpn 右眼球镜
+     * @param rightCyl 右眼球镜
+     * @return String
+     */
+    public String getMyopiLevelDesc(Float leftSpn, Float leftCyl, Float rightSpn, Float rightCyl) {
+        String result = "";
+        Integer leftMyopiaLevel = getMyopiaLevel(leftSpn, leftCyl);
+        Integer rightMyopiaLevel = getMyopiaLevel(rightSpn, rightCyl);
+
+        if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
+            Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+            if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                result = "轻度近视";
+            }
+            if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                result = "轻度近视";
+            }
+            if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                result = "轻度近视";
+            }
+        }
+        return result;
+    }
 
 }
