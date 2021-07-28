@@ -24,12 +24,16 @@ public class IntraocularPressureDataDTO extends ScreeningResultBasicData {
      * 右眼压
      */
     private BigDecimal rightPressure;
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         IntraocularPressureDataDO.IntraocularPressureData leftIntraocularPressureData = new IntraocularPressureDataDO.IntraocularPressureData().setLateriality(0).setPressure(leftPressure);
         IntraocularPressureDataDO.IntraocularPressureData rightIntraocularPressureData = new IntraocularPressureDataDO.IntraocularPressureData().setLateriality(1).setPressure(rightPressure);
-        IntraocularPressureDataDO intraocularPressureDataDO = new IntraocularPressureDataDO().setLeftEyeData(leftIntraocularPressureData).setRightEyeData(rightIntraocularPressureData);
+        IntraocularPressureDataDO intraocularPressureDataDO = new IntraocularPressureDataDO().setLeftEyeData(leftIntraocularPressureData).setRightEyeData(rightIntraocularPressureData).setIsCooperative(isCooperative);
         return visionScreeningResult.setIntraocularPressureData(intraocularPressureDataDO);
     }
 }
