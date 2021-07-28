@@ -105,7 +105,7 @@ public class VisionScreeningResult implements Serializable {
      * 筛查结果--眼压
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private IntraocularPressureDataDO intraocularPressureData;
+    private EyePressureDataDO eyePressureData;
 
     /**
      * 筛查结果--眼底

@@ -287,10 +287,9 @@ public class ScreeningAppController {
      *
      * @return
      */
-    @PostMapping("/eye/addCompositeExamData")
-    public void addCompositeExamData(@Valid @RequestBody CompositeExamDataDTO compositeExamDataDTO) {
-        log.info("眼位、裂隙灯、眼底检查数据：{}", JSON.toJSONString(compositeExamDataDTO));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(compositeExamDataDTO);
+    @PostMapping("/eye/addMultiCheck")
+    public void addCompositeExamData(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
     }
 
     /**
@@ -308,9 +307,9 @@ public class ScreeningAppController {
      *
      * @return
      */
-    @PostMapping("/eye/addIntraocularPressure")
-    public void addIntraocularPressure(@Valid @RequestBody IntraocularPressureDataDTO intraocularPressureDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(intraocularPressureDataDTO);
+    @PostMapping("/eye/addEyePressure")
+    public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
     }
 
     //分割线----------------------

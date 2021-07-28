@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
-import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -59,7 +58,6 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
         allFirstAndSecondResult.setFirst(currentVisionScreeningResult);
-        log.info("新的筛查数据：{}", JSON.toJSONString(currentVisionScreeningResult));
         //更新vision_result表
         visionScreeningResultService.saveOrUpdateStudentScreenData(allFirstAndSecondResult.getFirst());
         //更新statConclusion表
