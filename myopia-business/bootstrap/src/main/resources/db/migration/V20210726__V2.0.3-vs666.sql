@@ -116,4 +116,4 @@ alter table m_hospital
 insert into m_screening_org_bind_device_report (screening_org_id, screening_org_name)
 select mso.id, mso.name
 from m_screening_organization mso
-where id not in (select msobdr.id from m_screening_org_bind_device_report msobdr);
+where id not in (select msobdr.screening_org_id from m_screening_org_bind_device_report msobdr);
