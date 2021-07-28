@@ -461,10 +461,10 @@ public class ExcelFacade {
         exportDTO.setCDiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_CO_diagnosis)));
 //        exportDTO.setCResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
 
-        exportDTO.setSLeftEye((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_PATHOLOGICAL_TISSUES));
-        exportDTO.setSLeftResult((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_DIAGNOSIS));
-        exportDTO.setSRightEye((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_PATHOLOGICAL_TISSUES));
-        exportDTO.setSRightResult((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_DIAGNOSIS));
+        exportDTO.setSLeftEye(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_PATHOLOGICAL_TISSUES)));
+        exportDTO.setSLeftResult(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_DIAGNOSIS)));
+        exportDTO.setSRightEye(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_PATHOLOGICAL_TISSUES)));
+        exportDTO.setSRightResult(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_DIAGNOSIS)));
 
         exportDTO.setPSph(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN));
         exportDTO.setPCyl(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL));
@@ -485,13 +485,23 @@ public class ExcelFacade {
         exportDTO.setDbLT(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT)));
         exportDTO.setDbVT(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT)));
 
-        exportDTO.setIpDate(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE), 1));
-        exportDTO.setFdDate(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL), 1));
+        exportDTO.setIpDate(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
+        exportDTO.setFdDate(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL)));
 
         exportDTO.setLeftEyeDiseases((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES));
         exportDTO.setRightEyeDiseases((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES));
         exportDTO.setSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
         exportDTO.setLevel(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)));
+    }
+
+    private String objectList2Str(Object obj) {
+        List<String> result = new ArrayList<String>();
+        if (obj instanceof ArrayList<?>) {
+            for (Object o : (List<?>) obj) {
+                result.add((String) o);
+            }
+        }
+        return String.join(",", result);
     }
 
     /**
