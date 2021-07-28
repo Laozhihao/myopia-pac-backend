@@ -4,7 +4,7 @@ create table m_device_report_template
     id            int auto_increment comment 'id'
         primary key,
     name          varchar(32)                         not null comment '模板名称',
-    device_type   tinyint   default 1                 not null comment '设备类型 1-VS666',
+    device_type   tinyint                             not null comment '设备类型 1-VS666',
     template_type tinyint                             not null comment '模板类型 1-VS666模板1',
     create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
@@ -16,7 +16,7 @@ create table m_screening_org_bind_device_report
 (
     id                 int auto_increment comment 'id'
         primary key,
-    template_id        int       default 1                 not null comment '模板表id',
+    template_id        int                                 not null comment '模板表id',
     screening_org_id   int                                 not null comment '筛查机构Id',
     screening_org_name varchar(32)                         not null comment '筛查机构名称',
     create_time        timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -113,7 +113,7 @@ INSERT INTO m_device_report_template (name, device_type, template_type) VALUES (
 alter table m_hospital
     add telephone varchar(32) null comment '固定电话' after level_desc;
 
-insert into m_screening_org_bind_device_report (screening_org_id, screening_org_name)
-select mso.id, mso.name
+insert into m_screening_org_bind_device_report (template_id, screening_org_id, screening_org_name)
+select 1, mso.id, mso.name
 from m_screening_organization mso
 where id not in (select msobdr.screening_org_id from m_screening_org_bind_device_report msobdr);
