@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -66,12 +67,12 @@ public class StatReportService {
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
-    private final static String TABLE_LABEL_TOTAL = "total";
-    private final static String TABLE_LABEL_ROW_TOTAL = "rowTotal";
-    private final static String TABLE_LABEL_AVERAGE_VISION = "averageVision";
-    private final static String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
-    private final static String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
-    private final static String TOTAL_CHINESE = "合计";
+    private static final String TABLE_LABEL_TOTAL = "total";
+    private static final String TABLE_LABEL_ROW_TOTAL = "rowTotal";
+    private static final String TABLE_LABEL_AVERAGE_VISION = "averageVision";
+    private static final String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
+    private static final String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
+    private static final String TOTAL_CHINESE = "合计";
 
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件
@@ -457,7 +458,6 @@ public class StatReportService {
                 (List<TableBasicStatParams>) totalConclusion.get("list");
         int primaryToHighTotalNum = 0;
         int primaryToHighCorrectionNum = 0;
-        int primaryToHighCorrectionRatio = 0;
         List<BasicStatParams> sortedList = new ArrayList<>();
         for (Map<String, Object> item : schoolAgeGenderVisionCorrectionTable) {
             String schoolAgeName = (String) item.get("name");
@@ -466,22 +466,11 @@ public class StatReportService {
             }
             SchoolAge schoolAge = SchoolAge.valueOf(schoolAgeName);
             List<TableBasicStatParams> list = (List<TableBasicStatParams>) item.get("list");
-            TableBasicStatParams params =
-                    list.stream().filter(x -> x.getTitle().equals(TABLE_LABEL_TOTAL)).findFirst().get();
+            TableBasicStatParams params = list.stream().filter(x -> x.getTitle().equals(TABLE_LABEL_TOTAL)).findFirst().orElseThrow(() -> new BusinessException("统计数据为空"));
             sortedList.add(new BasicStatParams(schoolAgeName, params.getRatio(), null));
-            switch (schoolAge) {
-                case KINDERGARTEN:
-                    break;
-                case PRIMARY:
-                case JUNIOR:
-                case HIGH:
-                    primaryToHighTotalNum += params.getTotal();
-                    primaryToHighCorrectionNum += params.getNum();
-                    primaryToHighCorrectionRatio += params.getRatio();
-                    break;
-                case VOCATIONAL_HIGH:
-                    break;
-                default:
+            if (!SchoolAge.KINDERGARTEN.code.equals(schoolAge.code)) {
+                primaryToHighTotalNum += params.getTotal();
+                primaryToHighCorrectionNum += params.getNum();
             }
         }
         sortedList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
@@ -490,7 +479,7 @@ public class StatReportService {
         conclusionDesc.put("sortedList", sortedList);
         conclusionDesc.put("primaryToHighTotalNum", primaryToHighTotalNum);
         conclusionDesc.put("primaryToHighCorrectionNum", primaryToHighCorrectionNum);
-        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionRatio);
+        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighTotalNum == 0 ? 0 : convertToPercentage(primaryToHighCorrectionNum * 1f / primaryToHighTotalNum));
         conclusionDesc.put(title, schoolAgeGenderVisionCorrectionTable);
         return conclusionDesc;
     }

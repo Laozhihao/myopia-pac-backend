@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.cache;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -130,7 +131,7 @@ public class RedisUtil {
      */
     public long incr(String key, long delta) {
         if (delta < 0) {
-            throw new RuntimeException("递增因子必须大于0");
+            throw new BusinessException("递增因子必须大于0");
         }
         return redisTemplate.opsForValue().increment(key, delta);
     }
@@ -143,7 +144,7 @@ public class RedisUtil {
      */
     public long decr(String key, long delta) {
         if (delta < 0) {
-            throw new RuntimeException("递减因子必须大于0");
+            throw new BusinessException("递减因子必须大于0");
         }
         return redisTemplate.opsForValue().increment(key, -delta);
     }

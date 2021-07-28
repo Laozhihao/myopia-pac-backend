@@ -130,7 +130,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return VisionScreeningResult
      * @throws IOException 异常
      */
-    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult) throws IOException {
+    public VisionScreeningResult getScreeningResult(ScreeningResultBasicData screeningResultBasicData, VisionScreeningResult visionScreeningResult){
         //获取VisionScreeningResult以及ScreeningPlanSchoolStudent
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getScreeningResultAndScreeningPlanSchoolStudent(screeningResultBasicData);
         //构建ScreeningResult

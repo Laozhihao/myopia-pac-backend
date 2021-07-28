@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class OauthServiceRequestException extends RuntimeException {
 
-    private int code;
+    private final int code;
 
     public OauthServiceRequestException(String message) {
         super(message);

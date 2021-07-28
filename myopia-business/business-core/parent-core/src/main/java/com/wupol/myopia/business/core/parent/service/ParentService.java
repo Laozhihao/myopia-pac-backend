@@ -10,7 +10,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.Objects;
 
 /**

@@ -64,7 +64,7 @@ public class StudentDO {
     /**
      * 出生日期
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**

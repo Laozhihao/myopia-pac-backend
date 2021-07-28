@@ -89,5 +89,6 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
+        // 不需要校验
     }
 }

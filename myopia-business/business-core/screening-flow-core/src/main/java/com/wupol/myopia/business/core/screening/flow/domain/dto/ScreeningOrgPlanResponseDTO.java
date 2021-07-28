@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false)
 public class ScreeningOrgPlanResponseDTO extends ScreeningPlan {
 
     private ScreeningRecordItems items;

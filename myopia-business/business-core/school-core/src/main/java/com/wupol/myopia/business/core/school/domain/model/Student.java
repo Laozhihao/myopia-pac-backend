@@ -32,14 +32,7 @@ import java.util.Objects;
 public class Student extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 二维码生成规则: "SA@" + 32位"学生id",不足使用0补充
-     * 如studentId = 123 ,则生成的结果是:
-     * SA@0000000000000000000123
-     * 如studentId = 1 ,则生成的结果是:
-     * SA@0000000000000000000001
-     */
-    public static final String QR_CODE_CONTENT_FORMAT_RULE= "SA@%032d";
+
     /**
      * id
      */
@@ -94,7 +87,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 出生日期
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "出生日期不能为空")
     private Date birthday;
 
@@ -145,7 +138,7 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 最近筛选次数
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastScreeningTime;
 
     /**
@@ -181,13 +174,13 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     /**

@@ -2,9 +2,11 @@ package com.wupol.myopia.business.core.government.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
+import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.mapper.GovDeptMapper;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,6 +22,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
+
+    /**
+     * 运营中心部门ID
+     **/
+    private static final Integer OPERATION_CENTER_DEPT_ID = 1;
 
     /**
      * 获取指定部门及其下面的所有部门的数据树
@@ -148,16 +155,6 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
     }
 
     /**
-     * 通过ID获取实体
-     *
-     * @param id id
-     * @return GovDept
-     */
-    public GovDept getGovDeptById(Integer id) {
-        return baseMapper.selectById(id);
-    }
-
-    /**
      * 获取政府部门（带有行政区域）
      *
      * @param ids 部门ID集
@@ -211,10 +208,12 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
      * 获取所有的省级部门
      * @return
      */
-    public List<GovDept> getProviceGovDept(){
+    public List<GovDept> getProvinceGovDept(){
         LambdaQueryWrapper<GovDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GovDept::getPid,1);//省级部门
-        queryWrapper.eq(GovDept::getStatus,0);//启用
+        // 省级部门
+        queryWrapper.eq(GovDept::getPid,1);
+        // 启用
+        queryWrapper.eq(GovDept::getStatus,0);
         return baseMapper.selectList(queryWrapper);
     }
 
@@ -223,4 +222,27 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
         return Objects.nonNull(govDept) ? govDept.getName() : "";
     }
 
+    /**
+     * 全量获取部门
+     *
+     * @return List<GovDistrictDTO>
+     */
+    public List<GovDistrictDTO> getAllGovDept() {
+        return baseMapper.getAll();
+    }
+
+    /**
+     * 通过机构Id获取模板类型
+     *
+     * @param id 机构Id
+     * @return 模板类型 {@link PermissionTemplateType}
+     */
+    public Integer getTemplateTypeByOrgId(Integer id) {
+        GovDistrictDTO govDistrict = baseMapper.getById(id);
+        // 初始化系统的时候，Id为1的，一定是运营中心部门
+        if (OPERATION_CENTER_DEPT_ID.equals(govDistrict.getId())) {
+            return PermissionTemplateType.PLATFORM_ADMIN.getType();
+        }
+        return PermissionTemplateType.getTypeByDistrictCode(govDistrict.getCode());
+    }
 }

@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskOrgBizService;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -80,7 +81,7 @@ public class ScreeningTaskController {
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 已创建校验
         if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
@@ -111,7 +112,7 @@ public class ScreeningTaskController {
         validateExistAndAuthorize(screeningTaskDTO.getId());
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
@@ -276,7 +277,7 @@ public class ScreeningTaskController {
         ScreeningTask screeningTask = validateExistAndAuthorize(id);
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningTask.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         //没有筛查机构，直接报错
         if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(id))){

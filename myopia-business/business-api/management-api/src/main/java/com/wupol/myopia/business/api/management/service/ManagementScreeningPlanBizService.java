@@ -78,12 +78,10 @@ public class ManagementScreeningPlanBizService {
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
         List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
-        screeningPlanIPage.getRecords().forEach(vo -> {
-            vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
-                    .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
-                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
-                    .setScreeningOrgName(screeningOrganizationService.getNameById(vo.getScreeningOrgId()));
-        });
+        screeningPlanIPage.getRecords().forEach(vo -> vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
+                .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
+                .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
+                .setScreeningOrgName(screeningOrganizationService.getNameById(vo.getScreeningOrgId())));
         return screeningPlanIPage;
     }
 

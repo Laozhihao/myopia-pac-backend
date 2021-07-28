@@ -20,11 +20,11 @@ public class HtmlToPdfUtil {
     /**
      * 转换工具命令
      **/
-    private static final String HTML_TO_PDF_TOOL_COMMAND = "wkhtmltopdf";
+    private final String HTML_TO_PDF_TOOL_COMMAND = "wkhtmltopdf";
     /**
      * 失败重试次数
      **/
-    public static final int FAIL_RETRY_COUNT = 10;
+    public final int FAIL_RETRY_COUNT = 10;
 
     /**
      * 转换 TODO:超时处理

@@ -6,6 +6,7 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.Objects;
 /**
  * 筛查结论计算工具
  */
+@UtilityClass
 public class StatUtil {
     /**
      * 是否近视
