@@ -153,6 +153,12 @@ public class StatConclusionExportDTO extends StatConclusion {
     private VisualLossLevelDataDO visualLossLevelData;
 
     /**
+     * 筛查结果--生物测量
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BiometricDataDO biometricData;
+
+    /**
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;
