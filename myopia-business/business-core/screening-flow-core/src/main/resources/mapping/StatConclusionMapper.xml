@@ -10,6 +10,12 @@
     <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="ocular_inspection_data" property="ocularInspectionData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="intraocular_pressure_data" property="intraocularPressureData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="fundus_data" property="fundusData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="slit_lamp_data" property="slitLampData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="pupil_optometry_data" property="pupilOptometryData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData" />
     </resultMap>
 
     <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO">
