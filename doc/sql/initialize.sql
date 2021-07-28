@@ -982,8 +982,8 @@ CREATE TABLE `m_device_screening_data`  (
   `check_type` tinyint NOT NULL DEFAULT 0 COMMENT '筛查方式(0=个体筛查,1=批量筛查)',
   `left_cyl` double(4, 2) NULL DEFAULT NULL COMMENT '左眼柱镜',
   `right_cyl` double(4, 2) NULL DEFAULT NULL COMMENT '右眼柱镜',
-  `left_axsi` double(4, 2) NULL DEFAULT NULL COMMENT '左眼轴位',
-  `right_axsi` double(4, 2) NULL DEFAULT NULL COMMENT '右眼轴位',
+  `left_axsi` int NULL DEFAULT NULL COMMENT '左眼轴位',
+  `right_axsi` int NULL DEFAULT NULL COMMENT '右眼轴位',
   `left_pr` double(4, 2) NULL DEFAULT NULL COMMENT '左眼瞳孔半径',
   `right_pr` double(4, 2) NULL DEFAULT NULL COMMENT '右眼瞳孔半径',
   `left_pa` double(4, 2) NULL DEFAULT NULL COMMENT '左眼等效球镜度',
@@ -1051,7 +1051,7 @@ create table m_device_report_template
     id            int auto_increment comment 'id'
         primary key,
     name          varchar(32)                         not null comment '模板名称',
-    device_type   tinyint                             not null comment '设备类型 1-VS666',
+    device_type   tinyint   default 1                 not null comment '设备类型 1-VS666',
     template_type tinyint                             not null comment '模板类型 1-VS666模板1',
     create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
