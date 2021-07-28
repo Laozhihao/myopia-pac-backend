@@ -10,10 +10,11 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 
 /**
- * @Description 电脑验光数据
- * @Date 2021/1/22 16:37
- * @Author by jacob
- */
+ * 小瞳验光数据
+ *
+ * @Author HaoHao
+ * @Date 2021/7/27
+ **/
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class PupilOptometryDTO extends ScreeningResultBasicData {
