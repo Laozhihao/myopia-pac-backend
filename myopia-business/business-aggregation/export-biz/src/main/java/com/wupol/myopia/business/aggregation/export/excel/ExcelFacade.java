@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
@@ -459,7 +460,7 @@ public class ExcelFacade {
         exportDTO.setVdiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VD_DIAGNOSIS)));
 
         exportDTO.setCdiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_CO_diagnosis)));
-//        exportDTO.setCResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
+//
 
         exportDTO.setSleftEye(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_PATHOLOGICAL_TISSUES)));
         exportDTO.setSleftResult(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_LEFT_DIAGNOSIS)));
@@ -471,7 +472,8 @@ public class ExcelFacade {
         exportDTO.setPaxial(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL));
         exportDTO.setPcorrectedVision(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION));
         exportDTO.setPdiagnosis(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS)));
-//        exportDTO.setPResult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
+        exportDTO.setPresult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN),(BigDecimal)JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL),
+                (BigDecimal)JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN),(BigDecimal)JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL),DateUtil.ageOfNow(dto.getBirthday())));
 
         exportDTO.setDbK1(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
         exportDTO.setDbK2(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2)));
@@ -549,7 +551,7 @@ public class ExcelFacade {
                 .setSphs(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
                 .setCyls(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
                 .setAxials(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0));
-        // 屈光结果
+//        exportDTO.setCresult((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH));
 
 //                .setSphericalEquivalents(eyeDataFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)), 2));
     }
