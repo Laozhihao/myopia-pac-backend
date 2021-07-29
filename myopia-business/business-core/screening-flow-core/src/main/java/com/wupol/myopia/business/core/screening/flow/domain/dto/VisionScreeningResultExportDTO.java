@@ -19,7 +19,11 @@ import java.util.Date;
  * @Date 2021/03/12
  **/
 @HeadRowHeight(25)
-@HeadStyle(fillPatternType = FillPatternType.NO_FILL, borderBottom = BorderStyle.NONE, borderLeft = BorderStyle.NONE, borderRight = BorderStyle.NONE)
+@HeadStyle(fillPatternType = FillPatternType.NO_FILL,
+        borderBottom = BorderStyle.THIN,
+        borderLeft = BorderStyle.THIN,
+        borderRight = BorderStyle.THIN,
+        borderTop= BorderStyle.THIN)
 @HeadFontStyle(fontHeightInPoints = 11)
 @ContentStyle(horizontalAlignment = HorizontalAlignment.CENTER)
 // 将第1-2行的2-3列合并成一个单元格
