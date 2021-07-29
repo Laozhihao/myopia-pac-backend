@@ -74,11 +74,11 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String address;
 
     @ExcelProperty({TOP_HEADER, "33cm眼位", "内斜"})
-    private Integer esotropia;
+    private String esotropia;
     @ExcelProperty({TOP_HEADER, "33cm眼位", "外斜"})
-    private Integer exotropia;
+    private String exotropia;
     @ExcelProperty({TOP_HEADER, "33cm眼位", "垂直位斜视"})
-    private Integer verticalStrabismus;
+    private String verticalStrabismus;
     @ExcelProperty({TOP_HEADER, "33cm眼位", "初步结果"})
     private String odiagnosis;
 
