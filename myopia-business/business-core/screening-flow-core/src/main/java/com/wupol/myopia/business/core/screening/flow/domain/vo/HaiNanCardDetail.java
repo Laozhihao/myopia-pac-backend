@@ -58,6 +58,16 @@ public class HaiNanCardDetail {
     private String remark;
 
     /**
+     * 筛查结果--全身疾病在眼部的表现
+     */
+    private String systemicDiseaseSymptom;
+
+    /**
+     * 筛查结果--裂隙灯检查
+     */
+    private SlitLampDataDO slitLampData;
+
+    /**
      * 是否正常
      */
     private Boolean isNormal;

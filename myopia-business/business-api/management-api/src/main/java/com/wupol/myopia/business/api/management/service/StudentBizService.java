@@ -814,6 +814,8 @@ public class StudentBizService {
         cardDetail.setFundusData(visionScreeningResult.getFundusData());
         cardDetail.setVisualLossLevelData(visionScreeningResult.getVisualLossLevelData());
         cardDetail.setRemark(Objects.nonNull(visionScreeningResult.getFundusData()) ? visionScreeningResult.getFundusData().getRemark() : "");
+        cardDetail.setSystemicDiseaseSymptom(visionScreeningResult.getSystemicDiseaseSymptom());
+        cardDetail.setSlitLampData(visionScreeningResult.getSlitLampData());
 
 
         // 视力信息
