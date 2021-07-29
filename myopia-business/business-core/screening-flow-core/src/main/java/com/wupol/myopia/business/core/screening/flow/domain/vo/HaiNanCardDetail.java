@@ -118,7 +118,7 @@ public class HaiNanCardDetail {
     private Boolean rightAstigmatismInfo;
 
     /**
-     * 眼斜
+     * 斜视
      */
-    private List<String> slantedEyes;
+    private List<String> squint;
 }

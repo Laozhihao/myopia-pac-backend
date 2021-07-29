@@ -840,7 +840,7 @@ public class StudentBizService {
         cardDetail.setOtherEyeDiseases(otherEyeDiseasesList);
         cardDetail.setIsRefractiveError(isRefractiveError);
         // 眼斜
-        cardDetail.setSlantedEyes(getSlantedEyeList(otherEyeDiseasesList));
+        cardDetail.setSquint(getSquintList(otherEyeDiseasesList));
         cardDetail.setIsNormal(Objects.nonNull(isRefractiveError) && !isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
         return cardDetail;
     }
@@ -989,7 +989,7 @@ public class StudentBizService {
      * @param otherEyeDiseasesList 其他眼病
      * @return 斜视疾病
      */
-    private List<String> getSlantedEyeList(List<String> otherEyeDiseasesList) {
+    private List<String> getSquintList(List<String> otherEyeDiseasesList) {
         List<String> resultList = new ArrayList<>();
         if (CollectionUtils.isEmpty(otherEyeDiseasesList)) {
             return resultList;
