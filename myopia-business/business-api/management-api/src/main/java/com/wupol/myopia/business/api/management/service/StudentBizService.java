@@ -346,6 +346,7 @@ public class StudentBizService {
 
     /**
      * 获取机构使用的模板
+     *
      * @param screeningOrgId 筛查机构Id
      * @return 模板Id
      */
@@ -990,26 +991,9 @@ public class StudentBizService {
      * @return 斜视疾病
      */
     private List<String> getSquintList(List<String> otherEyeDiseasesList) {
-        List<String> resultList = new ArrayList<>();
         if (CollectionUtils.isEmpty(otherEyeDiseasesList)) {
-            return resultList;
+            return new ArrayList<>();
         }
-
-        if (otherEyeDiseasesList.contains("内显斜")) {
-            resultList.add("内显斜");
-        }
-        if (otherEyeDiseasesList.contains("外显斜")) {
-            resultList.add("外显斜");
-        }
-        if (otherEyeDiseasesList.contains("内隐斜")) {
-            resultList.add("内隐斜");
-        }
-        if (otherEyeDiseasesList.contains("外隐斜")) {
-            resultList.add("外隐斜");
-        }
-        if (otherEyeDiseasesList.contains("交替性斜视")) {
-            resultList.add("交替性斜视");
-        }
-        return resultList;
+        return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "交替性斜视"), otherEyeDiseasesList);
     }
 }
