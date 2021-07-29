@@ -817,7 +817,6 @@ public class StudentBizService {
         cardDetail.setSystemicDiseaseSymptom(visionScreeningResult.getSystemicDiseaseSymptom());
         cardDetail.setSlitLampData(visionScreeningResult.getSlitLampData());
 
-
         // 视力信息
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfo(visionScreeningResult.getComputerOptometry(), age);
         VisionInfoVO leftEye = visionInfo.getFirst();
@@ -840,6 +839,8 @@ public class StudentBizService {
 
         cardDetail.setOtherEyeDiseases(otherEyeDiseasesList);
         cardDetail.setIsRefractiveError(isRefractiveError);
+        // 眼斜
+        cardDetail.setSlantedEyes(getSlantedEyeList(otherEyeDiseasesList));
         cardDetail.setIsNormal(Objects.nonNull(isRefractiveError) && !isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
         return cardDetail;
     }
@@ -980,5 +981,35 @@ public class StudentBizService {
             total++;
         }
         return total;
+    }
+
+    /**
+     * 获取斜视疾病
+     *
+     * @param otherEyeDiseasesList 其他眼病
+     * @return 斜视疾病
+     */
+    private List<String> getSlantedEyeList(List<String> otherEyeDiseasesList) {
+        List<String> resultList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(otherEyeDiseasesList)) {
+            return resultList;
+        }
+
+        if (otherEyeDiseasesList.contains("内显斜")) {
+            resultList.add("内显斜");
+        }
+        if (otherEyeDiseasesList.contains("外显斜")) {
+            resultList.add("外显斜");
+        }
+        if (otherEyeDiseasesList.contains("内隐斜")) {
+            resultList.add("内隐斜");
+        }
+        if (otherEyeDiseasesList.contains("外隐斜")) {
+            resultList.add("外隐斜");
+        }
+        if (otherEyeDiseasesList.contains("交替性斜视")) {
+            resultList.add("交替性斜视");
+        }
+        return resultList;
     }
 }

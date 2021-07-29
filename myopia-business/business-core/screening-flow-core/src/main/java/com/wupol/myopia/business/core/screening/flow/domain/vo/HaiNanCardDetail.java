@@ -116,4 +116,9 @@ public class HaiNanCardDetail {
      * 右眼是否散光
      */
     private Boolean rightAstigmatismInfo;
+
+    /**
+     * 眼斜
+     */
+    private List<String> slantedEyes;
 }
