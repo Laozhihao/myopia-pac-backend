@@ -62,7 +62,7 @@ CREATE TABLE `m_device_screening_data`
     `right_axsi_h`      int           NULL     DEFAULT NULL COMMENT '右⽔平⽅向斜视度数',
     `red_reflect_left`  int           NULL     DEFAULT NULL COMMENT '红光反射左眼',
     `red_reflect_right` int           NULL     DEFAULT NULL COMMENT '红光反射右眼',
-    `screening_time`    timestamp(0)  NOT  NULL     DEFAULT NULL COMMENT '筛查时间',
+    `screening_time`    timestamp(0)  NOT  NULL COMMENT '筛查时间',
     `update_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `create_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
@@ -113,7 +113,7 @@ INSERT INTO m_device_report_template (name, device_type, template_type) VALUES (
 alter table m_hospital
     add telephone varchar(32) null comment '固定电话' after level_desc;
 
-insert into m_screening_org_bind_device_report (screening_org_id, screening_org_name)
-select mso.id, mso.name
+insert into m_screening_org_bind_device_report (template_id, screening_org_id, screening_org_name)
+select 1, mso.id, mso.name
 from m_screening_organization mso
 where id not in (select msobdr.screening_org_id from m_screening_org_bind_device_report msobdr);
