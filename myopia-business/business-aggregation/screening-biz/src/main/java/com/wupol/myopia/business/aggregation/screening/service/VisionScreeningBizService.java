@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import java.util.List;
  * @Author Jacob
  * @Version
  */
+@Log4j2
 @Service
 public class VisionScreeningBizService {
 

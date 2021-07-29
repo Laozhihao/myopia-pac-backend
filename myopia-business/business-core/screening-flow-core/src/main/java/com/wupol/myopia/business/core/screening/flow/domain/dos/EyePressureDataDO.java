@@ -14,15 +14,15 @@ import java.math.BigDecimal;
  **/
 @Data
 @Accessors(chain = true)
-public class IntraocularPressureDataDO implements Serializable {
+public class EyePressureDataDO implements Serializable {
     /**
      * 右眼数据
      */
-    private IntraocularPressureData rightEyeData;
+    private EyePressureData rightEyeData;
     /**
      * 左眼数据
      */
-    private IntraocularPressureData leftEyeData;
+    private EyePressureData leftEyeData;
     /**
      * 是否配合检查：0-配合、1-不配合
      */
@@ -30,7 +30,7 @@ public class IntraocularPressureDataDO implements Serializable {
 
     @Data
     @Accessors(chain = true)
-    public static class IntraocularPressureData implements Serializable {
+    public static class EyePressureData implements Serializable {
         /**
          * 0 为左眼 1 为右眼
          */

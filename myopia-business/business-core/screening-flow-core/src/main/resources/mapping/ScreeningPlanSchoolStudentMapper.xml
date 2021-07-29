@@ -90,9 +90,6 @@
         mspss.grade_id, mspss.class_id
         FROM
         m_screening_plan_school_student mspss
-<!--        LEFT JOIN m_student ms ON mspss.student_id = ms.id
-        LEFT JOIN m_school_grade msg ON msg.id = mspss.grade_id
-        LEFT JOIN m_school_class msc ON msc.id = mspss.class_id -->
         <where>
             <trim prefixOverrides="and">
                 AND mspss.screening_plan_id = #{param.screeningPlanId}
