@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +45,7 @@ public class HaiNanCardDetail {
     /**
      * 眼压
      */
-    private IntraocularPressureDataDO intraocularPressureData;
+    private EyePressureDataDO eyePressureData;
 
     /**
      * 盲及视力损害分类
@@ -69,6 +71,11 @@ public class HaiNanCardDetail {
      * 是否屈光不正
      */
     private Boolean isRefractiveError;
+
+    /**
+     * 筛查结果--眼底
+     */
+    private FundusDataDO fundusData;
 
     /**
      * 左眼近视级别 1-轻度 2-中度 3-高度

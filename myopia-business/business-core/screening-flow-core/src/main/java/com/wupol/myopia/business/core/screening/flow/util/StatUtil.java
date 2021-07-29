@@ -295,6 +295,22 @@ public class StatUtil {
     }
 
     /**
+     * 获取远视Level
+     *
+     * @param sphere   球镜
+     * @param cylinder 柱镜
+     * @param age      年龄
+     * @return Integer
+     */
+    public static Integer getHyperopiaLevel(Float sphere, Float cylinder, Integer age) {
+        WarningLevel hyperopiaWarningLevel = getHyperopiaWarningLevel(sphere, cylinder, age);
+        if (Objects.nonNull(hyperopiaWarningLevel)) {
+            return hyperopiaWarningLevel.code;
+        }
+        return null;
+    }
+
+    /**
      * 返回近视预警级别
      *
      * @param sphere   球镜
@@ -311,6 +327,21 @@ public class StatUtil {
         if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO;
         if (se < -6.0f) return WarningLevel.THREE;
         return WarningLevel.NORMAL;
+    }
+
+    /**
+     * 返回近视预警级别Level
+     *
+     * @param sphere   球镜
+     * @param cylinder 柱镜
+     * @return
+     */
+    public static Integer getMyopiaLevel(Float sphere, Float cylinder) {
+        WarningLevel myopiaWarningLevel = getMyopiaWarningLevel(sphere, cylinder);
+        if (Objects.nonNull(myopiaWarningLevel)) {
+            return myopiaWarningLevel.code;
+        }
+        return null;
     }
 
     /**
@@ -419,6 +450,93 @@ public class StatUtil {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 获取近视等级描述（严重的眼球）
+     *
+     * @param leftSpn  左眼球镜
+     * @param leftCyl  左眼柱镜
+     * @param rightSpn 右眼球镜
+     * @param rightCyl 右眼球镜
+     * @return String
+     */
+    public String getMyopiLevelDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl) {
+        Integer leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
+        Integer rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+        if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
+            Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
+            if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                return "轻度近视";
+            }
+            if (WarningLevel.TWO.code.equals(seriousLevel)) {
+                return "轻度近视";
+            }
+            if (WarningLevel.THREE.code.equals(seriousLevel)) {
+                return "轻度近视";
+            }
+        }
+        return "";
+    }
+
+    /**
+     * 获取远视等级描述（严重的眼球）
+     *
+     * @param leftSpn  左眼球镜
+     * @param leftCyl  左眼柱镜
+     * @param rightSpn 右眼球镜
+     * @param rightCyl 右眼球镜
+     * @return String
+     */
+    public String getHyperopiaDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl, Integer age) {
+        Integer leftHyperopiaLevel = getHyperopiaLevel(leftSpn.floatValue(), leftCyl.floatValue(), age);
+        Integer rightHyperopiaLevel = getHyperopiaLevel(rightSpn.floatValue(), rightCyl.floatValue(), age);
+        if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
+            Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
+            if (WarningLevel.ONE.code.equals(seriousLevel)) {
+                return "轻度远视";
+            }
+            if (WarningLevel.TWO.code.equals(seriousLevel)) {
+                return "轻度远视";
+            }
+            if (WarningLevel.THREE.code.equals(seriousLevel)) {
+                return "轻度远视";
+            }
+        }
+        return "";
+    }
+
+    /**
+     * 获取散光描述
+     *
+     * @param leftCyl  左眼柱镜
+     * @param rightCyl 右眼球镜
+     * @return String
+     */
+    public String getAstigmatismDesc(BigDecimal leftCyl, BigDecimal rightCyl) {
+        if (Objects.nonNull(leftCyl) && (leftCyl.abs().compareTo(new BigDecimal("0.5")) < 0)) {
+            return "散光";
+        }
+        if (Objects.nonNull(rightCyl) && (rightCyl.abs().compareTo(new BigDecimal("0.5")) < 0)) {
+            return "散光";
+        }
+        return "";
+    }
+
+    /**
+     * 获取屈光描述
+     *
+     * @param leftSpn  左眼球镜
+     * @param leftCyl  左眼柱镜
+     * @param rightSpn 右眼球镜
+     * @param rightCyl 右眼球镜
+     * @param age      年龄
+     * @return 描述
+     */
+    public String getRefractiveResult(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl, Integer age) {
+        return getMyopiLevelDesc(leftSpn, leftCyl, rightSpn, rightCyl)
+                + getHyperopiaDesc(leftSpn, leftCyl, rightSpn, rightCyl, age)
+                + getAstigmatismDesc(leftCyl, rightCyl);
     }
 
 }

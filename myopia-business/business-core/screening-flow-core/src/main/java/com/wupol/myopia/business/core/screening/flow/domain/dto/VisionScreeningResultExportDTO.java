@@ -80,7 +80,7 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "33cm眼位", "垂直位斜视"})
     private Integer verticalStrabismus;
     @ExcelProperty({TOP_HEADER, "33cm眼位", "初步结果"})
-    private String oDiagnosis;
+    private String odiagnosis;
 
     @ExcelProperty({TOP_HEADER, "视力检查", "戴镜情况"})
     private String glassesTypeDesc;
@@ -89,7 +89,7 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "视力检查", "矫正（右/左）"})
     private String correctedVisions;
     @ExcelProperty({TOP_HEADER, "视力检查", "初步结果"})
-    private String vDiagnosis;
+    private String vdiagnosis;
 
     @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右/左）"})
     private String sphs;
@@ -98,31 +98,31 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右/左）"})
     private String axials;
     @ExcelProperty({TOP_HEADER, "电脑验光", "初步结果"})
-    private String cDiagnosis;
+    private String cdiagnosis;
     @ExcelProperty({TOP_HEADER, "电脑验光", "屈光结果"})
-    private String cResult;
+    private String cresult;
 
     @ExcelProperty({TOP_HEADER, "裂隙灯", "左眼"})
-    private String sLeftEye;
+    private String sleftEye;
     @ExcelProperty({TOP_HEADER, "裂隙灯", "初步结果"})
-    private String sLeftResult;
+    private String sleftResult;
     @ExcelProperty({TOP_HEADER, "裂隙灯", "右眼"})
-    private String sRightEye;
+    private String srightEye;
     @ExcelProperty({TOP_HEADER, "裂隙灯", "初步结果"})
-    private String sRightResult;
+    private String srightResult;
 
     @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（右/左）"})
-    private String pSph;
+    private String psph;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（右/左）"})
-    private String pCyl;
+    private String pcyl;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（右/左）"})
-    private String pAxial;
+    private String paxial;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（右/左）"})
-    private String pCorrectedVision;
+    private String pcorrectedVision;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "初步结果"})
-    private String pDiagnosis;
+    private String pdiagnosis;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "屈光结果"})
-    private String pResult;
+    private String presult;
 
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1"})
     private String dbK1;
@@ -130,8 +130,6 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String dbK2;
     @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST"})
     private String dbAST;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜折射率n"})
-    private String dbN;
     @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD"})
     private String dbPD;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW"})

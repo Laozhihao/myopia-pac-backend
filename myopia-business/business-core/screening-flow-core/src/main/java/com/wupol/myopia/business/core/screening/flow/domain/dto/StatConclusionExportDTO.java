@@ -126,7 +126,7 @@ public class StatConclusionExportDTO extends StatConclusion {
      * 筛查结果--眼压
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private IntraocularPressureDataDO intraocularPressureData;
+    private EyePressureDataDO eyePressureData;
 
     /**
      * 筛查结果--眼底
@@ -151,6 +151,12 @@ public class StatConclusionExportDTO extends StatConclusion {
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private VisualLossLevelDataDO visualLossLevelData;
+
+    /**
+     * 筛查结果--生物测量
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BiometricDataDO biometricData;
 
     /**
      * 筛查结果--全身疾病在眼部的表现
