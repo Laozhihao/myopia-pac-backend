@@ -514,10 +514,10 @@ public class StatUtil {
      * @return String
      */
     public String getAstigmatismDesc(BigDecimal leftCyl, BigDecimal rightCyl) {
-        if (Objects.nonNull(leftCyl) && (leftCyl.abs().compareTo(new BigDecimal("0.5")) < 0)) {
+        if (Objects.nonNull(leftCyl) && (leftCyl.abs().compareTo(new BigDecimal("0.5")) > 0)) {
             return "散光";
         }
-        if (Objects.nonNull(rightCyl) && (rightCyl.abs().compareTo(new BigDecimal("0.5")) < 0)) {
+        if (Objects.nonNull(rightCyl) && (rightCyl.abs().compareTo(new BigDecimal("0.5")) > 0)) {
             return "散光";
         }
         return "";
