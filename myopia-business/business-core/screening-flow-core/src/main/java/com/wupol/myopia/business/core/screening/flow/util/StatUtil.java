@@ -462,6 +462,9 @@ public class StatUtil {
      * @return String
      */
     public String getMyopiaLevelDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl) {
+        if (ObjectsUtil.allNull(leftSpn,leftCyl,rightCyl,rightSpn)) {
+            return "";
+        }
         Integer leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
         Integer rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
@@ -489,6 +492,9 @@ public class StatUtil {
      * @return String
      */
     public String getHyperopiaDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl, Integer age) {
+        if (ObjectsUtil.allNull(leftSpn, leftCyl, rightSpn, rightCyl)) {
+            return "";
+        }
         Integer leftHyperopiaLevel = getHyperopiaLevel(leftSpn.floatValue(), leftCyl.floatValue(), age);
         Integer rightHyperopiaLevel = getHyperopiaLevel(rightSpn.floatValue(), rightCyl.floatValue(), age);
         if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
