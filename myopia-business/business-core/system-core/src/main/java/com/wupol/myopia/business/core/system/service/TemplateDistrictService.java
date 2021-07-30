@@ -41,11 +41,10 @@ public class TemplateDistrictService extends BaseService<TemplateDistrictMapper,
     /**
      * 通过templateId和districtIds删除
      *
-     * @param templateId  模版ID
      * @param districtIds 区域ID List
      */
-    public void deletedByTemplateIdAndDistrictIds(Integer templateId, List<Integer> districtIds) {
-        baseMapper.deletedByTemplateIdAndDistrictIds(templateId, districtIds);
+    public void deletedByTemplateIdAndDistrictIds(List<Integer> districtIds) {
+        baseMapper.deletedByDistrictIds(districtIds);
     }
 
     /**

@@ -16,7 +16,7 @@ public interface TemplateDistrictMapper extends BaseMapper<TemplateDistrict> {
 
     List<TemplateBindItemDTO> getByTemplateId(@Param("templateId") Integer templateId);
 
-    void deletedByTemplateIdAndDistrictIds(@Param("templateId") Integer templateId, @Param("districtIds") List<Integer> districtIds);
+    void deletedByDistrictIds(@Param("districtIds") List<Integer> districtIds);
 
     void batchInsert(@Param("templateId") Integer templateId, @Param("items") List<TemplateBindItemDTO> items);
 
