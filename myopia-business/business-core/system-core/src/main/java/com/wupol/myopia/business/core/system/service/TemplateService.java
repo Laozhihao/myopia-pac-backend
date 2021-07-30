@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.system.service;
 
 import com.google.common.collect.Maps;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindItemDTO;
 import com.wupol.myopia.business.core.system.domain.dto.TemplateBindRequestDTO;
@@ -73,49 +72,21 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * 绑定区域
      *
      * @param request 入参
-     * @param type    类型
      * @return boolean 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean districtBind(TemplateBindRequestDTO request, Integer type) {
+    public Boolean districtBind(TemplateBindRequestDTO request) {
 
         Integer templateId = request.getTemplateId();
         List<TemplateBindItemDTO> newDistrictLists = request.getDistrictInfo();
 
-        // 先获取原有的
-        List<TemplateBindItemDTO> originLists = templateDistrictService.getByTemplateId(templateId);
+        // 批量删除
+        templateDistrictService.deletedByTemplateIdAndDistrictIds(templateId,
+                newDistrictLists.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()));
 
-        // 看看和原来的比，多了什么，就是新增
-        List<TemplateBindItemDTO> addLists = newDistrictLists.stream()
-                .filter(item -> !originLists.stream()
-                        .map(TemplateBindItemDTO::getDistrictId)
-                        .collect(Collectors.toList())
-                        .contains(item.getDistrictId()))
-                .collect(Collectors.toList());
-
-        // 同理，取删除的
-        List<TemplateBindItemDTO> deletedLists = originLists.stream()
-                .filter(item -> !newDistrictLists.stream()
-                        .map(TemplateBindItemDTO::getDistrictId)
-                        .collect(Collectors.toList())
-                        .contains(item.getDistrictId()))
-                .collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(addLists)) {
-            if (check(type, addLists)) {
-                throw new BusinessException("每个省只能绑定一个模板");
-            }
-            // 批量插入
-            templateDistrictService.batchInsert(templateId, addLists);
-        }
-
-        if (!CollectionUtils.isEmpty(deletedLists)) {
-
-            // 批量删除
-            templateDistrictService.deletedByTemplateIdAndDistrictIds(templateId,
-                    deletedLists.stream().map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()));
-        }
-        return Boolean.TRUE;
+        // 批量插入
+        templateDistrictService.batchInsert(templateId, newDistrictLists);
+        return true;
     }
 
     /**
