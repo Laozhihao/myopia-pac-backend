@@ -81,8 +81,9 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
         List<TemplateBindItemDTO> newDistrictLists = request.getDistrictInfo();
 
         // 批量删除
-        templateDistrictService.deletedByTemplateIdAndDistrictIds(newDistrictLists.stream()
+        templateDistrictService.deletedByDistrictIds(newDistrictLists.stream()
                 .map(TemplateBindItemDTO::getDistrictId).collect(Collectors.toList()));
+        templateDistrictService.remove(new TemplateDistrict().setTemplateId(templateId));
 
         // 批量插入
         templateDistrictService.batchInsert(templateId, newDistrictLists);
