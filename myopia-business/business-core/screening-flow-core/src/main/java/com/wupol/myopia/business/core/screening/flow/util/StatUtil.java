@@ -461,7 +461,7 @@ public class StatUtil {
      * @param rightCyl 右眼球镜
      * @return String
      */
-    public String getMyopiLevelDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl) {
+    public String getMyopiaLevelDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl) {
         Integer leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
         Integer rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
@@ -534,7 +534,7 @@ public class StatUtil {
      * @return 描述
      */
     public String getRefractiveResult(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl, Integer age) {
-        return getMyopiLevelDesc(leftSpn, leftCyl, rightSpn, rightCyl)
+        return getMyopiaLevelDesc(leftSpn, leftCyl, rightSpn, rightCyl)
                 + getHyperopiaDesc(leftSpn, leftCyl, rightSpn, rightCyl, age)
                 + getAstigmatismDesc(leftCyl, rightCyl);
     }

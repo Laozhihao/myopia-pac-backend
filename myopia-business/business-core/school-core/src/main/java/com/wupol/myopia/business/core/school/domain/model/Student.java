@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
 import lombok.Data;
@@ -255,5 +257,25 @@ public class Student extends AddressCode implements Serializable {
         // 1970-01-01 毫秒时间戳
         Date checkDate = new Date(-28800000L);
         return Objects.nonNull(birthday) && birthday.before(checkDate);
+    }
+
+    /**
+     * 获取学生模板
+     *
+     * @return 0-幼儿园版本 1-中小学版本
+     */
+    public Integer getSchoolAgeStatus() {
+        if (Objects.nonNull(gradeType)) {
+            if (SchoolAge.KINDERGARTEN.code.equals(gradeType)) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        if (DateUtil.ageOfNow(birthday) > 6) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
