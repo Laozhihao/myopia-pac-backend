@@ -67,6 +67,11 @@ public class StudentVO {
      */
     private Integer userId = 1;
 
+    /**
+     * 学龄段
+     */
+    private Integer gradeType;
+
 
     /**
      *
@@ -94,6 +99,7 @@ public class StudentVO {
         studentVO.schoolId = screeningPlanSchoolStudent.getSchoolId();
         studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE);
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();
+        studentVO.gradeType = screeningPlanSchoolStudent.getGradeType();
         return studentVO;
     }
 }
