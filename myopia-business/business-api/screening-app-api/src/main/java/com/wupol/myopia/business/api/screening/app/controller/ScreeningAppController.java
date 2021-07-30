@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
 import cn.hutool.core.util.IdcardUtil;
-import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
