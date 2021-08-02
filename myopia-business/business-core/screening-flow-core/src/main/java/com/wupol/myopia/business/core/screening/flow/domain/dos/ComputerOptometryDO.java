@@ -35,6 +35,7 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      * @Date 2021/1/22 16:37
      * @Author by jacob
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class ComputerOptometry implements ValidResultDataInterface,Serializable {

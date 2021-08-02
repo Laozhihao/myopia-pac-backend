@@ -25,6 +25,7 @@ public class BiometricDataDO implements Serializable {
      */
     private BiometricData leftEyeData;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class BiometricData  {

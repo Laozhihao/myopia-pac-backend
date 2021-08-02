@@ -29,6 +29,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
      */
     private VisionData leftEyeData;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class VisionData implements ValidResultDataInterface,Serializable {
