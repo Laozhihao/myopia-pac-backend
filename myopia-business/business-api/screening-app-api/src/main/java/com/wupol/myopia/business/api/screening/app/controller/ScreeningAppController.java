@@ -7,7 +7,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.api.screening.app.domain.dto.*;
+import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
+import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
+import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
@@ -26,7 +29,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -64,6 +67,8 @@ public class ScreeningAppController {
 
     @Autowired
     private ScreeningAppService screeningAppService;
+    @Autowired
+    private VisionScreeningBizService visionScreeningBizService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
@@ -180,7 +185,7 @@ public class ScreeningAppController {
     @PostMapping("/eye/findAllEyeDisease")
     public List<EyeDiseaseVO> getAllEyeDisease() {
         List<String> eyeDiseaseList = EyeDiseasesEnum.eyeDiseaseList;
-        List<EyeDiseaseVO> LeftEyeDiseaseVO = eyeDiseaseList.stream().map(eyeDiseas -> {
+        List<EyeDiseaseVO> leftEyeDiseaseVO = eyeDiseaseList.stream().map(eyeDiseas -> {
             EyeDiseaseVO eyeDiseaseVO = new EyeDiseaseVO();
             eyeDiseaseVO.setEye("L");
             eyeDiseaseVO.setName(eyeDiseas);
@@ -199,7 +204,7 @@ public class ScreeningAppController {
         }).collect(Collectors.toList());
         List<EyeDiseaseVO> allEyeDiseaseVos = new ArrayList<>();
         allEyeDiseaseVos.addAll(rightEyeDiseaseVO);
-        allEyeDiseaseVos.addAll(LeftEyeDiseaseVO);
+        allEyeDiseaseVos.addAll(leftEyeDiseaseVO);
         return allEyeDiseaseVos;
     }
 
@@ -246,9 +251,9 @@ public class ScreeningAppController {
      *
      * @return
      */
-    @PostMapping(value = {"/eye/addVision"})
-    public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(visionDataDTO);
+    @PostMapping("/eye/addVision")
+    public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
 
     /**
@@ -257,8 +262,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addComputer")
-    public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+    public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
     }
 
     /**
@@ -267,8 +272,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addBiology")
-    public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(biometricDataDTO);
+    public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
     }
 
     /**
@@ -277,8 +282,8 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addEyeDisease")
-    public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) throws IOException {
-        screeningAppService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+    public void addEyeDisease(@Valid @RequestBody OtherEyeDiseasesDTO otherEyeDiseasesDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
 
@@ -318,9 +323,8 @@ public class ScreeningAppController {
                 .setStudentName(studentName)
                 .setGradeName(gradeName);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent, page, size);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(x -> StudentVO.getInstance(x)).collect(Collectors.toList());
-        Page<StudentVO> sysStudents = new PageImpl<StudentVO>(studentVOs, pageable, studentVOs.size());
-        return sysStudents;
+        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
+        return new PageImpl<>(studentVOs, pageable, studentVOs.size());
     }
 
     /**
@@ -342,8 +346,7 @@ public class ScreeningAppController {
 
         gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
         clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        List<SysStudent> sysStudentList = screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
-        return sysStudentList;
+        return screeningAppService.getStudentReview(schoolId, gradeName, clazzName, deptId, studentName, current, size, isRandom);
     }
 
     /**
@@ -405,8 +408,7 @@ public class ScreeningAppController {
         ScreeningResultSearchDTO screeningResultSearchDTO = new ScreeningResultSearchDTO();
         screeningResultSearchDTO.setClazzName(clazzName);
         screeningResultSearchDTO.setGradeName(gradeName).setSchoolId(schoolId).setDepId(deptId);
-        List<RescreeningResultVO> allReviewResult = screeningAppService.getAllReviewResult(screeningResultSearchDTO);
-        return allReviewResult;
+        return screeningAppService.getAllReviewResult(screeningResultSearchDTO);
     }
 
 
@@ -449,10 +451,8 @@ public class ScreeningAppController {
             }
         }
         //设置出生日期
-        if (StringUtils.isBlank(appStudentDTO.getBirthday())) {
-            if (StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
-                appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
-            }
+        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
+            appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
         }
         return null;
     }

@@ -90,7 +90,7 @@ public final class S3Utils {
         } catch (Exception e) {
             log.error("UploadS3上传完成，删除缓存文件失败", e);
         }
-        return String.format("%s/%s", host, key);
+        return String.format(S3_STATIC_KEY_FORMAT, host, key);
     }
 
     /**

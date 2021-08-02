@@ -114,6 +114,26 @@ public class DistrictBizService {
 
     }
 
+    /**
+     * 获取当前用户地区树 与 districts 的交集
+     *
+     * @param user        当前用户
+     * @param districtIds 待求交集的行政区域ID集
+     * @return List<District>
+     */
+    public List<District> getChildDistrictValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+        List<District> districts = new ArrayList<>();
+        if (user == null) {
+            return districts;
+        }
+        // 当前用户的行政区域
+        District district = getNotPlatformAdminUserDistrict(user);
+        // 获取下属的行政区域
+        List<District> childDistrictTree = districtService.getSpecificDistrictTreePriorityCache(district.getCode());
+        // 过滤该地区树没在districts
+        return districtService.filterDistrictTree(childDistrictTree, districtIds);
+    }
+
 
     /**
      * 获取以当前登录用户所属行政区域为根节点的行政区域树

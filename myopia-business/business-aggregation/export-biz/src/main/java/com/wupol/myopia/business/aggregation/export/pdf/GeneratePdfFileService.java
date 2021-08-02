@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -56,9 +57,9 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateDistrictScreeningReportPdfFile(String saveDirectory, String fileName, Integer noticeId, Integer districtId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.hasLength(fileName, "文件名为空");
-        Assert.notNull(noticeId, "筛查通知ID为空");
+        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_EMPTY);
         Assert.notNull(districtId, "行政区域ID为空");
         String htmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_REPORT_HTML_URL, htmlUrlHost, noticeId, districtId);
         boolean isSuccessful = HtmlToPdfUtil.convert(htmlUrl, Paths.get(saveDirectory, fileName + ".pdf").toString());
@@ -73,8 +74,8 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateSchoolScreeningReportPdfFileByNoticeId(String saveDirectory, Integer noticeId, Integer districtId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
-        Assert.notNull(noticeId, "筛查通知ID为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+        Assert.notNull(noticeId, BizMsgConstant.NOTICE_ID_IS_EMPTY);
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdsByScreeningNoticeIdAndDistrictIds(noticeId, districtIds);
         generateSchoolScreeningReportPdfFileBatch(saveDirectory, noticeId, null, schoolIdList);
@@ -88,8 +89,8 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
-        Assert.notNull(planId, "筛查计划ID为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         List<Integer> schoolIdList = statConclusionService.getSchoolIdByPlanId(planId);
         generateSchoolScreeningReportPdfFileBatch(saveDirectory, null, planId, schoolIdList);
     }
@@ -105,10 +106,6 @@ public class GeneratePdfFileService {
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
         Assert.notEmpty(schoolIdList, "学校ID集为空");
-        // 生成一个总的报告文件
-        if (Objects.nonNull(planId)) {
-            generateScreeningPlanReportPdfFile(saveDirectory, planId);
-        }
         schoolIdList.forEach(schoolId -> generateSchoolScreeningReportPdfFile(saveDirectory, noticeId, planId, schoolId));
     }
 
@@ -118,6 +115,7 @@ public class GeneratePdfFileService {
      * @param planId
      */
     public void generateScreeningPlanReportPdfFile(String saveDirectory, Integer planId) {
+        log.info("生成筛查计划总报告, planId={}", planId);
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "该计划不存在");
         String reportFileName = String.format(PDFFileNameConstant.PLAN_REPORT_PDF_FILE_NAME, DateUtil.getYear(plan.getStartTime()));
@@ -135,7 +133,7 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateSchoolScreeningReportPdfFile(String saveDirectory, Integer noticeId, Integer planId, Integer schoolId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.isTrue(Objects.nonNull(noticeId) || Objects.nonNull(planId), "筛查通知ID和筛查计划ID都为空");
         Assert.notNull(schoolId, "学校ID不能为空");
         School school = schoolService.getById(schoolId);
@@ -152,8 +150,8 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateScreeningOrgArchivesPdfFile(String saveDirectory, Integer planId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
-        Assert.notNull(planId, "筛查计划ID为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.getSchoolListsByPlanId(planId);
         screeningPlanSchoolList.forEach(x -> generateSchoolArchivesPdfFile(saveDirectory, planId, x.getSchoolId()));
     }
@@ -167,8 +165,8 @@ public class GeneratePdfFileService {
      * @return void
      **/
     public void generateSchoolArchivesPdfFile(String saveDirectory, Integer planId, Integer schoolId) {
-        Assert.hasLength(saveDirectory, "文件保存目录路径为空");
-        Assert.notNull(planId, "筛查计划ID为空");
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+        Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         Assert.notNull(schoolId, "学校ID不能为空");
         School school = schoolService.getById(schoolId);
         String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());

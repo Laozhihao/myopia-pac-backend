@@ -102,7 +102,7 @@ public class BigScreeningStatService {
      */
     public void statisticBigScreen() throws IOException {
         //找到所有省级部门
-        List<GovDept> proviceGovDepts = govDeptService.getProviceGovDept();
+        List<GovDept> proviceGovDepts = govDeptService.getProvinceGovDept();
         Set<Integer> govDeptIds = proviceGovDepts.stream().map(GovDept::getId).collect(Collectors.toSet());
         //通过所有省级部门查找所有通知
         List<ScreeningNotice> screeningNotices = screeningNoticeService.getNoticeByReleaseOrgId(govDeptIds, ScreeningNotice.TYPE_GOV_DEPT);

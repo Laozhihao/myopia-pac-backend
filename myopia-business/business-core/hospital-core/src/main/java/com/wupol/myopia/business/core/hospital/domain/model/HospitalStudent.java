@@ -65,7 +65,7 @@ public class HospitalStudent implements Serializable {
     private Integer gender;
 
     /** 出生日期 */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "出生日期不能为空")
     private Date birthday;
 

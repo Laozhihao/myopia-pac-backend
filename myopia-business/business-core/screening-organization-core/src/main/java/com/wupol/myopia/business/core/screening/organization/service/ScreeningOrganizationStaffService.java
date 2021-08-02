@@ -241,7 +241,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
         if (null == organization) {
             throw new BusinessException("数据异常,找不到筛查机构的数据,id为:" + list.get(0).getScreeningOrgId());
         }
-        super.saveBatch(list.stream().map(item -> (ScreeningOrganizationStaff) item).collect(Collectors.toList()));
+        super.saveBatch(list.stream().map(ScreeningOrganizationStaff.class::cast).collect(Collectors.toList()));
     }
 
     /**

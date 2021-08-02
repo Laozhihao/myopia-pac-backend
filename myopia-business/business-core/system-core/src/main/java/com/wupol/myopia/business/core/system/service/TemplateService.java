@@ -126,7 +126,7 @@ public class TemplateService extends BaseService<TemplateMapper, Template> {
      * @param list 新增列表
      * @return 是否重复绑定
      */
-    public Boolean check(Integer type, List<TemplateBindItemDTO> list) {
+    public boolean check(Integer type, List<TemplateBindItemDTO> list) {
         // 根据类型查模板
         List<Template> templateList = baseMapper.getByType(type);
 

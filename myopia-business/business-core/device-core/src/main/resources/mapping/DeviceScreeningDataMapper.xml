@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.device.domain.mapper.DeviceScreeningDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData">
+    </resultMap>
+
+    <resultMap id="DataAndOrgNameMap" type="com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO">
+
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(deviceId)">and `device_id` = #{deviceId}</if>
+                <if test="@Ognl@isNotEmpty(deviceSn)">and `device_sn` = #{deviceSn}</if>
+                <if test="@Ognl@isNotEmpty(patientId)">and `patient_id` = #{patientId}</if>
+                <if test="@Ognl@isNotEmpty(patientName)">and `patient_name` = #{patientName}</if>
+                <if test="@Ognl@isNotEmpty(patientAgeGroup)">and `patient_age_group` = #{patientAgeGroup}</if>
+                <if test="@Ognl@isNotEmpty(patientGender)">and `patient_gender` = #{patientGender}</if>
+                <if test="@Ognl@isNotEmpty(patientAge)">and `patient_age` = #{patientAge}</if>
+                <if test="@Ognl@isNotEmpty(patientOrg)">and `patient_org` = #{patientOrg}</if>
+                <if test="@Ognl@isNotEmpty(patientCid)">and `patient_cid` = #{patientCid}</if>
+                <if test="@Ognl@isNotEmpty(patientDept)">and `patient_dept` = #{patientDept}</if>
+                <if test="@Ognl@isNotEmpty(patientPno)">and `patient_pno` = #{patientPno}</if>
+                <if test="@Ognl@isNotEmpty(checkMode)">and `check_mode` = #{checkMode}</if>
+                <if test="@Ognl@isNotEmpty(checkResult)">and `check_result` = #{checkResult}</if>
+                <if test="@Ognl@isNotEmpty(checkType)">and `check_type` = #{checkType}</if>
+                <if test="@Ognl@isNotEmpty(leftCyl)">and `left_cyl` = #{leftCyl}</if>
+                <if test="@Ognl@isNotEmpty(rightCyl)">and `right_cyl` = #{rightCyl}</if>
+                <if test="@Ognl@isNotEmpty(leftAxsi)">and `left_axsi` = #{leftAxsi}</if>
+                <if test="@Ognl@isNotEmpty(rightAxsi)">and `right_axsi` = #{rightAxsi}</if>
+                <if test="@Ognl@isNotEmpty(leftPr)">and `left_pr` = #{leftPr}</if>
+                <if test="@Ognl@isNotEmpty(rightPr)">and `right_pr` = #{rightPr}</if>
+                <if test="@Ognl@isNotEmpty(leftPa)">and `left_pa` = #{leftPa}</if>
+                <if test="@Ognl@isNotEmpty(rightPa)">and `right_pa` = #{rightPa}</if>
+                <if test="@Ognl@isNotEmpty(leftSph)">and `left_sph` = #{leftSph}</if>
+                <if test="@Ognl@isNotEmpty(rightSph)">and `right_sph` = #{rightSph}</if>
+                <if test="@Ognl@isNotEmpty(pd)">and `pd` = #{pd}</if>
+                <if test="@Ognl@isNotEmpty(doCheck)">and `do_check` = #{doCheck}</if>
+                <if test="@Ognl@isNotEmpty(leftAxsiV)">and `left_axsi_v` = #{leftAxsiV}</if>
+                <if test="@Ognl@isNotEmpty(rightAxsiV)">and `right_axsi_v` = #{rightAxsiV}</if>
+                <if test="@Ognl@isNotEmpty(leftAxsiH)">and `left_axsi_h` = #{leftAxsiH}</if>
+                <if test="@Ognl@isNotEmpty(rightAxsiH)">and `right_axsi_h` = #{rightAxsiH}</if>
+                <if test="@Ognl@isNotEmpty(redReflectLeft)">and `red_reflect_left` = #{redReflectLeft}</if>
+                <if test="@Ognl@isNotEmpty(redReflectRight)">and `red_reflect_right` = #{redReflectRight}</if>
+                <if test="@Ognl@isNotEmpty(screeningTime)">and `screening_time` = #{screeningTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <sql id="Page_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(param.patientAgeGroup)">and `patient_age_group` = #{param.patientAgeGroup}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and `screening_org_id` = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.patientGender)">and `patient_gender` = #{param.patientGender}</if>
+                <if test="@Ognl@isNotEmpty(param.patientIdSearch)">and `patient_id` like concat('%', #{param.patientIdSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.deviceSnSearch)">and `device_sn` like concat('%', #{param.deviceSnSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.patientOrgSearch)">and `patient_org` like concat('%', #{param.patientOrgSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgIds)">
+                    and `screening_org_id` in <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningTimeStart)">
+                    and <![CDATA[ DATE(`screening_time`) >= DATE(#{param.screeningTimeStart})]]>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningTimeEnd)">
+                    and <![CDATA[ DATE(`screening_time`) <= DATE(#{param.screeningTimeEnd})]]>
+                </if>
+                <choose>
+                    <!-- 两边条件都不为空 -->
+                    <when test="@Ognl@isNotEmpty(param.sphStart) and @Ognl@isNotEmpty(param.sphEnd)">
+                        and (
+                        (<![CDATA[ `left_sph` >= #{param.sphStart}]]> and <![CDATA[ `left_sph` <= #{param.sphEnd}]]>)
+                        or
+                        (<![CDATA[ `right_sph` >= #{param.sphStart}]]> and <![CDATA[ `right_sph` <= #{param.sphEnd}]]>))
+                    </when>
+                    <when test="@Ognl@isNotEmpty(param.sphStart)">
+                        and (<![CDATA[ `left_sph` >= #{param.sphStart}]]> or <![CDATA[ `right_sph` >= #{param.sphStart}]]>)
+                    </when>
+                    <when test="@Ognl@isNotEmpty(param.sphEnd)">
+                        and (<![CDATA[ `left_sph` <= #{param.sphEnd}]]> or <![CDATA[ `right_sph` <= #{param.sphEnd}]]>)
+                    </when>
+                </choose>
+                <choose>
+                    <!-- 两边条件都不为空 -->
+                    <when test="@Ognl@isNotEmpty(param.cylStart) and @Ognl@isNotEmpty(param.cylEnd)">
+                        and (
+                        (<![CDATA[ `left_cyl` >= #{param.cylStart}]]> and <![CDATA[ `left_cyl` <= #{param.cylEnd}]]>)
+                        or
+                        (<![CDATA[ `right_cyl` >= #{param.cylStart}]]> and <![CDATA[ `right_cyl` <= #{param.cylEnd}]]>))
+                    </when>
+                    <when test="@Ognl@isNotEmpty(param.cylStart)">
+                        and (<![CDATA[ `left_cyl` >= #{param.cylStart}]]> or <![CDATA[ `right_cyl` >= #{param.cylStart}]]>)
+                    </when>
+                    <when test="@Ognl@isNotEmpty(param.cylEnd)">
+                        and (<![CDATA[ `left_cyl` <= #{param.cylEnd}]]> or <![CDATA[ `right_cyl` <= #{param.cylEnd}]]>)
+                    </when>
+                </choose>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, screening_org_id, device_id, device_sn, patient_id, patient_name, patient_age_group, patient_gender, patient_age, patient_org, patient_cid, patient_dept, patient_pno, check_mode, check_result, check_type, left_cyl, right_cyl, left_axsi, right_axsi, left_pr, right_pr, left_pa, right_pa, pd, do_check, left_axsi_v, right_axsi_v, left_axsi_h, right_axsi_h, red_reflect_left, red_reflect_right, left_sph, right_sph, screening_time, update_time, create_time
+    </sql>
+
+    <select id="getByIds" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_device_screening_data where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectPageByQuery" resultMap="DataAndOrgNameMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `m_device_screening_data`
+        <include refid="Page_Where_Clause"/>
+        order by create_time desc
+    </select>
+
+</mapper>

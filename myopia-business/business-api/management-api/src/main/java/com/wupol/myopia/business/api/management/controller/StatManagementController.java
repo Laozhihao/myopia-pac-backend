@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.management.domain.dto.SchoolMonitorStatisti
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -28,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
+import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,8 @@ public class StatManagementController {
     private StatRescreenService statRescreenService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Autowired
+    private DistrictVisionStatisticService districtVisionStatisticService;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -132,19 +136,23 @@ public class StatManagementController {
     public List<District> getDistrictByNoticeId(@RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        //查看该通知所有筛查学校的层级的 地区树
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
-        Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-        return districtBizService.getValidDistrictTree(currentUser, districts);
+        if (!currentUser.isGovDeptUser()) {
+            //查看该通知所有筛查学校的层级的 地区树
+            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
+            Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+            return districtBizService.getValidDistrictTree(currentUser, districts);
+        }
+        // 政府人员走新逻辑
+        return districtBizService.getChildDistrictValidDistrictTree(currentUser, districtVisionStatisticService.getDistrictIdByNoticeId(noticeId));
     }
 
     @GetMapping("/plan-district")
-    public List<District> getDistrictByPlanId(@RequestParam Integer planId) throws IOException {
+    public List<District> getDistrictByPlanId(@RequestParam Integer planId) {
         return districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(),
-                schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(Arrays.asList(planId)));
+                schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(Collections.singletonList(planId)));
     }
 
     /**
@@ -199,7 +207,7 @@ public class StatManagementController {
             @RequestParam Integer districtId, @RequestParam Integer noticeId) throws IOException {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
         return statService.getScreeningVisionStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
@@ -216,7 +224,7 @@ public class StatManagementController {
         //查找notice
         ScreeningNotice screeningNotice = screeningNoticeService.getById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
         return statService.getDistrictScreeningMonitorStatisticVO(districtId, noticeId, screeningNotice, CurrentUserUtil.getCurrentUser());
     }
@@ -232,7 +240,9 @@ public class StatManagementController {
     public ScreeningSchoolVisionStatisticVO getSchoolVisionStatistic(@RequestParam Integer districtId, @RequestParam Integer noticeId) {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(),
+                CurrentUserUtil.getCurrentUser(),
+                districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, screeningNotice);
     }
 
@@ -248,7 +258,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
-            throw new BusinessException("找不到该notice");
+            throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
         }
         List<SchoolMonitorStatistic> schoolMonitorStatistics = schoolMonitorStatisticBizService.getStatisticDtoByNoticeIdAndOrgId(screeningNotice.getId(), CurrentUserUtil.getCurrentUser(), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         if (CollectionUtils.isEmpty(schoolMonitorStatistics)) {

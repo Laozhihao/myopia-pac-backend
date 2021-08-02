@@ -11,7 +11,6 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
-import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OrganizationStaffRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgStaffUserDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
@@ -19,8 +18,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.StaffRes
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

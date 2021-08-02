@@ -9,10 +9,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 日期工具
@@ -23,8 +20,8 @@ import java.util.Map;
 @UtilityClass
 public class DateUtil extends cn.hutool.core.date.DateUtil {
 
-    public static final String UTC_8 = "UTC+8";
-    public static final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
+    public final String UTC_8 = "UTC+8";
+    public final ZoneId ZONE_UTC_8 = ZoneId.of(UTC_8);
 
     /**
      * 获取当前时间的年与上一个月,若当前是1月,则取得上年12月
@@ -247,7 +244,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
      * @return
      */
     public static boolean isDateBeforeToday(Date date) {
-        return date.getTime() < DateUtil.getTodayStartTime("GMT+8");
+        return date.getTime() < DateUtil.getTodayStartTime(TimeZone.getDefault().getID());
     }
 
     /**
@@ -306,7 +303,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     public static String getDayOfYear(Date date,int offsetDay) {
         Date date30DaysAgo = DateUtils.addDays(date, offsetDay);
         return DateFormatUtils.format(date30DaysAgo, "yyyyD");
-    };
+    }
 
     /**
      * 获取今天特定的时分

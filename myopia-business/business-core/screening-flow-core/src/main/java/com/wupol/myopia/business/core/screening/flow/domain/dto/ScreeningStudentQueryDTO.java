@@ -27,20 +27,20 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
     /** 手机号 */
     private String phoneLike;
     /** 导出本地报告数据起始时间 */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
     /** 导出本地报告数据结束时间 */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startScreeningTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endScreeningTime;
 
     /**

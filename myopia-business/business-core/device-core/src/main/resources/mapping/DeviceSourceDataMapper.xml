@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.device.domain.mapper.DeviceSourceDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.device.domain.model.DeviceSourceData">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(deviceType)">and `device_type` = #{deviceType}</if>
+                <if test="@Ognl@isNotEmpty(patientId)">and `patient_id` = #{patientId}</if>
+                <if test="@Ognl@isNotEmpty(deviceId)">and `device_id` = #{deviceId}</if>
+                <if test="@Ognl@isNotEmpty(deviceCode)">and `device_code` = #{deviceCode}</if>
+                <if test="@Ognl@isNotEmpty(deviceSn)">and `device_sn` = #{deviceSn}</if>
+                <if test="@Ognl@isNotEmpty(srcData)">and `src_data` = #{srcData}</if>
+                <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(screeningTime)">and `screening_time` = #{screeningTime}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, device_type, patient_id, device_id, device_code, device_sn, src_data, screening_org_id, screening_time, create_time
+    </sql>
+
+    <!--Warning: 请确保以下参数均不为空-->
+    <select id="selectWithMutiConditions" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO">
+        select screening_org_id, device_sn, patient_id, screening_time as checkTime from m_device_source_data
+       <where>
+           screening_org_id = #{screeningOrgId} and
+           device_sn = #{deviceSn} and
+           <foreach collection="list" index="" item="item" separator="or" open="(" close=")">
+             (patient_id = #{item.patientId} and screening_time = #{item.checkTime})
+           </foreach>
+       </where>
+    </select>
+
+
+</mapper>

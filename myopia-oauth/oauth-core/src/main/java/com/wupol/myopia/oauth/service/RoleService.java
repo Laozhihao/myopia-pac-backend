@@ -6,16 +6,17 @@ import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.oauth.domain.dto.RoleDTO;
 import com.wupol.myopia.oauth.domain.mapper.RoleMapper;
+import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.RolePermission;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,8 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     private PermissionService permissionService;
     @Autowired
     private RolePermissionService rolePermissionService;
+    @Autowired
+    private DistrictPermissionService districtPermissionService;
 
     /**
      * 获取角色列表
@@ -72,7 +75,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     /**
      * 获取指定行政区下的角色权限树
      *
-     * @param roleId 角色ID
+     * @param roleId       角色ID
      * @param templateType 模板类型
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.Permission>
      **/
@@ -133,4 +136,30 @@ public class RoleService extends BaseService<RoleMapper, Role> {
         return userIds.stream().distinct().collect(Collectors.toList());
     }
 
+    /**
+     * 更新角色权限
+     *
+     * @param roleId        角色Id
+     * @param templateType  类型
+     * @param permissionIds 权限集合
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRolePermission(Integer roleId, Integer templateType, List<Integer> permissionIds) {
+
+        // 通过templateType获取原先的权限集合（只需要permissionId）
+        List<Integer> originIds = districtPermissionService.getByTemplateType(templateType)
+                .stream().map(DistrictPermission::getPermissionId).distinct().collect(Collectors.toList());
+
+        // 取差集，新权限集合与原权限集合比较，结果便是新增的（List1(1,2,3)｜Lists2(3,4,5,6)=>(1,2)）
+        List<Integer> addList = ListUtils.subtract(permissionIds, originIds);
+        if (!CollectionUtils.isEmpty(addList)) {
+            rolePermissionService.batchInsert(roleId, addList);
+        }
+
+        // 同理，原权限集合与新权限集合比较,结果便是删除的
+        List<Integer> deletedLists = ListUtils.subtract(originIds, permissionIds);
+        if (!CollectionUtils.isEmpty(deletedLists)) {
+            rolePermissionService.batchDeleted(roleId, deletedLists);
+        }
+    }
 }

@@ -127,9 +127,17 @@
     </select>
 
     <select id="selectByGradeAndClass" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
-        select mspss.student_name as name, mspss.student_no as sno, mspss.gender, mspss.student_id as id
+        select mspss.student_name      as name,
+               mspss.student_no        as sno,
+               mspss.gender,
+               mspss.student_id        as id,
+               mspss.screening_plan_id as planId,
+               mspss.id                as planStudentId,
+               mspss.student_age       as age
         from m_screening_plan_school_student mspss
-        where mspss.screening_plan_id = #{screeningPlanId} and mspss.grade_id = #{gradeId} and mspss.class_id = #{classId}
+        where mspss.screening_plan_id = #{screeningPlanId}
+          and mspss.grade_id = #{gradeId}
+          and mspss.class_id = #{classId}
     </select>
 
     <select id="findByStudentId" resultMap="BaseResultMap">

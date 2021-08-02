@@ -9,10 +9,9 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 /**
  * 导出筛查机构的筛查报告
@@ -20,6 +19,7 @@ import java.io.IOException;
  * @Author HaoHao
  * @Date 2021/3/24
  **/
+@Log4j2
 @Service("screeningOrgScreeningReportService")
 public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileService {
 
@@ -40,6 +40,9 @@ public class ExportScreeningOrgScreeningReportService extends BaseExportPdfFileS
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+        // 所有学校汇总
+        generateReportPdfService.generateScreeningPlanReportPdfFile(fileSavePath, exportCondition.getPlanId());
+        // 各个学校详情
         generateReportPdfService.generateScreeningOrgScreeningReportPdfFile(fileSavePath, exportCondition.getPlanId());
     }
 

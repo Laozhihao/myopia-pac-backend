@@ -1,9 +1,8 @@
-package com.wupol.myopia.business.api.screening.app.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -33,6 +34,7 @@ import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
@@ -65,12 +67,12 @@ public class StatReportService {
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
 
-    private final static String TABLE_LABEL_TOTAL = "total";
-    private final static String TABLE_LABEL_ROW_TOTAL = "rowTotal";
-    private final static String TABLE_LABEL_AVERAGE_VISION = "averageVision";
-    private final static String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
-    private final static String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
-    private final static String TOTAL_CHINESE = "合计";
+    private static final String TABLE_LABEL_TOTAL = "total";
+    private static final String TABLE_LABEL_ROW_TOTAL = "rowTotal";
+    private static final String TABLE_LABEL_AVERAGE_VISION = "averageVision";
+    private static final String TABLE_LABEL_TOTAL_RATIO = "totalRatio";
+    private static final String TABLE_LABEL_TOTAL_STAT_LIST = "totalStatList";
+    private static final String TOTAL_CHINESE = "合计";
 
     /**
      * 构建区域及其下级所有符合当前用户范围的区域的搜索条件
@@ -456,7 +458,6 @@ public class StatReportService {
                 (List<TableBasicStatParams>) totalConclusion.get("list");
         int primaryToHighTotalNum = 0;
         int primaryToHighCorrectionNum = 0;
-        int primaryToHighCorrectionRatio = 0;
         List<BasicStatParams> sortedList = new ArrayList<>();
         for (Map<String, Object> item : schoolAgeGenderVisionCorrectionTable) {
             String schoolAgeName = (String) item.get("name");
@@ -465,22 +466,11 @@ public class StatReportService {
             }
             SchoolAge schoolAge = SchoolAge.valueOf(schoolAgeName);
             List<TableBasicStatParams> list = (List<TableBasicStatParams>) item.get("list");
-            TableBasicStatParams params =
-                    list.stream().filter(x -> x.getTitle().equals(TABLE_LABEL_TOTAL)).findFirst().get();
+            TableBasicStatParams params = list.stream().filter(x -> x.getTitle().equals(TABLE_LABEL_TOTAL)).findFirst().orElseThrow(() -> new BusinessException("统计数据为空"));
             sortedList.add(new BasicStatParams(schoolAgeName, params.getRatio(), null));
-            switch (schoolAge) {
-                case KINDERGARTEN:
-                    break;
-                case PRIMARY:
-                case JUNIOR:
-                case HIGH:
-                    primaryToHighTotalNum += params.getTotal();
-                    primaryToHighCorrectionNum += params.getNum();
-                    primaryToHighCorrectionRatio += params.getRatio();
-                    break;
-                case VOCATIONAL_HIGH:
-                    break;
-                default:
+            if (!SchoolAge.KINDERGARTEN.code.equals(schoolAge.code)) {
+                primaryToHighTotalNum += params.getTotal();
+                primaryToHighCorrectionNum += params.getNum();
             }
         }
         sortedList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
@@ -489,7 +479,7 @@ public class StatReportService {
         conclusionDesc.put("sortedList", sortedList);
         conclusionDesc.put("primaryToHighTotalNum", primaryToHighTotalNum);
         conclusionDesc.put("primaryToHighCorrectionNum", primaryToHighCorrectionNum);
-        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighCorrectionRatio);
+        conclusionDesc.put("primaryToHighCorrectionRatio", primaryToHighTotalNum == 0 ? 0 : convertToPercentage(primaryToHighCorrectionNum * 1f / primaryToHighTotalNum));
         conclusionDesc.put(title, schoolAgeGenderVisionCorrectionTable);
         return conclusionDesc;
     }
@@ -817,6 +807,8 @@ public class StatReportService {
         AtomicInteger allHighStatNum = new AtomicInteger();
         AtomicLong allHighSchoolNum = new AtomicLong();
         AtomicLong allHighMyopiaNum = new AtomicLong();
+        // 判断是否有职高或普高
+        AtomicBoolean haveAllHigh = new AtomicBoolean(false);
         List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
@@ -825,19 +817,22 @@ public class StatReportService {
                     Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
                     Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
                     if (x.equals(SchoolAge.HIGH.name()) || x.equals(SchoolAge.VOCATIONAL_HIGH.name())) {
+                        haveAllHigh.getAndSet(true);
                         allHighStatNum.addAndGet(statNum);
                         allHighSchoolNum.addAndGet(schoolNum);
                         allHighMyopiaNum.addAndGet(myopiaNum);
                     }
                     return MyopiaDTO.getInstance(statNum, schoolNum, x, myopiaNum, ratio);
                 }).collect(Collectors.toList());
-        MyopiaDTO allHighMyopia =  new MyopiaDTO();
-        allHighMyopia.setStatNum(allHighStatNum.get());
-        allHighMyopia.setSchoolNum(allHighSchoolNum.get());
-        allHighMyopia.setKey("ALL_HIGH");
-        allHighMyopia.setNum(allHighMyopiaNum);
-        allHighMyopia.setRatio(convertToPercentage(allHighMyopiaNum.get() * 1f / allHighStatNum.get()));
-        schoolAgeList.add(allHighMyopia);
+        if (haveAllHigh.get()) {
+            MyopiaDTO allHighMyopia = new MyopiaDTO();
+            allHighMyopia.setStatNum(allHighStatNum.get());
+            allHighMyopia.setSchoolNum(allHighSchoolNum.get());
+            allHighMyopia.setKey("ALL_HIGH");
+            allHighMyopia.setNum(allHighMyopiaNum);
+            allHighMyopia.setRatio(convertToPercentage(allHighMyopiaNum.get() * 1f / allHighStatNum.get()));
+            schoolAgeList.add(allHighMyopia);
+        }
         return schoolAgeList;
     }
 

@@ -52,7 +52,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -271,10 +270,10 @@ public class ScreeningAppService {
      * 保存学生眼镜信息
      *
      * @param screeningResultBasicData
-     * @return
+     * @return 返回statconclusion
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) throws IOException {
+    public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
         TwoTuple<VisionScreeningResult, VisionScreeningResult> allFirstAndSecondResult = visionScreeningResultService.getAllFirstAndSecondResult(screeningResultBasicData);
         VisionScreeningResult currentVisionScreeningResult = allFirstAndSecondResult.getFirst();
         currentVisionScreeningResult = visionScreeningResultService.getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
@@ -285,6 +284,11 @@ public class ScreeningAppService {
         StatConclusion statConclusion = statConclusionBizService.saveOrUpdateStudentScreenData(allFirstAndSecondResult);
         //更新学生表的数据
         this.updateStudentVisionData(allFirstAndSecondResult.getFirst(),statConclusion);
+        //返回最近一次的statConclusion
+        TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
+        visionScreeningResultStatConclusionTwoTuple.setFirst(allFirstAndSecondResult.getFirst());
+        visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
+        return visionScreeningResultStatConclusionTwoTuple;
     }
 
     /**

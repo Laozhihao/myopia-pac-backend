@@ -2,6 +2,7 @@ package com.wupol.myopia.oauth.controller;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.oauth.domain.dto.RolePermissionDTO;
 import com.wupol.myopia.oauth.domain.model.DistrictPermission;
 import com.wupol.myopia.oauth.domain.model.Permission;
 import com.wupol.myopia.oauth.service.DistrictPermissionService;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +29,8 @@ public class DistrictPermissionController {
     @Autowired
     private PermissionService permissionService;
 
+    private static final String TEMPLATE_TYPE_NOT_EMPTY = "模板类型不能为空";
+
     /**
      * 根据模板类型获取模板权限-树结构
      *
@@ -37,7 +39,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/{templateType}")
     public List<Permission> getPermissionTemplate(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         return districtPermissionService.selectTemplatePermissionTree(templateType);
     }
 
@@ -49,7 +51,7 @@ public class DistrictPermissionController {
      **/
     @GetMapping("/list/{templateType}")
     public List<Integer> getPermissionTemplateList(@PathVariable Integer templateType) {
-        Assert.notNull(templateType, "模板类型不能为空");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
         if (PermissionTemplateType.ALL.getType().equals(templateType)) {
             return permissionService.findByList(new Permission()).stream().map(Permission::getId).collect(Collectors.toList());
         }
@@ -60,14 +62,25 @@ public class DistrictPermissionController {
      * 更新模板权限
      *
      * @param templateType 模板类型
-     * @param permissionIds 权限集
+     * @param rolePermissionDTO 角色权限
      * @return boolean
      **/
     @PutMapping("/{templateType}")
-    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody List<Integer> permissionIds) throws IOException {
-        Assert.notNull(templateType, "模板类型不能为空");
-        Assert.notNull(permissionIds, "模板权限不能为空");
-        return districtPermissionService.updatePermissionTemplate(templateType, permissionIds);
+    public boolean updatePermissionTemplate(@PathVariable Integer templateType, @RequestBody RolePermissionDTO rolePermissionDTO) {
+        Assert.notNull(rolePermissionDTO.getPermissionIds(), "模板的权限不能为null");
+        Assert.notNull(templateType, TEMPLATE_TYPE_NOT_EMPTY);
+        return districtPermissionService.updatePermissionTemplate(templateType, rolePermissionDTO);
+    }
+
+    /**
+     * 通过templateType获取权限集合
+     *
+     * @param templateType 模板类型
+     * @return 权限集合
+     */
+    @GetMapping("/permissionIds/{templateType}")
+    public List<Integer> getListByTemplateType(@PathVariable Integer templateType) {
+        return districtPermissionService.getByTemplateType(templateType).stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
     }
 
 }
