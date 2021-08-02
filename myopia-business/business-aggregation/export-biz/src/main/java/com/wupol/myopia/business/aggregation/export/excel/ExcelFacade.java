@@ -534,16 +534,6 @@ public class ExcelFacade {
     }
 
     /**
-     * 单眼后缀为D
-     *
-     * @param val 值
-     * @return String
-     */
-    private String generateSingleSuffixDStr(Object val) {
-        return (Objects.nonNull(val) ? val + "D" : "--");
-    }
-
-    /**
      * 双眼后缀为D
      *
      * @param val1 值
@@ -552,6 +542,16 @@ public class ExcelFacade {
      */
     private String generateSuffixDStr(Object val1, Object val2) {
         return generateSingleSuffixDStr(val1) + "/" + generateSingleSuffixDStr(val2);
+    }
+
+    /**
+     * 单眼后缀为D
+     *
+     * @param val 值
+     * @return String
+     */
+    private String generateSingleSuffixDStr(Object val) {
+        return (Objects.nonNull(val) ? BigDecimal.valueOf((Long) val, 1) + "D" : "--");
     }
 
     /**
