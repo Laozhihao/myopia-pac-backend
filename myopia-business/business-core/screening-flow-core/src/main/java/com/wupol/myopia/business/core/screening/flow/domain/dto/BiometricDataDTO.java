@@ -70,10 +70,20 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_K1")
     private String lk1;
     /**
+     * 角膜前表面曲率K1的度数
+     */
+    @JsonProperty("l_K1Axis")
+    private String lk1Axis;
+    /**
      * 角膜前表面曲率K2
      */
     @JsonProperty("l_K2")
     private String lk2;
+    /**
+     * 角膜前表面曲率K2的度数
+     */
+    @JsonProperty("l_K2Axis")
+    private String lk2Axis;
     /**
      * 垂直方向角膜散光度数
      */
@@ -96,10 +106,20 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     @JsonProperty("r_K1")
     private String rk1;
     /**
+     * 角膜前表面曲率K1的度数
+     */
+    @JsonProperty("r_K1Axis")
+    private String rk1Axis;
+    /**
      * 角膜前表面曲率K2
      */
     @JsonProperty("r_K2")
     private String rk2;
+    /**
+     * 角膜前表面曲率K2的度数
+     */
+    @JsonProperty("r_K2Axis")
+    private String rk2Axis;
     /**
      * 垂直方向角膜散光度数
      */
@@ -122,8 +142,8 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK2(lk2).setAst(last).setPd(lpd).setVt(lvt).setLateriality(0);
-        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK2(rk2).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
+        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(0);
+        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(isCooperative);
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }

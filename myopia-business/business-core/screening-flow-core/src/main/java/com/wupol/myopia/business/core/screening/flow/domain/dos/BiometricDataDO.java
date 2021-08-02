@@ -59,9 +59,17 @@ public class BiometricDataDO implements Serializable {
          */
         private String k1;
         /**
+         * 角膜前表面曲率K1的度数
+         */
+        private String k1Axis;
+        /**
          * 角膜前表面曲率K2
          */
         private String k2;
+        /**
+         * 角膜前表面曲率K2的度数
+         */
+        private String k2Axis;
         /**
          * 垂直方向角膜散光度数
          */
