@@ -560,24 +560,14 @@ public class ExcelFacade {
     }
 
     /**
-     * 双眼后缀为D
+     * 双眼后缀为mm
      *
      * @param val1 值
      * @param val2 值
      * @return String
      */
-    private String generateSuffixSPDStr(Object val1, Object val2) {
-        return generateSingleSuffixSPDStr(val1) + "/" + generateSingleSuffixSPDStr(val2);
-    }
-
-    /**
-     * 单眼后缀为D
-     *
-     * @param val 值
-     * @return String
-     */
-    private String generateSingleSuffixSPDStr(Object val) {
-        return (Objects.nonNull(val) ? val + "D" : "--");
+    private String generateSuffixMMStr(Object val1, Object val2) {
+        return generateSingleSuffixMMStr(val1) + "/" + generateSingleSuffixMMStr(val2);
     }
 
     /**
@@ -587,18 +577,8 @@ public class ExcelFacade {
      * @return String
      */
     private String generateSingleSuffixMMStr(Object val) {
-        return (Objects.nonNull(val) ? val + "mm" : "--");
-    }
-
-    /**
-     * 双眼后缀为mm
-     *
-     * @param val1 值
-     * @param val2 值
-     * @return String
-     */
-    private String generateSuffixMMStr(Object val1, Object val2) {
-        return generateSingleSuffixMMStr(val1) + "/" + generateSingleSuffixMMStr(val2);
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return (Objects.nonNull(val) ? decimalFormat.format(val) + "mm" : "--");
     }
 
     /**
