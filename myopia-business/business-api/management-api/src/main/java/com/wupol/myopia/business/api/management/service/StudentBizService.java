@@ -836,7 +836,7 @@ public class StudentBizService {
             cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
 
-        TwoTuple<String, String> biometricDataAvg = getCornealCurvatureAvg(visionScreeningResult);
+        TwoTuple<BigDecimal, BigDecimal> biometricDataAvg = getCornealCurvatureAvg(visionScreeningResult);
         if (Objects.nonNull(biometricDataAvg)) {
             cardDetail.setLeftCornealCurvature(biometricDataAvg.getFirst());
             cardDetail.setRightCornealCurvature(biometricDataAvg.getSecond());
@@ -1009,7 +1009,7 @@ public class StudentBizService {
      * @param result 筛查结果
      * @return TwoTuple<String, String> left-左眼 right-右眼
      */
-    private TwoTuple<String, String> getCornealCurvatureAvg(VisionScreeningResult result) {
+    private TwoTuple<BigDecimal, BigDecimal> getCornealCurvatureAvg(VisionScreeningResult result) {
         BiometricDataDO biometricData = result.getBiometricData();
         if (Objects.isNull(biometricData)) {
             return null;
@@ -1031,13 +1031,11 @@ public class StudentBizService {
      *
      * @param val1 值1
      * @param val2 值2
-     * @return String
+     * @return BigDecimal
      */
-    private String cornealCurvature2Str(String val1, String val2) {
+    private BigDecimal cornealCurvature2Str(String val1, String val2) {
         String[] splitVal1 = StringUtils.split(val1, "D@");
         String[] splitVal2 = StringUtils.split(val2, "D@");
-        BigDecimal left = new BigDecimal(splitVal1[0]).add(new BigDecimal(splitVal2[0])).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP);
-        BigDecimal right = new BigDecimal(splitVal1[1]).add(new BigDecimal(splitVal2[1])).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP);
-        return String.format("%sD@%s", left, right);
+        return new BigDecimal(splitVal1[0]).add(new BigDecimal(splitVal2[0])).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP);
     }
 }

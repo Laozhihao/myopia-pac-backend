@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -125,11 +126,11 @@ public class HaiNanCardDetail {
     /**
      * 左眼角膜曲率平均值
      */
-    private String leftCornealCurvature;
+    private BigDecimal leftCornealCurvature;
 
     /**
      * 右眼角膜曲率平均值
      */
-    private String rightCornealCurvature;
+    private BigDecimal rightCornealCurvature;
 
 }
