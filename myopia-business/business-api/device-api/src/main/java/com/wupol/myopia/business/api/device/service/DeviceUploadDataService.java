@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -107,7 +108,7 @@ public class DeviceUploadDataService {
             throw new BusinessException("无法找到设备");
         }
         //查询筛查机构是否过期
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(new ScreeningOrganization().setId(device.getBindingScreeningOrgId()).setStatus(CommonConst.STATUS_NOT_DELETED));
         if (screeningOrganization == null) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }
