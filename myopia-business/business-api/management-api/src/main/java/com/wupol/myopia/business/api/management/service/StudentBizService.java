@@ -52,6 +52,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -293,8 +294,11 @@ public class StudentBizService {
      * @return 等效球镜
      */
     private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
+            return null;
+        }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
