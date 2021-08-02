@@ -68,7 +68,9 @@ public class ScreeningResultPahtConst {
     public final String PATH_BD_LEFT_LT = "$.biometricData.leftEyeData.lt";
     public final String PATH_BD_LEFT_WTW = "$.biometricData.leftEyeData.wtw";
     public final String PATH_BD_LEFT_K1 = "$.biometricData.leftEyeData.k1";
+    public final String PATH_BD_LEFT_K1_AXIS = "$.biometricData.leftEyeData.k1Axis";
     public final String PATH_BD_LEFT_K2 = "$.biometricData.leftEyeData.k2";
+    public final String PATH_BD_LEFT_K2_AXIS = "$.biometricData.leftEyeData.k2Axis";
     public final String PATH_BD_LEFT_AST = "$.biometricData.leftEyeData.ast";
     public final String PATH_BD_LEFT_PD = "$.biometricData.leftEyeData.pd";
     public final String PATH_BD_LEFT_VT = "$.biometricData.leftEyeData.vt";
@@ -78,7 +80,9 @@ public class ScreeningResultPahtConst {
     public final String PATH_BD_RIGHT_LT = "$.biometricData.rightEyeData.lt";
     public final String PATH_BD_RIGHT_WTW = "$.biometricData.rightEyeData.wtw";
     public final String PATH_BD_RIGHT_K1 = "$.biometricData.rightEyeData.k1";
+    public final String PATH_BD_RIGHT_K1_AXIS = "$.biometricData.rightEyeData.k1Axis";
     public final String PATH_BD_RIGHT_K2 = "$.biometricData.rightEyeData.k2";
+    public final String PATH_BD_RIGHT_K2_AXIS = "$.biometricData.rightEyeData.k2Axis";
     public final String PATH_BD_RIGHT_AST = "$.biometricData.rightEyeData.ast";
     public final String PATH_BD_RIGHT_PD = "$.biometricData.rightEyeData.pd";
     public final String PATH_BD_RIGHT_VT = "$.biometricData.rightEyeData.vt";

@@ -1,12 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -122,15 +119,5 @@ public class HaiNanCardDetail {
      * 斜视
      */
     private List<String> squint;
-
-    /**
-     * 左眼角膜曲率平均值
-     */
-    private BigDecimal leftCornealCurvature;
-
-    /**
-     * 右眼角膜曲率平均值
-     */
-    private BigDecimal rightCornealCurvature;
 
 }
