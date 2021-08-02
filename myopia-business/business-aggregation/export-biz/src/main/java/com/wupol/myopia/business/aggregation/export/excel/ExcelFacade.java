@@ -551,7 +551,7 @@ public class ExcelFacade {
      * @return String
      */
     private String generateSingleSuffixDStr(Object val) {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (Objects.nonNull(val) ? decimalFormat.format(val) + "D" : "--");
     }
 

@@ -162,4 +162,7 @@ public class StatConclusionExportDTO extends StatConclusion {
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private OtherEyeDiseasesDO otherEyeDiseases;
 }

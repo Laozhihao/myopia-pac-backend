@@ -128,25 +128,25 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "小瞳验光", "屈光结果"})
     private String presult;
 
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右/左）"})
     private String dbK1;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右/左）"})
     private String dbK2;
-    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右/左）"})
     private String dbAST;
-    @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（右/左）"})
     private String dbPD;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW（右/左）"})
     private String dbWTW;
-    @ExcelProperty({TOP_HEADER, "生物测量", "眼轴总长度AL"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "眼轴总长度AL（右/左）"})
     private String dbAL;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT（右/左）"})
     private String dbCCT;
-    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（右/左）"})
     private String dbAD;
-    @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT（右/左）"})
     private String dbLT;
-    @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT"})
+    @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（右/左）"})
     private String dbVT;
 
     @ExcelProperty("眼压（右/左）")

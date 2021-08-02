@@ -88,8 +88,8 @@ public class ScreeningResultPahtConst {
     public final String PATH_BD_RIGHT_VT = "$.biometricData.rightEyeData.vt";
 
     // 眼压
-    public final String PATH_IPD_RIGHT_PRESSURE = "$.intraocularPressureData.rightEyeData.pressure";
-    public final String PATH_IPD_LEFT_PRESSURE = "$.intraocularPressureData.leftEyeData.pressure";
+    public final String PATH_IPD_RIGHT_PRESSURE = "$.eyePressureData.rightEyeData.pressure";
+    public final String PATH_IPD_LEFT_PRESSURE = "$.eyePressureData.leftEyeData.pressure";
 
     // 眼底
     public final String PATH_DF_RIGHT_HASABNORMAL= "$.fundusData.rightEyeData.hasAbnormal";
