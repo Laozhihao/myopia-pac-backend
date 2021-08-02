@@ -350,6 +350,10 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 // 职业高中
                 schoolGrades = initGrade(SchoolAge.VOCATIONAL_HIGH.code, schoolId, createUserId);
                 break;
+            case 8:
+                // 幼儿园
+                schoolGrades = initGrade(SchoolAge.KINDERGARTEN.code, schoolId, createUserId);
+                break;
             default:
                 break;
         }
