@@ -295,6 +295,31 @@ public class StatUtil {
     }
 
     /**
+     * 返回远视预警级别(大于12岁)
+     *
+     * @param sphere   球镜
+     * @param cylinder 柱镜
+     * @param age      年龄
+     * @return WarningLevel
+     */
+    public static WarningLevel getHyperopiaWarningLevelMoreThan12(Float sphere, Float cylinder, Integer age) {
+        if (sphere == null || cylinder == null || age == null) {
+            return null;
+        }
+        float se = getSphericalEquivalent(sphere, cylinder);
+        if (se > 0.5f && se <= 3.0f) {
+            return WarningLevel.ONE;
+        }
+        if (se > 3.0f && se <= 6.0f) {
+            return WarningLevel.ONE;
+        }
+        if (se > 6.0f) {
+            return WarningLevel.ONE;
+        }
+        return null;
+    }
+
+    /**
      * 获取远视Level
      *
      * @param sphere   球镜

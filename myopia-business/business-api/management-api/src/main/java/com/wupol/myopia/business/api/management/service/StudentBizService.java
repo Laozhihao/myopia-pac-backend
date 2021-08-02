@@ -873,7 +873,7 @@ public class StudentBizService {
             return new TwoTuple<>();
         }
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
         if (ObjectsUtil.allNull(leftEyeData, rightEyeData)) {
             return new TwoTuple<>();
         }
@@ -896,7 +896,7 @@ public class StudentBizService {
         BigDecimal cyl = computerOptometry.getCyl();
         if (ObjectsUtil.allNotNull(sph, cyl)) {
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
+            WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevelMoreThan12(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
             if (age > 12) {
                 visionInfoVO.setFarsightednessLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
