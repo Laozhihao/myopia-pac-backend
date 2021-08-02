@@ -836,6 +836,12 @@ public class StudentBizService {
             cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
 
+        TwoTuple<String, String> biometricDataAvg = getCornealCurvatureAvg(visionScreeningResult);
+        if (Objects.nonNull(biometricDataAvg)) {
+            cardDetail.setLeftCornealCurvature(biometricDataAvg.getFirst());
+            cardDetail.setRightCornealCurvature(biometricDataAvg.getSecond());
+        }
+
         cardDetail.setOtherEyeDiseases(otherEyeDiseasesList);
         cardDetail.setIsRefractiveError(isRefractiveError);
         // 眼斜
@@ -995,5 +1001,43 @@ public class StudentBizService {
             return new ArrayList<>();
         }
         return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "交替性斜视"), otherEyeDiseasesList);
+    }
+
+    /**
+     * 角膜曲率平均值
+     *
+     * @param result 筛查结果
+     * @return TwoTuple<String, String> left-左眼 right-右眼
+     */
+    private TwoTuple<String, String> getCornealCurvatureAvg(VisionScreeningResult result) {
+        BiometricDataDO biometricData = result.getBiometricData();
+        if (Objects.isNull(biometricData)) {
+            return null;
+        }
+        String leftK1 = biometricData.getLeftEyeData().getK1();
+        String leftK2 = biometricData.getLeftEyeData().getK2();
+
+        String rightK1 = biometricData.getRightEyeData().getK1();
+        String rightK2 = biometricData.getRightEyeData().getK2();
+
+        if (ObjectsUtil.allNotNull(leftK1, leftK2, rightK1, rightK2)) {
+            return new TwoTuple<>(cornealCurvature2Str(leftK1, leftK2), cornealCurvature2Str(rightK1, rightK2));
+        }
+        return null;
+    }
+
+    /**
+     * 角膜曲率平均值字符串拼接
+     *
+     * @param val1 值1
+     * @param val2 值2
+     * @return String
+     */
+    private String cornealCurvature2Str(String val1, String val2) {
+        String[] splitVal1 = StringUtils.split(val1, "D@");
+        String[] splitVal2 = StringUtils.split(val2, "D@");
+        BigDecimal left = new BigDecimal(splitVal1[0]).add(new BigDecimal(splitVal2[0])).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP);
+        BigDecimal right = new BigDecimal(splitVal1[1]).add(new BigDecimal(splitVal2[1])).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP);
+        return String.format("%sD@%s", left, right);
     }
 }

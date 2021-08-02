@@ -121,4 +121,15 @@ public class HaiNanCardDetail {
      * 斜视
      */
     private List<String> squint;
+
+    /**
+     * 左眼角膜曲率平均值
+     */
+    private String leftCornealCurvature;
+
+    /**
+     * 右眼角膜曲率平均值
+     */
+    private String rightCornealCurvature;
+
 }
