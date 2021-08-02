@@ -478,7 +478,7 @@ public class ExcelFacade {
                 JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
         exportDTO.setDbK2(genCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2_AXIS),
                 JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2_AXIS)));
-        exportDTO.setDbAST(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST)));
+        exportDTO.setDbAST(generateSuffixSPDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST)));
         exportDTO.setDbPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
         exportDTO.setDbWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
         exportDTO.setDbAL(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
@@ -503,7 +503,7 @@ public class ExcelFacade {
      * @return String
      */
     private String objectList2Str(Object obj) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (obj instanceof ArrayList<?>) {
             for (Object o : (List<?>) obj) {
                 result.add((String) o);
@@ -551,7 +551,29 @@ public class ExcelFacade {
      * @return String
      */
     private String generateSingleSuffixDStr(Object val) {
-        return (Objects.nonNull(val) ? BigDecimal.valueOf((Long) val, 1) + "D" : "--");
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        return (Objects.nonNull(val) ? decimalFormat.format(val) + "D" : "--");
+    }
+
+    /**
+     * 双眼后缀为D
+     *
+     * @param val1 值
+     * @param val2 值
+     * @return String
+     */
+    private String generateSuffixSPDStr(Object val1, Object val2) {
+        return generateSingleSuffixSPDStr(val1) + "/" + generateSingleSuffixSPDStr(val2);
+    }
+
+    /**
+     * 单眼后缀为D
+     *
+     * @param val 值
+     * @return String
+     */
+    private String generateSingleSuffixSPDStr(Object val) {
+        return (Objects.nonNull(val) ? val + "D" : "--");
     }
 
     /**
