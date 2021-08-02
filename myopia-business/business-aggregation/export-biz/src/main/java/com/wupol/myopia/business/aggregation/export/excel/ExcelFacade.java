@@ -469,13 +469,13 @@ public class ExcelFacade {
         exportDTO.setPsph(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN)));
         exportDTO.setPcyl(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL)));
         exportDTO.setPaxial(generateEyesDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL)));
-        exportDTO.setPcorrectedVision(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION) + "/" + JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION));
+        exportDTO.setPcorrectedVision(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION),JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION)));
         exportDTO.setPdiagnosis(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS)));
         exportDTO.setPresult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL),
                 (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), DateUtil.ageOfNow(dto.getBirthday())));
 
-        exportDTO.setDbK1(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
-        exportDTO.setDbK2(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2)));
+        exportDTO.setDbK1(generateEyesDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
+        exportDTO.setDbK2(generateEyesDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2)));
         exportDTO.setDbAST(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST)));
         exportDTO.setDbPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
         exportDTO.setDbWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
