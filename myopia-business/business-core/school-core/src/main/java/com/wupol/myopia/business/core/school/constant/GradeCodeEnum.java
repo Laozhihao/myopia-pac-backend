@@ -69,10 +69,16 @@ public enum GradeCodeEnum {
     public static final Map<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
 
     static {
-        gradeByMap.put(SchoolAge.PRIMARY.code,privateSchool());
-        gradeByMap.put(SchoolAge.JUNIOR.code,juniorSchool());
-        gradeByMap.put(SchoolAge.HIGH.code,highSchool());
-        gradeByMap.put(SchoolAge.VOCATIONAL_HIGH.code,vocationalHighSchool());
+        gradeByMap.put(SchoolAge.PRIMARY.code, privateSchool());
+        gradeByMap.put(SchoolAge.JUNIOR.code, juniorSchool());
+        gradeByMap.put(SchoolAge.HIGH.code, highSchool());
+        gradeByMap.put(SchoolAge.VOCATIONAL_HIGH.code, vocationalHighSchool());
+        gradeByMap.put(SchoolAge.KINDERGARTEN.code, kindergartenSchool());
+    }
+
+    public static List<GradeCodeEnum> kindergartenSchool() {
+        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN, GradeCodeEnum.TWO_KINDERGARTEN,
+                GradeCodeEnum.THREE_KINDERGARTEN);
     }
 
     public static List<GradeCodeEnum> privateSchool() {
