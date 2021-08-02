@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
-import org.apache.commons.collections.CollectionUtils;
 import com.wupol.myopia.business.api.management.constant.BigScreeningProperties;
 import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatDataBuilder;
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
@@ -18,7 +16,9 @@ import com.wupol.myopia.business.core.screening.flow.service.StatConclusionServi
 import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
+import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,6 +53,8 @@ public class BigScreeningStatService {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private BigScreeningProperties bigScreeningProperties;
+    @Autowired
+    private BigScreeningStatService bigScreeningStatService;
 
 
     /**
@@ -125,7 +127,7 @@ public class BigScreeningStatService {
      */
     public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
-            this.generateResultAndSave(provinceDistrictId, screeningNotice);
+            bigScreeningStatService.generateResultAndSave(provinceDistrictId, screeningNotice);
         }
     }
 
@@ -137,7 +139,7 @@ public class BigScreeningStatService {
      * @return
      * @throws IOException
      */
-    @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX,key = "#districtBigScreenStatistic.screeningNoticeId + '_' + #districtBigScreenStatistic.districtId")
+    @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX,key = "#result.screeningNoticeId + '_' + #result.districtId")
     public DistrictBigScreenStatistic generateResultAndSave(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
         DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, screeningNotice);
         if (districtBigScreenStatistic != null) {
