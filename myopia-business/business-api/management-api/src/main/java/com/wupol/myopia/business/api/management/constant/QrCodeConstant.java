@@ -17,7 +17,7 @@ public class QrCodeConstant {
      * 如studentId = 1 ,则生成的结果是:
      * SA@0000000000000000000001
      */
-    public final String QR_CODE_CONTENT_FORMAT_RULE = "SA@%032d";
+    public final String QR_CODE_CONTENT_FORMAT_RULE = "SA@%010d";
 
     /**
      * [ID,name,sex,age,phone,0,schoolName,gradeName&className,idCard]
