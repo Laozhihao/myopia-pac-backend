@@ -676,7 +676,9 @@ public class ExcelFacade {
      * @return String
      */
     private String biometricsDateFormat(Object rightDate, Object leftDate) {
-        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : rightDate, Objects.isNull(leftDate) ? "--" : leftDate);
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : decimalFormat.format(rightDate),
+                Objects.isNull(leftDate) ? "--" : decimalFormat.format(leftDate));
     }
 
     /**
