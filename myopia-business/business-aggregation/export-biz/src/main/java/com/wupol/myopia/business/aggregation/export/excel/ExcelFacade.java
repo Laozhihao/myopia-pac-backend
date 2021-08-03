@@ -578,7 +578,7 @@ public class ExcelFacade {
      */
     private String generateSingleSuffixMMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (Objects.nonNull(val) ? decimalFormat.format(val) + "mm" : "--");
+        return (Objects.nonNull(val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : "--");
     }
 
     /**
