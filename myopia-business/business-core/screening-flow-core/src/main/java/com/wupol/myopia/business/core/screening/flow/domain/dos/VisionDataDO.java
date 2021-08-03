@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
 public class VisionDataDO implements ScreeningResultStructureInterface<VisionDataDO.VisionData>, Serializable {
@@ -35,6 +37,7 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
      */
     private Integer isCooperative;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class VisionData implements ValidResultDataInterface,Serializable {
