@@ -944,9 +944,6 @@ public class StatReportService {
 
         // 通过遍历获取学校班级
         List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
-        // 通过学校类型获取班级
-//        List<GradeCodeEnum> gradeCodeEnumList = SchoolUtil.getGradeCodeEnumListBySchoolType(SchoolEnum.getByType(school.getType()));
-
         List<StatConclusionReportDTO> statConclusionReportDTOs =
                 statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<>();
@@ -1216,12 +1213,12 @@ public class StatReportService {
     /**
      * 构建 年级 视力低下 统计
      *
-     * @param statConclusions
-     * @param gradeCodeEnumList
-     * @return
+     * @param statConclusions  筛查结果
+     * @param schoolGradeItems 班级列表
+     * @return Map<String, Object>
      */
-    private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(
-            List<StatConclusion> statConclusions, List<SchoolGradeItemsDTO> schoolGradeItems) {
+    private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(List<StatConclusion> statConclusions,
+                                                                  List<SchoolGradeItemsDTO> schoolGradeItems) {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<>();
         for (SchoolGradeItemsDTO gradeCode : schoolGradeItems) {
@@ -1247,9 +1244,9 @@ public class StatReportService {
     /**
      * 构建 年级 视力低下 统计
      *
-     * @param statConclusions
-     * @param gradeCodeEnumList
-     * @return
+     * @param statConclusions  筛查结果
+     * @param schoolGradeItems 班级列表
+     * @return Map<String, Object>
      */
     private Map<String, Object> composeSchoolGradeLowVisionLevelDesc(
             List<StatConclusion> statConclusions, List<SchoolGradeItemsDTO> schoolGradeItems) {
