@@ -8,13 +8,11 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -741,8 +739,8 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getMyopiaRatio(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> myopiaRatio = new ArrayList<>();
-        Long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
-        Long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
+        long myopiaNum = validConclusions.stream().filter(x -> x.getIsMyopia() || GlassesType.ORTHOKERATOLOGY.code.equals(x.getGlassesType())).count();
+        long lowVisionNum = validConclusions.stream().filter(StatConclusion::getIsLowVision).count();
         Float vision = validConclusions.stream().map(x -> x.getVisionL() + x.getVisionR()).reduce(0f, Float::sum);
         int countNum = validConclusions.size();
         myopiaRatio.add(TypeRatioDTO.getInstance(RatioEnum.MYOPIA.name(), myopiaNum, convertToPercentage(myopiaNum * 1f / countNum)));
@@ -757,10 +755,10 @@ public class StatReportService {
      */
     private List<TypeRatioDTO> getVisionCorrection(List<StatConclusion> validConclusions) {
         List<TypeRatioDTO> visionCorrection = new ArrayList<>();
-        Long uncorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection())).count();
-        Long wearingNum = validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        Long underCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection())).count();
-        Long enoughCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        long uncorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNCORRECTED.code.equals(x.getVisionCorrection())).count();
+        long wearingNum = validConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
+        long underCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.UNDER_CORRECTED.code.equals(x.getVisionCorrection())).count();
+        long enoughCorrectedNum = validConclusions.stream().filter(x -> com.wupol.myopia.business.common.utils.constant.VisionCorrection.ENOUGH_CORRECTED.code.equals(x.getVisionCorrection())).count();
         int countNum = validConclusions.size();
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.UNCORRECTED.name(), uncorrectedNum, convertToPercentage(uncorrectedNum * 1f / countNum)));
         visionCorrection.add(TypeRatioDTO.getInstance(RatioEnum.WEARING_RATIO.name(), wearingNum, convertToPercentage(wearingNum * 1f / countNum)));
@@ -874,7 +872,7 @@ public class StatReportService {
         return gradeMap.keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = gradeMap.get(x);
-                    Long myopiaNum = stat.stream().filter(s -> s.getIsMyopia()).count();
+                    long myopiaNum = stat.stream().filter(StatConclusion::getIsMyopia).count();
                     return MyopiaDTO.getInstance(stat.size(), GradeCodeEnum.getByCode(x).name(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());
@@ -989,6 +987,7 @@ public class StatReportService {
         resultMap.put("schoolGradeGenderUncorrectedDesc", composeSchoolGradeGenderUncorrectedDesc(schoolGradeItems, validConclusions));
         resultMap.put("schoolGradeGenderUnderCorrectedDesc", composeSchoolGradeGenderUnderCorrectedDesc(schoolGradeItems, validConclusions));
         resultMap.put("schoolGradeWarningLevelDesc", composeSchoolGradeWarningLevelDesc(schoolGradeItems, validConclusions));
+        // 视力详情
         resultMap.put("schoolClassStudentStatList", composeSchoolClassStudentStatList(schoolGradeItems, statConclusionReportDTOs));
         resultMap.put("startDate", startDate.getTime());
         resultMap.put("endDate", endDate.getTime());
@@ -1002,9 +1001,8 @@ public class StatReportService {
      * @param schoolGradeItemList 学校班级列表
      * @return
      */
-    private List<Map<String, Object>> composeSchoolClassStudentStatList(
-            List<SchoolGradeItemsDTO> schoolGradeItemList,
-            List<StatConclusionReportDTO> statConclusionReportDTOs) {
+    private List<Map<String, Object>> composeSchoolClassStudentStatList(List<SchoolGradeItemsDTO> schoolGradeItemList,
+                                                                        List<StatConclusionReportDTO> statConclusionReportDTOs) {
         List<Map<String, Object>> schoolStudentStatList = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
@@ -1013,8 +1011,7 @@ public class StatReportService {
             for (SchoolClass schoolClass : schoolClasses) {
                 List<StatConclusionReportDTO> studentStatList =
                         statConclusionReportDTOs.stream()
-                                .filter(x
-                                        -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())
+                                .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())
                                                 && schoolClass.getName().equals(x.getClassName()))
                                 .collect(Collectors.toList());
                 Map<String, Object> schoolClassStat = new HashMap<>();
