@@ -944,7 +944,10 @@ public class StatReportService {
         float averageVisionValue =
                 round2Digits((averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
+        // 通过遍历获取学校班级
         List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
+        // 通过学校类型获取班级
+//        List<GradeCodeEnum> gradeCodeEnumList = SchoolUtil.getGradeCodeEnumListBySchoolType(SchoolEnum.getByType(school.getType()));
 
         List<StatConclusionReportDTO> statConclusionReportDTOs =
                 statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
@@ -974,11 +977,11 @@ public class StatReportService {
         basicStatParamsList.add(new BasicStatParams("warning3",
                 convertToPercentage(warning3Num * 1f / validFirstScreeningNum),
                 warning3Num));
-        List<GradeCodeEnum> gradeCodeEnumList = SchoolUtil.getGradeCodeEnumListBySchoolType(SchoolEnum.getByType(school.getType()));
         resultMap.put("warningLevelStat", basicStatParamsList);
         resultMap.put("genderLowVisionLevelDesc", composeGenderLowVisionLevelDesc(validConclusions));
-        resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, gradeCodeEnumList));
-        resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, gradeCodeEnumList));
+        // 表2
+        resultMap.put("schoolGradeLowVisionLevelDesc", composeSchoolGradeLowVisionLevelDesc(validConclusions, schoolGradeItems));
+        resultMap.put("schoolGradeMyopiaLevelDesc", composeSchoolGradeMyopiaLevelDesc(validConclusions, schoolGradeItems));
         resultMap.put("schoolGradeClassLowVisionLevelTable", composeSchoolGradeClassLowVisionLevelTable(schoolGradeItems, validConclusions));
         resultMap.put("schoolGradeClassMyopiaLevelTable", composeSchoolGradeClassMyopiaLevelTable(schoolGradeItems, validConclusions));
         resultMap.put("genderMyopiaLevelDesc", composeGenderMyopiaLevelDesc(validConclusions));
@@ -1221,19 +1224,19 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeMyopiaLevelDesc(
-            List<StatConclusion> statConclusions, List<GradeCodeEnum> gradeCodeEnumList) {
+            List<StatConclusion> statConclusions, List<SchoolGradeItemsDTO> schoolGradeItems) {
         List<BasicStatParams> schoolGradeMyopiaRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : gradeCodeEnumList) {
-            Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.name(),
+        for (SchoolGradeItemsDTO gradeCode : schoolGradeItems) {
+            Map<String, Object> lowVisionLevelStat = composeMyopiaLevelStat(gradeCode.getName(),
                     statConclusions.stream()
-                            .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
+                            .filter(x -> gradeCode.getGradeCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList()));
             list.add(lowVisionLevelStat);
             List<BasicStatParams> paramsList =
                     (List<BasicStatParams>) lowVisionLevelStat.get("list");
             schoolGradeMyopiaRatioList.add(new BasicStatParams(
-                    gradeCode.name(), paramsList.get(paramsList.size() - 1).getRatio(), null));
+                    gradeCode.getName(), paramsList.get(paramsList.size() - 1).getRatio(), null));
         }
         list.add(composeMyopiaLevelStat(TABLE_LABEL_TOTAL, statConclusions));
         schoolGradeMyopiaRatioList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
@@ -1252,19 +1255,19 @@ public class StatReportService {
      * @return
      */
     private Map<String, Object> composeSchoolGradeLowVisionLevelDesc(
-            List<StatConclusion> statConclusions, List<GradeCodeEnum> gradeCodeEnumList) {
+            List<StatConclusion> statConclusions, List<SchoolGradeItemsDTO> schoolGradeItems) {
         List<BasicStatParams> schoolGradeLowVisionRatioList = new ArrayList<>();
         List<Map<String, Object>> list = new ArrayList<>();
-        for (GradeCodeEnum gradeCode : gradeCodeEnumList) {
-            Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.name(),
+        for (SchoolGradeItemsDTO gradeCode : schoolGradeItems) {
+            Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(gradeCode.getName(),
                     statConclusions.stream()
-                            .filter(x -> gradeCode.getCode().equals(x.getSchoolGradeCode()))
+                            .filter(x -> gradeCode.getGradeCode().equals(x.getSchoolGradeCode()))
                             .collect(Collectors.toList()));
             list.add(lowVisionLevelStat);
             List<BasicStatParams> paramsList =
                     (List<BasicStatParams>) lowVisionLevelStat.get("list");
             schoolGradeLowVisionRatioList.add(new BasicStatParams(
-                    gradeCode.name(), paramsList.get(paramsList.size() - 1).getRatio(), null));
+                    gradeCode.getName(), paramsList.get(paramsList.size() - 1).getRatio(), null));
         }
         list.add(composeLowVisionLevelStat(TABLE_LABEL_TOTAL, statConclusions));
         schoolGradeLowVisionRatioList.sort(Comparator.comparingDouble(BasicStatParams::getRatio).reversed());
