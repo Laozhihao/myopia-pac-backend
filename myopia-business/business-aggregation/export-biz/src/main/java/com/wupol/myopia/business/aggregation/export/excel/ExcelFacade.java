@@ -483,13 +483,13 @@ public class ExcelFacade {
                 JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2_AXIS)));
         exportDTO.setDbAST(genCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS),
                 JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
-        exportDTO.setDbPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
-        exportDTO.setDbWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
-        exportDTO.setDbAL(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
-        exportDTO.setDbCCT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT)));
-        exportDTO.setDbAD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD)));
-        exportDTO.setDbLT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT)));
-        exportDTO.setDbVT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT)));
+        exportDTO.setDbPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
+        exportDTO.setDbWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
+        exportDTO.setDbAL(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
+        exportDTO.setDbCCT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
+        exportDTO.setDbAD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
+        exportDTO.setDbLT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
+        exportDTO.setDbVT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT)));
 
         exportDTO.setIpDate(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
         exportDTO.setFdDate(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL), (Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL)));
