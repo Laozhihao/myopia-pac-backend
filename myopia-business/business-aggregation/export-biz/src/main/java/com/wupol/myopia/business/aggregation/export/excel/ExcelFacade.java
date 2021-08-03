@@ -486,12 +486,12 @@ public class ExcelFacade {
         exportDTO.setDbPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
         exportDTO.setDbWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
         exportDTO.setDbAL(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
-        exportDTO.setDbCCT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
+        exportDTO.setDbCCT(generateSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
         exportDTO.setDbAD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
         exportDTO.setDbLT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
         exportDTO.setDbVT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT)));
 
-        exportDTO.setIpDate(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
+        exportDTO.setIpDate(ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
         exportDTO.setFdDate(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL), (Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL)));
 
         exportDTO.setLeftEyeDiseases(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)));
@@ -582,6 +582,28 @@ public class ExcelFacade {
     }
 
     /**
+     * 双眼后缀为um
+     *
+     * @param val1 值
+     * @param val2 值
+     * @return String
+     */
+    private String generateSuffixUMStr(Object val1, Object val2) {
+        return generateSingleSuffixUMStr(val1) + "/" + generateSingleSuffixUMStr(val2);
+    }
+
+    /**
+     * 单眼后缀为um
+     *
+     * @param val 值
+     * @return String
+     */
+    private String generateSingleSuffixUMStr(Object val) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return (Objects.nonNull(val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
+    }
+
+    /**
      * 组装复筛数据
      *
      * @param rescreenPlanStudentIdDTOMap
@@ -666,6 +688,19 @@ public class ExcelFacade {
             decimalFormat = new DecimalFormat("0.0");
         }
         return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData), Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
+    }
+
+    /**
+     * 格式化眼压数据
+     *
+     * @param rightDate 右眼数据
+     * @param leftDate  左眼数据
+     * @return String
+     */
+    private String ipDateFormat(Object rightDate, Object leftDate) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : decimalFormat.format(rightDate) + "mmHg",
+                Objects.isNull(leftDate) ? "--" : decimalFormat.format(leftDate) + "mmHg");
     }
 
     /**
