@@ -69,7 +69,7 @@ public class StatUtil {
      */
     public static boolean isAstigmatism(Float cylinder) {
         WarningLevel astigmatismWarningLevel = getAstigmatismWarningLevel(cylinder);
-        return astigmatismWarningLevel != null && astigmatismWarningLevel.code > 0 ;
+        return astigmatismWarningLevel != null && astigmatismWarningLevel.code > 0;
     }
 
     /**
@@ -100,8 +100,8 @@ public class StatUtil {
             return false;
         }
         Float se = null;
-        if (sphere != null && cylinder != null){
-           se = getSphericalEquivalent(sphere, cylinder);
+        if (sphere != null && cylinder != null) {
+            se = getSphericalEquivalent(sphere, cylinder);
         }
 
         if (nakedVision < 4.9) {
@@ -303,7 +303,10 @@ public class StatUtil {
      * @return WarningLevel
      */
     public static WarningLevel getHyperopiaWarningLevelMoreThan12(Float sphere, Float cylinder, Integer age) {
-        if (sphere == null || cylinder == null || age == null) {
+        if (sphere == null || cylinder == null) {
+            return null;
+        }
+        if (age < 12) {
             return null;
         }
         float se = getSphericalEquivalent(sphere, cylinder);
@@ -487,7 +490,7 @@ public class StatUtil {
      * @return String
      */
     public String getMyopiaLevelDesc(BigDecimal leftSpn, BigDecimal leftCyl, BigDecimal rightSpn, BigDecimal rightCyl) {
-        if (ObjectsUtil.allNull(leftSpn,leftCyl,rightCyl,rightSpn)) {
+        if (ObjectsUtil.allNull(leftSpn, leftCyl, rightCyl, rightSpn)) {
             return "";
         }
         Integer leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
@@ -498,10 +501,10 @@ public class StatUtil {
                 return "轻度近视";
             }
             if (WarningLevel.TWO.code.equals(seriousLevel)) {
-                return "轻度近视";
+                return "中度近视";
             }
             if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return "轻度近视";
+                return "重度近视";
             }
         }
         return "";
@@ -520,8 +523,13 @@ public class StatUtil {
         if (ObjectsUtil.allNull(leftSpn, leftCyl, rightSpn, rightCyl)) {
             return "";
         }
-        Integer leftHyperopiaLevel = getHyperopiaLevel(leftSpn.floatValue(), leftCyl.floatValue(), age);
-        Integer rightHyperopiaLevel = getHyperopiaLevel(rightSpn.floatValue(), rightCyl.floatValue(), age);
+        WarningLevel leftLevel = getHyperopiaWarningLevelMoreThan12(leftSpn.floatValue(), leftCyl.floatValue(), age);
+        WarningLevel rightLevel = getHyperopiaWarningLevelMoreThan12(rightSpn.floatValue(), rightCyl.floatValue(), age);
+        if (ObjectsUtil.allNull(leftLevel, rightLevel)) {
+            return "";
+        }
+        Integer leftHyperopiaLevel = Objects.nonNull(leftLevel) ? leftLevel.code : null;
+        Integer rightHyperopiaLevel = Objects.nonNull(rightLevel) ? rightLevel.code : null;
         if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
             Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
             if (WarningLevel.ONE.code.equals(seriousLevel)) {
