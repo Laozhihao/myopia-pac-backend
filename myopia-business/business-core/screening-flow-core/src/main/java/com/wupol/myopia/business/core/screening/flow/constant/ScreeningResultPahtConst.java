@@ -57,7 +57,7 @@ public class ScreeningResultPahtConst {
     public final String PATH_POD_LEFT_AXIAL = "$.pupilOptometryData.leftEyeData.axial";
     public final String PATH_POD_LEFT_SPN = "$.pupilOptometryData.leftEyeData.sph";
     public final String PATH_POD_LEFT_CYL = "$.pupilOptometryData.leftEyeData.cyl";
-    public final String PATH_POD_LEFT_CORRECTEDVISION = "$.pupilOptometryData.rightEyeData.correctedVision";
+    public final String PATH_POD_LEFT_CORRECTEDVISION = "$.pupilOptometryData.leftEyeData.correctedVision";
     public final String PATH_POD_DIAGNOSIS = "$.pupilOptometryData.diagnosis";
 //    public final String result = "$.pupilOptometryData.leftEyeData.correctedVision";
 
