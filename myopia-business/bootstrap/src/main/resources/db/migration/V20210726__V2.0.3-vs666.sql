@@ -4,7 +4,7 @@ create table m_device_report_template
     id            int auto_increment comment 'id'
         primary key,
     name          varchar(32)                         not null comment '模板名称',
-    device_type   tinyint                             not null comment '设备类型 1-VS666',
+    device_type   tinyint   default 1                 not null comment '设备类型 1-VS666',
     template_type tinyint                             not null comment '模板类型 1-VS666模板1',
     create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
@@ -46,8 +46,8 @@ CREATE TABLE `m_device_screening_data`
     `check_type`        tinyint       NOT NULL DEFAULT 0 COMMENT '筛查方式(0=个体筛查,1=批量筛查)',
     `left_cyl`          double(4, 2) NULL     DEFAULT NULL COMMENT '左眼柱镜',
     `right_cyl`         double(4, 2) NULL     DEFAULT NULL COMMENT '右眼柱镜',
-    `left_axsi`         double(4, 2) NULL     DEFAULT NULL COMMENT '左眼轴位',
-    `right_axsi`        double(4, 2) NULL     DEFAULT NULL COMMENT '右眼轴位',
+    `left_axsi`         int NULL     DEFAULT NULL COMMENT '左眼轴位',
+    `right_axsi`        int NULL     DEFAULT NULL COMMENT '右眼轴位',
     `left_pr`           double(4, 2) NULL     DEFAULT NULL COMMENT '左眼瞳孔半径',
     `right_pr`          double(4, 2) NULL     DEFAULT NULL COMMENT '右眼瞳孔半径',
     `left_pa`           double(4, 2) NULL     DEFAULT NULL COMMENT '左眼等效球镜度',
@@ -62,7 +62,7 @@ CREATE TABLE `m_device_screening_data`
     `right_axsi_h`      int           NULL     DEFAULT NULL COMMENT '右⽔平⽅向斜视度数',
     `red_reflect_left`  int           NULL     DEFAULT NULL COMMENT '红光反射左眼',
     `red_reflect_right` int           NULL     DEFAULT NULL COMMENT '红光反射右眼',
-    `screening_time`    timestamp(0)  NOT  NULL     DEFAULT NULL COMMENT '筛查时间',
+    `screening_time`    timestamp(0)  NOT  NULL COMMENT '筛查时间',
     `update_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `create_time`       timestamp(0)  NOT  NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
@@ -112,3 +112,8 @@ INSERT INTO m_device_report_template (name, device_type, template_type) VALUES (
 
 alter table m_hospital
     add telephone varchar(32) null comment '固定电话' after level_desc;
+
+insert into m_screening_org_bind_device_report (template_id, screening_org_id, screening_org_name)
+select 1, mso.id, mso.name
+from m_screening_organization mso
+where id not in (select msobdr.screening_org_id from m_screening_org_bind_device_report msobdr);

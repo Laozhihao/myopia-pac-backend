@@ -5,6 +5,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -104,10 +105,10 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            throw new BusinessException("无效找到设备");
+            throw new BusinessException("无法找到设备");
         }
         //查询筛查机构是否过期
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(new ScreeningOrganization().setId(device.getBindingScreeningOrgId()).setStatus(CommonConst.STATUS_NOT_DELETED));
         if (screeningOrganization == null) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }
@@ -138,8 +139,10 @@ public class DeviceUploadDataService {
      * @param deviceScreenDataDTOList
      */
     private void setCheckResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        deviceScreenDataDTOList.forEach(deviceScreenDataDTO ->
-            CheckResultUtil.getCheckResult(deviceScreenDataDTO));
+        deviceScreenDataDTOList.forEach(deviceScreenDataDTO -> {
+            String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
+            deviceScreenDataDTO.setCheckResult(checkResult);
+        });
     }
 
 

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
 public class BiometricDataDO implements Serializable {
@@ -23,6 +25,7 @@ public class BiometricDataDO implements Serializable {
      */
     private BiometricData leftEyeData;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class BiometricData  {
