@@ -311,10 +311,10 @@ public class StatUtil {
             return WarningLevel.ONE;
         }
         if (se > 3.0f && se <= 6.0f) {
-            return WarningLevel.ONE;
+            return WarningLevel.TWO;
         }
         if (se > 6.0f) {
-            return WarningLevel.ONE;
+            return WarningLevel.THREE;
         }
         return null;
     }
