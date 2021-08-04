@@ -536,10 +536,10 @@ public class StatUtil {
                 return "轻度远视";
             }
             if (WarningLevel.TWO.code.equals(seriousLevel)) {
-                return "轻度远视";
+                return "中度远视";
             }
             if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return "轻度远视";
+                return "高度远视";
             }
         }
         return "";
