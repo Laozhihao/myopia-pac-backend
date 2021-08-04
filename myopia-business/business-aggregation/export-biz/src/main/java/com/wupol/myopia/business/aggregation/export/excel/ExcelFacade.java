@@ -446,7 +446,8 @@ public class ExcelFacade {
                     .setGlassesTypeDesc(Objects.isNull(glassesType) ? "--" : glassesType.desc).setIsRescreenDesc("否")
                     .setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
                     .setParentPhone(vo.getParentPhone())
-                    .setAddress(vo.getAddress());
+                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(),
+                            vo.getAreaCode(), vo.getTownCode(), vo.getAddress()));
             genScreeningData(vo, exportVo);
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             genDate(vo, exportVo);
