@@ -504,7 +504,7 @@ public class StatUtil {
                 return "中度近视";
             }
             if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return "重度近视";
+                return "高度近视";
             }
         }
         return "";
