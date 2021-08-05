@@ -493,8 +493,14 @@ public class StatUtil {
         if (ObjectsUtil.allNull(leftSpn, leftCyl, rightCyl, rightSpn)) {
             return "";
         }
-        Integer leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
-        Integer rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+        Integer leftMyopiaLevel = null;
+        Integer rightMyopiaLevel = null;
+        if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
+            leftMyopiaLevel = getMyopiaLevel(leftSpn.floatValue(), leftCyl.floatValue());
+        }
+        if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
+            rightMyopiaLevel = getMyopiaLevel(rightSpn.floatValue(), rightCyl.floatValue());
+        }
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
             Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
             if (WarningLevel.ONE.code.equals(seriousLevel)) {
@@ -523,8 +529,15 @@ public class StatUtil {
         if (ObjectsUtil.allNull(leftSpn, leftCyl, rightSpn, rightCyl)) {
             return "";
         }
-        WarningLevel leftLevel = getHyperopiaWarningLevelMoreThan12(leftSpn.floatValue(), leftCyl.floatValue(), age);
-        WarningLevel rightLevel = getHyperopiaWarningLevelMoreThan12(rightSpn.floatValue(), rightCyl.floatValue(), age);
+        WarningLevel leftLevel = null;
+        WarningLevel rightLevel = null;
+        if (ObjectsUtil.allNotNull(leftSpn, leftCyl)) {
+            leftLevel = getHyperopiaWarningLevelMoreThan12(leftSpn.floatValue(), leftCyl.floatValue(), age);
+        }
+        if (ObjectsUtil.allNotNull(rightSpn, rightCyl)) {
+            rightLevel = getHyperopiaWarningLevelMoreThan12(rightSpn.floatValue(), rightCyl.floatValue(), age);
+        }
+
         if (ObjectsUtil.allNull(leftLevel, rightLevel)) {
             return "";
         }
