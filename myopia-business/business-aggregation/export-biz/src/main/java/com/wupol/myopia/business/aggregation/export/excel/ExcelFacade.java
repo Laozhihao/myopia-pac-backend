@@ -748,7 +748,7 @@ public class ExcelFacade {
      */
     private String generateSingleSuffixMMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (Objects.nonNull(val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : "--");
+        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : "--");
     }
 
     /**
@@ -770,6 +770,6 @@ public class ExcelFacade {
      */
     private String generateSingleSuffixUMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (Objects.nonNull(val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
+        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : "--");
     }
 }
