@@ -106,10 +106,10 @@ public class StatUtil {
 
         if (nakedVision < 4.9) {
             if (isWearingGlasses) {
-                if (correctVision < 4.9) return true;
+                return correctVision < 4.9;
             } else {
 
-                if (schoolAge == null || se == null || cylinder == null) {
+                if (schoolAge == null || se == null) {
                     return false;
                 }
 
@@ -127,9 +127,7 @@ public class StatUtil {
                     default:
                 }
             }
-        } else if (age != null && se != null && age >= 6 && se >= 2) {
-            return true;
-        }
+        } else return age != null && se != null && age >= 6 && se >= 2;
         return false;
     }
 
@@ -193,7 +191,7 @@ public class StatUtil {
         if (nakedVision == null || age == null || age < 0) {
             return null;
         }
-        Boolean isLowVision = false;
+        boolean isLowVision = false;
 
         switch (age) {
             case 0:
@@ -236,7 +234,7 @@ public class StatUtil {
         if (sphere == null || cylinder == null || age == null) {
             return null;
         }
-        Float se = getSphericalEquivalent(sphere, cylinder);
+        float se = getSphericalEquivalent(sphere, cylinder);
         switch (age) {
             case 0:
             case 1:
@@ -349,7 +347,7 @@ public class StatUtil {
         if (!ObjectsUtil.allNotNull(sphere, cylinder)) {
             return null;
         }
-        Float se = getSphericalEquivalent(sphere, cylinder);
+        float se = getSphericalEquivalent(sphere, cylinder);
         if (se >= -0.5f && se <= -0.25f) return WarningLevel.ZERO;
         if (se >= -3.0f && se < -0.5f) return WarningLevel.ONE;
         if (se >= -6.0f && se < -3.0f) return WarningLevel.TWO;
