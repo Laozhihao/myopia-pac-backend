@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
 public class ComputerOptometryDO implements ScreeningResultStructureInterface<ComputerOptometryDO.ComputerOptometry>, Serializable {
@@ -33,6 +35,7 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      * @Date 2021/1/22 16:37
      * @Author by jacob
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
     public static class ComputerOptometry implements ValidResultDataInterface,Serializable {
