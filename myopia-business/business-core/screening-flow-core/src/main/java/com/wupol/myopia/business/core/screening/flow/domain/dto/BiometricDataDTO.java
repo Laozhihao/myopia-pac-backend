@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
-
-import java.util.Objects;
+import org.springframework.util.StringUtils;
 
 /**
  * @Description
@@ -151,7 +150,7 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
-        return Objects.nonNull(lWTW) || Objects.nonNull(lAD) || Objects.nonNull(lAL) || Objects.nonNull(lCCT) || Objects.nonNull(lLT) || Objects.nonNull(lk1) || Objects.nonNull(lk1Axis) || Objects.nonNull(lk2) || Objects.nonNull(lk2Axis) || Objects.nonNull(last) || Objects.nonNull(lpd) || Objects.nonNull(lvt)
-        || Objects.nonNull(rWTW) || Objects.nonNull(rAD) || Objects.nonNull(rAL) || Objects.nonNull(rCCT) || Objects.nonNull(rLT) || Objects.nonNull(rk1) || Objects.nonNull(rk1Axis) || Objects.nonNull(rk2) || Objects.nonNull(rk2Axis) || Objects.nonNull(rast) || Objects.nonNull(rpd) || Objects.nonNull(rvt);
+        return StringUtils.hasText(lWTW) || StringUtils.hasText(lAD) || StringUtils.hasText(lAL) || StringUtils.hasText(lCCT) || StringUtils.hasText(lLT) || StringUtils.hasText(lk1) || StringUtils.hasText(lk1Axis) || StringUtils.hasText(lk2) || StringUtils.hasText(lk2Axis) || StringUtils.hasText(last) || StringUtils.hasText(lpd) || StringUtils.hasText(lvt)
+        || StringUtils.hasText(rWTW) || StringUtils.hasText(rAD) || StringUtils.hasText(rAL) || StringUtils.hasText(rCCT) || StringUtils.hasText(rLT) || StringUtils.hasText(rk1) || StringUtils.hasText(rk1Axis) || StringUtils.hasText(rk2) || StringUtils.hasText(rk2Axis) || StringUtils.hasText(rast) || StringUtils.hasText(rpd) || StringUtils.hasText(rvt);
     }
 }
