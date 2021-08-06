@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 小瞳验光数据
@@ -72,6 +73,11 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
         PupilOptometryDataDO.PupilOptometryData rightPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setCorrectedVision(rightCorrectedVision).setLateriality(1);
         PupilOptometryDataDO pupilOptometryDataDO = new PupilOptometryDataDO().setLeftEyeData(leftPupilOptometryData).setRightEyeData(rightPupilOptometryData).setIsCooperative(isCooperative).setDiagnosis(diagnosis);
         return visionScreeningResult.setPupilOptometryData(pupilOptometryDataDO);
+    }
+
+    public boolean isValid() {
+        return Objects.nonNull(rAxial) || Objects.nonNull(lAxial) || Objects.nonNull(lSph) || Objects.nonNull(rSph) || Objects.nonNull(rCyl)
+                || Objects.nonNull(lCyl) || Objects.nonNull(leftCorrectedVision) || Objects.nonNull(rightCorrectedVision);
     }
 }
 

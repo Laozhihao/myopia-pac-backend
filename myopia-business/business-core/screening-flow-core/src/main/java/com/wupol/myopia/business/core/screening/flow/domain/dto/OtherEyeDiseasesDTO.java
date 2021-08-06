@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description 其他眼病  左右眼起码要有一只眼有疾病
@@ -84,10 +85,12 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         OtherEyeDiseasesDO.OtherEyeDiseases leftOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getLeftDiseaseStrList()).setLateriality(0);
         OtherEyeDiseasesDO otherEyeDiseasesDO = new OtherEyeDiseasesDO().setRightEyeData(rightOtherEyeDiseases).setLeftEyeData(leftOtherEyeDiseases);
         // 损失等级
-        VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(0).setLevel(leftVisualLossLevel);
-        VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(1).setLevel(rightVisualLossLevel);
-        VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData);
-        return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom).setVisualLossLevelData(visualLossLevelDataDO);
+        if (Objects.nonNull(leftVisualLossLevel) || Objects.nonNull(rightVisualLossLevel)) {
+            VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(0).setLevel(leftVisualLossLevel);
+            VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(1).setLevel(rightVisualLossLevel);
+            visionScreeningResult.setVisualLossLevelData(new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData));
+        }
+        return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
     }
 
 }
