@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @Description 电脑验光数据
@@ -60,6 +61,10 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(1);
         ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setDiagnosis(diagnosis).setIsCooperative(isCooperative);
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
+    }
+
+    public boolean isValid() {
+        return Objects.nonNull(rAxial) || Objects.nonNull(lAxial) || Objects.nonNull(lSph) || Objects.nonNull(rSph) || Objects.nonNull(rCyl) || Objects.nonNull(lCyl);
     }
 }
 

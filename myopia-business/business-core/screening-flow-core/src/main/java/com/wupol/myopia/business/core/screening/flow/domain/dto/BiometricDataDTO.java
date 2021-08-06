@@ -5,6 +5,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 
+import java.util.Objects;
+
 /**
  * @Description
  * @Date 2021/1/26 1:08
@@ -146,5 +148,10 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(isCooperative);
         return visionScreeningResult.setBiometricData(biometricDataDO);
+    }
+
+    public boolean isValid() {
+        return Objects.nonNull(lWTW) || Objects.nonNull(lAD) || Objects.nonNull(lAL) || Objects.nonNull(lCCT) || Objects.nonNull(lLT) || Objects.nonNull(lk1) || Objects.nonNull(lk1Axis) || Objects.nonNull(lk2) || Objects.nonNull(lk2Axis) || Objects.nonNull(last) || Objects.nonNull(lpd) || Objects.nonNull(lvt)
+        || Objects.nonNull(rWTW) || Objects.nonNull(rAD) || Objects.nonNull(rAL) || Objects.nonNull(rCCT) || Objects.nonNull(rLT) || Objects.nonNull(rk1) || Objects.nonNull(rk1Axis) || Objects.nonNull(rk2) || Objects.nonNull(rk2Axis) || Objects.nonNull(rast) || Objects.nonNull(rpd) || Objects.nonNull(rvt);
     }
 }
