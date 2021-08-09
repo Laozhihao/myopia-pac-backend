@@ -109,7 +109,7 @@ public class CheckResultUtil {
 
     /**
      * 检查是否远视
-     * 3岁前：等效球镜SE＞+3.50D  //todo 3岁前包含3岁么???
+     * 3岁前：等效球镜SE＞+3.50D
      * <p>
      * 4-5岁：等效球镜SE＞+2.50D
      * <p>
@@ -130,7 +130,7 @@ public class CheckResultUtil {
      * @return
      */
     public boolean isHyperopia(Integer moonAge, Double se) {
-        if (ObjectsUtil.allNotNull(moonAge, se)) {
+        if (ObjectsUtil.allNull(moonAge, se)) {
             return false;
         }
         int age = moonAge / 12;
@@ -293,11 +293,8 @@ public class CheckResultUtil {
      * @return
      */
     public boolean isUnequalPupil(Integer oneEyeAxsiH, Integer anotherEyeAxsiH, Integer oneEyeAxsiV, Integer anotherEyeAxsiV) {
-        if (ObjectsUtil.hasNull(oneEyeAxsiH, anotherEyeAxsiH)) {
-            return false;
-        }
         boolean axsiH = ObjectsUtil.allNotNull(oneEyeAxsiH, anotherEyeAxsiH) && Math.abs(oneEyeAxsiH - anotherEyeAxsiH) > 8;
-        boolean axsiV = ObjectsUtil.allNotNull(oneEyeAxsiV, anotherEyeAxsiV) && Math.abs(oneEyeAxsiH - anotherEyeAxsiV) > 8;
+        boolean axsiV = ObjectsUtil.allNotNull(oneEyeAxsiV, anotherEyeAxsiV) && Math.abs(oneEyeAxsiV - anotherEyeAxsiV) > 8;
         return (axsiV || axsiH);
     }
 
