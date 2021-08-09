@@ -1,0 +1,1 @@
+ALTER TABLE `m_device_screening_data` MODIFY COLUMN `check_result` varchar(64) NOT NULL default '' COMMENT '筛查结果' AFTER `check_mode`
