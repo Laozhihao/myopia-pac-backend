@@ -903,11 +903,9 @@ public class StudentBizService {
         BigDecimal cyl = computerOptometry.getCyl();
         if (ObjectsUtil.allNotNull(sph, cyl)) {
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevelMoreThan12(sph.floatValue(), cyl.floatValue(), age);
+            WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
-            if (age > 12) {
-                visionInfoVO.setFarsightednessLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
-            }
+            visionInfoVO.setFarsightednessLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
         visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) > 0);
         return visionInfoVO;
