@@ -29,7 +29,7 @@ public class CheckResultUtilTest {
 
     /**
      * 测试是否远视的判断:
-     *  3岁,se超过3.5 则为远视
+     * 3岁,se超过3.5 则为远视
      */
     @Test
     public void testIsHyperopia() {
@@ -37,8 +37,16 @@ public class CheckResultUtilTest {
     }
 
     /**
+     * 测试是否远视级别的优先级
+     */
+    @Test
+    public void testGetHyperopiaLevel() {
+        Assert.assertTrue(CheckResultUtil.getHyperopiaLevel(36, 3.6, 3.5) == 0);
+    }
+
+    /**
      * 测试是否散光的判断:
-     *   cyl 绝对值大于0.5则为散光
+     * cyl 绝对值大于0.5则为散光
      */
     @Test
     public void testIsAstigmia() {

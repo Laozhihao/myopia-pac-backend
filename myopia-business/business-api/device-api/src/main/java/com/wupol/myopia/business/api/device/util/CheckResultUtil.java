@@ -1,15 +1,15 @@
 package com.wupol.myopia.business.api.device.util;
 
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.business.api.device.domain.enums.HyperopiaLevelEnum;
+import com.wupol.myopia.business.api.device.domain.enums.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import lombok.experimental.UtilityClass;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,12 +44,68 @@ public class CheckResultUtil {
     public String getCheckResult(DeviceScreenDataDTO deviceScreenDataDTO) {
         List<String> leftResults = getSingleEyeResult(deviceScreenDataDTO.getLeftPa(), deviceScreenDataDTO.getLeftCyl(), deviceScreenDataDTO.getLeftAxsiH(), deviceScreenDataDTO.getLeftAxsiV(), deviceScreenDataDTO.getPatientAge());
         List<String> rightResults = getSingleEyeResult(deviceScreenDataDTO.getRightPa(), deviceScreenDataDTO.getRightCyl(), deviceScreenDataDTO.getRightAxsiH(), deviceScreenDataDTO.getRightAxsiV(), deviceScreenDataDTO.getPatientAge());
+        Collection<String> singleEyeResult = CollectionUtils.union(leftResults, rightResults);
         List<String> allEyeResults = getAllEyeResult(deviceScreenDataDTO);
+        //获取近视,远视情况
+        String hyperopiaLevelForDisplay = getHyperopiaLevelForDisplay(deviceScreenDataDTO.getPatientAge(), deviceScreenDataDTO.getLeftPa(), deviceScreenDataDTO.getRightPa());
+        String myopiaLevelForDisplay = getMyopiaLevelForDisplay(deviceScreenDataDTO.getPatientAge(), deviceScreenDataDTO.getLeftPa(), deviceScreenDataDTO.getRightPa());
         Set<String> results = new HashSet<>();
-        results.addAll(leftResults);
-        results.addAll(rightResults);
+        results.addAll(singleEyeResult);
         results.addAll(allEyeResults);
+        results.add(hyperopiaLevelForDisplay);
+        results.add(myopiaLevelForDisplay);
         return results.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(sep));
+    }
+
+    /**
+     * 获取远视level
+     *
+     * @param patientAge
+     * @param oneEyePa
+     * @param anotherEyePa
+     * @return
+     */
+    public static Integer getHyperopiaLevel(Integer patientAge, Double oneEyePa, Double anotherEyePa) {
+        Integer leftHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, oneEyePa);
+        Integer rightHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, anotherEyePa);
+        return leftHyperopiaLevel > rightHyperopiaLevel ? leftHyperopiaLevel : rightHyperopiaLevel;
+    }
+
+    /**
+     * 获取远视展示
+     *
+     * @param patientAge
+     * @param oneEyePa
+     * @param anotherEyePa
+     * @return
+     */
+    private static String getHyperopiaLevelForDisplay(Integer patientAge, Double oneEyePa, Double anotherEyePa) {
+        Integer hyperopiaLevel = getHyperopiaLevel(patientAge, oneEyePa, anotherEyePa);
+        return HyperopiaLevelEnum.getDisplayByLevel(hyperopiaLevel);
+    }
+
+    /**
+     * 获取近视展示
+     *
+     * @param oneEyePa
+     * @param anotherEyePa
+     * @return
+     */
+    private static String getMyopiaLevelForDisplay(Integer age, Double oneEyePa, Double anotherEyePa) {
+        return MyopiaLevelEnum.getDisplayByLevel(getMyopiaLevel(age, oneEyePa, anotherEyePa));
+    }
+
+    /**
+     * 获取近视
+     *
+     * @param oneEyePa
+     * @param anotherEyePa
+     * @return
+     */
+    private static int getMyopiaLevel(Integer age, Double oneEyePa, Double anotherEyePa) {
+        Integer oneEyeHyperopiaLevel = getSingleEyeHyperopiaLevel(age, oneEyePa);
+        Integer anotherHyperopiaLevel = getSingleEyeHyperopiaLevel(age, anotherEyePa);
+        return oneEyeHyperopiaLevel > anotherHyperopiaLevel ? oneEyeHyperopiaLevel : anotherHyperopiaLevel;
     }
 
     /**
@@ -83,17 +139,13 @@ public class CheckResultUtil {
     private List<String> getSingleEyeResult(Double se, Double cyl, Integer axsiH, Integer axsiV, Integer moonAge) {
         //是否近视
         String myopiaForDisplay = isMyopiaForDisplay(se);
-        //近视分级
-        String myopiaLevel = getMyopiaLevel(se);
         //是否远视
         String hyperopiaForDisplay = isHyperopiaForDisplay(moonAge, se);
-        //远视分级
-        String hyperopiaLevel = getHyperopiaLevel(moonAge, se);
         //是否散光
         String astigmiaForDisplay = isAstigmiaForDisplay(cyl);
         //是否斜视
         String strabismForDisplay = isStrabismForDisplay(axsiH, axsiV);
-        return Arrays.asList(myopiaForDisplay, myopiaLevel, hyperopiaLevel, hyperopiaForDisplay, astigmiaForDisplay, strabismForDisplay);
+        return Arrays.asList(myopiaForDisplay, hyperopiaForDisplay, astigmiaForDisplay, strabismForDisplay);
     }
 
     /**
@@ -170,27 +222,27 @@ public class CheckResultUtil {
      * @param age
      * @return
      */
-    public String getHyperopiaLevel(Integer age, Double se) {
-        if (isHyperopia(age, se)) {
-            return StringUtils.EMPTY;
+    public Integer getSingleEyeHyperopiaLevel(Integer age, Double se) {
+        if (!isHyperopia(age, se)) {
+            return -1;
         }
         //age < 12岁
         if (age < 12 * 12) {
-            return StringUtils.EMPTY;
+            return 0;
         }
 
         if (se <= 3.00 && se > 0.5) {
-            return "轻度远视";
+            return 1;
         }
 
         if (se <= 6.00 && se > 3.00) {
-            return "中度远视";
+            return 2;
         }
 
         if (se > 6.00) {
-            return "高度远视";
+            return 3;
         }
-        return StringUtils.EMPTY;
+        return 0;
     }
 
 
@@ -363,22 +415,22 @@ public class CheckResultUtil {
      * @param se 等效球镜
      * @return
      */
-    public String getMyopiaLevel(Double se) {
+    public int getSingleEyeMyopiaLevel(Double se) {
         if (!isMyopia(se)) {
-            return StringUtils.EMPTY;
+            return MyopiaLevelEnum.NOT_LEVEL.getLevel();
         }
         if (se >= -3.00 && se < -0.50) {
-            return "轻度近视";
+            return MyopiaLevelEnum.LOW_LEVEL.getLevel();
         }
 
         if (se >= -6.00 && se < -3.00) {
-            return "中度近视";
+            return MyopiaLevelEnum.MEDIUM_LEVEL.getLevel();
         }
 
         if (se < -6.00) {
-            return "高度近视";
+            return MyopiaLevelEnum.HIGH_LEVEL.getLevel();
         }
-        return StringUtils.EMPTY;
+        return MyopiaLevelEnum.NORMAL_LEVEL.getLevel();
     }
 
     /**
