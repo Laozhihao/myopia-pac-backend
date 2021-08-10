@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @Description 视力筛查结果
@@ -58,6 +59,10 @@ public class VisionDataDTO extends ScreeningResultBasicData {
         VisionDataDO.VisionData rightVisionData = new VisionDataDO.VisionData().setNakedVision(rightNakedVision).setCorrectedVision(rightCorrectedVision).setGlassesType(WearingGlassesSituation.getKey(glassesType)).setLateriality(1);
         VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setDiagnosis(diagnosis).setIsCooperative(isCooperative);
         return visionScreeningResult.setVisionData(visionDataDO);
+    }
+
+    public boolean isValid() {
+        return Objects.nonNull(rightNakedVision) || Objects.nonNull(leftNakedVision) || Objects.nonNull(rightCorrectedVision) || Objects.nonNull(leftCorrectedVision);
     }
 }
 

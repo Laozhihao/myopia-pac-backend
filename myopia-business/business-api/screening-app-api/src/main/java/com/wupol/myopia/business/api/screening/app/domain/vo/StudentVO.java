@@ -4,12 +4,14 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * @Description
  * @Date 2021/3/1 23:42
  * @Author by Jacob
  */
+@ToString
 @Getter
 public class StudentVO {
 
@@ -72,20 +74,12 @@ public class StudentVO {
      */
     private Integer gradeType;
 
-
-    /**
-     *
-     */
-    private StudentVO() {
-
-    }
-
+    private StudentVO() { }
 
     /**
      * 获取实例
      *
-     * @param screeningPlanSchoolStudent
-     * @return
+     * @param screeningPlanSchoolStudent 筛查学生信息
      */
     public static StudentVO getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         StudentVO studentVO = new StudentVO();

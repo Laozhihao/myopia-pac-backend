@@ -54,4 +54,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     List<ParentStudentDTO> countParentStudent(@Param("studentIds") List<Integer> studentIds);
 
     StudentDTO getStudentInfo(@Param("studentId") Integer studentId);
+
+    List<StudentDTO> getStudentInfoList(@Param("studentIds") List<Integer> studentIds);
 }

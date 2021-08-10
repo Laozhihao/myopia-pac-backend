@@ -248,7 +248,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addVision")
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        if (visionDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        }
     }
 
     /**
@@ -258,7 +260,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addComputer")
     public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        if (computerOptometryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        }
     }
 
     /**
@@ -268,7 +272,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addBiology")
     public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+        if (biometricDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+        }
     }
 
     /**
@@ -298,7 +304,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addPupilOptometry")
     public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+        if (pupilOptometryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+        }
     }
 
     /**
@@ -308,7 +316,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addEyePressure")
     public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+        if (eyePressureDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+        }
     }
 
     //分割线----------------------

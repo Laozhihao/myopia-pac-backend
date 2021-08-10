@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 眼压数据
@@ -36,6 +37,10 @@ public class EyePressureDataDTO extends ScreeningResultBasicData {
         EyePressureDataDO.EyePressureData rightEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(1).setPressure(rightPressure);
         EyePressureDataDO eyePressureDataDO = new EyePressureDataDO().setLeftEyeData(leftEyePressureData).setRightEyeData(rightEyePressureData).setIsCooperative(isCooperative);
         return visionScreeningResult.setEyePressureData(eyePressureDataDO);
+    }
+
+    public boolean isValid() {
+        return Objects.nonNull(leftPressure) || Objects.nonNull(rightPressure);
     }
 }
 

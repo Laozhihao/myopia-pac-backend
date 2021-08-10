@@ -1209,6 +1209,6 @@ public class ScreeningResultUtil {
         return Objects.isNull(leftLevel) ?
                 rightLevel : Objects.isNull(rightLevel) ?
                 leftLevel : leftLevel.compareTo(rightLevel) >= 0 ?
-                rightLevel : leftLevel;
+                leftLevel : rightLevel;
     }
 }

@@ -13,7 +13,6 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -51,8 +50,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private StudentService studentService;
-    @Autowired
     private SchoolService schoolService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
@@ -89,9 +86,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         }
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
-        return visionScreeningResults.stream().map(visionScreeningResult ->
-                studentBizService.getStudentCardResponseDTO(visionScreeningResult)
-        ).collect(Collectors.toList());
+        return studentBizService.generateBatchStudentCard(visionScreeningResults);
     }
 
     /**
@@ -109,7 +104,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
-        Boolean isSchoolExport = false;
+        boolean isSchoolExport = false;
         if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
@@ -148,7 +143,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
-        Boolean isSchoolExport = false;
+        boolean isSchoolExport = false;
         if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
             statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);

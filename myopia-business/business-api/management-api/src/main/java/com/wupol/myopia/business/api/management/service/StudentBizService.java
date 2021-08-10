@@ -18,7 +18,6 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.dto.StudentReportResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -52,8 +51,10 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -144,7 +145,7 @@ public class StudentBizService {
      * 获取学生筛查档案
      *
      * @param studentId 学生ID
-     * @return StudentScreeningResultResponse
+     * @return 学生档案卡返回体
      */
     public StudentScreeningResultResponseDTO getScreeningList(Integer studentId) {
         StudentScreeningResultResponseDTO responseDTO = new StudentScreeningResultResponseDTO();
@@ -176,7 +177,7 @@ public class StudentBizService {
      * 封装结果
      *
      * @param result 结果表
-     * @return List<StudentResultDetails>
+     * @return 详情列表
      */
     private List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result) {
 
@@ -293,15 +294,18 @@ public class StudentBizService {
      * @return 等效球镜
      */
     private BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
+        if (Objects.isNull(sph) || Objects.isNull(cyl)) {
+            return null;
+        }
         return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
      * 获取学生档案卡
      *
      * @param resultId 筛查结果
-     * @return StudentCardResponseDTO
+     * @return 学生档案卡实体类
      */
     public StudentCardResponseVO getCardDetail(Integer resultId) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
@@ -312,7 +316,7 @@ public class StudentBizService {
      * 根据筛查接口获取档案卡所需要的数据
      *
      * @param visionScreeningResult 筛查结果
-     * @return StudentCardResponseDTO
+     * @return 学生档案卡实体类
      */
     public StudentCardResponseVO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseVO responseDTO = new StudentCardResponseVO();
@@ -326,14 +330,68 @@ public class StudentBizService {
         responseDTO.setInfo(cardInfoVO);
 
         Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
+        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
+    }
+
+    /**
+     * 批量生成学生档案卡
+     *
+     * @param resultList 筛查结果列表
+     * @return 学生档案卡实体类list
+     */
+    public List<StudentCardResponseVO> generateBatchStudentCard(List<VisionScreeningResult> resultList) {
+        if (CollectionUtils.isEmpty(resultList)) {
+            return new ArrayList<>();
+        }
+        // 筛查结构的Id都相同，取第一个就行
+        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId());
+
+        // 查询学生信息
+        List<Integer> studentIds = resultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
+        List<StudentDTO> studentInfoList = studentService.getStudentInfoList(studentIds);
+        Map<Integer, StudentDTO> studentMaps = studentInfoList.stream().collect(Collectors.toMap(Student::getId, Function.identity()));
+
+        return resultList.stream().map(r -> generateStudentCard(r, studentMaps.get(r.getStudentId()), templateId)).collect(Collectors.toList());
+    }
+
+    /**
+     * 生成档案卡
+     *
+     * @param visionScreeningResult 筛查结果
+     * @param studentInfo           学生信息
+     * @param templateId            模板Id
+     * @return 学生档案卡实体类
+     */
+    public StudentCardResponseVO generateStudentCard(VisionScreeningResult visionScreeningResult, StudentDTO studentInfo, Integer templateId) {
+        StudentCardResponseVO responseDTO = new StudentCardResponseVO();
+
+        // 获取学生基本信息
+        CardInfoVO cardInfoVO = getCardInfo(studentInfo);
+        cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
+        cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
+        responseDTO.setInfo(cardInfoVO);
+        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
+    }
+
+    /**
+     * 生成档案卡详情
+     *
+     * @param visionScreeningResult 筛查结果
+     * @param studentInfo           学生信息
+     * @param templateId            模板Id
+     * @param responseDTO           档案卡实体类
+     * @return 学生档案卡实体类
+     */
+    private StudentCardResponseVO generateCardDetail(VisionScreeningResult visionScreeningResult, StudentDTO studentInfo, Integer templateId, StudentCardResponseVO responseDTO) {
+        int age = DateUtil.ageOfNow(studentInfo.getBirthday());
         // 是否全国模板
         if (templateId.equals(TemplateConstants.GLOBAL_TEMPLATE)) {
             // 获取结果记录
-            CardDetailsVO cardDetailsVO = packageCardDetail(visionScreeningResult);
+            CardDetailsVO cardDetailsVO = packageCardDetail(visionScreeningResult, age);
             responseDTO.setDetails(cardDetailsVO);
         } else if (templateId.equals(TemplateConstants.HAI_NAN_TEMPLATE)) {
             responseDTO.setStatus(studentInfo.getSchoolAgeStatus());
-            responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, cardInfoVO.getAge()));
+            responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, age));
         }
         return responseDTO;
     }
@@ -353,7 +411,7 @@ public class StudentBizService {
      * 设置学生基本信息
      *
      * @param studentInfo 学生
-     * @return CardInfo
+     * @return 学生档案卡基本信息
      */
     private CardInfoVO getCardInfo(StudentDTO studentInfo) {
         CardInfoVO cardInfoVO = new CardInfoVO();
@@ -377,17 +435,13 @@ public class StudentBizService {
      * 设置视力信息
      *
      * @param result 筛查结果
-     * @return CardDetails
+     * @param age    学生年龄
+     * @return 档案卡视力详情
      */
-    private CardDetailsVO packageCardDetail(VisionScreeningResult result) {
+    private CardDetailsVO packageCardDetail(VisionScreeningResult result, Integer age) {
         CardDetailsVO details = new CardDetailsVO();
         VisionDataDO visionData = result.getVisionData();
 
-        // 获取学生数据
-        Student student = studentService.getById(result.getStudentId());
-        if (null == student) {
-            throw new BusinessException("数据异常");
-        }
         // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样
         CardDetailsVO.GlassesTypeObj glassesTypeObj = new CardDetailsVO.GlassesTypeObj();
         if (Objects.nonNull(visionData)) {
@@ -397,7 +451,7 @@ public class StudentBizService {
 
         details.setVisionResults(setVisionResult(visionData));
         details.setRefractoryResults(setRefractoryResults(result.getComputerOptometry()));
-        details.setCrossMirrorResults(setCrossMirrorResults(result, DateUtil.ageOfNow(student.getBirthday())));
+        details.setCrossMirrorResults(setCrossMirrorResults(result, age));
         details.setEyeDiseasesResult(setEyeDiseasesResult(result.getOtherEyeDiseases()));
         return details;
     }
@@ -406,7 +460,7 @@ public class StudentBizService {
      * 设置视力检查结果
      *
      * @param result 筛查结果
-     * @return List<VisionResult>
+     * @return 视力检查结果List
      */
     private List<CardDetailsVO.VisionResult> setVisionResult(VisionDataDO result) {
         CardDetailsVO.VisionResult left = new CardDetailsVO.VisionResult();
@@ -430,7 +484,7 @@ public class StudentBizService {
      * 设置验光仪检查结果
      *
      * @param result 筛查结果
-     * @return List<RefractoryResult>
+     * @return 验光仪检查结果列表
      */
     private List<CardDetailsVO.RefractoryResult> setRefractoryResults(ComputerOptometryDO result) {
         CardDetailsVO.RefractoryResult left = new CardDetailsVO.RefractoryResult();
@@ -458,7 +512,7 @@ public class StudentBizService {
      *
      * @param result 数据
      * @param age    年龄
-     * @return List<CrossMirrorResult>
+     * @return 串镜检查结果列表
      */
     private List<CardDetailsVO.CrossMirrorResult> setCrossMirrorResults(VisionScreeningResult result, Integer age) {
         CardDetailsVO.CrossMirrorResult left = new CardDetailsVO.CrossMirrorResult();
@@ -472,15 +526,22 @@ public class StudentBizService {
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
 
         // 左眼
-        left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue()));
-        left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
-        if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases())) {
-            left.setOther(true);
+        if (Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getLeftEyeData())
+                && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl())) {
+            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue()));
+            left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         }
 
         // 右眼
-        right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue()));
-        right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
+        if (Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
+                && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl())) {
+            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue()));
+            right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
+        }
+
+        if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getLeftEyeData().getEyeDiseases())) {
+            left.setOther(true);
+        }
         if (null != result.getOtherEyeDiseases() && !CollectionUtils.isEmpty(result.getOtherEyeDiseases().getRightEyeData().getEyeDiseases())) {
             right.setOther(true);
         }
@@ -491,7 +552,7 @@ public class StudentBizService {
      * 其他眼部疾病
      *
      * @param result 其他眼部疾病
-     * @return List<EyeDiseasesResult>
+     * @return 其他眼病List
      */
     private List<CardDetailsVO.EyeDiseasesResult> setEyeDiseasesResult(OtherEyeDiseasesDO result) {
         CardDetailsVO.EyeDiseasesResult left = new CardDetailsVO.EyeDiseasesResult();
@@ -568,18 +629,7 @@ public class StudentBizService {
     }
 
     /**
-     * 获取报告详情
-     *
-     * @param hospitalId 医院Id
-     * @param reportId   报告Id
-     * @return StudentReportResponseDTO
-     */
-    public StudentReportResponseDTO gerReportDetail(Integer hospitalId, Integer reportId) {
-        return medicalReportService.getStudentReport(hospitalId, reportId);
-    }
-
-    /**
-     * 消费
+     * 发送短信
      *
      * @param studentMaps 学生Maps
      * @return Consumer<VisionScreeningResult>
@@ -828,8 +878,8 @@ public class StudentBizService {
         }
         if (Objects.nonNull(rightEye)) {
             cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
-            cardDetail.setRightFarsightednessInfo(leftEye.getMyopiaLevel());
-            cardDetail.setRightAstigmatismInfo(leftEye.getAstigmatism());
+            cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
         }
 
         cardDetail.setOtherEyeDiseases(otherEyeDiseasesList);
@@ -869,7 +919,7 @@ public class StudentBizService {
             return new TwoTuple<>();
         }
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
-        ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getLeftEyeData();
+        ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
         if (ObjectsUtil.allNull(leftEyeData, rightEyeData)) {
             return new TwoTuple<>();
         }

@@ -57,7 +57,7 @@ public class ScreeningResultPahtConst {
     public final String PATH_POD_LEFT_AXIAL = "$.pupilOptometryData.leftEyeData.axial";
     public final String PATH_POD_LEFT_SPN = "$.pupilOptometryData.leftEyeData.sph";
     public final String PATH_POD_LEFT_CYL = "$.pupilOptometryData.leftEyeData.cyl";
-    public final String PATH_POD_LEFT_CORRECTEDVISION = "$.pupilOptometryData.rightEyeData.correctedVision";
+    public final String PATH_POD_LEFT_CORRECTEDVISION = "$.pupilOptometryData.leftEyeData.correctedVision";
     public final String PATH_POD_DIAGNOSIS = "$.pupilOptometryData.diagnosis";
 //    public final String result = "$.pupilOptometryData.leftEyeData.correctedVision";
 
@@ -68,7 +68,9 @@ public class ScreeningResultPahtConst {
     public final String PATH_BD_LEFT_LT = "$.biometricData.leftEyeData.lt";
     public final String PATH_BD_LEFT_WTW = "$.biometricData.leftEyeData.wtw";
     public final String PATH_BD_LEFT_K1 = "$.biometricData.leftEyeData.k1";
+    public final String PATH_BD_LEFT_K1_AXIS = "$.biometricData.leftEyeData.k1Axis";
     public final String PATH_BD_LEFT_K2 = "$.biometricData.leftEyeData.k2";
+    public final String PATH_BD_LEFT_K2_AXIS = "$.biometricData.leftEyeData.k2Axis";
     public final String PATH_BD_LEFT_AST = "$.biometricData.leftEyeData.ast";
     public final String PATH_BD_LEFT_PD = "$.biometricData.leftEyeData.pd";
     public final String PATH_BD_LEFT_VT = "$.biometricData.leftEyeData.vt";
@@ -78,14 +80,16 @@ public class ScreeningResultPahtConst {
     public final String PATH_BD_RIGHT_LT = "$.biometricData.rightEyeData.lt";
     public final String PATH_BD_RIGHT_WTW = "$.biometricData.rightEyeData.wtw";
     public final String PATH_BD_RIGHT_K1 = "$.biometricData.rightEyeData.k1";
+    public final String PATH_BD_RIGHT_K1_AXIS = "$.biometricData.rightEyeData.k1Axis";
     public final String PATH_BD_RIGHT_K2 = "$.biometricData.rightEyeData.k2";
+    public final String PATH_BD_RIGHT_K2_AXIS = "$.biometricData.rightEyeData.k2Axis";
     public final String PATH_BD_RIGHT_AST = "$.biometricData.rightEyeData.ast";
     public final String PATH_BD_RIGHT_PD = "$.biometricData.rightEyeData.pd";
     public final String PATH_BD_RIGHT_VT = "$.biometricData.rightEyeData.vt";
 
     // 眼压
-    public final String PATH_IPD_RIGHT_PRESSURE = "$.intraocularPressureData.rightEyeData.pressure";
-    public final String PATH_IPD_LEFT_PRESSURE = "$.intraocularPressureData.leftEyeData.pressure";
+    public final String PATH_IPD_RIGHT_PRESSURE = "$.eyePressureData.rightEyeData.pressure";
+    public final String PATH_IPD_LEFT_PRESSURE = "$.eyePressureData.leftEyeData.pressure";
 
     // 眼底
     public final String PATH_DF_RIGHT_HASABNORMAL= "$.fundusData.rightEyeData.hasAbnormal";

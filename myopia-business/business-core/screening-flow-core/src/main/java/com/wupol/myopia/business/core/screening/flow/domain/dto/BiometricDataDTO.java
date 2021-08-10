@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import org.springframework.util.StringUtils;
 
 /**
  * @Description
@@ -70,10 +71,20 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_K1")
     private String lk1;
     /**
+     * 角膜前表面曲率K1的度数
+     */
+    @JsonProperty("l_K1Axis")
+    private String lk1Axis;
+    /**
      * 角膜前表面曲率K2
      */
     @JsonProperty("l_K2")
     private String lk2;
+    /**
+     * 角膜前表面曲率K2的度数
+     */
+    @JsonProperty("l_K2Axis")
+    private String lk2Axis;
     /**
      * 垂直方向角膜散光度数
      */
@@ -96,10 +107,20 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     @JsonProperty("r_K1")
     private String rk1;
     /**
+     * 角膜前表面曲率K1的度数
+     */
+    @JsonProperty("r_K1Axis")
+    private String rk1Axis;
+    /**
      * 角膜前表面曲率K2
      */
     @JsonProperty("r_K2")
     private String rk2;
+    /**
+     * 角膜前表面曲率K2的度数
+     */
+    @JsonProperty("r_K2Axis")
+    private String rk2Axis;
     /**
      * 垂直方向角膜散光度数
      */
@@ -122,9 +143,14 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK2(lk2).setAst(last).setPd(lpd).setVt(lvt).setLateriality(0);
-        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK2(rk2).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
+        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(0);
+        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(isCooperative);
         return visionScreeningResult.setBiometricData(biometricDataDO);
+    }
+
+    public boolean isValid() {
+        return StringUtils.hasText(lWTW) || StringUtils.hasText(lAD) || StringUtils.hasText(lAL) || StringUtils.hasText(lCCT) || StringUtils.hasText(lLT) || StringUtils.hasText(lk1) || StringUtils.hasText(lk1Axis) || StringUtils.hasText(lk2) || StringUtils.hasText(lk2Axis) || StringUtils.hasText(last) || StringUtils.hasText(lpd) || StringUtils.hasText(lvt)
+        || StringUtils.hasText(rWTW) || StringUtils.hasText(rAD) || StringUtils.hasText(rAL) || StringUtils.hasText(rCCT) || StringUtils.hasText(rLT) || StringUtils.hasText(rk1) || StringUtils.hasText(rk1Axis) || StringUtils.hasText(rk2) || StringUtils.hasText(rk2Axis) || StringUtils.hasText(rast) || StringUtils.hasText(rpd) || StringUtils.hasText(rvt);
     }
 }

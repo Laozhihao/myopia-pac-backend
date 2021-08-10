@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -121,4 +119,5 @@ public class HaiNanCardDetail {
      * 斜视
      */
     private List<String> squint;
+
 }
