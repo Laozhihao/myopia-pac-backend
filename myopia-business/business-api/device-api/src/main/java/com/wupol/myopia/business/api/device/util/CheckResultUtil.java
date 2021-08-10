@@ -97,15 +97,15 @@ public class CheckResultUtil {
 
     /**
      * 获取近视
-     *
+     * @param age
      * @param oneEyePa
      * @param anotherEyePa
      * @return
      */
     private static int getMyopiaLevel(Integer age, Double oneEyePa, Double anotherEyePa) {
-        Integer oneEyeHyperopiaLevel = getSingleEyeHyperopiaLevel(age, oneEyePa);
-        Integer anotherHyperopiaLevel = getSingleEyeHyperopiaLevel(age, anotherEyePa);
-        return oneEyeHyperopiaLevel > anotherHyperopiaLevel ? oneEyeHyperopiaLevel : anotherHyperopiaLevel;
+        Integer oneEyeMyopiaLevel = getSingleEyeMyopiaLevel(oneEyePa);
+        Integer anotherEyeMyopiaLevel = getSingleEyeMyopiaLevel(anotherEyePa);
+        return oneEyeMyopiaLevel > anotherEyeMyopiaLevel ? oneEyeMyopiaLevel : anotherEyeMyopiaLevel;
     }
 
     /**
@@ -182,7 +182,7 @@ public class CheckResultUtil {
      * @return
      */
     public boolean isHyperopia(Integer moonAge, Double se) {
-        if (ObjectsUtil.allNull(moonAge, se)) {
+        if (ObjectsUtil.hasNull(moonAge, se)) {
             return false;
         }
         int age = moonAge / 12;
@@ -289,7 +289,7 @@ public class CheckResultUtil {
      * @return
      */
     public boolean isStrabism(Integer greedH, Integer greedV) {
-        return ObjectsUtil.allNotNull(greedH, greedV) && Math.abs(greedH) > 8 || Math.abs(greedV) > 8;
+        return (greedH != null && Math.abs(greedH) > 8) || (greedV != null && Math.abs(greedV) > 8);
     }
 
 
@@ -453,6 +453,6 @@ public class CheckResultUtil {
      * @return
      */
     public String isRedReflectForDisplay(Integer oneRedReflect, Integer anotherOneRedReflect) {
-        return isRedReflect(oneRedReflect, anotherOneRedReflect) ? MSG_RESULT_TEXT_GAZE_RANGING : StringUtils.EMPTY;
+        return isRedReflect(oneRedReflect, anotherOneRedReflect) ? "红光反射" : StringUtils.EMPTY;
     }
 }

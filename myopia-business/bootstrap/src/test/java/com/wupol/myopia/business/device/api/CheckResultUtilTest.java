@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +27,17 @@ import java.io.IOException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MyopiaBusinessApplication.class)
 public class CheckResultUtilTest {
+
+    /**
+     * 测试总的结果
+     */
+    @Test
+    public void getCheckResult() throws IOException {
+        DeviceScreenDataDTO deviceScreenDataDTO = this.getObj("json/checkResult.json", DeviceScreenDataDTO.class);
+        String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
+        Assert.assertTrue("红光反射、远视、中度远视".equals(checkResult));
+    }
+
 
     /**
      * 测试是否远视的判断:
