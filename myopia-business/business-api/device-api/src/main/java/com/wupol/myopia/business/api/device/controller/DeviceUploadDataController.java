@@ -34,6 +34,7 @@ public class DeviceUploadDataController {
      */
     @PostMapping(value = "vs/uploadData", params = "v=1")
     public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto){
+        log.info("debug: 接受到数据: {} ",JSON.toJSONString(deviceUploadDto));
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (Exception e) {
