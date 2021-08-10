@@ -32,7 +32,7 @@ public class CheckResultUtilTest {
      * 测试总的结果
      */
     @Test
-    public void getCheckResult() throws IOException {
+    public void testGetCheckResult() throws IOException {
         DeviceScreenDataDTO deviceScreenDataDTO = this.getObj("json/checkResult.json", DeviceScreenDataDTO.class);
         String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
         Assert.assertTrue("红光反射、远视、中度远视".equals(checkResult));
