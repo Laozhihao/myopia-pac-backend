@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,11 +77,11 @@ public class DeviceBizService {
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
-            if(Objects.nonNull(r.getLeftAxsi())) {
-                r.setLeftAxsi(new BigDecimal(r.getLeftAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+            if (Objects.nonNull(r.getLeftAxsi())) {
+                r.setLeftAxsi(BigDecimal.valueOf(r.getLeftAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             if (Objects.nonNull(r.getRightAxsi())) {
-                r.setRightAxsi(new BigDecimal(r.getRightAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+                r.setRightAxsi(BigDecimal.valueOf(r.getRightAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
@@ -99,7 +100,7 @@ public class DeviceBizService {
      * @param rightPa    右眼等效球镜
      * @param leftCyl    左眼柱镜
      * @param rightCyl   右眼柱镜
-     * @return left-医生结论 rigjt医生建议
+     * @return left-医生结论 right医生建议
      */
     private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, Double leftPa, Double rightPa, Double leftCyl, Double rightCyl) {
         if (ObjectsUtil.allNull(leftPa, rightPa, leftCyl, rightCyl)) {
@@ -156,8 +157,8 @@ public class DeviceBizService {
     /**
      * 单眼是否远视
      *
-     * @param patientAge 患者月龄
-     * @param paDoubleValue         等效球镜
+     * @param patientAge    患者月龄
+     * @param paDoubleValue 等效球镜
      * @return 是否远视
      */
     private boolean checkSingleEyeIsFarsightedness(Integer patientAge, Double paDoubleValue) {
@@ -243,8 +244,8 @@ public class DeviceBizService {
     /**
      * 单眼是否远视储备不足
      *
-     * @param patientAge 患者月龄
-     * @param paDoubleValue         等效球镜
+     * @param patientAge    患者月龄
+     * @param paDoubleValue 等效球镜
      * @return 是否远视储备不足
      */
     private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, Double paDoubleValue) {

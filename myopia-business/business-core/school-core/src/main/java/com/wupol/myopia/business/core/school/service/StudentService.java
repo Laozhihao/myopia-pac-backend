@@ -421,4 +421,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     public StudentDTO getStudentInfo(Integer studentId) {
         return baseMapper.getStudentInfo(studentId);
     }
+
+    /**
+     * 获取学生基本信息列表
+     *
+     * @param studentIds 学生Ids
+     * @return StudentDTO
+     */
+    public List<StudentDTO> getStudentInfoList(List<Integer> studentIds) {
+        return baseMapper.getStudentInfoList(studentIds);
+    }
 }

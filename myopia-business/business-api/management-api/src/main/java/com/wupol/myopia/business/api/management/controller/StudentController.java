@@ -125,7 +125,6 @@ public class StudentController {
      *
      * @param schoolId 学校ID
      * @param gradeId  年级ID
-     * @return 是否成功
      */
     @GetMapping("/export")
     public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
@@ -143,7 +142,6 @@ public class StudentController {
      * 导入学生列表
      *
      * @param file 导入文件
-     * @return 是否成功
      * @throws ParseException 转换异常
      */
     @PostMapping("/import")
