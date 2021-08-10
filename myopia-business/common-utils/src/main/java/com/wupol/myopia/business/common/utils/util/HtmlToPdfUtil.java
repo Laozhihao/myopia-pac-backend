@@ -36,7 +36,7 @@ public class HtmlToPdfUtil {
      **/
     public static boolean convert(String htmlSrcPath, String pdfFilePath) {
         // "--window-status 1" 允许js异步请求
-        String[] command = { HTML_TO_PDF_TOOL_COMMAND, "--debug-javascript", "--no-stop-slow-scripts", "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath };
+        String[] command = {HTML_TO_PDF_TOOL_COMMAND, "--debug-javascript", "--no-stop-slow-scripts", "--javascript-delay", "4000", "--window-status", "1", htmlSrcPath, pdfFilePath};
         return convert(htmlSrcPath, pdfFilePath, 0, command);
     }
 
@@ -49,7 +49,7 @@ public class HtmlToPdfUtil {
      **/
     public static boolean convertArchives(String htmlSrcPath, String pdfFilePath) {
         // "--window-status 1" 允许js异步请求
-        String[] command = { HTML_TO_PDF_TOOL_COMMAND, "-L", "0", "-R", "0", "-T", "0", "-B", "0", "--disable-smart-shrinking", "--debug-javascript", "--no-stop-slow-scripts", "--javascript-delay", "2000", "--window-status", "1", htmlSrcPath, pdfFilePath };
+        String[] command = {HTML_TO_PDF_TOOL_COMMAND, "-L", "0", "-R", "0", "-T", "0", "-B", "0", "--disable-smart-shrinking", "--debug-javascript", "--no-stop-slow-scripts", "--javascript-delay", "4000", "--window-status", "1", htmlSrcPath, pdfFilePath};
         return convert(htmlSrcPath, pdfFilePath, 0, command);
     }
 
