@@ -68,9 +68,9 @@ public class CheckResultUtil {
      * @return
      */
     public static int getHyperopiaLevel(Integer patientAge, Double oneEyePa, Double anotherEyePa) {
-        int leftHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, oneEyePa);
-        int rightHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, anotherEyePa);
-        return leftHyperopiaLevel > rightHyperopiaLevel ? leftHyperopiaLevel : rightHyperopiaLevel;
+        int oneEyeHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, oneEyePa);
+        int anotherEyeHyperopiaLevel = getSingleEyeHyperopiaLevel(patientAge, anotherEyePa);
+        return oneEyeHyperopiaLevel > anotherEyeHyperopiaLevel ? oneEyeHyperopiaLevel : anotherEyeHyperopiaLevel;
     }
 
     /**
@@ -191,11 +191,11 @@ public class CheckResultUtil {
         }
         int age = moonAge / 12;
 
-        if (moonAge < 0) {
+        if (age < 0) {
             return false;
         }
 
-        switch (moonAge) {
+        switch (age) {
             case 0:
             case 1:
             case 2:
@@ -461,7 +461,7 @@ public class CheckResultUtil {
      * @return
      */
     public String isRedReflectForDisplay(Integer oneRedReflect, Integer anotherOneRedReflect) {
-        return isRedReflect(oneRedReflect, anotherOneRedReflect) ? "红光反射" : StringUtils.EMPTY;
+        return isRedReflect(oneRedReflect, anotherOneRedReflect) ? REDREFLEX : StringUtils.EMPTY;
     }
 
 
