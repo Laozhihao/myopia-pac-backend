@@ -193,7 +193,7 @@ public class GeneratePdfFileService {
         gradeAndClass.parallelStream().forEach(gradeVO -> gradeVO.getClasses().forEach(schoolClass -> {
             String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId());
             String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
-            String dir = saveDirectory + "/" + gradeVO.getGradeName() + "/" + schoolClass.getName();
+            String dir = String.format(PDFFileNameConstant.FILE_SAVE_DIR, saveDirectory, gradeVO.getGradeName(), schoolClass.getName());
             Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
         }));
     }
