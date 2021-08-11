@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 /**
  * @Classname TypeUtil
- * @Description 检查结果类型的判断
+ * @Description 检查结果类型的判断 todo 各种魔数值整理, 如 2.00等效球镜值等.
  * @Date 2021/7/20 5:38 下午
  * @Author Jacob
  * @Version
@@ -39,7 +39,7 @@ public class CheckResultUtil {
     /**
      * 获取检查结果:
      * 1.需要双眼计算的结果(如红外反射需要左右眼数据才能计算),拼接显示;
-     * 2.单眼计算的结果,如果有严重程度区分,则双眼同时存在同一视力缺陷不同严重程度时,取最高严重程度,如: 左眼轻度近视, 右眼中度近视,则最后取中度近视.
+     * 2.单眼计算的结果,如果有严重程度区分,则双眼同时存在同一视力缺陷不同严重程度时,取最高严重程度,如: 左眼低度近视, 右眼中度近视,则最后取中度近视.
      * 3.最后取出说有的数据用{@link CheckResultUtil#sep} 符号隔开:  近视、中度近视、中度远视
      *
      * @param deviceScreenDataDTO 数据
@@ -466,7 +466,7 @@ public class CheckResultUtil {
 
 
     /**
-     * @Classname HyperopiaLevelEnum 用于check result 轻度中度中度的判断
+     * @Classname HyperopiaLevelEnum 用于check result 低度中度中度的判断
      * @Description 远视/远视程度
      * @Date 2021/8/9 6:16 下午
      * @Author Jacob
@@ -475,7 +475,7 @@ public class CheckResultUtil {
     @Getter
     @AllArgsConstructor
     public enum LevelEnum {
-        LOW_LEVEL(1, "轻度"),
+        LOW_LEVEL(1, "低度"),
         MEDIUM_LEVEL(2, "中度"),
         HIGH_LEVEL(3, "高度");
         public static final int NORMAL_LEVEL = 0;
