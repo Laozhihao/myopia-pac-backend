@@ -17,7 +17,12 @@ public class PDFFileNameConstant {
     /**
      * PDF档案卡文件名
      */
-    public static final String ARCHIVES_PDF_FILE_NAME = "%s%s%s档案卡";
+    public static final String ARCHIVES_PDF_FILE_NAME = "%s档案卡";
+
+    /**
+     * PDF档案卡文件名(年级班级)
+     */
+    public static final String ARCHIVES_PDF_FILE_NAME_GRADE_CLASS = "%s%s%s档案卡";
 
     /**
      * PDF 计划总报告文件名
