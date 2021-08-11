@@ -24,9 +24,4 @@ public class PDFFileNameConstant {
      */
     public static final String PLAN_REPORT_PDF_FILE_NAME = "%s年学生近视筛查结果报告";
 
-    /**
-     * 文件保存路径
-     */
-    public static final String FILE_SAVE_DIR = "%s/%s/%s";
-
 }
