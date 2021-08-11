@@ -978,7 +978,7 @@ CREATE TABLE `m_device_screening_data`  (
   `patient_dept` varchar(64) NOT NULL DEFAULT '' COMMENT '受检者部门(班级)',
   `patient_pno` char(11) NOT NULL DEFAULT '' COMMENT '受检者电话',
   `check_mode` tinyint NOT NULL DEFAULT -1 COMMENT '筛查模式. 双眼模式=0 ; 左眼模式=1; 右眼模式=2; 未知=-1',
-  `check_result` tinyint NOT NULL DEFAULT -1 COMMENT '筛查结果(1=优, 2=良, 3=差,-1=未知)',
+  `check_result` varchar(64) NOT NULL DEFAULT '' COMMENT '筛查结果',
   `check_type` tinyint NOT NULL DEFAULT 0 COMMENT '筛查方式(0=个体筛查,1=批量筛查)',
   `left_cyl` decimal(7, 3) NULL DEFAULT NULL COMMENT '左眼柱镜',
   `right_cyl` decimal(7, 3) NULL DEFAULT NULL COMMENT '右眼柱镜',
