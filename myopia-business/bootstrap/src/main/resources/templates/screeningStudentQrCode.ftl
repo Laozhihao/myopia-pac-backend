@@ -39,13 +39,26 @@
 
         @page {
             size: A4 portrait;
-            margin: 0 0 30px 24px;
+            margin: 10px 0 34px 24px;;
 
-            @bottom-left {content: element(footer)  }
+            @bottom-left {
+                content: element(footer)
+            }
 
             @top-left {
-               content: element(header);
+                content: element(header);
             }
+
+        }
+
+        #header {
+            position: running(header);
+            height: 10px;
+        }
+
+        #footer {
+            position: running(footer);
+            height: 34px;
         }
 
         .report-images {
@@ -105,9 +118,14 @@
             font-weight: normal;
             font-size: 12px;
         }
-</style>
+    </style>
 </head>
+
 <body>
+<header id="header">
+</header>
+<footer id="footer">
+</footer>
 <div id="report" class="wraper">
     <div class="report-content">
         <div class="report-images">
