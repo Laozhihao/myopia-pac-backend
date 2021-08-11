@@ -1,10 +1,12 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;
+package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @Description
@@ -143,14 +145,14 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(0);
-        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(1);
+        BiometricDataDO.BiometricData leftBiometricData = new BiometricDataDO.BiometricData().setWtw(lWTW).setAd(lAD).setAl(lAL).setCct(lCCT).setLt(lLT).setK1(lk1).setK1Axis(lk1Axis).setK2(lk2).setK2Axis(lk2Axis).setAst(last).setPd(lpd).setVt(lvt).setLateriality(CommonConst.LEFT_EYE);
+        BiometricDataDO.BiometricData rightBiometricData = new BiometricDataDO.BiometricData().setWtw(rWTW).setAd(rAD).setAl(rAL).setCct(rCCT).setLt(rLT).setK1(rk1).setK1Axis(rk1Axis).setK2(rk2).setK2Axis(rk2Axis).setAst(rast).setPd(rpd).setVt(rvt).setLateriality(CommonConst.RIGHT_EYE);
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(isCooperative);
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }
 
     public boolean isValid() {
-        return StringUtils.hasText(lWTW) || StringUtils.hasText(lAD) || StringUtils.hasText(lAL) || StringUtils.hasText(lCCT) || StringUtils.hasText(lLT) || StringUtils.hasText(lk1) || StringUtils.hasText(lk1Axis) || StringUtils.hasText(lk2) || StringUtils.hasText(lk2Axis) || StringUtils.hasText(last) || StringUtils.hasText(lpd) || StringUtils.hasText(lvt)
-        || StringUtils.hasText(rWTW) || StringUtils.hasText(rAD) || StringUtils.hasText(rAL) || StringUtils.hasText(rCCT) || StringUtils.hasText(rLT) || StringUtils.hasText(rk1) || StringUtils.hasText(rk1Axis) || StringUtils.hasText(rk2) || StringUtils.hasText(rk2Axis) || StringUtils.hasText(rast) || StringUtils.hasText(rpd) || StringUtils.hasText(rvt);
+        return !StringUtils.isAllBlank(lWTW, lAD, lAL, lCCT, lLT, lk1, lk1Axis, lk2, lk2Axis, last, lpd, lvt,
+                rWTW, rAD, rAL, rCCT, rLT, rk1, rk1Axis, rk2, rk2Axis, rast, rpd, rvt);
     }
 }

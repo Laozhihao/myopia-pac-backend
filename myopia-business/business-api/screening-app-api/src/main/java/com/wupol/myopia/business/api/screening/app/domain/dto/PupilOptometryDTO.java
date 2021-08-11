@@ -1,14 +1,15 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.PupilOptometryDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * 小瞳验光数据
@@ -69,15 +70,14 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        PupilOptometryDataDO.PupilOptometryData leftPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setCorrectedVision(leftCorrectedVision).setLateriality(0);
-        PupilOptometryDataDO.PupilOptometryData rightPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setCorrectedVision(rightCorrectedVision).setLateriality(1);
+        PupilOptometryDataDO.PupilOptometryData leftPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setCorrectedVision(leftCorrectedVision).setLateriality(CommonConst.LEFT_EYE);
+        PupilOptometryDataDO.PupilOptometryData rightPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setCorrectedVision(rightCorrectedVision).setLateriality(CommonConst.RIGHT_EYE);
         PupilOptometryDataDO pupilOptometryDataDO = new PupilOptometryDataDO().setLeftEyeData(leftPupilOptometryData).setRightEyeData(rightPupilOptometryData).setIsCooperative(isCooperative).setDiagnosis(diagnosis);
         return visionScreeningResult.setPupilOptometryData(pupilOptometryDataDO);
     }
 
     public boolean isValid() {
-        return Objects.nonNull(rAxial) || Objects.nonNull(lAxial) || Objects.nonNull(lSph) || Objects.nonNull(rSph) || Objects.nonNull(rCyl)
-                || Objects.nonNull(lCyl) || Objects.nonNull(leftCorrectedVision) || Objects.nonNull(rightCorrectedVision);
+        return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl, leftCorrectedVision, rightCorrectedVision);
     }
 }
 

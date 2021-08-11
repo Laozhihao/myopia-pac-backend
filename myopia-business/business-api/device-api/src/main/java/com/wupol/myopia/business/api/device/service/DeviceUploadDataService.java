@@ -38,7 +38,7 @@ public class DeviceUploadDataService {
     /**
      * 设备上传的默认用户id
      */
-    private final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
+    private static final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired

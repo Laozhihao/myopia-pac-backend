@@ -1,8 +1,10 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;
+package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -81,13 +83,13 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         // 眼部疾病
-        OtherEyeDiseasesDO.OtherEyeDiseases rightOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getRightDiseaseStrList()).setLateriality(1);
-        OtherEyeDiseasesDO.OtherEyeDiseases leftOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getLeftDiseaseStrList()).setLateriality(0);
+        OtherEyeDiseasesDO.OtherEyeDiseases rightOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getRightDiseaseStrList()).setLateriality(CommonConst.RIGHT_EYE);
+        OtherEyeDiseasesDO.OtherEyeDiseases leftOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getLeftDiseaseStrList()).setLateriality(CommonConst.LEFT_EYE);
         OtherEyeDiseasesDO otherEyeDiseasesDO = new OtherEyeDiseasesDO().setRightEyeData(rightOtherEyeDiseases).setLeftEyeData(leftOtherEyeDiseases);
         // 损失等级
         if (Objects.nonNull(leftVisualLossLevel) || Objects.nonNull(rightVisualLossLevel)) {
-            VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(0).setLevel(leftVisualLossLevel);
-            VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(1).setLevel(rightVisualLossLevel);
+            VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(leftVisualLossLevel);
+            VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(rightVisualLossLevel);
             visionScreeningResult.setVisualLossLevelData(new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData));
         }
         return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
