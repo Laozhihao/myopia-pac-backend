@@ -63,12 +63,16 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     /**
      * 获取档案卡列表
      *
-     * @param schoolId
-     * @param planId
-     * @return
+     * @param schoolId 学校Id
+     * @param planId   计划Id
+     * @param gradeId  年纪Id
+     * @param classId  班级Id
+     * @return List<StudentCardResponseVO>
      */
     @GetMapping("/list-result")
-    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId, @RequestParam Integer resultId) {
+    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId,
+                                                                  @RequestParam Integer planId, @RequestParam Integer resultId,
+                                                                  @RequestParam Integer gradeId, @RequestParam Integer classId) {
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
@@ -80,7 +84,11 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         }
         Integer screeningPlanId = screeningPlan.getId();
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
-        screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream().filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getSchoolId().equals(schoolId)).collect(Collectors.toList());
+        screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream()
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getSchoolId().equals(schoolId))
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getGradeId().equals(gradeId))
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getClassId().equals(classId))
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return new ArrayList<>();
         }
