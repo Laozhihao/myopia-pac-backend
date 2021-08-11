@@ -293,7 +293,7 @@ public class ScreeningAppController {
      * @return
      */
     @PostMapping("/eye/addMultiCheck")
-    public void addCompositeExamData(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
+    public void addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
         visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
     }
 
