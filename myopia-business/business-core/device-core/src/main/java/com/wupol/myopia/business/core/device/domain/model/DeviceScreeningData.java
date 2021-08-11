@@ -97,7 +97,7 @@ public class DeviceScreeningData implements Serializable {
     /**
      * 筛查结果(1=优, 2=良, 3=差,-1=未知)
      */
-    private Integer checkResult;
+    private String checkResult;
 
     /**
      * 筛查方式(0=个体筛查,1=批量筛查)
