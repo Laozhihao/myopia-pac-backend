@@ -18,7 +18,6 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -58,7 +57,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
             // 5.压缩文件
-            File file = compressFile(fileSavePath, fileName);
+            File file = compressFile(fileSavePath);
             // 6.上传文件
             Integer fileId = uploadFile(file);
             // 7.发送成功通知
@@ -102,13 +101,9 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      * 压缩文件
      *
      * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
      * @return java.io.File
      **/
-    public File compressFile(String fileSavePath, String fileName) {
-        String[] ext = {"pdf"};
-        Collection<File> files = FileUtils.listFiles(new File(fileSavePath), ext, false);
-        files.forEach(x -> log.info(x.getName()));
+    public File compressFile(String fileSavePath) {
         return ZipUtil.zip(fileSavePath);
     }
 
