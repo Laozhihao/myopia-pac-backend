@@ -1,12 +1,13 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * @Description 电脑验光数据
@@ -57,14 +58,14 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(0);
-        ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(1);
+        ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
+        ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
         ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setDiagnosis(diagnosis).setIsCooperative(isCooperative);
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
 
     public boolean isValid() {
-        return Objects.nonNull(rAxial) || Objects.nonNull(lAxial) || Objects.nonNull(lSph) || Objects.nonNull(rSph) || Objects.nonNull(rCyl) || Objects.nonNull(lCyl);
+        return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
     }
 }
 

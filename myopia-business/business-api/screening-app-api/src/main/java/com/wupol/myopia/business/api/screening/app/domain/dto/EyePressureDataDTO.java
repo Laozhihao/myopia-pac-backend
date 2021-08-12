@@ -1,13 +1,14 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.EyePressureDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * 眼压数据
@@ -33,14 +34,14 @@ public class EyePressureDataDTO extends ScreeningResultBasicData {
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        EyePressureDataDO.EyePressureData leftEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(0).setPressure(leftPressure);
-        EyePressureDataDO.EyePressureData rightEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(1).setPressure(rightPressure);
+        EyePressureDataDO.EyePressureData leftEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(CommonConst.LEFT_EYE).setPressure(leftPressure);
+        EyePressureDataDO.EyePressureData rightEyePressureData = new EyePressureDataDO.EyePressureData().setLateriality(CommonConst.RIGHT_EYE).setPressure(rightPressure);
         EyePressureDataDO eyePressureDataDO = new EyePressureDataDO().setLeftEyeData(leftEyePressureData).setRightEyeData(rightEyePressureData).setIsCooperative(isCooperative);
         return visionScreeningResult.setEyePressureData(eyePressureDataDO);
     }
 
     public boolean isValid() {
-        return Objects.nonNull(leftPressure) || Objects.nonNull(rightPressure);
+        return ObjectUtils.anyNotNull(leftPressure, rightPressure);
     }
 }
 
