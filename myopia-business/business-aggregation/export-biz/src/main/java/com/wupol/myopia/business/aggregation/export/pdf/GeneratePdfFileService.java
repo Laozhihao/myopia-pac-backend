@@ -30,6 +30,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +66,9 @@ public class GeneratePdfFileService {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    private static final ExecutorService executor = new ThreadPoolExecutor(1, 3, 3, TimeUnit.MINUTES, new ArrayBlockingQueue<>(6));
+
+
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
@@ -85,8 +92,7 @@ public class GeneratePdfFileService {
      * 根据筛查通知ID，生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @return void
+     * @param noticeId      筛查通知ID
      **/
     public void generateSchoolScreeningReportPdfFileByNoticeId(String saveDirectory, Integer noticeId, Integer districtId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -100,8 +106,7 @@ public class GeneratePdfFileService {
      * 生成筛查报告PDF文件 - 筛查机构
      *
      * @param saveDirectory 保存目录
-     * @param planId 筛查计划ID
-     * @return void
+     * @param planId        筛查计划ID
      **/
     public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -114,10 +119,9 @@ public class GeneratePdfFileService {
      * 批量生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @param planId 筛查计划ID
-     * @param schoolIdList 学校ID集合
-     * @return void
+     * @param noticeId      筛查通知ID
+     * @param planId        筛查计划ID
+     * @param schoolIdList  学校ID集合
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
         Assert.notEmpty(schoolIdList, "学校ID集为空");
@@ -126,6 +130,7 @@ public class GeneratePdfFileService {
 
     /**
      * 生成筛查计划总报告
+     *
      * @param saveDirectory
      * @param planId
      */
@@ -142,10 +147,9 @@ public class GeneratePdfFileService {
      * 生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @param planId 筛查计划ID
-     * @param schoolId 学校ID
-     * @return void
+     * @param noticeId      筛查通知ID
+     * @param planId        筛查计划ID
+     * @param schoolId      学校ID
      **/
     public void generateSchoolScreeningReportPdfFile(String saveDirectory, Integer noticeId, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -161,8 +165,7 @@ public class GeneratePdfFileService {
      * 生成档案卡PDF文件 - 筛查机构
      *
      * @param saveDirectory 保存目录
-     * @param planId 筛查计划ID
-     * @return void
+     * @param planId        筛查计划ID
      **/
     public void generateScreeningOrgArchivesPdfFile(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -191,12 +194,12 @@ public class GeneratePdfFileService {
         // 获取年纪班级信息
         List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId);
         for (PlanSchoolGradeVO gradeVO : gradeAndClass) {
-            gradeVO.getClasses().forEach(schoolClass -> {
+            executor.execute(() -> gradeVO.getClasses().forEach(schoolClass -> {
                 String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId());
                 String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
                 String dir = saveDirectory + "/" + school.getName() + "/" + gradeVO.getGradeName() + "/" + schoolClass.getName();
                 Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
-            });
+            }));
         }
     }
 
