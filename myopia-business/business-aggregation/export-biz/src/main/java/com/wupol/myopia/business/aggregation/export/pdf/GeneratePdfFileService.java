@@ -66,7 +66,7 @@ public class GeneratePdfFileService {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-    private static final ExecutorService executor = new ThreadPoolExecutor(1, 3, 3, TimeUnit.MINUTES, new ArrayBlockingQueue<>(6));
+    private static final ExecutorService executor = new ThreadPoolExecutor(2, 5, 3, TimeUnit.MINUTES, new ArrayBlockingQueue<>(128));
 
 
     /**
