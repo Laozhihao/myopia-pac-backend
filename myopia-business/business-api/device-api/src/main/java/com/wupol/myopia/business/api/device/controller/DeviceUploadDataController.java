@@ -37,7 +37,7 @@ public class DeviceUploadDataController {
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (Exception e) {
-            log.error("设备上传数据失败,错误msg={},数据 = {}",e.getMessage(),JSON.toJSONString(deviceUploadDto));
+            log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto),e);
             if (e instanceof BusinessException) {
                 return DeviceUploadResult.FAILURE(e.getMessage());
             }

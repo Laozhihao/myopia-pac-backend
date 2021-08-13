@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,8 +58,8 @@ public class DeviceUploadDataService {
      * 保存设备上传数据到筛查结果中
      * @param deviceScreenDataDTOList
      */
-    public void saveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        deviceScreenDataDTOList = deviceScreenDataDTOList.stream().filter(DeviceUploadDataService::dealStrudentId).collect(Collectors.toList());
+    public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+        deviceScreenDataDTOList = deviceScreenDataDTOList.stream().filter(DeviceUploadDataService::dealStudentId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             return;
         }
@@ -97,7 +98,7 @@ public class DeviceUploadDataService {
 
     /**
      * 上传设备数据
-     * @param deviceUploadDto 接受
+     * @param deviceUploadDto 上传数据
      */
     @Transactional(rollbackFor = Exception.class)
     public void uploadDeviceData(DeviceUploadDTO deviceUploadDto) {
@@ -107,8 +108,10 @@ public class DeviceUploadDataService {
         if (device == null) {
             throw new BusinessException("无法找到设备");
         }
+        Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
+        String deviceSn = device.getDeviceSn();
         //查询筛查机构是否过期
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(new ScreeningOrganization().setId(device.getBindingScreeningOrgId()).setStatus(CommonConst.STATUS_NOT_DELETED));
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(new ScreeningOrganization().setId(bindingScreeningOrgId).setStatus(CommonConst.STATUS_NOT_DELETED));
         if (screeningOrganization == null) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }
@@ -120,18 +123,38 @@ public class DeviceUploadDataService {
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             throw new BusinessException("无法找到筛查数据");
         }
-        //过滤掉重复上传的数据
-        deviceScreenDataDTOList = deviceSourceDataService.filterExistData(device.getBindingScreeningOrgId(),device.getDeviceSn(),deviceScreenDataDTOList);
-        if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
-            return;
-        }
+        //更新或者插入DeviceScreenData的数据
+        List<DeviceScreenDataDTO> existDeviceScreeningDataDTOs = deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
+        deviceSourceDataService.updateOrAddDeviceSourceDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceScreeningDataDTOs));
+        //更新或者插入deviceSource的数据
+        List<DeviceScreenDataDTO> existDeviceSourceDataDTOs = deviceSourceDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
+        deviceScreeningDataService.updateOrAddDeviceScreeningDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceSourceDataDTOs));
+        //更新或者插入学生筛查数据的数据
+        updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
+    }
 
-        // 保存Source数据
-        deviceSourceDataService.saveDeviceSourceDataList(device, deviceScreenDataDTOList);
-        // 保存设备数据
-        deviceScreeningDataService.saveDeviceScreeningDataList(device,deviceScreenDataDTOList);
-        // 过滤出计划学生,并保存到计划筛查数据中
-        saveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
+    /**
+     * 获取更新和插入的数据
+     * @param deviceScreenDataDTOList
+     * @param bindingScreeningOrgId
+     * @param deviceSn
+     * @param existDeviceScreeningDataDTO
+     * @return
+     */
+    private Map<Boolean, List<DeviceScreenDataDTO>> getUpdateAndAddData(List<DeviceScreenDataDTO> deviceScreenDataDTOList, Integer bindingScreeningOrgId, String deviceSn, List<DeviceScreenDataDTO> existDeviceScreeningDataDTO) {
+        // 将存在的数据的唯一索引组成String Set
+        Set<String> existSet = existDeviceScreeningDataDTO.stream().map(DeviceScreenDataDTO::getUnikeyString).collect(Collectors.toSet());
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(existSet)) {
+            return new HashMap<>();
+        }
+        // true 为需要更新的数据  false为需要插入的数据
+        Map<Boolean, List<DeviceScreenDataDTO>> updateOrSaveData = deviceScreenDataDTOList.stream().collect(Collectors.partitioningBy(deviceScreenDataDTO -> {
+            deviceScreenDataDTO.setScreeningOrgId(bindingScreeningOrgId);
+            deviceScreenDataDTO.setDeviceSn(deviceSn);
+            String unikeyString = deviceScreenDataDTO.getUnikeyString();
+            return existSet.contains(unikeyString);
+        }));
+        return updateOrSaveData;
     }
 
     /**
@@ -154,7 +177,7 @@ public class DeviceUploadDataService {
      * @param deviceScreenDataDTO
      * @return
      */
-    private static boolean dealStrudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
+    private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
         String patientId = deviceScreenDataDTO.getPatientId();
         String reg = "^VS@\\d{1,}_\\d{1,}";
         if (!patientId.matches(reg) || patientId.length() != 35) {
