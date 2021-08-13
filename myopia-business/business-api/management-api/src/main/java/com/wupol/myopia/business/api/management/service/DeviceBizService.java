@@ -88,6 +88,10 @@ public class DeviceBizService {
             r.setDoctorConclusion(doctorAdvice.getFirst());
             r.setDoctorAdvice(doctorAdvice.getSecond());
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
+            r.setLeftCylDisplay(getDisplayValue(r.getLeftCyl()));
+            r.setRightCylDisplay(getDisplayValue(r.getRightCyl()));
+            r.setLeftSphDisplay(getDisplayValue(r.getLeftSph()));
+            r.setRightSphDisplay(getDisplayValue(r.getRightSph()));
         });
         return responseDTOS;
     }
@@ -311,5 +315,46 @@ public class DeviceBizService {
             deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
             return deviceVO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * VS666数据格式化
+     *
+     * @param value 值
+     * @return VS666数据格式化
+     */
+    public Double getDisplayValue(Double value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        if (value.compareTo(0.125) < 0) {
+            return 0.00;
+        }
+        if (isBetweenLeft(value, 0.125, 0.25)) {
+            return 0.25;
+        }
+        if (isBetweenLeft(value, 0.375, 0.625)) {
+            return 0.50;
+        }
+        if (isBetweenLeft(value, 0.625, 0.75)) {
+            return 0.50;
+        }
+        if (value.compareTo(0.825) >= 0) {
+            return 1.00;
+        }
+        return null;
+    }
+
+
+    /**
+     * 判断是否在某个区间，左闭右开区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenLeft(Double val, Double start, Double end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
 }
