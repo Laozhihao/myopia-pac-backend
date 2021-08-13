@@ -13,10 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -132,6 +129,9 @@ public class DeviceSourceDataService extends BaseService<DeviceSourceDataMapper,
      * @return
      */
     private List<DeviceSourceData> getDeviceSourceDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+        if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
+            return Collections.emptyList();
+        }
         return deviceScreenDataDTOList.stream().map(deviceScreenDataDTO -> DeviceSourceData.getNewInstance(device, JSON.toJSONString(deviceScreenDataDTO), deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())).collect(Collectors.toList());
     }
 }

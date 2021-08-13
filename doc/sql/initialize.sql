@@ -1017,6 +1017,7 @@ CREATE TABLE `m_device_source_data`  (
   `src_data` varchar(1024) NOT NULL COMMENT '原始数据',
   `screening_org_id` int UNSIGNED NOT NULL COMMENT '筛查机构id',
   `screening_time` timestamp(0) NOT NULL COMMENT '筛查时间',
+  `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`)
 );

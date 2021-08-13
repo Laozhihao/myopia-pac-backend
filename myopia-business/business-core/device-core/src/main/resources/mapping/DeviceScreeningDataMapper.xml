@@ -130,7 +130,7 @@
     </select>
 
     <select id="selectWithMutiConditions" resultType="com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO">
-        select screening_org_id, device_sn, patient_id, screening_time as checkTime from m_device_source_data
+        select screening_org_id, device_sn, patient_id, screening_time as checkTime from m_device_screening_data
         <where>
             screening_org_id = #{screeningOrgId} and
             device_sn = #{deviceSn} and

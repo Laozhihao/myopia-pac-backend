@@ -106,7 +106,6 @@ public class DeviceScreenDataDTO implements Serializable {
         DeviceScreeningData deviceScreeningData = BeanCopyUtil.copyBeanPropertise(this, DeviceScreeningData.class);
         deviceScreeningData.setDeviceId(device.getId());
         deviceScreeningData.setDeviceSn(device.getDeviceSn());
-        deviceScreeningData.setCreateTime(new Date());
         deviceScreeningData.setPatientAge(patientAge);
         deviceScreeningData.setPatientCid(patientCID);
         deviceScreeningData.setPd(pd);

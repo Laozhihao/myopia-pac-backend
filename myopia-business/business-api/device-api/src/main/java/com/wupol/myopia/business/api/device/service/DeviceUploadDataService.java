@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,12 +82,30 @@ public class DeviceUploadDataService {
      */
     private ComputerOptometryDTO getComputerOptometryDTO(DeviceScreenDataDTO deviceScreenDataDTO,ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-        computerOptometryDTO.setLAxial(BigDecimal.valueOf(deviceScreenDataDTO.getLeftAxsi()));
-        computerOptometryDTO.setRAxial(BigDecimal.valueOf(deviceScreenDataDTO.getRightAxsi()));
-        computerOptometryDTO.setLCyl(BigDecimal.valueOf(deviceScreenDataDTO.getLeftCyl()));
-        computerOptometryDTO.setRCyl(BigDecimal.valueOf(deviceScreenDataDTO.getRightCyl()));
-        computerOptometryDTO.setRSph(BigDecimal.valueOf(deviceScreenDataDTO.getRightSph()));
-        computerOptometryDTO.setLSph(BigDecimal.valueOf(deviceScreenDataDTO.getLeftSph()));
+        if (deviceScreenDataDTO.getLeftAxsi() != null) {
+            computerOptometryDTO.setLAxial(BigDecimal.valueOf(deviceScreenDataDTO.getLeftAxsi()));
+        }
+
+        if (deviceScreenDataDTO.getRightAxsi() != null) {
+            computerOptometryDTO.setRAxial(BigDecimal.valueOf(deviceScreenDataDTO.getRightAxsi()));
+        }
+
+        if (deviceScreenDataDTO.getLeftCyl() != null) {
+            computerOptometryDTO.setLCyl(BigDecimal.valueOf(deviceScreenDataDTO.getLeftCyl()));
+        }
+
+        if (deviceScreenDataDTO.getRightCyl() != null) {
+            computerOptometryDTO.setRCyl(BigDecimal.valueOf(deviceScreenDataDTO.getRightCyl()));
+        }
+
+        if (deviceScreenDataDTO.getRightSph() != null) {
+            computerOptometryDTO.setRSph(BigDecimal.valueOf(deviceScreenDataDTO.getRightSph()));
+        }
+
+        if (deviceScreenDataDTO.getLeftSph() != null) {
+            computerOptometryDTO.setLSph(BigDecimal.valueOf(deviceScreenDataDTO.getLeftSph()));
+        }
+
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
         computerOptometryDTO.setCreateUserId(DEVICE_UPLOAD_DEFAULT_USER_ID);
         computerOptometryDTO.setStudentId(String.valueOf(screeningPlanSchoolStudent.getStudentId()));
@@ -124,10 +141,10 @@ public class DeviceUploadDataService {
             throw new BusinessException("无法找到筛查数据");
         }
         //更新或者插入DeviceScreenData的数据
-        List<DeviceScreenDataDTO> existDeviceScreeningDataDTOs = deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
+        List<DeviceScreenDataDTO> existDeviceScreeningDataDTOs = deviceSourceDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceSourceDataService.updateOrAddDeviceSourceDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceScreeningDataDTOs));
         //更新或者插入deviceSource的数据
-        List<DeviceScreenDataDTO> existDeviceSourceDataDTOs = deviceSourceDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
+        List<DeviceScreenDataDTO> existDeviceSourceDataDTOs =  deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceScreeningDataService.updateOrAddDeviceScreeningDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceSourceDataDTOs));
         //更新或者插入学生筛查数据的数据
         updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
@@ -144,9 +161,6 @@ public class DeviceUploadDataService {
     private Map<Boolean, List<DeviceScreenDataDTO>> getUpdateAndAddData(List<DeviceScreenDataDTO> deviceScreenDataDTOList, Integer bindingScreeningOrgId, String deviceSn, List<DeviceScreenDataDTO> existDeviceScreeningDataDTO) {
         // 将存在的数据的唯一索引组成String Set
         Set<String> existSet = existDeviceScreeningDataDTO.stream().map(DeviceScreenDataDTO::getUnikeyString).collect(Collectors.toSet());
-        if (org.apache.commons.collections4.CollectionUtils.isEmpty(existSet)) {
-            return new HashMap<>();
-        }
         // true 为需要更新的数据  false为需要插入的数据
         Map<Boolean, List<DeviceScreenDataDTO>> updateOrSaveData = deviceScreenDataDTOList.stream().collect(Collectors.partitioningBy(deviceScreenDataDTO -> {
             deviceScreenDataDTO.setScreeningOrgId(bindingScreeningOrgId);

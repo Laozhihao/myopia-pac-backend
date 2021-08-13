@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,9 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
      * @return
      */
     private List<DeviceScreeningData> getDeviceScreeningDataList(Device device, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+        if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
+            return Collections.emptyList();
+        }
         return  deviceScreenDataDTOList.stream().map(deviceScreenDataDTO->deviceScreenDataDTO.newDeviceScreeningDataInstance(device)).collect(Collectors.toList());
     }
 

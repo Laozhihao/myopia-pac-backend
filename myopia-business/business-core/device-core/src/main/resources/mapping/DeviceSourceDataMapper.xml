@@ -19,6 +19,7 @@
                 <if test="@Ognl@isNotEmpty(srcData)">and `src_data` = #{srcData}</if>
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
                 <if test="@Ognl@isNotEmpty(screeningTime)">and `screening_time` = #{screeningTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
         </where>
@@ -26,7 +27,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, device_type, patient_id, device_id, device_code, device_sn, src_data, screening_org_id, screening_time, create_time
+        id, device_type, patient_id, device_id, device_code, device_sn, src_data, screening_org_id, screening_time, update_time, create_time
     </sql>
 
     <!--Warning: 请确保以下参数均不为空-->
