@@ -25,9 +25,10 @@ public interface DeviceScreeningDataMapper extends BaseMapper<DeviceScreeningDat
 
     /**
      * 多条件查找id
+     *
      * @param screeningOrgId
      * @param deviceSn
-     * @param list 使用了 screeningOrgId  deviceSn patientId screeningTime 作为条件
+     * @param list           使用了 screeningOrgId  deviceSn patientId screeningTime 作为条件
      * @return 使用了 screeningOrgId  deviceSn patientId screeningTime 作为结果
      */
     List<DeviceScreenDataDTO> selectWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> list);

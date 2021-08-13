@@ -38,7 +38,7 @@ public class DeviceUploadDataService {
     /**
      * 设备上传的默认用户id
      */
-    private final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
+    private static final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
@@ -52,9 +52,31 @@ public class DeviceUploadDataService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
+    /**
+     * 处理studentId
+     * detail:
+     * 原有的patientId 应该是 VS@222_000000000000000011
+     * 其中222代表planId,而000000000000000011除去前面0之外,也就是11是planStudentId,该方法正式通过这个逻辑取到planStudentId;
+     *
+     * @param deviceScreenDataDTO
+     * @return
+     */
+    private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
+        String patientId = deviceScreenDataDTO.getPatientId();
+        String reg = "^VS@\\d{1,}_\\d{1,}";
+        if (!patientId.matches(reg) || patientId.length() != 35) {
+            deviceScreenDataDTO.setPatientId(null);
+            return false;
+        }
+        String planStudentIdWithZero = patientId.substring(patientId.indexOf("_") + 1);
+        //主要是为了去除0, 如 000000001 ,通过转换后可以变成integer类型的1,再将其转换为字符串
+        deviceScreenDataDTO.setPatientId(Integer.valueOf(planStudentIdWithZero) + "");
+        return true;
+    }
 
     /**
      * 保存设备上传数据到筛查结果中
+     *
      * @param deviceScreenDataDTOList
      */
     public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
@@ -76,11 +98,12 @@ public class DeviceUploadDataService {
 
     /**
      * 获取ComputerOptometryDTO
+     *
      * @param deviceScreenDataDTO
      * @param screeningPlanSchoolStudent
      * @return
      */
-    private ComputerOptometryDTO getComputerOptometryDTO(DeviceScreenDataDTO deviceScreenDataDTO,ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    private ComputerOptometryDTO getComputerOptometryDTO(DeviceScreenDataDTO deviceScreenDataDTO, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
         if (deviceScreenDataDTO.getLeftAxsi() != null) {
             computerOptometryDTO.setLAxial(BigDecimal.valueOf(deviceScreenDataDTO.getLeftAxsi()));
@@ -115,6 +138,7 @@ public class DeviceUploadDataService {
 
     /**
      * 上传设备数据
+     *
      * @param deviceUploadDto 上传数据
      */
     @Transactional(rollbackFor = Exception.class)
@@ -144,7 +168,7 @@ public class DeviceUploadDataService {
         List<DeviceScreenDataDTO> existDeviceScreeningDataDTOs = deviceSourceDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceSourceDataService.updateOrAddDeviceSourceDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceScreeningDataDTOs));
         //更新或者插入deviceSource的数据
-        List<DeviceScreenDataDTO> existDeviceSourceDataDTOs =  deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
+        List<DeviceScreenDataDTO> existDeviceSourceDataDTOs = deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceScreeningDataService.updateOrAddDeviceScreeningDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceSourceDataDTOs));
         //更新或者插入学生筛查数据的数据
         updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
@@ -152,6 +176,7 @@ public class DeviceUploadDataService {
 
     /**
      * 获取更新和插入的数据
+     *
      * @param deviceScreenDataDTOList
      * @param bindingScreeningOrgId
      * @param deviceSn
@@ -173,6 +198,7 @@ public class DeviceUploadDataService {
 
     /**
      * 设置检查结果
+     *
      * @param deviceScreenDataDTOList
      */
     private void setCheckResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
@@ -181,27 +207,4 @@ public class DeviceUploadDataService {
             deviceScreenDataDTO.setCheckResult(checkResult);
         });
     }
-
-
-    /**
-     * 处理studentId
-     * detail:
-     * 原有的patientId 应该是 VS@222_000000000000000011
-     * 其中222代表planId,而000000000000000011除去前面0之外,也就是11是planStudentId,该方法正式通过这个逻辑取到planStudentId;
-     * @param deviceScreenDataDTO
-     * @return
-     */
-    private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
-        String patientId = deviceScreenDataDTO.getPatientId();
-        String reg = "^VS@\\d{1,}_\\d{1,}";
-        if (!patientId.matches(reg) || patientId.length() != 35) {
-            deviceScreenDataDTO.setPatientId(null);
-            return false;
-        }
-        String planStudentIdWithZero = patientId.substring(patientId.indexOf("_") + 1);
-        //主要是为了去除0, 如 000000001 ,通过转换后可以变成integer类型的1,再将其转换为字符串
-        deviceScreenDataDTO.setPatientId(Integer.valueOf(planStudentIdWithZero) + "");
-        return true;
-    }
-
 }

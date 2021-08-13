@@ -46,6 +46,7 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
 
     /**
      * 更新或者插入数据
+     *
      * @param device
      * @param updateOrSaveDataMap
      */
@@ -58,32 +59,34 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
 
     /**
      * 更新数据: deviceSn,screeningTime,screeningOrgId,patientId 这四个条件必须存在
+     *
      * @param deviceScreeningDataList
      */
     private void updateBatchByUniBusinessKey(List<DeviceScreeningData> deviceScreeningDataList) {
-            for (DeviceScreeningData deviceScreeningData: deviceScreeningDataList) {
+        for (DeviceScreeningData deviceScreeningData : deviceScreeningDataList) {
 
-                String deviceSn = deviceScreeningData.getDeviceSn();
-                Integer screeningOrgId = deviceScreeningData.getScreeningOrgId();
-                String patientId = deviceScreeningData.getPatientId();
-                Date screeningTime = deviceScreeningData.getScreeningTime();
+            String deviceSn = deviceScreeningData.getDeviceSn();
+            Integer screeningOrgId = deviceScreeningData.getScreeningOrgId();
+            String patientId = deviceScreeningData.getPatientId();
+            Date screeningTime = deviceScreeningData.getScreeningTime();
 
-                if (ObjectUtil.hasEmpty(deviceSn,screeningTime,screeningOrgId,patientId)) {
-                    continue;
-                }
-                LambdaQueryWrapper<DeviceScreeningData> deviceSourceDataLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                deviceSourceDataLambdaQueryWrapper
-                        .eq(DeviceScreeningData::getDeviceSn,deviceScreeningData.getDeviceSn())
-                        .eq(DeviceScreeningData::getScreeningOrgId,deviceScreeningData.getScreeningOrgId())
-                        .eq(DeviceScreeningData::getPatientId, deviceScreeningData.getPatientId())
-                        .eq(DeviceScreeningData::getScreeningTime,deviceScreeningData.getScreeningTime());
-                update(deviceScreeningData,deviceSourceDataLambdaQueryWrapper);
+            if (ObjectUtil.hasEmpty(deviceSn, screeningTime, screeningOrgId, patientId)) {
+                continue;
             }
+            LambdaQueryWrapper<DeviceScreeningData> deviceSourceDataLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            deviceSourceDataLambdaQueryWrapper
+                    .eq(DeviceScreeningData::getDeviceSn, deviceScreeningData.getDeviceSn())
+                    .eq(DeviceScreeningData::getScreeningOrgId, deviceScreeningData.getScreeningOrgId())
+                    .eq(DeviceScreeningData::getPatientId, deviceScreeningData.getPatientId())
+                    .eq(DeviceScreeningData::getScreeningTime, deviceScreeningData.getScreeningTime());
+            update(deviceScreeningData, deviceSourceDataLambdaQueryWrapper);
+        }
     }
 
 
     /**
      * 获取设备筛查数据list
+     *
      * @param device
      * @param deviceScreenDataDTOList
      * @return
@@ -92,19 +95,20 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             return Collections.emptyList();
         }
-        return  deviceScreenDataDTOList.stream().map(deviceScreenDataDTO->deviceScreenDataDTO.newDeviceScreeningDataInstance(device)).collect(Collectors.toList());
+        return deviceScreenDataDTOList.stream().map(deviceScreenDataDTO -> deviceScreenDataDTO.newDeviceScreeningDataInstance(device)).collect(Collectors.toList());
     }
 
     /**
      * 根据以下条件查找数据
+     *
      * @param screeningOrgId
      * @param deviceSn
      * @param deviceScreenDataDTOList
      * @return
      */
-    public List<DeviceScreenDataDTO> listBatchWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> deviceScreenDataDTOList){
+    public List<DeviceScreenDataDTO> listBatchWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
         if (screeningOrgId == null || StringUtils.isBlank(deviceSn) || CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
-            logger.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ",screeningOrgId, deviceSn, JSON.toJSONString(deviceScreenDataDTOList));
+            logger.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ", screeningOrgId, deviceSn, JSON.toJSONString(deviceScreenDataDTOList));
         }
         return baseMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
     }

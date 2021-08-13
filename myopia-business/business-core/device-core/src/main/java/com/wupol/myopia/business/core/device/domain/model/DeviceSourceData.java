@@ -85,6 +85,7 @@ public class DeviceSourceData implements Serializable {
 
     /**
      * 构建一个新
+     *
      * @param device
      * @param srcData
      * @param patientId
