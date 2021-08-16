@@ -48,13 +48,14 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
      **/
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePermissionTemplate(Integer templateType, RolePermissionDTO rolePermissionDTO) {
-        List<Integer> orgIds = rolePermissionDTO.getGovIds();
+        List<Integer> govIds = rolePermissionDTO.getGovIds();
         List<Integer> permissionIds = rolePermissionDTO.getPermissionIds();
+        List<Integer> orgIds = rolePermissionDTO.getOrgIds();
 
         // 政府部门
         if (PermissionTemplateType.isGovUser(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(orgIds);
+            roleDTO.setOrgIds(govIds);
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
@@ -67,6 +68,16 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
             // 平台管理员通过RoleType来获取角色列表
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
+        }
+
+        // 筛查机构-配置
+        if (PermissionTemplateType.isSpecialScreening(templateType)) {
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.setOrgIds(orgIds);
+            roleDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+            // 通过部门Id获取角色
+            List<Role> roleList = roleService.getRoleList(roleDTO);
+            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
         }
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());

@@ -16,14 +16,19 @@ import java.util.List;
  **/
 @Getter
 public enum PermissionTemplateType {
-    /** 权限集合包 */
+    /**
+     * 权限集合包
+     */
     SCREENING_ORGANIZATION(0, "筛查机构权限集合包"),
     PROVINCE(1, "省级权限集合包"),
     CITY(2, "市级权限集合包"),
     COUNTY(3, "县/区级权限集合包"),
     TOWN(4, "镇/乡/街道级权限集合包"),
     ALL(5, "超级管理员"),
-    PLATFORM_ADMIN(6,"平台管理员权限集合包");
+    PLATFORM_ADMIN(6, "平台管理员权限集合包"),
+    SCREENING_ORG_SINGLE(7, "筛查机构单点权限集合包"),
+    SCREENING_ORG_VS666(8, "筛查机构VS666权限集合包"),
+    SCREENING_ORG_SINGLE_AND_VS666(9, "筛查机构单点+vs666权限集合包");
 
     /**
      * 类型
@@ -88,5 +93,16 @@ public enum PermissionTemplateType {
     public static boolean isGovUser(Integer type) {
         return PROVINCE.type.equals(type) || CITY.type.equals(type)
                 || COUNTY.type.equals(type) || TOWN.type.equals(type);
+    }
+
+    /**
+     * 是否特殊筛查机构类型
+     *
+     * @param type 类型
+     * @return 是否筛查机构
+     */
+    public static boolean isSpecialScreening(Integer type) {
+        return SCREENING_ORG_SINGLE.type.equals(type) || SCREENING_ORG_VS666.type.equals(type)
+                || SCREENING_ORG_SINGLE_AND_VS666.type.equals(type);
     }
 }

@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.constant;
+package com.wupol.myopia.business.api.management.constant;
 
 import java.util.HashMap;
 
@@ -7,9 +7,9 @@ import java.util.HashMap;
  *
  * @author Simple4H
  */
-public class OrgScreeningMap {
+public class TemplateConfigType {
 
-    public static final HashMap<Integer, Integer> ORG_CONFIG_TYPE_TO_TEMPLATE = new HashMap<>();
+    public static final HashMap<Integer, Integer> TEMPLATE_TO_ORG_CONFIG_TYPE = new HashMap<>();
 
     /**
      * 单点
@@ -42,8 +42,8 @@ public class OrgScreeningMap {
     private static final Integer TEMPLATE_9 = 9;
 
     static {
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE, TEMPLATE_7);
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_VS666, TEMPLATE_8);
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE_AND_VS666, TEMPLATE_9);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(TEMPLATE_7, CONFIG_SINGLE);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(TEMPLATE_8, CONFIG_VS666);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(TEMPLATE_9, CONFIG_SINGLE_AND_VS666);
     }
 }

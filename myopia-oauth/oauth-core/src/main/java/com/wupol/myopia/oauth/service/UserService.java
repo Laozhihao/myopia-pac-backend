@@ -298,7 +298,7 @@ public class UserService extends BaseService<UserMapper, User> {
         Integer orgConfigType = userDTO.getOrgConfigType();
         if (Objects.nonNull(orgConfigType)) {
             // 根据orgConfigType获取权限集合包
-            List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE.get(orgConfigType))
+            List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType))
                     .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
 
             Role role = saveOrgRole(userDTO);
