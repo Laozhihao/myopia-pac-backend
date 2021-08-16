@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,7 +72,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         }
 
         // 筛查机构-配置
-        if (PermissionTemplateType.isSpecialScreening(templateType)) {
+        if (PermissionTemplateType.isSpecialScreening(templateType) && !CollectionUtils.isEmpty(orgIds)) {
             RoleDTO roleDTO = new RoleDTO();
             roleDTO.setOrgIds(orgIds);
             roleDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
