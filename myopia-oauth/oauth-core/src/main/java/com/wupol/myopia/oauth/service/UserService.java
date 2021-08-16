@@ -2,15 +2,14 @@ package com.wupol.myopia.oauth.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.oauth.constant.OrgScreeningMap;
 import com.wupol.myopia.oauth.domain.dto.UserDTO;
 import com.wupol.myopia.oauth.domain.mapper.UserMapper;
-import com.wupol.myopia.oauth.domain.model.Role;
-import com.wupol.myopia.oauth.domain.model.User;
-import com.wupol.myopia.oauth.domain.model.UserRole;
-import com.wupol.myopia.oauth.domain.model.UserWithRole;
+import com.wupol.myopia.oauth.domain.model.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,6 +35,8 @@ public class UserService extends BaseService<UserMapper, User> {
     private UserRoleService userRoleService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private DistrictPermissionService districtPermissionService;
 
     /**
      * 根据用户名查询
@@ -133,8 +134,12 @@ public class UserService extends BaseService<UserMapper, User> {
         // 根据系统编号，绑定初始化的角色（每个端只有一个，非一个则报异常）
         boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
         if (isScreeningAdmin) {
-            Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
-            userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
+            // 根据筛查机构配置赋予权限
+            boolean result = generateOrgRole(userDTO);
+            if (!result) {
+                Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
+                userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
+            }
         }
         return userDTO.setId(user.getId());
     }
@@ -281,5 +286,42 @@ public class UserService extends BaseService<UserMapper, User> {
         queryParam.setSystemCode(systemCode);
         queryParam.setOrgIds(orgIds);
         return baseMapper.selectUserList(queryParam);
+    }
+
+    /**
+     * 生成角色并初始化权限
+     *
+     * @param userDTO userDTO
+     * @return boolean 是否成功
+     */
+    private boolean generateOrgRole(UserDTO userDTO) {
+        Integer orgConfigType = userDTO.getOrgConfigType();
+        if (Objects.nonNull(orgConfigType)) {
+            // 根据orgConfigType获取权限集合包
+            List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE.get(orgConfigType))
+                    .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+
+            Role role = saveOrgRole(userDTO);
+            roleService.assignRolePermission(role.getId(), permissionIds);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 生成机构角色
+     *
+     * @param userDTO userDTO
+     * @return 角色
+     */
+    private Role saveOrgRole(UserDTO userDTO) {
+        Role role = new Role();
+        role.setOrgId(userDTO.getOrgId());
+        role.setChName(userDTO.getUsername());
+        role.setRoleType(RoleType.SCREENING_ORGANIZATION.getType());
+        role.setSystemCode(userDTO.getSystemCode());
+        role.setCreateUserId(userDTO.getCreateUserId());
+        roleService.save(role);
+        return role;
     }
 }

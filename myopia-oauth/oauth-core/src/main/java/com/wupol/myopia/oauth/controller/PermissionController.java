@@ -10,7 +10,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -43,7 +42,7 @@ public class PermissionController {
      * @return com.wupol.myopia.oauth.domain.model.Permission
      **/
     @PostMapping()
-    public Permission addPermission(@RequestBody @Valid Permission param) throws IOException {
+    public Permission addPermission(@RequestBody @Valid Permission param) {
         permissionService.validateParam(param);
         permissionService.save(param);
         return param;
