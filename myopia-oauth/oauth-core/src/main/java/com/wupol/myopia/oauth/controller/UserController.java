@@ -186,4 +186,10 @@ public class UserController {
         }
         return userService.getIdsByOrgIds(orgIds, systemCode);
     }
+
+    @PostMapping("/reset/org")
+    public Boolean resetOrg(@RequestBody UserDTO userDTO) {
+        userService.resetScreeningOrg(userDTO);
+        return true;
+    }
 }

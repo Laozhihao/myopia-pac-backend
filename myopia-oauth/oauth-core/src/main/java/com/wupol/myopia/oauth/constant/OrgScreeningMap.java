@@ -14,32 +14,32 @@ public class OrgScreeningMap {
     /**
      * 单点
      */
-    private static final Integer CONFIG_SINGLE = 1;
+    public static final Integer CONFIG_SINGLE = 1;
 
     /**
      * vs666
      */
-    private static final Integer CONFIG_VS666 = 2;
+    public static final Integer CONFIG_VS666 = 2;
 
     /**
      * 单点+vs666
      */
-    private static final Integer CONFIG_SINGLE_AND_VS666 = 3;
+    public static final Integer CONFIG_SINGLE_AND_VS666 = 3;
 
     /**
      * 模板7-单点
      */
-    private static final Integer TEMPLATE_7 = 7;
+    public static final Integer TEMPLATE_7 = 7;
 
     /**
      * 模板8-vs666
      */
-    private static final Integer TEMPLATE_8 = 8;
+    public static final Integer TEMPLATE_8 = 8;
 
     /**
      * 模板9-单点+vs666
      */
-    private static final Integer TEMPLATE_9 = 9;
+    public static final Integer TEMPLATE_9 = 9;
 
     static {
         ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE, TEMPLATE_7);

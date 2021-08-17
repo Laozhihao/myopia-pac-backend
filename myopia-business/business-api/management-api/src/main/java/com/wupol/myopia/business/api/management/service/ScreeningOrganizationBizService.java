@@ -2,8 +2,10 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.management.constant.TemplateConfigType;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -473,5 +475,18 @@ public class ScreeningOrganizationBizService {
         ScreeningOrganization organization = screeningOrganizationService.getById(orgId);
         District district = districtService.getById(organization.getDistrictId());
         return Collections.singletonList(districtService.getProvinceDistrictTreePriorityCache(district.getCode()));
+    }
+
+    public void resetOrg() {
+        List<ScreeningOrganization> byConfigType = screeningOrganizationService.getByConfigType(TemplateConfigType.CONFIG_SINGLE);
+        byConfigType.forEach(c -> {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setOrgId(c.getId());
+            userDTO.setUsername(c.getName());
+            userDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+            userDTO.setCreateUserId(c.getCreateUserId());
+            oauthServiceClient.resetOrg(userDTO);
+        });
+
     }
 }

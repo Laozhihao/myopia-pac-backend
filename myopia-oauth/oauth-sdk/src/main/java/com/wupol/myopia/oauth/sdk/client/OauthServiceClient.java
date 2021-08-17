@@ -253,4 +253,7 @@ public interface OauthServiceClient {
     @GetMapping("/oauth/districtPermission/permissionIds/{templateType}")
     List<Integer> getListByTemplateType(@PathVariable Integer templateType);
 
+    @PostMapping("/oauth/user/reset/org")
+    Boolean resetOrg(@RequestBody UserDTO param);
+
 }

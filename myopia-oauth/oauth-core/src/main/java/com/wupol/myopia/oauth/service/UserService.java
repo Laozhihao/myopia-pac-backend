@@ -327,4 +327,20 @@ public class UserService extends BaseService<UserMapper, User> {
         userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
         return role;
     }
+
+    public void resetScreeningOrg(UserDTO userDTO) {
+        User user = baseMapper.selectByOrgId(userDTO.getOrgId());
+        Integer userId = user.getId();
+        // 删除user_role
+        userRoleService.remove(new UserRole().setUserId(userId));
+        // 创建role和user_role
+        Role role = saveOrgRole(userDTO, userId);
+        // 更新权限
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.TEMPLATE_7)
+                .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(permissionIds)) {
+            roleService.assignRolePermission(role.getId(), permissionIds);
+        }
+    }
 }

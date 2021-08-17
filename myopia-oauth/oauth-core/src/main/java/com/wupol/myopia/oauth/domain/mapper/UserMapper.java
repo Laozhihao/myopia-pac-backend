@@ -23,9 +23,11 @@ public interface UserMapper extends BaseMapper<User> {
      * @param queryParam 查询条件
      * @return java.util.List<com.wupol.myopia.oauth.domain.model.UserWithRole>
      **/
-    IPage<UserWithRole> selectUserListWithRole(@Param("page")IPage<?> page, @Param("param")UserDTO queryParam);
+    IPage<UserWithRole> selectUserListWithRole(@Param("page") IPage<?> page, @Param("param") UserDTO queryParam);
 
-    List<UserWithRole> selectUserListWithRole(@Param("param")UserDTO queryParam);
+    List<UserWithRole> selectUserListWithRole(@Param("param") UserDTO queryParam);
 
-    List<User> selectUserList(@Param("param")UserDTO queryParam);
+    List<User> selectUserList(@Param("param") UserDTO queryParam);
+
+    User selectByOrgId(@Param("orgId") Integer orgId);
 }
