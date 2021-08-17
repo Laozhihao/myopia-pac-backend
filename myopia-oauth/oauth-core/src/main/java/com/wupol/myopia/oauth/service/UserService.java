@@ -38,6 +38,9 @@ public class UserService extends BaseService<UserMapper, User> {
     @Autowired
     private DistrictPermissionService districtPermissionService;
 
+    @Autowired
+    private RolePermissionService rolePermissionService;
+
     /**
      * 根据用户名查询
      *
@@ -202,6 +205,9 @@ public class UserService extends BaseService<UserMapper, User> {
         if (!updateById(user)) {
             throw new BusinessException("更新用户信息失败");
         }
+        //筛查机构更新权限
+        Integer orgConfigType = user.getOrgConfigType();
+        updateScreeningOrgRolePermission(orgConfigType, userId);
         // 获取用户最新信息
         UserDTO newUser = new UserDTO();
         newUser.setId(userId);
@@ -341,6 +347,23 @@ public class UserService extends BaseService<UserMapper, User> {
 
         if (!CollectionUtils.isEmpty(permissionIds)) {
             roleService.assignRolePermission(role.getId(), permissionIds);
+        }
+    }
+
+    private void updateScreeningOrgRolePermission(Integer orgConfigType, Integer userId) {
+        if (Objects.isNull(orgConfigType)) {
+            return;
+        }
+        // 查询角色
+        UserRole role = userRoleService.findOne(new UserRole().setUserId(userId));
+        Integer roleId = role.getRoleId();
+        // 删除改角色所有的所有权限
+        rolePermissionService.remove(new RolePermission().setRoleId(roleId));
+        // 查找模板的权限集合包
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType))
+                .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(permissionIds)) {
+            roleService.assignRolePermission(roleId, permissionIds);
         }
     }
 }

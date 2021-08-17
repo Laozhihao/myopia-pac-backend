@@ -255,6 +255,7 @@ public class ScreeningOrganizationBizService {
                 .setPhone(screeningOrganization.getPhone())
                 .setRealName(screeningOrganization.getName())
                 .setUsername(screeningOrganization.getName());
+        userDTO.setOrgConfigType(screeningOrganization.getConfigType());
         oauthServiceClient.updateUser(userDTO);
 
         // 名字更新
