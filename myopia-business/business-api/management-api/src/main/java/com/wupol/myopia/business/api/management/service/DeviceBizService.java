@@ -346,8 +346,9 @@ public class DeviceBizService {
             result = 1.00;
         }
         if (value.compareTo(0d) < 0) {
-            return result * (-1d);
+            result = result * (-1d);
         }
+        System.out.println("abc");
         return splitDouble.getFirst() + result;
     }
 
