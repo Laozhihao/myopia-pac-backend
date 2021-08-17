@@ -41,16 +41,13 @@
             size: A4 portrait;
             margin: 170px 50px 200px 50px;
 
-            @bottom-left {
-                content: element(footer)
-            }
+            @bottom-left {content: element(footer)  }
 
             @top-left {
                 content: element(header);
             }
 
         }
-
         #header {
             position: running(header);
         }
@@ -123,7 +120,7 @@
             overflow: hidden;
         }
 
-        .images-wraper img {
+        .images-wraper img{
             width: 128px;
             display: inline-block;
             vertical-align: bottom;
@@ -200,7 +197,7 @@
         ${screeningOrgConfigs.title?if_exists}
         </h1>
         <h3 class="report-subtitle">
-            ${screeningOrgConfigs.subTitle?if_exists}
+        ${screeningOrgConfigs.subTitle?if_exists}
         </h3>
     </div>
     <div id="footer" class="cf">
@@ -209,7 +206,7 @@
         </div>
         <div class="images-desc">
             <div class="images-wraper">
-                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}"/>
+                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}" />
             </div>
         </div>
     </div>
@@ -228,7 +225,7 @@
             </div>
             <div class="images-desc">
                 <div class="images-wraper">
-                    <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}"/>
+                    <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" />
                 </div>
             </div>
         </div>
