@@ -1,5 +1,7 @@
 package com.wupol.myopia.oauth.constant;
 
+import com.wupol.myopia.base.constant.PermissionTemplateType;
+
 import java.util.HashMap;
 
 /**
@@ -10,6 +12,11 @@ import java.util.HashMap;
 public class OrgScreeningMap {
 
     public static final HashMap<Integer, Integer> ORG_CONFIG_TYPE_TO_TEMPLATE = new HashMap<>();
+
+    /**
+     * 省级
+     */
+    public static final Integer CONFIG_PROVINCE = 0;
 
     /**
      * 单点
@@ -26,24 +33,10 @@ public class OrgScreeningMap {
      */
     public static final Integer CONFIG_SINGLE_AND_VS666 = 3;
 
-    /**
-     * 模板7-单点
-     */
-    public static final Integer TEMPLATE_7 = 7;
-
-    /**
-     * 模板8-vs666
-     */
-    public static final Integer TEMPLATE_8 = 8;
-
-    /**
-     * 模板9-单点+vs666
-     */
-    public static final Integer TEMPLATE_9 = 9;
-
     static {
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE, TEMPLATE_7);
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_VS666, TEMPLATE_8);
-        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE_AND_VS666, TEMPLATE_9);
+        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_PROVINCE, PermissionTemplateType.SCREENING_ORGANIZATION.getType());
+        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE, PermissionTemplateType.SCREENING_ORG_SINGLE.getType());
+        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_VS666, PermissionTemplateType.SCREENING_ORG_VS666.getType());
+        ORG_CONFIG_TYPE_TO_TEMPLATE.put(CONFIG_SINGLE_AND_VS666, PermissionTemplateType.SCREENING_ORG_SINGLE_AND_VS666.getType());
     }
 }

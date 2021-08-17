@@ -336,7 +336,7 @@ public class UserService extends BaseService<UserMapper, User> {
         // 创建role和user_role
         Role role = saveOrgRole(userDTO, userId);
         // 更新权限
-        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.TEMPLATE_7)
+        List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(userDTO.getOrgConfigType()))
                 .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(permissionIds)) {

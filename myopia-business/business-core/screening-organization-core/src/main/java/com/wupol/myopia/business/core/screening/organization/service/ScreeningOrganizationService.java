@@ -237,5 +237,9 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return baseMapper.getByConfigType(configType);
     }
 
+    public List<ScreeningOrganization> getAll() {
+        return baseMapper.getAll();
+    }
+
 
 }

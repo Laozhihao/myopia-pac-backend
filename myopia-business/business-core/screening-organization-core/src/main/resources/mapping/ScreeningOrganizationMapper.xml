@@ -123,4 +123,10 @@
         from m_screening_organization
         where config_type = #{configType};
     </select>
+
+    <select id="getAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_organization
+    </select>
 </mapper>
