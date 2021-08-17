@@ -327,8 +327,9 @@ public class DeviceBizService {
         if (Objects.isNull(value)) {
             return null;
         }
+        TwoTuple<Double, Double> splitDouble = splitDouble(value);
         double result = 0d;
-        Double absValue = Math.abs(value);
+        Double absValue = Math.abs(splitDouble.getSecond());
         if (absValue.compareTo(0.125) < 0) {
             result = 0.00;
         }
@@ -347,8 +348,24 @@ public class DeviceBizService {
         if (value.compareTo(0d) < 0) {
             return result * (-1d);
         }
+        return splitDouble.getFirst() + result;
+    }
 
-        return result;
+    /**
+     * 拆分Double成两部分
+     *
+     * @param value 值
+     * @return left-整数 right-小数
+     */
+    private TwoTuple<Double, Double> splitDouble(Double value) {
+        //整数部分
+        int intNum = (int) Double.parseDouble(value.toString());
+        BigDecimal valueDecimal = new BigDecimal(value.toString());
+
+        BigDecimal intBigDecimal = new BigDecimal(intNum);
+        //小数部分
+        double decimalNum = valueDecimal.subtract(intBigDecimal).doubleValue();
+        return new TwoTuple<>((double) intNum, decimalNum);
     }
 
 
