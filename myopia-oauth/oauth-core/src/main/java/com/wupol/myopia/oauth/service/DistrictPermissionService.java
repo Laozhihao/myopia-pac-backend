@@ -82,14 +82,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         }
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
-        boolean success = saveBatch(permissions);
-
-        // 同步更新筛查管理端角色权限
-        if (PermissionTemplateType.SCREENING_ORGANIZATION.getType().equals(templateType)) {
-            Role role = roleService.findOne(new Role().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()));
-            roleService.assignRolePermission(role.getId(), permissionIds);
-        }
-        return success;
+        return saveBatch(permissions);
     }
 
     /**

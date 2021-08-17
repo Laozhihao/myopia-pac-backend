@@ -34,9 +34,9 @@ public class TemplateConfigType {
     public static final Integer CONFIG_SINGLE_AND_VS666 = 3;
 
     static {
-        TEMPLATE_TO_ORG_CONFIG_TYPE.put(CONFIG_PROVINCE, PermissionTemplateType.SCREENING_ORGANIZATION.getType());
-        TEMPLATE_TO_ORG_CONFIG_TYPE.put(CONFIG_SINGLE, PermissionTemplateType.SCREENING_ORG_SINGLE.getType());
-        TEMPLATE_TO_ORG_CONFIG_TYPE.put(CONFIG_VS666, PermissionTemplateType.SCREENING_ORG_VS666.getType());
-        TEMPLATE_TO_ORG_CONFIG_TYPE.put(CONFIG_SINGLE_AND_VS666, PermissionTemplateType.SCREENING_ORG_SINGLE_AND_VS666.getType());
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(PermissionTemplateType.SCREENING_ORGANIZATION.getType(), CONFIG_PROVINCE);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(PermissionTemplateType.SCREENING_ORG_SINGLE.getType(), CONFIG_SINGLE);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(PermissionTemplateType.SCREENING_ORG_VS666.getType(), CONFIG_VS666);
+        TEMPLATE_TO_ORG_CONFIG_TYPE.put(PermissionTemplateType.SCREENING_ORG_SINGLE_AND_VS666.getType(), CONFIG_SINGLE_AND_VS666);
     }
 }

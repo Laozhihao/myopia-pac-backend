@@ -102,7 +102,7 @@ public enum PermissionTemplateType {
      * @return 是否筛查机构
      */
     public static boolean isSpecialScreening(Integer type) {
-        return SCREENING_ORG_SINGLE.type.equals(type) || SCREENING_ORG_VS666.type.equals(type)
-                || SCREENING_ORG_SINGLE_AND_VS666.type.equals(type);
+        return SCREENING_ORGANIZATION.type.equals(type) || SCREENING_ORG_SINGLE.type.equals(type)
+                || SCREENING_ORG_VS666.type.equals(type) || SCREENING_ORG_SINGLE_AND_VS666.type.equals(type);
     }
 }
