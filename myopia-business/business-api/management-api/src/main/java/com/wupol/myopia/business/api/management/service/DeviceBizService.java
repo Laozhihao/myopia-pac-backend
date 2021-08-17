@@ -327,23 +327,28 @@ public class DeviceBizService {
         if (Objects.isNull(value)) {
             return null;
         }
+        double result = 0d;
         Double absValue = Math.abs(value);
         if (absValue.compareTo(0.125) < 0) {
-            return 0.00;
+            result = 0.00;
         }
-        if (isBetweenLeft(absValue, 0.125, 0.25)) {
-            return 0.25;
+        if (isBetweenLeft(absValue, 0.125, 0.375)) {
+            result = 0.25;
         }
         if (isBetweenLeft(absValue, 0.375, 0.625)) {
-            return 0.50;
+            result = 0.50;
         }
-        if (isBetweenLeft(absValue, 0.625, 0.75)) {
-            return 0.50;
+        if (isBetweenLeft(absValue, 0.625, 0.875)) {
+            result = 0.75;
         }
-        if (absValue.compareTo(0.825) >= 0) {
-            return 1.00;
+        if (absValue.compareTo(0.875) >= 0) {
+            result = 1.00;
         }
-        return null;
+        if (value.compareTo(0d) < 0) {
+            return result * (-1d);
+        }
+
+        return result;
     }
 
 
