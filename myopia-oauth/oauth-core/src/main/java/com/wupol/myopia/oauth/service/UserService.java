@@ -135,7 +135,7 @@ public class UserService extends BaseService<UserMapper, User> {
         boolean isScreeningAdmin = SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode().equals(user.getSystemCode());
         if (isScreeningAdmin) {
             // 根据筛查机构配置赋予权限
-            boolean result = generateOrgRole(userDTO);
+            boolean result = generateOrgRole(userDTO, user.getId());
             if (!result) {
                 Role role = roleService.findOne(new Role().setSystemCode(userDTO.getSystemCode()));
                 userRoleService.save(new UserRole().setUserId(user.getId()).setRoleId(role.getId()));
@@ -292,16 +292,17 @@ public class UserService extends BaseService<UserMapper, User> {
      * 生成角色并初始化权限
      *
      * @param userDTO userDTO
+     * @param userId  userId
      * @return boolean 是否成功
      */
-    private boolean generateOrgRole(UserDTO userDTO) {
+    private boolean generateOrgRole(UserDTO userDTO, Integer userId) {
         Integer orgConfigType = userDTO.getOrgConfigType();
         if (Objects.nonNull(orgConfigType)) {
             // 根据orgConfigType获取权限集合包
             List<Integer> permissionIds = districtPermissionService.getByTemplateType(OrgScreeningMap.ORG_CONFIG_TYPE_TO_TEMPLATE.get(orgConfigType))
                     .stream().map(DistrictPermission::getPermissionId).collect(Collectors.toList());
 
-            Role role = saveOrgRole(userDTO);
+            Role role = saveOrgRole(userDTO, userId);
             roleService.assignRolePermission(role.getId(), permissionIds);
             return true;
         }
@@ -312,9 +313,10 @@ public class UserService extends BaseService<UserMapper, User> {
      * 生成机构角色
      *
      * @param userDTO userDTO
+     * @param userId  userId
      * @return 角色
      */
-    private Role saveOrgRole(UserDTO userDTO) {
+    private Role saveOrgRole(UserDTO userDTO, Integer userId) {
         Role role = new Role();
         role.setOrgId(userDTO.getOrgId());
         role.setChName(userDTO.getUsername());
@@ -322,6 +324,7 @@ public class UserService extends BaseService<UserMapper, User> {
         role.setSystemCode(userDTO.getSystemCode());
         role.setCreateUserId(userDTO.getCreateUserId());
         roleService.save(role);
+        userRoleService.save(new UserRole().setUserId(userId).setRoleId(role.getId()));
         return role;
     }
 }
