@@ -39,24 +39,27 @@
 
         @page {
             size: A4 portrait;
-            margin: 170px 50px 200px 50px;
+            margin: 170px 0 200px 0;
 
-            @bottom-left {content: element(footer)  }
+            @bottom-left {
+                content: element(footer)
+            }
 
             @top-left {
                 content: element(header);
             }
 
         }
+
         #header {
             position: running(header);
         }
 
         .report-images {
             display: block;
-            margin: 0 -15px;
             overflow: hidden;
-            background: #e4e3e3;
+            padding: 6px 0 2px;
+            background: #F2F2F2;
         }
 
         .wraper {
@@ -71,7 +74,7 @@
 
         /*生成pdf 96PPI*/
         .wraper .report-content {
-            width: 694px;
+            width: 794px;
             height: 752.5px;
             position: relative;
             display: block;
@@ -97,10 +100,15 @@
         }
 
         .images-desc {
-            width: 330px;
+            width: 356px;
             float: left;
             padding-left: 15px;
             border: 1px solid transparent;
+            text-align: left;
+        }
+
+        .images-desc .title {
+            font-weight: 500;
         }
 
         .report-images .flex {
@@ -108,7 +116,9 @@
         }
 
         .report-images .flex .note-label {
-            padding-top: 20px;
+            padding-top: 10px;
+            color: #595959;
+            font-size: 14px;
         }
 
         .images-wraper {
@@ -120,10 +130,20 @@
             overflow: hidden;
         }
 
-        .images-wraper img{
+        .images-wraper .title {
+            position: absolute;
+            top: 0;
+            right: 128px;
+        }
+
+        .images-wraper img {
             width: 128px;
             display: inline-block;
             vertical-align: bottom;
+        }
+
+        .report-conclus {
+            margin: 0 32px;
         }
 
         .report-conclus .report-layout {
@@ -171,8 +191,8 @@
 
         #footer {
             position: running(footer);
-            width: 694px;
-            margin: 0 auto;
+            width: 794px;
+            margin-left: 52px;
             margin-top: -100px;
         }
 
@@ -180,70 +200,93 @@
             display: inline-block;
             float: left;
             width: 380px;
-            margin-top: -30px;
+            margin-top: -70px;
+            color: #595959;
+            font-size: 12px;
+        }
+
+        .text-w p {
+            color: #262626;
+            font-size: 14px;
+            margin-left: -12px;
+            margin-bottom: 12px;
+        }
+
+        .text-w li {
+            margin-bottom: 6px;
         }
 
         #footer .images-desc {
-            width: 290px;
-            padding-right: 0;
+            width: 320px;
         }
     </style>
 </head>
 <body>
 <#list students as student>
-<div class="wraper">
-    <div id="header">
-        <h1 class="report-title">
-        ${screeningOrgConfigs.title?if_exists}
-        </h1>
-        <h3 class="report-subtitle">
-        ${screeningOrgConfigs.subTitle?if_exists}
-        </h3>
-    </div>
-    <div id="footer" class="cf">
-        <div class="text-w">
-            关注公众号，绑定学生信息可随时查看学生的眼健康信息，查看最新的眼健康知识，随时与医生进行沟通互动。
+    <div class="wraper">
+        <div id="header">
+            <h1 class="report-title">
+                ${screeningOrgConfigs.title?if_exists}
+            </h1>
+            <h3 class="report-subtitle">
+                ${screeningOrgConfigs.subTitle?if_exists}
+            </h3>
         </div>
-        <div class="images-desc">
-            <div class="images-wraper">
-                <img crossorigin="anonymous" src="${qrCodeFile?if_exists}" />
-            </div>
-        </div>
-    </div>
-    <div class="report-content">
-        <div class="report-images">
-            <div class="images-desc flex">
-                <div class="note-label">
-                    <label>学校名称：</label>${schoolName?if_exists}
-                </div>
-                <div class="note-label">
-                    <label>年级班级：</label>${classDisplay?if_exists}
-                </div>
-                <div class="note-label">
-                    <label>学生姓名：</label>${student.name?if_exists}
-                </div>
+        <div id="footer" class="cf">
+            <div class="text-w">
+                <p>关注公众号，及时查看孩子视力筛查结果报告！</p>
+                <ul>
+                    <li>查看孩子的眼健康档案</li>
+                    <li>了解孩子的视力变化趋势</li>
+                    <li>学习相关的眼健康知识与科普</li>
+                    <li>有问题可在线咨询医生进行解答</li>
+                </ul>
             </div>
             <div class="images-desc">
                 <div class="images-wraper">
-                    <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" />
+                    <img crossorigin="anonymous" src="${qrCodeFile?if_exists}"/>
                 </div>
             </div>
         </div>
-        <div class="report-conclus">
-            <p class="title">${screeningOrgConfigs.call?if_exists}</p>
-            <p class="">${screeningOrgConfigs.greetings?if_exists}</p>
-            <div class="report-layout">
-                <div class="layout-row">
-                    <div class="conclus-part">
+        <div class="report-content">
+            <div class="report-images">
+                <div class="images-desc flex">
+                    <p class="title">学生信息：</p>
+                    <div class="note-label">
+                        <label>学校名称：</label>${schoolName?if_exists}
+                    </div>
+                    <div class="note-label">
+                        <label>班级年级：</label>${classDisplay?if_exists}
+                    </div>
+                    <div class="note-label">
+                        <label>性别：</label>${student.gender?if_exists}
+                    </div>
+                    <div class="note-label">
+                        <label>姓名：</label>${student.name?if_exists}
+                    </div>
+                </div>
+                <div class="images-desc">
+                    <div class="images-wraper">
+                        <span class="title">筛查二维码：</span>
+                        <img crossorigin="anonymous" src="${qrcodeUrl?if_exists}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="report-conclus">
+                <p class="title">${screeningOrgConfigs.call?if_exists}</p>
+                <p class="">${screeningOrgConfigs.greetings?if_exists}</p>
+                <div class="report-layout">
+                    <div class="layout-row">
+                        <div class="conclus-part">
                         <span contenteditable="true">
                         ${screeningOrgConfigs.content?if_exists}
                         </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </#list>
 </body>
 
