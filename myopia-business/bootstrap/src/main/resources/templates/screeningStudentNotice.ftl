@@ -259,7 +259,7 @@
                         <label>班级年级：</label>${classDisplay?if_exists}
                     </div>
                     <div class="note-label">
-                        <label>性别：</label>${student.gender?if_exists}
+                        <label>性别：</label>${student.genderDesc?if_exists}
                     </div>
                     <div class="note-label">
                         <label>姓名：</label>${student.name?if_exists}
@@ -268,7 +268,7 @@
                 <div class="images-desc">
                     <div class="images-wraper">
                         <span class="title">筛查二维码：</span>
-                        <img crossorigin="anonymous" src="${qrcodeUrl?if_exists}"/>
+                        <img crossorigin="anonymous" src="${student.qrcodeUrl?if_exists}"/>
                     </div>
                 </div>
             </div>
