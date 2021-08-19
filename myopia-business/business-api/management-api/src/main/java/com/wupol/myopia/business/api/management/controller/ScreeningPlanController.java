@@ -491,13 +491,14 @@ public class ScreeningPlanController {
             models.put("students", students);
             models.put("classDisplay", classDisplay);
             models.put("schoolName", school.getName());
-//            if (Objects.nonNull(screeningOrganization.getNotificationConfig())
-//                    && Objects.nonNull(screeningOrganization.getNotificationConfig().getQrCodeFileId())) {
-//                models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
-//            } else {
-//                models.put("qrCodeFile", "/image/123.png");
-//            }
-            models.put("qrCodeFile", "/image/wechat_mp_qrcode.png");
+            if (Objects.nonNull(screeningOrganization.getNotificationConfig())
+                    && Objects.nonNull(screeningOrganization.getNotificationConfig().getQrCodeFileId())
+                    && !screeningOrganization.getNotificationConfig().getQrCodeFileId().equals(-1)
+            ) {
+                models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+            } else {
+                models.put("qrCodeFile", "/image/wechat_mp_qrcode.png");
+            }
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
             File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl,fileName);
             Map<String, String> resultMap = new HashMap<>(16);
