@@ -11,13 +11,13 @@ import lombok.experimental.UtilityClass;
 public class QrCodeConstant {
 
     /**
-     * 二维码生成规则: "SA@" + 32位"学生id",不足使用0补充
+     * 二维码生成规则: "SA@" + 7位"学生id",不足使用0补充
      * 如studentId = 123 ,则生成的结果是:
-     * SA@0000000000000000000123
+     * SA@0000123
      * 如studentId = 1 ,则生成的结果是:
-     * SA@0000000000000000000001
+     * SA@0000001
      */
-    public final String QR_CODE_CONTENT_FORMAT_RULE = "SA@%032d";
+    public final String QR_CODE_CONTENT_FORMAT_RULE = "SA@%07d";
 
     /**
      * [ID,name,sex,age,phone,0,schoolName,gradeName&className,idCard]

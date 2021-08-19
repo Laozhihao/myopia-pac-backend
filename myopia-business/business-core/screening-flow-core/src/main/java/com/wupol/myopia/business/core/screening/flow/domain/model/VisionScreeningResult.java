@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -97,6 +94,47 @@ public class VisionScreeningResult implements Serializable {
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private OtherEyeDiseasesDO otherEyeDiseases;
+
+    /**
+     * 筛查结果--33cm眼位
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private OcularInspectionDataDO ocularInspectionData;
+
+    /**
+     * 筛查结果--眼压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private EyePressureDataDO eyePressureData;
+
+    /**
+     * 筛查结果--眼底
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FundusDataDO fundusData;
+
+    /**
+     * 筛查结果--裂隙灯检查
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SlitLampDataDO slitLampData;
+
+    /**
+     * 筛查结果--小瞳验光
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PupilOptometryDataDO pupilOptometryData;
+
+    /**
+     * 筛查结果--盲及视力损害分类
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private VisualLossLevelDataDO visualLossLevelData;
+
+    /**
+     * 筛查结果--全身疾病在眼部的表现
+     */
+    private String systemicDiseaseSymptom;
 
     /**
      * 筛查结果--是否复筛（0否，1是）
