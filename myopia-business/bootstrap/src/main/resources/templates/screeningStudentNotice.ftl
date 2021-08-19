@@ -268,7 +268,7 @@
                 <div class="images-desc">
                     <div class="images-wraper">
                         <span class="title">筛查二维码：</span>
-                        <img crossorigin="anonymous" src="${student.qrcodeUrl?if_exists}"/>
+                        <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}"/>
                     </div>
                 </div>
             </div>
