@@ -17,7 +17,7 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**
+        - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /image/**
 
     # 注册中心地址
     nacos:
@@ -107,3 +107,5 @@ white-list:
   - "/management/screeningResult/list-result"
   # 健康检查接口
   - "/actuator/health"
+  # 报告二维码图片
+  - "/image/**"
