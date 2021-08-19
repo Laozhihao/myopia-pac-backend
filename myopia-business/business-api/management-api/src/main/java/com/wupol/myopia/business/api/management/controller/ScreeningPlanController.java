@@ -41,6 +41,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -103,6 +104,9 @@ public class ScreeningPlanController {
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
+
+    @Value("${server.host}")
+    private String hostUrl;
 
     /**
      * 新增
@@ -487,9 +491,15 @@ public class ScreeningPlanController {
             models.put("students", students);
             models.put("classDisplay", classDisplay);
             models.put("schoolName", school.getName());
-            models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+//            if (Objects.nonNull(screeningOrganization.getNotificationConfig())
+//                    && Objects.nonNull(screeningOrganization.getNotificationConfig().getQrCodeFileId())) {
+//                models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+//            } else {
+//                models.put("qrCodeFile", "/image/123.png");
+//            }
+            models.put("qrCodeFile", "/image/wechat_mp_qrcode.png");
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl,fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;

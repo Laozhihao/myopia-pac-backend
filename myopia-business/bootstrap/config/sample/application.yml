@@ -1,6 +1,7 @@
 ### 服务端口号
 server:
   port: 8020
+  host: http://localhost:8020
 
 ### log4j2配置 ###
 logging:
