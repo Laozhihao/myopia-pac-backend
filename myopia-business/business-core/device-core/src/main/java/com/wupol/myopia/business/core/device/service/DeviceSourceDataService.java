@@ -13,7 +13,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -26,30 +28,6 @@ public class DeviceSourceDataService extends BaseService<DeviceSourceDataMapper,
 
     @Autowired
     private DeviceSourceDataMapper deviceSourceDataMapper;
-
-    /**
-     * 过滤掉已经存在的数据
-     *
-     * @param bindingScreeningOrgId
-     * @param deviceScreenDataDTOList
-     * @return
-     */
-    public Map<Boolean, List<DeviceScreenDataDTO>> getUpdateOrSaveData(Integer bindingScreeningOrgId, String deviceSn, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
-        List<DeviceScreenDataDTO> existDeviceScreeningDataDTOList = deviceSourceDataMapper.selectWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
-        // 将存在的数据的唯一索引组成String Set
-        Set<String> existSet = existDeviceScreeningDataDTOList.stream().map(DeviceScreenDataDTO::getUnikeyString).collect(Collectors.toSet());
-        if (CollectionUtils.isEmpty(existSet)) {
-            return new HashMap<>();
-        }
-        // 排除已经存在的数据
-        Map<Boolean, List<DeviceScreenDataDTO>> updateOrSaveData = deviceScreenDataDTOList.stream().collect(Collectors.partitioningBy(deviceScreenDataDTO -> {
-            deviceScreenDataDTO.setScreeningOrgId(bindingScreeningOrgId);
-            deviceScreenDataDTO.setDeviceSn(deviceSn);
-            String unikeyString = deviceScreenDataDTO.getUnikeyString();
-            return existSet.contains(unikeyString);
-        }));
-        return updateOrSaveData;
-    }
 
     /**
      * 根据条件以下条件查找数据
