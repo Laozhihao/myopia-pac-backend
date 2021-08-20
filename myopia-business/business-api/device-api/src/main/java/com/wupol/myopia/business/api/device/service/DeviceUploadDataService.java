@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.device.service;
 
 import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.DeviceUploadDTO;
@@ -39,6 +40,10 @@ public class DeviceUploadDataService {
      * 设备上传的默认用户id
      */
     private static final Integer DEVICE_UPLOAD_DEFAULT_USER_ID = 0;
+
+    /**分割符*/
+    private static final String DELIMITER_CHAR = "-";
+
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
@@ -185,15 +190,14 @@ public class DeviceUploadDataService {
      */
     private Map<Boolean, List<DeviceScreenDataDTO>> getUpdateAndAddData(List<DeviceScreenDataDTO> deviceScreenDataDTOList, Integer bindingScreeningOrgId, String deviceSn, List<DeviceScreenDataDTO> existDeviceScreeningDataDTO) {
         // 将存在的数据的唯一索引组成String Set
-        Set<String> existSet = existDeviceScreeningDataDTO.stream().map(DeviceScreenDataDTO::getUnikeyString).collect(Collectors.toSet());
+        Set<String> existSet = existDeviceScreeningDataDTO.stream().map(this::getUnikeyString).collect(Collectors.toSet());
         // true 为需要更新的数据  false为需要插入的数据
-        Map<Boolean, List<DeviceScreenDataDTO>> updateOrSaveData = deviceScreenDataDTOList.stream().collect(Collectors.partitioningBy(deviceScreenDataDTO -> {
+        return deviceScreenDataDTOList.stream().collect(Collectors.partitioningBy(deviceScreenDataDTO -> {
             deviceScreenDataDTO.setScreeningOrgId(bindingScreeningOrgId);
             deviceScreenDataDTO.setDeviceSn(deviceSn);
-            String unikeyString = deviceScreenDataDTO.getUnikeyString();
+            String unikeyString = getUnikeyString(deviceScreenDataDTO);
             return existSet.contains(unikeyString);
         }));
-        return updateOrSaveData;
     }
 
     /**
@@ -206,5 +210,26 @@ public class DeviceUploadDataService {
             String checkResult = CheckResultUtil.getCheckResult(deviceScreenDataDTO);
             deviceScreenDataDTO.setCheckResult(checkResult);
         });
+    }
+
+    /**
+     * 获取唯一keyString
+     *
+     * @return 唯一keyString
+     */
+    private String getUnikeyString(DeviceScreenDataDTO deviceScreenDataDTO) {
+        if (ObjectsUtil.hasNull(deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
+                deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime())) {
+            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s",
+                    deviceScreenDataDTO.getScreeningOrgId(), deviceScreenDataDTO.getDeviceSn(),
+                    deviceScreenDataDTO.getPatientId(), deviceScreenDataDTO.getCheckTime()));
+        }
+        return deviceScreenDataDTO.getScreeningOrgId() +
+                DELIMITER_CHAR +
+                deviceScreenDataDTO.getDeviceSn() +
+                DELIMITER_CHAR +
+                deviceScreenDataDTO.getPatientId() +
+                DELIMITER_CHAR +
+                deviceScreenDataDTO.getCheckTime();
     }
 }
