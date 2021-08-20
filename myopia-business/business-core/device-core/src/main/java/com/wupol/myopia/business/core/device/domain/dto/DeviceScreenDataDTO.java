@@ -25,9 +25,6 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 public class DeviceScreenDataDTO implements Serializable {
-
-    /**分割符*/
-    private static final String DELIMITER_CHAR = "-";
     /*** ID: * 个⼈筛查⽅式：年⽉⽇_000X，20180920_0001 * 批量筛查⽅式：excel表格中定义 */
     private String patientId;
     /*** 姓名 */
@@ -121,24 +118,5 @@ public class DeviceScreenDataDTO implements Serializable {
         deviceScreeningData.setCheckResult(checkResult);
         deviceScreeningData.setScreeningTime((checkTime));
         return deviceScreeningData;
-    }
-
-    /**
-     * 获取唯一keyString
-     * @return
-     */
-    public String getUnikeyString() {
-        if (ObjectsUtil.hasNull(screeningOrgId, deviceSn, patientId, checkTime)) {
-            throw new BusinessException(String.format("获取唯一key失败,存在参数为空,screeningOrgId = %s , deviceSn = %s, patientId = %s, checkTime = %s", screeningOrgId, deviceSn, patientId, checkTime));
-        }
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(screeningOrgId)
-                .append(DELIMITER_CHAR)
-                .append(deviceSn)
-                .append(DELIMITER_CHAR)
-                .append(patientId)
-                .append(DELIMITER_CHAR)
-                .append(checkTime);
-        return stringBuilder.toString();
     }
 }
