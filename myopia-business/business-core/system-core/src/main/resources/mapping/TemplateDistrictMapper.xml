@@ -37,11 +37,10 @@
         where mtd.template_id = #{templateId}
     </select>
 
-    <delete id="deletedByTemplateIdAndDistrictIds">
+    <delete id="deletedByDistrictIds">
         delete
         from m_template_district
-                where template_id = #{templateId}
-                  and district_id in
+                where district_id in
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -62,5 +61,11 @@
         <foreach collection="templateIds" open="(" close=")" separator="," item="templateId">
             #{templateId}
         </foreach>
+    </select>
+
+    <select id="getByDistrictId" resultType="java.lang.Integer">
+        select template_id
+        from m_template_district
+        where district_id = #{districtId}
     </select>
 </mapper>

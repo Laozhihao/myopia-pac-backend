@@ -39,4 +39,9 @@ public class StudentScreeningResultItemsDTO {
      * 筛查结果--是否复筛（0否，1是）
      */
     private Boolean isDoubleScreen;
+
+    /**
+     * 模板Id
+     */
+    private Integer templateId;
 }

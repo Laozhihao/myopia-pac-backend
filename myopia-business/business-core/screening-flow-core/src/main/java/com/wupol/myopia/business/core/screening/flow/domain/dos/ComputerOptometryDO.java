@@ -28,6 +28,14 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
      * 左眼数据
      */
     private ComputerOptometry leftEyeData;
+    /**
+     * 初步诊断结果：0-正常、1-（疑似）异常
+     */
+    private Integer diagnosis;
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
     /**
      * 电脑验光具体数据
@@ -38,7 +46,7 @@ public class ComputerOptometryDO implements ScreeningResultStructureInterface<Co
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     @Accessors(chain = true)
-    public static class ComputerOptometry implements ValidResultDataInterface,Serializable {
+    public static class ComputerOptometry implements ValidResultDataInterface, Serializable {
         /**
          * 0 为左眼 1为右眼
          */

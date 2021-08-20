@@ -26,7 +26,7 @@ public class RegularUtils {
     /**
      * 固定电话正则
      */
-    public final String REGULAR_TELEPHONE = "(0\\d{2,3}-[1-9]\\d{6,7})";
+    public final String REGULAR_TELEPHONE = "(0\\d{2,3}-[1-9]\\d{5,7})";
 
     /**
      * 校验手机号

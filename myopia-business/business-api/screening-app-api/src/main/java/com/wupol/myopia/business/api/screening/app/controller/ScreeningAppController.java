@@ -8,9 +8,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
-import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
-import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
-import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
+import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
@@ -47,7 +45,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -208,7 +205,6 @@ public class ScreeningAppController {
         return allEyeDiseaseVos;
     }
 
-
     /**
      * 上传筛查机构用户的签名图片
      *
@@ -230,7 +226,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getUserInfo")
-    public AppUserInfo getUserInfo() throws IOException {
+    public AppUserInfo getUserInfo() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningAppService.getUserInfoByUser(currentUser);
     }
@@ -245,7 +241,6 @@ public class ScreeningAppController {
        // 暂时不用
     }
 
-
     /**
      * 保存视力筛查
      *
@@ -253,7 +248,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addVision")
     public void addStudentVision(@Valid @RequestBody VisionDataDTO visionDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        if (visionDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
+        }
     }
 
     /**
@@ -263,7 +260,9 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addComputer")
     public void addStudentComputer(@Valid @RequestBody ComputerOptometryDTO computerOptometryDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        if (computerOptometryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+        }
     }
 
     /**
@@ -273,11 +272,13 @@ public class ScreeningAppController {
      */
     @PostMapping("/eye/addBiology")
     public void addStudentBiology(@Valid @RequestBody BiometricDataDTO biometricDataDTO) {
-        visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+        if (biometricDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
+        }
     }
 
     /**
-     * 增加该学生的眼睛疾病
+     * 保存其他眼病
      *
      * @return
      */
@@ -286,6 +287,39 @@ public class ScreeningAppController {
         visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
+    /**
+     * 保存眼位、裂隙灯、眼底检查数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addMultiCheck")
+    public void addMultiCheck(@Valid @RequestBody MultiCheckDataDTO multiCheckDataDTO) {
+        visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
+    }
+
+    /**
+     * 保存小瞳验光数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addPupilOptometry")
+    public void addPupilOptometry(@Valid @RequestBody PupilOptometryDTO pupilOptometryDTO) {
+        if (pupilOptometryDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
+        }
+    }
+
+    /**
+     * 保存眼压数据
+     *
+     * @return
+     */
+    @PostMapping("/eye/addEyePressure")
+    public void addEyePressure(@Valid @RequestBody EyePressureDataDTO eyePressureDataDTO) {
+        if (eyePressureDataDTO.isValid()) {
+            visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
+        }
+    }
 
     //分割线----------------------
 
@@ -317,7 +351,7 @@ public class ScreeningAppController {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
         screeningPlanSchoolStudent
-                .setScreeningOrgId(deptId.intValue())
+                .setScreeningOrgId(deptId)
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
                 .setStudentName(studentName)

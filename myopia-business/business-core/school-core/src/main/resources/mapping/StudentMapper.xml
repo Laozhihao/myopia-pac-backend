@@ -244,4 +244,33 @@
             #{studentId}
         </foreach>
     </select>
+
+    <select id="getStudentInfo" resultMap="BaseResultMapDTO">
+        select student.*,
+        school.name as schoolName,
+        school.district_detail as schoolDistrictName,
+        msc.name as className,
+        msg.name as gradeName
+        from m_student student
+        left join m_school school on student.school_no = school.school_no
+        left join m_school_class msc on student.class_id = msc.id
+        left join m_school_grade msg on student.grade_id = msg.id
+        where student.id = #{studentId}
+    </select>
+
+    <select id="getStudentInfoList" resultMap="BaseResultMapDTO">
+        select student.*,
+        school.name as schoolName,
+        school.district_detail as schoolDistrictName,
+        msc.name as className,
+        msg.name as gradeName
+        from m_student student
+        left join m_school school on student.school_no = school.school_no
+        left join m_school_class msc on student.class_id = msc.id
+        left join m_school_grade msg on student.grade_id = msg.id
+        where student.id in
+        <foreach collection="studentIds" open="(" close=")" separator="," item="studentId">
+            #{studentId}
+        </foreach>
+    </select>
 </mapper>

@@ -164,7 +164,7 @@ public class WxController {
      **/
     @PostMapping("/phone/bind")
     @ResponseBody
-    public ApiResult<TokenInfo> bindPhoneToParent(@RequestBody @Validated WxLoginInfo wxLoginInfo) throws IOException {
+    public ApiResult<TokenInfo> bindPhoneToParent(@RequestBody @Validated WxLoginInfo wxLoginInfo) {
         // 校验短信验证码
         boolean isRight = smsService.checkSmsCode(wxLoginInfo.getPhone(), wxLoginInfo.getSmsCode());
         if (!isRight) {

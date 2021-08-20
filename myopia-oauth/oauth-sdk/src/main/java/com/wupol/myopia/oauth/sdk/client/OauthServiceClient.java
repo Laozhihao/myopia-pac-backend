@@ -251,7 +251,7 @@ public interface OauthServiceClient {
      * @return 权限集合
      */
     @GetMapping("/oauth/districtPermission/permissionIds/{templateType}")
-    List<Integer> getListByTemplateType(@PathVariable Integer templateType);
+    List<Integer> getListByTemplateType(@PathVariable("templateType") Integer templateType);
 
     /**
      * 初始化筛查机构权限

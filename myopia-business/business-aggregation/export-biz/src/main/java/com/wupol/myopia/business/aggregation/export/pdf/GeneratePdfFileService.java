@@ -1,18 +1,25 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +28,13 @@ import org.springframework.util.Assert;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 生成PDF报告
@@ -46,14 +59,23 @@ public class GeneratePdfFileService {
     private DistrictService districtService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private TemplateDistrictService templateDistrictService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    private static final ExecutorService executor = new ThreadPoolExecutor(1, 2, 5, TimeUnit.MINUTES, new ArrayBlockingQueue<>(128));
+
 
     /**
      * 生成筛查报告PDF文件 - 行政区域
      *
      * @param saveDirectory 文件保存目录
-     * @param fileName 文件名
-     * @param noticeId 筛查通知ID
-     * @param districtId 行政区域ID
+     * @param fileName      文件名
+     * @param noticeId      筛查通知ID
+     * @param districtId    行政区域ID
      * @return void
      **/
     public void generateDistrictScreeningReportPdfFile(String saveDirectory, String fileName, Integer noticeId, Integer districtId) {
@@ -70,8 +92,7 @@ public class GeneratePdfFileService {
      * 根据筛查通知ID，生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @return void
+     * @param noticeId      筛查通知ID
      **/
     public void generateSchoolScreeningReportPdfFileByNoticeId(String saveDirectory, Integer noticeId, Integer districtId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -85,8 +106,7 @@ public class GeneratePdfFileService {
      * 生成筛查报告PDF文件 - 筛查机构
      *
      * @param saveDirectory 保存目录
-     * @param planId 筛查计划ID
-     * @return void
+     * @param planId        筛查计划ID
      **/
     public void generateScreeningOrgScreeningReportPdfFile(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -99,10 +119,9 @@ public class GeneratePdfFileService {
      * 批量生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @param planId 筛查计划ID
-     * @param schoolIdList 学校ID集合
-     * @return void
+     * @param noticeId      筛查通知ID
+     * @param planId        筛查计划ID
+     * @param schoolIdList  学校ID集合
      **/
     private void generateSchoolScreeningReportPdfFileBatch(String saveDirectory, Integer noticeId, Integer planId, List<Integer> schoolIdList) {
         Assert.notEmpty(schoolIdList, "学校ID集为空");
@@ -111,6 +130,7 @@ public class GeneratePdfFileService {
 
     /**
      * 生成筛查计划总报告
+     *
      * @param saveDirectory
      * @param planId
      */
@@ -127,10 +147,9 @@ public class GeneratePdfFileService {
      * 生成筛查报告PDF文件 - 学校
      *
      * @param saveDirectory 文件保存目录
-     * @param noticeId 筛查通知ID
-     * @param planId 筛查计划ID
-     * @param schoolId 学校ID
-     * @return void
+     * @param noticeId      筛查通知ID
+     * @param planId        筛查计划ID
+     * @param schoolId      学校ID
      **/
     public void generateSchoolScreeningReportPdfFile(String saveDirectory, Integer noticeId, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -146,8 +165,7 @@ public class GeneratePdfFileService {
      * 生成档案卡PDF文件 - 筛查机构
      *
      * @param saveDirectory 保存目录
-     * @param planId 筛查计划ID
-     * @return void
+     * @param planId        筛查计划ID
      **/
     public void generateScreeningOrgArchivesPdfFile(String saveDirectory, Integer planId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
@@ -160,17 +178,53 @@ public class GeneratePdfFileService {
      * 生成档案卡PDF文件 - 学校
      *
      * @param saveDirectory 保存目录
-     * @param planId 筛查计划ID
-     * @param schoolId 学校ID
-     * @return void
+     * @param planId        筛查计划ID
+     * @param schoolId      学校ID
      **/
     public void generateSchoolArchivesPdfFile(String saveDirectory, Integer planId, Integer schoolId) {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(planId, BizMsgConstant.PLAN_ID_IS_EMPTY);
         Assert.notNull(schoolId, "学校ID不能为空");
         School school = schoolService.getById(schoolId);
-        String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
-        String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL , htmlUrlHost, planId, schoolId);
-        Assert.isTrue(HtmlToPdfUtil.convert(schoolPdfHtmlUrl, Paths.get(saveDirectory, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
+
+        // 获取筛查机构的模板
+        ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
+        Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
+
+        // 获取年纪班级信息
+        List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId);
+
+        gradeAndClass.parallelStream().forEach(gradeVO -> {
+            gradeVO.getClasses().forEach(schoolClass -> {
+                String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId());
+                String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
+                String dir = saveDirectory + "/" + school.getName() + "/" + gradeVO.getGradeName() + "/" + schoolClass.getName();
+                Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
+            });
+        });
+    }
+
+    public List<PlanSchoolGradeVO> getGradeAndClass(Integer screeningPlanId, Integer schoolId) {
+        //1. 获取该计划学校的筛查学生所有年级、班级
+        List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        Map<Integer, String> gradeMap = gradeClasses.stream().collect(Collectors.toMap(GradeClassesDTO::getGradeId, GradeClassesDTO::getGradeName, (o, n) -> n));
+        //2. 根据年级分组
+        Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
+        //3. 组装SchoolGradeVo数据
+        return graderIdClasses.keySet().stream().map(gradeId -> {
+            PlanSchoolGradeVO vo = new PlanSchoolGradeVO();
+            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
+            // 查询并设置年级名称
+            vo.setId(gradeId);
+            vo.setGradeName(gradeMap.get(gradeId));
+            // 查询并设置班级名称
+            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
+                SchoolClass schoolClass = new SchoolClass();
+                schoolClass.setId(dto.getClassId());
+                schoolClass.setName(dto.getClassName());
+                return schoolClass;
+            }).collect(Collectors.toList()));
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

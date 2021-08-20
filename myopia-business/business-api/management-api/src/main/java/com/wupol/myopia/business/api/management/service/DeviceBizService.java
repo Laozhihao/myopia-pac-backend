@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,17 +77,21 @@ public class DeviceBizService {
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
         responseDTOS.forEach(r -> {
-            if(Objects.nonNull(r.getLeftAxsi())) {
-                r.setLeftAxsi(new BigDecimal(r.getLeftAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+            if (Objects.nonNull(r.getLeftAxsi())) {
+                r.setLeftAxsi(BigDecimal.valueOf(r.getLeftAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             if (Objects.nonNull(r.getRightAxsi())) {
-                r.setRightAxsi(new BigDecimal(r.getRightAxsi()).setScale(0, BigDecimal.ROUND_DOWN).doubleValue());
+                r.setRightAxsi(BigDecimal.valueOf(r.getRightAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
             r.setDoctorConclusion(doctorAdvice.getFirst());
             r.setDoctorAdvice(doctorAdvice.getSecond());
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
+            r.setLeftCylDisplay(getDisplayValue(r.getLeftCyl()));
+            r.setRightCylDisplay(getDisplayValue(r.getRightCyl()));
+            r.setLeftSphDisplay(getDisplayValue(r.getLeftSph()));
+            r.setRightSphDisplay(getDisplayValue(r.getRightSph()));
         });
         return responseDTOS;
     }
@@ -99,7 +104,7 @@ public class DeviceBizService {
      * @param rightPa    右眼等效球镜
      * @param leftCyl    左眼柱镜
      * @param rightCyl   右眼柱镜
-     * @return left-医生结论 rigjt医生建议
+     * @return left-医生结论 right医生建议
      */
     private TwoTuple<String, String> getDoctorAdvice(Integer patientAge, Double leftPa, Double rightPa, Double leftCyl, Double rightCyl) {
         if (ObjectsUtil.allNull(leftPa, rightPa, leftCyl, rightCyl)) {
@@ -156,8 +161,8 @@ public class DeviceBizService {
     /**
      * 单眼是否远视
      *
-     * @param patientAge 患者月龄
-     * @param paDoubleValue         等效球镜
+     * @param patientAge    患者月龄
+     * @param paDoubleValue 等效球镜
      * @return 是否远视
      */
     private boolean checkSingleEyeIsFarsightedness(Integer patientAge, Double paDoubleValue) {
@@ -243,8 +248,8 @@ public class DeviceBizService {
     /**
      * 单眼是否远视储备不足
      *
-     * @param patientAge 患者月龄
-     * @param paDoubleValue         等效球镜
+     * @param patientAge    患者月龄
+     * @param paDoubleValue 等效球镜
      * @return 是否远视储备不足
      */
     private boolean checkSingleEyeIsInsufficientFarsightedReserves(Integer patientAge, Double paDoubleValue) {
@@ -310,5 +315,69 @@ public class DeviceBizService {
             deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
             return deviceVO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * VS666数据格式化
+     *
+     * @param value 值
+     * @return VS666数据格式化
+     */
+    public Double getDisplayValue(Double value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        TwoTuple<Double, Double> splitDouble = splitDouble(value);
+        double result = 0d;
+        Double absValue = Math.abs(splitDouble.getSecond());
+        if (absValue.compareTo(0.125) < 0) {
+            result = 0.00;
+        }
+        if (isBetweenLeft(absValue, 0.125, 0.375)) {
+            result = 0.25;
+        }
+        if (isBetweenLeft(absValue, 0.375, 0.625)) {
+            result = 0.50;
+        }
+        if (isBetweenLeft(absValue, 0.625, 0.875)) {
+            result = 0.75;
+        }
+        if (absValue.compareTo(0.875) >= 0) {
+            result = 1.00;
+        }
+        if (value.compareTo(0d) < 0) {
+            result = result * (-1d);
+        }
+        return splitDouble.getFirst() + result;
+    }
+
+    /**
+     * 拆分Double成两部分
+     *
+     * @param value 值
+     * @return left-整数 right-小数
+     */
+    private TwoTuple<Double, Double> splitDouble(Double value) {
+        //整数部分
+        int intNum = (int) Double.parseDouble(value.toString());
+        BigDecimal valueDecimal = new BigDecimal(value.toString());
+
+        BigDecimal intBigDecimal = new BigDecimal(intNum);
+        //小数部分
+        double decimalNum = valueDecimal.subtract(intBigDecimal).doubleValue();
+        return new TwoTuple<>((double) intNum, decimalNum);
+    }
+
+
+    /**
+     * 判断是否在某个区间，左闭右开区间
+     *
+     * @param val   值
+     * @param start 开始值
+     * @param end   结束值
+     * @return 是否在区间内
+     */
+    public static boolean isBetweenLeft(Double val, Double start, Double end) {
+        return val.compareTo(start) >= 0 && val.compareTo(end) < 0;
     }
 }

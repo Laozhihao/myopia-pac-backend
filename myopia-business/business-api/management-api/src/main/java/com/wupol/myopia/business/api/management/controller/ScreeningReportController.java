@@ -42,6 +42,6 @@ public class ScreeningReportController {
      */
     @PutMapping("save")
     public Boolean save(@RequestBody TemplateBindRequestDTO request) {
-        return templateService.districtBind(request, CommonConst.TYPE_TEMPLATE_SCREENING_REPORT);
+        return templateService.districtBind(request);
     }
 }

@@ -25,7 +25,7 @@ public class HtmlPageUrlConstant {
     /**
      * 学校档案卡HTML页面地址
      */
-    public static final String SCHOOL_ARCHIVES_HTML_URL = "%s?planId=%d&schoolId=%d&cardStatus=true";
+    public static final String SCHOOL_ARCHIVES_HTML_URL = "%s?planId=%d&schoolId=%d&templateId=%d&gradeId=%d&classId=%d";
 
     /**
      * 筛查计划总报告HTML页面地址
