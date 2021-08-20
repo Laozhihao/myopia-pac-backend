@@ -477,6 +477,9 @@ public class ScreeningOrganizationBizService {
         return Collections.singletonList(districtService.getProvinceDistrictTreePriorityCache(district.getCode()));
     }
 
+    /**
+     * 初始化筛查机构角色
+     */
     public void resetOrg() {
         List<ScreeningOrganization> byConfigType = screeningOrganizationService.getAll();
         byConfigType.forEach(c -> {

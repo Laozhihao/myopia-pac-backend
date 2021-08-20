@@ -282,6 +282,11 @@ public class ScreeningOrganizationController {
         return screeningOrganizationService.getByNameLike(name);
     }
 
+    /**
+     * 初始化筛查机构角色
+     *
+     * @return ApiResult
+     */
     @GetMapping("resetOrg")
     public ApiResult resetOrg() {
         screeningOrganizationBizService.resetOrg();

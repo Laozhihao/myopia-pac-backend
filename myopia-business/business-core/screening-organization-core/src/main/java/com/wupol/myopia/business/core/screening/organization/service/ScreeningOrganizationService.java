@@ -228,15 +228,32 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
                 query.getGovDeptId(), query.getPhone(), query.getStatus());
     }
 
+    /**
+     * 通过Id获取名称
+     *
+     * @param id Id
+     * @return 名称
+     */
     public String getNameById(Integer id) {
         ScreeningOrganization org = getById(id);
         return Objects.nonNull(org) ? org.getName() : "";
     }
 
+    /**
+     * 通过configType获取筛查机构
+     *
+     * @param configType 配置类型
+     * @return 筛查机构
+     */
     public List<ScreeningOrganization> getByConfigType(Integer configType) {
         return baseMapper.getByConfigType(configType);
     }
 
+    /**
+     * 获取所有的筛查结构
+     *
+     * @return 筛查结构
+     */
     public List<ScreeningOrganization> getAll() {
         return baseMapper.getAll();
     }
