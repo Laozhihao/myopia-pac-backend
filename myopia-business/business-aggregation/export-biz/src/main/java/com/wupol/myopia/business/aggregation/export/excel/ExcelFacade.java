@@ -310,7 +310,7 @@ public class ExcelFacade {
         }
         List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
                 SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
-        Assert.isTrue(!CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
+        Assert.isTrue(CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
 
         // 收集手机号码
         List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
