@@ -84,7 +84,7 @@
 
         .report-title {
             display: block;
-            padding-top: 80px;
+            padding-top: 50px;
             padding-bottom: 10px;
             text-align: center;
             font-size: 26px;
@@ -161,7 +161,7 @@
             white-space: normal;
             white-space:-moz-pre-wrap;
             cursor: text;
-            line-height: 16px;
+            line-height: 20px;
             border: 1px solid transparent;
             overflow: hidden;
             text-indent: 2em;
@@ -278,9 +278,7 @@
                 <div class="report-layout">
                     <div class="layout-row">
                         <div class="conclus-part">
-                        <span contenteditable="true">
                         ${screeningOrgConfigs.content?if_exists}
-                        </span>
                         </div>
                     </div>
                 </div>
