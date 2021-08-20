@@ -1,6 +1,6 @@
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time,
                           update_time)
-VALUES (341, '初始化筛查机构', 'managementScreeningOrganizationResetOrg', 'get:/management/screeningOrganization/resetOrg', 0,
+VALUES (341, '初始化筛查机构(临时)', 'managementScreeningOrganizationResetOrg', 'get:/management/screeningOrganization/resetOrg', 0,
         0, 1, 27, 1, '2021-08-19 10:39:13', '2021-08-19 10:39:13');
 
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time,

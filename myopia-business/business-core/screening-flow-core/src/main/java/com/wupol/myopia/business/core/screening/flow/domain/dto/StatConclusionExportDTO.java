@@ -2,8 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -116,4 +115,54 @@ public class StatConclusionExportDTO extends StatConclusion {
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private ComputerOptometryDO computerOptometry;
+
+    /**
+     * 筛查结果--33cm眼位
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private OcularInspectionDataDO ocularInspectionData;
+
+    /**
+     * 筛查结果--眼压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private EyePressureDataDO eyePressureData;
+
+    /**
+     * 筛查结果--眼底
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private FundusDataDO fundusData;
+
+    /**
+     * 筛查结果--裂隙灯检查
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SlitLampDataDO slitLampData;
+
+    /**
+     * 筛查结果--小瞳验光
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PupilOptometryDataDO pupilOptometryData;
+
+    /**
+     * 筛查结果--盲及视力损害分类
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private VisualLossLevelDataDO visualLossLevelData;
+
+    /**
+     * 筛查结果--生物测量
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BiometricDataDO biometricData;
+
+    /**
+     * 筛查结果--全身疾病在眼部的表现
+     */
+    private String systemicDiseaseSymptom;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private OtherEyeDiseasesDO otherEyeDiseases;
 }

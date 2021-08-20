@@ -35,26 +35,6 @@ public class CardInfoVO {
     private Integer gender;
 
     /**
-     * 省代名称
-     */
-    private String provinceName;
-
-    /**
-     * 市代名称
-     */
-    private String cityName;
-
-    /**
-     * 区代名称
-     */
-    private String areaName;
-
-    /**
-     * 镇/乡名称
-     */
-    private String townName;
-
-    /**
      * 检查时间
      */
     private Date screeningDate;
@@ -79,5 +59,23 @@ public class CardInfoVO {
      */
     private String districtName;
 
+    /**
+     * 年龄
+     */
+    private Integer age;
 
+    /**
+     * 学号
+     */
+    private String sno;
+
+    /**
+     * 家长电话
+     */
+    private String parentPhone;
+
+    /**
+     * 不配合个数
+     */
+    private Integer countNotCooperate;
 }

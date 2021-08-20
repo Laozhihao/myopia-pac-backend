@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -12,7 +13,6 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -50,8 +50,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
-    private StudentService studentService;
-    @Autowired
     private SchoolService schoolService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
@@ -65,27 +63,38 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     /**
      * 获取档案卡列表
      *
-     * @param schoolId
-     * @param planId
-     * @return
+     * @param schoolId 学校Id
+     * @param planId   计划Id
+     * @param gradeId  年纪Id
+     * @param classId  班级Id
+     * @return List<StudentCardResponseVO>
      */
     @GetMapping("/list-result")
-    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId, @RequestParam Integer planId) {
+    public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId,
+                                                                  @RequestParam Integer planId, @RequestParam Integer resultId,
+                                                                  @RequestParam Integer gradeId, @RequestParam Integer classId) {
+        // 方便前端模板渲染复用
+        if (Objects.nonNull(resultId)) {
+            VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
+            return Lists.newArrayList(studentBizService.getStudentCardResponseDTO(visionScreeningResult));
+        }
         ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
         if (screeningPlan == null) {
             throw new BusinessException("无法找到该筛查计划");
         }
         Integer screeningPlanId = screeningPlan.getId();
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
-        screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream().filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getSchoolId().equals(schoolId)).collect(Collectors.toList());
+        screeningPlanSchoolStudents = screeningPlanSchoolStudents.stream()
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getSchoolId().equals(schoolId))
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getGradeId().equals(gradeId))
+                .filter(screeningPlanSchoolStudent -> screeningPlanSchoolStudent.getClassId().equals(classId))
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return new ArrayList<>();
         }
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
-        return visionScreeningResults.stream().map(visionScreeningResult ->
-                studentBizService.getStudentCardResponseDTO(visionScreeningResult)
-        ).collect(Collectors.toList());
+        return studentBizService.generateBatchStudentCard(visionScreeningResults);
     }
 
     /**
@@ -103,7 +112,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
-        Boolean isSchoolExport = false;
+        boolean isSchoolExport = false;
         if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
             statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
@@ -142,7 +151,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
-        Boolean isSchoolExport = false;
+        boolean isSchoolExport = false;
         if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
             statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);

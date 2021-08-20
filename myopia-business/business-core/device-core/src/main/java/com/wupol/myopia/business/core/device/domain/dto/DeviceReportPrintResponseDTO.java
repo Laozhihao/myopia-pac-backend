@@ -35,4 +35,24 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
      * 模板类型 1-VS666模板1
      */
     private Integer templateType;
+
+    /**
+     * 左眼球镜-展示使用
+     */
+    private Double leftSphDisplay;
+
+    /**
+     * 右眼球镜-展示使用
+     */
+    private Double rightSphDisplay;
+
+    /**
+     * 左眼柱镜-展示使用
+     */
+    private Double leftCylDisplay;
+
+    /**
+     * 右眼柱镜-展示使用
+     */
+    private Double rightCylDisplay;
 }

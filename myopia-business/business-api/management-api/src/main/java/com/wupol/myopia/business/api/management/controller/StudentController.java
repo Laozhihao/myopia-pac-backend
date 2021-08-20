@@ -12,11 +12,11 @@ import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitRep
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.VisionLabels;
+import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.school.constant.VisionLabels;
-import com.wupol.myopia.business.core.school.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -125,7 +125,6 @@ public class StudentController {
      *
      * @param schoolId 学校ID
      * @param gradeId  年级ID
-     * @return 是否成功
      */
     @GetMapping("/export")
     public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
@@ -143,7 +142,6 @@ public class StudentController {
      * 导入学生列表
      *
      * @param file 导入文件
-     * @return 是否成功
      * @throws ParseException 转换异常
      */
     @PostMapping("/import")
