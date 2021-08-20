@@ -72,6 +72,12 @@ public class DeviceSourceData implements Serializable {
     private Date screeningTime;
 
     /**
+     * 更新时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -79,6 +85,7 @@ public class DeviceSourceData implements Serializable {
 
     /**
      * 构建一个新
+     *
      * @param device
      * @param srcData
      * @param patientId
@@ -94,7 +101,6 @@ public class DeviceSourceData implements Serializable {
         deviceSourceData.patientId = patientId;
         deviceSourceData.screeningOrgId = device.getBindingScreeningOrgId();
         deviceSourceData.srcData = srcData;
-        deviceSourceData.createTime = new Date();
         deviceSourceData.screeningTime = screeningTime;
         return deviceSourceData;
     }

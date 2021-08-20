@@ -8,6 +8,7 @@ import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.constant.TemplateConfigType;
 import com.wupol.myopia.business.api.management.domain.dto.RoleQueryDTO;
 import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -16,6 +17,8 @@ import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
 import com.wupol.myopia.business.core.government.domain.dto.GovDistrictDTO;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Permission;
@@ -46,13 +49,15 @@ public class RoleService {
     private DistrictService districtService;
     @Autowired
     private GovDeptService govDeptService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
 
     /**
      * 获取角色列表 - 分页
      *
-     * @param param 查询参数
-     * @param current 当前页码
-     * @param size 当前页数
+     * @param param       查询参数
+     * @param current     当前页码
+     * @param size        当前页数
      * @param currentUser 当前用户
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
@@ -289,5 +294,23 @@ public class RoleService {
                 .filter(s -> PermissionTemplateType.getTypeByDistrictCode(s.getCode()).equals(templateType))
                 .map(GovDept::getId).collect(Collectors.toList());
 
+    }
+
+    /**
+     * 通过模板Id获取机构Ids
+     *
+     * @param templateType 模板
+     * @return 机构Ids
+     */
+    public List<Integer> getOrgIds(Integer templateType) {
+        Integer configType = TemplateConfigType.TEMPLATE_TO_ORG_CONFIG_TYPE.get(templateType);
+        if (Objects.isNull(templateType)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningOrganization> orgList = screeningOrganizationService.getByConfigType(configType);
+        if (CollectionUtils.isEmpty(orgList)) {
+            return new ArrayList<>();
+        }
+        return orgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
     }
 }

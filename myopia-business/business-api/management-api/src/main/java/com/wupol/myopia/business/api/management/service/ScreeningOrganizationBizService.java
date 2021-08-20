@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -254,6 +255,7 @@ public class ScreeningOrganizationBizService {
                 .setPhone(screeningOrganization.getPhone())
                 .setRealName(screeningOrganization.getName())
                 .setUsername(screeningOrganization.getName());
+        userDTO.setOrgConfigType(screeningOrganization.getConfigType());
         oauthServiceClient.updateUser(userDTO);
 
         // 名字更新
@@ -473,5 +475,22 @@ public class ScreeningOrganizationBizService {
         ScreeningOrganization organization = screeningOrganizationService.getById(orgId);
         District district = districtService.getById(organization.getDistrictId());
         return Collections.singletonList(districtService.getProvinceDistrictTreePriorityCache(district.getCode()));
+    }
+
+    /**
+     * 初始化筛查机构角色
+     */
+    public void resetOrg() {
+        List<ScreeningOrganization> byConfigType = screeningOrganizationService.getAll();
+        byConfigType.forEach(c -> {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setOrgId(c.getId());
+            userDTO.setUsername(c.getName());
+            userDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+            userDTO.setCreateUserId(c.getCreateUserId());
+            userDTO.setOrgConfigType(c.getConfigType());
+            oauthServiceClient.resetOrg(userDTO);
+        });
+
     }
 }

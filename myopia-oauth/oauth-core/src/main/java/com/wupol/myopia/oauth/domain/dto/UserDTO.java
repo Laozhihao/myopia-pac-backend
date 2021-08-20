@@ -89,4 +89,9 @@ public class UserDTO extends User {
      **/
     private List<String> idCards;
 
+    /**
+     * 筛查机构配置
+     */
+    private Integer orgConfigType;
+
 }

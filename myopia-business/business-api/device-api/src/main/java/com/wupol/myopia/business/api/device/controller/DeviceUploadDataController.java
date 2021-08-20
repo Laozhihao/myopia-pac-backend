@@ -29,16 +29,17 @@ public class DeviceUploadDataController {
 
     /**
      * 上传数据
+     *
      * @param deviceUploadDto
      * @return
      */
     @PostMapping(value = "vs/uploadData", params = "v=1")
-    public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto){
+    public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto) {
         log.info("debug: 接受到数据: {} ",JSON.toJSONString(deviceUploadDto));
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (Exception e) {
-            log.error("设备上传数据失败,错误msg={},数据 = {}",e.getMessage(),JSON.toJSONString(deviceUploadDto));
+            log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
             if (e instanceof BusinessException) {
                 return DeviceUploadResult.FAILURE(e.getMessage());
             }

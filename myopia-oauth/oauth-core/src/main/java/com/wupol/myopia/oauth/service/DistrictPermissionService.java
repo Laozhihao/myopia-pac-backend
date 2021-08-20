@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,13 +49,14 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
      **/
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePermissionTemplate(Integer templateType, RolePermissionDTO rolePermissionDTO) {
-        List<Integer> orgIds = rolePermissionDTO.getGovIds();
+        List<Integer> govIds = rolePermissionDTO.getGovIds();
         List<Integer> permissionIds = rolePermissionDTO.getPermissionIds();
+        List<Integer> orgIds = rolePermissionDTO.getOrgIds();
 
         // 政府部门
         if (PermissionTemplateType.isGovUser(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
-            roleDTO.setOrgIds(orgIds);
+            roleDTO.setOrgIds(govIds);
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
@@ -68,16 +70,19 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), PermissionTemplateType.PLATFORM_ADMIN.getType(), permissionIds));
         }
+
+        // 筛查机构-配置
+        if (PermissionTemplateType.isSpecialScreening(templateType) && !CollectionUtils.isEmpty(orgIds)) {
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.setOrgIds(orgIds);
+            roleDTO.setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+            // 通过部门Id获取角色
+            List<Role> roleList = roleService.getRoleList(roleDTO);
+            roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));
+        }
         remove(new DistrictPermission().setDistrictLevel(templateType));
         List<DistrictPermission> permissions = permissionIds.stream().distinct().map(x -> new DistrictPermission().setDistrictLevel(templateType).setPermissionId(x)).collect(Collectors.toList());
-        boolean success = saveBatch(permissions);
-
-        // 同步更新筛查管理端角色权限
-        if (PermissionTemplateType.SCREENING_ORGANIZATION.getType().equals(templateType)) {
-            Role role = roleService.findOne(new Role().setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode()));
-            roleService.assignRolePermission(role.getId(), permissionIds);
-        }
-        return success;
+        return saveBatch(permissions);
     }
 
     /**
