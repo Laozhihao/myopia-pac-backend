@@ -253,4 +253,13 @@ public interface OauthServiceClient {
     @GetMapping("/oauth/districtPermission/permissionIds/{templateType}")
     List<Integer> getListByTemplateType(@PathVariable Integer templateType);
 
+    /**
+     * 初始化筛查机构权限
+     *
+     * @param param param
+     * @return 是否成功
+     */
+    @PostMapping("/oauth/user/reset/org")
+    Boolean resetOrg(@RequestBody UserDTO param);
+
 }

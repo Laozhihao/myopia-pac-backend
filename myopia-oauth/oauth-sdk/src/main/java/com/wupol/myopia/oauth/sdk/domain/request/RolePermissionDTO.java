@@ -24,4 +24,9 @@ public class RolePermissionDTO {
      * 权限Id
      */
     private List<Integer> permissionIds;
+
+    /**
+     * 筛查机构Id
+     */
+    private List<Integer> orgIds;
 }

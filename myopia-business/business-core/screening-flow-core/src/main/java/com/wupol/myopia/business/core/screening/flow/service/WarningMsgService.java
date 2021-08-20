@@ -71,7 +71,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
             //发送短信
             try {
                 SmsResult smsResult = vistelToolsService.sendMsg(msgData);
-                log.info("发送学生视力预警短信{}，发送内容:{}", (smsResult.isSuccessful() != null && smsResult.isSuccessful()) ? "成功" : "失败", JSON.toJSONString(msgData));
+                log.info("发送学生视力预警短信{}，发送内容:{}", smsResult.isSuccessful() ? "成功" : "失败", JSON.toJSONString(msgData));
                 return smsResult.isSuccessful();
             } catch (Exception exception) {
                 log.error("发送学生视力预警短信时,短信服务器异常,发送内容:{}", JSON.toJSONString(msgData), exception);

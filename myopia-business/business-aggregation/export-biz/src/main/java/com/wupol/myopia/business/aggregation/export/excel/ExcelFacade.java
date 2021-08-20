@@ -209,9 +209,9 @@ public class ExcelFacade {
      * @param idCards 身份证信息
      */
     private void preCheckStudent(List<School> schools, List<String> idCards) {
-        Assert.isTrue(CollectionUtils.isEmpty(schools), "学校编号异常");
-        Assert.isTrue(idCards.stream().distinct().count() < idCards.size(), "学生身份证号码重复");
-        Assert.isTrue(studentService.checkIdCards(idCards), "学生身份证号码重复");
+        Assert.isTrue(!CollectionUtils.isEmpty(schools), "学校编号异常");
+        Assert.isTrue(idCards.stream().distinct().count() == idCards.size(), "学生身份证号码重复");
+        Assert.isTrue(!studentService.checkIdCards(idCards), "学生身份证号码重复");
     }
 
 
@@ -310,14 +310,13 @@ public class ExcelFacade {
         }
         List<User> checkIdCards = oauthServiceClient.getUserBatchByIdCards(idCards,
                 SystemCode.SCREENING_CLIENT.getCode(), screeningOrgId);
-        Assert.isTrue(!CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
+        Assert.isTrue(CollectionUtils.isEmpty(checkIdCards), "身份证号码已经被使用，请确认！");
 
         // 收集手机号码
-        List<String> phones = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        Assert.isTrue(phones.stream().distinct().count() < phones.size(), "手机号码重复");
-
+        List<String> phones = listMap.stream().map(s -> s.get(3)).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        Assert.isTrue(phones.size() == phones.stream().distinct().count(), "手机号码重复");
         List<User> checkPhones = oauthServiceClient.getUserBatchByPhones(phones, SystemCode.SCREENING_CLIENT.getCode());
-        Assert.isTrue(!CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
+        Assert.isTrue(CollectionUtils.isEmpty(checkPhones), "手机号码已经被使用，请确认！");
 
     }
 
@@ -327,9 +326,9 @@ public class ExcelFacade {
      * @param item 筛查人员
      */
     private void checkStaffInfo(Map<Integer, String> item) {
-        Assert.isTrue(StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(0), "性别异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(2)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(3)) || !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "性别异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(2)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(2)), "身份证异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(3)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(3)), "手机号码异常");
     }
 
     /**
@@ -509,13 +508,13 @@ public class ExcelFacade {
      * @param item 学生信息
      */
     private void checkStudentInfo(Map<Integer, String> item) {
-        Assert.isTrue(StringUtils.isBlank(item.get(1)) || GenderEnum.getType(item.get(1)).equals(-1), "学生性别异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(2)), "学生出生日期不能为空");
-        Assert.isTrue(StringUtils.isBlank(item.get(4)), "学校编号不能为空");
-        Assert.isTrue(StringUtils.isBlank(item.get(5)), "学生年级不能为空");
-        Assert.isTrue(StringUtils.isBlank(item.get(6)), "学生班级不能为空");
-        Assert.isTrue(StringUtils.isBlank(item.get(7)), "学生学号异常");
-        Assert.isTrue(StringUtils.isBlank(item.get(8)) || !Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(9)) && !Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(1)) && !GenderEnum.getType(item.get(1)).equals(GenderEnum.UNKONE.type), "学生性别异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(2)), "学生出生日期不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(5)), "学生年级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(6)), "学生班级不能为空");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(7)), "学生学号异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(8)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
+        Assert.isTrue(StringUtils.isNotBlank(item.get(9)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
     }
 }

@@ -20,7 +20,7 @@
     </modules>
 
     <properties>
-        <base-framework.version>1.00.004-RELEASE</base-framework.version>
+        <base-framework.version>1.00.010-RELEASE</base-framework.version>
     </properties>
 
     <dependencies>
