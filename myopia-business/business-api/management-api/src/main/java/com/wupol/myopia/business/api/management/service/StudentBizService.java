@@ -851,7 +851,7 @@ public class StudentBizService {
         if (Objects.isNull(visionScreeningResult)) {
             return cardDetail;
         }
-        BeanUtils.copyProperties(visionScreeningResult,cardDetail);
+        BeanUtils.copyProperties(visionScreeningResult, cardDetail);
         cardDetail.setRemark(Objects.nonNull(visionScreeningResult.getFundusData()) ? visionScreeningResult.getFundusData().getRemark() : "");
         // 视力信息
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfo(visionScreeningResult.getComputerOptometry(), age);
@@ -975,41 +975,46 @@ public class StudentBizService {
     private Integer getCountNotCooperate(VisionScreeningResult result) {
         int total = 0;
 
-        VisionDataDO visionData = result.getVisionData(); // 02
+        // 02
+        VisionDataDO visionData = result.getVisionData();
         if (Objects.nonNull(visionData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(visionData.getIsCooperative())) {
             total++;
         }
-        ComputerOptometryDO computerOptometry = result.getComputerOptometry(); // 03
+        // 03
+        ComputerOptometryDO computerOptometry = result.getComputerOptometry();
         if (Objects.nonNull(computerOptometry) && VisionScreeningConst.IS_NOT_COOPERATE.equals(computerOptometry.getIsCooperative())) {
             total++;
         }
-
-        PupilOptometryDataDO pupilOptometryData = result.getPupilOptometryData(); // 05
+        // 05
+        PupilOptometryDataDO pupilOptometryData = result.getPupilOptometryData();
         if (Objects.nonNull(pupilOptometryData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(pupilOptometryData.getIsCooperative())) {
             total++;
         }
-
-        BiometricDataDO biometricData = result.getBiometricData(); //06
+        // 06
+        BiometricDataDO biometricData = result.getBiometricData();
         if (Objects.nonNull(biometricData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(biometricData.getIsCooperative())) {
             total++;
         }
-        EyePressureDataDO eyePressureData = result.getEyePressureData(); // 07
+        // 07
+        EyePressureDataDO eyePressureData = result.getEyePressureData();
         if (Objects.nonNull(eyePressureData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(eyePressureData.getIsCooperative())) {
             total++;
         }
 
         // 剩下三个特殊处理，只有一个有，就+1
         boolean spFlag = false;
-
-        FundusDataDO fundusData = result.getFundusData(); // 08
+        // 08
+        FundusDataDO fundusData = result.getFundusData();
         if (Objects.nonNull(fundusData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(fundusData.getIsCooperative())) {
             spFlag = true;
         }
-        SlitLampDataDO slitLampData = result.getSlitLampData(); // 04
+        // 04
+        SlitLampDataDO slitLampData = result.getSlitLampData();
         if (Objects.nonNull(slitLampData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(slitLampData.getIsCooperative())) {
             spFlag = true;
         }
-        OcularInspectionDataDO ocularInspectionData = result.getOcularInspectionData();// 01
+        // 01
+        OcularInspectionDataDO ocularInspectionData = result.getOcularInspectionData();
         if (Objects.nonNull(ocularInspectionData) && VisionScreeningConst.IS_NOT_COOPERATE.equals(ocularInspectionData.getIsCooperative())) {
             spFlag = true;
         }
