@@ -45,6 +45,7 @@ import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -850,18 +851,8 @@ public class StudentBizService {
         if (Objects.isNull(visionScreeningResult)) {
             return cardDetail;
         }
-        cardDetail.setVisionDataDO(visionScreeningResult.getVisionData());
-        cardDetail.setOcularInspectionData(visionScreeningResult.getOcularInspectionData());
-        cardDetail.setComputerOptometry(visionScreeningResult.getComputerOptometry());
-        cardDetail.setPupilOptometryData(visionScreeningResult.getPupilOptometryData());
-        cardDetail.setBiometricData(visionScreeningResult.getBiometricData());
-        cardDetail.setEyePressureData(visionScreeningResult.getEyePressureData());
-        cardDetail.setFundusData(visionScreeningResult.getFundusData());
-        cardDetail.setVisualLossLevelData(visionScreeningResult.getVisualLossLevelData());
+        BeanUtils.copyProperties(visionScreeningResult,cardDetail);
         cardDetail.setRemark(Objects.nonNull(visionScreeningResult.getFundusData()) ? visionScreeningResult.getFundusData().getRemark() : "");
-        cardDetail.setSystemicDiseaseSymptom(visionScreeningResult.getSystemicDiseaseSymptom());
-        cardDetail.setSlitLampData(visionScreeningResult.getSlitLampData());
-
         // 视力信息
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfo(visionScreeningResult.getComputerOptometry(), age);
         VisionInfoVO leftEye = visionInfo.getFirst();
