@@ -32,4 +32,8 @@ public interface ScreeningOrganizationMapper extends BaseMapper<ScreeningOrganiz
     List<ScreeningOrganization> getByNameAndNeId(@Param("name") String name, @Param("id") Integer id);
 
     List<ScreeningOrganization> getByName(@Param("name") String name);
+
+    List<ScreeningOrganization> getByConfigType(@Param("configType") Integer configType);
+
+    List<ScreeningOrganization> getAll();
 }

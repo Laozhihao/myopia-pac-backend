@@ -41,6 +41,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -103,6 +104,19 @@ public class ScreeningPlanController {
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
+
+    @Value("${server.host}")
+    private String hostUrl;
+
+    /**
+     * 默认文件Id
+     */
+    private final static Integer DEFAULT_FILE_ID = -1;
+
+    /**
+     * 默认图片路径
+     */
+    private final static String DEFAULT_IMAGE_PATH = "/image/wechat_mp_qrcode.png";
 
     /**
      * 新增
@@ -478,15 +492,25 @@ public class ScreeningPlanController {
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
-            students.forEach(student -> student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg")));
+            students.forEach(student -> {
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg"));
+                student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            });
             Map<String, Object> models = new HashMap<>(16);
             models.put("screeningOrgConfigs", screeningOrganization.getNotificationConfig());
             models.put("students", students);
             models.put("classDisplay", classDisplay);
             models.put("schoolName", school.getName());
-            models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+            if (Objects.nonNull(screeningOrganization.getNotificationConfig())
+                    && Objects.nonNull(screeningOrganization.getNotificationConfig().getQrCodeFileId())
+                    && !screeningOrganization.getNotificationConfig().getQrCodeFileId().equals(DEFAULT_FILE_ID)
+            ) {
+                models.put("qrCodeFile", resourceFileService.getResourcePath(screeningOrganization.getNotificationConfig().getQrCodeFileId()));
+            } else {
+                models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
+            }
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl,fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;
