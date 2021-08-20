@@ -1021,6 +1021,7 @@ public class StudentBizService {
         if (spFlag) {
             total++;
         }
+        // 返回total
         return total;
     }
 
