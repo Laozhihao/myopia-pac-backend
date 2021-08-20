@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -502,13 +503,13 @@ public class StatUtil {
         if (!ObjectsUtil.allNull(leftMyopiaLevel, rightMyopiaLevel)) {
             Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftMyopiaLevel, rightMyopiaLevel);
             if (WarningLevel.ONE.code.equals(seriousLevel)) {
-                return "轻度近视";
+                return VisionLabelsEnum.MILD_MYOPIA.getName();
             }
             if (WarningLevel.TWO.code.equals(seriousLevel)) {
-                return "中度近视";
+                return VisionLabelsEnum.MODERATE_MYOPIA.getName();
             }
             if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return "高度近视";
+                return VisionLabelsEnum.HIGH_MYOPIA.getName();
             }
         }
         return "";
@@ -544,13 +545,13 @@ public class StatUtil {
         if (!ObjectsUtil.allNull(leftHyperopiaLevel, rightHyperopiaLevel)) {
             Integer seriousLevel = ScreeningResultUtil.getSeriousLevel(leftHyperopiaLevel, rightHyperopiaLevel);
             if (WarningLevel.ONE.code.equals(seriousLevel)) {
-                return "轻度远视";
+                return VisionLabelsEnum.MILD_HYPEROPIA.getName();
             }
             if (WarningLevel.TWO.code.equals(seriousLevel)) {
-                return "中度远视";
+                return VisionLabelsEnum.MODERATE_HYPEROPIA.getName();
             }
             if (WarningLevel.THREE.code.equals(seriousLevel)) {
-                return "高度远视";
+                return VisionLabelsEnum.HIGH_HYPEROPIA.getName();
             }
         }
         return "";

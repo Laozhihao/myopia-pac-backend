@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.school.constant;
+package com.wupol.myopia.business.common.utils.constant;
 
 import lombok.Data;
 
