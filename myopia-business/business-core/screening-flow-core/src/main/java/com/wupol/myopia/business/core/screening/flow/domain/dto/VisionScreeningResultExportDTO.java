@@ -148,6 +148,8 @@ public class VisionScreeningResultExportDTO implements Serializable {
 
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
     private String rightBiometricK1;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
+    private String rightBiometricK1Asia;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（左）"})
     private String leftBiometricK1;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右）"})

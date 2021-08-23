@@ -489,7 +489,8 @@ public class ExcelFacade {
                 (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), DateUtil.ageOfNow(dto.getBirthday())));
 
         exportDTO.setLeftBiometricK1(genEyeCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
-        exportDTO.setRightBiometricK1(genEyeCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
+        exportDTO.setRightBiometricK1(genEyeCornealCurvatureK(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
+        exportDTO.setRightBiometricK1Asia(genEyeCornealCurvatureA(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
         exportDTO.setLeftBiometricK2(genEyeCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2_AXIS)));
         exportDTO.setRightBiometricK2(genEyeCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2_AXIS)));
         exportDTO.setLeftBiometricAST(genEyeCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
@@ -626,6 +627,25 @@ public class ExcelFacade {
      */
     private String genEyeCornealCurvature(Object val1, Object val2) {
         return String.format("%sD@%S°", Objects.nonNull(val1) ? val1 : "--", Objects.nonNull(val2) ? val2 : "--");
+    }
+
+    /**
+     * 角膜曲率（单眼）
+     *
+     * @param val1 值1
+     * @return String
+     */
+    private String genEyeCornealCurvatureK(Object val1) {
+        return Objects.nonNull(val1) ? val1 + "D" : "--";
+    }
+    /**
+     * 角膜曲率（单眼）
+     *
+     * @param val1 值1
+     * @return String
+     */
+    private String genEyeCornealCurvatureA(Object val1) {
+        return Objects.nonNull(val1) ? val1 + "°" : "--";
     }
 
     /**
