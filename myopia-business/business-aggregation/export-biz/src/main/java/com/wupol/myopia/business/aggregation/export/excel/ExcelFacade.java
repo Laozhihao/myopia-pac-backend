@@ -506,8 +506,8 @@ public class ExcelFacade {
         exportDTO.setRightBiometricWTW(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
         exportDTO.setLeftBiometricAL(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
         exportDTO.setRightBiometricAL(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
-        exportDTO.setLeftBiometricCCT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
-        exportDTO.setRightBiometricCCT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT)));
+        exportDTO.setLeftBiometricCCT(generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
+        exportDTO.setRightBiometricCCT(generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT)));
         exportDTO.setLeftBiometricAD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
         exportDTO.setRightBiometricAD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD)));
         exportDTO.setLeftBiometricLT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
@@ -640,17 +640,6 @@ public class ExcelFacade {
         Assert.isTrue(StringUtils.isNotBlank(item.get(7)), "学生学号异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(8)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(9)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
-    }
-
-    /**
-     * 角膜曲率（单眼）
-     *
-     * @param val1 值1
-     * @param val2 值2
-     * @return String
-     */
-    private String genEyeCornealCurvature(Object val1, Object val2) {
-        return String.format("%sD@%S°", Objects.nonNull(val1) ? val1 : "--", Objects.nonNull(val2) ? val2 : "--");
     }
 
     /**

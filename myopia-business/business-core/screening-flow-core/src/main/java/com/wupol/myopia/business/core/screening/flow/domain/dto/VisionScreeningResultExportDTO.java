@@ -200,13 +200,13 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String leftBiometricVT;
 
     @ExcelProperty("眼压（右）")
-    private String leftEyePressureDate;
-    @ExcelProperty("眼压（左）")
     private String rightEyePressureDate;
+    @ExcelProperty("眼压（左）")
+    private String leftEyePressureDate;
     @ExcelProperty("眼底（右）")
-    private String leftFundusData;
-    @ExcelProperty("眼底（左）")
     private String rightFundusData;
+    @ExcelProperty("眼底（左）")
+    private String leftFundusData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病右"})
     private String otherEyeDiseasesLeftEyeDiseases;
@@ -215,10 +215,9 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "其他眼病", "全身疾病在眼部的表现"})
     private String otherEyeDiseasesSystemicDiseaseSymptom;
     @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右）"})
-    private String leftOtherEyeDiseasesLevel;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
     private String rightOtherEyeDiseasesLevel;
-
+    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
+    private String leftOtherEyeDiseasesLevel;
 
     @ExcelProperty({TOP_HEADER, "预警级别", "预警级别"})
     private String warningLevelDesc;
