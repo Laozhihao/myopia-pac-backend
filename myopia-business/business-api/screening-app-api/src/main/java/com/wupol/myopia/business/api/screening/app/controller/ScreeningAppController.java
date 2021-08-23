@@ -554,8 +554,8 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getComputerData/{planStudentId}")
-    public ComputerOptometryDO getComputerData(@PathVariable Integer planStudentId) {
+    @GetMapping("/getDiopterData/{planStudentId}")
+    public ComputerOptometryDO getDiopterData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
         return screeningResult.getComputerOptometry();
     }
