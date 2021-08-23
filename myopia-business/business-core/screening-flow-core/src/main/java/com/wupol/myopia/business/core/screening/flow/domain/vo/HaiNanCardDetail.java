@@ -18,7 +18,7 @@ public class HaiNanCardDetail {
     /**
      * 视力检查
      */
-    private VisionDataDO visionData;
+    private VisionDataDO visionDataDO;
 
     /**
      * 33cm眼位
