@@ -126,21 +126,21 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String slitLampRightResult;
 
     @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（右）"})
-    private String leftPupilOptometrySph;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（左）"})
     private String rightPupilOptometrySph;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（左）"})
+    private String leftPupilOptometrySph;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（右）"})
-    private String leftPupilOptometryCyl;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（左）"})
     private String rightPupilOptometryCyl;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（左）"})
+    private String leftPupilOptometryCyl;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（右）"})
-    private String leftPupilOptometryAxial;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（左）"})
     private String rightPupilOptometryAxial;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（左）"})
+    private String leftPupilOptometryAxial;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（右）"})
-    private String leftPupilOptometryCorrectedVision;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（左）"})
     private String rightPupilOptometryCorrectedVision;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（左）"})
+    private String leftPupilOptometryCorrectedVision;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "初步结果"})
     private String pupilOptometryDiagnosis;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "屈光结果"})
