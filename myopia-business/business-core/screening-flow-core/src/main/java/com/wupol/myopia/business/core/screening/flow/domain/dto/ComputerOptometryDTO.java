@@ -60,7 +60,8 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setDiagnosis(diagnosis).setIsCooperative(isCooperative);
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(isCooperative);
+        computerOptometryDO.setDiagnosis(diagnosis);
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
 

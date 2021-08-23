@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -11,9 +12,10 @@ import java.util.List;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class OtherEyeDiseasesDO implements Serializable {
+public class OtherEyeDiseasesDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼疾病
      */
@@ -34,5 +36,15 @@ public class OtherEyeDiseasesDO implements Serializable {
          * 眼部疾病
          */
         private List<String> eyeDiseases;
+    }
+
+    /**
+     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return true;
     }
 }

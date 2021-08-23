@@ -6,6 +6,7 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -16,10 +17,11 @@ import java.math.BigDecimal;
  * @Date 2021/1/22 16:37
  * @Author by jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class VisionDataDO implements ScreeningResultStructureInterface<VisionDataDO.VisionData>, Serializable {
+public class VisionDataDO extends AbstractDiagnosisResult implements ScreeningResultStructureInterface<VisionDataDO.VisionData>, Serializable {
     /**
      * 右眼疾病
      */
@@ -28,10 +30,6 @@ public class VisionDataDO implements ScreeningResultStructureInterface<VisionDat
      * 左眼疾病
      */
     private VisionData leftEyeData;
-    /**
-     * 初步诊断结果：0-正常、1-（疑似）异常
-     */
-    private Integer diagnosis;
     /**
      * 是否配合检查：0-配合、1-不配合
      */

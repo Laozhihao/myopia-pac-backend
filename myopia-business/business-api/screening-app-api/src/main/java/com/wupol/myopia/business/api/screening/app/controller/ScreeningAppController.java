@@ -9,9 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
-import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
-import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.*;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
@@ -27,11 +25,15 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +83,8 @@ public class ScreeningAppController {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private ScreeningPlanBizService screeningPlanBizService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -490,5 +495,70 @@ public class ScreeningAppController {
         }
         return null;
     }
+
+    /**
+     * 获取班级总的筛查进度：汇总统计+每个学生的进度
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param classId 班级ID
+     * @return void
+     **/
+    @GetMapping("/class/progress/{screeningPlanId}/{classId}")
+    public ClassScreeningProgress getClassScreeningProgress(@PathVariable Integer screeningPlanId, @PathVariable Integer classId) {
+        // 在同一个筛查计划下，学校不会重复，那么班级ID可以确定唯一性
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.findByList(new ScreeningPlanSchoolStudent().setScreeningPlanId(screeningPlanId).setClassId(classId));
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+            return new ClassScreeningProgress();
+        }
+        Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
+            VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            return StudentScreeningProgressVO.getInstance(screeningResult, studentVO);
+        }).collect(Collectors.toList());
+        // 计划筛查人数
+        long planCount = (long) studentScreeningProgressList.size();
+        // 实际筛查人数
+        long screeningCount = (long) visionScreeningResults.size();
+        // 有异常筛查人数，仅统计：眼位、视力检查、电脑验光、小瞳验光
+        long abnormalCount = studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count();
+        // 筛查未完成学生数
+        long unfinishedCount = studentScreeningProgressList.stream().filter(x -> !x.getResult()).count();
+        return new ClassScreeningProgress().setStudentScreeningProgressList(studentScreeningProgressList)
+                .setPlanCount(planCount)
+                .setScreeningCount(screeningCount)
+                .setAbnormalCount(abnormalCount)
+                .setUnfinishedCount(unfinishedCount).setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
+    }
+
+    /**
+     * 获取单个学生的筛查进度信息
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.StudentScreeningProgressVO
+     **/
+    @GetMapping("/student/progress/{planStudentId}")
+    public StudentScreeningProgressVO getStudentScreeningProgress(@PathVariable Integer planStudentId) {
+        // TODO：考虑复筛？
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        return StudentScreeningProgressVO.getInstance(screeningResult, studentVO);
+    }
+
+    /**
+     * 获取电脑验光检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getComputerData/{planStudentId}")
+    public ComputerOptometryDO getComputerData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        return screeningResult.getComputerOptometry();
+    }
+
 
 }

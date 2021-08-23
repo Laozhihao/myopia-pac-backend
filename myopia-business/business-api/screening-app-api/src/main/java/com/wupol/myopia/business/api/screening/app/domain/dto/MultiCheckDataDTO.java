@@ -43,8 +43,8 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
                 .setEsotropia(ocularInspectionData.getEsotropia())
                 .setExotropia(ocularInspectionData.getExotropia())
                 .setVerticalStrabismus(ocularInspectionData.getVerticalStrabismus())
-                .setDiagnosis(ocularInspectionData.getDiagnosis())
                 .setIsCooperative(isCooperative);
+        ocularInspectionDataDO.setDiagnosis(ocularInspectionData.getDiagnosis());
         // 裂隙灯
         SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.LEFT_EYE).setDiagnosis(slitLampData.getLeftDiagnosis()).setPathologicalTissues(slitLampData.getLeftPathologicalTissueList());
         SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.RIGHT_EYE).setDiagnosis(slitLampData.getRightDiagnosis()).setPathologicalTissues(slitLampData.getRightPathologicalTissueList());

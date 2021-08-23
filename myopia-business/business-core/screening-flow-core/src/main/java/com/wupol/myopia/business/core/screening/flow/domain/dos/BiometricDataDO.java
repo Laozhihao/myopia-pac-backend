@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -12,10 +13,11 @@ import java.io.Serializable;
  * @Date 2021/1/26 1:08
  * @Author by Jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class BiometricDataDO implements Serializable {
+public class BiometricDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼数据
      */
@@ -85,6 +87,16 @@ public class BiometricDataDO implements Serializable {
          * 玻璃体厚度
          */
         private String vt;
+    }
+
+    /**
+     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return true;
     }
 
 }

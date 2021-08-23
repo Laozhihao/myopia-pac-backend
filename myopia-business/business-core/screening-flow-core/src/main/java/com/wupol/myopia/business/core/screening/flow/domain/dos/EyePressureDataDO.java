@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  **/
 @Data
 @Accessors(chain = true)
-public class EyePressureDataDO implements Serializable {
+public class EyePressureDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼数据
      */
@@ -39,6 +39,16 @@ public class EyePressureDataDO implements Serializable {
          * 眼压
          */
         private BigDecimal pressure;
+    }
+
+    /**
+     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return true;
     }
 
 }
