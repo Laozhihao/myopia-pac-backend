@@ -112,11 +112,16 @@
 
         .images-desc .note-label {
             display: block;
-            font-weight: bold;
             color: #111111;
-            margin: 3px 0;
+            margin: 7px 0 0;
             font-weight: normal;
-            font-size: 12px;
+            font-size: 16px;
+        }
+
+        .images-desc .note-label.name {
+            display: block;
+            font-weight: bold;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -134,14 +139,11 @@
                 <div class="images-wraper">
                     <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" alt=""/>
                 </div>
-                <div class="note-label">
-                    姓名：${student.name?if_exists}
+                <div class="note-label name">
+                    ${student.name?if_exists}
                 </div>
                 <div class="note-label">
-                    性别：${student.genderDesc?if_exists}
-                </div>
-                <div class="note-label">
-                    年级班级：${classDisplay?if_exists}
+                    ${student.genderDesc?if_exists}<span>${classDisplay?if_exists}</span>
                 </div>
             </div>
             </#list>
