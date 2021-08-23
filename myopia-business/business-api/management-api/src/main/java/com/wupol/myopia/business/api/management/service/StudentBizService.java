@@ -852,7 +852,7 @@ public class StudentBizService {
             return cardDetail;
         }
         BeanUtils.copyProperties(visionScreeningResult, cardDetail);
-        cardDetail.setVisionDataDO(cardDetail.getVisionDataDO());
+        cardDetail.setVisionDataDO(visionScreeningResult.getVisionData());
         cardDetail.setRemark(Objects.nonNull(visionScreeningResult.getFundusData()) ? visionScreeningResult.getFundusData().getRemark() : "");
         // 视力信息
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfo(visionScreeningResult.getComputerOptometry(), age);
