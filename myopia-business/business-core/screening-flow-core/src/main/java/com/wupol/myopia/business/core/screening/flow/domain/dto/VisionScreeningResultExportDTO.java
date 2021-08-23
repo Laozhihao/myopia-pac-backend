@@ -149,17 +149,27 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
     private String rightBiometricK1;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
-    private String rightBiometricK1Asia;
+    private String rightBiometricK1Axis;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（左）"})
     private String leftBiometricK1;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（左）"})
+    private String leftBiometricK1Axis;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右）"})
     private String rightBiometricK2;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右）"})
+    private String rightBiometricK2Axis;
     @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（左）"})
     private String leftBiometricK2;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（左）"})
+    private String leftBiometricK2Axis;
     @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右）"})
+    private String rightBiometricAST;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右）"})
+    private String rightBiometricASTAxis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（左）"})
     private String leftBiometricAST;
     @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（左）"})
-    private String rightBiometricAST;
+    private String leftBiometricASTAxis;
     @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（右）"})
     private String rightBiometricPD;
     @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（左）"})
