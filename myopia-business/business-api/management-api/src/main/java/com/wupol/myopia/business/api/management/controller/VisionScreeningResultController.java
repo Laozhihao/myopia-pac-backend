@@ -125,7 +125,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 是否单点机构
         if (currentUser.isScreeningUser() && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getOrgId()).getConfigType())) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getOrgId()), "筛查机构");
-            if (Objects.nonNull(planId)) {
+            if (Objects.isNull(planId)) {
                 throw new BusinessException("单点筛查机构PlanId不能为空");
             }
             statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getOrgId());
