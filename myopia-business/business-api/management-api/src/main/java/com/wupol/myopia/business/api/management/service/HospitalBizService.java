@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -92,13 +94,16 @@ public class HospitalBizService {
      *
      * @param pageRequest 分页
      * @param query       请求入参
-     * @param govDeptId   部门id
+     * @param user        登录用户
      * @return IPage<Hospital> {@link IPage}
      */
-    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, Integer govDeptId) {
-        IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(),
-                govDeptService.getAllSubordinate(govDeptId), query.getName(), query.getType(),
-                query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
+    public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query, CurrentUser user) {
+        List<Integer> govOrgIds = new ArrayList<>();
+        if (!user.isPlatformAdminUser()) {
+            govOrgIds = govDeptService.getAllSubordinate(user.getOrgId());
+        }
+        IPage<HospitalResponseDTO> hospitalListsPage = hospitalService.getHospitalListByCondition(pageRequest.toPage(), govOrgIds,
+                query.getName(), query.getType(), query.getKind(), query.getLevel(), query.getDistrictId(), query.getStatus());
 
         List<HospitalResponseDTO> records = hospitalListsPage.getRecords();
         if (CollectionUtils.isEmpty(records)) {
