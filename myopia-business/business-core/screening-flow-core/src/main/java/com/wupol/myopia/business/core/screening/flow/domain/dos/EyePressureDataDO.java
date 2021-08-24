@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -12,6 +14,8 @@ import java.math.BigDecimal;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class EyePressureDataDO extends AbstractDiagnosisResult implements Serializable {

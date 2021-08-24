@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
