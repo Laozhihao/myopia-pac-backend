@@ -199,6 +199,24 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据实体条件查询
+     *
+     * @param screeningPlanSchoolStudent 查询条件
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
+     **/
+    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        // 获取当前计划
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return Collections.emptyList();
+        }
+        // 查询学生
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 根据筛查通知Id获取筛查学校所在层级的计划筛查学生总数
      *
      * @param screeningNoticeId

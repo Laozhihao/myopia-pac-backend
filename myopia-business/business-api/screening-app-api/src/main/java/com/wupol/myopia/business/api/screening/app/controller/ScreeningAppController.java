@@ -25,12 +25,12 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -47,6 +47,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -85,6 +87,8 @@ public class ScreeningAppController {
     private ScreeningPlanBizService screeningPlanBizService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -498,17 +502,28 @@ public class ScreeningAppController {
 
     /**
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
+     * TODO：暂时沿用山西版风格（差评），待改成通过ID获取
      *
-     * @param screeningPlanId 筛查计划ID
-     * @param classId 班级ID
+     * @param deptId 筛查机构ID
+     * @param schoolName 学校名称
+     * @param gradeName 年级名称
+     * @param clazzName 班级名称
      * @return void
      **/
-    @GetMapping("/class/progress/{screeningPlanId}/{classId}")
-    public ClassScreeningProgress getClassScreeningProgress(@PathVariable Integer screeningPlanId, @PathVariable Integer classId) {
-        // 在同一个筛查计划下，学校不会重复，那么班级ID可以确定唯一性
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.findByList(new ScreeningPlanSchoolStudent().setScreeningPlanId(screeningPlanId).setClassId(classId));
+    @GetMapping("/class/progress")
+    public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "deptId") @NotNull(message = "筛查机构ID不能为空") Integer deptId,
+                                                            @RequestParam(value = "schoolName") @NotBlank(message = "学校名称不能为空") String schoolName,
+                                                            @RequestParam(value = "gradeName") @NotBlank(message = "年级名称不能为空") String gradeName,
+                                                            @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
+        // 查询班级所有学生
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
+                .setScreeningOrgId(deptId)
+                .setSchoolName(schoolName)
+                .setClassName(clazzName)
+                .setGradeName(gradeName));
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
-            return new ClassScreeningProgress();
+            // TODO：SchoolAge得改
+            return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(0);
         }
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
@@ -516,21 +531,15 @@ public class ScreeningAppController {
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstance(screeningResult, studentVO);
+            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
         }).collect(Collectors.toList());
-        // 计划筛查人数
-        long planCount = (long) studentScreeningProgressList.size();
-        // 实际筛查人数
-        long screeningCount = (long) visionScreeningResults.size();
         // 有异常筛查人数，仅统计：眼位、视力检查、电脑验光、小瞳验光
-        long abnormalCount = studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count();
-        // 筛查未完成学生数
-        long unfinishedCount = studentScreeningProgressList.stream().filter(x -> !x.getResult()).count();
         return new ClassScreeningProgress().setStudentScreeningProgressList(studentScreeningProgressList)
-                .setPlanCount(planCount)
-                .setScreeningCount(screeningCount)
-                .setAbnormalCount(abnormalCount)
-                .setUnfinishedCount(unfinishedCount).setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
+                .setPlanCount(CollectionUtils.size(studentScreeningProgressList))
+                .setScreeningCount(CollectionUtils.size(visionScreeningResults))
+                .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
+                .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
+                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
     }
 
     /**
@@ -545,7 +554,7 @@ public class ScreeningAppController {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
-        return StudentScreeningProgressVO.getInstance(screeningResult, studentVO);
+        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
     }
 
     /**
@@ -555,9 +564,9 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
     @GetMapping("/getDiopterData/{planStudentId}")
-    public ComputerOptometryDO getDiopterData(@PathVariable Integer planStudentId) {
+    public ComputerOptometryDTO getDiopterData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
-        return screeningResult.getComputerOptometry();
+        return ComputerOptometryDTO.getInstance(screeningResult.getComputerOptometry());
     }
 
 

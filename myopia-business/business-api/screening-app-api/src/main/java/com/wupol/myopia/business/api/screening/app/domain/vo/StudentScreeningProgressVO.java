@@ -4,7 +4,9 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.AbstractDiagnosisResult;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -12,6 +14,7 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/8/22
  **/
+@Accessors(chain = true)
 @Data
 public class StudentScreeningProgressVO {
     /** 已检查无异常 */
@@ -52,6 +55,10 @@ public class StudentScreeningProgressVO {
      * 学龄段
      */
     private Integer gradeType;
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 
     /** 筛查结果 */
     private Boolean result;
@@ -89,17 +96,19 @@ public class StudentScreeningProgressVO {
      * @param studentVO 学生信息
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.StudentScreeningProgressVO
      **/
-    public static StudentScreeningProgressVO getInstance(VisionScreeningResult screeningResult, StudentVO studentVO) {
+    public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO) {
+        Assert.notNull(studentVO, "学生信息不能为空");
         StudentScreeningProgressVO studentScreeningProgressVO = new StudentScreeningProgressVO();
-        if (Objects.isNull(screeningResult) || Objects.isNull(studentVO)) {
-            return studentScreeningProgressVO;
-        }
         BeanUtils.copyProperties(studentVO, studentScreeningProgressVO);
+        boolean isKindergarten = SchoolAge.KINDERGARTEN.code.equals(studentVO.getGradeType());
+        if (Objects.isNull(screeningResult)) {
+            return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
+                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+        }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
         // 默认没有异常
         hasAbnormalFlag.set(false);
-        boolean isKindergarten = SchoolAge.KINDERGARTEN.code.equals(studentVO.getGradeType());
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
         studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || hasAbnormalFlag.get()));
