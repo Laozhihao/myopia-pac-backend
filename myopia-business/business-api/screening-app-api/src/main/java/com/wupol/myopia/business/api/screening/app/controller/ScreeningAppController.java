@@ -574,6 +574,9 @@ public class ScreeningAppController {
     @GetMapping("/getComputerOptometryData/{planStudentId}")
     public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        if (Objects.isNull(screeningResult)) {
+            return new ComputerOptometryDTO();
+        }
         return ComputerOptometryDTO.getInstance(screeningResult.getComputerOptometry());
     }
 
