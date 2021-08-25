@@ -559,7 +559,7 @@ public class ScreeningAppController {
         if (CollectionUtils.isNotEmpty(finishMap.get(false))) {
             progressList.addAll(finishMap.get(false));
         }
-        if (CollectionUtils.isNotEmpty(finishMap.get(false))) {
+        if (CollectionUtils.isNotEmpty(finishMap.get(true))) {
             progressList.addAll(finishMap.get(true));
         }
 
