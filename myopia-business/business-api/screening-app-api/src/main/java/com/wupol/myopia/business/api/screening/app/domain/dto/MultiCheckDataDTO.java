@@ -59,7 +59,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
             visionScreeningResult.setSlitLampData(slitLampDataDO);
         }
         // 眼底
-        if (Objects.nonNull(slitLampData)) {
+        if (Objects.nonNull(fundusData)) {
             FundusDataDO.FundusData leftFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.LEFT_EYE).setHasAbnormal(fundusData.getLeftHasAbnormal());
             FundusDataDO.FundusData rightFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.RIGHT_EYE).setHasAbnormal(fundusData.getRightHasAbnormal());
             FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(isCooperative).setRemark(fundusData.getRemark());
