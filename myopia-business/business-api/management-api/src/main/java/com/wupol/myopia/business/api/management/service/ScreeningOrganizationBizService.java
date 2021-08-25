@@ -448,7 +448,7 @@ public class ScreeningOrganizationBizService {
         // 筛查角色的只能看到全省
         ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(orgId);
         ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-        Integer codePre = districtService.getTwoTuple(org.getDistrictId()).getSecond();
+        Integer codePre = districtService.getDistrictPrefix(org.getDistrictId()).getSecond();
 
         List<HospitalResponseDTO> hospitalList = hospitalBizService.getHospitalByName(name, codePre);
         // 查询当前筛查机构下已经添加的合作医院
