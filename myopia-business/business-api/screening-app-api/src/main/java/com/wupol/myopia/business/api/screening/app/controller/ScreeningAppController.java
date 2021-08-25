@@ -185,10 +185,17 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getSchoolHasScreeningData")
-    public List<School> getSchoolHasScreeningData() {
+    public Set<String> getSchoolHasScreeningData() {
         List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new HashSet<>();
+        }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getBySchoolIds(schoolIds);
-        return schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
+        if (CollectionUtils.isEmpty(visionScreeningResults)) {
+            return new HashSet<>();
+        }
+        List<School> schools = schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
+        return schools.stream().map(School::getName).collect(Collectors.toSet());
     }
 
     /**
@@ -533,16 +540,27 @@ public class ScreeningAppController {
             // TODO：SchoolAge得改
             return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(0);
         }
+
+        // 获取学生对应筛查数据
         Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        // 转换为筛查进度
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
             StudentVO studentVO = StudentVO.getInstance(planStudent);
             return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
         }).collect(Collectors.toList());
+
+        // 异常的排前面
+        Map<Boolean, List<StudentScreeningProgressVO>> abnormalMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getHasAbnormal));
+        List<StudentScreeningProgressVO> progressList = new ArrayList<>();
+        progressList.addAll(abnormalMap.get(true));
+        progressList.addAll(abnormalMap.get(false));
+
         // 有异常筛查人数，仅统计：眼位、视力检查、电脑验光、小瞳验光
-        return new ClassScreeningProgress().setStudentScreeningProgressList(studentScreeningProgressList)
+        return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
                 .setPlanCount(CollectionUtils.size(studentScreeningProgressList))
                 .setScreeningCount(CollectionUtils.size(visionScreeningResults))
                 .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
@@ -588,6 +606,9 @@ public class ScreeningAppController {
     @GetMapping("/getLatestScreeningStudent")
     public ScreeningPlanSchoolStudent getLatestScreeningStudent() {
         List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return new ScreeningPlanSchoolStudent();
+        }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getBySchoolIds(schoolIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
             return new ScreeningPlanSchoolStudent();
