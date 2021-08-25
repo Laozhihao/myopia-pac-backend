@@ -554,10 +554,10 @@ public class ScreeningAppController {
         }).collect(Collectors.toList());
 
         // 异常的排前面
-        Map<Boolean, List<StudentScreeningProgressVO>> abnormalMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getHasAbnormal));
+        Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
         List<StudentScreeningProgressVO> progressList = new ArrayList<>();
-        progressList.addAll(abnormalMap.get(true));
-        progressList.addAll(abnormalMap.get(false));
+        progressList.addAll(finishMap.get(false));
+        progressList.addAll(finishMap.get(true));
 
         // 有异常筛查人数，仅统计：眼位、视力检查、电脑验光、小瞳验光
         return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
