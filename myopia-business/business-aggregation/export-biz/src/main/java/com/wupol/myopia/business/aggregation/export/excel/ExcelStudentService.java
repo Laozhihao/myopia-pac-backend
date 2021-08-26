@@ -224,7 +224,6 @@ public class ExcelStudentService {
             StudentDTO excelStudent = excelIdCardStudentMap.get(idCard);
             if (student.checkNeedUpdate(excelStudent)) {
                 Student updateStudent = new Student();
-                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
                 BeanUtils.copyProperties(student, updateStudent);
                 updateStudent.setName(excelStudent.getName()).setSchoolNo(excelStudent.getSchoolNo()).setGender(excelStudent.getGender())
                         .setBirthday(excelStudent.getBirthday()).setNation(ObjectsUtil.getDefaultIfNull(excelStudent.getNation(), student.getNation()))
@@ -237,15 +236,20 @@ public class ExcelStudentService {
                 updateStudent.setAreaCode(ObjectsUtil.getDefaultIfNull(excelStudent.getAreaCode(), student.getAreaCode()));
                 updateStudent.setTownCode(ObjectsUtil.getDefaultIfNull(excelStudent.getTownCode(), student.getTownCode()));
                 updateStudents.add(updateStudent);
-                BeanUtils.copyProperties(updateStudent, planSchoolStudent);
-                planSchoolStudent.setStudentNo(updateStudent.getSno());
-                planSchoolStudent.setStudentName(updateStudent.getName());
-                planSchoolStudent.setStudentId(updateStudent.getId());
-                updatePlanStudent.add(planSchoolStudent);
+                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
+                if(Objects.nonNull(planSchoolStudent)) {
+                    BeanUtils.copyProperties(updateStudent, planSchoolStudent);
+                    planSchoolStudent.setStudentNo(updateStudent.getSno());
+                    planSchoolStudent.setStudentName(updateStudent.getName());
+                    planSchoolStudent.setStudentId(updateStudent.getId());
+                    updatePlanStudent.add(planSchoolStudent);
+                }
             }
         });
         studentService.updateBatchById(updateStudents);
-        screeningPlanSchoolStudentService.updateBatchById(updatePlanStudent);
+        if (!CollectionUtils.isEmpty(updatePlanStudent)) {
+            screeningPlanSchoolStudentService.updateBatchById(updatePlanStudent);
+        }
     }
 
     /**
