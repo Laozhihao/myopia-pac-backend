@@ -46,10 +46,6 @@ public class SlitLampDataDO extends AbstractDiagnosisResult implements Serializa
          * 病变眼睛组织
          */
         private List<String> pathologicalTissues;
-        /**
-         * 初步诊断结果：0-正常、1-（疑似）异常
-         */
-        private Integer diagnosis;
     }
 
     /**

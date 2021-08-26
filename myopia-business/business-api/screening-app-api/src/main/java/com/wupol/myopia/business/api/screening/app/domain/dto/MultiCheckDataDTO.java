@@ -53,8 +53,10 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
         }
         // 裂隙灯
         if (Objects.nonNull(slitLampData)) {
-            SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.LEFT_EYE).setDiagnosis(slitLampData.getLeftDiagnosis()).setPathologicalTissues(slitLampData.getLeftPathologicalTissueList());
-            SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.RIGHT_EYE).setDiagnosis(slitLampData.getRightDiagnosis()).setPathologicalTissues(slitLampData.getRightPathologicalTissueList());
+            SlitLampDataDO.SlitLampData leftSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.LEFT_EYE).setPathologicalTissues(slitLampData.getLeftPathologicalTissueList());
+            leftSlitLampData.setDiagnosis(slitLampData.getLeftDiagnosis());
+            SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.RIGHT_EYE).setPathologicalTissues(slitLampData.getRightPathologicalTissueList());
+            rightSlitLampData.setDiagnosis(slitLampData.getRightDiagnosis());
             SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(isCooperative);
             visionScreeningResult.setSlitLampData(slitLampDataDO);
         }
