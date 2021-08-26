@@ -8,6 +8,7 @@ import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @Description 电脑验光数据
@@ -60,12 +61,35 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
         ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
-        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setDiagnosis(diagnosis).setIsCooperative(isCooperative);
+        ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(isCooperative);
+        computerOptometryDO.setDiagnosis(diagnosis);
         return visionScreeningResult.setComputerOptometry(computerOptometryDO);
     }
 
     public boolean isValid() {
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl);
+    }
+
+    public static ComputerOptometryDTO getInstance(ComputerOptometryDO computerOptometryDO) {
+        ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
+        if (Objects.isNull(computerOptometryDO)) {
+            return computerOptometryDTO;
+        }
+        ComputerOptometryDO.ComputerOptometry leftEye = computerOptometryDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            computerOptometryDTO.setLAxial(leftEye.getAxial());
+            computerOptometryDTO.setLCyl(leftEye.getCyl());
+            computerOptometryDTO.setLSph(leftEye.getSph());
+        }
+        ComputerOptometryDO.ComputerOptometry rightEye = computerOptometryDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            computerOptometryDTO.setRAxial(rightEye.getAxial());
+            computerOptometryDTO.setRCyl(rightEye.getCyl());
+            computerOptometryDTO.setRSph(rightEye.getSph());
+        }
+        computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
+        computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());
+        return computerOptometryDTO;
     }
 }
 

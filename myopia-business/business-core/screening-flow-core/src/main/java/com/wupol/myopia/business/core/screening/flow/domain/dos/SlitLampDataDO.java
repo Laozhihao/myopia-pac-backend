@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 裂隙灯检查数据
@@ -12,9 +15,11 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class SlitLampDataDO implements Serializable {
+public class SlitLampDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼数据
      */
@@ -28,9 +33,11 @@ public class SlitLampDataDO implements Serializable {
      */
     private Integer isCooperative;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @EqualsAndHashCode(callSuper = true)
     @Data
     @Accessors(chain = true)
-    public static class SlitLampData implements Serializable {
+    public static class SlitLampData extends AbstractDiagnosisResult implements Serializable {
         /**
          * 0 为左眼 1 为右眼
          */
@@ -39,10 +46,16 @@ public class SlitLampDataDO implements Serializable {
          * 病变眼睛组织
          */
         private List<String> pathologicalTissues;
-        /**
-         * 初步诊断结果：0-正常、1-（疑似）异常
-         */
-        private Integer diagnosis;
+    }
+
+    /**
+     * 判断诊断结果是否为正常，两只眼都为正常才为正常
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return (Objects.isNull(rightEyeData) || rightEyeData.isNormal()) && (Objects.isNull(leftEyeData) || leftEyeData.isNormal());
     }
 
 }

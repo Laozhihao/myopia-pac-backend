@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -11,9 +13,11 @@ import java.io.Serializable;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class OcularInspectionDataDO implements Serializable {
+public class OcularInspectionDataDO  extends AbstractDiagnosisResult implements Serializable {
     /**
      * 内斜
      */
@@ -26,10 +30,6 @@ public class OcularInspectionDataDO implements Serializable {
      * 垂直位斜视
      */
     private Integer verticalStrabismus;
-    /**
-     * 初步诊断结果：0-正常、1-（疑似）异常
-     */
-    private Integer diagnosis;
     /**
      * 是否配合检查：0-配合、1-不配合
      */

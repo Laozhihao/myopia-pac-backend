@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -20,6 +21,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -99,41 +101,57 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
 
     /**
      * 筛查通知-导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
-     * @param screeningNoticeId
-     * @param screeningOrgId 筛查机构ID，默认0
-     * @param districtId 层级ID，默认0
-     * @param schoolId 学校ID，默认0
-     * @return
+     * <p>这个接口需要考虑到筛查机构为单点的情况，为单点筛查机构，筛查通知Id可以为空
+     * 单点筛查机构没有筛查通知</p>
+     *
+     * @param screeningNoticeId 筛查通知Id
+     * @param screeningOrgId    筛查机构ID，默认0
+     * @param districtId        层级ID，默认0
+     * @param schoolId          学校ID，默认0
+     * @return ApiResult.success();
      */
     @GetMapping("/export")
-    public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer districtId,  @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+    public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+                                               @RequestParam(defaultValue = "0") Integer districtId, @RequestParam(defaultValue = "0") Integer schoolId,
+                                               @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {
         // 参数校验
-        validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId);
+        validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId, planId);
         List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
         // 获取文件需显示的名称的机构/学校/区域前缀
         String exportFileNamePrefix = "";
         boolean isSchoolExport = false;
-        if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
-            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
-        }
-        if (!CommonConst.DEFAULT_ID.equals(districtId)) {
-            exportFileNamePrefix = checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
-            // 合计的要包括自己层级的筛查数据
-            List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
-        }
-        if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-            exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
-            isSchoolExport = true;
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        // 是否单点机构
+        if (currentUser.isScreeningUser() && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getOrgId()).getConfigType())) {
+            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getOrgId()), "筛查机构");
+            if (Objects.isNull(planId)) {
+                throw new BusinessException("单点筛查机构PlanId不能为空");
+            }
+            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getOrgId());
+        } else {
+            if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
+                exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
+                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
+            }
+            if (!CommonConst.DEFAULT_ID.equals(districtId)) {
+                exportFileNamePrefix = checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
+                // 合计的要包括自己层级的筛查数据
+                List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
+                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds);
+            }
+            if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
+                exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
+                isSchoolExport = true;
+                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId);
+            }
         }
         if (CollectionUtils.isEmpty(statConclusionExportVos)) {
             throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
+        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
         return ApiResult.success();
     }
 
@@ -176,8 +194,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @param screeningOrgId
      * @param districtId
      * @param schoolId
+     * @param planId
      */
-    private void validateExportParams(Integer screeningNoticeId, Integer screeningOrgId, Integer districtId, Integer schoolId) {
+    private void validateExportParams(Integer screeningNoticeId, Integer screeningOrgId,
+                                      Integer districtId, Integer schoolId,Integer planId) {
+        if (Objects.nonNull(planId)) {
+            return;
+        }
         ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException("筛查通知不存在");

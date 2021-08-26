@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
 public class VisualLossLevelDataDO implements Serializable {

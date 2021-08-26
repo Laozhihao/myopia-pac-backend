@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -12,9 +14,11 @@ import java.math.BigDecimal;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EyePressureDataDO implements Serializable {
+public class EyePressureDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼数据
      */
@@ -39,6 +43,16 @@ public class EyePressureDataDO implements Serializable {
          * 眼压
          */
         private BigDecimal pressure;
+    }
+
+    /**
+     * 判断诊断结果是否为正常（没有异常判断标志，故默认为正常）
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return true;
     }
 
 }

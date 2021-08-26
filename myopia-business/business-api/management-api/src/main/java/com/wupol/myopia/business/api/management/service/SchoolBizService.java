@@ -332,10 +332,10 @@ public class SchoolBizService {
             // 只能看到所属的省级数据
             ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(currentUser.getOrgId());
             ScreeningOrganization org = screeningOrganizationService.getById(orgAdmin.getScreeningOrgId());
-            return districtService.getTwoTuple(org.getDistrictId());
+            return districtService.getDistrictPrefix(org.getDistrictId());
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
-            return districtService.getTwoTuple(govDept.getDistrictId());
+            return districtService.getDistrictPrefix(govDept.getDistrictId());
         }
         return new TwoTuple<>(districtId, null);
     }

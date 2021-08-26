@@ -57,6 +57,7 @@ public class DistrictPermissionService extends BaseService<DistrictPermissionMap
         if (PermissionTemplateType.isGovUser(templateType)) {
             RoleDTO roleDTO = new RoleDTO();
             roleDTO.setOrgIds(govIds);
+            roleDTO.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
             // 通过部门Id获取角色
             List<Role> roleList = roleService.getRoleList(roleDTO);
             roleList.forEach(r -> roleService.updateRolePermission(r.getId(), templateType, permissionIds));

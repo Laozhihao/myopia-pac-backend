@@ -339,7 +339,7 @@ public class StatManagementController {
         // 获取当前层级下，所有参与任务的学校
         ScreeningPlan plan = screeningPlanService.getReleasedPlanById(planId);
         ScreeningNotice notice = screeningNoticeService.getById(plan.getSrcScreeningNoticeId());
-        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Arrays.asList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        List<SchoolVisionStatistic> schoolVisionStatistics = schoolVisionStatisticBizService.getStatisticDtoByPlanIdsAndOrgId(Collections.singletonList(plan), districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         return getSchoolVisionStatisticVO(schoolVisionStatistics, notice);
     }
 

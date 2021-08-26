@@ -476,35 +476,55 @@ public class ExcelFacade {
         exportDTO.setSlitLampRightEye(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_PATHOLOGICAL_TISSUES)));
         exportDTO.setSlitLampRightResult(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SLD_RIGHT_DIAGNOSIS)));
 
-        exportDTO.setPupilOptometrySph(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN)));
-        exportDTO.setPupilOptometryCyl(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL)));
-        exportDTO.setPupilOptometryAxial(generateEyesDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL)));
-        exportDTO.setPupilOptometryCorrectedVision(biometricsDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION)));
+        exportDTO.setLeftPupilOptometrySph(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN)));
+        exportDTO.setRightPupilOptometrySph(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN)));
+        exportDTO.setLeftPupilOptometryCyl(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL)));
+        exportDTO.setRightPupilOptometryCyl(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL)));
+        exportDTO.setLeftPupilOptometryAxial(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_AXIAL)));
+        exportDTO.setRightPupilOptometryAxial(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_AXIAL)));
+        exportDTO.setLeftPupilOptometryCorrectedVision(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CORRECTEDVISION)));
+        exportDTO.setRightPupilOptometryCorrectedVision(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CORRECTEDVISION)));
         exportDTO.setPupilOptometryDiagnosis(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_DIAGNOSIS)));
         exportDTO.setPupilOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_LEFT_CYL),
                 (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_SPN), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_POD_RIGHT_CYL), DateUtil.ageOfNow(dto.getBirthday())));
 
-        exportDTO.setBiometricK1(genCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS),
-                JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
-        exportDTO.setBiometricK2(genCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2_AXIS),
-                JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2_AXIS)));
-        exportDTO.setBiometricAST(genCornealCurvature(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS),
-                JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
-        exportDTO.setBiometricPD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
-        exportDTO.setBiometricWTW(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
-        exportDTO.setBiometricAL(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
-        exportDTO.setBiometricCCT(generateSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
-        exportDTO.setBiometricAD(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
-        exportDTO.setBiometricLT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
-        exportDTO.setBiometricVT(generateSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT)));
+        exportDTO.setLeftBiometricK1(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1)));
+        exportDTO.setLeftBiometricK1Axis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
+        exportDTO.setRightBiometricK1(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1)));
+        exportDTO.setRightBiometricK1Axis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
+        exportDTO.setLeftBiometricK2(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2)));
+        exportDTO.setLeftBiometricK2Axis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K2_AXIS)));
+        exportDTO.setRightBiometricK2(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2)));
+        exportDTO.setRightBiometricK2Axis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K2_AXIS)));
+        exportDTO.setLeftBiometricAST(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AST)));
+        exportDTO.setLeftBiometricASTAxis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
+        exportDTO.setRightBiometricAST(genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST)));
+        exportDTO.setRightBiometricASTAxis(genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
+        exportDTO.setLeftBiometricPD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
+        exportDTO.setRightBiometricPD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
+        exportDTO.setLeftBiometricWTW(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
+        exportDTO.setRightBiometricWTW(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
+        exportDTO.setLeftBiometricAL(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
+        exportDTO.setRightBiometricAL(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
+        exportDTO.setLeftBiometricCCT(generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
+        exportDTO.setRightBiometricCCT(generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT)));
+        exportDTO.setLeftBiometricAD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
+        exportDTO.setRightBiometricAD(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD)));
+        exportDTO.setLeftBiometricLT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
+        exportDTO.setRightBiometricLT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT)));
+        exportDTO.setLeftBiometricVT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT)));
+        exportDTO.setRightBiometricVT(generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT)));
 
-        exportDTO.setEyePressureDate(ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
-        exportDTO.setFundusData(diagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL), (Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL)));
+        exportDTO.setLeftEyePressureDate(ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
+        exportDTO.setRightEyePressureDate(ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE)));
+        exportDTO.setLeftFundusData(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_LEFT_HASABNORMAL)));
+        exportDTO.setRightFundusData(singleDiagnosis2String((Integer) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_DF_RIGHT_HASABNORMAL)));
 
         exportDTO.setOtherEyeDiseasesLeftEyeDiseases(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)));
         exportDTO.setOtherEyeDiseasesRightEyeDiseases(objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)));
         exportDTO.setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
-        exportDTO.setOtherEyeDiseasesLevel(levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL), JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)));
+        exportDTO.setLeftOtherEyeDiseasesLevel(levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)));
+        exportDTO.setRightOtherEyeDiseasesLevel(levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL)));
     }
 
     /**
@@ -517,13 +537,19 @@ public class ExcelFacade {
     private void genReScreeningData(Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdDTOMap, StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
         StatConclusionExportDTO rescreenVo = rescreenPlanStudentIdDTOMap.get(dto.getScreeningPlanSchoolStudentId());
         if (Objects.nonNull(rescreenVo)) {
-            exportDTO.setReScreenNakedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), 1))
-                    .setReScreenCorrectedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION), 1))
-                    .setReScreenSphs(eyeDataFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH), 2))
-                    .setReScreenCyls(eyeDataFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL), 2))
-                    .setReScreenAxials(eyeDataFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
-                    .setReScreenSphericalEquivalents(eyeDataFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)), StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL)), 2))
-                    .setIsRescreenDesc("是");
+            exportDTO.setLeftReScreenNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)));
+            exportDTO.setRightReScreenNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)));
+            exportDTO.setLeftReScreenCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)));
+            exportDTO.setRightReScreenCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)));
+            exportDTO.setLeftReScreenSphs(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH)));
+            exportDTO.setRightReScreenSphs(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH)));
+            exportDTO.setLeftReScreenCyls(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL)));
+            exportDTO.setRightReScreenCyls(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL)));
+            exportDTO.setLeftReScreenAxials(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
+            exportDTO.setRightReScreenAxials(singleEyeDateFormat((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)));
+            exportDTO.setLeftReScreenSphericalEquivalents(singleEyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_CYL))));
+            exportDTO.setRightReScreenSphericalEquivalents(singleEyeDateFormat(StatUtil.getSphericalEquivalent((BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_CYL))));
+            exportDTO.setIsRescreenDesc("是");
         }
     }
 
@@ -534,69 +560,70 @@ public class ExcelFacade {
      * @param exportDTO
      */
     private void genScreeningData(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
-        exportDTO.setNakedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION), 1))
-                .setCorrectedVisions(eyeDataFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION), 1))
-                .setSphs(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH)))
-                .setCyls(generateSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL), JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)))
-                .setAxials(generateEyesDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL), JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
+        exportDTO.setLeftNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
+                .setRightNakedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
+                .setLeftCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
+                .setRightCorrectedVisions(singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CORRECTED_VISION)))
+                .setRightSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH)))
+                .setLeftSphs(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH)))
+                .setRightCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL)))
+                .setLeftCyls(generateSingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL)))
+                .setRightAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
+                .setLeftAxials(generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_AXIAL)));
         exportDTO.setComputerOptometryResult(StatUtil.getRefractiveResult((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CYL),
                 (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_SPH), (BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_CYL), DateUtil.ageOfNow(dto.getBirthday())));
     }
 
     /**
-     * 眼别数据格式化
+     * 角膜曲率（单眼）
      *
-     * @param rightEyeData
-     * @param leftEyeData
-     * @return
+     * @param val1 值1
+     * @return String
      */
-    private String eyeDataFormat(BigDecimal rightEyeData, BigDecimal leftEyeData, int scale) {
-        // 不足两位小数补0
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        if (scale == 0) {
-            decimalFormat = new DecimalFormat("#");
-        }
-        if (scale == 1) {
-            decimalFormat = new DecimalFormat("0.0");
-        }
-        return String.format("%s/%s", Objects.isNull(rightEyeData) ? "--" : decimalFormat.format(rightEyeData), Objects.isNull(leftEyeData) ? "--" : decimalFormat.format(leftEyeData));
+    private String genEyeBiometric(Object val1) {
+        return Objects.nonNull(val1) ? val1 + "D" : "--";
+    }
+    /**
+     * 角膜曲率（单眼）
+     *
+     * @param val1 值1
+     * @return String
+     */
+    private String genBiometricAxis(Object val1) {
+        return Objects.nonNull(val1) ? val1 + "°" : "--";
+    }
+
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    private String singleEyeDateFormat(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
     }
 
     /**
      * 格式化眼压数据
      *
-     * @param rightDate 右眼数据
-     * @param leftDate  左眼数据
+     * @param data 眼数据
      * @return String
      */
-    private String ipDateFormat(Object rightDate, Object leftDate) {
+    private String ipDateFormat(Object data) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : decimalFormat.format(rightDate) + "mmHg",
-                Objects.isNull(leftDate) ? "--" : decimalFormat.format(leftDate) + "mmHg");
-    }
-
-    /**
-     * 格式化生物测量数据
-     *
-     * @param rightDate 右眼数据
-     * @param leftDate  左眼数据
-     * @return String
-     */
-    private String biometricsDateFormat(Object rightDate, Object leftDate) {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : decimalFormat.format(rightDate),
-                Objects.isNull(leftDate) ? "--" : decimalFormat.format(leftDate));
+        return Objects.isNull(data) ? "--" : decimalFormat.format(data) + "mmHg";
     }
 
     /**
      * 格式化等级数据
      *
-     * @param rightDate 右眼数据
-     * @param leftDate  左眼数据
+     * @param data 眼数据
      * @return String
      */
-    private String levelDateFormat(Object rightDate, Object leftDate) {
-        return String.format("%s/%s", Objects.isNull(rightDate) ? "--" : rightDate + "级", Objects.isNull(leftDate) ? "--" : leftDate + "级");
+    private String levelDateFormat(Object data) {
+        return Objects.isNull(data) ? "--" : data + "级";
     }
 
     /**
@@ -616,30 +643,6 @@ public class ExcelFacade {
     }
 
     /**
-     * 角膜曲率（双眼）
-     *
-     * @param k1Left      角膜前表面曲率K1
-     * @param k1AxisLeft  角膜前表面曲率K1的度数
-     * @param k1Right     角膜前表面曲率K2
-     * @param k1AxisRight 角膜前表面曲率K2的度数
-     * @return String
-     */
-    private String genCornealCurvature(Object k1Left, Object k1AxisLeft, Object k1Right, Object k1AxisRight) {
-        return String.format("%s/%s", genEyeCornealCurvature(k1Right, k1AxisRight), genEyeCornealCurvature(k1Left, k1AxisLeft));
-    }
-
-    /**
-     * 角膜曲率（单眼）
-     *
-     * @param val1 值1
-     * @param val2 值2
-     * @return String
-     */
-    private String genEyeCornealCurvature(Object val1, Object val2) {
-        return String.format("%sD@%S°", Objects.nonNull(val1) ? val1 : "--", Objects.nonNull(val2) ? val2 : "--");
-    }
-
-    /**
      * 初步结果 单眼
      *
      * @param diagnosis 0-正常 1-"（疑似）异常"
@@ -656,17 +659,6 @@ public class ExcelFacade {
             return "（疑似）异常";
         }
         return StringUtils.EMPTY;
-    }
-
-    /**
-     * 初步结果 双眼
-     *
-     * @param val1 值1
-     * @param val2 值2
-     * @return String
-     */
-    private String diagnosis2String(Integer val1, Integer val2) {
-        return singleDiagnosis2String(val1) + "/" + singleDiagnosis2String(val2);
     }
 
     /**
@@ -696,28 +688,6 @@ public class ExcelFacade {
     }
 
     /**
-     * 生成双眼度数String，后缀为°
-     *
-     * @param val1 值
-     * @param val2 值
-     * @return String
-     */
-    private String generateEyesDegree(Object val1, Object val2) {
-        return generateSingleEyeDegree(val1) + "/" + generateSingleEyeDegree(val2);
-    }
-
-    /**
-     * 双眼后缀为D
-     *
-     * @param val1 值
-     * @param val2 值
-     * @return String
-     */
-    private String generateSuffixDStr(Object val1, Object val2) {
-        return generateSingleSuffixDStr(val1) + "/" + generateSingleSuffixDStr(val2);
-    }
-
-    /**
      * 单眼后缀为D
      *
      * @param val 值
@@ -729,17 +699,6 @@ public class ExcelFacade {
     }
 
     /**
-     * 双眼后缀为mm
-     *
-     * @param val1 值
-     * @param val2 值
-     * @return String
-     */
-    private String generateSuffixMMStr(Object val1, Object val2) {
-        return generateSingleSuffixMMStr(val1) + "/" + generateSingleSuffixMMStr(val2);
-    }
-
-    /**
      * 单眼后缀为mm
      *
      * @param val 值
@@ -748,17 +707,6 @@ public class ExcelFacade {
     private String generateSingleSuffixMMStr(Object val) {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : "--");
-    }
-
-    /**
-     * 双眼后缀为um
-     *
-     * @param val1 值
-     * @param val2 值
-     * @return String
-     */
-    private String generateSuffixUMStr(Object val1, Object val2) {
-        return generateSingleSuffixUMStr(val1) + "/" + generateSingleSuffixUMStr(val2);
     }
 
     /**

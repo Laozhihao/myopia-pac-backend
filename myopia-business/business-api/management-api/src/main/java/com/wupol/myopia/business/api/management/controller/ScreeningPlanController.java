@@ -428,7 +428,7 @@ public class ScreeningPlanController {
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
@@ -491,7 +491,7 @@ public class ScreeningPlanController {
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white);
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
             students.forEach(student -> {
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));

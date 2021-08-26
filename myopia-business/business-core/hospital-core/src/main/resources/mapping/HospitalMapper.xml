@@ -56,10 +56,13 @@
         select
         <include refid="Base_Column_List"/>
         from m_hospital h
-                where h.gov_dept_id in
-        <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+                where 1 = 1
+        <if test="govDeptId != null and govDeptId.size() != 0">
+            and h.gov_dept_id in
+            <foreach collection="govDeptId" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
         <if test="status != null">
             and h.status = #{status}
         </if>
