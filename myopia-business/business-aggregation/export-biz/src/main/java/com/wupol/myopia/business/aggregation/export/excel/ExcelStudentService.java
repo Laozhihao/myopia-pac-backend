@@ -238,7 +238,12 @@ public class ExcelStudentService {
                 updateStudents.add(updateStudent);
                 ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, null);
                 if(Objects.nonNull(planSchoolStudent)) {
+                    Integer id = planSchoolStudent.getId();
+                    Date createTime = planSchoolStudent.getCreateTime();
                     BeanUtils.copyProperties(updateStudent, planSchoolStudent);
+                    planSchoolStudent.setId(id);
+                    // 保留原始创建时间，方便排查问题
+                    planSchoolStudent.setCreateTime(createTime);
                     planSchoolStudent.setStudentNo(updateStudent.getSno());
                     planSchoolStudent.setStudentName(updateStudent.getName());
                     planSchoolStudent.setStudentId(updateStudent.getId());
