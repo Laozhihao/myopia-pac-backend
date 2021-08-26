@@ -381,7 +381,7 @@ public class ScreeningAppService {
      */
     public ApiResult validStudentParam(AppStudentDTO appStudentDTO) {
         //验证学生生日格式
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getBirthday())) {
+        if (StringUtils.isNotBlank(appStudentDTO.getBirthday())) {
             String validDate = DateUtil.isValidDate(appStudentDTO.getBirthday());
             if (validDate == null) {
                 return ApiResult.failure(ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getCode(), ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getMessage());
@@ -393,7 +393,7 @@ public class ScreeningAppService {
             return ApiResult.failure(ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getCode(), ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getMessage());
         }
         //验证身份号
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
+        if (StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
             boolean flag = IdcardUtil.isValidCard(appStudentDTO.getIdCard());
             if (!flag) {
                 return ApiResult.failure(StudentExcelEnum.EXCEL_IDCARD_ERROR.getCode(), StudentExcelEnum.EXCEL_IDCARD_ERROR.getMessage());
@@ -401,7 +401,7 @@ public class ScreeningAppService {
         }
 
         //验证手机号
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getStudentPhone())) {
+        if (StringUtils.isNotBlank(appStudentDTO.getStudentPhone())) {
             boolean flag = CommUtil.isMobileNO(appStudentDTO.getStudentPhone());
             if (!flag) {
                 //验证是否为电话号
@@ -412,7 +412,7 @@ public class ScreeningAppService {
             }
         }
         //设置出生日期
-        if (org.apache.commons.lang3.StringUtils.isBlank(appStudentDTO.getBirthday()) && org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
+        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
             appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
         }
         return null;
