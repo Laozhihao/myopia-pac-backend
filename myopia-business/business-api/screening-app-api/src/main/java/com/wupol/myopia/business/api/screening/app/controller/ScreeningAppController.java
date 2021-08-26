@@ -513,7 +513,7 @@ public class ScreeningAppController {
                                                             @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
-                .setScreeningOrgId(1)
+                .setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId())
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
                 .setGradeName(gradeName));
