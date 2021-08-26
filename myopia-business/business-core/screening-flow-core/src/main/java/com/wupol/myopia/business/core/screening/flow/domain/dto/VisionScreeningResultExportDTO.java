@@ -88,19 +88,29 @@ public class VisionScreeningResultExportDTO implements Serializable {
 
     @ExcelProperty({TOP_HEADER, "视力检查", "戴镜情况"})
     private String glassesTypeDesc;
-    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（右/左）"})
-    private String nakedVisions;
-    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（右/左）"})
-    private String correctedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（右）"})
+    private String rightNakedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "裸眼（左）"})
+    private String leftNakedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（右）"})
+    private String rightCorrectedVisions;
+    @ExcelProperty({TOP_HEADER, "视力检查", "矫正（左）"})
+    private String leftCorrectedVisions;
     @ExcelProperty({TOP_HEADER, "视力检查", "初步结果"})
     private String visionDiagnosis;
 
-    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右/左）"})
-    private String sphs;
-    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（右/左）"})
-    private String cyls;
-    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右/左）"})
-    private String axials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（右）"})
+    private String rightSphs;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（左）"})
+    private String leftSphs;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（右）"})
+    private String rightCyls;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（左）"})
+    private String leftCyls;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右）"})
+    private String rightAxials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（左）"})
+    private String leftAxials;
     @ExcelProperty({TOP_HEADER, "电脑验光", "初步结果"})
     private String computerOptometryDiagnosis;
     @ExcelProperty({TOP_HEADER, "电脑验光", "屈光结果"})
@@ -115,44 +125,88 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "裂隙灯", "初步结果"})
     private String slitLampRightResult;
 
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（右/左）"})
-    private String pupilOptometrySph;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（右/左）"})
-    private String pupilOptometryCyl;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（右/左）"})
-    private String pupilOptometryAxial;
-    @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（右/左）"})
-    private String pupilOptometryCorrectedVision;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（右）"})
+    private String rightPupilOptometrySph;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "球镜（左）"})
+    private String leftPupilOptometrySph;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（右）"})
+    private String rightPupilOptometryCyl;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "柱镜（左）"})
+    private String leftPupilOptometryCyl;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（右）"})
+    private String rightPupilOptometryAxial;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "轴位（左）"})
+    private String leftPupilOptometryAxial;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（右）"})
+    private String rightPupilOptometryCorrectedVision;
+    @ExcelProperty({TOP_HEADER, "小瞳验光", "最佳视力（左）"})
+    private String leftPupilOptometryCorrectedVision;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "初步结果"})
     private String pupilOptometryDiagnosis;
     @ExcelProperty({TOP_HEADER, "小瞳验光", "屈光结果"})
     private String pupilOptometryResult;
 
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右/左）"})
-    private String biometricK1;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右/左）"})
-    private String biometricK2;
-    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右/左）"})
-    private String biometricAST;
-    @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（右/左）"})
-    private String biometricPD;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW（右/左）"})
-    private String biometricWTW;
-    @ExcelProperty({TOP_HEADER, "生物测量", "眼轴总长度AL（右/左）"})
-    private String biometricAL;
-    @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT（右/左）"})
-    private String biometricCCT;
-    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（右/左）"})
-    private String biometricAD;
-    @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT（右/左）"})
-    private String biometricLT;
-    @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（右/左）"})
-    private String biometricVT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
+    private String rightBiometricK1;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（右）"})
+    private String rightBiometricK1Axis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（左）"})
+    private String leftBiometricK1;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K1（左）"})
+    private String leftBiometricK1Axis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右）"})
+    private String rightBiometricK2;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（右）"})
+    private String rightBiometricK2Axis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（左）"})
+    private String leftBiometricK2;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜前表面曲率K2（左）"})
+    private String leftBiometricK2Axis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右）"})
+    private String rightBiometricAST;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（右）"})
+    private String rightBiometricASTAxis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（左）"})
+    private String leftBiometricAST;
+    @ExcelProperty({TOP_HEADER, "生物测量", "垂直方向角膜散光度数AST（左）"})
+    private String leftBiometricASTAxis;
+    @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（右）"})
+    private String rightBiometricPD;
+    @ExcelProperty({TOP_HEADER, "生物测量", "瞳孔直径PD（左）"})
+    private String leftBiometricPD;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW（右）"})
+    private String rightBiometricWTW;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜直径WTW（左）"})
+    private String leftBiometricWTW;
+    @ExcelProperty({TOP_HEADER, "生物测量", "眼轴总长度AL（右）"})
+    private String rightBiometricAL;
+    @ExcelProperty({TOP_HEADER, "生物测量", "眼轴总长度AL（左）"})
+    private String leftBiometricAL;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT（右）"})
+    private String rightBiometricCCT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "角膜中央厚度CCT（左）"})
+    private String leftBiometricCCT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（右）"})
+    private String rightBiometricAD;
+    @ExcelProperty({TOP_HEADER, "生物测量", "前房深度AD（左）"})
+    private String leftBiometricAD;
+    @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT（右）"})
+    private String rightBiometricLT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "晶体厚度LT（左）"})
+    private String leftBiometricLT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（右）"})
+    private String rightBiometricVT;
+    @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（左）"})
+    private String leftBiometricVT;
 
-    @ExcelProperty("眼压（右/左）")
-    private String eyePressureDate;
-    @ExcelProperty("眼底（右/左）")
-    private String fundusData;
+    @ExcelProperty("眼压（右）")
+    private String rightEyePressureDate;
+    @ExcelProperty("眼压（左）")
+    private String leftEyePressureDate;
+    @ExcelProperty("眼底（右）")
+    private String rightFundusData;
+    @ExcelProperty("眼底（左）")
+    private String leftFundusData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病右"})
     private String otherEyeDiseasesLeftEyeDiseases;
@@ -160,9 +214,10 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String otherEyeDiseasesRightEyeDiseases;
     @ExcelProperty({TOP_HEADER, "其他眼病", "全身疾病在眼部的表现"})
     private String otherEyeDiseasesSystemicDiseaseSymptom;
-    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右/左）"})
-    private String otherEyeDiseasesLevel;
-
+    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（右）"})
+    private String rightOtherEyeDiseasesLevel;
+    @ExcelProperty({TOP_HEADER, "其他眼病", "盲及视力损害分类（左）"})
+    private String leftOtherEyeDiseasesLevel;
 
     @ExcelProperty({TOP_HEADER, "预警级别", "预警级别"})
     private String warningLevelDesc;
@@ -170,16 +225,28 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "是否复测", "是否复测"})
     private String isRescreenDesc;
 
-    @ExcelProperty({TOP_HEADER2, "裸眼（右/左）"})
-    private String reScreenNakedVisions;
-    @ExcelProperty({TOP_HEADER2, "矫正（右/左）"})
-    private String reScreenCorrectedVisions;
-    @ExcelProperty({TOP_HEADER2, "球镜（右/左）"})
-    private String reScreenSphs;
-    @ExcelProperty({TOP_HEADER2, "柱镜（右/左）"})
-    private String reScreenCyls;
-    @ExcelProperty({TOP_HEADER2, "轴位（右/左）"})
-    private String reScreenAxials;
-    @ExcelProperty({TOP_HEADER2, "等效球镜（右/左）"})
-    private String reScreenSphericalEquivalents;
+    @ExcelProperty({TOP_HEADER2, "裸眼（右）"})
+    private String rightReScreenNakedVisions;
+    @ExcelProperty({TOP_HEADER2, "裸眼（左）"})
+    private String leftReScreenNakedVisions;
+    @ExcelProperty({TOP_HEADER2, "矫正（右）"})
+    private String rightReScreenCorrectedVisions;
+    @ExcelProperty({TOP_HEADER2, "矫正（左）"})
+    private String leftReScreenCorrectedVisions;
+    @ExcelProperty({TOP_HEADER2, "球镜（右）"})
+    private String rightReScreenSphs;
+    @ExcelProperty({TOP_HEADER2, "球镜（左）"})
+    private String leftReScreenSphs;
+    @ExcelProperty({TOP_HEADER2, "柱镜（右）"})
+    private String rightReScreenCyls;
+    @ExcelProperty({TOP_HEADER2, "柱镜（左）"})
+    private String leftReScreenCyls;
+    @ExcelProperty({TOP_HEADER2, "轴位（右）"})
+    private String rightReScreenAxials;
+    @ExcelProperty({TOP_HEADER2, "轴位（左）"})
+    private String leftReScreenAxials;
+    @ExcelProperty({TOP_HEADER2, "等效球镜（右）"})
+    private String rightReScreenSphericalEquivalents;
+    @ExcelProperty({TOP_HEADER2, "等效球镜（左）"})
+    private String leftReScreenSphericalEquivalents;
 }

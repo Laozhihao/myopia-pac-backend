@@ -120,7 +120,7 @@ public class HospitalController {
     @GetMapping("list")
     public IPage<HospitalResponseDTO> getHospitalList(PageRequest pageRequest, HospitalQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return hospitalBizService.getHospitalList(pageRequest, query, user.getOrgId());
+        return hospitalBizService.getHospitalList(pageRequest, query, user);
     }
 
     /**
