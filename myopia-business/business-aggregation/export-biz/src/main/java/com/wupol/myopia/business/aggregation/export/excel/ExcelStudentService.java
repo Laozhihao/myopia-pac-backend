@@ -236,7 +236,7 @@ public class ExcelStudentService {
                 updateStudent.setAreaCode(ObjectsUtil.getDefaultIfNull(excelStudent.getAreaCode(), student.getAreaCode()));
                 updateStudent.setTownCode(ObjectsUtil.getDefaultIfNull(excelStudent.getTownCode(), student.getTownCode()));
                 updateStudents.add(updateStudent);
-                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, new ScreeningPlanSchoolStudent());
+                ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, null);
                 if(Objects.nonNull(planSchoolStudent)) {
                     BeanUtils.copyProperties(updateStudent, planSchoolStudent);
                     planSchoolStudent.setStudentNo(updateStudent.getSno());
