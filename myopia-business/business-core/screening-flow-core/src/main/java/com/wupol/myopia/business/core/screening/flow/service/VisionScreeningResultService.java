@@ -75,6 +75,18 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
+     * 根据筛查计划ID集查询
+     *
+     * @param planIds 计划的学生ID
+     * @return List<VisionScreeningResult>
+     */
+    public List<VisionScreeningResult> getByPlanIdsOrderByUpdateTimeDesc(Set<Integer> planIds) {
+        LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen,false).in(VisionScreeningResult::getPlanId, planIds).orderByDesc(VisionScreeningResult::getUpdateTime);
+        return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
+    }
+
+    /**
      * 获取学生的最新筛查报告
      *
      * @param studentId 学生ID

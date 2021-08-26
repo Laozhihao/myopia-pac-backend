@@ -13,9 +13,12 @@ import java.util.List;
  * @Date 2020-12-22
  */
 public enum SchoolEnum {
+    /** 住宿类型 */
     LODGE_ALL(0, "全部住校"),
     LODGE_PART(1, "部分住校"),
     LODGE_NON(2, "不住校"),
+
+    /** 学校类型 */
     TYPE_PRIMARY(0, "小学"),
     TYPE_MIDDLE(1, "初级中学"),
     TYPE_HIGH(2, "高级中学"),
@@ -25,6 +28,8 @@ public enum SchoolEnum {
     TYPE_VOCATIONAL(6, "职业高中"),
     TYPE_OTHER(7, "其他"),
     TYPE_KINDERGARTEN(8, "幼儿园"),
+
+    /** 学校性质 */
     KIND_1(0, "公办"),
     KIND_2(1, "民办"),
     KIND_3(2, "其他");
