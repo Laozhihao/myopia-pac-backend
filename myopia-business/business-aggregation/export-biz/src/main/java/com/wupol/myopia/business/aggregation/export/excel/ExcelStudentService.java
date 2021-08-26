@@ -238,7 +238,9 @@ public class ExcelStudentService {
                 updateStudents.add(updateStudent);
                 ScreeningPlanSchoolStudent planSchoolStudent = planSchoolStudentMaps.getOrDefault(idCard, null);
                 if(Objects.nonNull(planSchoolStudent)) {
+                    Integer id = planSchoolStudent.getId();
                     BeanUtils.copyProperties(updateStudent, planSchoolStudent);
+                    planSchoolStudent.setId(id);
                     planSchoolStudent.setStudentNo(updateStudent.getSno());
                     planSchoolStudent.setStudentName(updateStudent.getName());
                     planSchoolStudent.setStudentId(updateStudent.getId());
