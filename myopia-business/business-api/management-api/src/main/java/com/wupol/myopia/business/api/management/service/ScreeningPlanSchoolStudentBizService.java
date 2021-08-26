@@ -84,10 +84,8 @@ public class ScreeningPlanSchoolStudentBizService {
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
         // 设置年级名、班级名、民族、地址
         studentDTOIPage.getRecords().forEach(studentDTO ->
-            studentDTO.setGradeName(schoolGradeService.getGradeNameById(studentDTO.getGradeId()))
-                    .setClassName(schoolClassService.getClassNameById(studentDTO.getClassId()))
-                    .setNationDesc(NationEnum.getName(studentDTO.getNation()))
-                    .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
+                studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+                        .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
         );
         return studentDTOIPage;
     }
