@@ -180,25 +180,6 @@ public class ScreeningAppController {
     }
 
     /**
-     * 获取筛查机构对应的未完成筛查且有筛查数据的学校
-     *
-     * @return
-     */
-    @GetMapping("/getSchoolHasScreeningData")
-    public Set<String> getSchoolHasScreeningData() {
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
-        if (CollectionUtils.isEmpty(schoolIds)) {
-            return new HashSet<>();
-        }
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getBySchoolIds(schoolIds);
-        if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            return new HashSet<>();
-        }
-        List<School> schools = schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
-        return schools.stream().map(School::getName).collect(Collectors.toSet());
-    }
-
-    /**
      * 查询眼睛疾病
      *
      * @return
@@ -532,7 +513,7 @@ public class ScreeningAppController {
                                                             @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
-                .setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId())
+                .setScreeningOrgId(1)
                 .setSchoolName(schoolName)
                 .setClassName(clazzName)
                 .setGradeName(gradeName));
@@ -603,17 +584,37 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取筛查机构对应的未完成筛查且有筛查数据的学校
+     *
+     * @return
+     */
+    @GetMapping("/getSchoolHasScreeningData")
+    public Set<String> getSchoolHasScreeningData() {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
+            return new HashSet<>();
+        }
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
+        if (CollectionUtils.isEmpty(visionScreeningResults)) {
+            return new HashSet<>();
+        }
+        List<School> schools = schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
+        return schools.stream().map(School::getName).collect(Collectors.toSet());
+    }
+
+
+    /**
      * 获取最新一条筛查记录的学生信息
      *
      * @return
      */
     @GetMapping("/getLatestScreeningStudent")
     public ScreeningPlanSchoolStudent getLatestScreeningStudent() {
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
-        if (CollectionUtils.isEmpty(schoolIds)) {
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ScreeningPlanSchoolStudent();
         }
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getBySchoolIds(schoolIds);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
             return new ScreeningPlanSchoolStudent();
         }
