@@ -194,7 +194,7 @@ public class GeneratePdfFileService {
         // 获取年纪班级信息
         List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId);
 
-        gradeAndClass.parallelStream().forEach(gradeVO -> {
+        gradeAndClass.forEach(gradeVO -> {
             gradeVO.getClasses().forEach(schoolClass -> {
                 String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId());
                 String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
