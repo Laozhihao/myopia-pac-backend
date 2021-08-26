@@ -82,7 +82,7 @@ public class ScreeningPlanSchoolStudentBizService {
             query.setGradeList(Stream.of(StringUtils.commaDelimitedListToStringArray(query.getGradeIds())).map(Integer::parseInt).collect(Collectors.toList()));
         }
         IPage<ScreeningStudentDTO> studentDTOIPage = screeningPlanSchoolStudentService.selectPageByQuery(page, query);
-        // 设置年级名、班级名、民族、地址
+        // 设置民族、地址
         studentDTOIPage.getRecords().forEach(studentDTO ->
                 studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
                         .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()))
