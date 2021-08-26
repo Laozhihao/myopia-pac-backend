@@ -1,22 +1,28 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
+import cn.hutool.core.util.IdcardUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
+import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.StudentScreeningProgressVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.StudentVO;
+import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
+import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
+import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.NationEnum;
-import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
@@ -365,5 +371,101 @@ public class ScreeningAppService {
         String resourcePath = resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
         appUserInfo.setAutImage(resourcePath);
         return appUserInfo;
+    }
+
+    /**
+     * 校验学生数据的有效性
+     *
+     * @param appStudentDTO
+     * @return
+     */
+    public ApiResult validStudentParam(AppStudentDTO appStudentDTO) {
+        //验证学生生日格式
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getBirthday())) {
+            String validDate = DateUtil.isValidDate(appStudentDTO.getBirthday());
+            if (validDate == null) {
+                return ApiResult.failure(ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getCode(), ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getMessage());
+            } else {
+                appStudentDTO.setBirthday(validDate);
+            }
+        }
+        if (appStudentDTO.getSchoolId() == null || appStudentDTO.getSchoolId() == 0) {
+            return ApiResult.failure(ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getCode(), ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getMessage());
+        }
+        //验证身份号
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
+            boolean flag = IdcardUtil.isValidCard(appStudentDTO.getIdCard());
+            if (!flag) {
+                return ApiResult.failure(StudentExcelEnum.EXCEL_IDCARD_ERROR.getCode(), StudentExcelEnum.EXCEL_IDCARD_ERROR.getMessage());
+            }
+        }
+
+        //验证手机号
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getStudentPhone())) {
+            boolean flag = CommUtil.isMobileNO(appStudentDTO.getStudentPhone());
+            if (!flag) {
+                //验证是否为电话号
+                boolean isPhone = CommUtil.isPhoneNO(appStudentDTO.getStudentPhone());
+                if (!isPhone) {
+                    return ApiResult.failure(StudentExcelEnum.EXCEL_PHONE_ERROR.getCode(), StudentExcelEnum.EXCEL_PHONE_ERROR.getMessage());
+                }
+            }
+        }
+        //设置出生日期
+        if (org.apache.commons.lang3.StringUtils.isBlank(appStudentDTO.getBirthday()) && org.apache.commons.lang3.StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
+            appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
+        }
+        return null;
+    }
+
+    /**
+     * 获取班级总的筛查进度：汇总统计+每个学生的进度
+     *
+     * @param schoolName 学校名称
+     * @param gradeName 年级名称
+     * @param clazzName 班级名称
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
+     **/
+    public ClassScreeningProgress getClassScreeningProgress(String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
+        // 查询班级所有学生
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
+                .setScreeningOrgId(screeningOrgId)
+                .setSchoolName(schoolName)
+                .setClassName(clazzName)
+                .setGradeName(gradeName));
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+            // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
+            return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code);
+        }
+
+        // 获取学生对应筛查数据
+        Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
+        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        // 转换为筛查进度
+        List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
+            VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
+            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
+        }).collect(Collectors.toList());
+
+        // 异常的排前面
+        Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
+        List<StudentScreeningProgressVO> progressList = new ArrayList<>();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(finishMap.get(false))) {
+            progressList.addAll(finishMap.get(false));
+        }
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(finishMap.get(true))) {
+            progressList.addAll(finishMap.get(true));
+        }
+
+        // 统计筛查情况
+        return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
+                .setPlanCount(org.apache.commons.collections4.CollectionUtils.size(studentScreeningProgressList))
+                .setScreeningCount(org.apache.commons.collections4.CollectionUtils.size(visionScreeningResults))
+                .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
+                .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
+                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
     }
 }

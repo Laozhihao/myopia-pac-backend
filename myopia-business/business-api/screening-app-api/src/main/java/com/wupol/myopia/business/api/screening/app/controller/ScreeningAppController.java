@@ -1,21 +1,17 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
-import cn.hutool.core.util.IdcardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.*;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
-import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningPlanBizService;
-import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.constant.EyeDiseasesEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -49,7 +45,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.text.ParseException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -408,7 +403,7 @@ public class ScreeningAppController {
     @PostMapping("/student/save")
     public ApiResult saveStudent(@RequestBody AppStudentDTO appStudentDTO) throws ParseException {
         appStudentDTO.setDeptId(CurrentUserUtil.getCurrentUser().getOrgId());
-        ApiResult apiResult = this.validStudentParam(appStudentDTO);
+        ApiResult apiResult = screeningAppService.validStudentParam(appStudentDTO);
         if (apiResult != null) {
             return apiResult;
         }
@@ -434,7 +429,6 @@ public class ScreeningAppController {
         return ApiResult.success();
     }
 
-
     /**
      * 搜索复测质控结果
      *
@@ -454,103 +448,19 @@ public class ScreeningAppController {
 
 
     /**
-     * 校验学生数据的有效性
-     *
-     * @param appStudentDTO
-     * @return
-     */
-    private ApiResult validStudentParam(AppStudentDTO appStudentDTO) {
-        //验证学生生日格式
-        if (StringUtils.isNotBlank(appStudentDTO.getBirthday())) {
-            String validDate = DateUtil.isValidDate(appStudentDTO.getBirthday());
-            if (validDate == null) {
-                return ApiResult.failure(ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getCode(), ErrorEnum.SYS_STUDENT_BIRTHDAY_FORMAT_ERROR.getMessage());
-            } else {
-                appStudentDTO.setBirthday(validDate);
-            }
-        }
-        if (appStudentDTO.getSchoolId() == null || appStudentDTO.getSchoolId() == 0) {
-            return ApiResult.failure(ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getCode(), ErrorEnum.SYS_STUDENT_SCHOOL_NULL.getMessage());
-        }
-        //验证身份号
-        if (StringUtils.isNotBlank(appStudentDTO.getIdCard())) {
-            boolean flag = IdcardUtil.isValidCard(appStudentDTO.getIdCard());
-            if (!flag) {
-                return ApiResult.failure(StudentExcelEnum.EXCEL_IDCARD_ERROR.getCode(), StudentExcelEnum.EXCEL_IDCARD_ERROR.getMessage());
-            }
-        }
-
-        //验证手机号
-        if (StringUtils.isNotBlank(appStudentDTO.getStudentPhone())) {
-            boolean flag = CommUtil.isMobileNO(appStudentDTO.getStudentPhone());
-            if (!flag) {
-                //验证是否为电话号
-                boolean isPhone = CommUtil.isPhoneNO(appStudentDTO.getStudentPhone());
-                if (!isPhone) {
-                    return ApiResult.failure(StudentExcelEnum.EXCEL_PHONE_ERROR.getCode(), StudentExcelEnum.EXCEL_PHONE_ERROR.getMessage());
-                }
-            }
-        }
-        //设置出生日期
-        if (StringUtils.isBlank(appStudentDTO.getBirthday()) && StringUtils.isNotBlank(appStudentDTO.getIdCard()) ) {
-            appStudentDTO.setBirthday(CommUtil.getBirthday(appStudentDTO.getIdCard()));
-        }
-        return null;
-    }
-
-    /**
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      * TODO：暂时沿用山西版风格（差评），待改成通过ID获取
      *
      * @param schoolName 学校名称
      * @param gradeName 年级名称
      * @param clazzName 班级名称
-     * @return void
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/class/progress")
     public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "schoolName") @NotBlank(message = "学校名称不能为空") String schoolName,
                                                             @RequestParam(value = "gradeName") @NotBlank(message = "年级名称不能为空") String gradeName,
                                                             @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
-        // 查询班级所有学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
-                .setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId())
-                .setSchoolName(schoolName)
-                .setClassName(clazzName)
-                .setGradeName(gradeName));
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
-            // TODO：SchoolAge得改
-            return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(0);
-        }
-
-        // 获取学生对应筛查数据
-        Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
-        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
-
-        // 转换为筛查进度
-        List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
-            VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
-            StudentVO studentVO = StudentVO.getInstance(planStudent);
-            return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
-        }).collect(Collectors.toList());
-
-        // 异常的排前面
-        Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
-        List<StudentScreeningProgressVO> progressList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(finishMap.get(false))) {
-            progressList.addAll(finishMap.get(false));
-        }
-        if (CollectionUtils.isNotEmpty(finishMap.get(true))) {
-            progressList.addAll(finishMap.get(true));
-        }
-
-        // 有异常筛查人数，仅统计：眼位、视力检查、电脑验光、小瞳验光
-        return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
-                .setPlanCount(CollectionUtils.size(studentScreeningProgressList))
-                .setScreeningCount(CollectionUtils.size(visionScreeningResults))
-                .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
-                .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
-                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
+        return screeningAppService.getClassScreeningProgress(schoolName, gradeName, clazzName, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     /**

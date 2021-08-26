@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 裂隙灯检查数据
@@ -32,9 +33,11 @@ public class SlitLampDataDO extends AbstractDiagnosisResult implements Serializa
      */
     private Integer isCooperative;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @EqualsAndHashCode(callSuper = true)
     @Data
     @Accessors(chain = true)
-    public static class SlitLampData implements Serializable {
+    public static class SlitLampData extends AbstractDiagnosisResult implements Serializable {
         /**
          * 0 为左眼 1 为右眼
          */
@@ -50,13 +53,13 @@ public class SlitLampDataDO extends AbstractDiagnosisResult implements Serializa
     }
 
     /**
-     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     * 判断诊断结果是否为正常，两只眼都为正常才为正常
      *
      * @return boolean
      **/
     @Override
     public boolean isNormal() {
-        return true;
+        return (Objects.isNull(rightEyeData) || rightEyeData.isNormal()) && (Objects.isNull(leftEyeData) || leftEyeData.isNormal());
     }
 
 }

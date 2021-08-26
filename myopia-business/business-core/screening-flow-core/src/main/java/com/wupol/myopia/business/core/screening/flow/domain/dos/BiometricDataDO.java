@@ -90,7 +90,7 @@ public class BiometricDataDO extends AbstractDiagnosisResult implements Serializ
     }
 
     /**
-     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     * 判断诊断结果是否为正常（没有异常判断标志，故默认为正常）
      *
      * @return boolean
      **/

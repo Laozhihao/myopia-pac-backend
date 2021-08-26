@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 眼底数据
@@ -49,13 +50,14 @@ public class FundusDataDO extends AbstractDiagnosisResult implements Serializabl
     }
 
     /**
-     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     * 判断诊断结果是否为正常，两只眼都没有异常才为正常
      *
      * @return boolean
      **/
     @Override
     public boolean isNormal() {
-        return true;
+        return (Objects.isNull(rightEyeData) || Objects.isNull(rightEyeData.getHasAbnormal()) || rightEyeData.getHasAbnormal() == NORMAL)
+                && (Objects.isNull(leftEyeData) || Objects.isNull(leftEyeData.getHasAbnormal()) || leftEyeData.getHasAbnormal() == NORMAL);
     }
 
 }

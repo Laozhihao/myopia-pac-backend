@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description 其他眼病  左右眼起码要有一只眼有疾病
@@ -41,12 +43,12 @@ public class OtherEyeDiseasesDO extends AbstractDiagnosisResult implements Seria
     }
 
     /**
-     * 判断诊断结果是否为正常，筛查APP没有录入初诊结果，故默认为正常
+     * 判断诊断结果是否为正常，两只眼都没有眼病才为正常
      *
      * @return boolean
      **/
     @Override
     public boolean isNormal() {
-        return true;
+        return (Objects.isNull(rightEyeData) || CollectionUtils.isEmpty(rightEyeData.getEyeDiseases())) && (Objects.isNull(leftEyeData) || CollectionUtils.isEmpty(leftEyeData.getEyeDiseases()));
     }
 }

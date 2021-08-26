@@ -31,33 +31,19 @@ public class StudentScreeningProgressVO {
     /** 用于标记初诊中是否存在异常 */
     private static ThreadLocal<Boolean> hasAbnormalFlag = new ThreadLocal<>();
 
-    /**
-     * 学生ID
-     */
+    /** 学生ID */
     private String studentId;
-    /**
-     * 学籍号
-     */
+    /** 学籍号 */
     private String studentNo;
-    /**
-     * 用户名称
-     */
+    /** 用户名称 */
     private String studentName;
-    /**
-     * 出生日期
-     */
+    /** 出生日期 */
     private String birthday;
-    /**
-     * 性别
-     */
+    /** 性别 */
     private String sex;
-    /**
-     * 学龄段
-     */
+    /** 学龄段 */
     private Integer gradeType;
-    /**
-     * 学校ID
-     */
+    /** 学校ID */
     private Integer schoolId;
 
     /** 筛查结果 */
@@ -101,6 +87,7 @@ public class StudentScreeningProgressVO {
         StudentScreeningProgressVO studentScreeningProgressVO = new StudentScreeningProgressVO();
         BeanUtils.copyProperties(studentVO, studentScreeningProgressVO);
         boolean isKindergarten = SchoolAge.KINDERGARTEN.code.equals(studentVO.getGradeType());
+        // 筛查结果为空则返回默认值
         if (Objects.isNull(screeningResult)) {
             return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
                     .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setResult(false).setHasAbnormal(false);
@@ -109,6 +96,7 @@ public class StudentScreeningProgressVO {
         isAllMustCheckDone.set(true);
         // 默认没有异常
         hasAbnormalFlag.set(false);
+        // 判断各个检查型的进度状态
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
         studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || hasAbnormalFlag.get()));

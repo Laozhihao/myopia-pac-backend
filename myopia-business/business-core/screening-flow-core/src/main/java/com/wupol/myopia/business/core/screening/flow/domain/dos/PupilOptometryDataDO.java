@@ -64,4 +64,14 @@ public class PupilOptometryDataDO extends AbstractDiagnosisResult implements Scr
         }
     }
 
+    /**
+     * 判断诊断结果是否为正常（没有异常判断标志，故默认为正常）
+     *
+     * @return boolean
+     **/
+    @Override
+    public boolean isNormal() {
+        return true;
+    }
+
 }
