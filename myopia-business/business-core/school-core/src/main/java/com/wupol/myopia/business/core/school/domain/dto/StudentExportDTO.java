@@ -54,8 +54,8 @@ public class StudentExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "学号"})
     private String no;
 
-    @ExcelProperty({TOP_HEADER, "身份证号"})
-    private String idCard;
+//    @ExcelProperty({TOP_HEADER, "身份证号"})
+//    private String idCard;
 
     @ExcelProperty({TOP_HEADER, "绑定手机号"})
     private String bindPhone;

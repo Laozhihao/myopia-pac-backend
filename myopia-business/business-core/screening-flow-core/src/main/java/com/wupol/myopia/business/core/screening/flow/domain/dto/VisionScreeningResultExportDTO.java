@@ -68,8 +68,8 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty("学号")
     private String studentNo;
 
-    @ExcelProperty("身份证号")
-    private String idCard;
+//    @ExcelProperty("身份证号")
+//    private String idCard;
 
     @ExcelProperty("手机号码")
     private String parentPhone;
