@@ -109,7 +109,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setNation(NationEnum.getName(item.getNation()))
                     .setSchoolName(schoolName)
                     .setGrade(gradeName)
-                    .setIdCard(item.getIdCard())
+//                    .setIdCard(item.getIdCard())
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
