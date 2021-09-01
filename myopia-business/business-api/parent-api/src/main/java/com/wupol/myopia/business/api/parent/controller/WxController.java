@@ -104,7 +104,7 @@ public class WxController {
             User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
                 String url = String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), URLEncoder.encode(parent.getHashKey(), StandardCharsets.UTF_8.toString()), state);
-                logger.info("重定向到绑定手机页面页面：{}", url);
+                logger.debug("重定向到绑定手机页面页面：{}", url);
                 return "redirect:" + url;
             }
             // 自动登录
