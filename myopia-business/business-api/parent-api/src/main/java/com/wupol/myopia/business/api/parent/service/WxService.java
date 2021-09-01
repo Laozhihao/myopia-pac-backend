@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -113,7 +112,7 @@ public class WxService {
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
     @Transactional(rollbackFor = Exception.class)
-    public Parent addParentAndUser(WxUserInfo wxUserInfo) throws IOException {
+    public Parent addParentAndUser(WxUserInfo wxUserInfo) {
         Assert.notNull(wxUserInfo, "微信用户信息不能为空");
         // 已经存在，则直接更新
         Parent parent = parentService.getParentByOpenId(wxUserInfo.getOpenId());
@@ -143,7 +142,10 @@ public class WxService {
     public void bindPhoneToParent(WxLoginInfo wxLoginInfo) {
         // 绑定手机号码到家长用户，同时更新账号与密码
         Parent parent = parentService.findOne(new Parent().setHashKey(wxLoginInfo.getOpenId()));
-        Assert.notNull(parent, "当前用户不存在");
+        if (Objects.isNull(parent)) {
+            logger.error("根据openId的hashKey无法找到该家长数据，hashKey = " + wxLoginInfo.getOpenId());
+            throw new BusinessException("当前用户不存在");
+        }
         UserDTO userDTO = new UserDTO();
         userDTO.setId(parent.getUserId())
                 .setPhone(wxLoginInfo.getPhone())
