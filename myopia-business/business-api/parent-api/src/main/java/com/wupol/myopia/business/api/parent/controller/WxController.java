@@ -101,7 +101,7 @@ public class WxController {
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
             User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
-                logger.debug("重定向到绑定手机页面页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state));
+                logger.info("重定向到绑定手机页面页面：{}", String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state));
                 return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), parent.getHashKey(), state);
             }
             // 自动登录
