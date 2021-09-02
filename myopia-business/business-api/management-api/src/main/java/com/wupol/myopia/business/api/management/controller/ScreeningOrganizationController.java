@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 筛查机构controller
@@ -93,7 +94,8 @@ public class ScreeningOrganizationController {
             screeningOrgResponseDTO.setDisplayUsername(true);
         }
         // 合作医院
-        screeningOrgResponseDTO.setCountCooperationHospital(orgCooperationHospitalService.countCooperationHospital(screeningOrganization.getId()));
+        Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(screeningOrganization.getId());
+        screeningOrgResponseDTO.setCountCooperationHospital(Objects.isNull(countCooperationHospital) ? 0 : countCooperationHospital));
         return screeningOrgResponseDTO;
     }
 
