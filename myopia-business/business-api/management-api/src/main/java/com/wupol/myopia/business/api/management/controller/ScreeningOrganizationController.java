@@ -95,7 +95,7 @@ public class ScreeningOrganizationController {
         }
         // 合作医院
         Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(screeningOrganization.getId());
-        screeningOrgResponseDTO.setCountCooperationHospital(Objects.isNull(countCooperationHospital) ? 0 : countCooperationHospital));
+        screeningOrgResponseDTO.setCountCooperationHospital(Objects.isNull(countCooperationHospital) ? 0 : countCooperationHospital);
         return screeningOrgResponseDTO;
     }
 
