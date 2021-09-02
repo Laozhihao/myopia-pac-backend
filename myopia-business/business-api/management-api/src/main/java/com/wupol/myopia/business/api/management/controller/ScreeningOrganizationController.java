@@ -92,6 +92,8 @@ public class ScreeningOrganizationController {
         if (user.isPlatformAdminUser() && StringUtils.isNotBlank(screeningOrgResponseDTO.getUsername())) {
             screeningOrgResponseDTO.setDisplayUsername(true);
         }
+        // 合作医院
+        screeningOrgResponseDTO.setCountCooperationHospital(orgCooperationHospitalService.countCooperationHospital(screeningOrganization.getId()));
         return screeningOrgResponseDTO;
     }
 
