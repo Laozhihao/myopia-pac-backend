@@ -99,3 +99,6 @@ UPDATE o_permission SET name = '重置密码', menu_btn_name = 'organizatiScreen
 UPDATE o_permission SET name = '筛查机构导出', menu_btn_name = 'organizatiScreeningExport', api_url = 'get:/management/screeningOrganization/export', is_menu = 0, is_page = 0, `order` = 1, pid = 2, system_code = 1, create_time = '2021-01-31 22:57:26', update_time = '2021-08-25 16:13:27' WHERE id = 107;
 UPDATE o_permission SET name = '筛查机构管理增', menu_btn_name = 'organizatiScreeningCreate', api_url = 'post:/management/screeningOrganization/**', is_menu = 0, is_page = 0, `order` = 1, pid = 2, system_code = 1, create_time = '2021-01-31 20:02:10', update_time = '2021-08-25 16:13:14' WHERE id = 59;
 UPDATE o_permission SET name = '筛查机构编辑', menu_btn_name = 'organizatiScreeningEdit', api_url = 'put:/management/screeningOrganization', is_menu = 0, is_page = 0, `order` = 1, pid = 2, system_code = 1, create_time = '2021-01-31 20:02:10', update_time = '2021-08-25 16:12:41' WHERE id = 61;
+
+-- 删除临时权限
+DELETE FROM o_permission WHERE id = 341;
