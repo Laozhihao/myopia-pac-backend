@@ -45,6 +45,8 @@
                 <if test="@Ognl@isNotEmpty(townCode)">and `town_code` = #{townCode}</if>
                 <if test="@Ognl@isNotEmpty(parentPhone)">and `parent_phone` = #{parentPhone}</if>
                 <if test="@Ognl@isNotEmpty(nation)">and `nation` = #{nation}</if>
+                <if test="@Ognl@isNotEmpty(artificial)">and `artificial` = #{artificial}</if>
+                <if test="@Ognl@isNotEmpty(screeningCode)">and `screening_code` = #{screeningCode}</if>
             </trim>
         </where>
     </sql>
@@ -53,7 +55,7 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name, school_no,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code,parent_phone,nation
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code,parent_phone,nation,artificial,screening_code
     </sql>
 
     <select id="selectStudentInfoWithResult"
