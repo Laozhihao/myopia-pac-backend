@@ -39,5 +39,5 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     Integer deleteByPlanIdAndExcludeSchoolIds(@Param("screeningPlanId") Integer screeningPlanId, @Param("excludeSchoolIds") List<Integer> excludeSchoolIds);
 
-    List<ScreeningPlanSchoolStudent> getByScreeningCodes(@Param("screeningCodes") List<Long> screeningCodes);
+    List<ScreeningPlanSchoolStudent> getByScreeningCodes(@Param("screeningCodes") List<Long> screeningCodes, @Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 }

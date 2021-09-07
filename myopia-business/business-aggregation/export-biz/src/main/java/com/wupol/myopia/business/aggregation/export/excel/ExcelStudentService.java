@@ -96,7 +96,7 @@ public class ExcelStudentService {
         // 7. 新增或更新学生和筛查学生数据(更新存在身份存在的学生)
         addOrUpdateStudentAndScreeningStudent(userId, screeningPlan, schoolId, school, idCardExistStudents, idCardExistScreeningStudents, excelStudents.stream().filter(e -> StringUtils.isNotBlank(e.getIdCard())).collect(Collectors.toList()), excelIdCardStudentMap);
         // 8 更新存在筛查编号的学生
-        updateMockPlanStudent(excelStudents.stream().filter(e -> StringUtils.isBlank(e.getIdCard())).collect(Collectors.toList()));
+        updateMockPlanStudent(excelStudents.stream().filter(e -> StringUtils.isBlank(e.getIdCard())).collect(Collectors.toList()), screeningPlan.getId(), schoolId);
     }
 
     /**
@@ -396,7 +396,7 @@ public class ExcelStudentService {
      *
      * @param excelStudent Excel学生
      */
-    private void updateMockPlanStudent(List<StudentDTO> excelStudent) {
+    private void updateMockPlanStudent(List<StudentDTO> excelStudent, Integer planId, Integer schoolId) {
         List<Long> screeningCodes = excelStudent.stream().map(StudentDTO::getScreeningCode).collect(Collectors.toList());
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
@@ -404,7 +404,7 @@ public class ExcelStudentService {
             return;
         }
 
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes, planId, schoolId);
         if (CollectionUtils.isEmpty(planStudents) || planStudents.size() != excelStudent.size()) {
             throw new BusinessException("编码数据异常");
         }
