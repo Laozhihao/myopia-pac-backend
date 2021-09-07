@@ -1,0 +1,2 @@
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (367, '创建虚拟学生', 'mockStudent', 'post:/management/screeningPlan/mock/student/**/**', 0, 0, 1, 27, 1, '2021-09-07 15:50:58', '2021-09-07 15:50:58');
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (368, '导出筛查学生', 'exportPlanStudent', 'get:/management/screeningPlan/export/planStudent/**/**', 0, 0, 1, 27, 1, '2021-09-07 15:51:40', '2021-09-07 15:51:40');
