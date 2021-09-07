@@ -20,7 +20,7 @@ public class MockStudentRequestDTO {
 
     @Getter
     @Setter
-    static class GradeItem {
+    public static class GradeItem {
 
         private Integer gradeId;
 
@@ -31,7 +31,7 @@ public class MockStudentRequestDTO {
 
     @Getter
     @Setter
-    static class ClassItem {
+    public static class ClassItem {
         private Integer classId;
 
         private String className;

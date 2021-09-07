@@ -193,7 +193,7 @@ public class ScreeningPlanController {
      * 同时校验权限
      *
      * @param screeningPlanId 筛查计划ID
-     * @param releaseStatus 发布状态
+     * @param releaseStatus   发布状态
      */
     private ScreeningPlan validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -214,7 +214,7 @@ public class ScreeningPlanController {
      * 校验筛查任务是否存在且校验发布状态
      * 返回该筛查计划
      *
-     * @param id 筛查计划ID
+     * @param id            筛查计划ID
      * @param releaseStatus 发布状态
      * @return 筛查计划
      */
@@ -278,6 +278,7 @@ public class ScreeningPlanController {
 
     /**
      * 获取指定计划下学校信息
+     *
      * @param screeningPlanId
      * @param schoolId
      * @return
@@ -304,7 +305,7 @@ public class ScreeningPlanController {
     /**
      * 新增筛查学校
      *
-     * @param screeningPlanId 筛查计划ID
+     * @param screeningPlanId      筛查计划ID
      * @param screeningPlanSchools 新增的学校列表
      */
     @PostMapping("schools/{screeningPlanId}")
@@ -363,7 +364,8 @@ public class ScreeningPlanController {
 
     /**
      * 校验学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
-     * @param screeningPlan 筛查计划
+     *
+     * @param screeningPlan       筛查计划
      * @param schoolListsByPlanId 筛查计划中的学校
      */
     private void validateSchoolLegal(ScreeningPlan screeningPlan, List<ScreeningPlanSchool> schoolListsByPlanId) {
@@ -392,9 +394,9 @@ public class ScreeningPlanController {
     /**
      * 导入筛查计划的学生数据
      *
-     * @param file 学生文件
+     * @param file            学生文件
      * @param screeningPlanId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param schoolId        学校ID
      * @throws IOException IO异常
      */
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
@@ -429,7 +431,7 @@ public class ScreeningPlanController {
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
@@ -492,7 +494,7 @@ public class ScreeningPlanController {
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
@@ -511,7 +513,7 @@ public class ScreeningPlanController {
                 models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
             }
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl,fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl, fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;
@@ -521,7 +523,8 @@ public class ScreeningPlanController {
     }
 
     @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
-    public Object mockStudent(MockStudentRequestDTO requestDTO) {
-        return null;
+    public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
+                            @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId);
     }
 }
