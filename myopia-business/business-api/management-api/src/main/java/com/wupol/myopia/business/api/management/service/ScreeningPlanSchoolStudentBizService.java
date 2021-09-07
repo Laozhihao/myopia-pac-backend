@@ -116,61 +116,66 @@ public class ScreeningPlanSchoolStudentBizService {
         Integer studentTotal = requestDTO.getStudentTotal();
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+        Date date = DateFormatUtil.parse("2015-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
 
         List<MockStudentRequestDTO.GradeItem> gradeItem = requestDTO.getGradeItem();
         if (!CollectionUtils.isEmpty(gradeItem)) {
-            gradeItem.forEach(g -> {
-                List<MockStudentRequestDTO.ClassItem> classItem = g.getClassItem();
-                classItem.forEach(c -> {
+            gradeItem.forEach(schoolGrade -> {
+                List<MockStudentRequestDTO.ClassItem> classItem = schoolGrade.getClassItem();
+                classItem.forEach(schoolClass -> {
                     List<Student> mockStudentList = new ArrayList<>(studentTotal);
                     List<ScreeningPlanSchoolStudent> mockPlanStudentList = new ArrayList<>(studentTotal);
-
-                    Date date = DateFormatUtil.parse("2015-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
-                    for (int i = 0; i < studentTotal; i++) {
-                        Student student = new Student();
-                        student.setSchoolNo(school.getSchoolNo());
-//                        student.setCreateUserId();
-                        student.setGradeId(g.getGradeId());
-                        student.setGradeType(1);
-                        student.setClassId(c.getClassId());
-                        student.setName(String.valueOf(System.currentTimeMillis() / 10 + (long) (Math.random() * 100)));
-                        student.setGender(GenderEnum.MALE.type);
-                        student.setBirthday(date);
-                        mockStudentList.add(student);
-                    }
-                    studentService.saveOrUpdateBatch(mockStudentList);
-
-                    for (int i = 0; i < studentTotal; i++) {
-                        ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
-                        planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
-                        planSchoolStudent.setScreeningTaskId(plan.getScreeningTaskId());
-                        planSchoolStudent.setScreeningPlanId(plan.getId());
-                        planSchoolStudent.setScreeningOrgId(plan.getScreeningOrgId());
-                        planSchoolStudent.setPlanDistrictId(plan.getDistrictId());
-                        planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
-                        planSchoolStudent.setSchoolId(school.getId());
-                        planSchoolStudent.setSchoolNo(school.getSchoolNo());
-                        planSchoolStudent.setSchoolName(school.getName());
-                        planSchoolStudent.setGradeId(g.getGradeId());
-                        planSchoolStudent.setGradeName(g.getGradeName());
-                        planSchoolStudent.setGradeType(GradeCodeEnum.getByName(g.getGradeName()).getType());
-                        planSchoolStudent.setClassId(c.getClassId());
-                        planSchoolStudent.setClassName(c.getClassName());
-                        planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
-                        planSchoolStudent.setBirthday(date);
-                        planSchoolStudent.setGender(GenderEnum.MALE.type);
-                        if (Objects.nonNull(date)) {
-                            planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
-                        }
-                        planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
-                        planSchoolStudent.setArtificial(1);
-                        planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
-                        mockPlanStudentList.add(planSchoolStudent);
-                    }
-                    screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);
+                    mockStudent(studentTotal, school, date, schoolGrade, schoolClass, mockStudentList);
+                    mockPlanStudent(studentTotal, school, plan, schoolGrade, schoolClass, mockStudentList, mockPlanStudentList, date);
                 });
             });
         }
+    }
 
+    private void mockStudent(Integer studentTotal, School school, Date date, MockStudentRequestDTO.GradeItem g, MockStudentRequestDTO.ClassItem c, List<Student> mockStudentList) {
+        for (int i = 0; i < studentTotal; i++) {
+            Student student = new Student();
+            student.setSchoolNo(school.getSchoolNo());
+//            student.setCreateUserId();
+            student.setGradeId(g.getGradeId());
+            student.setGradeType(1);
+            student.setClassId(c.getClassId());
+            student.setName(String.valueOf(System.currentTimeMillis() / 10 + (long) (Math.random() * 100)));
+            student.setGender(GenderEnum.MALE.type);
+            student.setBirthday(date);
+            mockStudentList.add(student);
+        }
+        studentService.saveOrUpdateBatch(mockStudentList);
+    }
+
+    private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan, MockStudentRequestDTO.GradeItem g, MockStudentRequestDTO.ClassItem c, List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList, Date date) {
+        for (int i = 0; i < studentTotal; i++) {
+            ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
+            planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
+            planSchoolStudent.setScreeningTaskId(plan.getScreeningTaskId());
+            planSchoolStudent.setScreeningPlanId(plan.getId());
+            planSchoolStudent.setScreeningOrgId(plan.getScreeningOrgId());
+            planSchoolStudent.setPlanDistrictId(plan.getDistrictId());
+            planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
+            planSchoolStudent.setSchoolId(school.getId());
+            planSchoolStudent.setSchoolNo(school.getSchoolNo());
+            planSchoolStudent.setSchoolName(school.getName());
+            planSchoolStudent.setGradeId(g.getGradeId());
+            planSchoolStudent.setGradeName(g.getGradeName());
+            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(g.getGradeName()).getType());
+            planSchoolStudent.setClassId(c.getClassId());
+            planSchoolStudent.setClassName(c.getClassName());
+            planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
+            planSchoolStudent.setBirthday(date);
+            planSchoolStudent.setGender(GenderEnum.MALE.type);
+            if (Objects.nonNull(date)) {
+                planSchoolStudent.setStudentAge(DateUtil.ageOfNow(date));
+            }
+            planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
+            planSchoolStudent.setArtificial(1);
+            planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
+            mockPlanStudentList.add(planSchoolStudent);
+        }
+        screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);
     }
 }
