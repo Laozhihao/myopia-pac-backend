@@ -194,5 +194,15 @@ public class ScreeningPlanSchoolStudent implements Serializable {
      */
     private Integer nation;
 
+    /**
+     * 0-非人造的、1-人造的
+     */
+    private Integer artificial;
+
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
+
 
 }

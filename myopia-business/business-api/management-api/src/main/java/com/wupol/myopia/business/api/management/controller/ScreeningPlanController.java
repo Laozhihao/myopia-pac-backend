@@ -14,6 +14,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
+import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -517,5 +518,10 @@ public class ScreeningPlanController {
         } catch (Exception e) {
             throw new BusinessException("生成PDF文件失败", e);
         }
+    }
+
+    @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
+    public Object mockStudent(MockStudentRequestDTO requestDTO) {
+        return null;
     }
 }
