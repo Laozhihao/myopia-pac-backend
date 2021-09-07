@@ -23,5 +23,5 @@ public class SchoolGradeVO extends SchoolGrade {
     /**
      * 唯一Id
      */
-    private String uniqueID;
+    private String uniqueId;
 }

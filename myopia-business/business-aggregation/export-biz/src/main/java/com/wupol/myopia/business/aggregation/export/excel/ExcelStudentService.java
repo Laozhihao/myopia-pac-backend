@@ -168,8 +168,8 @@ public class ExcelStudentService {
             throw new BusinessException("存在必填项无填写");
         }
 
-        List<String> idCardLists = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).distinct().collect(Collectors.toList());
-        if (idCardLists.size() != listMap.size()) {
+        List<String> idCards = listMap.stream().map(map -> map.get(ImportExcelEnum.ID_CARD.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (idCards.size() != idCards.stream().distinct().count()) {
             throw new BusinessException("身份证号码存在重复");
         }
 

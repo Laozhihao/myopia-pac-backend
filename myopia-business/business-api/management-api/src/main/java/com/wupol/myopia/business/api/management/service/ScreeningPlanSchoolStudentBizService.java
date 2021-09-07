@@ -15,7 +15,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -75,7 +74,7 @@ public class ScreeningPlanSchoolStudentBizService {
         //3. 组装SchoolGradeVo数据
         return graderIdClasses.keySet().stream().map(gradeId -> {
             SchoolGradeVO vo = new SchoolGradeVO();
-            vo.setUniqueID(UUID.randomUUID().toString());
+            vo.setUniqueId(UUID.randomUUID().toString());
             List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
             // 查询并设置年级名称
             vo.setId(gradeId)
@@ -83,7 +82,7 @@ public class ScreeningPlanSchoolStudentBizService {
             // 查询并设置班级名称
             vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
                 SchoolClassDTO schoolClass = new SchoolClassDTO();
-                schoolClass.setUniqueID(UUID.randomUUID().toString());
+                schoolClass.setUniqueId(UUID.randomUUID().toString());
                 schoolClass.setId(dto.getClassId())
                         .setName(schoolClassService.getClassNameById(dto.getClassId()))
                         .setGradeId(gradeId);
