@@ -75,12 +75,15 @@ public class ScreeningPlanSchoolStudentBizService {
         //3. 组装SchoolGradeVo数据
         return graderIdClasses.keySet().stream().map(gradeId -> {
             SchoolGradeVO vo = new SchoolGradeVO();
+            vo.setUniqueID(UUID.randomUUID().toString());
             List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
             // 查询并设置年级名称
-            vo.setId(gradeId).setName(schoolGradeService.getGradeNameById(gradeId));
+            vo.setId(gradeId)
+                    .setName(schoolGradeService.getGradeNameById(gradeId));
             // 查询并设置班级名称
             vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
                 SchoolClassDTO schoolClass = new SchoolClassDTO();
+                schoolClass.setUniqueID(UUID.randomUUID().toString());
                 schoolClass.setId(dto.getClassId())
                         .setName(schoolClassService.getClassNameById(dto.getClassId()))
                         .setGradeId(gradeId);

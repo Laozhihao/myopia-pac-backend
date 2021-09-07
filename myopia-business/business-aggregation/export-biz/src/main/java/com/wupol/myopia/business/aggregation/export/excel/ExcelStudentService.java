@@ -89,7 +89,8 @@ public class ExcelStudentService {
         //5. 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
-        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ? Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
+        Map<String, ScreeningPlanSchoolStudent> idCardExistScreeningStudents = CollectionUtils.isEmpty(alreadyExistOrNotStudents.get(true)) ?
+                Collections.emptyMap() : alreadyExistOrNotStudents.get(true).stream().filter(e -> StringUtils.isNotBlank(e.getIdCard())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getIdCard, Function.identity()));
         List<StudentDTO> excelStudents = getStudentListFromExcelItem(listMap, gradeNameIdMap, gradeClassNameClassIdMap, districtNameCodeMap, school.getSchoolNo());
         Map<String, StudentDTO> excelIdCardStudentMap = excelStudents.stream().filter(e -> StringUtils.isNotBlank(e.getIdCard())).collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         // 7. 新增或更新学生和筛查学生数据(更新存在身份存在的学生)

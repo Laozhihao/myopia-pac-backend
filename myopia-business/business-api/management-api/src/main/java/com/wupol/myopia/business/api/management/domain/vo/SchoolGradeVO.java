@@ -19,4 +19,9 @@ import java.util.List;
 public class SchoolGradeVO extends SchoolGrade {
     /** 班级列表 */
     private List<SchoolClassDTO> classes;
+
+    /**
+     * 唯一Id
+     */
+    private String uniqueID;
 }
