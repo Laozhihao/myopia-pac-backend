@@ -401,11 +401,18 @@ public class ExcelStudentService {
         if (CollectionUtils.isEmpty(screeningCodes)) {
             return;
         }
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes);
-        List<Integer> studentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList());
-        List<Student> studentList = studentService.getByIds(studentIds);
 
-        checkStudentDate(excelStudent, planStudents, studentList);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes);
+        if (CollectionUtils.isEmpty(planStudents) || planStudents.size() != excelStudent.size()) {
+            throw new BusinessException("编码数据异常");
+        }
+
+        List<Student> studentList = studentService.getByIds(planStudents.stream()
+                .map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
+        if (studentList.size() != excelStudent.size()) {
+            throw new BusinessException("学生数据异常");
+        }
+
         planStudents.forEach(planStudent -> {
             StudentDTO updateStudent = excelStudentMap.get(planStudent.getScreeningCode());
             planStudent.setStudentName(updateStudent.getName());
@@ -455,23 +462,4 @@ public class ExcelStudentService {
         });
         studentService.batchUpdateOrSave(studentList);
     }
-
-    /**
-     * 校验数据
-     *
-     * @param excelStudent excel学生
-     * @param planStudents 计划学生
-     * @param studentList  多端管理学生
-     */
-    private void checkStudentDate(List<StudentDTO> excelStudent, List<ScreeningPlanSchoolStudent> planStudents, List<Student> studentList) {
-        if (planStudents.size() != excelStudent.size()) {
-            throw new BusinessException("编码数据异常");
-        }
-
-        if (studentList.size() != excelStudent.size()) {
-            throw new BusinessException("学生数据异常");
-        }
-    }
-
-
 }
