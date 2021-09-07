@@ -30,7 +30,7 @@ public class PlanStudentExportDTO implements Serializable {
     public static final String TOP_HEADER = "筛查学生表";
 
     @ExcelProperty({TOP_HEADER, "编码"})
-    private Long screeningCode;
+    private String screeningCode;
 
     @ExcelProperty({TOP_HEADER, "姓名"})
     private String name;

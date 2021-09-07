@@ -48,7 +48,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
         planSchoolStudents.forEach(student -> {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
-            exportDTO.setScreeningCode(student.getScreeningCode());
+            exportDTO.setScreeningCode(String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
