@@ -49,7 +49,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
         planSchoolStudents.forEach(student -> {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
-            exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" :String.valueOf(student.getScreeningCode()));
+            exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" : String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
@@ -74,7 +74,11 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         ScreeningPlan plan = screeningPlanService.getById(exportCondition.getPlanId());
         School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(ExcelFileNameConstant.PLAN_STUDENT_EXCEL_FILE_NAME, plan.getTitle(), plan.getStartTime(), plan.getEndTime(), school.getName());
+        return String.format(ExcelFileNameConstant.PLAN_STUDENT_EXCEL_FILE_NAME,
+                plan.getTitle(),
+                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND),
+                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND),
+                school.getName());
     }
 
     @Override
