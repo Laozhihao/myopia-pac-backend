@@ -18,3 +18,6 @@ alter table m_screening_plan_school_student
 
 create unique index m_screening_plan_school_student_screening_code_uindex
     on m_screening_plan_school_student (screening_code);
+
+create index plan_id_school_id_screening_code_index
+    on m_screening_plan_school_student (screening_plan_id, school_id, screening_code);
