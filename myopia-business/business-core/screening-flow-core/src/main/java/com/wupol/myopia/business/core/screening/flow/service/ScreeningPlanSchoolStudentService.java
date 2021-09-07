@@ -312,4 +312,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         queryWrapper.in(ScreeningPlanSchoolStudent::getId,planStudentIdSet);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 通过screeningCode获取列表
+     *
+     * @param screeningCode 筛查编号
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByScreeningCodes(List<Long> screeningCode) {
+        return baseMapper.getByScreeningCodes(screeningCode);
+    }
 }

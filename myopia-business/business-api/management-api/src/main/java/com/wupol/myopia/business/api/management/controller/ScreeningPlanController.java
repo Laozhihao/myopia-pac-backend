@@ -525,6 +525,7 @@ public class ScreeningPlanController {
     @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
     public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
                             @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
-        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, );
     }
 }

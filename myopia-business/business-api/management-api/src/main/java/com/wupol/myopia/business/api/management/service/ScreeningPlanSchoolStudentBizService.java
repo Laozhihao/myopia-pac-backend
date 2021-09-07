@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -109,10 +110,17 @@ public class ScreeningPlanSchoolStudentBizService {
         return studentDTOIPage;
     }
 
-
+    /**
+     * 生成虚拟学生
+     *
+     * @param requestDTO      请求入参
+     * @param screeningPlanId 筛查计划Id
+     * @param schoolId        学校Id
+     * @param currentUser     登录用户
+     */
     @Transactional
     public void initMockStudent(MockStudentRequestDTO requestDTO, Integer screeningPlanId,
-                                Integer schoolId) {
+                                Integer schoolId, CurrentUser currentUser) {
         Integer studentTotal = requestDTO.getStudentTotal();
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
@@ -125,21 +133,34 @@ public class ScreeningPlanSchoolStudentBizService {
                 classItem.forEach(schoolClass -> {
                     List<Student> mockStudentList = new ArrayList<>(studentTotal);
                     List<ScreeningPlanSchoolStudent> mockPlanStudentList = new ArrayList<>(studentTotal);
-                    mockStudent(studentTotal, school, date, schoolGrade, schoolClass, mockStudentList);
+                    mockStudent(studentTotal, school, date, schoolGrade, schoolClass, mockStudentList, currentUser);
                     mockPlanStudent(studentTotal, school, plan, schoolGrade, schoolClass, mockStudentList, mockPlanStudentList, date);
                 });
             });
         }
     }
 
-    private void mockStudent(Integer studentTotal, School school, Date date, MockStudentRequestDTO.GradeItem g, MockStudentRequestDTO.ClassItem c, List<Student> mockStudentList) {
+    /**
+     * 多端管理生成虚拟学生
+     *
+     * @param studentTotal    需要生成的学生数
+     * @param school          学校
+     * @param date            日期
+     * @param schoolGrade     年级
+     * @param schoolClass     班级
+     * @param mockStudentList 多端管理学生列表
+     * @param currentUser     登录用户
+     */
+    private void mockStudent(Integer studentTotal, School school, Date date,
+                             MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
+                             List<Student> mockStudentList, CurrentUser currentUser) {
         for (int i = 0; i < studentTotal; i++) {
             Student student = new Student();
             student.setSchoolNo(school.getSchoolNo());
-//            student.setCreateUserId();
-            student.setGradeId(g.getGradeId());
-            student.setGradeType(1);
-            student.setClassId(c.getClassId());
+            student.setCreateUserId(currentUser.getId());
+            student.setGradeId(schoolGrade.getGradeId());
+            student.setGradeType(GradeCodeEnum.getByName(schoolGrade.getGradeName()).getType());
+            student.setClassId(schoolClass.getClassId());
             student.setName(String.valueOf(System.currentTimeMillis() / 10 + (long) (Math.random() * 100)));
             student.setGender(GenderEnum.MALE.type);
             student.setBirthday(date);
@@ -148,7 +169,22 @@ public class ScreeningPlanSchoolStudentBizService {
         studentService.saveOrUpdateBatch(mockStudentList);
     }
 
-    private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan, MockStudentRequestDTO.GradeItem g, MockStudentRequestDTO.ClassItem c, List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList, Date date) {
+    /**
+     * 生成计划学生数据
+     *
+     * @param studentTotal        需要生成的学生数
+     * @param school              学校
+     * @param plan                计划
+     * @param schoolGrade         年级
+     * @param schoolClass         班级
+     * @param mockStudentList     多端管理学生列表
+     * @param mockPlanStudentList 计划学生
+     * @param date                日期
+     */
+    private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan,
+                                 MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
+                                 List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList,
+                                 Date date) {
         for (int i = 0; i < studentTotal; i++) {
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
@@ -160,11 +196,11 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolNo(school.getSchoolNo());
             planSchoolStudent.setSchoolName(school.getName());
-            planSchoolStudent.setGradeId(g.getGradeId());
-            planSchoolStudent.setGradeName(g.getGradeName());
-            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(g.getGradeName()).getType());
-            planSchoolStudent.setClassId(c.getClassId());
-            planSchoolStudent.setClassName(c.getClassName());
+            planSchoolStudent.setGradeId(schoolGrade.getGradeId());
+            planSchoolStudent.setGradeName(schoolGrade.getGradeName());
+            planSchoolStudent.setGradeType(GradeCodeEnum.getByName(schoolGrade.getGradeName()).getType());
+            planSchoolStudent.setClassId(schoolClass.getClassId());
+            planSchoolStudent.setClassName(schoolClass.getClassName());
             planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
             planSchoolStudent.setBirthday(date);
             planSchoolStudent.setGender(GenderEnum.MALE.type);

@@ -201,4 +201,13 @@
             </foreach>
         </if>
     </delete>
+
+    <select id="getByScreeningCodes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student where screening_code in
+        <foreach collection="screeningCodes" item="screeningCode" index="index" open="(" close=")" separator=",">
+            #{screeningCode}
+        </foreach>
+    </select>
 </mapper>

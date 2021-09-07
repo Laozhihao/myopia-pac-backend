@@ -63,4 +63,9 @@ public class StudentDTO extends Student {
      * 学校行政区域
      */
     private String schoolDistrictName;
+
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
 }
