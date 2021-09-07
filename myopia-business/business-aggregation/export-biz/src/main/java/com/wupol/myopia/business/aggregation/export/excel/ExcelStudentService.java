@@ -397,12 +397,11 @@ public class ExcelStudentService {
      * @param excelStudent Excel学生
      */
     private void updateMockPlanStudent(List<StudentDTO> excelStudent, Integer planId, Integer schoolId) {
-        List<Long> screeningCodes = excelStudent.stream().map(StudentDTO::getScreeningCode).collect(Collectors.toList());
-        Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
-
+        List<Long> screeningCodes = excelStudent.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).map(StudentDTO::getScreeningCode).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningCodes)) {
-            return;
+            throw new BusinessException("编码数据异常");
         }
+        Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes, planId, schoolId);
         if (CollectionUtils.isEmpty(planStudents) || planStudents.size() != excelStudent.size()) {
