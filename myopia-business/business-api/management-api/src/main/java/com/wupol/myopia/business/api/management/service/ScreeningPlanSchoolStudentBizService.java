@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -79,8 +80,10 @@ public class ScreeningPlanSchoolStudentBizService {
             vo.setId(gradeId).setName(schoolGradeService.getGradeNameById(gradeId));
             // 查询并设置班级名称
             vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
-                SchoolClass schoolClass = new SchoolClass();
-                schoolClass.setId(dto.getClassId()).setName(schoolClassService.getClassNameById(dto.getClassId()));
+                SchoolClassDTO schoolClass = new SchoolClassDTO();
+                schoolClass.setId(dto.getClassId())
+                        .setName(schoolClassService.getClassNameById(dto.getClassId()))
+                        .setGradeId(gradeId);
                 return schoolClass;
             }).collect(Collectors.toList()));
             return vo;

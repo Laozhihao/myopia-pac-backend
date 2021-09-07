@@ -15,4 +15,9 @@ import lombok.experimental.Accessors;
 public class SchoolClassDTO extends SchoolClass {
     /** 年级名称 */
     private String gradeName;
+
+    /**
+     * 年级Id
+     */
+    private Integer gradeId;
 }

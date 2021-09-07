@@ -528,6 +528,12 @@ public class ScreeningPlanController {
         }
     }
 
+    /**
+     * 创建虚拟学生
+     * @param requestDTO 请求入惨
+     * @param screeningPlanId 计划Id
+     * @param schoolId 学生Id
+     */
     @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
     public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
                             @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
@@ -535,6 +541,12 @@ public class ScreeningPlanController {
         screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, currentUser);
     }
 
+    /**
+     *
+     * @param screeningPlanId
+     * @param schoolId
+     * @throws IOException
+     */
     @GetMapping("/export/planStudent/{screeningPlanId}/{schoolId}")
     public void exportPlanStudent(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
 

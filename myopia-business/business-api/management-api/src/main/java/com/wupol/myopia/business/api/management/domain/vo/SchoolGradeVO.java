@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import lombok.Data;
@@ -17,5 +18,5 @@ import java.util.List;
 @Accessors(chain = true)
 public class SchoolGradeVO extends SchoolGrade {
     /** 班级列表 */
-    private List<SchoolClass> classes;
+    private List<SchoolClassDTO> classes;
 }
