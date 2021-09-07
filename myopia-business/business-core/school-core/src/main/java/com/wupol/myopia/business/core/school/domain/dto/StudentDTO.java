@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 学生DTO
  *
@@ -63,4 +65,10 @@ public class StudentDTO extends Student {
      * 学校行政区域
      */
     private String schoolDistrictName;
+
+    /**
+     * 筛查码
+     */
+    private List<Long> screeningCodes;
+
 }

@@ -148,7 +148,8 @@
                mspss.student_id        as id,
                mspss.screening_plan_id as planId,
                mspss.id                as planStudentId,
-               mspss.student_age       as age
+               mspss.student_age       as age,
+               mspss.screening_code
         from m_screening_plan_school_student mspss
         where mspss.screening_plan_id = #{screeningPlanId}
           and mspss.grade_id = #{gradeId}
