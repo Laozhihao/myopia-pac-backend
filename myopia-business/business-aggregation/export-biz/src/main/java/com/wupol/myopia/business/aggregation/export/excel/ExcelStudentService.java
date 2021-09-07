@@ -382,7 +382,8 @@ public class ExcelStudentService {
                     student.setTownCode(codeList.get(3));
                 }
             }
-            student.setScreeningCode(Long.valueOf(item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null)));
+            String code = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
+            student.setScreeningCode(Objects.nonNull(code) ? Long.valueOf(code) : null);
             return student;
         } catch (Exception e) {
             throw new BusinessException("学生数据有误，请检查", e);

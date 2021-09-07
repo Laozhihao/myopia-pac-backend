@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 导出筛查学生
@@ -48,7 +49,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
         planSchoolStudents.forEach(student -> {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
-            exportDTO.setScreeningCode(String.valueOf(student.getScreeningCode()));
+            exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" :String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));

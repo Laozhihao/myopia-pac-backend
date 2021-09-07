@@ -56,7 +56,7 @@ public class PlanStudentExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "手机号码"})
     private String phone;
 
-    @ExcelProperty({TOP_HEADER, "详细"})
+    @ExcelProperty({TOP_HEADER, "详细地址"})
     private String address;
 
 
