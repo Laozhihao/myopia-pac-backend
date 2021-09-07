@@ -521,7 +521,7 @@ public class ScreeningPlanController {
     }
 
     @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
-    public Object mockStudent(MockStudentRequestDTO) {
+    public Object mockStudent(MockStudentRequestDTO requestDTO) {
         return null;
     }
 }
