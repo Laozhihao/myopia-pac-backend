@@ -12,7 +12,10 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
@@ -105,6 +108,9 @@ public class ScreeningPlanController {
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
+
+    @Autowired
+    private ExportStrategy exportStrategy;
 
     @Value("${server.host}")
     private String hostUrl;
@@ -526,6 +532,21 @@ public class ScreeningPlanController {
     public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
                             @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, );
+        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, currentUser);
     }
+
+    @GetMapping("/export/planStudent/{screeningPlanId}/{schoolId}")
+    public void exportPlanStudent(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+
+        Assert.isTrue(Objects.nonNull(screeningPlanId), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
+
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(user.getId())
+                        .setSchoolId(schoolId)
+                        .setPlanId(screeningPlanId),
+                ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
+    }
+
 }
