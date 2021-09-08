@@ -24,7 +24,7 @@ public interface SchoolClassMapper extends BaseMapper<SchoolClass> {
 
     List<SchoolClass> getByGradeIdAndStatus(@Param("gradeId") Integer gradeId, @Param("status") Integer status);
 
-    List<SchoolClass> getByGradeIdsAndSchoolIdAndStatus(@Param("gradeIds") List<Integer> gradeIds,
+    List<SchoolClassDTO> getByGradeIdsAndSchoolIdAndStatus(@Param("gradeIds") List<Integer> gradeIds,
                                                         @Param("schoolId") Integer schoolId,
                                                         @Param("status") Integer status);
 }

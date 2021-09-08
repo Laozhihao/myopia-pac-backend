@@ -93,7 +93,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @param schoolId 学校id
      * @return 班级列表
      */
-    public List<SchoolClass> getByGradeIds(List<Integer> gradeIds, Integer schoolId) {
+    public List<SchoolClassDTO> getByGradeIds(List<Integer> gradeIds, Integer schoolId) {
         return baseMapper.getByGradeIdsAndSchoolIdAndStatus(gradeIds, schoolId, CommonConst.STATUS_NOT_DELETED);
     }
 

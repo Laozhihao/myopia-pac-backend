@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -99,13 +100,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             return schoolGrades;
         }
         // 获取班级，并且封装成Map
-        Map<Integer, List<SchoolClass>> classMaps = schoolClassService
+        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService
                 .getByGradeIds(schoolGrades
                         .getRecords()
                         .stream()
                         .map(SchoolGradeItemsDTO::getId)
                         .collect(Collectors.toList()), schoolId).stream()
-                .collect(Collectors.groupingBy(SchoolClass::getGradeId));
+                .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
 
         schoolGrades.getRecords().forEach(g -> g.setChild(classMaps.get(g.getId())));
         return schoolGrades;
@@ -123,14 +124,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
 
         // 获取班级，并且封装成Map
-        Map<Integer, List<SchoolClass>> classMaps = schoolClassService
-                .getByGradeIds(schoolGrades
-                        .stream()
-                        .map(SchoolGradeItemsDTO::getId)
-                        .collect(Collectors.toList()), schoolId).stream()
-                .collect(Collectors.groupingBy(SchoolClass::getGradeId));
-
-        schoolGrades.forEach(g -> g.setChild(classMaps.get(g.getId())));
+        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getByGradeIds(schoolGrades.stream()
+                        .map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().map(c -> c.setUniqueId(UUID.randomUUID().toString()))
+                .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
+        schoolGrades.forEach(g -> {
+            g.setChild(classMaps.get(g.getId()));
+            g.setUniqueId(UUID.randomUUID().toString());
+        });
         return schoolGrades;
     }
 

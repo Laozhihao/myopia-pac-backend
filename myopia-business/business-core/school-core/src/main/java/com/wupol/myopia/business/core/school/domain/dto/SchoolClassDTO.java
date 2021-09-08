@@ -17,11 +17,6 @@ public class SchoolClassDTO extends SchoolClass {
     private String gradeName;
 
     /**
-     * 年级Id
-     */
-    private Integer gradeId;
-
-    /**
      * 唯一Id
      */
     private String uniqueId;
