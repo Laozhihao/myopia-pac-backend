@@ -548,7 +548,7 @@ public class ScreeningPlanController {
      * @throws IOException
      */
     @GetMapping("/export/planStudent/{screeningPlanId}/{schoolId}")
-    public void exportPlanStudent(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+    public void exportPlanStudent(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer gradeId) throws IOException {
 
         Assert.isTrue(Objects.nonNull(screeningPlanId), "计划Id不能为空");
         Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
@@ -557,7 +557,8 @@ public class ScreeningPlanController {
         exportStrategy.doExport(new ExportCondition()
                         .setApplyExportFileUserId(user.getId())
                         .setSchoolId(schoolId)
-                        .setPlanId(screeningPlanId),
+                        .setPlanId(screeningPlanId)
+                        .setGradeId(gradeId),
                 ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
     }
 

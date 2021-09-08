@@ -212,4 +212,15 @@
             #{screeningCode}
         </foreach>
     </select>
+
+    <select id="getByPlanIdAndSchoolIdAndGradeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+                where screening_plan_id = #{planId}
+                  and school_id = #{schoolId}
+        <if test="gradeId != null">
+            and grade_id = #{gradeId}
+        </if>
+    </select>
 </mapper>
