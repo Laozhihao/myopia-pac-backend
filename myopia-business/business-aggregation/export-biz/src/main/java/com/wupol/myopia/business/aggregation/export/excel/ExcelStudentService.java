@@ -163,8 +163,7 @@ public class ExcelStudentService {
                 map.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null),
                 map.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null),
-                map.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null)))) {
+                map.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null)))) {
             throw new BusinessException("存在必填项无填写");
         }
 
