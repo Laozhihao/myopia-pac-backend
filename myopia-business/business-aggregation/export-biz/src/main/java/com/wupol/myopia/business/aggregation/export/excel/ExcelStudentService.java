@@ -396,7 +396,7 @@ public class ExcelStudentService {
      * @param excelStudent Excel学生
      */
     private void updateMockPlanStudent(List<StudentDTO> excelStudent, Integer planId, Integer schoolId) {
-        List<Long> screeningCodes = excelStudent.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).map(StudentDTO::getScreeningCode).collect(Collectors.toList());
+        List<Long> screeningCodes = excelStudent.stream().filter(s -> StringUtils.isBlank(s.getIdCard())).map(StudentDTO::getScreeningCode).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningCodes)) {
             return;
         }
