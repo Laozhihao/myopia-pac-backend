@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author HaoHao
@@ -172,11 +173,11 @@ public class ExcelStudentService {
             throw new BusinessException("身份证号码存在重复");
         }
 
-        List<String> studentNoList = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).distinct().collect(Collectors.toList());
-        if (studentNoList.size() != listMap.size()) {
+        List<String> studentNos = listMap.stream().map(map -> map.get(ImportExcelEnum.STUDENT_NO.getIndex())).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (studentNos.size() != studentNos.stream().distinct().count()) {
             throw new BusinessException("学号存在重复");
         }
-        return studentNoList;
+        return studentNos;
     }
 
     /**
@@ -397,7 +398,7 @@ public class ExcelStudentService {
     private void updateMockPlanStudent(List<StudentDTO> excelStudent, Integer planId, Integer schoolId) {
         List<Long> screeningCodes = excelStudent.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).map(StudentDTO::getScreeningCode).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningCodes)) {
-            throw new BusinessException("编码数据异常");
+            return;
         }
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
