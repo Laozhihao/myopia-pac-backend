@@ -122,10 +122,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
 
         // 获取年级
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
 
         // 获取班级，并且封装成Map
         Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getByGradeIds(schoolGrades.stream()
-                        .map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().map(c -> c.setUniqueId(UUID.randomUUID().toString()))
+                        .map(SchoolGradeItemsDTO::getId).collect(Collectors.toList()), schoolId).stream().peek(schoolClass -> {
+                    schoolClass.setUniqueId(UUID.randomUUID().toString());
+                    schoolClass.setGradeName(gradeMap.get(schoolClass.getGradeId()));
+                })
                 .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
         schoolGrades.forEach(g -> {
             g.setChild(classMaps.get(g.getId()));
