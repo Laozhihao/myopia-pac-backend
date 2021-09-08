@@ -143,6 +143,8 @@ public class ScreeningPlanSchoolStudentBizService {
                 });
             });
         }
+        // 筛查学生数
+        screeningPlanService.updateStudentNumbers(currentUser.getId(), plan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(plan.getId()));
     }
 
     /**
