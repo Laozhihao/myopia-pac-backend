@@ -96,8 +96,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         }
         return String.format(ExcelFileNameConstant.PLAN_STUDENT_EXCEL_FILE_NAME,
                 plan.getTitle(),
-                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_ONLY_TIME),
-                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_ONLY_TIME),
+                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE),
+                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE),
                 school.getName(),
                 gradeName);
     }
