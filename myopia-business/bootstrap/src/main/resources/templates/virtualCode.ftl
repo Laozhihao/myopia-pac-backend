@@ -174,14 +174,14 @@
 <div id="report" class="wraper">
     <div class="report-content">
         <div class="report-images">
-            <#list 1..18 as n>
+            <#list students as student>
             <div class="images-desc">
                 <div class="images-wraper">
                     <img crossorigin="anonymous" src="${student.qrCodeUrl?if_exists}" />
-                    <p>${student.screeningCode?if_exists}</p>
+                    <p>${student.screeningCode?string.computer}</p>
                 </div>
                 <div class="info-wraper">
-                    <p class="code">编码:${student.screeningCode?if_exists}</p>
+                    <p class="code">编码:${student.screeningCode?string.computer}</p>
                     <p>姓名:<span class="info-text name"></span></p>
                     <p>性别:<span class="checkbox"></span> 男 <span class="checkbox female"></span> 女</p>
                     <p>年龄:<span class="info-text age"></span> 岁</p>
