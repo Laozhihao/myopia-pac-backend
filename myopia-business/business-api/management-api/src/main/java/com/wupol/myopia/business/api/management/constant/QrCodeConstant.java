@@ -28,4 +28,10 @@ public class QrCodeConstant {
      * 生成VS666筛查专属二维码Id
      */
     public final String GENERATE_VS666_ID = "VS@%s_%s";
+
+    /**
+     * 学生编码二维码
+     */
+    public final String SCREENING_CODE_QR_CONTENT_FORMAT_RULE = "SV@%012d";
+
 }
