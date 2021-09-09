@@ -10,7 +10,6 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentExportDTO;
@@ -93,13 +92,12 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         String gradeName = "";
         Integer gradeId = exportCondition.getGradeId();
         if (Objects.nonNull(gradeId)) {
-            gradeName =  schoolGradeService.getById(gradeId).getName();
+            gradeName = schoolGradeService.getById(gradeId).getName();
         }
-
         return String.format(ExcelFileNameConstant.PLAN_STUDENT_EXCEL_FILE_NAME,
                 plan.getTitle(),
-                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND),
-                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND),
+                DateFormatUtil.format(plan.getStartTime(), DateFormatUtil.FORMAT_ONLY_TIME),
+                DateFormatUtil.format(plan.getEndTime(), DateFormatUtil.FORMAT_ONLY_TIME),
                 school.getName(),
                 gradeName);
     }
