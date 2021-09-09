@@ -151,4 +151,14 @@
             #{schoolId}
         </foreach>
     </select>
+
+    <select id="getCurrentMaxScreeningCode" resultType="java.lang.Long">
+        SELECT
+               screening_code
+        FROM
+             m_screening_plan_school_student
+        ORDER BY
+                 screening_code DESC
+        LIMIT 1;
+    </select>
 </mapper>
