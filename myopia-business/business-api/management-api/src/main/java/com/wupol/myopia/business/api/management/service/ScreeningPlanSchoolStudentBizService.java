@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -128,6 +129,9 @@ public class ScreeningPlanSchoolStudentBizService {
     public void initMockStudent(MockStudentRequestDTO requestDTO, Integer screeningPlanId,
                                 Integer schoolId, CurrentUser currentUser) {
         Integer studentTotal = requestDTO.getStudentTotal();
+        if (Objects.isNull(studentTotal) || studentTotal > 80) {
+            throw new BusinessException("学生总数异常");
+        }
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         Date date = DateFormatUtil.parse("2015-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
