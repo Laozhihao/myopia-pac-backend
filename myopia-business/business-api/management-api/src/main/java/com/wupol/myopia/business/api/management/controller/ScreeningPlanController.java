@@ -443,11 +443,11 @@ public class ScreeningPlanController {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
                 if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
-                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
+                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
                 } else if (CommonConst.EXPORT_VS666.equals(type)) {
                     content = setVs666QrCodeRule(student);
                 } else {
-                    content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getScreeningCode());
+                    content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
                 }
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             });
