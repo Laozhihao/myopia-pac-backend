@@ -43,7 +43,7 @@ public class ExcelFileNameConstant {
     /**
      * 筛查人员 Excel 文件名
      */
-    public final String PLAN_STUDENT_EXCEL_FILE_NAME = "%s在%s至%s的%s全校筛查学生数据表";
+    public final String PLAN_STUDENT_EXCEL_FILE_NAME = "%s在%s至%s的%s%s筛查学生数据表";
 
     /**
      * 医院名称
@@ -68,5 +68,5 @@ public class ExcelFileNameConstant {
     /**
      * 筛查人员 Excel 文件名
      */
-    public final String PLAN_STUDENT_NAME = "全校筛查学生数据表";
+    public final String PLAN_STUDENT_NAME = "筛查学生数据表";
 }
