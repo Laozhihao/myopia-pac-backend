@@ -24,4 +24,6 @@ public class ClassScreeningProgress {
     private Integer schoolAge;
     /** 当前班级的学生筛查进度情况 */
     private List<StudentScreeningProgressVO> studentScreeningProgressList;
+    /** 是否为人造的 */
+    private Boolean artificial;
 }
