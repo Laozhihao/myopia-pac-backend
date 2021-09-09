@@ -435,7 +435,7 @@ public class ScreeningAppService {
                 .setGradeName(gradeName));
         if (org.apache.commons.collections4.CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
-            return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code);
+            return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
         }
 
         // 获取学生对应筛查数据
@@ -460,12 +460,13 @@ public class ScreeningAppService {
             progressList.addAll(finishMap.get(true));
         }
 
-        // 统计筛查情况
+        // 统计筛查情况，只要有一条是人造的数据，则整个班级数据标记为人造的
         return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
                 .setPlanCount(org.apache.commons.collections4.CollectionUtils.size(studentScreeningProgressList))
                 .setScreeningCount(org.apache.commons.collections4.CollectionUtils.size(visionScreeningResults))
                 .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
                 .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
-                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType());
+                .setSchoolAge(studentScreeningProgressList.get(0).getGradeType())
+                .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1));
     }
 }
