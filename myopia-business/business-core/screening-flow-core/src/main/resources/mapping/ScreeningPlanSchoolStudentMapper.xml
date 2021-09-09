@@ -103,7 +103,8 @@
                mspss.grade_id,
                mspss.class_id,
                mspss.grade_name   as gradeName,
-               mspss.class_name   as className
+               mspss.class_name   as className,
+               mspss.screening_code as screeningCode
         FROM m_screening_plan_school_student mspss
         <where>
             <trim prefixOverrides="and">
