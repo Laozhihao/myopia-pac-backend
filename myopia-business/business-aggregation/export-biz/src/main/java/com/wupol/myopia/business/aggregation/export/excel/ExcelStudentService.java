@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEn
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
+import com.wupol.myopia.business.common.utils.util.IdUtil;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -198,7 +199,7 @@ public class ExcelStudentService {
                 existPlanStudent = new ScreeningPlanSchoolStudent();
                 existPlanStudent.setIdCard(student.getIdCard()).setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setScreeningTaskId(screeningPlan.getScreeningTaskId()).setScreeningPlanId(screeningPlan.getId())
                         .setScreeningOrgId(screeningPlan.getScreeningOrgId()).setPlanDistrictId(screeningPlan.getDistrictId()).setSchoolDistrictId(school.getDistrictId()).setSchoolId(schoolId).setSchoolName(school.getName()).setSchoolNo(school.getSchoolNo()).setStudentId(dbStudent.getId())
-                        .setScreeningCode(System.currentTimeMillis() / 10 + (long) (Math.random() * 100));
+                        .setScreeningCode(IdUtil.nextId());
             }
             existPlanStudent.setId(existPlanStudent.getId()).setStudentName(student.getName()).setGradeId(student.getGradeId()).setGradeName(student.getGradeName())
                     .setGradeType(GradeCodeEnum.getByName(student.getGradeName()).getType()).setClassId(student.getClassId()).setClassName(student.getClassName())

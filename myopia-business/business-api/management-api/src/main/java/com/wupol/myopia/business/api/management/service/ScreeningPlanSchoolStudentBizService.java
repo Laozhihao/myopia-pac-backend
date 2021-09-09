@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.IdUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
@@ -168,7 +169,7 @@ public class ScreeningPlanSchoolStudentBizService {
             student.setGradeId(schoolGrade.getGradeId());
             student.setGradeType(GradeCodeEnum.getByName(schoolGrade.getGradeName()).getType());
             student.setClassId(schoolClass.getClassId());
-            student.setName(String.valueOf(System.currentTimeMillis() / 10 + (long) (Math.random() * 100)));
+            student.setName(String.valueOf(IdUtil.nextId()));
             student.setGender(GenderEnum.MALE.type);
             student.setBirthday(date);
             mockStudentList.add(student);
