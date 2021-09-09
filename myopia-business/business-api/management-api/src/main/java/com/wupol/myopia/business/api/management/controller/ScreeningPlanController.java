@@ -415,7 +415,7 @@ public class ScreeningPlanController {
      * 导出筛查计划的学生二维码信息
      *
      * @param schoolClassInfo 参与筛查计划的学生
-     * @param type            1-二维码 2-VS666
+     * @param type            1-二维码 2-VS666 3-学生编码二维码
      * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
@@ -424,6 +424,7 @@ public class ScreeningPlanController {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
+            String schoolName = schoolService.getNameById(schoolClassInfo.getSchoolId());
             SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
@@ -433,10 +434,12 @@ public class ScreeningPlanController {
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
-                if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
-                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
-                } else {
+                if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+                    content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+                } else if (CommonConst.EXPORT_VS666.equals(type)) {
                     content = setVs666QrCodeRule(student);
+                } else {
+                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
                 }
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             });
@@ -444,8 +447,11 @@ public class ScreeningPlanController {
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
             models.put("classDisplay", classDisplay);
+            models.put("schoolName", schoolName);
             // 4. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(
+                    CommonConst.EXPORT_SCREENING_QRCODE.equals(type) ? PDFTemplateConst.SCREENING_QRCODE_TEMPLATE_PATH :
+                            PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;

@@ -105,7 +105,7 @@ public class StudentController {
      */
     @GetMapping("{id}")
     public StudentDTO getStudent(@PathVariable("id") Integer id) {
-        return studentService.getStudentById(id);
+        return studentBizService.getStudentById(id);
     }
 
     /**

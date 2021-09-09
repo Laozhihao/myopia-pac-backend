@@ -29,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDet
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CardDetailsVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CardInfoVO;
@@ -125,11 +126,17 @@ public class StudentBizService {
         Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
                 .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
+        // 获取筛查记录
+        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByIds(new HashSet(studentIds));
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlans = plans.stream()
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
+
         // 封装DTO
         for (StudentDTO student : students) {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
-
+            // 筛查码
+            student.setScreeningCodes(getScreeningCodesByPlan(studentPlans.get(student.getId())));
             if (Objects.nonNull(visitMap.get(student.getId()))) {
                 // 就诊次数
                 student.setNumOfVisits(visitMap.get(student.getId()).size());
@@ -140,6 +147,12 @@ public class StudentBizService {
             student.setQuestionnaireCount(0);
         }
         return pageStudents;
+    }
+
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = studentService.getStudentById(id);
+        student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
+        return student;
     }
 
     /**
@@ -1038,4 +1051,18 @@ public class StudentBizService {
         }
         return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "交替性斜视"), otherEyeDiseasesList);
     }
+
+    /**
+     * 获取学生编号
+     * @param studentPlans
+     * @return
+     */
+    private List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
+        if (CollectionUtils.isEmpty(studentPlans)) {
+            return Collections.emptyList();
+        }
+        return studentPlans.stream().filter(plan -> Objects.nonNull(plan.getScreeningCode()))
+                .map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+    }
+
 }

@@ -136,6 +136,16 @@ public class CommonConst {
     public final Integer EXPORT_QRCODE = 1;
 
     /**
+     * 导出VS666数据
+     */
+    public final Integer EXPORT_VS666 = 2;
+
+    /**
+     * 导出虚拟二维码
+     */
+    public final Integer EXPORT_SCREENING_QRCODE = 3;
+
+    /**
      * 合作医院 1-合作医院
      */
     public final Integer IS_COOPERATION = 1;
