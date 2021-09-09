@@ -17,7 +17,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -46,9 +45,6 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Resource
     private DistrictService districtService;
-
-    @Value("${report.pdf.save-path}")
-    public String pdfSavePath;
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
