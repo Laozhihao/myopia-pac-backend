@@ -127,7 +127,7 @@ public class StudentBizService {
                 .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
         // 获取筛查记录
-        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByIds(new HashSet(studentIds));
+        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlans = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 

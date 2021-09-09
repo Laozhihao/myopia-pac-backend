@@ -334,4 +334,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeId(Integer planId, Integer schoolId, Integer gradeId) {
         return baseMapper.getByPlanIdAndSchoolIdAndGradeId(planId, schoolId, gradeId);
     }
+
+    /**
+     * 通过学生id获取筛查学生
+     *
+     * @param studentIds 学生Ids
+     * @return 筛查学生
+     */
+    public List<ScreeningPlanSchoolStudent> getByStudentIds(List<Integer> studentIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getStudentId, studentIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }
