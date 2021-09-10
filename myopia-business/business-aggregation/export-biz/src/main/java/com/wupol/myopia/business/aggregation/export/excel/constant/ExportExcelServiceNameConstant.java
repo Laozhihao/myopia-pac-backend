@@ -34,4 +34,9 @@ public class ExportExcelServiceNameConstant {
      * 学生
      */
     public final String STUDENT_EXCEL_SERVICE = "studentExcelService";
+
+    /**
+     * 筛查学生
+     */
+    public final String PLAN_STUDENT_SERVICE = "planStudentExcelService";
 }

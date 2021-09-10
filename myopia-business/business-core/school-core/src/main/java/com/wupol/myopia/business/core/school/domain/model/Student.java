@@ -8,15 +8,15 @@ import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
+import freemarker.core.BugException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -101,8 +101,6 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 身份证号码
      */
-    @Pattern(regexp = RegularUtils.REGULAR_ID_CARD, message = "身份证格式错误")
-    @NotNull(message = "身份证号码不能为空")
     private String idCard;
 
     /**
@@ -276,6 +274,15 @@ public class Student extends AddressCode implements Serializable {
             return 1;
         } else {
             return 0;
+        }
+    }
+
+    /**
+     * 检查身份证
+     */
+    public void checkIdCard() {
+        if (!RegularUtils.isIdCard(idCard)) {
+            throw new BugException("身份证信息异常");
         }
     }
 }

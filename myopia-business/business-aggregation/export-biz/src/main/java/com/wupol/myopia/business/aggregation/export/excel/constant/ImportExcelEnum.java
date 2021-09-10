@@ -9,7 +9,7 @@ package com.wupol.myopia.business.aggregation.export.excel.constant;
  */
 public enum ImportExcelEnum {
     // excel格式：姓名、性别、出生日期、民族(1：汉族  2：蒙古族  3：藏族  4：壮族  5:回族  6:其他  )、学校编号、年级、班级、学号、身份证号、手机号码、省、市、县区、镇/街道、居住地址
-    BUSINESS_CODE(0, "编码"),
+    SCREENING_CODE(0, "编码"),
     ID_CARD(1, "身份证号"),
     NAME(2, "姓名"),
     GENDER(3, "性别"),

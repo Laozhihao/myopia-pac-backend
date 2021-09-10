@@ -41,6 +41,11 @@ public class ExcelFileNameConstant {
     public final String SCREENING_ORG_NOTICE_KEY_CONTENT = "%s筛查机构数据表";
 
     /**
+     * 筛查人员 Excel 文件名
+     */
+    public final String PLAN_STUDENT_EXCEL_FILE_NAME = "%s在%s至%s的%s%s筛查学生数据表";
+
+    /**
      * 医院名称
      */
     public final String HOSPITAL_NAME = "医院-";
@@ -59,4 +64,9 @@ public class ExcelFileNameConstant {
      * 学生名称
      */
     public final String STUDENT_NAME = "学生";
+
+    /**
+     * 筛查人员 Excel 文件名
+     */
+    public final String PLAN_STUDENT_NAME = "筛查学生数据表";
 }

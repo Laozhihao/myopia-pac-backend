@@ -55,7 +55,7 @@
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name, school_no,
         grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,
-        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code,parent_phone,nation,artificial,screening_code
+        student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code
     </sql>
 
     <select id="selectStudentInfoWithResult"
@@ -103,7 +103,8 @@
                mspss.grade_id,
                mspss.class_id,
                mspss.grade_name   as gradeName,
-               mspss.class_name   as className
+               mspss.class_name   as className,
+               mspss.screening_code as screeningCode
         FROM m_screening_plan_school_student mspss
         <where>
             <trim prefixOverrides="and">
@@ -202,4 +203,26 @@
             </foreach>
         </if>
     </delete>
+
+    <select id="getByScreeningCodes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student where screening_plan_id = #{planId}
+                                               and school_id = #{schoolId}
+                                               and screening_code in
+        <foreach collection="screeningCodes" item="screeningCode" index="index" open="(" close=")" separator=",">
+            #{screeningCode}
+        </foreach>
+    </select>
+
+    <select id="getByPlanIdAndSchoolIdAndGradeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+                where screening_plan_id = #{planId}
+                  and school_id = #{schoolId}
+        <if test="gradeId != null">
+            and grade_id = #{gradeId}
+        </if>
+    </select>
 </mapper>

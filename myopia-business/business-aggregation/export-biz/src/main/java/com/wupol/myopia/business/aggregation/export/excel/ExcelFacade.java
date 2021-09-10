@@ -637,9 +637,8 @@ public class ExcelFacade {
         Assert.isTrue(StringUtils.isNotBlank(item.get(4)), "学校编号不能为空");
         Assert.isTrue(StringUtils.isNotBlank(item.get(5)), "学生年级不能为空");
         Assert.isTrue(StringUtils.isNotBlank(item.get(6)), "学生班级不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(7)), "学生学号异常");
         Assert.isTrue(StringUtils.isNotBlank(item.get(8)) && Pattern.matches(RegularUtils.REGULAR_ID_CARD, item.get(8)), "学生身份证异常");
-        Assert.isTrue(StringUtils.isNotBlank(item.get(9)) && Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
+        Assert.isTrue(StringUtils.isBlank(item.get(9)) || Pattern.matches(RegularUtils.REGULAR_MOBILE, item.get(9)), "学生手机号码异常");
     }
 
     /**

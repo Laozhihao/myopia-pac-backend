@@ -127,7 +127,7 @@ public class StudentBizService {
                 .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
         // 获取筛查记录
-        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByIds(new HashSet(studentIds));
+        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlans = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
@@ -618,6 +618,7 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public StudentDTO updateStudentReturnCountInfo(Student student) {
+        haveIdCardOrCode(student);
         StudentDTO studentDTO = studentService.updateStudent(student);
         studentDTO.setScreeningCount(student.getScreeningCount())
                 .setQuestionnaireCount(student.getQuestionnaireCount());
@@ -1054,8 +1055,9 @@ public class StudentBizService {
 
     /**
      * 获取学生编号
-     * @param studentPlans
-     * @return
+     *
+     * @param studentPlans 筛查学生计划
+     * @return 编号
      */
     private List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
         if (CollectionUtils.isEmpty(studentPlans)) {
@@ -1063,6 +1065,31 @@ public class StudentBizService {
         }
         return studentPlans.stream().filter(plan -> Objects.nonNull(plan.getScreeningCode()))
                 .map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+    }
+
+    /**
+     * 编码身份证二选一
+     *
+     * @param student 学生
+     */
+    private void haveIdCardOrCode(Student student) {
+        if (StringUtils.isBlank(student.getIdCard()) && CollectionUtils.isEmpty(getScreeningCode(student.getId()))) {
+            throw new BusinessException("身份证和编码不能都为空");
+        }
+    }
+
+    /**
+     * 通过学生Id获取编码
+     *
+     * @param studentId 学生Id
+     * @return 编号
+     */
+    private List<Long> getScreeningCode(Integer studentId) {
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getByStudentId(studentId);
+        if (CollectionUtils.isEmpty(planStudentList)) {
+            return Collections.emptyList();
+        }
+        return planStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
     }
 
 }

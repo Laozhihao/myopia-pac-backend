@@ -105,7 +105,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         if (student.checkBirthdayExceedLimit()) {
             throw new BusinessException("学生年龄太大");
         }
-
+        student.checkIdCard();
         // 设置学龄
         if (null != student.getGradeId()) {
             SchoolGrade grade = schoolGradeService.getById(student.getGradeId());
