@@ -129,7 +129,7 @@ public class ScreeningPlanSchoolStudentBizService {
     public void initMockStudent(MockStudentRequestDTO requestDTO, Integer screeningPlanId,
                                 Integer schoolId, CurrentUser currentUser) {
         Integer studentTotal = requestDTO.getStudentTotal();
-        if (Objects.isNull(studentTotal) || studentTotal > 80) {
+        if (Objects.isNull(studentTotal) || studentTotal > 500) {
             throw new BusinessException("学生总数异常");
         }
         School school = schoolService.getById(schoolId);
