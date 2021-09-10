@@ -12,8 +12,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
+import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -105,6 +109,9 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanSchoolStudentBizService screeningPlanSchoolStudentBizService;
 
+    @Autowired
+    private ExportStrategy exportStrategy;
+
     @Value("${server.host}")
     private String hostUrl;
 
@@ -192,7 +199,7 @@ public class ScreeningPlanController {
      * 同时校验权限
      *
      * @param screeningPlanId 筛查计划ID
-     * @param releaseStatus 发布状态
+     * @param releaseStatus   发布状态
      */
     private ScreeningPlan validateExistAndAuthorize(Integer screeningPlanId, Integer releaseStatus) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
@@ -213,7 +220,7 @@ public class ScreeningPlanController {
      * 校验筛查任务是否存在且校验发布状态
      * 返回该筛查计划
      *
-     * @param id 筛查计划ID
+     * @param id            筛查计划ID
      * @param releaseStatus 发布状态
      * @return 筛查计划
      */
@@ -277,6 +284,7 @@ public class ScreeningPlanController {
 
     /**
      * 获取指定计划下学校信息
+     *
      * @param screeningPlanId
      * @param schoolId
      * @return
@@ -303,7 +311,7 @@ public class ScreeningPlanController {
     /**
      * 新增筛查学校
      *
-     * @param screeningPlanId 筛查计划ID
+     * @param screeningPlanId      筛查计划ID
      * @param screeningPlanSchools 新增的学校列表
      */
     @PostMapping("schools/{screeningPlanId}")
@@ -362,7 +370,8 @@ public class ScreeningPlanController {
 
     /**
      * 校验学校是否可新增：如果该机构相同时间段内已有该学校，不能新增
-     * @param screeningPlan 筛查计划
+     *
+     * @param screeningPlan       筛查计划
      * @param schoolListsByPlanId 筛查计划中的学校
      */
     private void validateSchoolLegal(ScreeningPlan screeningPlan, List<ScreeningPlanSchool> schoolListsByPlanId) {
@@ -391,9 +400,9 @@ public class ScreeningPlanController {
     /**
      * 导入筛查计划的学生数据
      *
-     * @param file 学生文件
+     * @param file            学生文件
      * @param screeningPlanId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param schoolId        学校ID
      * @throws IOException IO异常
      */
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
@@ -414,7 +423,7 @@ public class ScreeningPlanController {
      * 导出筛查计划的学生二维码信息
      *
      * @param schoolClassInfo 参与筛查计划的学生
-     * @param type            1-二维码 2-VS666
+     * @param type            1-二维码 2-VS666 3-学生编码二维码
      * @return pdf的URL
      */
     @GetMapping("/export/QRCode")
@@ -423,19 +432,22 @@ public class ScreeningPlanController {
             // 1. 校验
             validateExistAndAuthorize(schoolClassInfo.getScreeningPlanId(), CommonConst.STATUS_NOT_RELEASE);
             // 2. 处理参数
+            String schoolName = schoolService.getNameById(schoolClassInfo.getSchoolId());
             SchoolClass schoolClass = schoolClassService.getById(schoolClassInfo.getClassId());
             SchoolGrade schoolGrade = schoolGradeService.getById(schoolClassInfo.getGradeId());
             String classDisplay = String.format("%s%s", schoolGrade.getName(), schoolClass.getName());
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 String content;
-                if (Objects.isNull(type) || type.equals(CommonConst.EXPORT_QRCODE)) {
-                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId());
-                } else {
+                if (CommonConst.EXPORT_SCREENING_QRCODE.equals(type)) {
+                    content = String.format(QrCodeConstant.SCREENING_CODE_QR_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+                } else if (CommonConst.EXPORT_VS666.equals(type)) {
                     content = setVs666QrCodeRule(student);
+                } else {
+                    content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
                 }
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             });
@@ -443,8 +455,11 @@ public class ScreeningPlanController {
             Map<String, Object> models = new HashMap<>(16);
             models.put("students", students);
             models.put("classDisplay", classDisplay);
+            models.put("schoolName", schoolName);
             // 4. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(
+                    CommonConst.EXPORT_SCREENING_QRCODE.equals(type) ? PDFTemplateConst.SCREENING_QRCODE_TEMPLATE_PATH :
+                            PDFTemplateConst.QRCODE_TEMPLATE_PATH, models), fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;
@@ -491,7 +506,7 @@ public class ScreeningPlanController {
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
             ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
-            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1) ;
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getId()), config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
@@ -510,7 +525,7 @@ public class ScreeningPlanController {
                 models.put("qrCodeFile", DEFAULT_IMAGE_PATH);
             }
             // 3. 生成并上传覆盖pdf。S3上路径：myopia/pdf/{date}/{file}。获取地址1天失效
-            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl,fileName);
+            File file = PdfUtil.generatePdfFromContent(FreemarkerUtil.generateHtmlString(PDFTemplateConst.NOTICE_TEMPLATE_PATH, models), hostUrl, fileName);
             Map<String, String> resultMap = new HashMap<>(16);
             resultMap.put("url", s3Utils.getPdfUrl(file.getName(), file));
             return resultMap;
@@ -518,4 +533,39 @@ public class ScreeningPlanController {
             throw new BusinessException("生成PDF文件失败", e);
         }
     }
+
+    /**
+     * 创建虚拟学生
+     * @param requestDTO 请求入惨
+     * @param screeningPlanId 计划Id
+     * @param schoolId 学生Id
+     */
+    @PostMapping("/mock/student/{screeningPlanId}/{schoolId}")
+    public void mockStudent(@RequestBody MockStudentRequestDTO requestDTO,
+                            @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        screeningPlanSchoolStudentBizService.initMockStudent(requestDTO, screeningPlanId, schoolId, currentUser);
+    }
+
+    /**
+     *
+     * @param screeningPlanId
+     * @param schoolId
+     * @throws IOException
+     */
+    @GetMapping("/export/planStudent/{screeningPlanId}/{schoolId}")
+    public void exportPlanStudent(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer gradeId) throws IOException {
+
+        Assert.isTrue(Objects.nonNull(screeningPlanId), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
+
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(user.getId())
+                        .setSchoolId(schoolId)
+                        .setPlanId(screeningPlanId)
+                        .setGradeId(gradeId),
+                ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
+    }
+
 }

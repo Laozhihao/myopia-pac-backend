@@ -8,6 +8,7 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -1003,9 +1004,9 @@ public class StatReportService {
         List<Map<String, Object>> schoolStudentStatList = new ArrayList<>();
         for (SchoolGradeItemsDTO schoolGradeItems : schoolGradeItemList) {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeItems.getGradeCode());
-            List<SchoolClass> schoolClasses = schoolGradeItems.getChild();
+            List<SchoolClassDTO> schoolClasses = schoolGradeItems.getChild();
             List<Map<String, Object>> schoolClassStatList = new ArrayList<>();
-            for (SchoolClass schoolClass : schoolClasses) {
+            for (SchoolClassDTO schoolClass : schoolClasses) {
                 List<StatConclusionReportDTO> studentStatList =
                         statConclusionReportDTOs.stream()
                                 .filter(x -> gradeCodeEnum.getCode().equals(x.getSchoolGradeCode())
@@ -1290,8 +1291,8 @@ public class StatReportService {
             if (schoolGradeItem == null) {
                 continue;
             }
-            List<SchoolClass> schoolClasses = schoolGradeItem.getChild();
-            for (SchoolClass schoolClass : schoolClasses) {
+            List<SchoolClassDTO> schoolClasses = schoolGradeItem.getChild();
+            for (SchoolClassDTO schoolClass : schoolClasses) {
                 Map<String, Object> lowVisionLevelStat = composeLowVisionLevelStat(
                         schoolClass.getName(),
                         statConclusions.stream()
@@ -1325,8 +1326,8 @@ public class StatReportService {
                 continue;
             }
 
-            List<SchoolClass> schoolClasses = schoolGradeItem.getChild();
-            for (SchoolClass schoolClass : schoolClasses) {
+            List<SchoolClassDTO> schoolClasses = schoolGradeItem.getChild();
+            for (SchoolClassDTO schoolClass : schoolClasses) {
                 Map<String, Object> myopiaLevelStat = composeMyopiaLevelStat(schoolClass.getName(),
                         statConclusions.stream()
                                 .filter(x

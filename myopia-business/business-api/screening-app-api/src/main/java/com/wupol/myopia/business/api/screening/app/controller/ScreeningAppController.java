@@ -148,18 +148,12 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/student/findOneById")
-    public ApiResult getStudentById(String studentId, String planStudentId, @RequestParam Integer deptId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        if (StringUtils.isNotBlank(planStudentId)) {
-            screeningPlanSchoolStudent.setId(Integer.valueOf(planStudentId));
-        } else {
-            screeningPlanSchoolStudent.setStudentId(Integer.valueOf(studentId)).setScreeningOrgId(deptId);
-        }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByEntity(screeningPlanSchoolStudent);
-        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+    public ApiResult getStudentById(Integer planStudentId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
         }
-        return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudents.get(0)));
+        return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent));
     }
 
     /**

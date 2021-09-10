@@ -73,4 +73,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 学生年龄
      */
     private Integer age;
+
+    /**
+     * 学生编码
+     */
+    private Long screeningCode;
 }

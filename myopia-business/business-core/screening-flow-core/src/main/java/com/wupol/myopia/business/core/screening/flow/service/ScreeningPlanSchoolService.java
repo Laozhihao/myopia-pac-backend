@@ -184,4 +184,13 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         }
         return otherSchoolIds;
     }
+
+    /**
+     * 获取最大的筛查编号
+     *
+     * @return java.lang.Long
+     **/
+    public Long getCurrentMaxScreeningCode() {
+        return baseMapper.getCurrentMaxScreeningCode();
+    }
 }

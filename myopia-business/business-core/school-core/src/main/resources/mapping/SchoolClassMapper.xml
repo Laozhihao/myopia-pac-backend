@@ -61,7 +61,7 @@
           and status = #{status}
     </select>
 
-    <select id="getByGradeIdsAndSchoolIdAndStatus" resultMap="BaseResultMap">
+    <select id="getByGradeIdsAndSchoolIdAndStatus" resultMap="VoResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_class

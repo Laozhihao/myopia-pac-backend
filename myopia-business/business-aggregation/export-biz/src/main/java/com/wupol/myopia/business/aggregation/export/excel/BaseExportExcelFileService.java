@@ -109,7 +109,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @param data Excel数据
      * @return java.io.File
      **/
-    private File generateExcelFile(String fileName, List data) throws IOException {
+    public File generateExcelFile(String fileName, List data) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, data, getHeadClass());
     }
 

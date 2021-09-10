@@ -312,4 +312,38 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         queryWrapper.in(ScreeningPlanSchoolStudent::getId,planStudentIdSet);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 通过screeningCode获取列表
+     *
+     * @param screeningCode 筛查编号
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByScreeningCodes(List<Long> screeningCode, Integer planId, Integer schoolId) {
+        return baseMapper.getByScreeningCodes(screeningCode, planId, schoolId);
+    }
+
+    /**
+     * 获取筛查列表
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @param gradeId  年级Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeId(Integer planId, Integer schoolId, Integer gradeId) {
+        return baseMapper.getByPlanIdAndSchoolIdAndGradeId(planId, schoolId, gradeId);
+    }
+
+    /**
+     * 通过学生id获取筛查学生
+     *
+     * @param studentIds 学生Ids
+     * @return 筛查学生
+     */
+    public List<ScreeningPlanSchoolStudent> getByStudentIds(List<Integer> studentIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getStudentId, studentIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

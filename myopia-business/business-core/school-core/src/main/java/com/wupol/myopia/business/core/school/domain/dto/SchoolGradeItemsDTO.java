@@ -23,5 +23,10 @@ public class SchoolGradeItemsDTO {
 
     private String name;
 
-    private List<SchoolClass> child;
+    /**
+     * 唯一Id
+     */
+    private String uniqueId;
+
+    private List<SchoolClassDTO> child;
 }
