@@ -4,6 +4,9 @@ alter table m_screening_plan_school_student
 alter table m_screening_plan_school_student
     add screening_code bigint null comment '筛查编号';
 
+update m_screening_plan_school_student
+set screening_code = id + 100000000000;
+
 alter table m_student
     modify id_card varchar(32) null comment '身份证号码';
 
