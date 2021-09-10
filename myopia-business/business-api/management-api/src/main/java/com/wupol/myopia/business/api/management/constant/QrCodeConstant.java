@@ -32,6 +32,6 @@ public class QrCodeConstant {
     /**
      * 学生编码二维码
      */
-    public final String SCREENING_CODE_QR_CONTENT_FORMAT_RULE = "SV@%012d";
+    public final String SCREENING_CODE_QR_CONTENT_FORMAT_RULE = "SV@%07d";
 
 }
