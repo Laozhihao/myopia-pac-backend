@@ -26,6 +26,7 @@ spring:
         dashboard: ${SENTINEL_DASHBOARD_URI}
       # 取消Sentinel控制台懒加载
       eager: true
+    time-zone: Asia/Shanghai
 
   ### 为true设置的是web开启sleuth功能
   sleuth:
