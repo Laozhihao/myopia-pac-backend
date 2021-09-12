@@ -44,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -149,7 +150,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/student/findOneById")
-    public ApiResult getStudentById(Integer planStudentId) {
+    public ApiResult getStudentById(@NotNull(message = "planStudentId不能为空") Integer planStudentId) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
