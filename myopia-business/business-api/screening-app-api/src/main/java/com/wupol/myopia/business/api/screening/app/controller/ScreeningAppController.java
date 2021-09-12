@@ -488,6 +488,21 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取视力检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getVisionData/{planStudentId}")
+    public VisionDataDTO getVisionData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        if (Objects.isNull(screeningResult)) {
+            return new VisionDataDTO();
+        }
+        return VisionDataDTO.getInstance(screeningResult.getVisionData());
+    }
+
+    /**
      * 获取筛查机构对应的未完成筛查且有筛查数据的学校
      *
      * @return

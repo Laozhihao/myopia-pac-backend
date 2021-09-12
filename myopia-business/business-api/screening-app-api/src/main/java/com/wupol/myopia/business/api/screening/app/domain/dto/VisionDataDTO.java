@@ -11,6 +11,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @Description 视力筛查结果
@@ -66,6 +67,28 @@ public class VisionDataDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         return ObjectUtils.anyNotNull(rightNakedVision, leftNakedVision, rightCorrectedVision, leftCorrectedVision);
+    }
+
+    public static VisionDataDTO getInstance(VisionDataDO visionDataDO) {
+        VisionDataDTO visionDataDTO = new VisionDataDTO();
+        if (Objects.isNull(visionDataDO)) {
+            return visionDataDTO;
+        }
+        VisionDataDO.VisionData leftEye = visionDataDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            visionDataDTO.setLeftNakedVision(leftEye.getNakedVision());
+            visionDataDTO.setLeftCorrectedVision(leftEye.getCorrectedVision());
+            visionDataDTO.setGlassesType(WearingGlassesSituation.getType(leftEye.getGlassesType()));
+        }
+        VisionDataDO.VisionData rightEye = visionDataDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            visionDataDTO.setRightNakedVision(rightEye.getNakedVision());
+            visionDataDTO.setRightCorrectedVision(rightEye.getCorrectedVision());
+            visionDataDTO.setGlassesType(WearingGlassesSituation.getType(rightEye.getGlassesType()));
+        }
+        visionDataDTO.setDiagnosis(visionDataDO.getDiagnosis());
+        visionDataDTO.setIsCooperative(visionDataDO.getIsCooperative());
+        return visionDataDTO;
     }
 }
 
