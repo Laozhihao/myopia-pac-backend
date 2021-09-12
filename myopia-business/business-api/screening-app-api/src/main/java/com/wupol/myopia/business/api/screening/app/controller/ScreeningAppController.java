@@ -39,6 +39,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
  * @Author Chikong
  * @Date 2021-01-21
  */
+@Validated
 @CrossOrigin
 @ResponseResultBody
 @Controller
