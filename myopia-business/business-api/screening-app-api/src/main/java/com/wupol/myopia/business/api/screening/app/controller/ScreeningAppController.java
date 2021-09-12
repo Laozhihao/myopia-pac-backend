@@ -38,11 +38,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,6 +56,7 @@ import java.util.stream.Collectors;
  * @Author Chikong
  * @Date 2021-01-21
  */
+@Validated
 @CrossOrigin
 @ResponseResultBody
 @Controller
@@ -148,8 +152,8 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/student/findOneById")
-    public ApiResult getStudentById(Integer planStudentId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+    public ApiResult getStudentById(@NotNull(message = "planStudentId不能为空") Integer planStudentId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_NULL.getCode(), SysEnum.SYS_STUDENT_NULL.getMessage());
         }
@@ -485,6 +489,23 @@ public class ScreeningAppController {
             return new ComputerOptometryDTO();
         }
         return ComputerOptometryDTO.getInstance(screeningResult.getComputerOptometry());
+    }
+
+    /**
+     * 获取视力检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getVisionData/{planStudentId}")
+    public VisionDataDTO getVisionData(@PathVariable Integer planStudentId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
+        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        if (Objects.isNull(screeningResult)) {
+            return new VisionDataDTO();
+        }
+        return VisionDataDTO.getInstance(screeningResult.getVisionData());
     }
 
     /**
