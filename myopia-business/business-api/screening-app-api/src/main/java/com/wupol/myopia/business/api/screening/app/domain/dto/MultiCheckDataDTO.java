@@ -82,6 +82,6 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
     }
 
     public boolean isValid() {
-        return ObjectUtils.anyNotNull(ocularInspectionData, slitLampData, fundusData);
+        return ObjectUtils.anyNotNull(ocularInspectionData, slitLampData, fundusData, visualLossLevelData);
     }
 }
