@@ -81,6 +81,7 @@
         <include refid="Base_Column_List"/>
         from m_school_grade
         where school_id = #{schoolId}
+          and status != 2
     </select>
 
     <select id="countBySchoolIdAndCode" resultType="java.lang.Integer">

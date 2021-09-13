@@ -97,8 +97,15 @@ public class ReportController {
      * @return com.wupol.myopia.base.domain.ApiResult
      **/
     @GetMapping("/screeningOrg/archives")
-    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) throws IOException {
-        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+    public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
+                                           @NotNull(message = "筛查机构ID不能为空") Integer schoolId, @NotNull(message = "筛查机构ID不能为空") Integer classId,
+                                           @NotNull(message = "筛查机构ID不能为空") Integer gradeId) throws IOException {
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId).setScreeningOrgId(screeningOrgId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+                .setSchoolId(schoolId)
+                .setClassId(classId)
+                .setGradeId(gradeId);
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 

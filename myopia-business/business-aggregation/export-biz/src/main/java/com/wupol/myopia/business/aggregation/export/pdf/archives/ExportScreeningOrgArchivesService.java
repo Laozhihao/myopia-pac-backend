@@ -38,7 +38,7 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generateReportPdfService.generateScreeningOrgArchivesPdfFile(fileSavePath, exportCondition.getPlanId());
+        generateReportPdfService.generateScreeningOrgArchivesPdfFile(fileSavePath, exportCondition);
     }
 
     /**
