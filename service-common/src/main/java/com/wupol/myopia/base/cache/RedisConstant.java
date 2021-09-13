@@ -31,10 +31,10 @@ public interface RedisConstant {
     /**
      * 正在导出Key
      */
-    String FILE_EXPORT_ING = "a:file:export:ing";
+    String FILE_EXPORT_ING = "file:export:ing";
 
     /**
      * 文件导出Key
      */
-    String FILE_EXPORT_LIST = "a:file:export:list";
+    String FILE_EXPORT_LIST = "file:export:list";
 }
