@@ -243,18 +243,19 @@ public class ScreeningAppService {
         }
         // 3补充数据 4 复测完成 2 补充数据 0 不可复测  1 可复测
         if (firstScreeningStatConclusion == null || !firstScreeningStatConclusion.getIsValid()) {
-            return 0;// 不可复测
+            return 0;
         }
 
         Integer resultId = firstScreeningStatConclusion.getResultId();
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
         boolean isWearing = visionScreeningResult.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY);
-
+        // 不可复测
         if (isWearing) {
             return 0;
         }
+        // 确认复测
         if (reScreeningStatConclusion == null) {
-            return 1;// 确认复测
+            return 1;
         }
 
         if (reScreeningStatConclusion.getIsValid()) {

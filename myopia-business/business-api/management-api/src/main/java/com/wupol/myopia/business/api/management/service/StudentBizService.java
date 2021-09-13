@@ -878,56 +878,45 @@ public class StudentBizService {
         return cardDetail;
     }
 
+    /**
+     *  设置屈光不正信息
+     *
+     * @param cardDetail 档案卡信息详情
+     * @param visionScreeningResult 筛查数据
+     * @param age 年龄
+     * @return boolean
+     **/
     private boolean setRefractiveErrorInfo(HaiNanCardDetail cardDetail, VisionScreeningResult visionScreeningResult, Integer age) {
+        // 获取学生的筛查进度情况
         StudentScreeningProgressVO studentScreeningProgressVO = screeningPlanSchoolStudentService.getStudentScreeningProgress(visionScreeningResult);
-        if (!studentScreeningProgressVO.getHasAbnormal()) {
+        // 初筛项目都没有问题，则视为屈光正常
+        if (Boolean.FALSE.equals(studentScreeningProgressVO.getHasAbnormal())) {
             return false;
         }
-
+        // 如果小瞳验光和屈光度数据都没有，则屈光正常
         PupilOptometryDataDO pupilOptometryData = visionScreeningResult.getPupilOptometryData();
-        if (Objects.nonNull(pupilOptometryData)) {
-            // 视力信息
-            TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfoByPupilOptometryData(pupilOptometryData, age);
-            VisionInfoVO leftEye = visionInfo.getFirst();
-            VisionInfoVO rightEye = visionInfo.getSecond();
-            // 是否屈光不正
-            boolean isRefractiveError = isRefractiveError(leftEye, rightEye);
-            // 近视、远视、散光
-            if (isRefractiveError && Objects.nonNull(leftEye)) {
-                cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
-                cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
-                cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
-            }
-            if (isRefractiveError && Objects.nonNull(rightEye)) {
-                cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
-                cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
-                cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
-            }
-            return isRefractiveError;
-        }
-
         ComputerOptometryDO computerOptometryDO = visionScreeningResult.getComputerOptometry();
-        if (Objects.nonNull(computerOptometryDO)) {
-            // 视力信息
-            TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = getVisionInfo(visionScreeningResult.getComputerOptometry(), age);
-            VisionInfoVO leftEye = visionInfo.getFirst();
-            VisionInfoVO rightEye = visionInfo.getSecond();
-            // 是否屈光不正
-            boolean isRefractiveError = isRefractiveError(leftEye, rightEye);
-            // 近视、远视、散光
-            if (isRefractiveError && Objects.nonNull(leftEye)) {
-                cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
-                cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
-                cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
-            }
-            if (isRefractiveError && Objects.nonNull(rightEye)) {
-                cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
-                cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
-                cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
-            }
-            return isRefractiveError;
+        if (ObjectsUtil.allNull(pupilOptometryData, computerOptometryDO)) {
+            return false;
         }
-        return false;
+        // 获取视力信息，优先取小瞳验光的数据
+        TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ? getVisionInfoByPupilOptometryData(pupilOptometryData, age) : getVisionInfo(computerOptometryDO, age);
+        VisionInfoVO leftEye = visionInfo.getFirst();
+        VisionInfoVO rightEye = visionInfo.getSecond();
+        // 是否屈光不正
+        boolean isRefractiveError = isRefractiveError(leftEye, rightEye);
+        // 设置近视、远视、散光
+        if (isRefractiveError && Objects.nonNull(leftEye)) {
+            cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
+            cardDetail.setLeftFarsightednessInfo(leftEye.getFarsightednessLevel());
+            cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
+        }
+        if (isRefractiveError && Objects.nonNull(rightEye)) {
+            cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
+            cardDetail.setRightFarsightednessInfo(rightEye.getFarsightednessLevel());
+            cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());
+        }
+        return isRefractiveError;
     }
 
     /**
@@ -990,14 +979,12 @@ public class StudentBizService {
     /**
      * 获取近视预警级别
      *
-     * @param sph 电脑验光具体数据
+     * @param sph 球镜
+     * @param cyl 柱镜
      * @return VisionInfoVO
      */
     private VisionInfoVO getMyopiaLevel(BigDecimal sph, BigDecimal cyl, Integer age) {
         VisionInfoVO visionInfoVO = new VisionInfoVO();
-        if (ObjectsUtil.allNull(sph, cyl)) {
-            return visionInfoVO;
-        }
         if (ObjectsUtil.allNotNull(sph, cyl)) {
             WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
