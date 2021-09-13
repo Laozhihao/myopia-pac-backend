@@ -4,6 +4,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SlitLampDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -34,6 +35,10 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
      * 眼底
      **/
     private FundusDataDTO fundusData;
+    /**
+     * 盲及视力损害分类（等级）
+     **/
+    private VisualLossLevelDataDTO visualLossLevelData;
     /**
      * 是否配合检查：0-配合、1-不配合
      */
@@ -66,6 +71,12 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
             FundusDataDO.FundusData rightFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.RIGHT_EYE).setHasAbnormal(fundusData.getRightHasAbnormal());
             FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(isCooperative).setRemark(fundusData.getRemark());
             visionScreeningResult.setFundusData(fundusDataDO);
+        }
+        // 盲及视力损害分类
+        if (Objects.nonNull(visualLossLevelData)) {
+            VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(visualLossLevelData.getLeftVisualLossLevel());
+            VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(visualLossLevelData.getRightVisualLossLevel());
+            visionScreeningResult.setVisualLossLevelData(new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData));
         }
         return visionScreeningResult;
     }

@@ -949,10 +949,9 @@ public class StudentBizService {
         }
         PupilOptometryDataDO.PupilOptometryData leftEyeData = pupilOptometryData.getLeftEyeData();
         PupilOptometryDataDO.PupilOptometryData rightEyeData = pupilOptometryData.getRightEyeData();
-        if (ObjectsUtil.allNull(leftEyeData, rightEyeData)) {
-            return new TwoTuple<>();
-        }
-        return new TwoTuple<>(getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age), getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age));
+        VisionInfoVO leftVision = Objects.isNull(leftEyeData) ?  new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age);
+        VisionInfoVO rightVision = Objects.isNull(rightEyeData) ?  new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age);
+        return new TwoTuple<>(leftVision, rightVision);
 
     }
 
