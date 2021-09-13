@@ -182,8 +182,6 @@ public class GeneratePdfFileService {
         Assert.notNull(exportCondition.getSchoolId(), BizMsgConstant.SCHOOL_ID_IS_EMPTY);
         Assert.notNull(exportCondition.getGradeId(), BizMsgConstant.GRADE_ID_IS_EMPTY);
         Assert.notNull(exportCondition.getClassId(), BizMsgConstant.CLASS_ID_IS_EMPTY);
-//        List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.getSchoolListsByPlanId(exportCondition.getPlanId());
-//        screeningPlanSchoolList.forEach(x -> generateSchoolArchivesPdfFile(saveDirectory, exportCondition));
         generateSchoolArchivesPdfFile(saveDirectory, exportCondition);
     }
 
