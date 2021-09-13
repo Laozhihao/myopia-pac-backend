@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.screening.app.domain.vo;
+package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;

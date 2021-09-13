@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.screening.app.domain.vo;
+package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.AbstractDiagnosisResult;
@@ -80,7 +80,7 @@ public class StudentScreeningProgressVO {
      *
      * @param screeningResult 筛查结果
      * @param studentVO 学生信息
-     * @return com.wupol.myopia.business.api.screening.app.domain.vo.StudentScreeningProgressVO
+     * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
     public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO) {
         Assert.notNull(studentVO, "学生信息不能为空");
