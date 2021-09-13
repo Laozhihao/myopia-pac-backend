@@ -420,14 +420,14 @@ public class ExcelFacade {
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
                 } catch (Exception e) {
-                    log.error(e);
-                } finally {
                     redisUtil.del(redisKey);
+                    log.error(e);
                 }
             });
             File zipFile = ExcelUtil.zip(folder, fileName);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(zipFile), CommonConst.NOTICE_STATION_LETTER);
         }
+        redisUtil.del(redisKey);
     }
 
     /**
