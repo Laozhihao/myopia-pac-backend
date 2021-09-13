@@ -900,7 +900,7 @@ public class StudentBizService {
             return false;
         }
         // 获取视力信息，优先取小瞳验光的数据
-        TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ? getVisionInfoByPupilOptometryData(pupilOptometryData, age) : getVisionInfo(computerOptometryDO, age);
+        TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ? getVisionInfoByPupilOptometryData(pupilOptometryData, age) : getVisionInfoByComputerOptometryData(computerOptometryDO, age);
         VisionInfoVO leftEye = visionInfo.getFirst();
         VisionInfoVO rightEye = visionInfo.getSecond();
         // 是否屈光不正
@@ -963,7 +963,7 @@ public class StudentBizService {
      * @param age               年龄
      * @return TwoTuple<VisionInfoVO, VisionInfoVO> left-左眼 right-右眼
      */
-    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfo(ComputerOptometryDO computerOptometry, Integer age) {
+    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByComputerOptometryData(ComputerOptometryDO computerOptometry, Integer age) {
         if (Objects.isNull(computerOptometry)) {
             return new TwoTuple<>();
         }
