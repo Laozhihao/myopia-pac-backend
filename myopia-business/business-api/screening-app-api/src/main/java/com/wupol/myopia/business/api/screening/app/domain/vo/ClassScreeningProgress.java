@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

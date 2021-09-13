@@ -12,6 +12,9 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -345,5 +348,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningPlanSchoolStudent::getStudentId, studentIds);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    public StudentScreeningProgressVO getStudentScreeningProgress(VisionScreeningResult screeningResult) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getById(screeningResult.getScreeningPlanSchoolStudentId());
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
     }
 }
