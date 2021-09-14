@@ -439,6 +439,15 @@ public class RedisUtil {
     }
 
     /**
+     * 获取一个Object
+     * @param key 键
+     * @return Object
+     */
+    public Object lGet(String key) {
+        return redisTemplate.opsForList().rightPop(key);
+    }
+
+    /**
      * 将单个list元素放入缓存（有过期时间）
      * @param key 键
      * @param value 值

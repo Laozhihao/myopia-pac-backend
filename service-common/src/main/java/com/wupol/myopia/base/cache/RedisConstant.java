@@ -27,4 +27,24 @@ public interface RedisConstant {
      * 学生二维码过期时间
      */
     Integer TOKEN_EXPIRE_TIME = 3600;
+
+    /**
+     * 正在导出Key
+     */
+    String FILE_EXPORT_ING = "file:export:ing";
+
+    /**
+     * 文件导出Key
+     */
+    String FILE_EXPORT_LIST = "file:export:list";
+
+    /**
+     * 筛查通知
+     */
+    String FILE_EXPORT_NOTICE_DATA = "file:export:notice:%s-%s-%s-%s-%s-%s";
+
+    /**
+     * 筛查计划
+     */
+    String FILE_EXPORT_PLAN_DATA = "file:export:plan:%s-%s-%s-%s";
 }

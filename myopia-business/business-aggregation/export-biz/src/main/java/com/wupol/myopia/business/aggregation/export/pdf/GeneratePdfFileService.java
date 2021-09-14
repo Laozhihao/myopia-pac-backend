@@ -17,8 +17,6 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -35,10 +33,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -59,8 +53,6 @@ public class GeneratePdfFileService {
     @Autowired
     private StatConclusionService statConclusionService;
     @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
-    @Autowired
     private DistrictService districtService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
@@ -74,9 +66,6 @@ public class GeneratePdfFileService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
-
-    private static final ExecutorService executor = new ThreadPoolExecutor(1, 2, 5, TimeUnit.MINUTES, new ArrayBlockingQueue<>(128));
-
 
     /**
      * 生成筛查报告PDF文件 - 行政区域

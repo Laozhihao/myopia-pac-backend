@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
@@ -36,6 +38,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     private DistrictService districtService;
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 导出文件
@@ -73,6 +77,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             if (Objects.nonNull(excelFile)) {
                 deleteTempFile(excelFile.getPath());
             }
+            redisUtil.del(RedisConstant.FILE_EXPORT_ING);
         }
     }
 

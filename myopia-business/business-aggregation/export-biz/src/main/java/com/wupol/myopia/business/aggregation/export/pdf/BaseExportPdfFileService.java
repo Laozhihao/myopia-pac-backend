@@ -3,6 +3,8 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -35,6 +37,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     public NoticeService noticeService;
     @Autowired
     public S3Utils s3Utils;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 导出文件
@@ -73,6 +77,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
         } finally {
             // 8.删除临时文件
             deleteTempFile(parentPath);
+            redisUtil.del(RedisConstant.FILE_EXPORT_ING);
         }
     }
 

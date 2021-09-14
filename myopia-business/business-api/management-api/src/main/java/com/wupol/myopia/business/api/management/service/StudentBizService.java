@@ -313,6 +313,21 @@ public class StudentBizService {
     }
 
     /**
+     * 通过筛查学生Id获取学生档案卡
+     *
+     * @param planStudentId 筛查学生
+     * @return 学生档案卡实体类
+     */
+    public List<StudentCardResponseVO> getCardDetailByPlanStudentId(Integer planStudentId) {
+        VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudentId);
+        if (Objects.isNull(result)) {
+            return new ArrayList<>();
+        }
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
+        return Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult));
+    }
+
+    /**
      * 获取学生档案卡
      *
      * @param resultId 筛查结果

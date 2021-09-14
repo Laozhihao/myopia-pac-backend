@@ -2,6 +2,8 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -61,6 +63,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private ExcelFacade excelFacade;
     @Autowired
     private StudentBizService studentBizService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 获取档案卡列表
@@ -114,6 +118,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public Object getScreeningNoticeExportData(Integer screeningNoticeId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
                                                @RequestParam(defaultValue = "0") Integer districtId, @RequestParam(defaultValue = "0") Integer schoolId,
                                                @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         // 参数校验
         validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId, planId);
         List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
@@ -121,7 +126,6 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         String exportFileNamePrefix = "";
         boolean isSchoolExport = false;
 
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         // 是否单点机构
         if (currentUser.isScreeningUser() && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getOrgId()).getConfigType())) {
             exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getOrgId()), "筛查机构");
@@ -149,9 +153,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         if (CollectionUtils.isEmpty(statConclusionExportVos)) {
             throw new BusinessException("暂无筛查数据，无法导出");
         }
+        // 重复导出
+        String key = String.format(RedisConstant.FILE_EXPORT_NOTICE_DATA, screeningNoticeId, screeningOrgId, districtId, schoolId, planId, currentUser.getId());
+        checkIsExport(key);
+
         statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
         // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix);
+        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix, key);
         return ApiResult.success();
     }
 
@@ -163,7 +171,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @return
      */
     @GetMapping("/plan/export")
-    public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId, @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+    public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
+                                             @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         // 参数校验
         validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
         List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
@@ -183,9 +193,23 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("暂无筛查数据，无法导出");
         }
         statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId,currentUser.getId());
+        checkIsExport(key);
         // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(CurrentUserUtil.getCurrentUser().getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix);
+        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
         return ApiResult.success();
+    }
+
+    /**
+     * 是否正在导出
+     * @param key Key
+     */
+    private void checkIsExport(String key) {
+        Object o = redisUtil.get(key);
+        if (Objects.nonNull(o)) {
+            throw new BusinessException("正在导出中，请勿重复导出");
+        }
+        redisUtil.set(key, 1, 60 * 60 * 24);
     }
 
     /**
@@ -239,5 +263,10 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException(String.format("未找到该%s", desc));
         }
         return object.getName();
+    }
+
+    @GetMapping("/screening/planStudent/card/{planStudentId}")
+    public List<StudentCardResponseVO> getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
+        return studentBizService.getCardDetailByPlanStudentId(planStudentId);
     }
 }

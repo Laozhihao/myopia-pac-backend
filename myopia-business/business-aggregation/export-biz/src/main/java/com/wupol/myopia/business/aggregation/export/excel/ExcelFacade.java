@@ -6,6 +6,7 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
 import com.alibaba.fastjson.JSONPath;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -93,6 +94,8 @@ public class ExcelFacade {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ExcelStudentService excelStudentService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 导入学生
@@ -392,11 +395,13 @@ public class ExcelFacade {
      * @param statConclusionExportDTOs
      * @param isSchoolExport           是否学校维度导出
      * @param districtOrSchoolName
+     * @param redisKey
      * @throws IOException
      * @throws UtilException
      */
     @Async
-    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs, boolean isSchoolExport, String districtOrSchoolName) throws IOException, UtilException {
+    public void generateVisionScreeningResult(Integer userId, List<StatConclusionExportDTO> statConclusionExportDTOs,
+                                              boolean isSchoolExport, String districtOrSchoolName, String redisKey) throws IOException, UtilException {
         // 设置导出的文件名
         String fileName = String.format("%s-筛查数据", districtOrSchoolName);
         String content = String.format(CommonConst.EXPORT_MESSAGE_CONTENT_SUCCESS, districtOrSchoolName + "筛查数据", new Date());
@@ -415,12 +420,14 @@ public class ExcelFacade {
                 try {
                     ExcelUtil.exportListToExcelWithFolder(folder, excelFileName, visionScreeningResultExportVos, mergeStrategy, VisionScreeningResultExportDTO.class);
                 } catch (Exception e) {
+                    redisUtil.del(redisKey);
                     log.error(e);
                 }
             });
             File zipFile = ExcelUtil.zip(folder, fileName);
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(zipFile), CommonConst.NOTICE_STATION_LETTER);
         }
+        redisUtil.del(redisKey);
     }
 
     /**
