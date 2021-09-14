@@ -17,7 +17,6 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -53,8 +52,6 @@ public class GeneratePdfFileService {
     private SchoolService schoolService;
     @Autowired
     private StatConclusionService statConclusionService;
-    @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
     private DistrictService districtService;
     @Autowired
