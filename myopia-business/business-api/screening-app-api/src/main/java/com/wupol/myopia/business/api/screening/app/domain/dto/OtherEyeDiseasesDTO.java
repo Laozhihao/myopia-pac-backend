@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.screening.app.domain.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Description 其他眼病  左右眼起码要有一只眼有疾病
@@ -40,16 +38,6 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;
-
-    /**
-     * 盲及视力损害分类（等级）：0~9 级
-     */
-    private Integer leftVisualLossLevel;
-
-    /**
-     * 盲及视力损害分类（等级）：0~9 级
-     */
-    private Integer rightVisualLossLevel;
 
     /**
      * 获取右边疾病list
@@ -86,12 +74,7 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         OtherEyeDiseasesDO.OtherEyeDiseases rightOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getRightDiseaseStrList()).setLateriality(CommonConst.RIGHT_EYE);
         OtherEyeDiseasesDO.OtherEyeDiseases leftOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getLeftDiseaseStrList()).setLateriality(CommonConst.LEFT_EYE);
         OtherEyeDiseasesDO otherEyeDiseasesDO = new OtherEyeDiseasesDO().setRightEyeData(rightOtherEyeDiseases).setLeftEyeData(leftOtherEyeDiseases);
-        // 损失等级
-        if (Objects.nonNull(leftVisualLossLevel) || Objects.nonNull(rightVisualLossLevel)) {
-            VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(leftVisualLossLevel);
-            VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(rightVisualLossLevel);
-            visionScreeningResult.setVisualLossLevelData(new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData));
-        }
+        // 全身疾病在眼部的表现
         return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
     }
 
