@@ -103,6 +103,7 @@ white-list:
   - "/management/stat/getDistrictReport"
   - "/management/stat/getSchoolReport"
   - "/management/stat/getAllSchoolReport"
+  - "/management/screeningResult/screening/planStudent/card/**"
   # 档案卡报告接口（内网访问）
   - "/management/screeningResult/list-result"
   # 健康检查接口

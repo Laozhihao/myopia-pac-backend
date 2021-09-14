@@ -264,4 +264,9 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         }
         return object.getName();
     }
+
+    @GetMapping("/screening/planStudent/card/{planStudentId}")
+    public StudentCardResponseVO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
+        return studentBizService.getCardDetailByPlanStudentId(planStudentId);
+    }
 }
