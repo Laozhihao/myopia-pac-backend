@@ -120,5 +120,6 @@
         <include refid="Base_Column_List"/>
         from m_vision_screening_result
         where screening_plan_school_student_id = #{planStudentId}
+          and is_double_screen = 0
     </select>
 </mapper>

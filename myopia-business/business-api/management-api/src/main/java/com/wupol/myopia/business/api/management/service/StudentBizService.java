@@ -318,13 +318,13 @@ public class StudentBizService {
      * @param planStudentId 筛查学生
      * @return 学生档案卡实体类
      */
-    public StudentCardResponseVO getCardDetailByPlanStudentId(Integer planStudentId) {
+    public List<StudentCardResponseVO> getCardDetailByPlanStudentId(Integer planStudentId) {
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudentId);
         if (Objects.isNull(result)) {
-            return new StudentCardResponseVO();
+            return new ArrayList<>();
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
-        return getStudentCardResponseDTO(visionScreeningResult);
+        return Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult));
     }
 
     /**
