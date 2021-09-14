@@ -26,6 +26,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultS
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -465,7 +467,7 @@ public class ScreeningAppController {
      * 获取单个学生的筛查进度信息
      *
      * @param planStudentId 筛查计划学生ID
-     * @return com.wupol.myopia.business.api.screening.app.domain.vo.StudentScreeningProgressVO
+     * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
     @GetMapping("/student/progress/{planStudentId}")
     public StudentScreeningProgressVO getStudentScreeningProgress(@PathVariable Integer planStudentId) {
