@@ -62,6 +62,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
         VisionDataDO.VisionData rightVisionData = new VisionDataDO.VisionData().setNakedVision(rightNakedVision).setCorrectedVision(rightCorrectedVision).setGlassesType(WearingGlassesSituation.getKey(glassesType)).setLateriality(CommonConst.RIGHT_EYE);
         VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(isCooperative);
         visionDataDO.setDiagnosis(diagnosis);
+        visionDataDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setVisionData(visionDataDO);
     }
 

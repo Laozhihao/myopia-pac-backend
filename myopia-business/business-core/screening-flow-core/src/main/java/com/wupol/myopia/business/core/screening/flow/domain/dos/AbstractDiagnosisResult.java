@@ -17,6 +17,10 @@ public abstract class AbstractDiagnosisResult {
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
     private Integer diagnosis;
+    /**
+     * 创建用户id
+     */
+    private Integer createUserId;
 
     /**
      * 诊断结果是否为正常

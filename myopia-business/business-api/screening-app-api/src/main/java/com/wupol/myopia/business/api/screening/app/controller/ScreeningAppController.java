@@ -288,7 +288,7 @@ public class ScreeningAppController {
     }
 
     /**
-     * 保存眼位、裂隙灯、眼底检查数据
+     * 保存眼位、裂隙灯、眼底、盲及视力损害等级检查数据
      *
      * @return
      */

@@ -74,6 +74,7 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
         PupilOptometryDataDO.PupilOptometryData rightPupilOptometryData = new PupilOptometryDataDO.PupilOptometryData().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setCorrectedVision(rightCorrectedVision).setLateriality(CommonConst.RIGHT_EYE);
         PupilOptometryDataDO pupilOptometryDataDO = new PupilOptometryDataDO().setLeftEyeData(leftPupilOptometryData).setRightEyeData(rightPupilOptometryData).setIsCooperative(isCooperative);
         pupilOptometryDataDO.setDiagnosis(diagnosis);
+        pupilOptometryDataDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setPupilOptometryData(pupilOptometryDataDO);
     }
 
