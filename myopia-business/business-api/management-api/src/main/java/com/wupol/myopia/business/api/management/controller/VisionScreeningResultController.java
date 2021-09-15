@@ -79,7 +79,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     public List<StudentCardResponseVO> listStudentScreeningResult(@RequestParam Integer schoolId,
                                                                   @RequestParam Integer planId, @RequestParam Integer resultId,
                                                                   @RequestParam Integer gradeId, @RequestParam Integer classId,
-                                                                  Set<Integer> planStudentIds) {
+                                                                  @RequestParam(value="planStudentIds", required = false) Set<Integer> planStudentIds) {
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
