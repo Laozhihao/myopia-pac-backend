@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.device.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -17,6 +18,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
  * @Date 2021-07-15 15:01:19
  */
 @Service
+@Log4j2
 public class DeviceUploadDataService {
     /**
      * 设备上传的默认用户id
@@ -152,7 +155,8 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            throw new BusinessException("无法找到设备");
+            log.warn("无法找到设备,设备信息:{}", JSONObject.toJSONString(deviceUploadDto));
+            return;
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();

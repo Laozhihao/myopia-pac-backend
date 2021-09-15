@@ -32,22 +32,13 @@ public class ExportScheduleExecutor {
     @Scheduled(cron = "0/5 * * * * ?")
     public void export() throws IOException {
 
-        // 判断是否有任务进行中
-        if (Objects.nonNull(redisUtil.get(RedisConstant.FILE_EXPORT_ING))) {
-            log.warn("有任务进行中，稍后重试");
-            return;
-        }
-
         // 从队列中获取一个任务
         QueueInfo queueInfo = (QueueInfo) redisUtil.lGet(RedisConstant.FILE_EXPORT_LIST);
         if (Objects.isNull(queueInfo)) {
             return;
         }
 
-        // 设置有任务进行中
-        redisUtil.set(RedisConstant.FILE_EXPORT_ING, queueInfo, 60 * 60 * 24);
-        ExportFileService exportFileService = exportStrategy.getExportFileService(queueInfo.getServiceName());
-        ExportCondition exportCondition = queueInfo.getExportCondition();
-        exportFileService.export(exportCondition);
+        // 导出文件
+        exportStrategy.exportFile(queueInfo);
     }
 }

@@ -154,7 +154,10 @@ public class ScreeningOrganizationController {
     @GetMapping("/export")
     public void getOrganizationExportData(Integer districtId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setDistrictId(districtId), ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
+        exportStrategy.doExport(new ExportCondition()
+                .setApplyExportFileUserId(user.getId())
+                .setDistrictId(districtId),
+                ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
 
     /**

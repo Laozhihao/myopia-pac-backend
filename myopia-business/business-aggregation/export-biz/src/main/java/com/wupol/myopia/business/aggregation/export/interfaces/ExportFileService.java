@@ -73,4 +73,27 @@ public interface ExportFileService {
      * @return java.lang.String
      **/
     String getFileName(ExportCondition exportCondition);
+
+    /**
+     * 获取Key名字
+     *
+     * @param exportCondition 导出条件
+     * @return Key
+     */
+    String getRedisKey(ExportCondition exportCondition);
+
+    /**
+     * 上锁
+     *
+     * @param key key
+     * @return 是否成功
+     */
+    Boolean tryLock(String key);
+
+    /**
+     * 解锁
+     *
+     * @param key key
+     */
+    void unlock(String key);
 }

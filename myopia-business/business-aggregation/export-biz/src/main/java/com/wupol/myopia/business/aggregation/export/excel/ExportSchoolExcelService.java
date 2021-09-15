@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -151,5 +152,12 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
                 }
             }
         });
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_SCHOOL,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getDistrictId());
     }
 }

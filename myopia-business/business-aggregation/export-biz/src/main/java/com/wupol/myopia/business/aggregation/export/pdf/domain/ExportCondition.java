@@ -40,12 +40,10 @@ public class ExportCondition {
      * 年级ID
      **/
     private Integer gradeId;
-
     /**
      * 班级Id
      */
     private Integer classId;
-
     /**
      * 筛查学生Ids
      */

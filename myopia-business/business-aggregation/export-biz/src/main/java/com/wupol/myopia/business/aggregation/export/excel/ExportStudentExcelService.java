@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -167,5 +168,13 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         // 不需要校验
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_STUDENT,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getSchoolId(),
+                exportCondition.getGradeId());
     }
 }
