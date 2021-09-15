@@ -15,7 +15,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
-public class VisualLossLevelDataDO implements Serializable {
+public class VisualLossLevelDataDO extends AbstractDiagnosisResult implements Serializable {
     /**
      * 右眼数据
      */

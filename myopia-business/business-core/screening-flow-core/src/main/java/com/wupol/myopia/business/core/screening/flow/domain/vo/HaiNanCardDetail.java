@@ -120,4 +120,9 @@ public class HaiNanCardDetail {
      */
     private List<String> squint;
 
+    /**
+     * 签名图片访问地址
+     */
+    private String signPicUrl;
+
 }

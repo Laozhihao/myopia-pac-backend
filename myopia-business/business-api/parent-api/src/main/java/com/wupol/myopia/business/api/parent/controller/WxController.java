@@ -65,6 +65,9 @@ public class WxController {
 
     /**
      * 家长端入口，访问微信api获取授权code
+     * state取值范围
+     *      1(默认值)-公众号入口进来，会跳到“报告查看”页面
+     *      2-扫码进来，会跳到“我的孩子”页面
      **/
     @GetMapping("/index")
     public String getCode(String state) {
