@@ -895,14 +895,24 @@ public class StudentBizService {
         List<String> otherEyeDiseasesList = getOtherEyeDiseasesList(visionScreeningResult);
         // 设置屈光不正信息
         boolean isRefractiveError = setRefractiveErrorInfo(cardDetail, visionScreeningResult, age);
-        // 其他眼病
-        cardDetail.setOtherEyeDiseases(otherEyeDiseasesList);
+        // 其他眼病,过滤掉五种特殊情况
+        cardDetail.setOtherEyeDiseases(ListUtils.subtract(otherEyeDiseasesList, eyeDiseases()));
+        cardDetail.setEyeDiseases(ListUtils.retainAll(eyeDiseases(), otherEyeDiseasesList));
         cardDetail.setIsRefractiveError(isRefractiveError);
         // 眼斜
         cardDetail.setSquint(getSquintList(otherEyeDiseasesList));
         cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
         cardDetail.setSignPicUrl(getSignPicUrl(visionScreeningResult));
         return cardDetail;
+    }
+
+    /**
+     * 五种特殊眼病
+     *
+     * @return List<String>
+     */
+    private List<String> eyeDiseases() {
+        return Lists.newArrayList("眼球震颤", "弱视待排查", "高眼压", "青光眼待排", "大视杯");
     }
 
     /**
