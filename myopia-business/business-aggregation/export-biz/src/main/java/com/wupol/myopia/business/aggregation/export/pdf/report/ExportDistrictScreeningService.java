@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
@@ -50,5 +51,13 @@ public class ExportDistrictScreeningService extends BaseExportPdfFileService {
         District district = districtService.getById(exportCondition.getDistrictId());
         String districtFullName = districtService.getTopDistrictName(district.getCode());
         return String.format(PDFFileNameConstant.REPORT_PDF_FILE_NAME, districtFullName);
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_PDF_DISTRICT_SCREENING,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getNotificationId(),
+                exportCondition.getDistrictId());
     }
 }

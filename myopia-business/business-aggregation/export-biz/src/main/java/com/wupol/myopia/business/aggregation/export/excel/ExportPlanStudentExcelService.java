@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.excel.write.merge.OnceAbsoluteMergeStrategy;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
@@ -127,5 +128,14 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             }
         }
         return ZipUtil.zip(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(StringUtils.substringBeforeLast(filepath, "/"), "/"), "/"));
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_PLAN_STUDENT,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getSchoolId(),
+                exportCondition.getPlanId(),
+                exportCondition.getGradeId());
     }
 }

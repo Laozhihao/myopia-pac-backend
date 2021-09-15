@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
@@ -63,5 +64,14 @@ public class ExportSchoolScreeningService extends BaseExportPdfFileService {
         if (total == 0) {
             throw new BusinessException("暂无筛查数据，无法导出筛查报告");
         }
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_PDF_SCHOOL_SCREENING,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getSchoolId(),
+                exportCondition.getNotificationId(),
+                exportCondition.getPlanId());
     }
 }

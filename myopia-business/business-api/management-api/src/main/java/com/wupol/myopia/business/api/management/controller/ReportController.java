@@ -39,7 +39,10 @@ public class ReportController {
      **/
     @GetMapping("/district/export")
     public void exportDistrictReport(@NotNull(message = "筛查通知ID不能为空") Integer notificationId, @NotNull(message = "行政区域ID不能为空") Integer districtId) throws IOException {
-        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setDistrictId(districtId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        ExportCondition exportCondition = new ExportCondition()
+                .setNotificationId(notificationId)
+                .setDistrictId(districtId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
 
@@ -56,7 +59,11 @@ public class ReportController {
         if (Objects.isNull(notificationId) && Objects.isNull(planId)) {
             throw new BusinessException("筛查通知ID或者筛查计划ID不能为空");
         }
-        ExportCondition exportCondition = new ExportCondition().setNotificationId(notificationId).setPlanId(planId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        ExportCondition exportCondition = new ExportCondition()
+                .setNotificationId(notificationId)
+                .setPlanId(planId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
     }
 
@@ -69,7 +76,10 @@ public class ReportController {
      **/
     @GetMapping("/screeningOrg/export")
     public void exportScreeningOrgReport(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId) throws IOException {
-        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setScreeningOrgId(screeningOrgId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId)
+                .setScreeningOrgId(screeningOrgId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_SCREENING_REPORT_SERVICE);
     }
 
@@ -82,7 +92,10 @@ public class ReportController {
      **/
     @GetMapping("/school/archives")
     public void exportSchoolArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "学校ID不能为空") Integer schoolId) throws IOException {
-        ExportCondition exportCondition = new ExportCondition().setPlanId(planId).setSchoolId(schoolId).setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(planId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_ARCHIVES_SERVICE);
     }
 

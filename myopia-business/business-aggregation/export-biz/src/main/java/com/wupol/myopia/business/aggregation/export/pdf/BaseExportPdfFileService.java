@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -77,7 +78,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
         } finally {
             // 8.删除临时文件
             deleteTempFile(parentPath);
-            redisUtil.del(RedisConstant.FILE_EXPORT_ING);
+            // 9.释放锁
+            unlock(getRedisKey(exportCondition));
         }
     }
 
@@ -181,5 +183,38 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
      **/
     public String getFileSavePath(String parentPath, String fileName) {
         return Paths.get(parentPath, fileName).toString();
+    }
+
+
+    /**
+     * 获取Key
+     *
+     * @param exportCondition 导出条件
+     * @return key
+     */
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return null;
+    }
+
+    /**
+     * 上锁
+     *
+     * @param key key
+     * @return 是否成功
+     */
+    @Override
+    public Boolean tryLock(String key) {
+        return redisUtil.tryLock(key, "1", 60 * 20L);
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param key key
+     */
+    @Override
+    public void unlock(String key) {
+        Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
     }
 }

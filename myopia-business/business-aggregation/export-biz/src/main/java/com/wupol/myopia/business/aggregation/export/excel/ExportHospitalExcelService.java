@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -92,5 +93,12 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
         District district = districtService.checkAndGetDistrict(exportCondition.getDistrictId());
         // 设置文件名
         return ExcelFileNameConstant.HOSPITAL_NAME + district.getName();
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_HOSPITAL,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getDistrictId());
     }
 }

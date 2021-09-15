@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
@@ -59,6 +60,17 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
         if (total == 0) {
             throw new BusinessException("该计划下暂无筛查学生数据，无法导出档案卡");
         }
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_PDF_ARCHIVES_ORG,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getPlanId(),
+                exportCondition.getSchoolId(),
+                exportCondition.getClassId(),
+                exportCondition.getGradeId(),
+                exportCondition.getPlanStudentIds());
     }
 
 }

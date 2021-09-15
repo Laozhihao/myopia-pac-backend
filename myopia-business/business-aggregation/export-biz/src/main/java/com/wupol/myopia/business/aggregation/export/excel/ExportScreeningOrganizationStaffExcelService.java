@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -90,5 +91,12 @@ public class ExportScreeningOrganizationStaffExcelService extends BaseExportExce
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         // 不需要校验
+    }
+
+    @Override
+    public String getRedisKey(ExportCondition exportCondition) {
+        return String.format(RedisConstant.FILE_EXPORT_EXCEL_ORG_STAFF,
+                exportCondition.getApplyExportFileUserId(),
+                exportCondition.getScreeningOrgId());
     }
 }
