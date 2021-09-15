@@ -52,10 +52,10 @@ public class ScreeningCodeGenerator implements CommandLineRunner {
      * @return java.util.List<java.lang.Long>
      **/
     public static List<Long> getIdBatch(long amount) {
-        long currentValue = generator.addAndGet(amount);
+        long currentValue = generator.getAndAdd(amount);
         List<Long> ids = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
-            ids.add(currentValue - i);
+            ids.add(currentValue + i + 1);
         }
         return ids;
     }

@@ -17,6 +17,7 @@ import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GlassesType;
@@ -37,15 +38,19 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
 import com.wupol.myopia.business.core.system.constants.TemplateConstants;
 import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -88,6 +93,12 @@ public class StudentBizService {
 
     @Resource
     private TemplateDistrictService templateDistrictService;
+
+    @Autowired
+    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
+
+    @Autowired
+    private ResourceFileService resourceFileService;
 
     /**
      * 获取学生列表
@@ -889,8 +900,44 @@ public class StudentBizService {
         cardDetail.setIsRefractiveError(isRefractiveError);
         // 眼斜
         cardDetail.setSquint(getSquintList(otherEyeDiseasesList));
-        cardDetail.setIsNormal(Objects.nonNull(isRefractiveError) && !isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
+        cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
+        cardDetail.setSignPicUrl(getSignPicUrl(visionScreeningResult));
         return cardDetail;
+    }
+
+    /**
+     * 获取签名访问地址
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return java.lang.String
+     **/
+    private String getSignPicUrl(VisionScreeningResult visionScreeningResult) {
+        if (Objects.isNull(visionScreeningResult)) {
+            return null;
+        }
+        // 优先取眼位的医生签名
+        OcularInspectionDataDO ocularInspectionData = visionScreeningResult.getOcularInspectionData();
+        if (Objects.nonNull(ocularInspectionData) && Objects.nonNull(ocularInspectionData.getCreateUserId())) {
+            return getSignPicUrl(ocularInspectionData.getCreateUserId());
+        }
+        // 取裂隙灯医生的签名
+        SlitLampDataDO slitLampDataDO = visionScreeningResult.getSlitLampData();
+        if (Objects.nonNull(slitLampDataDO) && Objects.nonNull(slitLampDataDO.getCreateUserId())) {
+            return getSignPicUrl(slitLampDataDO.getCreateUserId());
+        }
+        return null;
+    }
+
+    /**
+     * 获取签名访问地址
+     *
+     * @param screeningOrgStaffUserId 筛查人员的用户ID
+     * @return java.lang.String
+     **/
+    private String getSignPicUrl(Integer screeningOrgStaffUserId){
+        Assert.notNull(screeningOrgStaffUserId, "筛查人员的用户ID为空");
+        ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(screeningOrgStaffUserId));
+        return resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
     }
 
     /**

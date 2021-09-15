@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -395,6 +396,17 @@ public class ScreeningPlanController {
     public IPage<ScreeningStudentDTO> queryStudentInfos(PageRequest page, ScreeningStudentQueryDTO query) {
         validateExistWithReleaseStatusAndReturn(query.getScreeningPlanId(), null);
         return screeningPlanSchoolStudentBizService.getPage(query, page);
+    }
+
+    /**
+     * 查询筛查学生信息
+     *
+     * @param requestDTO 查询参数
+     * @return IPage<StudentDTO>
+     */
+    @GetMapping("students/list")
+    public List<ScreeningPlanSchoolStudent> queryPlanStudentList(PlanStudentRequestDTO requestDTO) {
+        return screeningPlanSchoolStudentBizService.getListByRequest(requestDTO);
     }
 
     /**

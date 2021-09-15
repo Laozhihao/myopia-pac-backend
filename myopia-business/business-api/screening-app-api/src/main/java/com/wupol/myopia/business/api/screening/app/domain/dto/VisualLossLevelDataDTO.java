@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 盲及视力损害分类（等级）
+ * 盲及视力损害等级
  *
  * @Author HaoHao
  * @Date 2021/9/13

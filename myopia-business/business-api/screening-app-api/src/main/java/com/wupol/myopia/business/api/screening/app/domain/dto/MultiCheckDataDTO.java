@@ -15,7 +15,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.Objects;
 
 /**
- * 复合检查数据（眼位、裂隙灯、眼底）
+ * 复合检查数据（眼位、裂隙灯、眼底、盲及视力损害等级）
  *
  * @Author HaoHao
  * @Date 2021/7/27
@@ -54,6 +54,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
                     .setVerticalStrabismus(ocularInspectionData.getVerticalStrabismus())
                     .setIsCooperative(isCooperative);
             ocularInspectionDataDO.setDiagnosis(ocularInspectionData.getDiagnosis());
+            ocularInspectionDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setOcularInspectionData(ocularInspectionDataDO);
         }
         // 裂隙灯
@@ -63,6 +64,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
             SlitLampDataDO.SlitLampData rightSlitLampData = new SlitLampDataDO.SlitLampData().setLateriality(CommonConst.RIGHT_EYE).setPathologicalTissues(slitLampData.getRightPathologicalTissueList());
             rightSlitLampData.setDiagnosis(slitLampData.getRightDiagnosis());
             SlitLampDataDO slitLampDataDO = new SlitLampDataDO().setRightEyeData(rightSlitLampData).setLeftEyeData(leftSlitLampData).setIsCooperative(isCooperative);
+            slitLampDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setSlitLampData(slitLampDataDO);
         }
         // 眼底
@@ -70,13 +72,16 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
             FundusDataDO.FundusData leftFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.LEFT_EYE).setHasAbnormal(fundusData.getLeftHasAbnormal());
             FundusDataDO.FundusData rightFundusData = new FundusDataDO.FundusData().setLateriality(CommonConst.RIGHT_EYE).setHasAbnormal(fundusData.getRightHasAbnormal());
             FundusDataDO fundusDataDO = new FundusDataDO().setLeftEyeData(leftFundusData).setRightEyeData(rightFundusData).setIsCooperative(isCooperative).setRemark(fundusData.getRemark());
+            fundusDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setFundusData(fundusDataDO);
         }
         // 盲及视力损害分类
         if (Objects.nonNull(visualLossLevelData)) {
             VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(visualLossLevelData.getLeftVisualLossLevel());
             VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(visualLossLevelData.getRightVisualLossLevel());
-            visionScreeningResult.setVisualLossLevelData(new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData));
+            VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData);
+            visualLossLevelDataDO.setCreateUserId(getCreateUserId());
+            visionScreeningResult.setVisualLossLevelData(visualLossLevelDataDO);
         }
         return visionScreeningResult;
     }
