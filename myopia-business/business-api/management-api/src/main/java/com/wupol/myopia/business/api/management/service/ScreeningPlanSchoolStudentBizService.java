@@ -8,6 +8,7 @@ import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -225,5 +226,20 @@ public class ScreeningPlanSchoolStudentBizService {
             mockPlanStudentList.add(planSchoolStudent);
         }
         screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);
+    }
+
+    /**
+     * 获取筛查学生列表
+     *
+     * @param requestDTO 请求入参
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getListByRequest(PlanStudentRequestDTO requestDTO) {
+        return screeningPlanSchoolStudentService.getByEntity(new ScreeningPlanSchoolStudent()
+                .setScreeningPlanId(requestDTO.getScreeningPlanId())
+                .setScreeningOrgId(requestDTO.getScreeningOrgId())
+                .setSchoolId(requestDTO.getSchoolId())
+                .setGradeId(requestDTO.getGradeId())
+                .setClassId(requestDTO.getClassId()));
     }
 }
