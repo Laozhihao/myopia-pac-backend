@@ -43,25 +43,58 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_PLAN_DATA = "file:export:plan:%s-%s-%s-%s";
 
+    /**
+     * 导出Excel-医院
+     */
     String FILE_EXPORT_EXCEL_HOSPITAL = "file:export:excel:hospital:%s-%s";
 
+    /**
+     * 导出Excel-学生
+     */
     String FILE_EXPORT_EXCEL_PLAN_STUDENT = "file:export:excel:plan:student:%s-%s-%s-%s";
 
+    /**
+     * 导出Excel-学校
+     */
     String FILE_EXPORT_EXCEL_SCHOOL = "file:export:excel:school:%s-%s";
 
+    /**
+     * 导出Excel-筛查机构
+     */
     String FILE_EXPORT_EXCEL_ORG = "file:export:excel:org:%s-%s";
 
+    /**
+     * 导出Excel-筛查人员
+     */
     String FILE_EXPORT_EXCEL_ORG_STAFF = "file:export:excel:org:staff:%s-%s";
 
+    /**
+     * 导出Excel-学生
+     */
     String FILE_EXPORT_EXCEL_STUDENT = "file:export:excel:org:staff:%s-%s-%s";
 
+    /**
+     * 导出PDF-区域-筛查机构
+     */
     String FILE_EXPORT_PDF_DISTRICT_SCREENING = "file:export:pdf:district:screening:%s-%s-%s";
 
+    /**
+     * 导出PDF-学校-筛查机构
+     */
     String FILE_EXPORT_PDF_SCHOOL_SCREENING = "file:export:pdf:school:screening:%s-%s-%s-%s";
 
+    /**
+     * 导出PDF-筛查机构
+     */
     String FILE_EXPORT_PDF_ORG_SCREENING = "file:export:pdf:org:screening:%s-%s-%s";
 
+    /**
+     * 导出PDF-学校筛查
+     */
     String FILE_EXPORT_PDF_ARCHIVES_SCHOOL = "file:export:pdf:archives:school:%s-%s-%s";
 
+    /**
+     * 导出PDF-机构筛查
+     */
     String FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:org:%s-%s-%s-%s-%s-%s";
 }
