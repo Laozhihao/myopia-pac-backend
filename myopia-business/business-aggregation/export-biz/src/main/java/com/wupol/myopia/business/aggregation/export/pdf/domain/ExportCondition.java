@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -49,5 +49,5 @@ public class ExportCondition {
     /**
      * 筛查学生Ids
      */
-    private List<Integer> planStudentIds;
+    private String planStudentIds;
 }

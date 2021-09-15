@@ -9,10 +9,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -99,13 +96,14 @@ public class ReportController {
     @GetMapping("/screeningOrg/archives")
     public void exportScreeningOrgArchives(@NotNull(message = "筛查计划ID不能为空") Integer planId, @NotNull(message = "筛查机构ID不能为空") Integer screeningOrgId,
                                            @NotNull(message = "筛查机构ID不能为空") Integer schoolId, @NotNull(message = "筛查机构ID不能为空") Integer classId,
-                                           @NotNull(message = "筛查机构ID不能为空") Integer gradeId) throws IOException {
+                                           @NotNull(message = "筛查机构ID不能为空") Integer gradeId, @RequestParam(value="planStudentIds", required = false) String planStudentIds) throws IOException {
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(planId).setScreeningOrgId(screeningOrgId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
                 .setSchoolId(schoolId)
                 .setClassId(classId)
-                .setGradeId(gradeId);
+                .setGradeId(gradeId)
+                .setPlanStudentIds(planStudentIds);
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
