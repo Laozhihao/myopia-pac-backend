@@ -549,20 +549,22 @@ public class RedisUtil {
     }
 
     /**
+     * 尝试获取锁
      *
-     * @param key
-     * @param obj
-     * @param expireTime
-     * @return
+     * @param key        key
+     * @param obj        对象
+     * @param expireTime 过期时间
+     * @return Boolean
      */
     public Boolean tryLock(String key, Object obj, Long expireTime) {
         return redisTemplate.opsForValue().setIfAbsent(key, obj, expireTime, TimeUnit.SECONDS);
     }
 
     /**
+     * 解锁
      *
-     * @param key
-     * @return
+     * @param key Key
+     * @return Boolean
      */
     public Boolean unlock(String key) {
         return redisTemplate.opsForValue().getOperations().delete(key);
