@@ -355,4 +355,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO);
     }
+
+    /**
+     * 获取筛查学生列表
+     *
+     * @param screeningPlanId 计划Id
+     * @param schoolId        学校Id
+     * @param gradeId         年级Id
+     * @param classId         班级Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,
+                                                                                       Integer gradeId, Integer classId) {
+        return baseMapper.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
+    }
 }

@@ -900,7 +900,7 @@ public class StudentBizService {
         cardDetail.setIsRefractiveError(isRefractiveError);
         // 眼斜
         cardDetail.setSquint(getSquintList(otherEyeDiseasesList));
-        cardDetail.setIsNormal(Objects.nonNull(isRefractiveError) && !isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
+        cardDetail.setIsNormal(!isRefractiveError && CollectionUtils.isEmpty(otherEyeDiseasesList));
         cardDetail.setSignPicUrl(getSignPicUrl(visionScreeningResult));
         return cardDetail;
     }
