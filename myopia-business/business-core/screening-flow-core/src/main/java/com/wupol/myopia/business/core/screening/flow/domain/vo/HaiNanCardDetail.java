@@ -125,4 +125,9 @@ public class HaiNanCardDetail {
      */
     private String signPicUrl;
 
+    /**
+     * 五种特殊眼病
+     */
+    private List<String> eyeDiseases;
+
 }
