@@ -146,12 +146,12 @@ public class ScreeningAppController {
         } else {
             School school = schoolService.findOne(new School().setName(schoolName));
             List<SchoolGrade> gradeList = schoolGradeService.findByList(new SchoolGrade().setName(gradeName).setSchoolId(school.getId()));
-            if (CollectionUtils.isNotEmpty(gradeList)) {
+            if (CollectionUtils.isEmpty(gradeList)) {
                 return Collections.emptySet();
             }
             List<Integer> gradeIds = gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList());
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentBySchoolIdAndGradeIds(school.getId(), gradeIds, deptId);
-            if (CollectionUtils.isNotEmpty(screeningPlanSchoolStudents)) {
+            if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
                 return Collections.emptySet();
             }
             List<Integer> classIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
@@ -522,6 +522,23 @@ public class ScreeningAppController {
             return new VisionDataDTO();
         }
         return VisionDataDTO.getInstance(screeningResult.getVisionData());
+    }
+
+    /**
+     * 获取生物测量检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getBiologyData/{planStudentId}")
+    public BiometricDataDTO getBiologyData(@PathVariable Integer planStudentId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
+        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        if (Objects.isNull(screeningResult)) {
+            return new BiometricDataDTO();
+        }
+        return BiometricDataDTO.getInstance(screeningResult.getBiometricData());
     }
 
     /**

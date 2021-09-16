@@ -8,6 +8,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 /**
  * @Description
  * @Date 2021/1/26 1:08
@@ -155,5 +157,44 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     public boolean isValid() {
         return !StringUtils.isAllBlank(lWTW, lAD, lAL, lCCT, lLT, lk1, lk1Axis, lk2, lk2Axis, last, lpd, lvt,
                 rWTW, rAD, rAL, rCCT, rLT, rk1, rk1Axis, rk2, rk2Axis, rast, rpd, rvt);
+    }
+
+    public static BiometricDataDTO getInstance(BiometricDataDO biometricDataDO) {
+        BiometricDataDTO biometricDataDTO = new BiometricDataDTO();
+        if (Objects.isNull(biometricDataDO)) {
+            return biometricDataDTO;
+        }
+        BiometricDataDO.BiometricData leftEye = biometricDataDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            biometricDataDTO.setLAD(leftEye.getAd());
+            biometricDataDTO.setLAL(leftEye.getAl());
+            biometricDataDTO.setLast(leftEye.getAst());
+            biometricDataDTO.setLCCT(leftEye.getCct());
+            biometricDataDTO.setLk1(leftEye.getK1());
+            biometricDataDTO.setLk2(leftEye.getK2());
+            biometricDataDTO.setLk1Axis(leftEye.getK1Axis());
+            biometricDataDTO.setLk2Axis(leftEye.getK2Axis());
+            biometricDataDTO.setLLT(leftEye.getLt());
+            biometricDataDTO.setLvt(leftEye.getVt());
+            biometricDataDTO.setLpd(leftEye.getPd());
+            biometricDataDTO.setLWTW(leftEye.getWtw());
+        }
+        BiometricDataDO.BiometricData rightEye = biometricDataDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            biometricDataDTO.setRAD(rightEye.getAd());
+            biometricDataDTO.setRAL(rightEye.getAl());
+            biometricDataDTO.setRast(rightEye.getAst());
+            biometricDataDTO.setRCCT(rightEye.getCct());
+            biometricDataDTO.setRk1(rightEye.getK1());
+            biometricDataDTO.setRk2(rightEye.getK2());
+            biometricDataDTO.setRk1Axis(rightEye.getK1Axis());
+            biometricDataDTO.setRk2Axis(rightEye.getK2Axis());
+            biometricDataDTO.setRLT(rightEye.getLt());
+            biometricDataDTO.setRvt(rightEye.getVt());
+            biometricDataDTO.setRpd(rightEye.getPd());
+            biometricDataDTO.setRWTW(rightEye.getWtw());
+        }
+        biometricDataDTO.setIsCooperative(biometricDataDO.getIsCooperative());
+        return biometricDataDTO;
     }
 }
