@@ -5,6 +5,8 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
@@ -88,6 +90,8 @@ public class ScreeningAppController {
     private ScreeningPlanBizService screeningPlanBizService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanStudentBizService screeningPlanStudentBizService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -96,7 +100,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public List<School> getSchoolNameByNameLike(@RequestParam String schoolName) {
+    public List<School> getSchoolNameByNameLike(String schoolName) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
     }
@@ -109,7 +113,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public List<SchoolGrade> getGradeNameBySchoolName(@RequestParam Integer schoolId, @RequestParam Integer deptId, boolean all) {
+    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, @NotNull(message = "deptId") Integer deptId, boolean all) {
         if (all) {
             //查找全部的年级
             return schoolGradeService.getBySchoolId(schoolId);
@@ -130,7 +134,7 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(Integer gradeId, Integer deptId, boolean all) {
+    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, @NotNull(message = "deptId不能为空") Integer deptId, boolean all) {
         if (all) {
             return schoolClassService.getByGradeId(gradeId);
         }
@@ -542,6 +546,17 @@ public class ScreeningAppController {
             return new ScreeningPlanSchoolStudent();
         }
         return screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId()) ;
+    }
+
+    /**
+     * 更新筛查学生信息
+     *
+     * @param requestDTO 更新信息
+     * @return void
+     **/
+    @PostMapping("/update/planStudent")
+    public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
+        screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
 }

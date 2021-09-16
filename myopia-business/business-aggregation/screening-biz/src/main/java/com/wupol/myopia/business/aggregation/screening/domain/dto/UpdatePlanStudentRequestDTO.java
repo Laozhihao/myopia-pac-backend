@@ -1,17 +1,16 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.aggregation.screening.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 更新筛查学生学生
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class UpdatePlanStudentRequestDTO {
 
     private String name;
@@ -29,4 +28,11 @@ public class UpdatePlanStudentRequestDTO {
     private Integer planStudentId;
 
     private Integer studentId;
+
+    public Date getBirthday() {
+        if (Objects.nonNull(birthday)) {
+            return birthday;
+        }
+        return new Date();
+    }
 }
