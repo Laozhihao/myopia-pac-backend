@@ -136,7 +136,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     public File generateExcelFile(String fileName, List data) throws IOException {
 
         List<PlanStudentExportDTO> exportList = data;
-        String path = UUID.randomUUID() + "/" + exportList.get(0).getScreeningCode();
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getOneByStudentName(exportList.get(0).getName());
+        String path = UUID.randomUUID() + "/" + planSchoolStudent.getSchoolName();
         Map<String, List<PlanStudentExportDTO>> stringListMap = exportList.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getGradeName));
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         String filepath = null;

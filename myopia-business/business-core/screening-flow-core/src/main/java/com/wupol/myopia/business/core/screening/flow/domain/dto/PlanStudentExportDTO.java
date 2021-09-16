@@ -27,56 +27,54 @@ import java.io.Serializable;
 public class PlanStudentExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER_FOR_INPUT = "筛查信息";
-
     public static final String TOP_HEADER = "筛查学生表";
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT, TOP_HEADER, "编码"})
+    @ExcelProperty({ TOP_HEADER, "编码"})
     private String screeningCode;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT, TOP_HEADER, "身份证"})
+    @ExcelProperty({ TOP_HEADER, "身份证"})
     private String idCard;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT, TOP_HEADER, "姓名"})
+    @ExcelProperty({ TOP_HEADER, "姓名"})
     private String name;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT, TOP_HEADER, "性别"})
+    @ExcelProperty({ TOP_HEADER, "性别"})
     private String gender;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT, TOP_HEADER, "出生日期"})
+    @ExcelProperty({ TOP_HEADER, "出生日期"})
     private String birthday;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "民族"})
+    @ExcelProperty({TOP_HEADER, "民族"})
     private String nation;
 
 //    @ExcelProperty({TOP_HEADER, "学校名称"})
 //    private String schoolName;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "年级"})
+    @ExcelProperty({TOP_HEADER, "年级"})
     private String gradeName;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "班级"})
+    @ExcelProperty({TOP_HEADER, "班级"})
     private String className;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "学号"})
+    @ExcelProperty({TOP_HEADER, "学号"})
     private String studentNo;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "手机号码"})
+    @ExcelProperty({TOP_HEADER, "手机号码"})
     private String phone;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "省"})
+    @ExcelProperty({TOP_HEADER, "省"})
     private String province;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "市"})
+    @ExcelProperty({TOP_HEADER, "市"})
     private String city;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "区"})
+    @ExcelProperty({TOP_HEADER, "区"})
     private String area;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "镇"})
+    @ExcelProperty({TOP_HEADER, "镇"})
     private String town;
 
-    @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "详细地址"})
+    @ExcelProperty({TOP_HEADER, "详细地址"})
     private String address;
 
 

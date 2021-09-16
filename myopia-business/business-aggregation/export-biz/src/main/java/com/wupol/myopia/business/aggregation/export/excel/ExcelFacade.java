@@ -360,7 +360,7 @@ public class ExcelFacade {
         }
         if (!listMap.isEmpty()) {
             // 去头部
-            listMap.remove(1);
+            listMap.remove(0);
         }
         if (CollectionUtils.isEmpty(listMap)) {
             // 无数据，直接返回
