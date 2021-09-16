@@ -4,6 +4,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ import java.util.List;
  * @Author Chikong
  * @Date 2020-12-22
  */
+@Accessors(chain = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ScreeningStudentQueryDTO extends StudentExtraDTO {
@@ -69,4 +71,20 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 学校ID
      */
     private Integer schoolId;
+    /**
+     * 年级ID
+     */
+    private Integer gradeId;
+    /**
+     * 班级D
+     */
+    private Integer classId;
+    /**
+     * 筛查机构ID
+     */
+    private Integer screeningOrgId;
+    /**
+     * 筛查计划ID集合
+     */
+    private List<Integer> planIds;
 }

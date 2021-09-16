@@ -102,11 +102,15 @@
                mspss.parent_phone,
                mspss.grade_id,
                mspss.class_id,
-               mspss.grade_name     as gradeName,
-               mspss.class_name     as className,
+               ms.name   as school_name,
+               sg.name   as gradeName,
+               sc.name   as className,
                mspss.screening_code as screeningCode,
                mspss.id             as planStudentId
         FROM m_screening_plan_school_student mspss
+        left join m_school ms on ms.id = mspss.school_id
+        left join m_school_grade sg on sg.id = mspss.grade_id
+        left join m_school_class sc on sc.id = mspss.class_id
         <where>
             <trim prefixOverrides="and">
                 AND mspss.screening_plan_id = #{param.screeningPlanId}
@@ -129,6 +133,57 @@
                 <if test="param.gradeList != null">
                     and mspss.`grade_id` in
                     <foreach collection="param.gradeList" open="(" close=")" separator="," item="item">
+                        #{item}
+                    </foreach>
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="selectPlanStudentListByPage" resultMap="BaseResultMap" parameterType="map">
+        SELECT
+               spss.id,
+               spss.screening_plan_id,
+               spss.screening_org_id,
+               spss.school_id,
+               ms.name AS school_name,
+               spss.school_no,
+               spss.grade_id,
+               sg.name AS grade_name,
+               spss.grade_type,
+               spss.class_id,
+               sc.name AS class_name,
+               spss.student_id,
+               spss.id_card,
+               spss.birthday,
+               spss.gender,
+               spss.student_age,
+               spss.student_no,
+               spss.student_name,
+               spss.create_time,
+               spss.screening_code
+        FROM
+             m_screening_plan_school_student spss
+                 LEFT JOIN m_school_grade sg ON sg.id = spss.grade_id
+                 LEFT JOIN m_school_class sc ON sc.id = spss.class_id
+                 LEFT JOIN m_school ms ON ms.id = spss.school_id
+        <where>
+            <trim prefixOverrides="and">
+                <if test="param.schoolId != null">
+                    and spss.`school_id` = #{param.schoolId}
+                </if>
+                <if test="param.gradeId != null">
+                    and spss.`grade_id` = #{param.gradeId}
+                </if>
+                <if test="param.classId != null">
+                    and spss.`class_id` = #{param.classId}
+                </if>
+                <if test="param.screeningPlanId != null">
+                    and spss.`screening_plan_id` = #{param.screeningPlanId}
+                </if>
+                <if test="param.planIds != null">
+                    and spss.`screening_plan_id` in
+                    <foreach collection="param.planIds" open="(" close=")" separator="," item="item">
                         #{item}
                     </foreach>
                 </if>
