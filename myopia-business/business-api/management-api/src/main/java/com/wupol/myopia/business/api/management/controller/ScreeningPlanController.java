@@ -19,6 +19,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.QrCodeConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -578,6 +579,11 @@ public class ScreeningPlanController {
                         .setPlanId(screeningPlanId)
                         .setGradeId(gradeId),
                 ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE);
+    }
+
+    @PostMapping("/update/planStudent")
+    public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
+        screeningPlanSchoolStudentBizService.updatePlanStudent(requestDTO);
     }
 
 }

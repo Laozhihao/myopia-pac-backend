@@ -172,8 +172,6 @@ public class GeneratePdfFileService {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(exportCondition.getPlanId(), BizMsgConstant.PLAN_ID_IS_EMPTY);
         Assert.notNull(exportCondition.getSchoolId(), BizMsgConstant.SCHOOL_ID_IS_EMPTY);
-        Assert.notNull(exportCondition.getGradeId(), BizMsgConstant.GRADE_ID_IS_EMPTY);
-        Assert.notNull(exportCondition.getClassId(), BizMsgConstant.CLASS_ID_IS_EMPTY);
         generateSchoolArchivesPdfFile(saveDirectory, exportCondition);
     }
 

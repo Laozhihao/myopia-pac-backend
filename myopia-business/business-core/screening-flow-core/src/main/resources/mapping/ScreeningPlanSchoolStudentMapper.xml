@@ -87,9 +87,9 @@
     </select>
 
     <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
-        SELECT mspss.student_id   as id,
-               mspss.student_no   as sno,
-               mspss.student_name as name,
+        SELECT mspss.student_id     as id,
+               mspss.student_no     as sno,
+               mspss.student_name   as name,
                mspss.gender,
                mspss.birthday,
                mspss.province_code,
@@ -102,9 +102,10 @@
                mspss.parent_phone,
                mspss.grade_id,
                mspss.class_id,
-               mspss.grade_name   as gradeName,
-               mspss.class_name   as className,
-               mspss.screening_code as screeningCode
+               mspss.grade_name     as gradeName,
+               mspss.class_name     as className,
+               mspss.screening_code as screeningCode,
+               mspss.id             as planStudentId
         FROM m_screening_plan_school_student mspss
         <where>
             <trim prefixOverrides="and">
@@ -240,5 +241,13 @@
         <if test="classId != null">
             and class_id = #{classId}
         </if>
+    </select>
+
+    <select id="getOneByStudentName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_plan_school_student
+        where student_name = #{name}
+        limit 1
     </select>
 </mapper>

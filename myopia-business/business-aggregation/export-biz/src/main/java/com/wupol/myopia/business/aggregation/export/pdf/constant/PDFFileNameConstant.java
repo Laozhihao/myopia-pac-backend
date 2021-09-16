@@ -20,13 +20,29 @@ public class PDFFileNameConstant {
     public static final String ARCHIVES_PDF_FILE_NAME = "%s档案卡";
 
     /**
+     * 全校
+     */
+    public static final String ARCHIVES_PDF_FILE_ALL_SCHOOL = "%s的全校档案卡";
+
+    /**
      * PDF档案卡文件名(年级班级)
      */
-    public static final String ARCHIVES_PDF_FILE_NAME_GRADE_CLASS = "%s%s%s档案卡";
+    public static final String ARCHIVES_PDF_FILE_NAME_GRADE_CLASS = "%s的%s%s的档案卡";
 
     /**
      * PDF 计划总报告文件名
      */
     public static final String PLAN_REPORT_PDF_FILE_NAME = "%s年学生近视筛查结果报告";
+
+
+    /**
+     * 全校
+     */
+    public static final String ALL_SCHOOL_PDF_FILE_NAME = "%s的全校档案卡";
+
+    /**
+     * 制定班级
+     */
+    public static final String GRADE_CLASS_PDF_FILE_NAME = "%s的%s%s的档案卡";
 
 }
