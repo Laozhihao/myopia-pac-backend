@@ -27,21 +27,21 @@ import java.io.Serializable;
 public class PlanStudentExportDTO implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
-    public static final String TOP_HEADER = "筛查学生表";
+    public static final String TOP_HEADER = "筛查学生表（*导出数据不包含身份证）";
 
-    @ExcelProperty({ TOP_HEADER, "编码"})
+    @ExcelProperty({TOP_HEADER, "编码"})
     private String screeningCode;
 
-    @ExcelProperty({ TOP_HEADER, "身份证（导出数据不包含身份证）"})
+    @ExcelProperty({TOP_HEADER, "身份证"})
     private String idCard;
 
-    @ExcelProperty({ TOP_HEADER, "姓名"})
+    @ExcelProperty({TOP_HEADER, "姓名"})
     private String name;
 
-    @ExcelProperty({ TOP_HEADER, "性别"})
+    @ExcelProperty({TOP_HEADER, "性别"})
     private String gender;
 
-    @ExcelProperty({ TOP_HEADER, "出生日期"})
+    @ExcelProperty({TOP_HEADER, "出生日期"})
     private String birthday;
 
     @ExcelProperty({TOP_HEADER, "民族"})
