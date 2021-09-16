@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.aggregation.screening.domain.dto;
 
+import com.wupol.myopia.base.util.DateUtil;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -30,9 +32,10 @@ public class UpdatePlanStudentRequestDTO {
     private Integer studentId;
 
     public Date getBirthday() {
-        if (Objects.nonNull(birthday)) {
+        if (Objects.nonNull(birthday) || Objects.isNull(studentAge)) {
             return birthday;
         }
-        return new Date();
+        LocalDate date= LocalDate.of(DateUtil.getYear(new Date()) - studentAge,1,1);
+        return DateUtil.toDate(date);
     }
 }

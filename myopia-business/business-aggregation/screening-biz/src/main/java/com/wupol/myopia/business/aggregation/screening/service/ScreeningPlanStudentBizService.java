@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,22 +29,30 @@ public class ScreeningPlanStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
-
+        // 更新计划学生信息
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId());
         planSchoolStudent.setStudentName(requestDTO.getName());
         planSchoolStudent.setGender(requestDTO.getGender());
         planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
-        planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
         planSchoolStudent.setBirthday(requestDTO.getBirthday());
-        planSchoolStudent.setStudentNo(requestDTO.getSno());
+        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
+            planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
+        }
+        if (StringUtils.isNotBlank(requestDTO.getSno())) {
+            planSchoolStudent.setStudentNo(requestDTO.getSno());
+        }
         screeningPlanSchoolStudentService.updateById(planSchoolStudent);
-
-        Student student = studentService.getById(requestDTO.getStudentId());
+        // 更新原始学生信息
+        Student student = studentService.getById(planSchoolStudent.getStudentId());
         student.setName(requestDTO.getName());
         student.setGender(requestDTO.getGender());
-        student.setParentPhone(requestDTO.getParentPhone());
         student.setBirthday(requestDTO.getBirthday());
-        student.setSno(requestDTO.getSno());
+        if (StringUtils.isNotBlank(requestDTO.getParentPhone())) {
+            student.setParentPhone(requestDTO.getParentPhone());
+        }
+        if (StringUtils.isNotBlank(requestDTO.getSno())) {
+            student.setSno(requestDTO.getSno());
+        }
         studentService.updateById(student);
     }
 }
