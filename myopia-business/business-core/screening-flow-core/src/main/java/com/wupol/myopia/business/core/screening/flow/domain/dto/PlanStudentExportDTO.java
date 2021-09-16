@@ -32,7 +32,7 @@ public class PlanStudentExportDTO implements Serializable {
     @ExcelProperty({ TOP_HEADER, "编码"})
     private String screeningCode;
 
-    @ExcelProperty({ TOP_HEADER, "身份证"})
+    @ExcelProperty({ TOP_HEADER, "身份证（导出数据不包含身份证）"})
     private String idCard;
 
     @ExcelProperty({ TOP_HEADER, "姓名"})
