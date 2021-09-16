@@ -440,9 +440,9 @@ public class ScreeningAppController {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/class/progress")
-    public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "schoolId") @NotBlank(message = "学校ID不能为空") Integer schoolId,
-                                                            @RequestParam(value = "gradeId") @NotBlank(message = "年级ID不能为空") Integer gradeId,
-                                                            @RequestParam(value = "classId") @NotBlank(message = "班级ID不能为空") Integer classId) {
+    public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                            @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                            @NotNull(message = "班级ID不能为空") Integer classId) {
         return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
