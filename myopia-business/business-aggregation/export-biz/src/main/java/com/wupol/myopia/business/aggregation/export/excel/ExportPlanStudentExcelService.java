@@ -88,7 +88,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             exportDTO.setSchoolName(student.getSchoolName());
             exportDTO.setNation(NationEnum.getName(student.getNation()));
             exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
-            exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? gradeMap.get(student.getClassId()).getName() : "");
+            exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? classMap.get(student.getClassId()).getName() : "");
             exportDTO.setStudentNo(student.getStudentNo());
             exportDTO.setPhone(student.getParentPhone());
             exportDTO.setProvince(districtService.getDistrictName(student.getProvinceCode()));
