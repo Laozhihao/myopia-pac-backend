@@ -15,6 +15,8 @@ import lombok.ToString;
 @Getter
 public class StudentVO {
 
+    private StudentVO() {}
+
     /**
      * 学生ID
      */
@@ -74,7 +76,10 @@ public class StudentVO {
      */
     private Integer gradeType;
 
-    private StudentVO() { }
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
 
     /**
      * 获取实例
@@ -94,6 +99,7 @@ public class StudentVO {
         studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE);
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();
         studentVO.gradeType = screeningPlanSchoolStudent.getGradeType();
+        studentVO.screeningCode = screeningPlanSchoolStudent.getScreeningCode();
         return studentVO;
     }
 }

@@ -118,6 +118,10 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
                 .collect(Collectors.toMap(SchoolClass::getId, Function.identity()));
     }
 
+    public List<SchoolClass> getByIds(List<Integer> ids) {
+        return baseMapper.selectBatchIds(ids);
+    }
+
     /**
      * 获取班级
      *

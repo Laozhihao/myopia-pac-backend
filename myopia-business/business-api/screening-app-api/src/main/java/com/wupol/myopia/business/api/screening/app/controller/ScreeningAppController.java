@@ -5,9 +5,13 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.*;
-import com.wupol.myopia.business.api.screening.app.domain.vo.*;
+import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
+import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
@@ -23,6 +27,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultSearchDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -38,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -86,69 +90,64 @@ public class ScreeningAppController {
     private ScreeningPlanBizService screeningPlanBizService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanStudentBizService screeningPlanStudentBizService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
      *
      * @param schoolName 模糊查询
-     * @param deptId     机构id
-     * @param isReview   是否复测
      * @return
      */
     @GetMapping("/school/findAllLikeSchoolName")
-    public Set<String> getSchoolNameByNameLike(@RequestParam String schoolName, String deptId, Boolean isReview) {
+    public List<School> getSchoolNameByNameLike(String schoolName) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<School> schools = screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
-        return schools.stream().map(School::getName).collect(Collectors.toSet());
+        return screeningPlanBizService.getSchoolByOrgId(schoolName, currentUser.getOrgId());
     }
 
     /**
      * 查询学校的年级名称
      *
-     * @param schoolName 学校名
+     * @param schoolId 学校ID
      * @param deptId     机构id
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public Set<String> getGradeNameBySchoolName(@RequestParam String schoolName, @RequestParam Integer deptId, boolean all) {
-        Set<String> gradeNameSet;
+    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, @NotNull(message = "deptId") Integer deptId, boolean all) {
         if (all) {
             //查找全部的年级
-            List<SchoolGrade> schoolGrades = schoolGradeService.getBySchoolName(schoolName);
-            gradeNameSet = schoolGrades.stream().map(SchoolGrade::getName).collect(Collectors.toSet());
-        } else {
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
-            if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
-                return Collections.emptySet();
-            }
-            gradeNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
+            return schoolGradeService.getBySchoolId(schoolId);
         }
-        return gradeNameSet;
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, deptId);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return Collections.emptyList();
+        }
+        List<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).distinct().collect(Collectors.toList());
+        return schoolGradeService.getByIds(gradeIds);
     }
 
     /**
      * 获取班级名称
      *
-     * @param schoolName 学校名称
-     * @param gradeName  年级名称
-     * @param deptId     机构id
+     * @param gradeId  年级ID
+     * @param deptId   机构id
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public Set<String> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId, boolean all) {
-        Set<String> classNameSet;
+    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, @NotNull(message = "deptId不能为空") Integer deptId, boolean all) {
         if (all) {
-            List<SchoolClass> schoolClassList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName);
-            classNameSet = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toSet());
-        } else {
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
-            classNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
+            return schoolClassService.getByGradeId(gradeId);
         }
-        return classNameSet;
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, deptId);
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
+            return Collections.emptyList();
+        }
+        List<Integer> classIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).distinct().collect(Collectors.toList());
+        return schoolClassService.getByIds(classIds);
     }
 
     /**
-     * 获取学生的信息：
+     * 获取学生的信息
      *
      * @param
      * @return
@@ -328,39 +327,24 @@ public class ScreeningAppController {
     /**
      * 获取学校年级班级对应的学生名称
      *
-     * @param schoolName  学校名称
-     * @param gradeName   年级名称
-     * @param clazzName   班级名称
-     * @param studentName 学生名称
+     * @param schoolId  学校名称
+     * @param gradeId   年级名称
+     * @param classId   班级名称
      * @param deptId      机构id
      * @return
      */
     @GetMapping("/school/findAllStudentName")
     public Page<StudentVO> findAllStudentName(
             @RequestParam(value = "deptId") Integer deptId,
-            @RequestParam(value = "schoolName") String schoolName,
-            @RequestParam(value = "gradeName", required = false) String gradeName,
-            @RequestParam(value = "clazzName", required = false) String clazzName,
-            @RequestParam(value = "studentName", required = false) String studentName,
+            @RequestParam(value = "schoolId") Integer schoolId,
+            @RequestParam(value = "gradeId", required = false) Integer gradeId,
+            @RequestParam(value = "classId", required = false) Integer classId,
             @RequestParam(value = "current", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "60") Integer size) {
-        //获取当前筛查机构正在执行的所有计划。
-        Pageable pageable = PageRequest.of(page - 1, size);
-        gradeName = StringUtils.isBlank(gradeName) ? null : gradeName;
-        clazzName = StringUtils.isBlank(clazzName) ? null : clazzName;
-        studentName = StringUtils.isBlank(studentName) ? null : studentName;
-        schoolName = StringUtils.isBlank(schoolName) ? null : schoolName;
-
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent
-                .setScreeningOrgId(deptId)
-                .setSchoolName(schoolName)
-                .setClassName(clazzName)
-                .setStudentName(studentName)
-                .setGradeName(gradeName);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(screeningPlanSchoolStudent, page, size);
+        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(deptId).setSchoolId(schoolId).setGradeId(gradeId).setClassId(classId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
-        return new PageImpl<>(studentVOs, pageable, studentVOs.size());
+        return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), studentVOs.size());
     }
 
     /**
@@ -449,18 +433,17 @@ public class ScreeningAppController {
 
     /**
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
-     * TODO：暂时沿用山西版风格（差评），待改成通过ID获取
      *
-     * @param schoolName 学校名称
-     * @param gradeName 年级名称
-     * @param clazzName 班级名称
+     * @param schoolId 学校名称
+     * @param gradeId 年级名称
+     * @param classId 班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/class/progress")
-    public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "schoolName") @NotBlank(message = "学校名称不能为空") String schoolName,
-                                                            @RequestParam(value = "gradeName") @NotBlank(message = "年级名称不能为空") String gradeName,
-                                                            @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
-        return screeningAppService.getClassScreeningProgress(schoolName, gradeName, clazzName, CurrentUserUtil.getCurrentUser().getOrgId());
+    public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
+                                                            @NotNull(message = "年级ID不能为空") Integer gradeId,
+                                                            @NotNull(message = "班级ID不能为空") Integer classId) {
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     /**
@@ -511,22 +494,38 @@ public class ScreeningAppController {
     }
 
     /**
+     * 获取生物测量检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getBiologyData/{planStudentId}")
+    public BiometricDataDTO getBiologyData(@PathVariable Integer planStudentId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
+        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        if (Objects.isNull(screeningResult)) {
+            return new BiometricDataDTO();
+        }
+        return BiometricDataDTO.getInstance(screeningResult.getBiometricData());
+    }
+
+    /**
      * 获取筛查机构对应的未完成筛查且有筛查数据的学校
      *
      * @return
      */
     @GetMapping("/getSchoolHasScreeningData")
-    public Set<String> getSchoolHasScreeningData() {
+    public List<School> getSchoolHasScreeningData() {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new HashSet<>();
+            return Collections.emptyList();
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            return new HashSet<>();
+            return Collections.emptyList();
         }
-        List<School> schools = schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
-        return schools.stream().map(School::getName).collect(Collectors.toSet());
+        return schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
     }
 
 
@@ -545,7 +544,22 @@ public class ScreeningAppController {
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
             return new ScreeningPlanSchoolStudent();
         }
-        return screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId()) ;
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
+
+        return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
+                .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+    }
+
+    /**
+     * 更新筛查学生信息
+     *
+     * @param requestDTO 更新信息
+     * @return void
+     **/
+    @PostMapping("/update/planStudent")
+    public void updatePlanStudent(@RequestBody@Valid UpdatePlanStudentRequestDTO requestDTO) {
+        screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
 }

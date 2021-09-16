@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -55,13 +55,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据学校ID和筛查机构ID获取计划的学生
      *
-     * @param schoolName
-     * @param deptId
+     * @param schoolId 学校ID
+     * @param deptId 筛查机构ID
      * @return
      */
-    //TODO @jacob 补充方法说明
-    public List<ScreeningPlanSchoolStudent> getSchoolByOrgIdAndSchoolName(String schoolName, Integer deptId) {
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
@@ -70,20 +70,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return Collections.emptyList();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
         return baseMapper.selectList(queryWrapper);
     }
 
-    public List<ScreeningPlanSchoolStudent> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
-        if (deptId == null) {
-            throw new ManagementUncheckedException("deptId 不能为空");
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId) {
+        if (screeningOrgId == null) {
+            throw new ManagementUncheckedException("screeningOrgId 不能为空");
         }
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, screeningOrgId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeId, gradeId);
         return baseMapper.selectList(queryWrapper);
     }
 
@@ -182,23 +182,22 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
-     * @param screeningPlanSchoolStudent
-     */
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer page, Integer size) {
-        //获取当前计划
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
+     * 根据查询条件获取当前进行中的计划的学生
+     *
+     * @param screeningStudentQuery 查询条件
+     * @param page 页码
+     * @param size 条数
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
+     **/
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size) {
+        // 获取当前计划
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningStudentQuery.getScreeningOrgId());
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return Collections.emptyList();
         }
-        String studentName = screeningPlanSchoolStudent.getStudentName();
-        screeningPlanSchoolStudent.setStudentName(null);
-        Integer startItem = (page - 1) * size;
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).last("limit " + startItem + "," + size);
-        if (StringUtils.isNotBlank(studentName)) {
-            queryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
-        }
-        return baseMapper.selectList(queryWrapper);
+        screeningStudentQuery.setPlanIds(new ArrayList<>(currentPlanIds));
+        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentIPage = selectPlanStudentListByPage(page, size, screeningStudentQuery);
+        return screeningPlanSchoolStudentIPage.getRecords();
     }
 
     /**
@@ -368,6 +367,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,
                                                                                        Integer gradeId, Integer classId) {
         return baseMapper.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page 页码
+     * @param size 条数
+     * @param screeningStudentQueryDTO 查询条件
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
+     **/
+    public IPage<ScreeningPlanSchoolStudent> selectPlanStudentListByPage(Integer page, Integer size, ScreeningStudentQueryDTO screeningStudentQueryDTO) {
+        return baseMapper.selectPlanStudentListByPage(new PageRequest().setCurrent(page).setSize(size).toPage(), screeningStudentQueryDTO);
     }
 
     public ScreeningPlanSchoolStudent getOneByStudentName(String name) {
