@@ -433,18 +433,17 @@ public class ScreeningAppController {
 
     /**
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
-     * TODO：暂时沿用山西版风格（差评），待改成通过ID获取
      *
-     * @param schoolName 学校名称
-     * @param gradeName 年级名称
-     * @param clazzName 班级名称
+     * @param schoolId 学校名称
+     * @param gradeId 年级名称
+     * @param classId 班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/class/progress")
-    public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "schoolName") @NotBlank(message = "学校名称不能为空") String schoolName,
-                                                            @RequestParam(value = "gradeName") @NotBlank(message = "年级名称不能为空") String gradeName,
-                                                            @RequestParam(value = "clazzName") @NotBlank(message = "班级名称不能为空") String clazzName) {
-        return screeningAppService.getClassScreeningProgress(schoolName, gradeName, clazzName, CurrentUserUtil.getCurrentUser().getOrgId());
+    public ClassScreeningProgress getClassScreeningProgress(@RequestParam(value = "schoolId") @NotBlank(message = "学校ID不能为空") Integer schoolId,
+                                                            @RequestParam(value = "gradeId") @NotBlank(message = "年级ID不能为空") Integer gradeId,
+                                                            @RequestParam(value = "classId") @NotBlank(message = "班级ID不能为空") Integer classId) {
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     /**
@@ -545,7 +544,11 @@ public class ScreeningAppController {
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
             return new ScreeningPlanSchoolStudent();
         }
-        return screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId()) ;
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
+
+        return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
+                .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
     }
 
     /**
@@ -555,7 +558,7 @@ public class ScreeningAppController {
      * @return void
      **/
     @PostMapping("/update/planStudent")
-    public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
+    public void updatePlanStudent(@RequestBody@Valid UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 

@@ -422,18 +422,18 @@ public class ScreeningAppService {
     /**
      * 获取班级总的筛查进度：汇总统计+每个学生的进度
      *
-     * @param schoolName 学校名称
-     * @param gradeName 年级名称
-     * @param clazzName 班级名称
+     * @param schoolId 学校名称
+     * @param gradeId 年级名称
+     * @param classId 班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(String schoolName, String gradeName, String clazzName, Integer screeningOrgId) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
-                .setSchoolName(schoolName)
-                .setClassName(clazzName)
-                .setGradeName(gradeName));
+                .setSchoolId(schoolId)
+                .setClassId(classId)
+                .setGradeId(gradeId));
         if (org.apache.commons.collections4.CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
             return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
