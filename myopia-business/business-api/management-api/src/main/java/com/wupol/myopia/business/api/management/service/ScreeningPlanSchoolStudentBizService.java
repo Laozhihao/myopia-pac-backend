@@ -261,14 +261,12 @@ public class ScreeningPlanSchoolStudentBizService {
         planSchoolStudent.setId(requestDTO.getPlanStudentId());
         screeningPlanSchoolStudentService.updateById(planSchoolStudent);
 
-        Student student = new Student();
+        Student student = studentService.getById(requestDTO.getStudentId());
         student.setName(requestDTO.getName());
         student.setGender(requestDTO.getGender());
         student.setParentPhone(requestDTO.getParentPhone());
         student.setBirthday(requestDTO.getBirthday());
         student.setSno(requestDTO.getSno());
-        student.setId(requestDTO.getStudentId());
         studentService.updateById(student);
-
     }
 }
