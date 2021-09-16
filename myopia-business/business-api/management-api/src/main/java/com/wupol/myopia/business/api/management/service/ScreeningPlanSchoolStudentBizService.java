@@ -251,14 +251,14 @@ public class ScreeningPlanSchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
-        ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
+
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId());
         planSchoolStudent.setStudentName(requestDTO.getName());
         planSchoolStudent.setGender(requestDTO.getGender());
         planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
         planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
         planSchoolStudent.setBirthday(requestDTO.getBirthday());
         planSchoolStudent.setStudentNo(requestDTO.getSno());
-        planSchoolStudent.setId(requestDTO.getPlanStudentId());
         screeningPlanSchoolStudentService.updateById(planSchoolStudent);
 
         Student student = studentService.getById(requestDTO.getStudentId());
