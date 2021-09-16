@@ -82,7 +82,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
             exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" : String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
-            exportDTO.setIdCard(student.getIdCard());
+            // 身份证导出时不现实
+            exportDTO.setIdCard("");
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
 //            exportDTO.setSchoolName(student.getSchoolName());
