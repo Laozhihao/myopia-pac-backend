@@ -49,7 +49,7 @@ public class PlanStudentExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "民族"})
     private String nation;
 
-    @ExcelProperty({TOP_HEADER, "学校名称"})
+//    @ExcelProperty({TOP_HEADER, "学校名称"})
     private String schoolName;
 
     @ExcelProperty({TOP_HEADER_FOR_INPUT,TOP_HEADER, "年级"})

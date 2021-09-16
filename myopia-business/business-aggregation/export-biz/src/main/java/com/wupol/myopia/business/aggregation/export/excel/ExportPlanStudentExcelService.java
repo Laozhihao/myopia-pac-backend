@@ -12,6 +12,9 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentExportDTO;
@@ -52,6 +55,9 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     @Resource
     private SchoolGradeService schoolGradeService;
 
+    @Resource
+    private SchoolClassService schoolClassService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
 
@@ -64,6 +70,14 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         }
         List<PlanStudentExportDTO> exportList = new ArrayList<>(planSchoolStudents.size());
 
+        // 年级
+        List<Integer> gradeIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList());
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
+
+        // 年级
+        List<Integer> classIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+
         planSchoolStudents.forEach(student -> {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
             exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" : String.valueOf(student.getScreeningCode()));
@@ -73,8 +87,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
             exportDTO.setSchoolName(student.getSchoolName());
             exportDTO.setNation(NationEnum.getName(student.getNation()));
-            exportDTO.setGradeName(student.getGradeName());
-            exportDTO.setClassName(student.getClassName());
+            exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
+            exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? gradeMap.get(student.getClassId()).getName() : "");
             exportDTO.setStudentNo(student.getStudentNo());
             exportDTO.setPhone(student.getParentPhone());
             exportDTO.setProvince(districtService.getDistrictName(student.getProvinceCode()));
