@@ -34,4 +34,15 @@ public class PDFFileNameConstant {
      */
     public static final String PLAN_REPORT_PDF_FILE_NAME = "%s年学生近视筛查结果报告";
 
+
+    /**
+     * 全校
+     */
+    public static final String ALL_SCHOOL_PDF_FILE_NAME = "%s的全校档案卡";
+
+    /**
+     * 制定班级
+     */
+    public static final String GRADE_CLASS_PDF_FILE_NAME = "%s的%s%s的档案卡";
+
 }

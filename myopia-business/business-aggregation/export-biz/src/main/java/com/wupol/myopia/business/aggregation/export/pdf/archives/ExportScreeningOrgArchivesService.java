@@ -1,15 +1,18 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.GeneratePdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,19 +26,22 @@ import org.springframework.stereotype.Service;
 public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService {
 
     @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
     private GeneratePdfFileService generateReportPdfService;
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 生成文件
      *
      * @param exportCondition 导出条件
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
-     * @return void
+     * @param fileSavePath    文件保存路径
+     * @param fileName        文件名
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
@@ -50,8 +56,16 @@ public class ExportScreeningOrgArchivesService extends BaseExportPdfFileService 
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, screeningOrganization.getName());
+        Integer gradeId = exportCondition.getGradeId();
+        Integer classId = exportCondition.getClassId();
+        School school = schoolService.getById(exportCondition.getSchoolId());
+        if (ObjectsUtil.allNotNull(gradeId, classId)) {
+            return String.format(PDFFileNameConstant.GRADE_CLASS_PDF_FILE_NAME,
+                    school.getName(),
+                    schoolGradeService.getById(gradeId).getName(),
+                    schoolClassService.getById(classId).getName());
+        }
+        return String.format(PDFFileNameConstant.ALL_SCHOOL_PDF_FILE_NAME, school.getName());
     }
 
     @Override
