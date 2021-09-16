@@ -74,7 +74,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         List<Integer> gradeIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList());
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
 
-        // 年级
+        // 班级
         List<Integer> classIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
 
