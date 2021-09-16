@@ -55,13 +55,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     * 根据学校ID和筛查机构ID获取计划的学生
      *
-     * @param schoolName
-     * @param deptId
+     * @param schoolId 学校ID
+     * @param deptId 筛查机构ID
      * @return
      */
-    //TODO @jacob 补充方法说明
-    public List<ScreeningPlanSchoolStudent> getSchoolByOrgIdAndSchoolName(String schoolName, Integer deptId) {
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
@@ -70,11 +70,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return Collections.emptyList();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).like(ScreeningPlanSchoolStudent::getSchoolName, schoolName).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
         return baseMapper.selectList(queryWrapper);
     }
 
-    public List<ScreeningPlanSchoolStudent> getClassNameBySchoolNameAndGradeName(String schoolName, String gradeName, Integer deptId) {
+    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentBySchoolIdAndGradeIds(Integer schoolId, List<Integer> gradeIds, Integer deptId) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
@@ -83,7 +83,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             return new ArrayList<>();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeName, gradeName).eq(ScreeningPlanSchoolStudent::getSchoolName, schoolName);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).in(ScreeningPlanSchoolStudent::getGradeId, gradeIds).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
         return baseMapper.selectList(queryWrapper);
     }
 

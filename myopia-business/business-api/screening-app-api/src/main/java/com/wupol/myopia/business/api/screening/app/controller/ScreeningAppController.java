@@ -117,11 +117,14 @@ public class ScreeningAppController {
             List<SchoolGrade> schoolGrades = schoolGradeService.getBySchoolName(schoolName);
             gradeNameSet = schoolGrades.stream().map(SchoolGrade::getName).collect(Collectors.toSet());
         } else {
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getSchoolByOrgIdAndSchoolName(schoolName, deptId);
+            School school = schoolService.findOne(new School().setName(schoolName));
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(school.getId(), deptId);
             if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
                 return Collections.emptySet();
             }
-            gradeNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeName).collect(Collectors.toSet());
+            List<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList());
+            List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(gradeIds);
+            gradeNameSet = schoolGrades.stream().map(SchoolGrade::getName).collect(Collectors.toSet());
         }
         return gradeNameSet;
     }
@@ -141,8 +144,19 @@ public class ScreeningAppController {
             List<SchoolClass> schoolClassList = schoolClassService.getBySchoolNameAndGradeName(schoolName, gradeName);
             classNameSet = schoolClassList.stream().map(SchoolClass::getName).collect(Collectors.toSet());
         } else {
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getClassNameBySchoolNameAndGradeName(schoolName, gradeName, deptId);
-            classNameSet = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassName).collect(Collectors.toSet());
+            School school = schoolService.findOne(new School().setName(schoolName));
+            List<SchoolGrade> gradeList = schoolGradeService.findByList(new SchoolGrade().setName(gradeName).setSchoolId(school.getId()));
+            if (CollectionUtils.isNotEmpty(gradeList)) {
+                return Collections.emptySet();
+            }
+            List<Integer> gradeIds = gradeList.stream().map(SchoolGrade::getId).collect(Collectors.toList());
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentBySchoolIdAndGradeIds(school.getId(), gradeIds, deptId);
+            if (CollectionUtils.isNotEmpty(screeningPlanSchoolStudents)) {
+                return Collections.emptySet();
+            }
+            List<Integer> classIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
+            List<SchoolClass> classList = schoolClassService.getByIds(classIds);
+            classNameSet = classList.stream().map(SchoolClass::getName).collect(Collectors.toSet());
         }
         return classNameSet;
     }
