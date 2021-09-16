@@ -369,4 +369,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                                                                                        Integer gradeId, Integer classId) {
         return baseMapper.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
     }
+
+    public ScreeningPlanSchoolStudent getOneByStudentName(String name) {
+        return baseMapper.getOneByStudentName(name);
+    }
 }

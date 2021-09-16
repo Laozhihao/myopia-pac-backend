@@ -9,8 +9,12 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentExportDTO;
@@ -51,6 +55,9 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     @Resource
     private SchoolGradeService schoolGradeService;
 
+    @Resource
+    private SchoolClassService schoolClassService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
 
@@ -63,19 +70,33 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
         }
         List<PlanStudentExportDTO> exportList = new ArrayList<>(planSchoolStudents.size());
 
+        // 年级
+        List<Integer> gradeIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList());
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
+
+        // 班级
+        List<Integer> classIds = planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+
         planSchoolStudents.forEach(student -> {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
             exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" : String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
+            // 身份证导出时不显示
+            exportDTO.setIdCard("");
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
-            exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
-            exportDTO.setSchoolName(student.getSchoolName());
-            exportDTO.setGradeName(student.getGradeName());
-            exportDTO.setClassName(student.getClassName());
+            exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
+//            exportDTO.setSchoolName(student.getSchoolName());
+            exportDTO.setNation(NationEnum.getName(student.getNation()));
+            exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
+            exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? classMap.get(student.getClassId()).getName() : "");
             exportDTO.setStudentNo(student.getStudentNo());
             exportDTO.setPhone(student.getParentPhone());
-            exportDTO.setAddress(districtService.getAddressDetails(student.getProvinceCode(), student.getCityCode(),
-                    student.getAreaCode(), student.getTownCode(), student.getAddress()));
+            exportDTO.setProvince(districtService.getDistrictName(student.getProvinceCode()));
+            exportDTO.setCity(districtService.getDistrictName(student.getCityCode()));
+            exportDTO.setArea(districtService.getDistrictName(student.getAreaCode()));
+            exportDTO.setTown(districtService.getDistrictName(student.getTownCode()));
+            exportDTO.setAddress(student.getAddress());
             exportList.add(exportDTO);
         });
         return exportList;
@@ -116,7 +137,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     public File generateExcelFile(String fileName, List data) throws IOException {
 
         List<PlanStudentExportDTO> exportList = data;
-        String path = UUID.randomUUID() + "/" + exportList.get(0).getSchoolName();
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getOneByStudentName(exportList.get(0).getName());
+        String path = UUID.randomUUID() + "/" + planSchoolStudent.getSchoolName();
         Map<String, List<PlanStudentExportDTO>> stringListMap = exportList.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getGradeName));
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         String filepath = null;

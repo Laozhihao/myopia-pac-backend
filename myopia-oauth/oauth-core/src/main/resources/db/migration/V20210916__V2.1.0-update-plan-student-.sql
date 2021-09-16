@@ -1,0 +1,1 @@
+INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code, create_time, update_time) VALUES (371, '更新筛查学生', 'managementScreeningPlanUpdatePlanStudent', 'post:/management/screeningPlan/update/planStudent', 0, 0, 1, 27, 1, '2021-09-16 17:19:41', '2021-09-16 17:19:41');
