@@ -9,6 +9,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -241,5 +242,33 @@ public class ScreeningPlanSchoolStudentBizService {
                 .setSchoolId(requestDTO.getSchoolId())
                 .setGradeId(requestDTO.getGradeId())
                 .setClassId(requestDTO.getClassId()));
+    }
+
+    /**
+     * 更新筛查学生
+     *
+     * @param requestDTO 更新学生入参
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
+        ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
+        planSchoolStudent.setStudentName(requestDTO.getName());
+        planSchoolStudent.setGender(requestDTO.getGender());
+        planSchoolStudent.setStudentAge(requestDTO.getStudentAge());
+        planSchoolStudent.setParentPhone(requestDTO.getParentPhone());
+        planSchoolStudent.setBirthday(requestDTO.getBirthday());
+        planSchoolStudent.setStudentNo(requestDTO.getSno());
+        planSchoolStudent.setId(requestDTO.getPlanStudentId());
+        screeningPlanSchoolStudentService.updateById(planSchoolStudent);
+
+        Student student = new Student();
+        student.setName(requestDTO.getName());
+        student.setGender(requestDTO.getGender());
+        student.setParentPhone(requestDTO.getParentPhone());
+        student.setBirthday(requestDTO.getBirthday());
+        student.setSno(requestDTO.getSno());
+        student.setId(requestDTO.getStudentId());
+        studentService.updateStudent(student);
+
     }
 }

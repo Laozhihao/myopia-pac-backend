@@ -172,8 +172,6 @@ public class GeneratePdfFileService {
         Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
         Assert.notNull(exportCondition.getPlanId(), BizMsgConstant.PLAN_ID_IS_EMPTY);
         Assert.notNull(exportCondition.getSchoolId(), BizMsgConstant.SCHOOL_ID_IS_EMPTY);
-        Assert.notNull(exportCondition.getGradeId(), BizMsgConstant.GRADE_ID_IS_EMPTY);
-        Assert.notNull(exportCondition.getClassId(), BizMsgConstant.CLASS_ID_IS_EMPTY);
         generateSchoolArchivesPdfFile(saveDirectory, exportCondition);
     }
 
@@ -213,7 +211,7 @@ public class GeneratePdfFileService {
             for (PlanSchoolGradeVO gradeVO : gradeAndClass) {
                 gradeVO.getClasses().forEach(schoolClass -> {
                     String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeVO.getId(), schoolClass.getId(), "");
-                    String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_GRADE_CLASS, school.getName(), gradeVO.getGradeName(), schoolClass.getName());
+                    String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_ALL_SCHOOL, school.getName());
                     String dir = saveDirectory + "/" + school.getName() + "/" + gradeVO.getGradeName() + "/" + schoolClass.getName();
                     Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
                 });
