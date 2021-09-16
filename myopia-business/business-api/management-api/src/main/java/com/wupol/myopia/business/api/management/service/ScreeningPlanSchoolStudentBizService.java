@@ -268,7 +268,7 @@ public class ScreeningPlanSchoolStudentBizService {
         student.setBirthday(requestDTO.getBirthday());
         student.setSno(requestDTO.getSno());
         student.setId(requestDTO.getStudentId());
-        studentService.updateStudent(student);
+        studentService.updateById(student);
 
     }
 }
