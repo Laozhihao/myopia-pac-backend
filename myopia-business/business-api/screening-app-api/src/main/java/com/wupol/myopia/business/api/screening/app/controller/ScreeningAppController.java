@@ -513,17 +513,16 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getSchoolHasScreeningData")
-    public Set<String> getSchoolHasScreeningData() {
+    public List<School> getSchoolHasScreeningData() {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId());
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new HashSet<>();
+            return Collections.emptyList();
         }
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (CollectionUtils.isEmpty(visionScreeningResults)) {
-            return new HashSet<>();
+            return Collections.emptyList();
         }
-        List<School> schools = schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
-        return schools.stream().map(School::getName).collect(Collectors.toSet());
+        return schoolService.getSchoolByIds(visionScreeningResults.stream().map(VisionScreeningResult::getSchoolId).distinct().collect(Collectors.toList()));
     }
 
 
