@@ -84,8 +84,8 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             exportDTO.setName(student.getStudentName());
             exportDTO.setIdCard(student.getIdCard());
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
-            exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE));
-            exportDTO.setSchoolName(student.getSchoolName());
+            exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
+//            exportDTO.setSchoolName(student.getSchoolName());
             exportDTO.setNation(NationEnum.getName(student.getNation()));
             exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
             exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? classMap.get(student.getClassId()).getName() : "");
@@ -136,7 +136,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
     public File generateExcelFile(String fileName, List data) throws IOException {
 
         List<PlanStudentExportDTO> exportList = data;
-        String path = UUID.randomUUID() + "/" + exportList.get(0).getSchoolName();
+        String path = UUID.randomUUID() + "/" + exportList.get(0).getScreeningCode();
         Map<String, List<PlanStudentExportDTO>> stringListMap = exportList.stream().collect(Collectors.groupingBy(PlanStudentExportDTO::getGradeName));
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         String filepath = null;

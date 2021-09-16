@@ -582,7 +582,7 @@ public class ScreeningPlanController {
     }
 
     @PostMapping("/update/planStudent")
-    public void updatePlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
+    public void updatePlanStudent(@RequestBody UpdatePlanStudentRequestDTO requestDTO) {
         screeningPlanSchoolStudentBizService.updatePlanStudent(requestDTO);
     }
 
