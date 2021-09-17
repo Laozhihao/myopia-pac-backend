@@ -50,7 +50,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
@@ -109,16 +108,15 @@ public class ScreeningAppController {
      * 查询学校的年级名称
      *
      * @param schoolId 学校ID
-     * @param deptId     机构id
      * @return
      */
     @GetMapping("/school/findAllGradeNameBySchoolName")
-    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, @NotNull(message = "deptId") Integer deptId, boolean all) {
+    public List<SchoolGrade> getGradeNameBySchoolName(@NotNull(message = "schoolId不能为空") Integer schoolId, boolean all) {
         if (all) {
             //查找全部的年级
             return schoolGradeService.getBySchoolId(schoolId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, deptId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
@@ -130,20 +128,47 @@ public class ScreeningAppController {
      * 获取班级名称
      *
      * @param gradeId  年级ID
-     * @param deptId   机构id
      * @return
      */
     @GetMapping("/school/findAllClazzNameBySchoolNameAndGradeName")
-    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, @NotNull(message = "deptId不能为空") Integer deptId, boolean all) {
+    public List<SchoolClass> getClassNameBySchoolNameAndGradeName(@NotNull(message = "gradeId不能为空") Integer gradeId, boolean all) {
         if (all) {
             return schoolClassService.getByGradeId(gradeId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, deptId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
         List<Integer> classIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).distinct().collect(Collectors.toList());
         return schoolClassService.getByIds(classIds);
+    }
+
+
+    /**
+     * 获取学校年级班级对应的学生名称
+     *
+     * @param schoolId  学校名称
+     * @param gradeId   年级名称
+     * @param classId   班级名称
+     * @return
+     */
+    @GetMapping("/school/findAllStudentName")
+    public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId,
+                                              @RequestParam(value = "current", defaultValue = "1") Integer page,
+                                              @RequestParam(value = "size", defaultValue = "60") Integer size) {
+        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.nonNull(schoolId) && schoolId != -1) {
+            screeningStudentQuery.setSchoolId(schoolId);
+        }
+        if (Objects.nonNull(gradeId) && gradeId != -1) {
+            screeningStudentQuery.setGradeId(gradeId);
+        }
+        if (Objects.nonNull(classId) && classId != -1) {
+            screeningStudentQuery.setClassId(classId);
+        }
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
+        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
+        return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), studentVOs.size());
     }
 
     /**
@@ -320,31 +345,6 @@ public class ScreeningAppController {
         if (eyePressureDataDTO.isValid()) {
             visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
         }
-    }
-
-    //分割线----------------------
-
-    /**
-     * 获取学校年级班级对应的学生名称
-     *
-     * @param schoolId  学校名称
-     * @param gradeId   年级名称
-     * @param classId   班级名称
-     * @param deptId      机构id
-     * @return
-     */
-    @GetMapping("/school/findAllStudentName")
-    public Page<StudentVO> findAllStudentName(
-            @RequestParam(value = "deptId") Integer deptId,
-            @RequestParam(value = "schoolId") Integer schoolId,
-            @RequestParam(value = "gradeId", required = false) Integer gradeId,
-            @RequestParam(value = "classId", required = false) Integer classId,
-            @RequestParam(value = "current", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "60") Integer size) {
-        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(deptId).setSchoolId(schoolId).setGradeId(gradeId).setClassId(classId);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
-        return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), studentVOs.size());
     }
 
     /**
