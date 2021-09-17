@@ -397,13 +397,14 @@ public class ExcelStudentService {
      * @param excelStudent Excel学生
      */
     private void updateMockPlanStudent(List<StudentDTO> excelStudent, Integer planId, Integer schoolId) {
+
         List<Long> screeningCodes = excelStudent.stream().filter(s -> StringUtils.isBlank(s.getIdCard())).map(StudentDTO::getScreeningCode).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningCodes)) {
             return;
         }
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes, planId, schoolId);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes);
         if (CollectionUtils.isEmpty(planStudents) || planStudents.size() != excelStudent.size()) {
             throw new BusinessException("编码数据异常");
         }
@@ -413,6 +414,8 @@ public class ExcelStudentService {
         if (studentList.size() != excelStudent.size()) {
             throw new BusinessException("学生数据异常");
         }
+
+        School school = schoolService.getById(schoolId);
 
         planStudents.forEach(planStudent -> {
             StudentDTO updateStudent = excelStudentMap.get(planStudent.getScreeningCode());
@@ -431,6 +434,9 @@ public class ExcelStudentService {
             planStudent.setAreaCode(updateStudent.getAreaCode());
             planStudent.setTownCode(updateStudent.getTownCode());
             planStudent.setAddress(updateStudent.getAddress());
+            planStudent.setScreeningPlanId(planId);
+            planStudent.setSchoolId(schoolId);
+            planStudent.setSchoolName(school.getName());
         });
         screeningPlanSchoolStudentService.batchUpdateOrSave(planStudents);
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = planStudents.stream()
