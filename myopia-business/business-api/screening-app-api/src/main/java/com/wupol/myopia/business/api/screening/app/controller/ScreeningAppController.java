@@ -50,7 +50,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
@@ -334,14 +333,19 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/school/findAllStudentName")
-    public Page<StudentVO> findAllStudentName(
-            @RequestParam(value = "deptId") Integer deptId,
-            @RequestParam(value = "schoolId") Integer schoolId,
-            @RequestParam(value = "gradeId", required = false) Integer gradeId,
-            @RequestParam(value = "classId", required = false) Integer classId,
+    public Page<StudentVO> findAllStudentName(@NotNull(message = "机构ID不能为空") Integer deptId, Integer schoolId, Integer gradeId, Integer classId,
             @RequestParam(value = "current", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "60") Integer size) {
-        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(deptId).setSchoolId(schoolId).setGradeId(gradeId).setClassId(classId);
+        ScreeningStudentQueryDTO screeningStudentQuery = new ScreeningStudentQueryDTO().setScreeningOrgId(deptId);
+        if (Objects.nonNull(schoolId) && schoolId != -1) {
+            screeningStudentQuery.setSchoolId(schoolId);
+        }
+        if (Objects.nonNull(gradeId) && gradeId != -1) {
+            screeningStudentQuery.setGradeId(gradeId);
+        }
+        if (Objects.nonNull(classId) && classId != -1) {
+            screeningStudentQuery.setClassId(classId);
+        }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
         List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
         return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), studentVOs.size());
