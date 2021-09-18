@@ -130,6 +130,5 @@
         <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
             #{planStudentId}
         </foreach>
-        and is_double_screen = 0
     </select>
 </mapper>
