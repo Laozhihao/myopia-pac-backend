@@ -189,15 +189,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param size 条数
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
-    public List<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size) {
+    public IPage<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size) {
         // 获取当前计划
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningStudentQuery.getScreeningOrgId());
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return Collections.emptyList();
+            return new Page<>(page, size);
         }
         screeningStudentQuery.setPlanIds(new ArrayList<>(currentPlanIds));
-        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentIPage = selectPlanStudentListByPage(page, size, screeningStudentQuery);
-        return screeningPlanSchoolStudentIPage.getRecords();
+        return selectPlanStudentListByPage(page, size, screeningStudentQuery);
     }
 
     /**
