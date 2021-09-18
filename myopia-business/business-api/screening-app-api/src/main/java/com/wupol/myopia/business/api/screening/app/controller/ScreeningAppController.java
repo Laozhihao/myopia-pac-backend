@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -166,9 +167,9 @@ public class ScreeningAppController {
         if (Objects.nonNull(classId) && classId != -1) {
             screeningStudentQuery.setClassId(classId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudents.stream().map(StudentVO::getInstance).collect(Collectors.toList());
-        return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), studentVOs.size());
+        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size);
+        List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream().map(StudentVO::getInstance).collect(Collectors.toList());
+        return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), screeningPlanSchoolStudentPage.getTotal());
     }
 
     /**
