@@ -157,4 +157,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public VisionScreeningResult getByPlanStudentId(Integer planStudentId) {
         return baseMapper.getByPlanStudentId(planStudentId);
     }
+
+    /**
+     * 通过筛查学生查询筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     * @return 筛查结果
+     */
+    public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds) {
+        return baseMapper.getByPlanStudentIds(planStudentIds);
+    }
 }

@@ -87,4 +87,9 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
      * 筛查计划ID集合
      */
     private List<Integer> planIds;
+
+    /**
+     * 筛查编号
+     */
+    private Long screeningCode;
 }

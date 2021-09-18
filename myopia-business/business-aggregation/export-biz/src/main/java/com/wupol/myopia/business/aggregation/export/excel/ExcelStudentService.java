@@ -24,7 +24,9 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +36,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @Author HaoHao
@@ -56,6 +57,8 @@ public class ExcelStudentService {
     private DistrictService districtService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 年级-班级 格式化
@@ -442,6 +445,8 @@ public class ExcelStudentService {
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = planStudents.stream()
                 .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
         updateManagementStudent(studentList, planStudentMap,school);
+        // 更新筛查结果
+        updateStudentResult(planStudents, schoolId);
     }
 
     /**
@@ -469,5 +474,21 @@ public class ExcelStudentService {
             student.setSchoolNo(school.getSchoolNo());
         });
         studentService.batchUpdateOrSave(studentList);
+    }
+
+    /**
+     * 更新筛查结果
+     *
+     * @param planStudents 筛查学生
+     * @param schoolId     学校Id
+     */
+    private void updateStudentResult(List<ScreeningPlanSchoolStudent> planStudents, Integer schoolId) {
+        List<Integer> planStudentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(planStudentIds);
+        if (CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        resultList.forEach(r -> r.setSchoolId(schoolId));
+        visionScreeningResultService.updateBatchById(resultList);
     }
 }

@@ -136,6 +136,9 @@
                         #{item}
                     </foreach>
                 </if>
+                <if test="param.screeningCode != null and param.screeningCode != ''">
+                    and mspss.`screening_code` like CONCAT('%', #{param.screeningCode}, '%')
+                </if>
             </trim>
         </where>
     </select>

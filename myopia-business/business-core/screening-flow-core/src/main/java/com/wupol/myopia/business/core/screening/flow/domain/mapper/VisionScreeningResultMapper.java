@@ -33,4 +33,6 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     List<VisionScreeningResult> getStudentResults();
 
     VisionScreeningResult getByPlanStudentId(@Param("planStudentId") Integer planStudentId);
+
+    List<VisionScreeningResult> getByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 }
