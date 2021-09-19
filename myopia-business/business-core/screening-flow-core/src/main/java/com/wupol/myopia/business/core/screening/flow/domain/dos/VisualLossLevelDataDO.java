@@ -24,6 +24,10 @@ public class VisualLossLevelDataDO extends AbstractDiagnosisResult implements Se
      * 左眼数据
      */
     private VisualLossLevelData leftEyeData;
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
     @Data
     @Accessors(chain = true)

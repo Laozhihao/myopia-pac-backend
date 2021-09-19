@@ -79,7 +79,7 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
         if (Objects.nonNull(visualLossLevelData)) {
             VisualLossLevelDataDO.VisualLossLevelData leftVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.LEFT_EYE).setLevel(visualLossLevelData.getLeftVisualLossLevel());
             VisualLossLevelDataDO.VisualLossLevelData rightVisualLossLevelData = new VisualLossLevelDataDO.VisualLossLevelData().setLateriality(CommonConst.RIGHT_EYE).setLevel(visualLossLevelData.getRightVisualLossLevel());
-            VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData);
+            VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO().setLeftEyeData(leftVisualLossLevelData).setRightEyeData(rightVisualLossLevelData).setIsCooperative(isCooperative);
             visualLossLevelDataDO.setCreateUserId(getCreateUserId());
             visionScreeningResult.setVisualLossLevelData(visualLossLevelDataDO);
         }
@@ -88,5 +88,35 @@ public class MultiCheckDataDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         return ObjectUtils.anyNotNull(ocularInspectionData, slitLampData, fundusData, visualLossLevelData);
+    }
+
+    public static MultiCheckDataDTO getInstance(OcularInspectionDataDO ocularInspectionDataDO, FundusDataDO fundusDataDO, SlitLampDataDO slitLampDataDO, VisualLossLevelDataDO visualLossLevelDataDO) {
+        MultiCheckDataDTO multiCheckDataDTO = new MultiCheckDataDTO();
+        // 眼位
+        multiCheckDataDTO.setOcularInspectionData(OcularInspectionDataDTO.getInstance(ocularInspectionDataDO));
+        // 眼底
+        multiCheckDataDTO.setFundusData(FundusDataDTO.getInstance(fundusDataDO));
+        // 裂隙灯
+        multiCheckDataDTO.setSlitLampData(SlitLampDataDTO.getInstance(slitLampDataDO));
+        // 盲及视力损害分类（等级）
+        multiCheckDataDTO.setVisualLossLevelData(VisualLossLevelDataDTO.getInstance(visualLossLevelDataDO));
+        multiCheckDataDTO.setIsCooperative(getCooperative(ocularInspectionDataDO, fundusDataDO, slitLampDataDO, visualLossLevelDataDO));
+        return multiCheckDataDTO;
+    }
+
+    private static Integer getCooperative(OcularInspectionDataDO ocularInspectionDataDO, FundusDataDO fundusDataDO, SlitLampDataDO slitLampDataDO, VisualLossLevelDataDO visualLossLevelDataDO) {
+        if (Objects.nonNull(ocularInspectionDataDO) && Objects.nonNull(ocularInspectionDataDO.getIsCooperative())) {
+            return ocularInspectionDataDO.getIsCooperative();
+        }
+        if (Objects.nonNull(fundusDataDO) && Objects.nonNull(fundusDataDO.getIsCooperative())) {
+            return fundusDataDO.getIsCooperative();
+        }
+        if (Objects.nonNull(slitLampDataDO) && Objects.nonNull(slitLampDataDO.getIsCooperative())) {
+            return slitLampDataDO.getIsCooperative();
+        }
+        if (Objects.nonNull(visualLossLevelDataDO) && Objects.nonNull(visualLossLevelDataDO.getIsCooperative())) {
+            return visualLossLevelDataDO.getIsCooperative();
+        }
+        return null;
     }
 }

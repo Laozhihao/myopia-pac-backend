@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * 小瞳验光数据
@@ -80,6 +81,28 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         return ObjectUtils.anyNotNull(rAxial, lAxial, lSph, rSph, rCyl, lCyl, leftCorrectedVision, rightCorrectedVision);
+    }
+
+    public static PupilOptometryDTO getInstance(PupilOptometryDataDO pupilOptometryDO) {
+        PupilOptometryDTO pupilOptometryDTO = new PupilOptometryDTO();
+        if (Objects.isNull(pupilOptometryDO)) {
+            return pupilOptometryDTO;
+        }
+        PupilOptometryDataDO.PupilOptometryData leftEye = pupilOptometryDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            pupilOptometryDTO.setLAxial(leftEye.getAxial());
+            pupilOptometryDTO.setLCyl(leftEye.getCyl());
+            pupilOptometryDTO.setLSph(leftEye.getSph());
+        }
+        PupilOptometryDataDO.PupilOptometryData rightEye = pupilOptometryDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            pupilOptometryDTO.setRAxial(rightEye.getAxial());
+            pupilOptometryDTO.setRCyl(rightEye.getCyl());
+            pupilOptometryDTO.setRSph(rightEye.getSph());
+        }
+        pupilOptometryDTO.setDiagnosis(pupilOptometryDO.getDiagnosis());
+        pupilOptometryDTO.setIsCooperative(pupilOptometryDO.getIsCooperative());
+        return pupilOptometryDTO;
     }
 }
 

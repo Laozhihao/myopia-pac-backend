@@ -16,8 +16,6 @@ import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
@@ -41,6 +39,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -470,4 +470,16 @@ public class ScreeningAppService {
                 .setSchoolAge(studentScreeningProgressList.get(0).getGradeType())
                 .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1));
     }
+
+    /**
+     * 根据筛查学生ID和筛查机构ID获取筛查数据
+     *
+     * @param planStudentId
+     * @param screeningOrgId
+     * @return com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult
+     **/
+    public VisionScreeningResult getVisionScreeningResultByPlanStudentId(Integer planStudentId, Integer screeningOrgId) {
+        return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setScreeningOrgId(screeningOrgId).setIsDoubleScreen(false));
+    }
+
 }

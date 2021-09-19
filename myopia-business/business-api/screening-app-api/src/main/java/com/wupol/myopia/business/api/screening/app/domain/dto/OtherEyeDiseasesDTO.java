@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description 其他眼病  左右眼起码要有一只眼有疾病
@@ -77,6 +78,23 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         otherEyeDiseasesDO.setCreateUserId(getCreateUserId());
         // 全身疾病在眼部的表现
         return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
+    }
+
+    public static OtherEyeDiseasesDTO getInstance(OtherEyeDiseasesDO otherEyeDiseasesDO, String systemicDiseaseSymptom) {
+        OtherEyeDiseasesDTO otherEyeDiseasesDTO = new OtherEyeDiseasesDTO();
+        if (Objects.isNull(otherEyeDiseasesDO)) {
+            return otherEyeDiseasesDTO;
+        }
+        OtherEyeDiseasesDO.OtherEyeDiseases leftEye = otherEyeDiseasesDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            otherEyeDiseasesDTO.setRDiseaseStr(StringUtils.join(leftEye.getEyeDiseases(), ","));
+        }
+        OtherEyeDiseasesDO.OtherEyeDiseases rightEye = otherEyeDiseasesDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            otherEyeDiseasesDTO.setRDiseaseStr(StringUtils.join(rightEye.getEyeDiseases(), ","));
+        }
+        otherEyeDiseasesDTO.setSystemicDiseaseSymptom(systemicDiseaseSymptom);
+        return otherEyeDiseasesDTO;
     }
 
 }

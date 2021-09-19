@@ -13,6 +13,7 @@ import com.wupol.myopia.business.api.screening.app.domain.dto.*;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.api.screening.app.domain.vo.EyeDiseaseVO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
+import com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
@@ -45,7 +46,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -470,7 +470,7 @@ public class ScreeningAppController {
      **/
     @GetMapping("/getComputerOptometryData/{planStudentId}")
     public ComputerOptometryDTO getComputerOptometryData(@PathVariable Integer planStudentId) {
-        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new ComputerOptometryDTO();
         }
@@ -485,9 +485,7 @@ public class ScreeningAppController {
      **/
     @GetMapping("/getVisionData/{planStudentId}")
     public VisionDataDTO getVisionData(@PathVariable Integer planStudentId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
-        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
-        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new VisionDataDTO();
         }
@@ -502,13 +500,83 @@ public class ScreeningAppController {
      **/
     @GetMapping("/getBiologyData/{planStudentId}")
     public BiometricDataDTO getBiologyData(@PathVariable Integer planStudentId) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(CurrentUserUtil.getCurrentUser().getOrgId()));
-        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
-        VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new BiometricDataDTO();
         }
         return BiometricDataDTO.getInstance(screeningResult.getBiometricData());
+    }
+
+    /**
+     * 获取小瞳验光检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getPupilOptometryData/{planStudentId}")
+    public PupilOptometryDTO getPupilOptometryData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new PupilOptometryDTO();
+        }
+        return PupilOptometryDTO.getInstance(screeningResult.getPupilOptometryData());
+    }
+
+    /**
+     * 获取眼压检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getEyePressureData/{planStudentId}")
+    public EyePressureDataDTO getEyePressureData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new EyePressureDataDTO();
+        }
+        return EyePressureDataDTO.getInstance(screeningResult.getEyePressureData());
+    }
+
+    /**
+     * 获取眼位、眼底、裂隙灯、盲及视力损害检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getMultiCheckData/{planStudentId}")
+    public MultiCheckDataDTO getMultiCheckData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new MultiCheckDataDTO();
+        }
+        return MultiCheckDataDTO.getInstance(screeningResult.getOcularInspectionData(), screeningResult.getFundusData(), screeningResult.getSlitLampData(), screeningResult.getVisualLossLevelData());
+    }
+
+    /**
+     * 获取其他眼病检查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
+     **/
+    @GetMapping("/getEyeDiseaseData/{planStudentId}")
+    public OtherEyeDiseasesDTO getEyeDiseaseData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        if (Objects.isNull(screeningResult)) {
+            return new OtherEyeDiseasesDTO();
+        }
+        return OtherEyeDiseasesDTO.getInstance(screeningResult.getOtherEyeDiseases(), screeningResult.getSystemicDiseaseSymptom());
+    }
+
+    /**
+     * 获取所有筛查数据
+     *
+     * @param planStudentId 筛查计划学生ID
+     * @return com.wupol.myopia.business.api.screening.app.domain.vo.ScreeningResultDataVO
+     **/
+    @GetMapping("/data/{planStudentId}")
+    public ScreeningResultDataVO getScreeningResultData(@PathVariable Integer planStudentId) {
+        VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
+        return ScreeningResultDataVO.getInstance(screeningResult);
     }
 
     /**
