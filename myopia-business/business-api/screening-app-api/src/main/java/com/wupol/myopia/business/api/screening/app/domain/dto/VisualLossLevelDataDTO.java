@@ -24,11 +24,6 @@ public class VisualLossLevelDataDTO implements Serializable {
      */
     private Integer rightVisualLossLevel;
 
-    /**
-     * 是否配合检查：0-配合、1-不配合
-     */
-    private Integer isCooperative;
-
     public static VisualLossLevelDataDTO getInstance(VisualLossLevelDataDO visualLossLevelDataDO) {
         VisualLossLevelDataDTO visualLossLevelDataDTO = new VisualLossLevelDataDTO();
         if (Objects.isNull(visualLossLevelDataDO)) {

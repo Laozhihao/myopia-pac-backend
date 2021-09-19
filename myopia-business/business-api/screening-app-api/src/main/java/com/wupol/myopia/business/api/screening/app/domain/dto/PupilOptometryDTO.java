@@ -93,12 +93,14 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
             pupilOptometryDTO.setLAxial(leftEye.getAxial());
             pupilOptometryDTO.setLCyl(leftEye.getCyl());
             pupilOptometryDTO.setLSph(leftEye.getSph());
+            pupilOptometryDTO.setLeftCorrectedVision(leftEye.getCorrectedVision());
         }
         PupilOptometryDataDO.PupilOptometryData rightEye = pupilOptometryDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
             pupilOptometryDTO.setRAxial(rightEye.getAxial());
             pupilOptometryDTO.setRCyl(rightEye.getCyl());
             pupilOptometryDTO.setRSph(rightEye.getSph());
+            pupilOptometryDTO.setRightCorrectedVision(rightEye.getCorrectedVision());
         }
         pupilOptometryDTO.setDiagnosis(pupilOptometryDO.getDiagnosis());
         pupilOptometryDTO.setIsCooperative(pupilOptometryDO.getIsCooperative());

@@ -558,8 +558,8 @@ public class ScreeningAppController {
      * @param planStudentId 筛查计划学生ID
      * @return com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO
      **/
-    @GetMapping("/getEyeDiseaseData/{planStudentId}")
-    public OtherEyeDiseasesDTO getEyeDiseaseData(@PathVariable Integer planStudentId) {
+    @GetMapping("/getOtherEyeDiseaseData/{planStudentId}")
+    public OtherEyeDiseasesDTO getOtherEyeDiseaseData(@PathVariable Integer planStudentId) {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(planStudentId, CurrentUserUtil.getCurrentUser().getOrgId());
         if (Objects.isNull(screeningResult)) {
             return new OtherEyeDiseasesDTO();
