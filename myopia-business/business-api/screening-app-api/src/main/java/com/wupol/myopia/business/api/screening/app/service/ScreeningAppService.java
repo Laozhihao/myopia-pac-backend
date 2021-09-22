@@ -459,6 +459,9 @@ public class ScreeningAppService {
             totalStudentIds.addAll(hasScreeningDataStudentIds);
             log.info(totalStudentIds);
             screeningPlanSchoolStudentList = totalStudentIds.stream().map(screeningPlanSchoolStudentMap::get).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+                return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
+            }
         }
 
         // 转换为筛查进度
