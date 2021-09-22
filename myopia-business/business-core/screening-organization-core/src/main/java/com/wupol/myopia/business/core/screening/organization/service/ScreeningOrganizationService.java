@@ -48,14 +48,25 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Autowired
     private DistrictService districtService;
 
+    /**
+     * 父账号
+     */
+    public static final Integer PARENT_ACCOUNT = 0;
+
+    /**
+     * 子账号
+     */
+    public static final Integer CHILD_ACCOUNT = 1;
+
 
     /**
      * 生成账号密码
      *
-     * @param org 筛查机构
+     * @param org         筛查机构
+     * @param accountType 账号类型 1-主账号 2-子账号
      * @return 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = org.getName();
 
@@ -63,10 +74,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         userDTO.setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
-                .setPhone(org.getPhone())
                 .setRealName(username)
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+        if (accountType.equals(PARENT_ACCOUNT)) {
+            userDTO.setPhone(org.getPhone());
+        }
         userDTO.setOrgConfigType(org.getConfigType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
