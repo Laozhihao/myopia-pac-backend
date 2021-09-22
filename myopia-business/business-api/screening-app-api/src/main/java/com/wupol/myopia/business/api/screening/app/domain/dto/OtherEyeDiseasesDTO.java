@@ -81,10 +81,10 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
     }
 
     public static OtherEyeDiseasesDTO getInstance(OtherEyeDiseasesDO otherEyeDiseasesDO, String systemicDiseaseSymptom) {
-        OtherEyeDiseasesDTO otherEyeDiseasesDTO = new OtherEyeDiseasesDTO();
         if (Objects.isNull(otherEyeDiseasesDO)) {
-            return otherEyeDiseasesDTO;
+            return null;
         }
+        OtherEyeDiseasesDTO otherEyeDiseasesDTO = new OtherEyeDiseasesDTO();
         OtherEyeDiseasesDO.OtherEyeDiseases leftEye = otherEyeDiseasesDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             otherEyeDiseasesDTO.setLDiseaseStr(StringUtils.join(leftEye.getEyeDiseases(), ","));

@@ -29,10 +29,10 @@ public class FundusDataDTO implements Serializable {
     private String remark;
 
     public static FundusDataDTO getInstance(FundusDataDO fundusDataDO) {
-        FundusDataDTO fundusDataDTO = new FundusDataDTO();
         if (Objects.isNull(fundusDataDO)) {
-            return fundusDataDTO;
+            return null;
         }
+        FundusDataDTO fundusDataDTO = new FundusDataDTO();
         FundusDataDO.FundusData leftEye = fundusDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             fundusDataDTO.setLeftHasAbnormal(leftEye.getHasAbnormal());
