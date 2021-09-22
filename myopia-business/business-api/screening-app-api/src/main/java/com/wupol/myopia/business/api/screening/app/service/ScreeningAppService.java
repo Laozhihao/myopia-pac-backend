@@ -452,12 +452,9 @@ public class ScreeningAppService {
         if (Boolean.TRUE.equals(isFilter)) {
             Set<Integer> hasNameStudentIds = screeningPlanSchoolStudentList.stream().filter(x -> !x.getStudentName().equals(String.valueOf(x.getScreeningCode()))).map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
             Set<Integer> hasScreeningDataStudentIds = planStudentVisionResultMap.keySet();
-            log.info(hasNameStudentIds);
-            log.info(hasScreeningDataStudentIds);
             Set<Integer> totalStudentIds = new HashSet<>();
             totalStudentIds.addAll(hasNameStudentIds);
             totalStudentIds.addAll(hasScreeningDataStudentIds);
-            log.info(totalStudentIds);
             screeningPlanSchoolStudentList = totalStudentIds.stream().map(screeningPlanSchoolStudentMap::get).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
                 return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
