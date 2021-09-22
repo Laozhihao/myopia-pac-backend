@@ -14,4 +14,14 @@ public class ResetPasswordRequest {
 
     @NotNull(message = "id不能为空")
     private Integer id;
+
+    /**
+     * 用户Id
+     */
+    private Integer userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
 }

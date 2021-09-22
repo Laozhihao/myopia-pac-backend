@@ -55,4 +55,24 @@ public class ScreeningOrganizationAdminService extends BaseService<ScreeningOrga
     public List<ScreeningOrganizationAdmin> getByOrgIds(List<Integer> orgIds) {
         return baseMapper.getByOrgIds(orgIds);
     }
+
+    /**
+     * 通过筛查机构获取账号
+     *
+     * @param orgId 筛查机构Id
+     * @return List<ScreeningOrganizationAdmin>
+     */
+    public List<ScreeningOrganizationAdmin> getListOrgList(Integer orgId) {
+        return baseMapper.getListOrgList(orgId);
+    }
+
+    /**
+     * 通过筛查ID和UserId获取筛查ADMIN
+     *
+     * @param orgId 筛查机构ID
+     * @return admin
+     */
+    public ScreeningOrganizationAdmin getByOrgIdAndUserId(Integer orgId, Integer userId) {
+        return baseMapper.getByOrgIdAndUserId(orgId, userId);
+    }
 }

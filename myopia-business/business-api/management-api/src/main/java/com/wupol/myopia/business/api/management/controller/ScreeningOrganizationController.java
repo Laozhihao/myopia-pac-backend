@@ -21,6 +21,8 @@ import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalReq
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.AddAccountDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -155,8 +157,8 @@ public class ScreeningOrganizationController {
     public void getOrganizationExportData(Integer districtId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
-                .setApplyExportFileUserId(user.getId())
-                .setDistrictId(districtId),
+                        .setApplyExportFileUserId(user.getId())
+                        .setDistrictId(districtId),
                 ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);
     }
 
@@ -168,7 +170,7 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("/reset")
     public UsernameAndPasswordDTO resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        return screeningOrganizationService.resetPassword(request.getId());
+        return screeningOrganizationService.resetPassword(request);
     }
 
     /**
@@ -298,5 +300,27 @@ public class ScreeningOrganizationController {
     public ApiResult resetOrg() {
         screeningOrganizationBizService.resetOrg();
         return ApiResult.success();
+    }
+
+    /**
+     * 获取筛查机构账号列表
+     *
+     * @param orgId 机构Id
+     * @return List<OrgAccountListDTO>
+     */
+    @GetMapping("/accountList/{orgId}")
+    public List<OrgAccountListDTO> getAccountList(@PathVariable("orgId") Integer orgId) {
+        return screeningOrganizationService.getAccountList(orgId);
+    }
+
+    /**
+     * 添加用户
+     *
+     * @param addAccountDTO 请求入参
+     * @return UsernameAndPasswordDTO
+     */
+    @PostMapping("/add/account")
+    public UsernameAndPasswordDTO addAccount(@RequestBody AddAccountDTO addAccountDTO) {
+        return screeningOrganizationBizService.addAccount(addAccountDTO);
     }
 }

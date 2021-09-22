@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordI
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.AddAccountDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -114,7 +115,7 @@ public class ScreeningOrganizationBizService {
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
-        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization);
+        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT);
     }
 
     /**
@@ -491,6 +492,27 @@ public class ScreeningOrganizationBizService {
             userDTO.setOrgConfigType(c.getConfigType());
             oauthServiceClient.resetOrg(userDTO);
         });
+    }
 
+    /**
+     * 添加账号
+     *
+     * @param addAccountDTO 入参
+     * @return UsernameAndPasswordDTO
+     */
+    public UsernameAndPasswordDTO addAccount(AddAccountDTO addAccountDTO) {
+        Integer orgId = addAccountDTO.getOrgId();
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(orgId);
+        if (Objects.isNull(screeningOrganization)) {
+            throw new BusinessException("筛查结构异常");
+        }
+        // 获取该筛查机构已经有多少个账号
+        List<ScreeningOrganizationAdmin> orgList = screeningOrganizationAdminService.getListOrgList(orgId);
+        if (CollectionUtils.isEmpty(orgList)) {
+            throw new BusinessException("数据异常");
+        }
+        String orgName = screeningOrganization.getName();
+        screeningOrganization.setName(orgName + "0" + orgList.size());
+        return screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.CHILD_ACCOUNT);
     }
 }

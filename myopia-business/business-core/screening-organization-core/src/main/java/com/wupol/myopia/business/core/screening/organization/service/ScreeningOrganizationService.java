@@ -2,15 +2,18 @@ package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.PasswordGenerator;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.ScreeningOrganizationMapper;
@@ -25,9 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 筛查机构
@@ -45,14 +48,25 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     @Autowired
     private DistrictService districtService;
 
+    /**
+     * 父账号
+     */
+    public static final Integer PARENT_ACCOUNT = 0;
+
+    /**
+     * 子账号
+     */
+    public static final Integer CHILD_ACCOUNT = 1;
+
 
     /**
      * 生成账号密码
      *
-     * @param org 筛查机构
+     * @param org         筛查机构
+     * @param accountType 账号类型 1-主账号 2-子账号
      * @return 账号密码
      */
-    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org) {
+    public UsernameAndPasswordDTO generateAccountAndPassword(ScreeningOrganization org, Integer accountType) {
         String password = PasswordGenerator.getScreeningAdminPwd();
         String username = org.getName();
 
@@ -60,10 +74,12 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         userDTO.setOrgId(org.getId())
                 .setUsername(username)
                 .setPassword(password)
-                .setPhone(org.getPhone())
                 .setRealName(username)
                 .setCreateUserId(org.getCreateUserId())
                 .setSystemCode(SystemCode.SCREENING_MANAGEMENT_CLIENT.getCode());
+        if (accountType.equals(PARENT_ACCOUNT)) {
+            userDTO.setPhone(org.getPhone());
+        }
         userDTO.setOrgConfigType(org.getConfigType());
 
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
@@ -106,16 +122,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer updateStatus(StatusRequest request) {
-        ScreeningOrganization org = new ScreeningOrganization();
-        org.setId(request.getId());
-        org.setStatus(request.getStatus());
-        baseMapper.updateById(org);
 
         // 查找管理员
-        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(request.getId());
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgIdAndUserId(request.getId(), request.getUserId());
         if (null == admin) {
             throw new BusinessException("数据异常");
         }
+        admin.setStatus(request.getStatus());
+        screeningOrganizationAdminService.updateById(admin);
 
         // 更新OAuth2
         UserDTO userDTO = new UserDTO();
@@ -128,29 +142,31 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
     /**
      * 重置密码
      *
-     * @param id 筛查机构id
+     * @param request 筛查机构id
      * @return 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO resetPassword(Integer id) {
-        ScreeningOrganization screeningOrg = baseMapper.selectById(id);
+    public UsernameAndPasswordDTO resetPassword(ResetPasswordRequest request) {
+        Integer orgId = request.getId();
+        Integer userId = request.getUserId();
+        String username = request.getUsername();
+        ScreeningOrganization screeningOrg = baseMapper.selectById(orgId);
         if (null == screeningOrg) {
             throw new BusinessException("数据异常");
         }
-        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgId(id);
-        return resetOAuthPassword(screeningOrg, admin.getUserId());
+        ScreeningOrganizationAdmin admin = screeningOrganizationAdminService.getByOrgIdAndUserId(orgId, userId);
+        return resetOAuthPassword(admin.getUserId(), username);
     }
 
     /**
      * 重置密码
      *
-     * @param screeningOrg 筛查机构
-     * @param userId       用户id
+     * @param userId   用户id
+     * @param username 用户名字
      * @return 账号密码
      */
-    private UsernameAndPasswordDTO resetOAuthPassword(ScreeningOrganization screeningOrg, Integer userId) {
+    private UsernameAndPasswordDTO resetOAuthPassword(Integer userId, String username) {
         String password = PasswordGenerator.getScreeningAdminPwd();
-        String username = screeningOrg.getName();
         oauthServiceClient.resetPwd(userId, password);
         return new UsernameAndPasswordDTO(username, password);
     }
@@ -258,5 +274,29 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return baseMapper.getAll();
     }
 
-
+    /**
+     * 筛查机构账号列表
+     *
+     * @param orgId 筛查机构Id
+     * @return List<OrgAccountListDTO>
+     */
+    public List<OrgAccountListDTO> getAccountList(Integer orgId) {
+        List<OrgAccountListDTO> accountList = new ArrayList<>();
+        List<ScreeningOrganizationAdmin> listOrgList = screeningOrganizationAdminService.getListOrgList(orgId);
+        if (CollectionUtils.isEmpty(listOrgList)) {
+            return accountList;
+        }
+        List<Integer> userIds = listOrgList.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByUserIds(userIds);
+        Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+        listOrgList.forEach(orgAdmin -> {
+            OrgAccountListDTO account = new OrgAccountListDTO();
+            account.setUserId(orgAdmin.getUserId());
+            account.setOrgId(orgAdmin.getScreeningOrgId());
+            account.setUsername(userMap.get(orgAdmin.getUserId()).getUsername());
+            account.setStatus(orgAdmin.getStatus());
+            accountList.add(account);
+        });
+        return accountList;
+    }
 }
