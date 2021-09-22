@@ -58,4 +58,9 @@ public class ScreeningOrganizationAdmin {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 状态 0-启用 1-禁止 2-删除
+     */
+    private Integer status;
 }

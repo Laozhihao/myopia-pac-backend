@@ -22,4 +22,9 @@ public class StatusRequest {
 
     @NotNull(message = "状态不能为空")
     private Integer status;
+
+    /**
+     * 用户Id
+     */
+    private Integer userId;
 }

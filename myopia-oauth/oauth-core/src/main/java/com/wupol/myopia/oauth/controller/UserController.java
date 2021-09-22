@@ -192,4 +192,12 @@ public class UserController {
         userService.resetScreeningOrg(userDTO);
         return true;
     }
+
+    @GetMapping("/batch/userIds")
+    public List<User> getByUserIds(@RequestParam("userIds") List<Integer> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>();
+        }
+        return userService.getByUserIds(userIds);
+    }
 }

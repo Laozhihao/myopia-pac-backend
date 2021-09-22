@@ -366,4 +366,16 @@ public class UserService extends BaseService<UserMapper, User> {
             roleService.assignRolePermission(roleId, permissionIds);
         }
     }
+
+    /**
+     * 通过UserIds获取用户
+     *
+     * @param userIds 用户Ids
+     * @return List<User>
+     */
+    public List<User> getByUserIds(List<Integer> userIds) {
+        UserDTO queryParam = new UserDTO();
+        queryParam.setUserIds(userIds);
+        return baseMapper.selectUserList(queryParam);
+    }
 }

@@ -262,4 +262,7 @@ public interface OauthServiceClient {
     @PostMapping("/oauth/user/reset/org")
     Boolean resetOrg(@RequestBody UserDTO param);
 
+    @GetMapping("/oauth/user/batch/userIds")
+    List<User> getUserBatchByUserIds(@RequestParam("userIds") List<Integer> userIds);
+
 }

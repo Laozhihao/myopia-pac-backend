@@ -16,4 +16,8 @@ public interface ScreeningOrganizationAdminMapper extends BaseMapper<ScreeningOr
     List<ScreeningOrganizationAdmin> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
 
     ScreeningOrganizationAdmin getByOrgId(@Param("orgId") Integer orgId);
+
+    List<ScreeningOrganizationAdmin> getListOrgList(@Param("orgId") Integer orgId);
+
+    ScreeningOrganizationAdmin getByOrgIdAndUserId(@Param("orgId") Integer orgId, @Param("userId") Integer userId);
 }
