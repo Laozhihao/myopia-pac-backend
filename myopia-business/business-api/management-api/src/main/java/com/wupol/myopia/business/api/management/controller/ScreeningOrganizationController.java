@@ -313,6 +313,12 @@ public class ScreeningOrganizationController {
         return screeningOrganizationService.getAccountList(orgId);
     }
 
+    /**
+     * 添加用户
+     *
+     * @param addAccountDTO 请求入参
+     * @return UsernameAndPasswordDTO
+     */
     @PostMapping("/add/account")
     public UsernameAndPasswordDTO addAccount(@RequestBody AddAccountDTO addAccountDTO) {
         return screeningOrganizationBizService.addAccount(addAccountDTO);
