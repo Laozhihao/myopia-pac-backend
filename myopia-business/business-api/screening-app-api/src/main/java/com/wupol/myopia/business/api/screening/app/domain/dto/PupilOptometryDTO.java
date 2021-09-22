@@ -84,10 +84,10 @@ public class PupilOptometryDTO extends ScreeningResultBasicData {
     }
 
     public static PupilOptometryDTO getInstance(PupilOptometryDataDO pupilOptometryDO) {
-        PupilOptometryDTO pupilOptometryDTO = new PupilOptometryDTO();
         if (Objects.isNull(pupilOptometryDO)) {
-            return pupilOptometryDTO;
+            return null;
         }
+        PupilOptometryDTO pupilOptometryDTO = new PupilOptometryDTO();
         PupilOptometryDataDO.PupilOptometryData leftEye = pupilOptometryDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             pupilOptometryDTO.setLAxial(leftEye.getAxial());

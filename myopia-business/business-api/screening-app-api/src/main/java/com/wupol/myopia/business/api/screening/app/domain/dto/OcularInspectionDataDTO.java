@@ -32,10 +32,10 @@ public class OcularInspectionDataDTO implements Serializable {
     private Integer diagnosis;
 
     public static OcularInspectionDataDTO getInstance(OcularInspectionDataDO ocularInspectionDataDO) {
-        OcularInspectionDataDTO ocularInspectionDataDTO = new OcularInspectionDataDTO();
         if (Objects.isNull(ocularInspectionDataDO)) {
-            return ocularInspectionDataDTO;
+            return null;
         }
+        OcularInspectionDataDTO ocularInspectionDataDTO = new OcularInspectionDataDTO();
         ocularInspectionDataDTO.setEsotropia(ocularInspectionDataDO.getEsotropia());
         ocularInspectionDataDTO.setExotropia(ocularInspectionDataDO.getExotropia());
         ocularInspectionDataDTO.setVerticalStrabismus(ocularInspectionDataDO.getVerticalStrabismus());
