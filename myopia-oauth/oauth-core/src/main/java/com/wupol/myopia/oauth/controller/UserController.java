@@ -193,6 +193,12 @@ public class UserController {
         return true;
     }
 
+    /**
+     * 通过UserIds获取用户列表
+     *
+     * @param userIds 用户Ids
+     * @return 用户列表
+     */
     @GetMapping("/batch/userIds")
     public List<User> getByUserIds(@RequestParam("userIds") List<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
