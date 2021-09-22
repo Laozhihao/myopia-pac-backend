@@ -87,7 +87,7 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         }
         OtherEyeDiseasesDO.OtherEyeDiseases leftEye = otherEyeDiseasesDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
-            otherEyeDiseasesDTO.setRDiseaseStr(StringUtils.join(leftEye.getEyeDiseases(), ","));
+            otherEyeDiseasesDTO.setLDiseaseStr(StringUtils.join(leftEye.getEyeDiseases(), ","));
         }
         OtherEyeDiseasesDO.OtherEyeDiseases rightEye = otherEyeDiseasesDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
