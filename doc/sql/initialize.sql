@@ -651,6 +651,7 @@ CREATE TABLE `m_screening_organization_admin`  (
   `gov_dept_id` int(11) NOT NULL COMMENT '部门ID',
   `create_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  `status` tinyint default 0 null comment '状态 0-启用 1-禁止 2-删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `m_screening_organization_admin_screening_org_id_index`(`screening_org_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '机构-管理员表' ROW_FORMAT = Dynamic;
