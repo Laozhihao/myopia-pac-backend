@@ -50,6 +50,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
  * @Author Chikong
  * @Date 2021-01-21
  */
+@Log4j2
 @Service
 public class ScreeningAppService {
 
@@ -450,8 +452,13 @@ public class ScreeningAppService {
         if (Boolean.TRUE.equals(isFilter)) {
             Set<Integer> hasNameStudentIds = screeningPlanSchoolStudentList.stream().filter(x -> !x.getStudentName().equals(String.valueOf(x.getScreeningCode()))).map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
             Set<Integer> hasScreeningDataStudentIds = planStudentVisionResultMap.keySet();
-            hasScreeningDataStudentIds.addAll(hasNameStudentIds);
-            screeningPlanSchoolStudentList = hasScreeningDataStudentIds.stream().map(screeningPlanSchoolStudentMap::get).collect(Collectors.toList());
+            log.info(hasNameStudentIds);
+            log.info(hasScreeningDataStudentIds);
+            Set<Integer> totalStudentIds = new HashSet<>();
+            totalStudentIds.addAll(hasNameStudentIds);
+            totalStudentIds.addAll(hasScreeningDataStudentIds);
+            log.info(totalStudentIds);
+            screeningPlanSchoolStudentList = totalStudentIds.stream().map(screeningPlanSchoolStudentMap::get).collect(Collectors.toList());
         }
 
         // 转换为筛查进度
