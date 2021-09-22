@@ -69,10 +69,10 @@ public class SlitLampDataDTO implements Serializable {
     }
 
     public static SlitLampDataDTO getInstance(SlitLampDataDO slitLampDataDO) {
-        SlitLampDataDTO slitLampDataDTO = new SlitLampDataDTO();
         if (Objects.isNull(slitLampDataDO)) {
-            return slitLampDataDTO;
+            return null;
         }
+        SlitLampDataDTO slitLampDataDTO = new SlitLampDataDTO();
         SlitLampDataDO.SlitLampData leftEye = slitLampDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             slitLampDataDTO.setLeftDiagnosis(leftEye.getDiagnosis());

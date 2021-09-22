@@ -47,10 +47,10 @@ public class EyePressureDataDTO extends ScreeningResultBasicData {
     }
 
     public static EyePressureDataDTO getInstance(EyePressureDataDO eyePressureDataDO) {
-        EyePressureDataDTO eyePressureDataDTO = new EyePressureDataDTO();
         if (Objects.isNull(eyePressureDataDO)) {
-            return eyePressureDataDTO;
+            return null;
         }
+        EyePressureDataDTO eyePressureDataDTO = new EyePressureDataDTO();
         EyePressureDataDO.EyePressureData leftEye = eyePressureDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             eyePressureDataDTO.setLeftPressure(leftEye.getPressure());

@@ -25,10 +25,10 @@ public class VisualLossLevelDataDTO implements Serializable {
     private Integer rightVisualLossLevel;
 
     public static VisualLossLevelDataDTO getInstance(VisualLossLevelDataDO visualLossLevelDataDO) {
-        VisualLossLevelDataDTO visualLossLevelDataDTO = new VisualLossLevelDataDTO();
         if (Objects.isNull(visualLossLevelDataDO)) {
-            return visualLossLevelDataDTO;
+            return null;
         }
+        VisualLossLevelDataDTO visualLossLevelDataDTO = new VisualLossLevelDataDTO();
         VisualLossLevelDataDO.VisualLossLevelData leftEye = visualLossLevelDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             visualLossLevelDataDTO.setLeftVisualLossLevel(leftEye.getLevel());

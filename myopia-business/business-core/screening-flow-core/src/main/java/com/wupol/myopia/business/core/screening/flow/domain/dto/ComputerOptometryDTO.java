@@ -72,10 +72,10 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     }
 
     public static ComputerOptometryDTO getInstance(ComputerOptometryDO computerOptometryDO) {
-        ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
         if (Objects.isNull(computerOptometryDO)) {
-            return computerOptometryDTO;
+            return null;
         }
+        ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
         ComputerOptometryDO.ComputerOptometry leftEye = computerOptometryDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             computerOptometryDTO.setLAxial(leftEye.getAxial());
