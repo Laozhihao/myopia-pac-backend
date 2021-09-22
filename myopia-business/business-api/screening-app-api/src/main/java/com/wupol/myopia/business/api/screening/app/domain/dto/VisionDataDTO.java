@@ -71,10 +71,10 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     }
 
     public static VisionDataDTO getInstance(VisionDataDO visionDataDO) {
-        VisionDataDTO visionDataDTO = new VisionDataDTO();
         if (Objects.isNull(visionDataDO)) {
-            return visionDataDTO;
+            return null;
         }
+        VisionDataDTO visionDataDTO = new VisionDataDTO();
         VisionDataDO.VisionData leftEye = visionDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             visionDataDTO.setLeftNakedVision(leftEye.getNakedVision());

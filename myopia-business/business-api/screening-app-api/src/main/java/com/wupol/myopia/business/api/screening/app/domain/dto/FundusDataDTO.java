@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 眼底数据
@@ -25,4 +27,21 @@ public class FundusDataDTO implements Serializable {
      * 备注说明
      */
     private String remark;
+
+    public static FundusDataDTO getInstance(FundusDataDO fundusDataDO) {
+        if (Objects.isNull(fundusDataDO)) {
+            return null;
+        }
+        FundusDataDTO fundusDataDTO = new FundusDataDTO();
+        FundusDataDO.FundusData leftEye = fundusDataDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            fundusDataDTO.setLeftHasAbnormal(leftEye.getHasAbnormal());
+        }
+        FundusDataDO.FundusData rightEye = fundusDataDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            fundusDataDTO.setRightHasAbnormal(rightEye.getHasAbnormal());
+        }
+        fundusDataDTO.setRemark(fundusDataDO.getRemark());
+        return fundusDataDTO;
+    }
 }

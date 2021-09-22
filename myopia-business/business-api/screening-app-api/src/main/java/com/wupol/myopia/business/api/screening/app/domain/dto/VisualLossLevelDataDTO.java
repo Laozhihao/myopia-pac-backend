@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 盲及视力损害等级
@@ -21,4 +23,21 @@ public class VisualLossLevelDataDTO implements Serializable {
      * 右：0~9 级
      */
     private Integer rightVisualLossLevel;
+
+    public static VisualLossLevelDataDTO getInstance(VisualLossLevelDataDO visualLossLevelDataDO) {
+        if (Objects.isNull(visualLossLevelDataDO)) {
+            return null;
+        }
+        VisualLossLevelDataDTO visualLossLevelDataDTO = new VisualLossLevelDataDTO();
+        VisualLossLevelDataDO.VisualLossLevelData leftEye = visualLossLevelDataDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            visualLossLevelDataDTO.setLeftVisualLossLevel(leftEye.getLevel());
+        }
+        VisualLossLevelDataDO.VisualLossLevelData rightEye = visualLossLevelDataDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            visualLossLevelDataDTO.setRightVisualLossLevel(rightEye.getLevel());
+        }
+        return visualLossLevelDataDTO;
+    }
+
 }

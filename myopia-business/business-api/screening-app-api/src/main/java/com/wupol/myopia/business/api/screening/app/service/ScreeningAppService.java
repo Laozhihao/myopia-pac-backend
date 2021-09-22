@@ -16,10 +16,9 @@ import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.api.screening.app.domain.vo.RescreeningResultVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.api.screening.app.enums.ErrorEnum;
 import com.wupol.myopia.business.api.screening.app.enums.StudentExcelEnum;
+import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
 import com.wupol.myopia.business.api.screening.app.utils.CommUtil;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -41,6 +40,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -49,8 +50,10 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationStaffService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -65,6 +68,7 @@ import java.util.stream.Collectors;
  * @Author Chikong
  * @Date 2021-01-21
  */
+@Log4j2
 @Service
 public class ScreeningAppService {
 
@@ -427,22 +431,35 @@ public class ScreeningAppService {
      * @param classId 班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId) {
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter) {
         // 查询班级所有学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId));
-        if (org.apache.commons.collections4.CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
             return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
         }
 
         // 获取学生对应筛查数据
-        Set<Integer> screeningPlanSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
+        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentMap.keySet());
         Map<Integer, VisionScreeningResult> planStudentVisionResultMap = visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        // 只显示有姓名或有筛查数据的
+        if (Boolean.TRUE.equals(isFilter)) {
+            Set<Integer> hasNameStudentIds = screeningPlanSchoolStudentList.stream().filter(x -> !x.getStudentName().equals(String.valueOf(x.getScreeningCode()))).map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+            Set<Integer> hasScreeningDataStudentIds = planStudentVisionResultMap.keySet();
+            Set<Integer> totalStudentIds = new HashSet<>();
+            totalStudentIds.addAll(hasNameStudentIds);
+            totalStudentIds.addAll(hasScreeningDataStudentIds);
+            screeningPlanSchoolStudentList = totalStudentIds.stream().map(screeningPlanSchoolStudentMap::get).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
+                return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
+            }
+        }
 
         // 转换为筛查进度
         List<StudentScreeningProgressVO> studentScreeningProgressList = screeningPlanSchoolStudentList.stream().map(planStudent -> {
@@ -454,20 +471,34 @@ public class ScreeningAppService {
         // 异常的排前面
         Map<Boolean, List<StudentScreeningProgressVO>> finishMap = studentScreeningProgressList.stream().collect(Collectors.groupingBy(StudentScreeningProgressVO::getResult));
         List<StudentScreeningProgressVO> progressList = new ArrayList<>();
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(finishMap.get(false))) {
+        if (CollectionUtils.isNotEmpty(finishMap.get(false))) {
             progressList.addAll(finishMap.get(false));
         }
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(finishMap.get(true))) {
+        if (CollectionUtils.isNotEmpty(finishMap.get(true))) {
             progressList.addAll(finishMap.get(true));
         }
 
         // 统计筛查情况，只要有一条是人造的数据，则整个班级数据标记为人造的
         return new ClassScreeningProgress().setStudentScreeningProgressList(progressList)
-                .setPlanCount(org.apache.commons.collections4.CollectionUtils.size(studentScreeningProgressList))
-                .setScreeningCount(org.apache.commons.collections4.CollectionUtils.size(visionScreeningResults))
+                .setPlanCount(CollectionUtils.size(studentScreeningProgressList))
+                .setScreeningCount(CollectionUtils.size(visionScreeningResults))
                 .setAbnormalCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getHasAbnormal).count())
                 .setUnfinishedCount((int) studentScreeningProgressList.stream().filter(x -> !x.getResult()).count())
                 .setSchoolAge(studentScreeningProgressList.get(0).getGradeType())
                 .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1));
     }
+
+    /**
+     * 根据筛查学生ID和筛查机构ID获取筛查数据
+     *
+     * @param planStudentId
+     * @param screeningOrgId
+     * @return com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult
+     **/
+    public VisionScreeningResult getVisionScreeningResultByPlanStudentId(Integer planStudentId, Integer screeningOrgId) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(screeningOrgId));
+        Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+    }
+
 }

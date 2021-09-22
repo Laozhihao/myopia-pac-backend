@@ -160,10 +160,10 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
     }
 
     public static BiometricDataDTO getInstance(BiometricDataDO biometricDataDO) {
-        BiometricDataDTO biometricDataDTO = new BiometricDataDTO();
         if (Objects.isNull(biometricDataDO)) {
-            return biometricDataDTO;
+            return null;
         }
+        BiometricDataDTO biometricDataDTO = new BiometricDataDTO();
         BiometricDataDO.BiometricData leftEye = biometricDataDO.getLeftEyeData();
         if (Objects.nonNull(leftEye)) {
             biometricDataDTO.setLAD(leftEye.getAd());

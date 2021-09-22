@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -7,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 裂隙灯检查数据
@@ -64,6 +66,24 @@ public class SlitLampDataDTO implements Serializable {
         }
         String[] diseaseStringArray = pathologicalTissueStr.split(",");
         return Arrays.asList(diseaseStringArray);
+    }
+
+    public static SlitLampDataDTO getInstance(SlitLampDataDO slitLampDataDO) {
+        if (Objects.isNull(slitLampDataDO)) {
+            return null;
+        }
+        SlitLampDataDTO slitLampDataDTO = new SlitLampDataDTO();
+        SlitLampDataDO.SlitLampData leftEye = slitLampDataDO.getLeftEyeData();
+        if (Objects.nonNull(leftEye)) {
+            slitLampDataDTO.setLeftDiagnosis(leftEye.getDiagnosis());
+            slitLampDataDTO.setLeftPathologicalTissues(StringUtils.join(leftEye.getPathologicalTissues(), ","));
+        }
+        SlitLampDataDO.SlitLampData rightEye = slitLampDataDO.getRightEyeData();
+        if (Objects.nonNull(rightEye)) {
+            slitLampDataDTO.setRightDiagnosis(rightEye.getDiagnosis());
+            slitLampDataDTO.setRightPathologicalTissues(StringUtils.join(rightEye.getPathologicalTissues(), ","));
+        }
+        return slitLampDataDTO;
     }
 
 }
