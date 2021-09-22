@@ -73,10 +73,10 @@ public class StudentScreeningProgressVO {
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
      * 1. 托幼机构
      *      初查项目：视力检查、眼位
-     *      以上任意一个初查项目结果(疑似）异常，则：裂隙灯检查、小瞳验光、眼底检查项目必做
+     *      以上任意一个初查项目结果(疑似）异常，则：裂隙灯检查、小瞳验光检查项目必做
      * 2. 中小学生
      *      初查项目：视力检查、眼位、裂隙灯、屈光度
-     *      以上任意一个初查项目结果(疑似）异常，则：小瞳验光、生物测量、眼压、眼底检查项目必做
+     *      以上任意一个初查项目结果(疑似）异常，则：小瞳验光、生物测量、眼压检查项目必做
      *
      * @param screeningResult 筛查结果
      * @param studentVO 学生信息
@@ -104,7 +104,7 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), hasAbnormalFlag.get()));
         studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && hasAbnormalFlag.get()));
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && hasAbnormalFlag.get()));
-        studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), hasAbnormalFlag.get()));
+        studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalFlag.get());

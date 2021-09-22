@@ -438,13 +438,15 @@ public class ScreeningAppController {
      * @param schoolId 学校名称
      * @param gradeId 年级名称
      * @param classId 班级名称
+     * @param isFilter 是否启用过滤条件
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     @GetMapping("/class/progress")
     public ClassScreeningProgress getClassScreeningProgress(@NotNull(message = "学校ID不能为空") Integer schoolId,
                                                             @NotNull(message = "年级ID不能为空") Integer gradeId,
-                                                            @NotNull(message = "班级ID不能为空") Integer classId) {
-        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId());
+                                                            @NotNull(message = "班级ID不能为空") Integer classId,
+                                                            Boolean isFilter) {
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter);
     }
 
     /**
