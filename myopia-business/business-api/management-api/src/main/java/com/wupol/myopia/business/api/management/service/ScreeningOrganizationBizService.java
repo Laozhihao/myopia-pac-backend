@@ -494,6 +494,12 @@ public class ScreeningOrganizationBizService {
         });
     }
 
+    /**
+     * 添加账号
+     *
+     * @param addAccountDTO 入参
+     * @return UsernameAndPasswordDTO
+     */
     public UsernameAndPasswordDTO addAccount(AddAccountDTO addAccountDTO) {
         Integer orgId = addAccountDTO.getOrgId();
         ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(orgId);
