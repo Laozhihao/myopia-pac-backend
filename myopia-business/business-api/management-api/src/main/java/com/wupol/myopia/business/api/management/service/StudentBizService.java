@@ -1071,7 +1071,7 @@ public class StudentBizService {
         if (ObjectsUtil.allNotNull(sph, cyl)) {
             // 近视
             WarningLevel myopiaWarningLevel;
-            if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age > 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
+            if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
                 myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
             } else {
                 myopiaWarningLevel = WarningLevel.NORMAL;
