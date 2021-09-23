@@ -236,59 +236,24 @@ public class StatUtil {
             return null;
         }
         float se = getSphericalEquivalent(sphere, cylinder);
-        switch (age) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-                if (se > 3f && se <= 3.5f) return WarningLevel.ZERO;
-                if (se > 3.5f && se <= 6f) return WarningLevel.ONE;
-                if (se > 6f && se <= 9f) return WarningLevel.TWO;
-                if (se > 9f) return WarningLevel.THREE;
-                break;
-            case 4:
-            case 5:
-                if (se > 2.0f && se <= 2.5f) return WarningLevel.ZERO;
-                if (se > 2.5f && se <= 5.0f) return WarningLevel.ONE;
-                if (se > 5.0f && se <= 8.0f) return WarningLevel.TWO;
-                if (se > 8.0f) return WarningLevel.THREE;
-                break;
-            case 6:
-            case 7:
-                if (se > 1.5f && se <= 2.0f) return WarningLevel.ZERO;
-                if (se > 2.0f && se <= 4.5f) return WarningLevel.ONE;
-                if (se > 4.5f && se <= 7.5f) return WarningLevel.TWO;
-                if (se > 7.5f) return WarningLevel.THREE;
-                break;
-            case 8:
-                if (se > 1.0f && se <= 1.5f) return WarningLevel.ZERO;
-                if (se > 1.5f && se <= 4.0f) return WarningLevel.ONE;
-                if (se > 4.0f && se <= 7.0f) return WarningLevel.TWO;
-                if (se > 7.0f) return WarningLevel.THREE;
-                break;
-            case 9:
-                if (se > 0.75f && se <= 1.25f) return WarningLevel.ZERO;
-                if (se > 1.25f && se <= 3.75f) return WarningLevel.ONE;
-                if (se > 3.75f && se <= 6.75f) return WarningLevel.TWO;
-                if (se > 6.75f) return WarningLevel.THREE;
-                break;
-            case 10:
-                if (se > 0.5f && se <= 1.0f) return WarningLevel.ZERO;
-                if (se > 1.0f && se <= 3.5f) return WarningLevel.ONE;
-                if (se > 3.5f && se <= 6.5f) return WarningLevel.TWO;
-                if (se > 6.5f) return WarningLevel.THREE;
-                break;
-            case 11:
-                if (se > 0.5f && se <= 0.75f) return WarningLevel.ZERO;
-                if (se > 0.75f && se <= 3.25f) return WarningLevel.ONE;
-                if (se > 3.25f && se <= 6.25f) return WarningLevel.TWO;
-                if (se > 6.25f) return WarningLevel.THREE;
-                break;
-            default:
-                if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO;
-                if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE;
-                if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO;
-                if (se > 6.0f) return WarningLevel.THREE;
+
+        if (age < 4 && se > 3) {
+            return WarningLevel.ONE;
+        }
+        if ((age < 6 && age >= 4) && se > 2) {
+            return WarningLevel.ONE;
+        }
+        if ((age < 8 && age >= 6) && se > 1.5) {
+            return WarningLevel.ONE;
+        }
+        if ((age < 12 && age >= 8) && se > 0.5) {
+            return WarningLevel.ONE;
+        }
+        if (age > 12 ) {
+            if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO;
+            if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE;
+            if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO;
+            if (se > 6.0f) return WarningLevel.THREE;
         }
         return WarningLevel.NORMAL;
     }

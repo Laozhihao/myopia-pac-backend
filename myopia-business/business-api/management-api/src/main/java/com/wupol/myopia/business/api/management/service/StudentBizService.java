@@ -928,12 +928,18 @@ public class StudentBizService {
         // 优先取眼位的医生签名
         OcularInspectionDataDO ocularInspectionData = visionScreeningResult.getOcularInspectionData();
         if (Objects.nonNull(ocularInspectionData) && Objects.nonNull(ocularInspectionData.getCreateUserId())) {
-            return getSignPicUrl(ocularInspectionData.getCreateUserId());
+            String signPicUrl = getSignPicUrl(ocularInspectionData.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
         }
         // 取裂隙灯医生的签名
         SlitLampDataDO slitLampDataDO = visionScreeningResult.getSlitLampData();
         if (Objects.nonNull(slitLampDataDO) && Objects.nonNull(slitLampDataDO.getCreateUserId())) {
-            return getSignPicUrl(slitLampDataDO.getCreateUserId());
+            String signPicUrl = getSignPicUrl(slitLampDataDO.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
         }
         return null;
     }
@@ -944,18 +950,18 @@ public class StudentBizService {
      * @param screeningOrgStaffUserId 筛查人员的用户ID
      * @return java.lang.String
      **/
-    private String getSignPicUrl(Integer screeningOrgStaffUserId){
+    private String getSignPicUrl(Integer screeningOrgStaffUserId) {
         Assert.notNull(screeningOrgStaffUserId, "筛查人员的用户ID为空");
         ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(screeningOrgStaffUserId));
         return resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
     }
 
     /**
-     *  设置屈光不正信息
+     * 设置屈光不正信息
      *
-     * @param cardDetail 档案卡信息详情
+     * @param cardDetail            档案卡信息详情
      * @param visionScreeningResult 筛查数据
-     * @param age 年龄
+     * @param age                   年龄
      * @return boolean
      **/
     private boolean setRefractiveErrorInfo(HaiNanCardDetail cardDetail, VisionScreeningResult visionScreeningResult, Integer age) {
@@ -968,11 +974,13 @@ public class StudentBizService {
         // 如果小瞳验光和屈光度数据都没有，则屈光正常
         PupilOptometryDataDO pupilOptometryData = visionScreeningResult.getPupilOptometryData();
         ComputerOptometryDO computerOptometryDO = visionScreeningResult.getComputerOptometry();
+        VisionDataDO visionData = visionScreeningResult.getVisionData();
         if (ObjectsUtil.allNull(pupilOptometryData, computerOptometryDO)) {
             return false;
         }
         // 获取视力信息，优先取小瞳验光的数据
-        TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ? getVisionInfoByPupilOptometryData(pupilOptometryData, age) : getVisionInfoByComputerOptometryData(computerOptometryDO, age);
+        TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ?
+                getVisionInfoByPupilOptometryData(pupilOptometryData, age, visionData) : getVisionInfoByComputerOptometryData(computerOptometryDO, age, visionData);
         VisionInfoVO leftEye = visionInfo.getFirst();
         VisionInfoVO rightEye = visionInfo.getSecond();
         // 是否屈光不正
@@ -1012,17 +1020,20 @@ public class StudentBizService {
      * 获取近视情况
      *
      * @param pupilOptometryData 电脑验光数据
-     * @param age               年龄
+     * @param age                年龄
+     * @param visionDataDO       视力检查结果
      * @return TwoTuple<VisionInfoVO, VisionInfoVO> left-左眼 right-右眼
      */
-    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByPupilOptometryData(PupilOptometryDataDO pupilOptometryData, Integer age) {
-        if (Objects.isNull(pupilOptometryData)) {
+    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByPupilOptometryData(PupilOptometryDataDO pupilOptometryData,
+                                                                                   Integer age, VisionDataDO visionDataDO) {
+        if (ObjectsUtil.allNull(pupilOptometryData, visionDataDO)) {
             return new TwoTuple<>();
         }
+
         PupilOptometryDataDO.PupilOptometryData leftEyeData = pupilOptometryData.getLeftEyeData();
         PupilOptometryDataDO.PupilOptometryData rightEyeData = pupilOptometryData.getRightEyeData();
-        VisionInfoVO leftVision = Objects.isNull(leftEyeData) ?  new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age);
-        VisionInfoVO rightVision = Objects.isNull(rightEyeData) ?  new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age);
+        VisionInfoVO leftVision = Objects.isNull(leftEyeData) ? new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age, visionDataDO.getLeftEyeData().getNakedVision());
+        VisionInfoVO rightVision = Objects.isNull(rightEyeData) ? new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age, visionDataDO.getRightEyeData().getNakedVision());
         return new TwoTuple<>(leftVision, rightVision);
 
     }
@@ -1032,16 +1043,18 @@ public class StudentBizService {
      *
      * @param computerOptometry 电脑验光数据
      * @param age               年龄
+     * @param visionDataDO      视力检查结果
      * @return TwoTuple<VisionInfoVO, VisionInfoVO> left-左眼 right-右眼
      */
-    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByComputerOptometryData(ComputerOptometryDO computerOptometry, Integer age) {
+    private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByComputerOptometryData(ComputerOptometryDO computerOptometry,
+                                                                                      Integer age, VisionDataDO visionDataDO) {
         if (Objects.isNull(computerOptometry)) {
             return new TwoTuple<>();
         }
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
         ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
-        VisionInfoVO leftVision = Objects.isNull(leftEyeData) ?  new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age);
-        VisionInfoVO rightVision = Objects.isNull(rightEyeData) ?  new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age);
+        VisionInfoVO leftVision = Objects.isNull(leftEyeData) ? new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age, visionDataDO.getLeftEyeData().getNakedVision());
+        VisionInfoVO rightVision = Objects.isNull(rightEyeData) ? new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age, visionDataDO.getRightEyeData().getNakedVision());
         return new TwoTuple<>(leftVision, rightVision);
 
     }
@@ -1049,19 +1062,28 @@ public class StudentBizService {
     /**
      * 获取近视预警级别
      *
-     * @param sph 球镜
-     * @param cyl 柱镜
+     * @param sph         球镜
+     * @param cyl         柱镜
+     * @param nakedVision 裸眼视力
      * @return VisionInfoVO
      */
-    private VisionInfoVO getMyopiaLevel(BigDecimal sph, BigDecimal cyl, Integer age) {
+    private VisionInfoVO getMyopiaLevel(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
         VisionInfoVO visionInfoVO = new VisionInfoVO();
         if (ObjectsUtil.allNotNull(sph, cyl)) {
-            WarningLevel myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+            // 近视
+            WarningLevel myopiaWarningLevel;
+            if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age > 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
+                myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+            } else {
+                myopiaWarningLevel = WarningLevel.NORMAL;
+            }
+            // 远视
             WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
             visionInfoVO.setMyopiaLevel(Objects.nonNull(myopiaWarningLevel) ? myopiaWarningLevel.code : null);
             visionInfoVO.setFarsightednessLevel(Objects.nonNull(farsightednessWarningLevel) ? farsightednessWarningLevel.code : null);
         }
-        visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) > 0);
+        // 散光
+        visionInfoVO.setAstigmatism(Objects.nonNull(cyl) && cyl.abs().compareTo(new BigDecimal("0.5")) >= 0);
         return visionInfoVO;
     }
 
