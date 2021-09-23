@@ -249,7 +249,7 @@ public class StatUtil {
         if ((age < 12 && age >= 8) && se > 0.5) {
             return WarningLevel.ONE;
         }
-        if (age > 12 ) {
+        if (age >= 12 ) {
             if (se > 0.25f && se <= 0.5f) return WarningLevel.ZERO;
             if (se > 0.5f && se <= 3.0f) return WarningLevel.ONE;
             if (se > 3.0f && se <= 6.0f) return WarningLevel.TWO;
