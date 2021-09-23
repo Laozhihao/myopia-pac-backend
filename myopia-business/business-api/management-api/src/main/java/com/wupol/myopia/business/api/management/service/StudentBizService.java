@@ -1026,7 +1026,7 @@ public class StudentBizService {
      */
     private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByPupilOptometryData(PupilOptometryDataDO pupilOptometryData,
                                                                                    Integer age, VisionDataDO visionDataDO) {
-        if (ObjectsUtil.allNull(pupilOptometryData, visionDataDO)) {
+        if (ObjectsUtil.hasNull(pupilOptometryData, visionDataDO)) {
             return new TwoTuple<>();
         }
 
