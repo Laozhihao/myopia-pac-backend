@@ -1048,7 +1048,7 @@ public class StudentBizService {
      */
     private TwoTuple<VisionInfoVO, VisionInfoVO> getVisionInfoByComputerOptometryData(ComputerOptometryDO computerOptometry,
                                                                                       Integer age, VisionDataDO visionDataDO) {
-        if (Objects.isNull(computerOptometry)) {
+        if (ObjectsUtil.hasNull(computerOptometry, visionDataDO)) {
             return new TwoTuple<>();
         }
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
@@ -1056,7 +1056,6 @@ public class StudentBizService {
         VisionInfoVO leftVision = Objects.isNull(leftEyeData) ? new VisionInfoVO() : getMyopiaLevel(leftEyeData.getSph(), leftEyeData.getCyl(), age, visionDataDO.getLeftEyeData().getNakedVision());
         VisionInfoVO rightVision = Objects.isNull(rightEyeData) ? new VisionInfoVO() : getMyopiaLevel(rightEyeData.getSph(), rightEyeData.getCyl(), age, visionDataDO.getRightEyeData().getNakedVision());
         return new TwoTuple<>(leftVision, rightVision);
-
     }
 
     /**
