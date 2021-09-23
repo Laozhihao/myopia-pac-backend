@@ -928,12 +928,18 @@ public class StudentBizService {
         // 优先取眼位的医生签名
         OcularInspectionDataDO ocularInspectionData = visionScreeningResult.getOcularInspectionData();
         if (Objects.nonNull(ocularInspectionData) && Objects.nonNull(ocularInspectionData.getCreateUserId())) {
-            return getSignPicUrl(ocularInspectionData.getCreateUserId());
+            String signPicUrl = getSignPicUrl(ocularInspectionData.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
         }
         // 取裂隙灯医生的签名
         SlitLampDataDO slitLampDataDO = visionScreeningResult.getSlitLampData();
         if (Objects.nonNull(slitLampDataDO) && Objects.nonNull(slitLampDataDO.getCreateUserId())) {
-            return getSignPicUrl(slitLampDataDO.getCreateUserId());
+            String signPicUrl = getSignPicUrl(slitLampDataDO.getCreateUserId());
+            if (StringUtils.isNotEmpty(signPicUrl)) {
+                return signPicUrl;
+            }
         }
         return null;
     }
