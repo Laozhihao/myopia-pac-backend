@@ -1070,11 +1070,13 @@ public class StudentBizService {
         VisionInfoVO visionInfoVO = new VisionInfoVO();
         if (ObjectsUtil.allNotNull(sph, cyl)) {
             // 近视
-            WarningLevel myopiaWarningLevel;
-            if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
-                myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
-            } else {
-                myopiaWarningLevel = WarningLevel.NORMAL;
+            WarningLevel myopiaWarningLevel = null;
+            if(Objects.nonNull(nakedVision)) {
+                if ((age < 6 && nakedVision.compareTo(new BigDecimal("4.9")) < 0) || (age >= 6 && nakedVision.compareTo(new BigDecimal("5.0")) < 0)) {
+                    myopiaWarningLevel = StatUtil.getMyopiaWarningLevel(sph.floatValue(), cyl.floatValue());
+                } else {
+                    myopiaWarningLevel = WarningLevel.NORMAL;
+                }
             }
             // 远视
             WarningLevel farsightednessWarningLevel = StatUtil.getHyperopiaWarningLevel(sph.floatValue(), cyl.floatValue(), age);
