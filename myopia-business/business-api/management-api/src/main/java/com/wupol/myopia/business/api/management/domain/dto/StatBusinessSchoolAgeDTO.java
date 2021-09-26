@@ -55,9 +55,11 @@ public class StatBusinessSchoolAgeDTO {
                 firstScreenSchoolAgeNumMap.put(entry.getKey(), entry.getValue().size());
             }
             for (Map.Entry<String, List<StatConclusion>> entry : firstScreenSchoolAgeMap.entrySet()) {
-                validSchoolAgeNumMap.put(entry.getKey(), entry.getValue().size());
                 validSchoolAgeDistributionMap.put(entry.getKey(), entry.getValue().stream()
                         .map(StatConclusion::getSchoolId).distinct().count());
+            }
+            for (Map.Entry<String, List<StatConclusion>> entry : validSchoolAgeMap.entrySet()) {
+                validSchoolAgeNumMap.put(entry.getKey(), entry.getValue().size());
             }
         }
     }
