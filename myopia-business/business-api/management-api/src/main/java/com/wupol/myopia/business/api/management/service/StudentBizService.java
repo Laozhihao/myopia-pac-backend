@@ -971,12 +971,12 @@ public class StudentBizService {
      * @return boolean
      **/
     private Boolean setRefractiveErrorInfo(HaiNanCardDetail cardDetail, VisionScreeningResult visionScreeningResult, Integer age) {
-        // 获取学生的筛查进度情况
-        StudentScreeningProgressVO studentScreeningProgressVO = screeningPlanSchoolStudentService.getStudentScreeningProgress(visionScreeningResult);
-        // 初筛项目都没有问题，则视为屈光正常
-        if (Boolean.FALSE.equals(studentScreeningProgressVO.getHasAbnormal())) {
-            return false;
-        }
+//        // 获取学生的筛查进度情况
+//        StudentScreeningProgressVO studentScreeningProgressVO = screeningPlanSchoolStudentService.getStudentScreeningProgress(visionScreeningResult);
+//        // 初筛项目都没有问题，则视为屈光正常
+//        if (Boolean.FALSE.equals(studentScreeningProgressVO.getHasAbnormal())) {
+//            return false;
+//        }
         // 如果小瞳验光和屈光度数据都没有，则屈光正常
         PupilOptometryDataDO pupilOptometryData = visionScreeningResult.getPupilOptometryData();
         ComputerOptometryDO computerOptometryDO = visionScreeningResult.getComputerOptometry();
