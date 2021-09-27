@@ -199,4 +199,9 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     public void unlock(String key) {
         Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
     }
+
+    @Override
+    public String syncExport(ExportCondition exportCondition) {
+        return null;
+    }
 }

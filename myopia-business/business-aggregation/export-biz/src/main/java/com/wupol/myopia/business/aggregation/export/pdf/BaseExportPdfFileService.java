@@ -3,11 +3,11 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
@@ -41,6 +41,8 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     public S3Utils s3Utils;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
     /**
      * 导出文件
@@ -220,7 +222,7 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     }
 
     @Override
-    public File syncExport(ExportCondition exportCondition) {
+    public String syncExport(ExportCondition exportCondition) {
         String parentPath = null;
         try {
             // 1.获取文件名
@@ -232,17 +234,17 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
             // 5.压缩文件
-           return compressFile(fileSavePath);
+            File file = compressFile(fileSavePath);
+            // 6.上传文件
+            return resourceFileService.getResourcePath(uploadFile(file));
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成报告异常】{}", requestData, e);
             // 发送失败通知
-            throw new BusinessException("abc");
+            throw new BusinessException("导出数据异常");
         } finally {
             // 6.删除临时文件
             deleteTempFile(parentPath);
-            // 7.释放锁
-            unlock(getRedisKey(exportCondition));
         }
     }
 }

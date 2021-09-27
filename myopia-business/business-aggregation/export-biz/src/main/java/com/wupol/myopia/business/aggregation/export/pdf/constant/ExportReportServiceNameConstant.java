@@ -30,4 +30,9 @@ public class ExportReportServiceNameConstant {
      * 筛查机构档案卡
      */
     public final String SCREENING_ORG_ARCHIVES_SERVICE = "screeningOrgArchivesService";
+
+    /**
+     * 批量当个学生档案卡
+     */
+    public final String STUDENT_ARCHIVES_SERVICE = "studentArchivesService";
 }

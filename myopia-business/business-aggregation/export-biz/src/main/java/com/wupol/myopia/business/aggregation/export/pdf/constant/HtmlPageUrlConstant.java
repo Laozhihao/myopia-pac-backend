@@ -31,4 +31,9 @@ public class HtmlPageUrlConstant {
      * 筛查计划总报告HTML页面地址
      */
     public static final String REPORT_HTML_URL_WITH_PLAN_ID = "%s?planId=%d";
+
+    /**
+     * 学校档案卡HTML页面地址
+     */
+    public static final String STUDENT_ARCHIVES_HTML_URL = "%s?planId=%d&schoolId=%d&templateId=%d&planStudentIds=%s";
 }

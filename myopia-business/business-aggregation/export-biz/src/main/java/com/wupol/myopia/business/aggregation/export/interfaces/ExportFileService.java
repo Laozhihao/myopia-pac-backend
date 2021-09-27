@@ -43,8 +43,8 @@ public interface ExportFileService {
      * 发送导出失败通知
      *
      * @param applyExportUserId 申请导出的用户ID
-     * @param fileName 文件名
-     * @param zipFileId 压缩文件ID
+     * @param fileName          文件名
+     * @param zipFileId         压缩文件ID
      * @return void
      **/
     void sendSuccessNotice(Integer applyExportUserId, String fileName, Integer zipFileId);
@@ -53,7 +53,7 @@ public interface ExportFileService {
      * 发送导出失败通知
      *
      * @param applyExportUserId 申请导出的用户ID
-     * @param fileName 文件名
+     * @param fileName          文件名
      * @return void
      **/
     void sendFailNotice(Integer applyExportUserId, String fileName);
@@ -97,5 +97,11 @@ public interface ExportFileService {
      */
     void unlock(String key);
 
-    File syncExport(ExportCondition exportCondition);
+    /**
+     * 同步导出文件
+     *
+     * @param exportCondition 条件
+     * @return file
+     */
+    String syncExport(ExportCondition exportCondition);
 }
