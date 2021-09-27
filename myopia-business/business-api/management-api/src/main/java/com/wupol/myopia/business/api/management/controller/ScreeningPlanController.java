@@ -283,7 +283,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         validateExist(screeningPlanId);
-        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
+        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
     /**
