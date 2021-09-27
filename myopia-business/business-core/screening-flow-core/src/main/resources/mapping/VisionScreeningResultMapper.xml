@@ -83,7 +83,7 @@
     <select id="getHaveSrcScreeningNoticePlanIdsByTime" resultType="java.lang.Integer">
         SELECT DISTINCT plan_id
         FROM m_vision_screening_result
-        WHERE task_id != 0 AND DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
+        WHERE DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
     </select>
 
     <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
