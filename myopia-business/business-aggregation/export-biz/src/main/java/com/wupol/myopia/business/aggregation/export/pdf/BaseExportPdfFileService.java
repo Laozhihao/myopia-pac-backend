@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -216,5 +217,32 @@ public abstract class BaseExportPdfFileService implements ExportFileService {
     @Override
     public void unlock(String key) {
         Assert.isTrue(redisUtil.unlock(key), "Redis解锁异常,key=" + key);
+    }
+
+    @Override
+    public File syncExport(ExportCondition exportCondition) {
+        String parentPath = null;
+        try {
+            // 1.获取文件名
+            String fileName = getFileName(exportCondition);
+            // 2.获取文件保存父目录路径
+            parentPath = getFileSaveParentPath();
+            // 3.获取文件保存路径
+            String fileSavePath = getFileSavePath(parentPath, fileName);
+            // 4.生成导出的文件
+            generatePdfFile(exportCondition, fileSavePath, fileName);
+            // 5.压缩文件
+           return compressFile(fileSavePath);
+        } catch (Exception e) {
+            String requestData = JSON.toJSONString(exportCondition);
+            log.error("【生成报告异常】{}", requestData, e);
+            // 发送失败通知
+            throw new BusinessException("abc");
+        } finally {
+            // 6.删除临时文件
+            deleteTempFile(parentPath);
+            // 7.释放锁
+            unlock(getRedisKey(exportCondition));
+        }
     }
 }

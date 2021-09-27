@@ -96,4 +96,6 @@ public interface ExportFileService {
      * @param key key
      */
     void unlock(String key);
+
+    File syncExport(ExportCondition exportCondition);
 }
