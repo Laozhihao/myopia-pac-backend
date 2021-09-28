@@ -1182,7 +1182,7 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(otherEyeDiseasesList)) {
             return new ArrayList<>();
         }
-        return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "交替性斜视"), otherEyeDiseasesList);
+        return ListUtils.retainAll(Lists.newArrayList("内显斜", "外显斜", "内隐斜", "外隐斜", "垂直斜视"), otherEyeDiseasesList);
     }
 
     /**
@@ -1195,8 +1195,8 @@ public class StudentBizService {
         if (CollectionUtils.isEmpty(studentPlans)) {
             return Collections.emptyList();
         }
-        return studentPlans.stream().filter(plan -> Objects.nonNull(plan.getScreeningCode()))
-                .map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+        return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
