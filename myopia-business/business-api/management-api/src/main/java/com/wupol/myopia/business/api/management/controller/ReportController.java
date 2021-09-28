@@ -7,14 +7,20 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -30,6 +36,9 @@ public class ReportController {
 
     @Autowired
     private ExportStrategy exportStrategy;
+
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -133,6 +142,10 @@ public class ReportController {
     public ApiResult<String> syncExportSchoolStudentArchives(@RequestParam(value = "planStudentIds") String planStudentIds,
                                                              @RequestParam(value = "schoolId") Integer schoolId,
                                                              @RequestParam(value = "planId") Integer planId) {
+        List<Integer> planStudentIdList = Arrays.stream(planStudentIds.split(",")).map(Integer::valueOf).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(visionScreeningResultService.getByPlanStudentIds(planStudentIdList))) {
+            throw new BusinessException("所选学生无筛查数据");
+        }
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanStudentIds(planStudentIds)
                 .setSchoolId(schoolId)
