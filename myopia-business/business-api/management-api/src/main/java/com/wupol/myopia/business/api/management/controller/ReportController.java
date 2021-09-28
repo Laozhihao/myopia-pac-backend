@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -120,4 +121,22 @@ public class ReportController {
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCREENING_ORG_ARCHIVES_SERVICE);
     }
 
+    /**
+     * 批量打印学生档案卡
+     *
+     * @param planStudentIds 学生Id
+     * @param schoolId       学校Id
+     * @param planId         计划Id
+     * @return 文件URL
+     */
+    @GetMapping("/school/student/archives")
+    public ApiResult<String> syncExportSchoolStudentArchives(@RequestParam(value = "planStudentIds") String planStudentIds,
+                                                             @RequestParam(value = "schoolId") Integer schoolId,
+                                                             @RequestParam(value = "planId") Integer planId) {
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanStudentIds(planStudentIds)
+                .setSchoolId(schoolId)
+                .setPlanId(planId);
+        return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.STUDENT_ARCHIVES_SERVICE));
+    }
 }

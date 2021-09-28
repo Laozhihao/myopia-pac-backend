@@ -280,10 +280,10 @@ public class ScreeningPlanController {
      * @return List<ScreeningPlanSchoolVo>
      */
     @GetMapping("schools/{screeningPlanId}")
-    public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId) {
+    public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         validateExist(screeningPlanId);
-        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId);
+        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
     /**

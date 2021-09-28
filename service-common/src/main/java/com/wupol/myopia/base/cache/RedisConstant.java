@@ -97,4 +97,9 @@ public interface RedisConstant {
      * 导出PDF-机构筛查
      */
     String FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:org:%s-%s-%s-%s-%s-%s";
+
+    /**
+     * 同步导出学生档案卡
+     */
+    String SYNC_FILE_EXPORT_PDF_ARCHIVES_ORG = "file:export:pdf:archives:student:%s";
 }

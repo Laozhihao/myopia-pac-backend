@@ -54,12 +54,25 @@ public enum GradeCodeEnum {
     TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
     THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN");
 
+    /**
+     * 名称
+     */
     private final String name;
 
+    /**
+     * 编码
+     */
     private final String code;
 
+    /**
+     * 学龄段
+     * {@link SchoolAge}
+     */
     private final Integer type;
 
+    /**
+     * 英文名称
+     */
     private final String enName;
 
     GradeCodeEnum(String name, String code, Integer type, String enName) {

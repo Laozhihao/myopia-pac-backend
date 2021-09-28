@@ -34,11 +34,15 @@
         from m_screening_plan_school
         group by school_id
     </select>
+
     <select id="selectVoListByPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
-      SELECT
+        SELECT
         <include refid="Base_Column_List"/>
-      FROM m_screening_plan_school
-      WHERE screening_plan_id = #{screeningPlanId}
+        FROM m_screening_plan_school
+                WHERE screening_plan_id = #{screeningPlanId}
+        <if test="schoolName != null and schoolName != ''">
+            and school_name like CONCAT('%', #{schoolName}, '%')
+        </if>
     </select>
 
     <select id="selectHasPlanInPeriod" resultMap="BaseResultMap" parameterType="java.util.Map">
