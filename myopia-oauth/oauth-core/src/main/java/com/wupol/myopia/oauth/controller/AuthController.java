@@ -89,10 +89,8 @@ public class AuthController {
         }
         CurrentUser currentUser = authService.parseToken(oAuth2AccessToken.getValue());
         Integer userId = currentUser.getId();
-        // 获取菜单权限，并缓存
-        List<Permission> permissions = authService.cacheUserPermission(userId, currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn());
-        // 缓存accessToken
-        authService.cacheUserAccessToken(userId, oAuth2AccessToken.getValue(), oAuth2AccessToken.getExpiresIn());
+        // 获取菜单权限，并缓存token和权限
+        List<Permission> permissions = authService.cachePermissionAndToken(userId, currentUser.getSystemCode(), oAuth2AccessToken.getExpiresIn(), oAuth2AccessToken.getValue());
         // 更新用户最后登录时间
         userService.updateById(new User().setId(userId).setLastLoginTime(new Date()));
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
@@ -128,7 +126,7 @@ public class AuthController {
             return ApiResult.failure(REFRESH_TOKEN_ERROR);
         }
         // 延长权限缓存过期时间
-        authService.delayPermissionCache(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn());
+        authService.delayPermissionAndTokenCache(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn());
         return ApiResult.success(new TokenInfoVO(oAuthToken.getValue(), oAuthToken.getRefreshToken().getValue(), oAuthToken.getExpiresIn()));
     }
 
