@@ -407,7 +407,7 @@ public class ExcelStudentService {
         }
         Map<Long, StudentDTO> excelStudentMap = excelStudent.stream().collect(Collectors.toMap(StudentDTO::getScreeningCode, Function.identity()));
 
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningCodes(screeningCodes, planId);
         if (CollectionUtils.isEmpty(planStudents) || planStudents.size() != excelStudent.size()) {
             throw new BusinessException("编码数据异常");
         }
