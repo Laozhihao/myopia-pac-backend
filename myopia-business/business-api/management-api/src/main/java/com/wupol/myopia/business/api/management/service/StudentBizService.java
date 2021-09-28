@@ -982,7 +982,7 @@ public class StudentBizService {
         ComputerOptometryDO computerOptometryDO = visionScreeningResult.getComputerOptometry();
         VisionDataDO visionData = visionScreeningResult.getVisionData();
         if (ObjectsUtil.allNull(pupilOptometryData, computerOptometryDO)) {
-            return false;
+            return null;
         }
         // 获取视力信息，优先取小瞳验光的数据
         TwoTuple<VisionInfoVO, VisionInfoVO> visionInfo = Objects.nonNull(pupilOptometryData) ?
