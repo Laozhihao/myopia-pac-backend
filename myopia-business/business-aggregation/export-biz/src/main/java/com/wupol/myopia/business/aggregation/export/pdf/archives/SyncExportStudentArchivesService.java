@@ -32,7 +32,7 @@ public class SyncExportStudentArchivesService extends BaseExportPdfFileService {
      */
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
-        generatePdfFileService.generateStudentArchivesPdfFile(exportCondition, fileSavePath, fileName);
+        generatePdfFileService.generateStudentArchivesPdfFile(exportCondition, fileSavePath);
     }
 
     /**
@@ -44,8 +44,7 @@ public class SyncExportStudentArchivesService extends BaseExportPdfFileService {
     @Override
     public String getFileName(ExportCondition exportCondition) {
         School school = schoolService.getById(exportCondition.getSchoolId());
-        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME, school.getName());
+        return String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_STUDENT, school.getName());
     }
-
 
 }

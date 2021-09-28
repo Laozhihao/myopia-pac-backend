@@ -246,9 +246,8 @@ public class GeneratePdfFileService {
      *
      * @param exportCondition 导出条件
      * @param fileSavePath    文件保存路径
-     * @param fileName        文件名
      */
-    public void generateStudentArchivesPdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
+    public void generateStudentArchivesPdfFile(ExportCondition exportCondition, String fileSavePath) {
 
         Integer schoolId = exportCondition.getSchoolId();
         String planStudentIds = exportCondition.getPlanStudentIds();
@@ -260,9 +259,7 @@ public class GeneratePdfFileService {
         ScreeningOrganization org = screeningOrganizationService.getById(screeningPlanService.getById(planId).getScreeningOrgId());
         Integer templateId = templateDistrictService.getByDistrictId(districtService.getProvinceId(org.getDistrictId()));
 
-        String dir = fileSavePath + "/" + fileName;
         String schoolPdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, planStudentIds);
-        String schoolReportFileName = String.format(PDFFileNameConstant.ARCHIVES_PDF_FILE_NAME_STUDENT, fileName);
-        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(dir, schoolReportFileName + ".pdf").toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
+        Assert.isTrue(HtmlToPdfUtil.convertArchives(schoolPdfHtmlUrl, Paths.get(fileSavePath).toString()), "【生成学校档案卡PDF文件异常】：" + school.getName());
     }
 }
