@@ -367,6 +367,7 @@ public class StudentBizService {
         responseDTO.setInfo(cardInfoVO);
 
         Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
+        responseDTO.setTemplateId(templateId);
         return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
     }
 

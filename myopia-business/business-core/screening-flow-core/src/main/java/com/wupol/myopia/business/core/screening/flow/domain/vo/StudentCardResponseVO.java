@@ -31,4 +31,9 @@ public class StudentCardResponseVO {
      * 0-幼儿园 1-中学生
      */
     private Integer status;
+
+    /**
+     * 1-默认 2-海口
+     */
+    private Integer templateId;
 }
