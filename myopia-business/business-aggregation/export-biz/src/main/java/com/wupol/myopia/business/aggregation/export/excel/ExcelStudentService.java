@@ -140,7 +140,9 @@ public class ExcelStudentService {
             String screeningCode = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
             idCardSet.add(idCard);
             gradeNameSet.add(gradeName);
-            screeningCodeSet.add(Long.valueOf(screeningCode));
+            if (StringUtils.isNotBlank(screeningCode)) {
+                screeningCodeSet.add(Long.valueOf(screeningCode));
+            }
             gradeClassNameSet.add(String.format(GRADE_CLASS_NAME_FORMAT, gradeName, className));
             if (StringUtils.allHasLength(provinceName, cityName, areaName, townName)) {
                 districtNameCodeMap.put(String.format(DISTRICT_NAME_FORMAT, provinceName, cityName, areaName, townName), districtService.getCodeByName(provinceName, cityName, areaName, townName));
