@@ -87,7 +87,7 @@ public class ExcelStudentService {
         Map<String, List<Long>> districtNameCodeMap = new HashMap<>(16);
         //3. 根据上传的筛查学生数据组装基础信息
         genBaseInfoFromUploadData(listMap, idCardSet, gradeNameSet, gradeClassNameSet, districtNameCodeMap, screeningCode);
-        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(screeningPlan.getId(), schoolId);
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlan.getId());
         // 通过身份证分组
         Map<Boolean, List<ScreeningPlanSchoolStudent>> alreadyExistOrNotStudents = planSchoolStudentList.stream().collect(Collectors.groupingBy(planStudent -> idCardSet.contains(planStudent.getIdCard())));
         // 通过ScreeningCode分组
