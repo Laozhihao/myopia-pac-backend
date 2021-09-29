@@ -16,6 +16,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -268,7 +269,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     @GetMapping("/screening/planStudent/card/{planStudentId}")
-    public List<StudentCardResponseVO> getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
+    public AppStudentCardResponseDTO getResultByPlanStudentId(@PathVariable("planStudentId") Integer planStudentId) {
         return studentBizService.getCardDetailByPlanStudentId(planStudentId);
     }
 }

@@ -26,10 +26,7 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentResultDetailsDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
@@ -329,13 +326,17 @@ public class StudentBizService {
      * @param planStudentId 筛查学生
      * @return 学生档案卡实体类
      */
-    public List<StudentCardResponseVO> getCardDetailByPlanStudentId(Integer planStudentId) {
+    public AppStudentCardResponseDTO getCardDetailByPlanStudentId(Integer planStudentId) {
+        AppStudentCardResponseDTO responseDTO = new AppStudentCardResponseDTO();
         VisionScreeningResult result = visionScreeningResultService.getByPlanStudentId(planStudentId);
         if (Objects.isNull(result)) {
-            return new ArrayList<>();
+            return responseDTO;
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
-        return Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult));
+
+        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId()));
+        responseDTO.setStudentCardResponseVO(Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult)));
+        return responseDTO;
     }
 
     /**
@@ -367,7 +368,6 @@ public class StudentBizService {
         responseDTO.setInfo(cardInfoVO);
 
         Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId());
-        responseDTO.setTemplateId(templateId);
         return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
     }
 
