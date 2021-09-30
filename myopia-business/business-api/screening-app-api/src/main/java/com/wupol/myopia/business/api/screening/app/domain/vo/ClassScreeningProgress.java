@@ -23,7 +23,7 @@ public class ClassScreeningProgress {
     private Integer normalCount;
     /** 筛查未完成学生数（做了筛查，但未完成初诊或初诊异常未完成复测的） */
     private Integer unfinishedCount;
-    /** 筛查完成学生数 = 实际筛查人数 - 筛查未完成学生数 */
+    /** 筛查完成学生数 = 筛查结果=已完成 */
     private Integer finishedCount;
     /** 需要复测学生数（初诊异常的） */
     private Integer needReScreeningCount;

@@ -486,10 +486,10 @@ public class ScreeningAppService {
                 .setNeedReScreeningCount((int) studentScreeningProgressList.stream().filter(s -> Objects.nonNull(s.getFirstCheckAbnormal())).filter(StudentScreeningProgressVO::getFirstCheckAbnormal).count())
                 .setSchoolAge(studentScreeningProgressList.get(0).getGradeType())
                 // 统计筛查情况，只要有一条是人造的数据，则整个班级数据标记为人造的
-                .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1));
+                .setArtificial(screeningPlanSchoolStudentList.stream().anyMatch(x -> Objects.nonNull(x.getArtificial()) && x.getArtificial() == 1))
+                .setFinishedCount((int) studentScreeningProgressList.stream().filter(StudentScreeningProgressVO::getResult).count());
 
-        classScreeningProgress.setNormalCount(classScreeningProgress.getScreeningCount() - classScreeningProgress.getAbnormalCount())
-                .setFinishedCount(classScreeningProgress.getScreeningCount() - classScreeningProgress.getUnfinishedCount());
+        classScreeningProgress.setNormalCount(classScreeningProgress.getScreeningCount() - classScreeningProgress.getAbnormalCount());
 
         return classScreeningProgress;
     }
