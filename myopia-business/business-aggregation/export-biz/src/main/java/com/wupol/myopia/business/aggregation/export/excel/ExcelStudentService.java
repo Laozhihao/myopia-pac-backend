@@ -33,6 +33,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.BatchUpdateException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -96,7 +97,7 @@ public class ExcelStudentService {
         Map<String, Integer> gradeClassNameClassIdMap = schoolClassService.getVoBySchoolId(schoolId).stream().collect(Collectors.toMap(schoolClass -> String.format(GRADE_CLASS_NAME_FORMAT, schoolClass.getGradeName(), schoolClass.getName()), SchoolClass::getId));
 
         //4. 校验上传筛查学生数据是否合法
-        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCode, screeningCodeMap.get(false));
+        checkExcelDataLegal(snoList, gradeNameSet, gradeClassNameSet, gradeNameIdMap, gradeClassNameClassIdMap, alreadyExistOrNotStudents.get(false), screeningCodeMap.get(false));
         //5. 根据身份证号分批获取已有的学生
         Map<String, Student> idCardExistStudents = studentService.getByIdCards(new ArrayList<>(idCardSet)).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
         //6. 获取已有的筛查学生数据
@@ -228,7 +229,8 @@ public class ExcelStudentService {
                     .setBirthday(student.getBirthday()).setGender(student.getGender()).setStudentAge(AgeUtil.countAge(student.getBirthday()))
                     .setStudentSituation(SerializationUtil.serializeWithoutException(dbStudent)).setStudentNo(student.getSno()).setNation(student.getNation())
                     .setProvinceCode(student.getProvinceCode()).setCityCode(student.getCityCode()).setAreaCode(student.getAreaCode())
-                    .setTownCode(student.getTownCode()).setAddress(student.getAddress()).setParentPhone(student.getParentPhone());
+                    .setTownCode(student.getTownCode()).setAddress(student.getAddress()).setParentPhone(student.getParentPhone())
+                    .setScreeningPlanId(screeningPlan.getId()).setSchoolId(schoolId);
             return existPlanStudent;
         }).collect(Collectors.toList());
         screeningPlanSchoolStudentService.saveOrUpdateBatch(addOrUpdatePlanStudents);
@@ -321,12 +323,11 @@ public class ExcelStudentService {
      * @param gradeNameIdMap
      * @param gradeClassNameClassIdMap
      * @param notUploadStudents        已有筛查学生数据中，身份证不在这次上传的数据中的筛查学生
-     * @param screeningCodeSet 筛查Code
      * @param screeningCodeList 筛查CodeList
      */
     private void checkExcelDataLegal(List<String> snoList, Set<String> gradeNameSet, Set<String> gradeClassNameSet,
                                      Map<String, Integer> gradeNameIdMap, Map<String, Integer> gradeClassNameClassIdMap,
-                                     List<ScreeningPlanSchoolStudent> notUploadStudents, Set<Long> screeningCodeSet,
+                                     List<ScreeningPlanSchoolStudent> notUploadStudents,
                                      List<ScreeningPlanSchoolStudent> screeningCodeList) {
         // 年级名是否都存在
         if (gradeNameSet.stream().anyMatch(gradeName -> StringUtils.isEmpty(gradeName) || !gradeNameIdMap.containsKey(gradeName))) {
@@ -473,7 +474,13 @@ public class ExcelStudentService {
         screeningPlanSchoolStudentService.batchUpdateOrSave(planStudents);
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = planStudents.stream()
                 .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
-        updateManagementStudent(studentList, planStudentMap,school);
+        try {
+            updateManagementStudent(studentList, planStudentMap, school);
+        } catch (Exception e) {
+            log.error("身份证重复",e);
+            throw new BusinessException("身份证重复数据异常，请检查");
+        }
+
         // 更新筛查结果
         updateStudentResult(planStudents, schoolId);
     }
