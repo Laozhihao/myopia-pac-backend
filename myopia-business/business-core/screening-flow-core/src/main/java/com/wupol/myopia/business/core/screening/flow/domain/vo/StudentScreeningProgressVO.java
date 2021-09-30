@@ -29,7 +29,9 @@ public class StudentScreeningProgressVO {
     /** 用于标记是否存在未完成的必查项 */
     private static ThreadLocal<Boolean> isAllMustCheckDone = new ThreadLocal<>();
     /** 用于标记初诊中是否存在异常 */
-    private static ThreadLocal<Boolean> hasAbnormalFlag = new ThreadLocal<>();
+    private static ThreadLocal<Boolean> hasAbnormalInFirstCheck = new ThreadLocal<>();
+    /** 用于标记进一步诊断中是否存在异常 */
+    private static ThreadLocal<Boolean> hasAbnormalInSubsequentCheck = new ThreadLocal<>();
 
     /** 学生ID */
     private String studentId;
@@ -46,7 +48,7 @@ public class StudentScreeningProgressVO {
     /** 学校ID */
     private Integer schoolId;
 
-    /** 筛查结果 */
+    /** 筛查结果，是否完成了筛查 */
     private Boolean result;
     /** 视力检查 */
     private Integer visionStatus;
@@ -68,6 +70,8 @@ public class StudentScreeningProgressVO {
     private Integer otherStatus;
     /** 是否有异常 */
     private Boolean hasAbnormal;
+    /** 是否初诊有异常 */
+    private Boolean firstCheckAbnormal;
 
     /**
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
@@ -95,21 +99,24 @@ public class StudentScreeningProgressVO {
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
         // 默认没有异常
-        hasAbnormalFlag.set(false);
+        hasAbnormalInFirstCheck.set(false);
+        hasAbnormalInSubsequentCheck.set(false);
         // 判断各个检查型的进度状态
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
-        studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || hasAbnormalFlag.get()));
+        studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || hasAbnormalInFirstCheck.get()));
         studentScreeningProgressVO.setDiopterStatus(getProgress(screeningResult.getComputerOptometry(), !isKindergarten, !isKindergarten));
-        studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), hasAbnormalFlag.get()));
-        studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && hasAbnormalFlag.get()));
-        studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && hasAbnormalFlag.get()));
+        studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), hasAbnormalInFirstCheck.get()));
+        studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && hasAbnormalInFirstCheck.get()));
+        studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && hasAbnormalInFirstCheck.get()));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
-        studentScreeningProgressVO.setHasAbnormal(hasAbnormalFlag.get());
+        studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || hasAbnormalInFirstCheck.get());
+        studentScreeningProgressVO.setFirstCheckAbnormal(hasAbnormalInFirstCheck.get());
         isAllMustCheckDone.remove();
-        hasAbnormalFlag.remove();
+        hasAbnormalInFirstCheck.remove();
+        hasAbnormalInSubsequentCheck.remove();
         return studentScreeningProgressVO;
     }
 
@@ -144,9 +151,12 @@ public class StudentScreeningProgressVO {
         if (diagnosisResult.isNormal()) {
             return NORMAL;
         }
-        // 初诊项目中出现异常时，记录标记，用于判断是否需要做进一步的筛查项目
+        // 标记初诊项目中是否出现异常，用于判断是否需要做进一步的筛查项目
         if (isEarlyDiagnosis) {
-            hasAbnormalFlag.set(true);
+            hasAbnormalInFirstCheck.set(true);
+        } else {
+            // 标记进一步的筛查中是否有异常
+            hasAbnormalInSubsequentCheck.set(true);
         }
         return ABNORMAL;
     }
