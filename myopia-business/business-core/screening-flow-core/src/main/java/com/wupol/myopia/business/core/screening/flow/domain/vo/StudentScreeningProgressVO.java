@@ -104,16 +104,17 @@ public class StudentScreeningProgressVO {
         // 判断各个检查型的进度状态
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
-        studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || hasAbnormalInFirstCheck.get()));
+        Boolean firstCheckAbnormal = hasAbnormalInFirstCheck.get();
+        studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || firstCheckAbnormal));
         studentScreeningProgressVO.setDiopterStatus(getProgress(screeningResult.getComputerOptometry(), !isKindergarten, !isKindergarten));
-        studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), hasAbnormalInFirstCheck.get()));
-        studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && hasAbnormalInFirstCheck.get()));
-        studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && hasAbnormalInFirstCheck.get()));
+        studentScreeningProgressVO.setPupillaryOptometryStatus(getProgress(screeningResult.getPupilOptometryData(), firstCheckAbnormal));
+        studentScreeningProgressVO.setBiometricsStatus(getProgress(screeningResult.getBiometricData(), !isKindergarten && firstCheckAbnormal));
+        studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
         studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
-        studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || hasAbnormalInFirstCheck.get());
-        studentScreeningProgressVO.setFirstCheckAbnormal(hasAbnormalInFirstCheck.get());
+        studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
+        studentScreeningProgressVO.setFirstCheckAbnormal(firstCheckAbnormal);
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();
